@@ -29,3 +29,28 @@ combined native-dispatch build also needs `ENABLE_SQL_CNP=ON` alongside
 every listed engine and a documented reason. Full M0-B acceptance also
 requires a reviewed decision for every pending test, stable recapture, and
 baseline storage review.
+
+## Baseline storage and promotion
+
+The pre-existing local `snapshots/` tree is an investigation artifact, not an
+accepted baseline: it contains 132,413 YAML files occupying about 528 MiB,
+only for `sql-tap`/memtx. It must not be added to Git or used as the CI
+reference. The reviewed seed generated captures occupy about 312 KiB for
+memtx and 324 KiB for Vinyl; these figures do not predict full-corpus size.
+
+For M0-B, prefer a *reproducible capture from a named integration commit* as
+the authoritative baseline, with the commit SHA, corpus policy version,
+engine, capture manifest, and snapshot digest recorded together. CI can
+build and capture that pinned commit, compare its manifest coverage with the
+candidate, and upload the diff and capture manifests as artifacts. A PR's
+moving merge-base is not an accepted baseline. Promotion to a new SHA must
+be explicit and include repeat-capture and normal-runner evidence, full
+suite/engine coverage, and a measured size/runtime review. This avoids
+committing an unreviewed bulk YAML tree while retaining a regenerable
+reference. Git-tracked snapshots or external object storage remain options
+if full-corpus measurement shows regeneration is impractical.
+
+The current `parity-corpus` workflow still uses a merge-base and the current
+corpus policy is seed-only. The pinned-baseline workflow change is deferred
+until a full-corpus integration commit is accepted; do not describe the seed
+job as M0-B-complete.

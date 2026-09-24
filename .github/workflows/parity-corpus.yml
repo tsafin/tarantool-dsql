@@ -1,19 +1,22 @@
 name: parity-corpus
 
 # M0.5 — Reviewed seed snapshot smoke gate; full SQL corpus is pending.
-# Runs on PRs that touch SQL source or the baseline corpus itself.
+# Runs on PRs that touch SQL execution, SQL tests, build configuration, or
+# the baseline corpus itself.
 # Compares snapshots generated from PR head vs merge-base to detect
 # regressions or diagnostic changes in the SQL baseline corpus.
 
 on:
   pull_request:
     paths:
-      - 'src/box/sql/**'
-      - 'src/box/sql.c'
-      - 'src/box/sql.h'
-      - 'src/box/alter.cc'
-      - 'src/box/schema*'
+      - 'CMakeLists.txt'
+      - 'src/box/**'
+      - 'test/sql/**'
+      - 'test/sql-tap/**'
+      - 'test/sql-luatest/**'
       - 'test/sql-baselines/**'
+      - '.github/workflows/parity-corpus.yml'
+      - '.github/actions/install-deps-debian/**'
   workflow_dispatch:
     inputs:
       base_ref:
@@ -166,8 +169,11 @@ jobs:
       # Re-fail the job if the diff tool exited non-zero.
       - name: Check diff result
         run: |
-          PASSED=$(jq -r '.summary.passed // "false"' /tmp/diff-summary.json 2>/dev/null || echo "false")
-          if [ "$PASSED" != "true" ]; then
+          if [ '${{ steps.diff.outcome }}' != 'success' ]; then
+            echo "Snapshot diff command failed, possibly on malformed input."
+            exit 1
+          fi
+          if ! python3 -c 'import json, sys; sys.exit(0 if json.load(open(sys.argv[1]))["summary"]["passed"] is True else 1)' /tmp/diff-summary.json; then
             echo "Hard-gate snapshot regressions detected. See snapshot-diff-summary artifact."
             exit 1
           fi

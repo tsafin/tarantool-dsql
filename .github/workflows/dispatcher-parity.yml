@@ -54,6 +54,23 @@ jobs:
       - name: Install deps
         uses: ./.github/actions/install-deps-debian
 
+      - name: Check native-dispatch build toolchains
+        run: |
+          cmake --version
+          found_clang=false
+          for compiler in clang-19 clang-20 clang-21 clang-22; do
+            if command -v "$compiler" >/dev/null 2>&1; then
+              "$compiler" --version
+              found_clang=true
+              break
+            fi
+          done
+          if [ "$found_clang" != true ]; then
+            echo 'CnP requires clang-19 or newer; the CI container does not provide it.'
+            exit 1
+          fi
+          python3 --version
+
       # Build once; all dispatcher modes share the same binary.
       # The VDBE_DISPATCHER env var selects the dispatcher at runtime.
       - name: Build tarantool
@@ -114,9 +131,12 @@ jobs:
 
       - name: Check cnp parity (${{ matrix.engine }})
         run: |
-          PASSED=$(jq -r '.summary.passed // "false"' \
-            /tmp/diff-${{ matrix.engine }}-cnp.json 2>/dev/null || echo "false")
-          if [ "$PASSED" != "true" ]; then
+          if [ '${{ steps.diff-cnp.outcome }}' != 'success' ]; then
+            echo "CnP snapshot diff command failed, possibly on malformed input."
+            exit 1
+          fi
+          if ! python3 -c 'import json, sys; sys.exit(0 if json.load(open(sys.argv[1]))["summary"]["passed"] is True else 1)' \
+            /tmp/diff-${{ matrix.engine }}-cnp.json; then
             echo "JIT-CORRECTNESS-REGRESSION:cnp engine=${{ matrix.engine }}"
             echo "CnP dispatcher diverges from generated dispatcher."
             echo "See dispatcher-parity-artifacts for the full diff."
@@ -139,9 +159,12 @@ jobs:
 
       - name: Check llvm parity (${{ matrix.engine }})
         run: |
-          PASSED=$(jq -r '.summary.passed // "false"' \
-            /tmp/diff-${{ matrix.engine }}-llvm.json 2>/dev/null || echo "false")
-          if [ "$PASSED" != "true" ]; then
+          if [ '${{ steps.diff-llvm.outcome }}' != 'success' ]; then
+            echo "LLVM snapshot diff command failed, possibly on malformed input."
+            exit 1
+          fi
+          if ! python3 -c 'import json, sys; sys.exit(0 if json.load(open(sys.argv[1]))["summary"]["passed"] is True else 1)' \
+            /tmp/diff-${{ matrix.engine }}-llvm.json; then
             echo "JIT-CORRECTNESS-REGRESSION:llvm engine=${{ matrix.engine }}"
             echo "LLVM MCJIT dispatcher diverges from generated dispatcher."
             echo "See dispatcher-parity-artifacts for the full diff."
