@@ -2,10 +2,9 @@
 
 ## Status
 
-`PROTOTYPE` — v1 has consumers and emitters, but no accepted corpus baseline.
-The 2026-09-24 M0-A/M0-B review in
-[`roadmap.md`](../../docs/vdbe/roadmap.md) must reconcile implementation and
-contract before accepting snapshots. After acceptance, semantic changes to
+`PROTOTYPE` — v1 has consumers and emitters, but no accepted full-corpus
+baseline. The comparison contract below was reconciled before accepting more
+than the seed smoke gate. After baseline acceptance, semantic changes to
 required fields use the versioning policy below.
 
 ## Purpose
@@ -82,13 +81,13 @@ test/sql-baselines/
 - `<dispatcher>` (forensics only) is `generated`, `cnp`, or `llvm`.
 
 Queries are numbered in the order the test file emits them to
-`box.execute()`. The present classifier emits **file-level** feature tags;
-it does not assign query indices. `test.feature_tags` in current snapshots
-therefore describes the containing file, not necessarily that SQL statement.
-Do not use these tags as query-level coverage or an M3 eligibility oracle.
-M0.8b must decide whether to add a separately named query-level tag field or
-replace this field with a version bump, then validate that choice against
-captured SQL rather than file text.
+`box.execute()`. Query identity consists of the snapshot path **and**
+`test.{suite,file,query_index,query_sql}` and `engine`; a mismatch in any of
+these is a hard gate even when the result happens to match. The present
+classifier emits **file-level** feature tags; `test.feature_tags` retains
+that meaning in v1 and is never query-level coverage or an M3 eligibility
+oracle. A future query-level field must have a distinct name and derive from
+captured SQL, not from the containing file.
 
 ## v1 snapshot schema
 
@@ -117,7 +116,7 @@ captured:
 l1_result:
   ok: true                             # false when L2 has error
   column_names: [c0, c1]
-  column_types: [INTEGER, TEXT]
+  column_types: [integer, string]
   rows_sorted: true                    # always true; see "Result canonicalization"
   rows:
     - [42, "alice"]
@@ -150,13 +149,16 @@ dispatcher_parity:
     l2_match: true
 ```
 
-**Required fields:** `schema_version`, `test.*`, `engine`, `captured.*`,
-`l1_result.{ok, rows_sorted, rows}`, `l2_diagnostic.status`, `l3_path_class.taken`.
+**Required fields:** `schema_version`, `test.{suite,file,query_index,query_sql}`,
+`engine`, `captured.*`, `l1_result.{ok,rows_sorted,rows}`,
+`l2_diagnostic.status`, `l3_path_class.taken`. When the result has a SQL
+header, `l1_result.{column_names,column_types}` must also be emitted. The
+comparison hard-gates all present L1 fields, including header metadata;
+absence on only one side is a hard gate.
 
 **Optional fields:** `dispatcher_parity` (filled at CI time, not at capture).
-`l1_result.{column_names, column_types}` are recommended but may be omitted
-for queries that error before producing a header (in which case `l1_result.ok`
-is `false`).
+`l1_result.{column_names,column_types}` may be omitted for statements that
+have no result header, including errors and DDL/DML.
 
 ## Result canonicalization
 
@@ -177,8 +179,10 @@ variance, and floating-point formatting. The harness MUST:
 7. **Sort all map keys** alphabetically at every nesting depth.
 8. **LF line endings**, single trailing newline at EOF.
 
-A round-trip `parse(emit(parse(file))) == parse(file)` must hold. The diff
-tool relies on byte-equality after canonicalization.
+A round-trip `parse(emit(parse(file))) == parse(file)` must hold. Semantic
+comparison uses typed decoded values; provenance and YAML formatting are not
+parity keys. Distinguish the SQL string `'1'` from the number `1`, and a
+missing cell from SQL NULL.
 
 ## L2 diagnostic canonicalization
 
@@ -224,15 +228,14 @@ Stable values for `l3_path_class.reason` when `taken` starts with `fallback_`:
 
 Adding a reason code is append-only and does NOT bump `schema_version`.
 
-The current harness writes `current_where_c` unconditionally. It is a
-placeholder until M1 emits the actual statement path. A candidate using the
-new planner will intentionally change L3 from `current_where_c` to
-`new_planner`; a byte-for-byte L3 gate would reject the migration itself.
-M0.8b must define a path policy: verify L3 is sourced from execution,
-require explicit eligibility and fallback reasons, and review any increase
-in fallback count or unexpected path switch. L1/L2 remain hard parity gates.
-Until that policy is implemented, no CI result may claim to gate planner
-selection.
+The current harness writes `current_where_c` unconditionally because M0
+captures the legacy planner only. The diff hard-gates a path change by
+default. M1 must replace this placeholder with an execution-sourced path
+before any candidate can claim planner-selection coverage. A deliberate
+switch to `new_planner` needs an explicit, reviewed path-change policy;
+`--ignore-path-class` is reserved for same-build dispatcher parity and must
+not be used for PR baseline comparison. Until M1 supplies runtime path
+evidence, M0 CI proves L1/L2 parity but not planner routing.
 
 ## L6 forensic trace format
 
@@ -322,12 +325,10 @@ Acceptance requires:
 3. Required v1 fields are present. In particular, verify `rows_sorted` is
    actually emitted, NULLs survive array serialization, diagnostics carry a
    stable code when available, and order-sensitive queries keep row order.
-   These are known reconciliation points in the current prototype.
 4. `captured.at`, `captured.against_commit`, and runtime version are
-   provenance, not semantic parity keys. Compare L1/L2 and the applicable
-   L3 policy; report provenance separately. Compare the same query identity
-   and SQL text before comparing rows. A planned switch to `new_planner`
-   must not fail solely because the path string changed.
+   provenance, not semantic parity keys. Compare query identity, L1/L2, and
+   the applicable L3 policy. A planned switch to `new_planner` requires a
+   reviewed exception; it must not be silently ignored.
 5. Run generated, CnP, and LLVM modes only where the build supports them.
    Record unsupported modes explicitly; do not report a skipped mode as
    parity success. Both memtx and Vinyl need declared coverage.
@@ -374,16 +375,13 @@ The manifest/schema owner integrates these tracks serially; S0 is complete.
 Deferred to M0 implementation. Document final decisions here as they are
 made.
 
-- **Q1.** When a test errors during setup (before any query runs), what
-  snapshot is produced? Provisional: emit one snapshot file with
-  `query_index: 0`, `l1_result.ok: false`, error in `l2_diagnostic`.
-- **Q2.** How do we handle tests that produce *random* output (e.g. tests
-  using `random()` without seeding)? Provisional: exclude from corpus via
-  classifier tag `nondeterministic`, list in `classification.yaml` with
-  reason.
-- **Q3.** Does the harness need to invoke `box.snapshot()` between tests to
-  ensure clean state, or is `rm -f *.snap *.xlog` between runs sufficient?
-  Provisional: `rm -f` between runs, matches CLAUDE.md guidance.
+- **Q1.** A setup failure produces a rejected run manifest and **no accepted
+  snapshots**. A synthetic query-zero error would misrepresent an unexecuted
+  SQL statement.
+- **Q2.** A nondeterministic test is excluded only with a per-test reason and
+  repeat-capture evidence; a file-level classifier tag alone is not proof.
+- **Q3.** Each test gets a fresh, empty database work directory. Neither
+  `box.snapshot()` nor deleting files in a shared directory is required.
 
 ## Cross-references
 

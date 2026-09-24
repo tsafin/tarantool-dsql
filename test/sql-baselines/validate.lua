@@ -74,6 +74,7 @@ for _, path in ipairs(manifests) do
         reject(path .. ': invalid identity')
     else
         local basename = m.test_file:match('/([^/]+)%.test%.lua$') or
+                         m.test_file:match('/([^/]+)%.test%.sql$') or
                          m.test_file:match('/([^/]+)%.lua$')
         if not basename or m.test_file:sub(1, #m.suite + 1) ~= m.suite .. '/' then
             reject(path .. ': test path and suite disagree')
@@ -91,9 +92,16 @@ for _, path in ipairs(manifests) do
                     reject(snapshot_path .. ': ' .. snapshot_err)
                 elseif s.schema_version ~= 1 or s.engine ~= m.engine or
                        type(s.test) ~= 'table' or
+                       s.test.suite ~= m.suite or
                        s.test.file ~= m.test_file or
                        s.test.query_index ~= index or
                        type(s.test.query_sql) ~= 'string' or
+                       s.test.query_sql == '' or
+                       type(s.captured) ~= 'table' or
+                       type(s.captured.at) ~= 'string' or
+                       type(s.captured.against_commit) ~= 'string' or
+                       type(s.captured.tarantool_version) ~= 'string' or
+                       type(s.captured.primary_dispatcher) ~= 'string' or
                        type(s.l1_result) ~= 'table' or
                        type(s.l1_result.ok) ~= 'boolean' or
                        type(s.l1_result.rows_sorted) ~= 'boolean' or
@@ -102,9 +110,18 @@ for _, path in ipairs(manifests) do
                        (s.l2_diagnostic.status ~= 'success' and
                         s.l2_diagnostic.status ~= 'error') or
                        s.l1_result.ok ~= (s.l2_diagnostic.status == 'success') or
+                       (s.l2_diagnostic.status == 'error' and
+                        type(s.l2_diagnostic.error_code) ~= 'string') or
                        type(s.l3_path_class) ~= 'table' or
                        type(s.l3_path_class.taken) ~= 'string' then
                     reject(snapshot_path .. ': missing or inconsistent v1 fields')
+                elseif (s.l1_result.column_names == nil) ~=
+                       (s.l1_result.column_types == nil) or
+                       (s.l1_result.column_names ~= nil and
+                        (type(s.l1_result.column_names) ~= 'table' or
+                         type(s.l1_result.column_types) ~= 'table' or
+                         #s.l1_result.column_names ~= #s.l1_result.column_types)) then
+                    reject(snapshot_path .. ': inconsistent result metadata')
                 else
                     snapshots_checked = snapshots_checked + 1
                 end

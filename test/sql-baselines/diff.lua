@@ -24,9 +24,9 @@
 --   M0.1 YAML emitter    (stub-imported below — produced by the m0.1 worktree)
 --   M0.2 harness         (not imported here; caller runs it before invoking diff.lua)
 --
--- Layer contract (from SCHEMA.md, locked):
---   L1 hard  : result.rows
---   L1 soft  : result.column_types
+-- Layer contract (from SCHEMA.md):
+--   Identity : test.suite/file/query_index/query_sql, engine
+--   L1 hard  : result.ok/rows/rows_sorted/column_names/column_types
 --   L2 hard  : diagnostic.status, diagnostic.error_code
 --   L2 soft  : diagnostic.error_message_canonical
 --   L3 hard  : path_class.taken, path_class.reason
@@ -232,44 +232,25 @@ end
 -- Core comparison logic
 -- ---------------------------------------------------------------------------
 
--- Compare two scalar values; returns true if equal.
+-- Compare YAML values without coercing SQL strings, numbers, booleans, and
+-- NULL to the same tostring() representation. The old row comparator could
+-- treat SELECT '1' and SELECT 1 as equal.
 local function eq(a, b)
     if type(a) ~= type(b) then return false end
     if type(a) == "table" then
-        -- Shallow equality check on plain value lists.
         local na, nb = 0, 0
         for k, v in pairs(a) do
             na = na + 1
-            if b[k] ~= v then return false end
+            if not eq(v, b[k]) then return false end
         end
         for _ in pairs(b) do nb = nb + 1 end
         return na == nb
     end
+    if type(a) == "cdata" then
+        return tostring(require('ffi').typeof(a)) ==
+               tostring(require('ffi').typeof(b)) and tostring(a) == tostring(b)
+    end
     return a == b
-end
-
--- Deep equality for nested row tables.
-local function rows_equal(ra, rb)
-    if ra == nil and rb == nil then return true end
-    if ra == nil or rb == nil  then return false end
-    if type(ra) ~= "table" or type(rb) ~= "table" then
-        return ra == rb
-    end
-    if #ra ~= #rb then return false end
-    for i = 1, #ra do
-        local row_a = ra[i]
-        local row_b = rb[i]
-        if type(row_a) ~= type(row_b) then return false end
-        if type(row_a) == "table" then
-            if #row_a ~= #row_b then return false end
-            for j = 1, #row_a do
-                if tostring(row_a[j]) ~= tostring(row_b[j]) then return false end
-            end
-        else
-            if row_a ~= row_b then return false end
-        end
-    end
-    return true
 end
 
 --- Compare one baseline snapshot table against one candidate snapshot table.
@@ -293,12 +274,27 @@ local function compare_snapshots(query_id, base_snap, cand_snap)
         return v
     end
 
-    -- L1: l1_result.rows (hard gate)
-    local base_rows = get(base_snap, "l1_result", "rows")
-    local cand_rows = get(cand_snap, "l1_result", "rows")
-    if not rows_equal(base_rows, cand_rows) then
-        push_field("l1_result.rows", base_rows, cand_rows)
-        if category == fmt.MATCH then category = fmt.RESULT_REGRESSION end
+    -- A pathname alone does not prove that the same statement was executed.
+    -- Identity drift is a hard result regression even if output is unchanged.
+    for _, keys in ipairs({
+        {"test", "suite"}, {"test", "file"}, {"test", "query_index"},
+        {"test", "query_sql"}, {"engine"},
+    }) do
+        local bv, cv = get(base_snap, unpack(keys)), get(cand_snap, unpack(keys))
+        if not eq(bv, cv) then
+            push_field(table.concat(keys, "."), bv, cv)
+            if category == fmt.MATCH then category = fmt.RESULT_REGRESSION end
+        end
+    end
+
+    for _, key in ipairs({"ok", "rows", "rows_sorted", "column_names",
+                         "column_types"}) do
+        local bv = get(base_snap, "l1_result", key)
+        local cv = get(cand_snap, "l1_result", key)
+        if not eq(bv, cv) then
+            push_field("l1_result." .. key, bv, cv)
+            if category == fmt.MATCH then category = fmt.RESULT_REGRESSION end
+        end
     end
 
     -- L2: l2_diagnostic.status (hard gate)
@@ -334,13 +330,6 @@ local function compare_snapshots(query_id, base_snap, cand_snap)
     end
 
     -- Soft gates (report only)
-    local base_ct = get(base_snap, "l1_result", "column_types")
-    local cand_ct = get(cand_snap, "l1_result", "column_types")
-    if not eq(base_ct, cand_ct) then
-        push_field("l1_result.column_types", base_ct, cand_ct)
-        if category == fmt.MATCH then category = fmt.SOFT_DRIFT end
-    end
-
     local base_em = get(base_snap, "l2_diagnostic", "error_message_canonical")
     local cand_em = get(cand_snap, "l2_diagnostic", "error_message_canonical")
     if not eq(base_em, cand_em) then
