@@ -92,6 +92,8 @@ def main():
                 "duration_seconds": round(time.monotonic() - started, 3),
                 "captured_queries": manifest.get("captured_queries", 0),
                 "written_snapshots": manifest.get("written_snapshots", 0),
+                "snapshot_bytes": sum(path.stat().st_size for path in
+                                      (out / "snapshots").rglob("*.yaml")),
                 "test_exit_code": manifest.get("test_exit_code"),
                 "test_load_error": manifest.get("test_load_error"),
                 "mode_executed": manifest.get("mode_executed"),
