@@ -155,6 +155,18 @@ local execution_mode = llvm_requested and 'llvm' or dispatcher_requested
 local captured_queries = {}  -- list of {sql, rows, metadata, err}
 local _real_box_execute = box.execute
 local engine_mismatch = false
+local non_ddl_engine_mismatches = 0
+
+-- A child fiber can have a default SQL engine setting different from the
+-- parent while operating on an existing space. Only CREATE TABLE consumes
+-- sql_default_engine to choose storage. Be conservative: a false positive
+-- rejects a capture, while missing a creation would mislabel its engine.
+local function may_create_table(sql)
+    local upper = sql:upper():gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
+    return upper:find('CREATE%s+TABLE') ~= nil or
+           upper:find('CREATE%s+TEMP%s+TABLE') ~= nil or
+           upper:find('CREATE%s+TEMPORARY%s+TABLE') ~= nil
+end
 
 local function intercepted_execute(sql, bindings)
     -- Only intercept plain string SQL calls (not prepared statements)
@@ -163,7 +175,11 @@ local function intercepted_execute(sql, bindings)
     end
     local setting = box.space._session_settings:get('sql_default_engine')
     if not setting or setting[2] ~= cfg.engine then
-        engine_mismatch = true
+        if may_create_table(sql) then
+            engine_mismatch = true
+        else
+            non_ddl_engine_mismatches = non_ddl_engine_mismatches + 1
+        end
     end
 
     -- Capture before-profile for forensic if enabled
@@ -433,6 +449,7 @@ local manifest = {
     llvm_exec_delta = llvm_exec_delta,
     runtime_engine = runtime_engine,
     engine_mismatch = engine_mismatch,
+    non_ddl_engine_mismatches = non_ddl_engine_mismatches,
     test_exit_code = test_exit_code or 'missing',
     test_load_ok = ok_load,
     test_load_error = ok_load and '' or tostring(load_err),
