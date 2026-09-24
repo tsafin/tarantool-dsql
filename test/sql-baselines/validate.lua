@@ -5,6 +5,7 @@
 local fio = require('fio')
 local json = require('json')
 local yaml = require('yaml')
+local varbinary = require('varbinary')
 
 local root = arg[1]
 if not root or not fio.stat(root) or not fio.stat(root):is_dir() then
@@ -148,8 +149,9 @@ for _, path in ipairs(manifests) do
                        s.test.suite ~= m.suite or
                        s.test.file ~= m.test_file or
                        s.test.query_index ~= index or
-                       type(s.test.query_sql) ~= 'string' or
-                       s.test.query_sql == '' or
+                       (type(s.test.query_sql) ~= 'string' and
+                        not varbinary.is(s.test.query_sql)) or
+                       #tostring(s.test.query_sql) == 0 or
                        type(s.captured) ~= 'table' or
                        type(s.captured.at) ~= 'string' or
                        type(s.captured.against_commit) ~= 'string' or

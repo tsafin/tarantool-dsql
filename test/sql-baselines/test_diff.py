@@ -69,6 +69,24 @@ class SnapshotDiffTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn("test.query_sql", result.stdout)
 
+    def test_binary_sql_identity_is_bytewise_and_reportable(self):
+        base = snapshot().replace("query_sql: 'SELECT 1'",
+                                  "query_sql: !!binary /w==")
+        candidate = snapshot().replace("query_sql: 'SELECT 1'",
+                                       "query_sql: !!binary /g==")
+        self.write(base, base)
+        self.assertEqual(self.diff().returncode, 0)
+        self.write(base, candidate)
+        result = self.diff()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        fields = json.loads(result.stdout)["diffs"][0]["fields"]
+        identity = next(field for field in fields
+                        if field["name"] == "test.query_sql")
+        self.assertEqual(identity["baseline"],
+                         {"encoding": "base64", "value": "/w=="})
+        self.assertEqual(identity["candidate"],
+                         {"encoding": "base64", "value": "/g=="})
+
     def test_row_type_is_hard_gate(self):
         self.write(snapshot(), snapshot(cell="'1'"))
         result = self.diff()

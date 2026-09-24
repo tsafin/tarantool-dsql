@@ -54,6 +54,7 @@ end
 package.path = script_dir .. "/lib/?.lua;" .. package.path
 
 local fmt = require("diff_format")
+local varbinary = require('varbinary')
 
 -- Snapshot YAML is loaded via Tarantool's built-in yaml module.
 local ok_yaml, yaml = pcall(require, "yaml")
@@ -208,8 +209,9 @@ local function load_yaml_file(path)
        type(data.test.suite) ~= "string" or
        type(data.test.file) ~= "string" or
        type(data.test.query_index) ~= "number" or
-       type(data.test.query_sql) ~= "string" or
-       data.test.query_sql == "" or
+       (type(data.test.query_sql) ~= "string" and
+        not varbinary.is(data.test.query_sql)) or
+       #tostring(data.test.query_sql) == 0 or
        type(data.captured) ~= "table" or
        type(data.l1_result) ~= "table" or
        type(data.l1_result.ok) ~= "boolean" or

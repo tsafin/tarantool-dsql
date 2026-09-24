@@ -88,6 +88,9 @@ classifier emits **file-level** feature tags; `test.feature_tags` retains
 that meaning in v1 and is never query-level coverage or an M3 eligibility
 oracle. A future query-level field must have a distinct name and derive from
 captured SQL, not from the containing file.
+`query_sql` is ordinary YAML text for valid UTF-8 and a `!!binary` scalar
+for SQL containing invalid UTF-8 or control bytes. Both forms identify the
+original SQL bytes; the validator and diff compare binary content bytewise.
 
 ## v1 snapshot schema
 

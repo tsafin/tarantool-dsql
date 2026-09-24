@@ -7,6 +7,15 @@
 
 local M = {}
 local json = require('json')
+local varbinary = require('varbinary')
+local digest = require('digest')
+
+local function binary_debug(v)
+    if type(v) == 'cdata' and varbinary.is(v) then
+        return digest.base64_encode(tostring(v))
+    end
+    return nil
+end
 
 -- Drift categories (returned per snapshot comparison).
 M.MATCH              = "MATCH"
@@ -36,6 +45,8 @@ local function indent(n)
 end
 
 local function val_to_str(v)
+    local binary = binary_debug(v)
+    if binary then return '<binary base64:' .. binary .. '>' end
     if v == nil then
         return "<nil>"
     elseif type(v) == "table" then
@@ -118,6 +129,8 @@ local function yaml_str(s)
 end
 
 local function yaml_val(v)
+    local binary = binary_debug(v)
+    if binary then return yaml_str('<binary base64:' .. binary .. '>') end
     if v == nil     then return "~" end
     if type(v) == "boolean" then return tostring(v) end
     if type(v) == "number"  then return tostring(v) end
@@ -189,6 +202,10 @@ local function json_str(s)
 end
 
 local function json_val(v)
+    local binary = binary_debug(v)
+    if binary then
+        return json.encode({encoding = 'base64', value = binary})
+    end
     if v == nil            then return "null" end
     local ok, encoded = pcall(json.encode, v)
     return ok and encoded or json_str(tostring(v))
