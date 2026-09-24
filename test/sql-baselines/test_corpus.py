@@ -23,7 +23,8 @@ class CorpusPolicyTest(unittest.TestCase):
         (self.repo / "test/sql-tap/example.test.lua").touch()
 
     def policy(self, scope="full-corpus", excluded=None):
-        return {"scope": scope, "included": [{"test": "sql-tap/example.test.lua",
+        return {"scope": scope, "policy_version": 1,
+                "included": [{"test": "sql-tap/example.test.lua",
                  "engines": ["memtx"], "reason": "reviewed capture"}],
                 "excluded": excluded or []}
 
@@ -32,11 +33,35 @@ class CorpusPolicyTest(unittest.TestCase):
             corpus.inventory(self.repo, self.policy())
 
     def test_full_policy_accepts_explicit_engine_exclusion(self):
-        rows = corpus.inventory(self.repo, self.policy(excluded=[{
+        policy = self.policy(excluded=[{
             "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
-            "reason": "normal runner does not support this engine"}]))
+            "reason": "normal runner does not support this engine"}])
+        (self.repo / "test/sql-tap/second.test.lua").touch()
+        policy["included"].append({"test": "sql-tap/second.test.lua",
+                                   "engines": ["vinyl"],
+                                   "reason": "reviewed capture"})
+        policy["excluded"].append({"test": "sql-tap/second.test.lua",
+                                   "engines": ["memtx"],
+                                   "reason": "unsupported engine"})
+        rows = corpus.inventory(self.repo, policy)
         self.assertEqual(rows[0]["engines"], ["memtx"])
         self.assertEqual(rows[0]["pending_engines"], [])
+
+    def test_full_policy_requires_both_engines_represented(self):
+        policy = self.policy(excluded=[{
+            "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
+            "reason": "unsupported engine"}])
+        with self.assertRaisesRegex(ValueError, "both engines"):
+            corpus.inventory(self.repo, policy)
+
+    def test_policy_scope_and_reason_are_typed(self):
+        policy = self.policy(scope="typo")
+        with self.assertRaisesRegex(ValueError, "invalid corpus scope"):
+            corpus.inventory(self.repo, policy)
+        policy = self.policy(scope="seed-smoke")
+        policy["included"][0]["reason"] = 42
+        with self.assertRaisesRegex(ValueError, "invalid engine policy"):
+            corpus.inventory(self.repo, policy)
 
     def test_overlapping_inclusion_and_exclusion_rejected(self):
         with self.assertRaisesRegex(ValueError, "duplicate inclusion/exclusion"):

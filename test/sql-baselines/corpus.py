@@ -22,6 +22,10 @@ POLICY = json.loads((HERE / "corpus.json").read_text())
 
 
 def inventory(repo, policy=POLICY):
+    if policy.get("scope") not in ("seed-smoke", "full-corpus") or \
+       type(policy.get("policy_version")) is not int or \
+       policy["policy_version"] < 1:
+        raise ValueError("invalid corpus scope or policy version")
     discovered = set()
     for suite in SUITES:
         suite_dir = repo / "test" / suite
@@ -36,13 +40,17 @@ def inventory(repo, policy=POLICY):
             raise ValueError(f"duplicate or absent corpus test: {test}")
         engines = entry["engines"]
         if not engines or len(engines) != len(set(engines)) or \
-           any(e not in ENGINES for e in engines) or not entry.get("reason"):
+           any(e not in ENGINES for e in engines) or \
+           not isinstance(entry.get("reason"), str) or \
+           not entry["reason"].strip():
             raise ValueError(f"invalid engine policy for {test}")
         included[test] = entry
     excluded = {}
     for entry in policy.get("excluded", []):
         test, engines = entry["test"], entry["engines"]
-        if test not in discovered or not engines or not entry.get("reason") or \
+        if test not in discovered or not engines or \
+           not isinstance(entry.get("reason"), str) or \
+           not entry["reason"].strip() or \
            len(engines) != len(set(engines)) or any(e not in ENGINES for e in engines):
             raise ValueError(f"invalid exclusion policy for {test}")
         excluded.setdefault(test, {})
@@ -64,6 +72,10 @@ def inventory(repo, policy=POLICY):
                      "pending_engines": pending_engines,
                      "reason": included[test]["reason"] if engines else
                                policy.get("pending_reason", "reviewed exclusion")})
+    if policy["scope"] == "full-corpus" and any(
+            not any(engine in row["engines"] for row in rows)
+            for engine in ENGINES):
+        raise ValueError("full corpus must include tests on both engines")
     return rows
 
 
