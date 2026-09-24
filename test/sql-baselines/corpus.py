@@ -124,6 +124,7 @@ def check_mode_proof(manifest):
             raise ValueError(f"invalid {name} in {manifest['test_file']}")
         indices[name] = set(values)
     executed = indices["executed_query_indices"]
+    attempt = indices["native_compile_attempt_query_indices"]
     success = indices["native_compile_success_query_indices"]
     participation = indices["native_participation_query_indices"]
     eligible = indices["eligible_query_indices"]
@@ -131,7 +132,8 @@ def check_mode_proof(manifest):
                manifest["execution_mode"] != "generated" else set()
     if manifest.get("eligible_queries") != len(eligible) or \
        manifest.get("native_participation_queries") != len(participation) or \
-       not participation <= executed or eligible != expected or \
+       not success <= attempt or not participation <= executed or \
+       eligible != expected or \
        indices["mode_miss_queries"] != eligible - participation or \
        indices["mode_miss_queries"]:
         raise ValueError(f"invalid native participation in {manifest['test_file']}")

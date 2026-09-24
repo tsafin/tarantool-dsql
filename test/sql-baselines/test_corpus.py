@@ -77,6 +77,10 @@ class CorpusPolicyTest(unittest.TestCase):
                     "native_participation_queries": 1,
                     "mode_miss_queries": []}
         corpus.check_mode_proof(manifest)
+        manifest["native_compile_attempt_query_indices"] = [1]
+        with self.assertRaisesRegex(ValueError, "invalid native participation"):
+            corpus.check_mode_proof(manifest)
+        manifest["native_compile_attempt_query_indices"] = [1, 2, 3]
         manifest["native_participation_query_indices"] = []
         with self.assertRaisesRegex(ValueError, "invalid native participation"):
             corpus.check_mode_proof(manifest)

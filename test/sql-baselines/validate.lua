@@ -73,9 +73,13 @@ local function valid_mode_proof(m)
     if m.eligible_queries ~= #m.eligible_query_indices or
        m.native_participation_queries ~= #m.native_participation_query_indices or
        #m.mode_miss_queries ~= 0 then return false end
-    local executed, success, participation, eligible = {}, {}, {}, {}
+    local executed, attempt, success, participation, eligible = {}, {}, {}, {}, {}
     for _, i in ipairs(m.executed_query_indices) do executed[i] = true end
-    for _, i in ipairs(m.native_compile_success_query_indices) do success[i] = true end
+    for _, i in ipairs(m.native_compile_attempt_query_indices) do attempt[i] = true end
+    for _, i in ipairs(m.native_compile_success_query_indices) do
+        if not attempt[i] then return false end
+        success[i] = true
+    end
     for _, i in ipairs(m.native_participation_query_indices) do
         if not executed[i] then return false end
         participation[i] = true
