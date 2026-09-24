@@ -92,6 +92,8 @@ local function valid_mode_proof(m)
         #m.native_compile_success_query_indices ~= 0 or
         #m.native_participation_query_indices ~= 0 or
         #m.eligible_query_indices ~= 0) then return false end
+    if m.execution_mode ~= 'generated' and
+       #m.native_participation_query_indices == 0 then return false end
     return true
 end
 

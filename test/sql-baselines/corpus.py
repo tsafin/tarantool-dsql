@@ -138,6 +138,8 @@ def check_mode_proof(manifest):
     if manifest["execution_mode"] == "generated" and any(
             indices[name] for name in names if name != "executed_query_indices"):
         raise ValueError(f"generated run claims native work in {manifest['test_file']}")
+    if manifest["execution_mode"] != "generated" and not participation:
+        raise ValueError(f"native mode has no attributed query in {manifest['test_file']}")
 
 
 def check_coverage(root, rows, engine, mode):

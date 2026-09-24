@@ -80,6 +80,12 @@ class CorpusPolicyTest(unittest.TestCase):
         manifest["native_participation_query_indices"] = []
         with self.assertRaisesRegex(ValueError, "invalid native participation"):
             corpus.check_mode_proof(manifest)
+        manifest["eligible_query_indices"] = []
+        manifest["eligible_queries"] = 0
+        manifest["native_compile_success_query_indices"] = []
+        manifest["native_participation_queries"] = 0
+        with self.assertRaisesRegex(ValueError, "native mode has no attributed query"):
+            corpus.check_mode_proof(manifest)
 
     def test_generated_mode_proof_has_no_native_claims(self):
         manifest = {"test_file": "sql-tap/example.test.lua",
