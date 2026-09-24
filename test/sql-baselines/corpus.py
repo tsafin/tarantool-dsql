@@ -17,6 +17,8 @@ import tempfile
 
 SUITES = ("sql", "sql-tap", "sql-luatest")
 ENGINES = ("memtx", "vinyl")
+PENDING_CATEGORIES = {"capture_pending", "parity_pending", "audit_pending",
+                      "unreviewed"}
 HERE = Path(__file__).resolve().parent
 POLICY = json.loads((HERE / "corpus.json").read_text())
 
@@ -44,6 +46,9 @@ def inventory(repo, policy=POLICY):
            not isinstance(entry.get("reason"), str) or \
            not entry["reason"].strip():
             raise ValueError(f"invalid engine policy for {test}")
+        if policy["scope"] == "full-corpus" and \
+           entry.get("category") != "verified_parity":
+            raise ValueError(f"unverified full-corpus inclusion: {test}")
         included[test] = entry
     excluded = {}
     for entry in policy.get("excluded", []):
@@ -53,6 +58,11 @@ def inventory(repo, policy=POLICY):
            not entry["reason"].strip() or \
            len(engines) != len(set(engines)) or any(e not in ENGINES for e in engines):
             raise ValueError(f"invalid exclusion policy for {test}")
+        if policy["scope"] == "full-corpus" and \
+           (not isinstance(entry.get("category"), str) or
+            not entry["category"].strip() or
+            entry["category"] in PENDING_CATEGORIES):
+            raise ValueError(f"unreviewed full-corpus exclusion: {test}")
         excluded.setdefault(test, {})
         for engine in engines:
             if engine in excluded[test] or engine in included.get(test, {}).get("engines", []):

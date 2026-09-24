@@ -25,7 +25,8 @@ class CorpusPolicyTest(unittest.TestCase):
     def policy(self, scope="full-corpus", excluded=None):
         return {"scope": scope, "policy_version": 1,
                 "included": [{"test": "sql-tap/example.test.lua",
-                 "engines": ["memtx"], "reason": "reviewed capture"}],
+                 "engines": ["memtx"], "reason": "reviewed capture",
+                 "category": "verified_parity"}],
                 "excluded": excluded or []}
 
     def test_full_policy_requires_each_engine_decision(self):
@@ -35,14 +36,17 @@ class CorpusPolicyTest(unittest.TestCase):
     def test_full_policy_accepts_explicit_engine_exclusion(self):
         policy = self.policy(excluded=[{
             "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
-            "reason": "normal runner does not support this engine"}])
+            "reason": "normal runner does not support this engine",
+            "category": "no_engine_variant"}])
         (self.repo / "test/sql-tap/second.test.lua").touch()
         policy["included"].append({"test": "sql-tap/second.test.lua",
                                    "engines": ["vinyl"],
-                                   "reason": "reviewed capture"})
+                                   "reason": "reviewed capture",
+                                   "category": "verified_parity"})
         policy["excluded"].append({"test": "sql-tap/second.test.lua",
                                    "engines": ["memtx"],
-                                   "reason": "unsupported engine"})
+                                   "reason": "unsupported engine",
+                                   "category": "no_engine_variant"})
         rows = corpus.inventory(self.repo, policy)
         self.assertEqual(rows[0]["engines"], ["memtx"])
         self.assertEqual(rows[0]["pending_engines"], [])
@@ -50,7 +54,8 @@ class CorpusPolicyTest(unittest.TestCase):
     def test_full_policy_requires_both_engines_represented(self):
         policy = self.policy(excluded=[{
             "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
-            "reason": "unsupported engine"}])
+            "reason": "unsupported engine",
+            "category": "no_engine_variant"}])
         with self.assertRaisesRegex(ValueError, "both engines"):
             corpus.inventory(self.repo, policy)
 
@@ -66,8 +71,15 @@ class CorpusPolicyTest(unittest.TestCase):
     def test_overlapping_inclusion_and_exclusion_rejected(self):
         with self.assertRaisesRegex(ValueError, "duplicate inclusion/exclusion"):
             corpus.inventory(self.repo, self.policy(excluded=[{
-                "test": "sql-tap/example.test.lua", "engines": ["memtx"],
-                "reason": "conflict"}]))
+            "test": "sql-tap/example.test.lua", "engines": ["memtx"],
+            "reason": "conflict", "category": "verified_parity"}]))
+
+    def test_full_policy_rejects_pending_decision_category(self):
+        policy = self.policy(excluded=[{
+            "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
+            "reason": "audit still running", "category": "parity_pending"}])
+        with self.assertRaisesRegex(ValueError, "unreviewed full-corpus exclusion"):
+            corpus.inventory(self.repo, policy)
 
     def test_seed_policy_can_keep_unreviewed_engines(self):
         rows = corpus.inventory(self.repo, self.policy(scope="seed-smoke"))
