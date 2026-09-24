@@ -102,6 +102,20 @@ jobs:
               echo 'Baseline and candidate corpus policy versions differ; promote a new baseline explicitly.' >&2
               exit 1
             fi
+            git show "$BASE_SHA:test/sql-baselines/corpus.json" > /tmp/sql-baseline-policy.json
+            python3 - /tmp/sql-baseline-policy.json test/sql-baselines/corpus.json <<'PY'
+          import json
+          import sys
+
+          with open(sys.argv[1]) as base_file, open(sys.argv[2]) as head_file:
+              base = json.load(base_file)
+              head = json.load(head_file)
+          # The promotion commit changes only this self-referential pointer.
+          base.pop('baseline_commit', None)
+          head.pop('baseline_commit', None)
+          if base != head:
+              raise SystemExit('Full corpus decisions changed; promote a new baseline commit.')
+          PY
           fi
           echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           echo "Baseline: $BASE_SHA (scope=$POLICY_SCOPE)"
