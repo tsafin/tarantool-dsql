@@ -67,8 +67,9 @@ def inventory(repo, policy=POLICY):
     return rows
 
 
-def run(*argv, env=None, cwd=None):
-    subprocess.run([str(item) for item in argv], check=True, env=env, cwd=cwd)
+def run(*argv, env=None, cwd=None, timeout=None):
+    subprocess.run([str(item) for item in argv], check=True, env=env, cwd=cwd,
+                   timeout=timeout)
 
 
 def manifests(root):
@@ -80,6 +81,32 @@ def manifests(root):
             raise ValueError(f"duplicate manifest identity: {key}")
         result[key] = manifest
     return result
+
+
+def enforce_budgets(root, actual, policy=POLICY):
+    limits = policy["capture_limits"]
+    query_limit = limits["max_queries_per_test"]
+    byte_limit = limits["max_snapshot_bytes_per_test"]
+    if type(query_limit) is not int or query_limit < 1 or \
+       type(byte_limit) is not int or byte_limit < 1:
+        raise ValueError("invalid capture_limits in corpus policy")
+    for (test, engine), manifest in actual.items():
+        count = manifest["captured_queries"]
+        if count > query_limit:
+            raise ValueError(f"query budget exceeded: {test}/{engine}: "
+                             f"{count} > {query_limit}")
+        name = Path(test).name
+        stem = name
+        for suffix in (".test.lua", ".test.sql", ".lua"):
+            if name.endswith(suffix):
+                stem = name[:-len(suffix)]
+                break
+        suite = test.split("/", 1)[0]
+        snapshots = root / "snapshots" / suite / stem
+        size = sum(path.stat().st_size for path in snapshots.glob(f"*.{engine}.yaml"))
+        if size > byte_limit:
+            raise ValueError(f"snapshot byte budget exceeded: {test}/{engine}: "
+                             f"{size} > {byte_limit}")
 
 
 def check_coverage(root, rows, engine, mode):
@@ -100,6 +127,7 @@ def check_coverage(root, rows, engine, mode):
         if counter and (not isinstance(manifest.get(counter), (int, float)) or
                         manifest[counter] <= 0):
             raise ValueError(f"requested {mode} did not execute for {key}")
+    enforce_budgets(root, actual)
     print(f"coverage: engine={engine} mode={mode} tests={len(actual)} "
           f"queries={sum(m['captured_queries'] for m in actual.values())}")
     return actual
@@ -188,7 +216,8 @@ def main():
                 test_env["LISTEN"] = f"unix/:{work}/listen.sock"
                 run(binary, harness, repo / "test" / row["test"],
                     f"--engine={args.engine}", f"--out={out}",
-                    f"--work-dir={work}", env=test_env, cwd=build_dir)
+                    f"--work-dir={work}", env=test_env, cwd=build_dir,
+                    timeout=300)
         run(binary, HERE / "validate.lua", out, cwd=build_dir)
         check_coverage(out, rows, args.engine, args.mode)
     else:
@@ -205,6 +234,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (ValueError, OSError, subprocess.CalledProcessError, KeyError) as exc:
+    except (ValueError, OSError, subprocess.CalledProcessError,
+            subprocess.TimeoutExpired, KeyError) as exc:
         print(f"corpus: {exc}", file=sys.stderr)
         sys.exit(1)

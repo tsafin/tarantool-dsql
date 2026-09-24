@@ -48,6 +48,24 @@ class CorpusPolicyTest(unittest.TestCase):
         rows = corpus.inventory(self.repo, self.policy(scope="seed-smoke"))
         self.assertEqual(rows[0]["pending_engines"], ["vinyl"])
 
+    def test_capture_query_and_byte_budgets(self):
+        root = self.repo / "capture"
+        snapshots = root / "snapshots/sql-tap/example"
+        snapshots.mkdir(parents=True)
+        (snapshots / "q01.memtx.yaml").write_bytes(b"123456")
+        actual = {("sql-tap/example.test.lua", "memtx"):
+                  {"captured_queries": 1}}
+        policy = {"capture_limits": {"max_queries_per_test": 1,
+                                     "max_snapshot_bytes_per_test": 6}}
+        corpus.enforce_budgets(root, actual, policy)
+        policy["capture_limits"]["max_queries_per_test"] = 0
+        with self.assertRaisesRegex(ValueError, "invalid capture_limits"):
+            corpus.enforce_budgets(root, actual, policy)
+        policy["capture_limits"]["max_queries_per_test"] = 1
+        policy["capture_limits"]["max_snapshot_bytes_per_test"] = 5
+        with self.assertRaisesRegex(ValueError, "byte budget exceeded"):
+            corpus.enforce_budgets(root, actual, policy)
+
 
 if __name__ == "__main__":
     unittest.main()

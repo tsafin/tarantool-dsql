@@ -1,7 +1,8 @@
 # SQL parity corpus policy
 
 `corpus.json` is the reviewed inclusion policy for the current **seed smoke
-gate**. It includes three SQL TAP tests. The remaining tests are inventoried as
+gate**. It includes six tests across SQL TAP, SQL-language, and luatest
+suites. The remaining tests are inventoried as
 `pending`, with an explicit reason; this is not a claim that M0-B full corpus
 coverage is complete. The inventory command scans top-level `*.test.lua` and
 `*.test.sql` in `test/sql` and `test/sql-tap`, and `*_test.lua` in
@@ -29,6 +30,12 @@ combined native-dispatch build also needs `ENABLE_SQL_CNP=ON` alongside
 every listed engine and a documented reason. Full M0-B acceptance also
 requires a reviewed decision for every pending test, stable recapture, and
 baseline storage review.
+
+The per-PR corpus has a reviewed per-test budget of at most 10,000 captured
+SQL statements and 64 MiB of YAML snapshots. `corpus.py` enforces both limits
+when accepting capture coverage. Stress/volume tests above either limit stay
+in the inventory with an explicit engine-specific exclusion reason and normal
+runner evidence; they are not silently omitted or mislabeled as regressions.
 
 ## Baseline storage and promotion
 
@@ -58,9 +65,10 @@ full-corpus measurement shows regeneration is impractical. The current
 policy is still seed-only and has no accepted `baseline_commit`; the seed
 job must not be described as M0-B-complete.
 
-Both CI jobs reserve 120 minutes for the full corpus because the current
-SQL-TAP sweep contains long tests and roughly 22,000 accepted SQL statements
-per engine. This is a capacity allowance, not a measured full-matrix runtime;
+Both CI jobs reserve 120 minutes for the full corpus because the SQL-TAP
+sweep contains long tests and the under-budget candidate set may exceed
+50,000 SQL statements on memtx. This is a capacity allowance, not a measured
+full-matrix runtime;
 record wall time and artifact size from the first integrated capture and
 revisit the timeout before marking the gate stable.
 
