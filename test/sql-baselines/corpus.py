@@ -9,6 +9,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -153,8 +154,31 @@ def main():
         env["SQL_JIT_ENABLE"] = "1" if args.mode == "llvm" else "0"
         harness = HERE / "harness" / "run.lua"
         build_dir = binary.parent.parent
+        env["BUILDDIR"] = str(build_dir)
         with tempfile.TemporaryDirectory(prefix="sql-corpus-work-") as temp:
             for index, row in enumerate(selected):
+                if row["test"].startswith("sql-luatest/"):
+                    with tempfile.TemporaryDirectory(prefix="sql-luatest-capture-") as child_temp:
+                        child_out = Path(child_temp) / "capture"
+                        stem = Path(row["test"]).stem
+                        run(sys.executable, HERE / "luatest_capture.py",
+                            "--repo", HERE.parent.parent,
+                            "--runner-repo", repo,
+                            "--binary", binary,
+                            "--out", child_out,
+                            "--test", Path(row["test"]).name,
+                            "--engine", args.engine,
+                            "--mode", args.mode)
+                        child_snap = child_out / "snapshots/sql-luatest" / stem
+                        target_snap = out / "snapshots/sql-luatest" / stem
+                        target_snap.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copytree(child_snap, target_snap)
+                        child_manifest = child_out / "manifests/sql-luatest" / \
+                                         f"{stem}.{args.engine}.json"
+                        target_manifest = out / "manifests/sql-luatest" / child_manifest.name
+                        target_manifest.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(child_manifest, target_manifest)
+                    continue
                 work = Path(temp) / str(index)
                 work.mkdir()
                 test_env = env.copy()
