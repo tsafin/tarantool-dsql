@@ -36,8 +36,14 @@ def decision(name, engine, capture, parity, runner, defaults, engine_cfg):
         evidence["capture_status"] = result.get("status")
         evidence["captured_queries"] = result.get("captured_queries")
         evidence["snapshot_bytes"] = result.get("snapshot_bytes")
-    if name in parity.get("results", {}):
-        evidence["parity_passed"] = parity["results"][name]["passed"]
+    outcome = parity.get("results", {}).get(name)
+    if outcome is not None:
+        evidence["parity_passed"] = outcome["passed"]
+        evidence["mode_proof"] = {
+            mode: {key: record.get(key) for key in
+                   ("captured_queries", "executed_queries", "eligible_queries",
+                    "native_participation_queries")}
+            for mode, record in outcome["captures"].items()}
 
     def entry(category, reason, include=False):
         return {"decision": "include" if include else "exclude",
@@ -68,7 +74,23 @@ def decision(name, engine, capture, parity, runner, defaults, engine_cfg):
         return entry("budget_exceeded", f"{count} SQL statements, {bytes_} snapshot bytes exceed 10,000-statement or 64-MiB cap")
     if bytes_ is None:
         return entry("capture_unmeasured", "snapshot byte count not measured")
-    outcome = parity.get("results", {}).get(name)
+    if name in ("array.test.lua", "map.test.lua"):
+        line = 1045 if name == "array.test.lua" else 1001
+        evidence["source_line"] = line
+        return entry("partial_capture", f"net.box cn:execute at source line {line} bypasses box.execute interception")
+    if name == "where7.test.lua":
+        evidence["source_line"] = 4
+        evidence["llvm_native_participation"] = "query 1 of 2146 only"
+        return entry("session_disables_native_mode", "query 1 disables sql_jit; only that setting statement enters LLVM")
+    if name == "selectG.test.lua":
+        evidence["source_lines"] = [47, 57]
+        return entry("timing_dependent_sql", "test embeds os.time() elapsed seconds in SQL text, changing query identity across runs")
+    if name == "default.test.lua":
+        evidence["cnp_tap_failure"] = "default-3.1: Miscompare"
+        return entry("native_semantic_failure", "CnP runs native queries but fails TAP assertion default-3.1 on both engines")
+    if name == "gh-4659-block-hash-index.test.lua":
+        evidence["cnp_native_exec_delta"] = 0
+        return entry("no_native_eligible", "all four SQL statements are compile/error-only; CnP has no native execution")
     if outcome is None:
         return entry("parity_pending", "repeat/generated/CnP/LLVM parity has not completed")
     if not outcome["passed"]:
@@ -91,7 +113,7 @@ def main():
     base = args.audit_dir
     captures = {engine: read(base / f"m0-sqltap-{engine}-contract-audit.json")
                 for engine in ENGINES}
-    parities = {engine: read(base / f"m0-sqltap-{engine}-contract-parity.json")
+    parities = {engine: read(base / f"m0-sqltap-{engine}-final-parity.json")
                 for engine in ENGINES}
     runners = {engine: read(base / f"m0-sqltap-runner-{engine}.json")
                for engine in ENGINES}
@@ -107,12 +129,14 @@ def main():
     categories = Counter(engine_result["category"]
                          for test in tests for engine_result in test["engines"].values())
     included = categories["verified_parity"]
+    if categories["parity_pending"] or categories["capture_pending"]:
+        raise ValueError("review has unverified SQL-TAP engine pairs")
     report = {"review_version": 1, "suite": "sql-tap", "tests": tests,
               "summary": {"tests": len(tests), "included_engine_pairs": included,
                           "excluded_engine_pairs": len(tests) * len(ENGINES) - included,
                           "categories": dict(sorted(categories.items()))},
               "sources": {"generated_capture": {engine: str(base / f"m0-sqltap-{engine}-contract-audit.json") for engine in ENGINES},
-                          "parity": {engine: str(base / f"m0-sqltap-{engine}-contract-parity.json") for engine in ENGINES},
+                          "parity": {engine: str(base / f"m0-sqltap-{engine}-final-parity.json") for engine in ENGINES},
                           "normal_runner": {engine: str(base / f"m0-sqltap-runner-{engine}.json") for engine in ENGINES},
                           "normal_runner_default": str(base / "m0-sqltap-runner-default.json")}}
     args.out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
