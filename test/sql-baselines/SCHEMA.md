@@ -2,8 +2,9 @@
 
 ## Status
 
-`ACCEPTED` — manifest v1 and snapshot schema v1 are the full-corpus capture
-contract. The reviewed policy v2 names baseline anchor
+`ACCEPTED LOCALLY` — manifest v1 and snapshot schema v1 are the full-corpus
+capture contract. The first hosted full-corpus CI result is pending branch
+publication. Reviewed policy v2 names baseline anchor
 `04b63d19ab7deaa233ec2549d467b79d0cf4f5f2`. Semantic changes to
 required fields use the versioning policy below.
 
@@ -386,23 +387,24 @@ Acceptance requires:
    Record unsupported modes explicitly; do not report a skipped mode as
    parity success. Both memtx and Vinyl need declared coverage.
 
-The uncommitted `sql-tap`/memtx snapshots observed on 2026-09-24 are an
-investigation artifact. They must not become the baseline until the above
-checks pass and their size/storage choice is reviewed.
+The uncommitted `sql-tap`/memtx snapshots observed on 2026-09-24 remain an
+investigation artifact: they cover only one suite and engine and are not the
+named reproducible baseline.
 
-## What this enables for parallel worktrees
+## M0 implementation worktree history
 
-After M0.8b locks the manifest and query-identity contract, the following
-can fan out without merge collisions:
+The completed M0 work was split across independent worktrees after the
+manifest and query-identity contract was locked:
 
-| Worktree branch | Subtasks | Depends on this schema for |
-|-----------------|----------|----------------------------|
-| `m0/capture` | M0.8a | run outcome and manifest emission |
-| `m0/corpus` | M0.8c | suite/engine inventory and isolated capture shards |
-| `m0/ci` | M0.8d | manifest equality and snapshot/dispatcher comparison |
-| `m0/classification` | M0.8b follow-up | file/query tag distinction |
+| Worktree branch | Delivered work |
+|-----------------|----------------|
+| `m0/capture` | run outcomes, manifests, and capture validation |
+| `m0/corpus` | suite/engine inventory, reviews, and isolated capture shards |
+| `m0/ci` | manifest equality and snapshot/dispatcher workflows |
+| `m0/classification` | file-level classification contract |
 
-The manifest/schema owner integrates these tracks serially; S0 is complete.
+The integration owner assembled the policy and baseline serially; all tracks
+are complete. S0 is complete as well.
 
 ## Resolved decisions
 
@@ -423,10 +425,9 @@ The manifest/schema owner integrates these tracks serially; S0 is complete.
 - **Primary dispatcher: `generated`.** The reference L1+L2 are captured under
   the generated interpreter; CnP and LLVM are parity-checked against it.
 
-## Open questions
+## Resolved implementation questions
 
-Deferred to M0 implementation. Document final decisions here as they are
-made.
+These decisions were verified during M0 acceptance.
 
 - **Q1.** A setup failure produces a rejected run manifest and **no accepted
   snapshots**. A synthetic query-zero error would misrepresent an unexecuted
