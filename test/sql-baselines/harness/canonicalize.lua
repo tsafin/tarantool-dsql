@@ -172,12 +172,10 @@ end
 local function normalize_generated_column_name(name)
     -- select.c:5015-5023 names anonymous FROM-subquery spaces by formatting
     -- their address as sql_sq_%llX. A full column name can expose that
-    -- process-local address; preserve its suffix and all nonmatching names.
-    local suffix = name:match('^sql_sq_[0-9A-F]+(%..+)$')
-    if suffix then return 'sql_sq_<generated>' .. suffix end
-    if name:match('^sql_sq_[0-9A-F]+$') then
-        return 'sql_sq_<generated>'
-    end
+    -- process-local address. Limit normalization to the observed generated
+    -- .COLUMN_N suffix so arbitrary user-authored aliases are not masked.
+    local column = name:match('^sql_sq_[0-9A-F]+%.COLUMN_(%d+)$')
+    if column then return 'sql_sq_<generated>.COLUMN_' .. column end
     return name
 end
 

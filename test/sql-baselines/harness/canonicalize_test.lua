@@ -18,7 +18,7 @@ local aliases = canonicalize.canon_L1({}, false, {
     {name = 'user_sql_sq_ABC.COLUMN_1', type = 'integer'},
 })
 assert(aliases.column_names[1] == 'sql_sq_<generated>.COLUMN_1')
-assert(aliases.column_names[2] == 'sql_sq_<generated>')
+assert(aliases.column_names[2] == 'sql_sq_ABCDEF')
 assert(aliases.column_names[3] == 'sql_sq_abcd.COLUMN_1')
 assert(aliases.column_names[4] == 'user_sql_sq_ABC.COLUMN_1')
 
