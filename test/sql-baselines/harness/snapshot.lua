@@ -101,6 +101,14 @@ end
 local commit_cache = nil
 local function git_commit()
     if commit_cache ~= nil then return commit_cache end
+    local source_commit = os.getenv('SQL_BASELINE_SOURCE_COMMIT')
+    if source_commit ~= nil then
+        if #source_commit ~= 40 or not source_commit:match('^[0-9a-f]+$') then
+            error('SQL_BASELINE_SOURCE_COMMIT must be a full lowercase SHA')
+        end
+        commit_cache = source_commit:sub(1, 10)
+        return commit_cache
+    end
     local f = io.popen('git -C ' .. string.format('%q', repository_dir) ..
                        ' rev-parse --short=10 HEAD 2>/dev/null')
     if not f then

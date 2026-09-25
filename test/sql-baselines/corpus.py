@@ -253,6 +253,11 @@ def main():
         env = os.environ.copy()
         env["VDBE_DISPATCHER"] = "cnp" if args.mode == "cnp" else "generated"
         env["SQL_JIT_ENABLE"] = "1" if args.mode == "llvm" else "0"
+        source_commit = subprocess.check_output(
+            ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+        if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+            raise ValueError(f"invalid source repository commit: {repo}")
+        env["SQL_BASELINE_SOURCE_COMMIT"] = source_commit
         harness = HERE / "harness" / "run.lua"
         build_dir = binary.parent.parent
         env["BUILDDIR"] = str(build_dir)
@@ -274,7 +279,7 @@ def main():
                             "--test", name,
                             "--suite", suite,
                             "--engine", args.engine,
-                            "--mode", args.mode)
+                            "--mode", args.mode, env=env)
                         child_snap = child_out / "snapshots" / suite / stem
                         target_snap = out / "snapshots" / suite / stem
                         target_snap.parent.mkdir(parents=True, exist_ok=True)

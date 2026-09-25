@@ -112,7 +112,7 @@ engine: memtx                          # memtx | vinyl
 
 captured:
   at: 2026-06-21T22:00:00Z             # UTC, RFC3339
-  against_commit: fe3d181199           # short git hash
+  against_commit: fe3d181199           # short hash of the source repository under test
   tarantool_version: 3.x-dev           # from box.info.version
   primary_dispatcher: generated        # the dispatcher whose result was stored
 
@@ -378,7 +378,10 @@ Acceptance requires:
 4. `captured.at`, `captured.against_commit`, and runtime version are
    provenance, not semantic parity keys. Compare query identity, L1/L2, and
    the applicable L3 policy. A planned switch to `new_planner` requires a
-   reviewed exception; it must not be silently ignored.
+   reviewed exception; it must not be silently ignored. `corpus.py` passes the
+   tested repository's full Git SHA to each capture process, including the
+   normal-runner child, so a baseline captured with the head's harness still
+   records the baseline commit here.
 5. Run generated, CnP, and LLVM modes only where the build supports them.
    Record unsupported modes explicitly; do not report a skipped mode as
    parity success. Both memtx and Vinyl need declared coverage.
