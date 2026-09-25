@@ -120,13 +120,16 @@ jobs:
           echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           echo "Baseline: $BASE_SHA (scope=$POLICY_SCOPE)"
 
-      - name: Checkout baseline commit
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.baseline.outputs.sha }}
-          fetch-depth: 0
-          submodules: false
-          path: tarantool-base
+      # The anchor may exist only in a fork PR's fetched history, not in the
+      # upstream repository from which a second checkout would fetch by SHA.
+      # The selection step already proved this commit exists and is an
+      # ancestor of the candidate. Use that exact local object, detached.
+      - name: Create baseline worktree from verified commit
+        env:
+          BASE_SHA: ${{ steps.baseline.outputs.sha }}
+        run: |
+          test ! -e tarantool-base
+          git -C tarantool-head worktree add --detach ../tarantool-base "$BASE_SHA"
 
       - name: Initialize build submodules and pinned test runner
         run: |
