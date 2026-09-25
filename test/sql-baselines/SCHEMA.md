@@ -190,10 +190,11 @@ variance, and floating-point formatting. The harness MUST:
 8. **Normalize EXPLAIN's volatile `OpenTEphemeral` P4 only.** When this
    opcode has a nonempty P4, its `sql_space_info` pointer bytes are replaced
    with `<sql_space_info>`; every other opcode/P4 value remains gated.
-9. **Normalize generated subquery metadata names.** The engine formats
-   temporary derived-table names with a process pointer as
-   `sql_sq_<UPPERCASE-HEX>`. Only that generated prefix becomes
-   `sql_sq_<generated>`; user names and the `.COLUMN_N` suffix remain gated.
+9. **Normalize the observed generated subquery metadata form.** The engine
+   formats temporary derived-table names with a process pointer. Only a
+   column name matching `sql_sq_<UPPERCASE-HEX>.COLUMN_<digits>` has its
+   pointer segment replaced with `<generated>`; bare names, other suffixes,
+   and user names remain gated.
 10. **LF line endings**, single trailing newline at EOF.
 
 Extended SQL scalars and containers use typed cell wrappers inside
