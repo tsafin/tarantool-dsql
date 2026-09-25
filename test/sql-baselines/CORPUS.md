@@ -1,25 +1,24 @@
 # SQL parity corpus policy
 
-`corpus.json` is the reviewed inclusion policy for the current **seed smoke
-gate**. It includes seven tests across SQL TAP, SQL-language, and luatest
-suites. The remaining tests are inventoried as
-`pending`, with an explicit reason; this is not a claim that M0-B full corpus
-coverage is complete. The inventory command scans top-level `*.test.lua` and
-`*.test.sql` in `test/sql` and `test/sql-tap`, and `*_test.lua` in
-`test/sql-luatest`. Tests added to those suites become pending automatically.
+`corpus.json` is the accepted **full-corpus v2** policy. It covers all 385
+discovered tests across SQL TAP, SQL-language, and luatest: 588 test/engine
+pairs are included and 182 are explicitly excluded, with no pending pair.
+The inventory command scans top-level `*.test.lua` and `*.test.sql` in
+`test/sql` and `test/sql-tap`, and `*_test.lua` in `test/sql-luatest`.
+An added test fails full-corpus inventory until both engine decisions are
+reviewed; it cannot silently inherit seed-smoke pending status.
 
-Promotion to `full-corpus` requires a reviewed decision for both engines of
-every discovered test. Every inclusion must be `verified_parity` with
+Full-corpus acceptance requires a reviewed decision for both engines of
+every discovered test. Every inclusion is `verified_parity` with
 per-engine audit evidence; every exclusion needs a specific category, reason,
 and evidence. `capture_pending`, `parity_pending`, and other unreviewed states
 are rejected as full-corpus exclusions. The three suite reviews are assembled
-with `assemble_policy.py`; its output still requires review before the named
-baseline is promoted.
+with `assemble_policy.py`; later policy changes require a new reviewed anchor.
 
 ```sh
 python3 test/sql-baselines/corpus.py inventory --repo . --out /tmp/sql-corpus-inventory.json
 python3 test/sql-baselines/corpus.py capture --repo . \
-  --binary /absolute/path/to/tarantool --out /tmp/sql-seed-memtx \
+  --binary /absolute/path/to/tarantool --out /tmp/sql-full-memtx \
   --engine memtx --mode generated
 ```
 
@@ -32,10 +31,13 @@ memtx and Vinyl. The dispatcher workflow also requires positive CnP/LLVM
 execution counters and validates per-query native participation evidence in
 manifest v1. A successful compilation without native entry is a mode miss;
 an interpreter-only statement that the native compiler deliberately declined
-is recorded as executed but not eligible. The seven-test seed passed all six
-engine/mode captures on the clean CI-style binary (86 memtx and 87 Vinyl
-snapshots per mode), with zero drift across dispatchers and a clean memtx
-repeat capture. This is seed evidence, not full-corpus acceptance.
+is recorded as executed but not eligible. The accepted local full-corpus
+matrix passed all six engine/mode captures on a clean CI-style native build:
+298 memtx tests / 49,535 queries and 290 Vinyl tests / 39,535 queries per
+mode. CnP and LLVM each matched generated with zero hard or soft drift; both
+generated repeat captures and the post-provenance-fix captures matched every
+snapshot and manifest identity. The first hosted full-corpus CI run remains
+to be observed after this branch is published.
 Per-test native totals are only a minimum sanity check: a test that executes
 native code for a setup statement and then disables the native mode for its
 workload is excluded during review, even if its aggregate counter is positive.
@@ -43,10 +45,8 @@ workload is excluded during review, even if its aggregate counter is positive.
 The `gh-2884-forbid-rowid-syntax` seed relies on harness semantic fix
 `b1535bb0ba`: `box.execute` can return an error as its second result. The
 combined native-dispatch build also needs `ENABLE_SQL_CNP=ON` alongside
-`ENABLE_SQL_JIT=ON`. Each future inclusion needs normal-runner comparison on
-every listed engine and a documented reason. Full M0-B acceptance also
-requires a reviewed decision for every pending test, stable recapture, and
-baseline storage review.
+`ENABLE_SQL_JIT=ON`. Future inclusions still need normal-runner comparison on
+every listed engine and a documented reason.
 
 The per-PR corpus has a reviewed per-test budget of at most 10,000 captured
 SQL statements and 64 MiB of YAML snapshots. `corpus.py` enforces both limits
@@ -59,12 +59,15 @@ runner evidence; they are not silently omitted or mislabeled as regressions.
 The pre-existing local `snapshots/` tree is an investigation artifact, not an
 accepted baseline: it contains 132,413 YAML files occupying about 528 MiB,
 only for `sql-tap`/memtx. It must not be added to Git or used as the CI
-reference. The reviewed seed generated captures occupy about 312 KiB for
-memtx and 324 KiB for Vinyl; these figures do not predict full-corpus size.
+reference. The accepted generated full-corpus capture has 44,520,089 YAML
+payload bytes on memtx and 38,032,834 on Vinyl (about 203 MiB and 164 MiB
+on disk because of small-file overhead). This supports regenerating the
+baseline from its named commit instead of committing bulk YAML.
 
-For M0-B, use a *reproducible capture from a named integration commit* as
-the authoritative baseline. The `parity-corpus` workflow reads
-`baseline_commit` from `corpus.json`: once `scope` is no longer `seed-smoke`,
+M0-B uses a *reproducible capture from a named integration commit* as
+the authoritative baseline. The accepted anchor is
+`04b63d19ab7deaa233ec2549d467b79d0cf4f5f2`. The `parity-corpus`
+workflow reads `baseline_commit` from `corpus.json`; in full-corpus scope,
 the field is mandatory and must be a full 40-character SHA that is an
 ancestor of the PR head. The baseline commit must itself carry the same
 corpus scope, policy version, and reviewed decisions/evidence (except the
@@ -72,8 +75,12 @@ corpus scope, policy version, and reviewed decisions/evidence (except the
 the declared corpus, compares manifest coverage and snapshots, and uploads
 the diff, manifests, and a baseline provenance record containing the SHA,
 policy version, engine, and capture digest. No bulk YAML tree is required in
-Git. A PR's moving merge-base remains permitted only for the seed smoke
-gate; it is not an accepted M0-B baseline.
+Git. The baseline checkout is a detached worktree made from the already
+verified PR history, so fork-only anchor commits need not exist upstream.
+A PR's moving merge-base remains permitted only for a seed-smoke policy; it
+is not an accepted M0-B baseline. `captured.against_commit` is supplied from
+the tested repository, even when the head's harness captures the baseline;
+the separate provenance artifact records the full anchor SHA.
 
 The first full-policy commit is an anchor: it contains the complete decisions
 and capture contract. A following, separate promotion commit sets
@@ -84,18 +91,14 @@ only the pointer, so later decision or evidence changes require a new anchor.
 
 Promotion to a new SHA is an explicit policy change: include repeat-capture
 and normal-runner evidence, full suite/engine coverage, and a measured
-size/runtime review. The accepted corpus commit is named only after that
-review. Git-tracked snapshots or external object storage remain options if
-full-corpus measurement shows regeneration is impractical. The current
-policy is still seed-only and has no accepted `baseline_commit`; the seed
-job must not be described as M0-B-complete.
+size/runtime review. Git-tracked snapshots or external object storage remain
+options if later corpus growth makes regeneration impractical.
 
-Both CI jobs reserve 120 minutes for the full corpus because the SQL-TAP
-sweep contains long tests and the under-budget candidate set may exceed
-50,000 SQL statements on memtx. This is a capacity allowance, not a measured
-full-matrix runtime;
-record wall time and artifact size from the first integrated capture and
-revisit the timeout before marking the gate stable.
+Both CI jobs reserve 120 minutes. The local post-fix generated pair completed
+in about two minutes in parallel on this host, and the full local native
+matrix completed well inside that allowance; clean hosted builds, dependency
+download, and artifact upload may dominate. Revisit the timeout after the
+first hosted full-corpus run rather than extrapolating the local wall time.
 
 The dispatcher workflow installs LLVM/Clang 11 and Clang 19 from the signed
 `apt.llvm.org` Focal repository because `tarantool/testing:ubuntu-focal`

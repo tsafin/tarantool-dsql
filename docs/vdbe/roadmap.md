@@ -4,7 +4,7 @@
 
 This document is the single source of truth for the analytics-focused SQL
 engine work on `tsafin/nextgen_sql` and its descendants. Status below was
-reconciled with the local tree on 2026-09-24; uncommitted files are evidence
+reconciled with the local tree on 2026-09-25; uncommitted files are evidence
 of work in progress, not completed deliverables.
 
 Scope is deliberately narrow:
@@ -128,21 +128,20 @@ version and acceptance evidence in its review.
 gated on "no result regression, no diagnostic regression, and reviewed
 planner-path changes."
 
-**State:** `PROTOTYPE` — manifest-v1 capture is fail-closed and both CI
-workflows run a real seven-test seed smoke gate across SQL TAP, SQL-language,
-and SQL-luatest. The policy inventories 385 tests; seven have reviewed
-inclusions, while the remaining suite/engine decisions are pending. The
-six-test matrix preceding the seventh seed passed on memtx and Vinyl under
-generated, CnP, and LLVM dispatch, with 83/84 snapshots per mode and zero
-cross-mode drift. The seven-test generated capture has 86/87 snapshots;
-its integrated native matrix and broad-corpus review are still in progress.
-Normal-runner adapters now cover SQL-luatest and `sql/*.test.lua`, and CI
-provisions a pinned published test runner. This is **not** M0-B acceptance:
-full engine-specific inclusion/exclusion review, stable recapture, per-query
-native participation evidence, and a named full-corpus baseline remain.
-The local worktree also contains about 132,000 older untracked snapshots
-(roughly 528 MB), only for `sql-tap`/memtx; they are not an accepted baseline.
-The classifier supplies file-level tags, not query-level feature coverage.
+**State:** `COMPLETE` for the M0-A/M0-B parity gate in this branch. Manifest
+v1 capture is fail-closed. Policy v2 reviews all 385 tests / 770 engine
+pairs: 588 included, 182 excluded with evidence, none pending. The accepted
+anchor is `04b63d19ab7deaa233ec2549d467b79d0cf4f5f2`; the CI jobs use
+that named full-corpus policy. A clean native build passed the full local
+generated/CnP/LLVM matrix (298 memtx tests / 49,535 queries and 290 Vinyl
+tests / 39,535 queries per mode), with zero hard or soft parity drift,
+identical manifests, and exact generated repeat captures. The post-provenance
+capture also matched exactly. The first hosted full-corpus CI result remains
+to be observed after publication; local workflow provisioning, including a
+detached baseline worktree and pinned test runner, passed. The older
+untracked 132,413-snapshot memtx-only tree is not the baseline. The
+classifier covers all 385 file identities, but its tags are file-level, not
+verified per-query feature coverage.
 
 **Scope (B-light):** capture L1 result rows, L2 diagnostic, L3 path_class
 per (test × engine), plus an external run manifest proving coverage and
@@ -167,7 +166,7 @@ are deferred to M3 when the descriptor exists naturally.
 - [x] **M0.1** Test auto-classifier — `test/sql-baselines/classify.lua`.
   Scans `*.test.lua` across sql / sql-tap / sql-luatest, regex-detects
   feature markers per `docs/vdbe/current_sql_feature_matrix.md`, writes
-  `test/sql-baselines/classification.yaml` (381 entries on nextgen_sql
+  `test/sql-baselines/classification.yaml` (385 entries on nextgen_sql
   HEAD). Landed at nextgen_sql `f8ae5a0ddd`, expanded at `02fdfbe2d3`
   (canonical_yaml.lua scalar coverage).
 - [x] **M0.2** Snapshot harness — `test/sql-baselines/harness/run.lua`
@@ -186,25 +185,26 @@ are deferred to M3 when the descriptor exists naturally.
   / PATH-CLASS-SHIFT (currently a hard gate) or SOFT-DRIFT (advisory). Emits text /
   yaml / json; exit 1 on any hard-gate. Landed at nextgen_sql `a3c6dbf191`.
   Verified: identical inputs → 0 hard, 0 soft, all-MATCH exit 0; mutated
-  row → RESULT-REGRESSION exit 1. M0.8b must replace blanket L3 equality
-  with the reviewed path policy before M3 can switch planners.
-- [ ] **M0.5** CI: snapshot diff job — `.github/workflows/parity-corpus.yml`
-  builds PR head and merge-base, runs real isolated seed captures on both
-  engines, checks manifest coverage, then diffs via `diff.lua`. The seed
-  implementation is landed; expand to the accepted full corpus under M0.8d.
-- [ ] **M0.6** CI: dispatcher parity job —
+  row → RESULT-REGRESSION exit 1. L3 remains a strict gate for baseline
+  comparison; M3 planner changes require an explicit reviewed exception.
+- [x] **M0.5** CI: snapshot diff job — `.github/workflows/parity-corpus.yml`
+  builds PR head and the named full-policy anchor, runs isolated captures on
+  both engines, checks manifest coverage, then diffs via `diff.lua`. The
+  baseline is a detached worktree from verified PR history, including fork
+  PRs. Local workflow provisioning passed; hosted execution awaits publication.
+- [x] **M0.6** CI: dispatcher parity job —
   `.github/workflows/dispatcher-parity.yml`. Matrix
   `{memtx, vinyl} × {generated, cnp, llvm}`. Compares CnP and LLVM outputs
   against generated; fails with `JIT-CORRECTNESS-REGRESSION:<dispatcher>` on
-  any L1 or L2 divergence. Real seed capture and coverage checks are landed;
-  expand to the accepted full corpus under M0.8d.
+  any L1 or L2 divergence. It reads the accepted full policy; the complete
+  six-way local matrix passed before promotion.
 - [x] **M0.7** Perf-trail emitter — `test/sql-baselines/perf/emit.lua`
   records timing via `fiber.clock64()`, writes one CSV per CI run at
   `test/sql-baselines/perf/<YYYY-MM-DD>-<sha>.csv`. Accompanying
   `perf/aggregate.lua` reads a directory of those CSVs and emits a markdown
   trend table. `sample.csv` aligned with SCHEMA.md §L7 exemplar. Landed at
   nextgen_sql `b33719055e` + `1a9c7933b6` (gitignore).
-- [ ] **M0.8a / M0-A** Validate capture semantics on a small, representative
+- [x] **M0.8a / M0-A** Validate capture semantics on a small, representative
   seed corpus: use the normal test runner or reproduce its setup faithfully,
   preserve test failure and exit status, exercise generated/CnP/LLVM
   selection, and reject incomplete captures. Record a manifest with expected
@@ -212,24 +212,24 @@ are deferred to M3 when the descriptor exists naturally.
   untracked snapshot tree as ground truth. The harness contract and manifest
   format are serial integration points; fixtures and diagnostic probes may
   be built independently. Manifest v1, validator, runner-equivalent shared-
-  engine seeds, and six-way dispatcher capture are committed. More result/
-  error classes and suite adapters remain before treating M0-A as complete.
-- [ ] **M0.8b** Reconcile SCHEMA.md and the tools: file-level versus
+  engine seeds, typed/error result classes, SQL/SQL-TAP/luatest adapters,
+  and six-way dispatcher capture are committed and verified.
+- [x] **M0.8b** Reconcile SCHEMA.md and the tools: file-level versus
   query-level tags, query identity, result order, diagnostic codes,
   metadata that should not affect parity, and schema versioning. Verify
-  round-trip and repeat-capture stability on the seed corpus. *parallel: no*
-  for schema decisions; implementer work can fan out after the contract.
-- [ ] **M0.8c / M0-B** Capture the declared corpus under memtx and Vinyl
+  round-trip and repeat-capture stability on the seed corpus. The v1
+  contract is accepted; future semantic changes require versioning.
+- [x] **M0.8c / M0-B** Capture the declared corpus under memtx and Vinyl
   where supported, report coverage and failures, and review snapshot size
   and storage strategy before committing any bulk baseline. Baseline against
   a named integration commit rather than the moving local `master` branch.
-  *parallel: yes* for independent suite/engine shards after M0-A, but one
-  owner assembles and accepts the manifest and baseline.
-- [ ] **M0.8d** Expand the real isolated seed CI invocations to the accepted
+  The 770 engine decisions, full local six-mode matrix, exact repeat, and
+  measured snapshot storage support the named integration anchor.
+- [x] **M0.8d** Expand the real isolated seed CI invocations to the accepted
   corpus. Compare each PR head against the selected baseline with explicit
   coverage equality; run dispatcher parity on both engines where supported.
-  Keep CI failing on a missing or empty corpus. *parallel: yes* after M0-A
-  contract; integrate once with the accepted baseline.
+  Keep CI failing on a missing or empty corpus. Both jobs now read the full
+  policy; their first hosted full-corpus run is pending branch publication.
 
 ---
 

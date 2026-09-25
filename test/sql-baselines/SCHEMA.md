@@ -2,9 +2,9 @@
 
 ## Status
 
-`PROTOTYPE` — v1 has consumers and emitters, but no accepted full-corpus
-baseline. The comparison contract below was reconciled before accepting more
-than the seed smoke gate. After baseline acceptance, semantic changes to
+`ACCEPTED` — manifest v1 and snapshot schema v1 are the full-corpus capture
+contract. The reviewed policy v2 names baseline anchor
+`04b63d19ab7deaa233ec2549d467b79d0cf4f5f2`. Semantic changes to
 required fields use the versioning policy below.
 
 ## Purpose
@@ -18,9 +18,9 @@ This document is the one-way-door contract for the roadmap M0 milestone
 - the canonical serialization rules that make snapshot diffs stable;
 - the perf-trail CSV format (separate from snapshots, not gated).
 
-M0.1–M0.7 tooling was committed against this draft. The next parallel
-implementation wave follows the M0.8b manifest and comparison contract
-below.
+M0.1–M0.8 tooling was reconciled against this contract and accepted with
+the full local generated/CnP/LLVM matrix and repeat captures. Future
+planner-path changes still need a reviewed L3 exception.
 
 ## Scope (B-light)
 
