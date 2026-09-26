@@ -156,6 +156,13 @@ function M.write(params)
     local cls = load_classification()
     local cls_key = p.suite .. '/' .. p.test_basename
     local tags = cls[cls_key] or {}
+    local path_class = p.path_class or 'current_where_c'
+    local fallback_reason, fallback_to = nil, nil
+    if path_class:match('^fallback_') then
+        fallback_reason = p.fallback_reason or
+                          path_class:match('^fallback_(.+)$')
+        fallback_to = 'current_where_c'
+    end
 
     -- Build doc strictly following SCHEMA.md v1 key names and structure.
     local doc = {
@@ -193,9 +200,9 @@ function M.write(params)
         },
 
         l3_path_class = {
-            taken       = p.path_class or 'current_where_c',
-            reason      = p.fallback_reason,
-            fallback_to = nil,
+            taken       = path_class,
+            reason      = fallback_reason,
+            fallback_to = fallback_to,
         },
 
         metadata = {
