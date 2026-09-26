@@ -659,6 +659,12 @@ DML, triggers, subprograms, non-deterministic functions.
   and per-reason counter deltas. This property detects declared volatility,
   but Tarantool has no separate function side-effect property, so deterministic
   UDF side effects and argument-dependent volatility are not proven excluded.
+  Zero-source constant SELECTs also enter `sqlWhereBegin()` but are outside the
+  single-relation logical-plan contract. They now report
+  `UNSUPPORTED_RELATION_COUNT`; a focused
+  `EXPLAIN (planner = 'summary') SELECT 1` regression asserts the route and
+  per-reason counter. This classifies only this legacy route; it does not claim
+  that constant SELECT execution is implemented by the new planner.
   Structural
   classification runs before flattening/rewrite can erase the rejected shape;
   simple `COUNT(*)` stays unclassified because its fast path does not enter

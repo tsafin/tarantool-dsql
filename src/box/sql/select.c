@@ -5759,7 +5759,11 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 	} else if ((select->selFlags & SF_Distinct) != 0) {
 		sql_select_record_fallback_reason(parse,
 					 SQL_LOGICAL_REJECT_DISTINCT);
-	} else if (select->pSrc != NULL && select->pSrc->nSrc > 1) {
+	} else if (select->pSrc == NULL || select->pSrc->nSrc == 0) {
+		/* A constant SELECT enters the current WHERE path without a scan. */
+		sql_select_record_fallback_reason(parse,
+					 SQL_LOGICAL_REJECT_RELATION_COUNT);
+	} else if (select->pSrc->nSrc > 1) {
 		sql_select_record_fallback_reason(parse,
 					 SQL_LOGICAL_REJECT_RELATION_COUNT);
 	} else if (select->pSrc != NULL && select->pSrc->nSrc == 1 &&
