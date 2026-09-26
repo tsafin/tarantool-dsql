@@ -61,6 +61,19 @@ enum sql_stats_range_operator {
 	SQL_STATS_RANGE_GE,
 };
 
+enum sql_stats_predicate_kind {
+	SQL_STATS_PREDICATE_EQUALITY,
+	SQL_STATS_PREDICATE_RANGE,
+};
+
+struct sql_stats_predicate {
+	size_t column_index;
+	enum sql_stats_predicate_kind kind;
+	enum sql_stats_range_operator range_operator;
+	const void *value;
+	size_t value_size;
+};
+
 /* Estimate a single-column equality, including SQL NULL semantics. */
 int
 sql_stats_estimate_equality(const struct sql_stats_column_summary *summary,
@@ -89,6 +102,20 @@ int
 sql_stats_estimate_equality_conjunction(
 	const struct sql_stats_column_summary *summaries,
 	const struct sql_stats_mcv_value *predicates, size_t term_count,
+	const struct sql_stats_joint_mcv_sample *joint_mcv,
+	size_t joint_mcv_count, uint64_t sample_nonnull_rows,
+	struct sql_stats_selectivity *result);
+
+/*
+ * Estimate a conjunction of equality and range predicates by column index.
+ * An exhaustive joint sample (all non-NULL joint observations represented
+ * by distinct tuples) answers the conjunction exactly; otherwise each term
+ * is estimated independently and combined conservatively.
+ */
+int
+sql_stats_estimate_predicate_conjunction(
+	const struct sql_stats_column_summary *summaries, size_t summary_count,
+	const struct sql_stats_predicate *predicates, size_t predicate_count,
 	const struct sql_stats_joint_mcv_sample *joint_mcv,
 	size_t joint_mcv_count, uint64_t sample_nonnull_rows,
 	struct sql_stats_selectivity *result);

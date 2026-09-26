@@ -473,9 +473,13 @@ the `where.c` selectivity adapter wait for that interface.
   histogram ranges, and conservative AND confidence. A separate narrow joint-
   MCV API estimates fully specified non-NULL equality conjunctions from an
   exact sampled tuple match and otherwise falls back to the single-column
-  independence product. Focused tests cover source precedence, strict/
-  inclusive range boundaries, correlated q-error improvement, fallback, and
-  malformed input rejection. Partial-tuple/range matching, joint NDV,
+  independence product. A predicate-conjunction API now also estimates one
+  equality or range term per column exactly when distinct joint tuples cover
+  the complete non-NULL sample; partial joint samples use the independent
+  estimate. Focused tests cover source precedence, strict/inclusive range
+  boundaries, mixed range/equality matching, correlated q-error improvement,
+  fallback, and malformed input rejection. Multiple terms on one column,
+  partial-tuple matching, joint NDV,
   dependencies, general correlation adjustment, normalized snapshot inputs,
   schema/group selection, and `where.c` integration remain open; this does
   not close S2.5. *parallel: yes for the standalone API; no for planner

@@ -281,3 +281,133 @@ done:
 	free(terms);
 	return rc;
 }
+
+int
+sql_stats_estimate_predicate_conjunction(
+	const struct sql_stats_column_summary *summaries, size_t summary_count,
+	const struct sql_stats_predicate *predicates, size_t predicate_count,
+	const struct sql_stats_joint_mcv_sample *joint_mcv,
+	size_t joint_mcv_count, uint64_t sample_nonnull_rows,
+	struct sql_stats_selectivity *result)
+{
+	if (result == NULL || (predicate_count != 0 &&
+	    (summaries == NULL || predicates == NULL)) ||
+	    (joint_mcv_count != 0 &&
+	    (summaries == NULL || joint_mcv == NULL || summary_count == 0 ||
+	     sample_nonnull_rows == 0)))
+		return -1;
+	if (predicate_count == 0)
+		return sql_stats_selectivity_and(NULL, 0, result);
+	struct sql_stats_selectivity *terms =
+		calloc(predicate_count, sizeof(*terms));
+	if (terms == NULL)
+		return -1;
+	int rc = -1;
+	double confidence = 1;
+	for (size_t i = 0; i < predicate_count; i++) {
+		const struct sql_stats_predicate *predicate = &predicates[i];
+		if (predicate->column_index >= summary_count ||
+		    (predicate->value == NULL && predicate->value_size != 0))
+			goto done;
+		for (size_t j = 0; j < i; j++) {
+			if (predicates[j].column_index == predicate->column_index)
+				goto done;
+		}
+		const struct sql_stats_column_summary *summary =
+			&summaries[predicate->column_index];
+		if (predicate->kind == SQL_STATS_PREDICATE_EQUALITY) {
+			if (sql_stats_estimate_equality(summary, predicate->value,
+							predicate->value_size, false,
+							&terms[i]) != 0)
+				goto done;
+		} else if (predicate->kind == SQL_STATS_PREDICATE_RANGE) {
+			if (sql_stats_estimate_range(summary, predicate->value,
+						     predicate->value_size,
+						     predicate->range_operator,
+						     &terms[i]) != 0)
+				goto done;
+		} else {
+			goto done;
+		}
+		if (summary->confidence < confidence)
+			confidence = summary->confidence;
+	}
+	if (joint_mcv_count != 0) {
+		uint64_t total = 0;
+		for (size_t i = 0; i < summary_count; i++) {
+			if (!valid_summary(&summaries[i]) ||
+			    summaries[i].compare == NULL)
+				goto done;
+		}
+		for (size_t i = 0; i < joint_mcv_count; i++) {
+			const struct sql_stats_joint_mcv_sample *entry = &joint_mcv[i];
+			if (entry->values == NULL || entry->value_count != summary_count ||
+			    entry->count == 0 || total > sample_nonnull_rows ||
+			    entry->count > sample_nonnull_rows - total)
+				goto done;
+			for (size_t c = 0; c < summary_count; c++) {
+				/* Joint sample denominators are non-NULL on every column. */
+				if (entry->values[c].value == NULL)
+					goto done;
+			}
+			for (size_t j = 0; j < i; j++) {
+				if (joint_tuple_equal(summaries, entry->values,
+						      joint_mcv[j].values,
+						      summary_count))
+					goto done;
+			}
+			total += entry->count;
+		}
+		/* Partial joint MCVs cannot account for the unobserved tail. */
+		if (total == sample_nonnull_rows) {
+			uint64_t matching = 0;
+			for (size_t i = 0; i < joint_mcv_count; i++) {
+				const struct sql_stats_joint_mcv_sample *entry =
+					&joint_mcv[i];
+				bool matches = true;
+				for (size_t j = 0; j < predicate_count; j++) {
+					const struct sql_stats_predicate *predicate =
+						&predicates[j];
+					const struct sql_stats_mcv_value *value =
+						&entry->values[predicate->column_index];
+					int cmp = summaries[predicate->column_index].compare(
+						value->value, value->value_size,
+						predicate->value, predicate->value_size,
+						summaries[predicate->column_index].compare_context);
+					if (predicate->kind == SQL_STATS_PREDICATE_EQUALITY) {
+						matches = cmp == 0;
+					} else {
+						switch (predicate->range_operator) {
+						case SQL_STATS_RANGE_LT:
+							matches = cmp < 0;
+							break;
+						case SQL_STATS_RANGE_LE:
+							matches = cmp <= 0;
+							break;
+						case SQL_STATS_RANGE_GT:
+							matches = cmp > 0;
+							break;
+						case SQL_STATS_RANGE_GE:
+							matches = cmp >= 0;
+							break;
+						default:
+							goto done;
+						}
+					}
+					if (!matches)
+						break;
+				}
+				if (matches)
+					matching += entry->count;
+			}
+			set_result(result, matching / (double)sample_nonnull_rows,
+				   confidence, SQL_STATS_SELECTIVITY_MCV);
+			rc = 0;
+			goto done;
+		}
+	}
+	rc = sql_stats_selectivity_and(terms, predicate_count, result);
+done:
+	free(terms);
+	return rc;
+}

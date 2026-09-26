@@ -241,8 +241,14 @@ connected to `where.c` or `SqlStatsSnapshot`. A narrow joint-MCV prototype
 handles only a fully specified conjunction of non-NULL equality predicates:
 when the exact tuple is present it uses that sampled joint frequency; when it
 is absent, it falls back to the existing per-column independence product.
-This does not provide joint NDV, dependency statistics, partial-tuple or
-range matching, nor policy for choosing/storing multicolumn groups.
+The general predicate-conjunction entry point accepts at most one equality or
+range term per column. It can evaluate mixed terms exactly only when the
+distinct joint tuples exhaust the complete non-NULL sample for all summarized
+columns; partial joint MCV samples deliberately use the per-column
+independence product rather than silently treating the MCV list as a full
+distribution. Multiple predicates on one column, joint NDV, dependency
+statistics, partial-tuple matching, and policy for choosing/storing
+multicolumn groups remain open.
 
 The focused unit probe includes a uniform 1,000-distinct-value column and a
 skewed column with one value at 90% frequency. Equality and selected range

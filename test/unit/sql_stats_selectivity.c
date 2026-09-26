@@ -239,6 +239,110 @@ test_joint_mcv_equality_conjunction(void)
 }
 
 static void
+test_joint_mcv_range_conjunction(void)
+{
+	plan(7);
+	header();
+	int values0[] = {0, 0, 1, 1};
+	int values1[] = {0, 1, 0, 1};
+	int histogram_values1[] = {0, 0, 1, 1};
+	struct sql_stats_ordered_value ordered0[4];
+	struct sql_stats_ordered_value ordered1[4];
+	for (size_t i = 0; i < 4; i++) {
+		ordered0[i] = (struct sql_stats_ordered_value){
+			.data = &values0[i], .size = sizeof(values0[i]),
+		};
+		ordered1[i] = (struct sql_stats_ordered_value){
+			.data = &histogram_values1[i],
+			.size = sizeof(histogram_values1[i]),
+		};
+	}
+	struct sql_stats_histogram *hist0 = sql_stats_histogram_new(
+		ordered0, 4, 2, compare_int, NULL, 1024);
+	struct sql_stats_histogram *hist1 = sql_stats_histogram_new(
+		ordered1, 4, 2, compare_int, NULL, 1024);
+	ok(hist0 != NULL && hist1 != NULL,
+	   "joint range histograms build");
+	if (hist0 == NULL || hist1 == NULL) {
+		sql_stats_histogram_delete(hist0);
+		sql_stats_histogram_delete(hist1);
+		footer();
+		check_plan();
+		return;
+	}
+	struct sql_stats_column_summary summaries[] = {
+		{.row_count = 4, .distinct_count = 2, .confidence = 0.9,
+		 .sample_nonnull_rows = 4, .histogram = hist0,
+		 .compare = compare_int},
+		{.row_count = 4, .distinct_count = 2, .confidence = 0.8,
+		 .sample_nonnull_rows = 4, .histogram = hist1,
+		 .compare = compare_int},
+	};
+	struct sql_stats_mcv_value tuple_values[4][2];
+	struct sql_stats_joint_mcv_sample joint[4];
+	for (size_t i = 0; i < 4; i++) {
+		tuple_values[i][0] = (struct sql_stats_mcv_value){
+			.value = &values0[i], .value_size = sizeof(values0[i]),
+		};
+		tuple_values[i][1] = (struct sql_stats_mcv_value){
+			.value = &values1[i], .value_size = sizeof(values1[i]),
+		};
+		joint[i] = (struct sql_stats_joint_mcv_sample){
+			.values = tuple_values[i], .value_count = 2, .count = 1,
+		};
+	}
+	int zero = 0;
+	int one = 1;
+	struct sql_stats_predicate range = {
+		.column_index = 0, .kind = SQL_STATS_PREDICATE_RANGE,
+		.range_operator = SQL_STATS_RANGE_LE,
+		.value = &zero, .value_size = sizeof(zero),
+	};
+	struct sql_stats_predicate mixed[] = {
+		range,
+		{.column_index = 1, .kind = SQL_STATS_PREDICATE_EQUALITY,
+		 .value = &one, .value_size = sizeof(one)},
+	};
+	struct sql_stats_selectivity result;
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, &range, 1,
+		joint, 4, 4, &result) == 0 &&
+	   fabs(result.value - 0.5) < 1e-12 &&
+	   result.source == SQL_STATS_SELECTIVITY_MCV,
+	   "complete joint sample estimates an inclusive range exactly");
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, mixed, 2,
+		joint, 4, 4, &result) == 0 &&
+	   fabs(result.value - 0.25) < 1e-12 &&
+	   result.source == SQL_STATS_SELECTIVITY_MCV,
+	   "complete joint sample estimates mixed range/equality exactly");
+	struct sql_stats_predicate strict = range;
+	strict.range_operator = SQL_STATS_RANGE_LT;
+	strict.value = &one;
+	strict.value_size = sizeof(one);
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, &strict, 1,
+		joint, 4, 4, &result) == 0 &&
+	   fabs(result.value - 0.5) < 1e-12,
+	   "complete joint sample preserves strict range boundary");
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, mixed, 2,
+		joint, 2, 4, &result) == 0 &&
+	   fabs(result.value - 0.25) < 1e-12 &&
+	   result.source == SQL_STATS_SELECTIVITY_INDEPENDENCE,
+	   "incomplete joint sample falls back to independent terms");
+	struct sql_stats_predicate duplicate[] = {range, strict};
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, duplicate, 2,
+		joint, 4, 4, &result) == -1,
+	   "multiple predicates for one column rejected");
+	struct sql_stats_joint_mcv_sample malformed = joint[0];
+	malformed.value_count = 1;
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, mixed, 2,
+		&malformed, 1, 4, &result) == -1,
+	   "joint range sample with wrong arity rejected");
+	sql_stats_histogram_delete(hist0);
+	sql_stats_histogram_delete(hist1);
+	footer();
+	check_plan();
+}
+
+static void
 test_uniform_and_skewed_qerror(void)
 {
 	plan(7);
@@ -331,5 +435,6 @@ main(void)
 	test_histogram_ranges();
 	test_uniform_and_skewed_qerror();
 	test_joint_mcv_equality_conjunction();
+	test_joint_mcv_range_conjunction();
 	return 0;
 }
