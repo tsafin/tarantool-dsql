@@ -33,6 +33,16 @@ class PlannerABTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             ab.metric_delta({"q1": row}, {"q2": other})
 
+    def test_full_corpus_selection_tracks_engine_eligibility(self):
+        import json
+        from pathlib import Path
+        policy = json.loads((Path(__file__).parent / "corpus.json").read_text())
+        memtx = ab.full_corpus_tests(policy, "memtx")
+        vinyl = ab.full_corpus_tests(policy, "vinyl")
+        self.assertEqual(len(memtx), 232)
+        self.assertEqual(len(vinyl), 224)
+        self.assertTrue(set(vinyl) < set(memtx))
+
 
 if __name__ == "__main__":
     unittest.main()

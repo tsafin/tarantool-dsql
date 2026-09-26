@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline bounded-DP width A/B on a bounded, reviewed SQL-TAP subset."""
+"""Offline bounded-DP width A/B on reviewed SQL-TAP tests."""
 
 import argparse
 from collections import Counter
@@ -54,6 +54,14 @@ def selected(policy, names, engine, budget):
     if total > budget:
         raise ValueError(f"reviewed subset has {total} queries, exceeds {budget}")
     return total
+
+
+def full_corpus_tests(policy, engine):
+    """Return every reviewed SQL-TAP test eligible for this engine."""
+    return sorted(row["test"][len("sql-tap/"):]
+                  for row in policy["included"]
+                  if row["test"].startswith("sql-tap/") and
+                  engine in row["engines"])
 
 
 def run(command, env=None, timeout=300):
@@ -125,34 +133,51 @@ def main():
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--widths", type=widths, default=(2, 8, 16))
-    parser.add_argument("--test", action="append")
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--test", action="append")
+    selection.add_argument("--full-corpus", action="store_true",
+                           help="all reviewed SQL-TAP tests eligible per engine")
     parser.add_argument("--engine", action="append", choices=("memtx", "vinyl"))
-    parser.add_argument("--max-queries", type=int, default=1000)
+    parser.add_argument("--max-queries", type=int,
+                        help="query bound (default 1000 for subset; corpus total for --full-corpus)")
     args = parser.parse_args()
     if args.widths == DEFAULT_WIDTHS:
         raise ValueError("candidate must differ from default widths 1,5,10")
     repo, binary, out = args.repo.resolve(), args.binary.resolve(), args.out.resolve()
     if out.exists() and any(out.iterdir()):
         raise ValueError("output must be empty")
-    names = sorted(set(args.test or DEFAULT_TESTS))
     engines = sorted(set(args.engine or ("memtx", "vinyl")))
     policy = json.loads((repo / "test/sql-baselines/corpus.json").read_text())
-    budgets = {engine: selected(policy, names, engine, args.max_queries)
-               for engine in engines}
+    names_by_engine = {
+        engine: (full_corpus_tests(policy, engine) if args.full_corpus else
+                 sorted(set(args.test or DEFAULT_TESTS)))
+        for engine in engines}
+    budgets = {}
+    for engine in engines:
+        names = names_by_engine[engine]
+        total = sum(selected(policy, (name,), engine, 2**63 - 1)
+                    for name in names)
+        max_queries = args.max_queries
+        if max_queries is None:
+            max_queries = total if args.full_corpus else 1000
+        budgets[engine] = selected(policy, names, engine, max_queries)
     out.mkdir(parents=True, exist_ok=True)
-    report = {"evaluation_version": 1, "source_commit": run(
+    report = {"evaluation_version": 2, "source_commit": run(
         ["git", "-C", repo, "rev-parse", "HEAD"]).strip(),
         "binary": binary_identity(binary),
-        "tests": ["sql-tap/" + name for name in names],
+        "tests": {engine: ["sql-tap/" + name for name in names]
+                  for engine, names in names_by_engine.items()},
         "default_widths": list(DEFAULT_WIDTHS), "candidate_widths": list(args.widths),
         "dispatcher": "generated", "engines": {},
-        "limitations": ["bounded reviewed subset, not full-corpus or hosted CI",
+        "limitations": ["reviewed SQL-TAP capture scope; does not include SQL luatest or non-SQL suites",
+                         "not hosted CI",
                          "planner metrics describe compile-time EXPLAIN snapshots, not runtime latency",
                          "elapsed_us is diagnostic and not a deterministic acceptance gate",
                          "snapshot parity includes EXPLAIN rows; changed plan-output TAP expectations may prevent capture and are not semantic SQL-result regressions",
                          "no native-dispatcher performance or plan-quality claim"]}
     for engine in engines:
         captured = {}
+        names = names_by_engine[engine]
         for label, config in (("default", DEFAULT_WIDTHS),
                               ("default-repeat", DEFAULT_WIDTHS),
                               ("candidate", args.widths),
@@ -178,7 +203,7 @@ def main():
                         raise
             run([binary, HERE / "validate.lua", capture])
             count, captured[label] = measurements(capture, engine)
-            if count != budgets[engine] or count > args.max_queries:
+            if count != budgets[engine]:
                 raise ValueError("captured query count differs from reviewed bound")
         comparisons = {}
         for label, base_label in (("default-repeat", "default"),

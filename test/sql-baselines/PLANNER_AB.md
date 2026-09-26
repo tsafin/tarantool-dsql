@@ -99,6 +99,46 @@ sample, while generated, dominated, truncated, and retained totals moved as
 expected with the wider beam. No other compared output differed. Evidence is
 at `/tmp/tarantool-e15-more.waRTns/capture/report.json` (local, uncommitted).
 
+## Full reviewed SQL-TAP width comparison, 2026-09-26
+
+The harness also supports `--full-corpus`, which selects every reviewed
+SQL-TAP file eligible for each engine and sizes its query bound from the
+policy. This is the full reviewed SQL-TAP planner corpus, not all M0 tests:
+the SQL and SQL-luatest suites are not run by this harness. Reproduce with:
+
+```sh
+python3 -B test/sql-baselines/planner_ab.py \
+  --repo /home/tsafin/tarantool \
+  --binary /tmp/tarantool-m1-build/src/tarantool \
+  --out /tmp/tarantool-e15-full-corpus --widths 2,8,16 --full-corpus
+```
+
+The run used the existing binary (SHA-256
+`5a3fd28adbff7f1bc17f2b6ea18a917efc34cc9e82ef2af0c209eb1eab90c59f`, version
+string `Tarantool 1.3.2-18719-gd8fc1e339b`). It completed all four captures
+and both repeats: 232 memtx SQL-TAP files / 47,946 statements per capture and
+224 Vinyl files / 37,990 statements per capture. Both within-width repeat
+comparisons passed, and planner structure was repeat-stable. Cross-width
+strict snapshot parity **did not pass**: each engine had exactly the same
+three hard differences (47,943/47,946 memtx snapshots and 37,987/37,990 Vinyl
+snapshots matched):
+
+| Capture | Default 1/5/10 | Candidate 2/8/16 | Interpretation |
+| --- | --- | --- | --- |
+| `select6/q96` | `EXPLAIN SELECT` VDBE rows include `Column(10,1)`, null check, then seek through cursor 11 | Bytecode uses `Column(10,0)`, omits that null check, and seeks through cursor 11 before reading `Column(10,1)` from cursor 10 | Different compiled EXPLAIN program; this capture does not execute the represented SELECT |
+| `where2/q128` | `EXPLAIN QUERY PLAN`: index constraints `z=? AND y=? AND x<?`, estimate `~4 rows` | `z=? AND y=? AND x>? AND x<?`, estimate `~6 rows` | Different range description and estimate in diagnostic output |
+| `whereK/q13` | `EXPLAIN QUERY PLAN`: narrow `b=? AND c>?` branch (`~2 rows`) plus broad `b>?` branch (`~245760 rows`) | Only the broad `b>?` branch (`~245760 rows`) | Width-sensitive OR-plan output; the paired SQL result assertions pass in both configurations |
+
+These are explicit `EXPLAIN`/`EXPLAIN QUERY PLAN` statements. They are hard
+snapshot differences, not observed regressions in the paired SQL result
+assertions; no accepted snapshots were changed. The A/B therefore establishes
+repeat stability and width sensitivity, but does not pass strict cross-width
+parity or establish which plan is better. Aggregate planner totals were the
+same on both engines: candidate count −7, fallback count 0, generated
++562,720, dominated +39,843, truncated +495,669, retained +27,208. Both
+captures reported `elapsed_us=0`; this provides no latency evidence. The
+complete local report is `/tmp/tarantool-e15-full-corpus-retry/report.json`.
+
 An exploratory **1/1/1** run changed where3 EXPLAIN QUERY PLAN join-order
 expectations (five TAP failures, including expected tB/tC/tA/tD versus
 tA/tB/tC/tD). This is a plan-output assertion difference, not an observed
