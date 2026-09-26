@@ -96,6 +96,29 @@ repeatability does not improve the candidate's plan quality, which remains
 unmeasured; keep the 1/5/10 production defaults pending an integrated workload
 decision.
 
+### Full reviewed SQL-suite and SQL-luatest widths in native modes, 2026-09-27
+
+The reviewed normal SQL suite (including both strict `.test.sql` entries) and
+the full reviewed SQL-luatest subset were also compared at widths 1/5/10 vs
+2/8/16 under CnP and LLVM on both engines. The captures used source HEAD
+`1651347425db87867603dfbe36f02e0839bfc3e7` and the same binary SHA-256
+`7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`.
+
+All default-repeat, candidate-repeat, and cross-width comparisons passed
+strictly. SQL-suite coverage was 34 files / 1,090 statements on memtx and 35 /
+1,098 on Vinyl; SQL-luatest coverage was 32 / 499 on memtx and 31 / 447 on
+Vinyl. EXPLAIN classification found no differences, and captured
+non-EXPLAIN result/diagnostic parity was exact. Reports are at
+`/tmp/tarantool-e1-full-sql-cnp/report.json`,
+`/tmp/tarantool-e1-full-sql-llvm/report.json`,
+`/tmp/tarantool-e1-full-luatest-cnp/report.json`, and
+`/tmp/tarantool-e1-full-luatest-llvm/report.json`.
+
+This establishes width parity for these reviewed adapters in native modes;
+each mode is still evaluated against itself, not cross-mode. It does not
+measure plan quality or end-to-end execution latency, and it does not resolve
+the three SQL-TAP EXPLAIN differences. E1 acceptance remains open.
+
 ### Disposition of the three cross-width EXPLAIN differences
 
 Across the full reviewed SQL-TAP runs in generated, CnP, and LLVM modes, on
