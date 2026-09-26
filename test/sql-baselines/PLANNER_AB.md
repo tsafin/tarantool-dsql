@@ -227,3 +227,28 @@ snapshots each); no semantic-result or EXPLAIN differences were observed.
 This verifies the single-file memtx adapter path only. It is not full M0
 SQL-luatest coverage, does not exercise Vinyl or native dispatchers, and does
 not satisfy E1 acceptance. The report remains a local artifact.
+
+### Full reviewed SQL-luatest subset, 2026-09-26
+
+The full reviewed SQL-luatest policy subset was then captured on both engines
+with all four default/candidate/repeat runs. The run used source HEAD
+`ae2ee3ea5a4b57d8b54c8b6577b95df83b9cd713` and binary SHA-256
+`7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`:
+
+```sh
+python3 -B test/sql-baselines/planner_ab.py \
+  --repo /home/tsafin/tarantool --runner-repo /home/tsafin/tarantool \
+  --binary /tmp/tarantool-m1-build/src/tarantool \
+  --out /tmp/tarantool-e1-full-luatest-fixed \
+  --suite sql-luatest --full-corpus --widths 2,8,16
+```
+
+All compared captures passed strict snapshot parity, including default-repeat,
+candidate-repeat, and cross-width comparisons. Memtx covered 32 reviewed tests
+and 499 statements; Vinyl covered 31 tests and 447 statements (one reviewed
+test is not eligible for Vinyl). There were no EXPLAIN, non-EXPLAIN, or
+unclassified cross-width differences, so captured-result parity was also
+clean. This closes the reviewed SQL-luatest comparison slice only; it does
+not include the M0 SQL suite, native dispatchers, runtime query latency, or
+plan-quality evaluation. The report is local at
+`/tmp/tarantool-e1-full-luatest-fixed/report.json`.
