@@ -133,9 +133,9 @@ l2_diagnostic:
   error_message_canonical: null        # canonicalized message text (parameter/path-stripped)
 
 l3_path_class:
-  taken: current_where_c               # current_where_c | new_planner | fallback_<reason>
-  reason: null                         # stable enum code when taken starts with fallback_
-  fallback_to: null                    # set when taken != new_planner and != current_where_c
+  taken: current_where_c               # current_where_c | new_planner | fallback | fallback_<reason>
+  reason: null                         # required stable code for fallback; nil otherwise
+  fallback_to: null                    # current_where_c for fallback; nil otherwise
 
 metadata:
   planner_version: 0                   # bumped when new planner ships
@@ -261,13 +261,22 @@ Stable values for `l3_path_class.reason` when `taken` starts with `fallback_`:
 | `LOW_CONFIDENCE_STATS` | Stats confidence below threshold (post-S1). |
 | `LOWERING_FAILED` | Internal bug; falls back rather than crashing. |
 
+The current M3 producer also emits `fallback` as `taken`, with the stable
+reason in the separate `reason` field. Its append-only reason codes are
+`UNRESOLVED_INPUT`, `UNSUPPORTED_RELATION_COUNT`, `UNSUPPORTED_SUBQUERY`,
+`UNSUPPORTED_AGGREGATE`, `UNSUPPORTED_COMPOUND`, `UNSUPPORTED_CTE`,
+`UNSUPPORTED_DISTINCT`, `INVALID_LOGICAL_PLAN`, `NO_ACCESS_PATH`, and
+`INVALID_CANDIDATE`. For both fallback encodings, `fallback_to` must be
+`current_where_c`; non-fallback paths must leave both `reason` and
+`fallback_to` null. The capture validator enforces these combinations.
+
 Adding a reason code is append-only and does NOT bump `schema_version`.
 
-The current harness writes `current_where_c` unconditionally because M0
-captures the legacy planner only. The diff hard-gates a path change by
-default. M1 must replace this placeholder with an execution-sourced path
-before any candidate can claim planner-selection coverage. A deliberate
-switch to `new_planner` needs an explicit, reviewed path-change policy;
+M0 capture obtains the path from `EXPLAIN (planner = 'snapshot')`: statements
+that use the legacy planner report `current_where_c`, while supported rejects
+report `fallback` with a stable reason and `fallback_to: current_where_c`.
+The diff hard-gates a path change by default. A deliberate switch to
+`new_planner` needs an explicit, reviewed path-change policy;
 `--ignore-path-class` is reserved for same-build dispatcher parity and must
 not be used for PR baseline comparison. Until M1 supplies runtime path
 evidence, M0 CI proves L1/L2 parity but not planner routing.

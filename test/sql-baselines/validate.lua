@@ -102,6 +102,48 @@ local function valid_mode_proof(m)
     return true
 end
 
+-- Keep this list aligned with the append-only producer reason enum and the
+-- snapshot reason codes already reserved by SCHEMA.md for later M3 routes.
+local stable_fallback_reasons = {
+    UNRESOLVED_INPUT = true,
+    UNSUPPORTED_RELATION_COUNT = true,
+    UNSUPPORTED_SUBQUERY = true,
+    UNSUPPORTED_AGGREGATE = true,
+    UNSUPPORTED_COMPOUND = true,
+    UNSUPPORTED_CTE = true,
+    UNSUPPORTED_DISTINCT = true,
+    INVALID_LOGICAL_PLAN = true,
+    NO_ACCESS_PATH = true,
+    INVALID_CANDIDATE = true,
+    UNSUPPORTED_JOIN = true,
+    UNSUPPORTED_DML = true,
+    UNSUPPORTED_TRIGGER = true,
+    UNSUPPORTED_NONDETERMINISTIC = true,
+    BUDGET_EXCEEDED = true,
+    LOW_CONFIDENCE_STATS = true,
+    LOWERING_FAILED = true,
+}
+
+local function valid_path_class(path)
+    if type(path) ~= 'table' or type(path.taken) ~= 'string' then
+        return false
+    end
+    local reason = path.reason
+    local fallback_to = path.fallback_to
+    if path.taken == 'current_where_c' or path.taken == 'new_planner' then
+        return reason == nil and fallback_to == nil
+    end
+    if path.taken == 'fallback' then
+        return type(reason) == 'string' and
+               stable_fallback_reasons[reason] == true and
+               fallback_to == 'current_where_c'
+    end
+    local suffix = path.taken:match('^fallback_(.+)$')
+    return suffix ~= nil and stable_fallback_reasons[suffix] == true and
+           (reason == nil or reason == suffix) and
+           fallback_to == 'current_where_c'
+end
+
 for _, path in ipairs(manifests) do
     local m, err = read_document(path, json.decode)
     if not m then
@@ -167,8 +209,7 @@ for _, path in ipairs(manifests) do
                        s.l1_result.ok ~= (s.l2_diagnostic.status == 'success') or
                        (s.l2_diagnostic.status == 'error' and
                         type(s.l2_diagnostic.error_code) ~= 'string') or
-                       type(s.l3_path_class) ~= 'table' or
-                       type(s.l3_path_class.taken) ~= 'string' then
+                       not valid_path_class(s.l3_path_class) then
                     reject(snapshot_path .. ': missing or inconsistent v1 fields')
                 elseif (s.l1_result.column_names == nil) ~=
                        (s.l1_result.column_types == nil) or

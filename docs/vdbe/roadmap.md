@@ -587,7 +587,13 @@ DML, triggers, subprograms, non-deterministic functions.
   normalizer preserves path, reason, and `fallback_to: current_where_c`; live
   harness capture and schema validation exercise the complete route. Other
   new-planner/fallback classes, baseline recapture, and parity validation
-  remain open.
+  remain open. The capture validator now checks fallback metadata as a
+  coherent contract: a fallback requires a recognized stable reason and
+  `fallback_to: current_where_c`, while non-fallback paths must not carry
+  either field. Negative validation tests cover missing/unknown reasons,
+  wrong fallback destinations, and fallback metadata attached to a
+  `current_where_c` path. This closes a schema-validation hole, not the
+  broader M3.6 capture/parity gate.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.

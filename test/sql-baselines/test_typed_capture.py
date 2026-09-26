@@ -81,6 +81,26 @@ class TypedCaptureTest(unittest.TestCase):
                 self.assertIn(f"reason: {reason}", snapshot)
                 self.assertIn("fallback_to: current_where_c", snapshot)
 
+            path = out / "snapshots/sql-tap/fallback_sql/q01.memtx.yaml"
+            valid_snapshot = path.read_text()
+            invalid_fields = (
+                ("reason: UNSUPPORTED_RELATION_COUNT", "reason: null"),
+                ("reason: UNSUPPORTED_RELATION_COUNT", "reason: UNKNOWN_REASON"),
+                ("fallback_to: current_where_c", "fallback_to: new_planner"),
+                ("taken: fallback", "taken: current_where_c"),
+            )
+            for original, replacement in invalid_fields:
+                with self.subTest(replacement=replacement):
+                    self.assertIn(original, valid_snapshot)
+                    path.write_text(valid_snapshot.replace(original, replacement, 1))
+                    result = subprocess.run(
+                        [str(BINARY), str(VALIDATE), str(out)],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        text=True)
+                    self.assertNotEqual(result.returncode, 0,
+                                        "validator accepted inconsistent path metadata")
+            path.write_text(valid_snapshot)
+
     def test_forensic_vdbe_program_listing(self):
         if not BINARY.is_file():
             self.skipTest(f"Tarantool binary not found: {BINARY}")
