@@ -113,14 +113,7 @@ assert(deterministic_summary.rows[1][3] == 'current_where_c')
 assert(deterministic_summary.rows[2][3] == nil)
 planner_stats_after_nondeterministic = box.stat.sql()
 assert(planner_stats_after_nondeterministic.sql_planner_fallback_UNSUPPORTED_NONDETERMINISTIC_total == planner_stats_before_nondeterministic.sql_planner_fallback_UNSUPPORTED_NONDETERMINISTIC_total + 1)
-box.schema.func.create('planner_nondeterministic_udf', {
-    language = 'Lua',
-    is_deterministic = false,
-    body = 'function() return math.random() end',
-    returns = 'double',
-    param_list = {},
-    exports = {'SQL'},
-})
+box.schema.func.create('planner_nondeterministic_udf', {language = 'Lua', is_deterministic = false, body = 'function() return math.random() end', returns = 'double', param_list = {}, exports = {'SQL'}})
 planner_stats_before_nondeterministic_udf = box.stat.sql()
 nondeterministic_udf_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT planner_nondeterministic_udf() FROM summary_t]])
 assert(err == nil)
