@@ -87,7 +87,7 @@ for seed = 1, 512 do
 end
 for id = 1, 64 do assert(frequency[id] >= 1 and frequency[id] <= 20) end
 -- Update/delete and another compaction must be reflected by a new snapshot.
-space:update({{2}}, {{'=', 2, 'updated'}})
+space:update({{2}}, {{{{'=', 2, 'updated'}}}})
 space:delete({{3}})
 box.snapshot()
 space.index.pk:compact()

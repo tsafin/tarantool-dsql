@@ -61,11 +61,12 @@ lbox_sql_stats_sample_vinyl(lua_State *L)
 		.max_iterator_keys = luaL_optinteger(L, 8, 10000),
 		.max_buffer_bytes = luaL_optinteger(L, 9, 1024 * 1024),
 	};
+	bool fail = lua_toboolean(L, 10);
 	lua_newtable(L);
 	struct sample_capture capture = {
 		.L = L,
 		.ids = lua_gettop(L),
-		.fail = lua_toboolean(L, 10),
+		.fail = fail,
 	};
 	struct sql_stats_sample_sink sink = {
 		.context = &capture,
