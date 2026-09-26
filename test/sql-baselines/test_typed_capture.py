@@ -128,6 +128,15 @@ class TypedCaptureTest(unittest.TestCase):
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             self.assertNotEqual(result.returncode, 0,
                                 "validator accepted planner metrics that disagree with snapshot")
+
+            incomplete_manifest = json.loads(valid_manifest)
+            incomplete_manifest["planner_metrics"].pop(0)
+            manifest_path.write_text(json.dumps(incomplete_manifest))
+            result = subprocess.run(
+                [str(BINARY), str(VALIDATE), str(out)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            self.assertNotEqual(result.returncode, 0,
+                                "validator accepted missing SELECT planner metrics")
             manifest_path.write_text(valid_manifest)
 
     def test_forensic_vdbe_program_listing(self):

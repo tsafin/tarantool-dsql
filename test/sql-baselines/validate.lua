@@ -192,6 +192,14 @@ local function same_nullable(a, b)
 	return is_null(a) and is_null(b) or a == b
 end
 
+local function statement_requires_planner_metrics(query_sql)
+	local sql = tostring(query_sql)
+	sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
+	local first_word = sql:match('^%s*(%a+)')
+	return first_word ~= nil and
+		(first_word:upper() == 'SELECT' or first_word:upper() == 'WITH')
+end
+
 for _, path in ipairs(manifests) do
     local m, err = read_document(path, json.decode)
     local planner_metrics = m and valid_planner_metrics(m) or nil
@@ -262,8 +270,12 @@ for _, path in ipairs(manifests) do
                         type(s.l2_diagnostic.error_code) ~= 'string') or
                        not valid_path_class(s.l3_path_class) then
                     reject(snapshot_path .. ': missing or inconsistent v1 fields')
-                elseif metric ~= nil and
-                       (not same_nullable(metric.path_class,
+				elseif m.planner_metrics_version == 2 and metric == nil and
+				       statement_requires_planner_metrics(s.test.query_sql) then
+					reject(snapshot_path ..
+					       ': planner metrics missing for SELECT/WITH statement')
+				elseif metric ~= nil and
+				       (not same_nullable(metric.path_class,
                                           s.l3_path_class.taken) or
                         not same_nullable(metric.fallback_reason,
                                           s.l3_path_class.reason)) then
