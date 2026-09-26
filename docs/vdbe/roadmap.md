@@ -472,7 +472,14 @@ DRAFT pending human review of IDs and formats.
   suites disabled until S1.2/S1.3 provide an execution/collection contract;
   do not map them onto the draft persistent schema. *parallel: yes*.
 - [ ] **S1.9** Add synthetic uniform / skewed validation cases to the M0
-  corpus, gate q-error improvement. *parallel: yes*.
+  corpus, gate q-error improvement. The lower-level estimator already has
+  passing synthetic unit probes for uniform equality/median-range and
+  duplicate-heavy skewed MCV/residual/range q-error (`test_uniform_and_skewed_qerror`
+  in `test/unit/sql_stats_selectivity.c`). These validate estimator behavior
+  with supplied summaries, but do not collect statistics from the M0 SQL
+  corpus or establish planner q-error improvement; S1.9 remains open pending
+  corpus integration and a reviewed q-error acceptance criterion. *parallel:
+  yes*.
 
 ---
 
