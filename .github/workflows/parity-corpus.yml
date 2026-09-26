@@ -113,20 +113,31 @@ jobs:
           with open(sys.argv[2]) as base_file, open(sys.argv[3]) as head_file:
               base = json.load(base_file)
               head = json.load(head_file)
-          post_baseline = [entry for entry in head.get('excluded', [])
-                           if entry.get('introduced_after_baseline') is True]
-          for entry in post_baseline:
+          candidate_only = set()
+          for entry in head.get('excluded', []):
+              if entry.get('introduced_after_baseline') is not True:
+                  continue
               path = 'test/' + entry['test']
               result = subprocess.run(
                   ['git', 'cat-file', '-e', f'{baseline_sha}:{path}'],
                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-              if result.returncode == 0:
-                  raise SystemExit(f'post-baseline exclusion exists at anchor: {path}')
-          # The only allowed corpus decision delta is a reviewed exclusion for
-          # a test absent from this immutable baseline; candidate inventory
-          # still requires the test to exist in the PR tree.
+              if result.returncode != 0:
+                  candidate_only.add((entry['test'], tuple(entry['engines'])))
+                  continue
+              inherited = any(
+                  old.get('test') == entry['test'] and
+                  tuple(old.get('engines', [])) == tuple(entry['engines']) and
+                  old.get('introduced_after_baseline') is True
+                  for old in base.get('excluded', []))
+              if not inherited:
+                  raise SystemExit(
+                      f'post-baseline marker is not present in anchor policy: {path}')
+          # A reviewed exclusion absent from the immutable baseline is a
+          # candidate-only inventory decision. If the selected anchor already
+          # contains the file, require that same reviewed decision there.
           head['excluded'] = [entry for entry in head.get('excluded', [])
-                              if entry.get('introduced_after_baseline') is not True]
+                              if (entry['test'], tuple(entry['engines']))
+                              not in candidate_only]
           # The promotion commit changes only this self-referential pointer.
           base.pop('baseline_commit', None)
           head.pop('baseline_commit', None)
