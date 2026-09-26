@@ -681,7 +681,7 @@ test_synthetic_workload_range_matrix(void)
 		if (sql_stats_estimate_range(&summary, &boundaries[i],
 					     sizeof(boundaries[i]), SQL_STATS_RANGE_LE,
 					     &result) != 0 ||
-	    q_error(result.value, actual_cdf[i]) > 1.06 ||
+		    q_error(result.value, actual_cdf[i]) > 1.06 ||
 		    result.source != SQL_STATS_SELECTIVITY_HISTOGRAM)
 			all_within_qerror = false;
 	}

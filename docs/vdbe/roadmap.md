@@ -636,7 +636,7 @@ the `where.c` selectivity adapter wait for that interface.
   sample, with lower caller-supplied confidence. These remain synthetic
   algorithm probes, not a freshness policy or corpus validation. A generated
   100-row, four-value head/tail fixture now checks cumulative range q-error at
-  every distinct boundary (maximum 1.01) in
+  every distinct boundary (maximum 1.06) in
   `test_synthetic_workload_range_matrix`; this remains a unit-level workload
   probe, not an M0 SQL-corpus test or acceptance gate. No production q-error
   gate is active.
