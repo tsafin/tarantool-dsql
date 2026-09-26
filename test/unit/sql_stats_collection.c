@@ -8,7 +8,7 @@
 static void
 test_complete_result_and_rejections(void)
 {
-	plan(20);
+	plan(21);
 	header();
 	uint64_t prefixes[] = {2, 4};
 	struct sql_stats_expected_index expected_index = {
@@ -106,6 +106,22 @@ test_complete_result_and_rejections(void)
 	index.population_basis = "visible_rows@view-9";
 	ok(sql_stats_collection_build_candidate(&generation, &expected_relation, 1,
 		&result, 1) == NULL, "candidate copy budget failure is rejected");
+	bool saw_budget_rejection = false;
+	bool reached_complete_candidate = false;
+	for (size_t budget = 1; budget <= 4096; budget++) {
+		struct sql_stats_snapshot *candidate =
+			sql_stats_collection_build_candidate(&generation,
+				&expected_relation, 1, &result, budget);
+		if (candidate == NULL) {
+			saw_budget_rejection = true;
+			continue;
+		}
+		sql_stats_snapshot_release(candidate);
+		reached_complete_candidate = true;
+		break;
+	}
+	ok(saw_budget_rejection && reached_complete_candidate,
+	   "budget sweep rejects incomplete copies then accepts a full candidate");
 	index.visibility_id = 0;
 	ok(sql_stats_collection_build_candidate(&generation, &expected_relation, 1,
 		&result, 4096) == NULL, "unknown index visibility token is rejected");

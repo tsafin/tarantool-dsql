@@ -428,7 +428,12 @@ review of IDs and formats.
   completeness and catalog/schema/visibility/index-definition generations
   are checked. No sampling producer, shared engine visibility mechanism,
   global publication, allocator-fault injection, or rollback test exists yet;
-  therefore this subtask remains open and `ANALYZE` stays disabled. See
+  therefore this subtask remains open and `ANALYZE` stays disabled. The
+  collection unit now sweeps the snapshot byte budget from immediate rejection
+  through the first complete deep copy, releasing candidates and checking that
+  every incomplete budget fails closed. This exercises budget-rejection
+  cleanup paths, but is not allocator-fault injection or a publication
+  rollback test. See
   `sql_stats_sampling.md` for the exact contract and local unit evidence.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
