@@ -416,6 +416,15 @@ remains DRAFT pending human review of IDs and formats.
   The standalone fail-closed runtime test now verifies `ER_UNSUPPORTED` and
   zero rows/sink deliveries against a real Vinyl space; this does not complete
   the bounded-work interface.
+  Iterator review confirms that a source/page cap cannot safely return tuples
+  observed so far: an unvisited source may contain a newer visible version or
+  tombstone, and first-N output is key-order biased. The next implementation
+  must propagate an operation-local source-probe/uncached-page budget through
+  both iterator layers and fail closed on exhaustion until logical-visible
+  candidate selection and partial-sample confidence semantics are defined.
+  Existing cancellation can surface as `FiberIsCancelled` through the pinned
+  slice cleanup path; synchronous recovery reads are not cancellable. This is
+  a design constraint, not a completed sampler.
   See `sql_stats_sampling.md`. *parallel: yes, against the S1.5 contract*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
   `whereRangeScanEst()` consume snapshot, fall back to defaults on absence.

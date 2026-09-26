@@ -101,6 +101,22 @@ of bounded work (including I/O/source amplification), and a defined partial
 sample/confidence result. It must test both read amplification and sample
 quality under multiple ranges, compaction states, updates, and deletes.
 
+The normal `vy_read_iterator` cannot safely turn a source/page cap into a
+partial sample by returning the tuples seen so far. It merges transaction,
+cache, memory, and disk histories; an unvisited disk source may contain a newer
+visible version or a tombstone for a candidate already observed. Stopping at
+the cap and returning prior tuples would therefore risk both visibility
+errors and key-order bias. A future budget context should be operation-local
+and account at least source probes and uncached page-read attempts, propagated
+from the read iterator to run iterators. Exceeding the budget must fail closed
+until the sampler contract defines how incomplete samples are marked and how
+consumers adjust confidence. Cancellation can use the existing iterator error
+path (`FiberIsCancelled`) while disk slices are pinned/unpinned; sampling must
+not rely on synchronous recovery-time reads, which are not cooperatively
+interruptible. This budget instrumentation alone is not a sampling strategy:
+candidate selection still has to be evaluated over logical visible tuples
+across updates, deletes, and compaction.
+
 The generic S1.5 request/sink/result contract and memtx callback now exist.
 The runtime dispatch test also verifies that Vinyl's currently missing
 callback fails closed with `ER_UNSUPPORTED` without delivering rows. S1.6 can
