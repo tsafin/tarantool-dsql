@@ -226,6 +226,19 @@ is opaque and in-memory only, with no persistence encoding or system-space
 dependency. Interpolation and conversion of these sample counts into planner
 selectivity remain separate estimator work (S2.5).
 
+### Selectivity estimator prototype contract (S2.5)
+
+`src/box/sql/sql_stats_selectivity.{h,c}` consumes normalized single-column
+inputs without owning collection or persistence. A proven unique equality and
+`IS NULL` fraction precede sampled MCV equality; untracked equality values use
+residual NDV with deliberately reduced confidence. Range predicates use
+cumulative histogram counts, with midpoint estimates inside a bucket and
+strict/inclusive behavior at exact boundaries. Independent conjunctions
+multiply selectivities and retain the minimum confidence. This is a narrow
+prototype only: it does not yet model multivariate MCV, dependencies,
+correlation, MCV-aware range mass, or planner fallbacks, and is not connected
+to `where.c` or `SqlStatsSnapshot`.
+
 ## Refresh And Staleness
 
 Initial policy is explicit `ANALYZE`; background refresh is not required for

@@ -404,9 +404,14 @@ persistence and the `where.c` selectivity adapter wait for that interface.
   opaque result reports cumulative sample counts; no SQL value encoding,
   persistence format, or system-space ID is defined. Focused unit tests cover
   quantiles, duplicate handling, deep copy, invalid ordering, and byte budget.
-- [ ] **S2.5** Selectivity estimator — implements the precedence order from
-  `next_gen_sql_planner.md`. Plug into `where.c` selectivity functions.
-  *parallel: no* (touches `where.c`).
+- [ ] **S2.5 prototype** Single-column selectivity API implemented in
+  `src/box/sql/sql_stats_selectivity.{h,c}`: unique equality, NULL fraction,
+  sampled MCV equality, residual-NDV independence fallback, cumulative
+  histogram ranges, and conservative AND confidence. Focused unit tests cover
+  source precedence and strict/inclusive range boundaries. Multivariate MCV,
+  dependencies, correlation adjustment, normalized snapshot inputs, and
+  `where.c` integration remain open; this does not close S2.5.
+  *parallel: no* (planner integration touches `where.c`).
 - [ ] **S2.6** Validation corpus extension — uniform / skewed / correlated /
   anti-correlated synthetic data, with stale-stat variants. *parallel: yes*.
 - [x] **S2.7 prototype** Confidence/staleness metadata representation.
