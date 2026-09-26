@@ -4,7 +4,7 @@
 
 This document is the single source of truth for the analytics-focused SQL
 engine work on `tsafin/nextgen_sql` and its descendants. Status below was
-reconciled with the local tree on 2026-09-26; uncommitted files are evidence
+reconciled with the local tree on 2026-09-27; uncommitted files are evidence
 of work in progress, not completed deliverables.
 
 Scope is deliberately narrow:
@@ -803,10 +803,12 @@ separately from captured non-EXPLAIN result/diagnostic drift. Full reviewed
 adapter-compatible SQL-luatest (32 memtx / 31 Vinyl tests; 499 / 447
 statements) and SQL `.test.lua` scope (32 / 33 tests; 1,078 / 1,086 statements)
 both passed all strict default/candidate and repeat comparisons with zero
-diffs. Two reviewed raw `.test.sql` cases are not supported by the child-server
-adapter. E1 acceptance and the GATE decision still depend on integrated M3 +
-S2 and an accepted evaluation workload with plan-quality and end-to-end latency
-data. Full reviewed SQL-TAP captures in CnP and LLVM modes show the same
+diffs. The two reviewed raw `.test.sql` policy cases are now captured by the
+strict SQL-file harness: full SQL coverage is 34 files / 1,090 statements on
+memtx and 35 files / 1,098 statements on Vinyl, with exact repeat and
+cross-width comparisons. E1 acceptance and the GATE decision still depend on
+integrated M3 + S2 and an accepted evaluation workload with plan-quality and
+end-to-end latency data. Full reviewed SQL-TAP captures in CnP and LLVM modes show the same
 three cross-width EXPLAIN-only differences and exact within-width repeats;
 this confirms native-mode width sensitivity but does not measure query quality
 or execution latency.
@@ -831,8 +833,9 @@ CI. Full CnP and LLVM SQL-TAP captures reproduce the same three EXPLAIN-only
 cross-width differences and exact within-width repeats; candidate planner time
 is roughly 2–2.6× default across modes and engines. Separate full reviewed
 SQL-luatest and adapter-compatible SQL `.test.lua`
-captures now have zero strict diffs; two raw `.test.sql` cases remain outside
-the SQL adapter. Of 24,263 memtx and 22,135 Vinyl
+captures now have zero strict diffs; the two raw `.test.sql` cases also pass
+strict SQL-file A/B capture after extending the harness to dispatch their
+adapter. Of 24,263 memtx and 22,135 Vinyl
 successful planner snapshots, only 6,314 and 6,237 respectively used
 `current_where_c`; the rest were fallback or null path classes. This therefore
 does not establish the value of wider bounds for an integrated M3/S2 planner.
@@ -926,9 +929,12 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   (32 memtx / 31 Vinyl tests, 499 / 447 statements) passed repeats and strict
   cross-width parity with zero diffs. SQL-vs-EXPLAIN classification is
   included; no differences occurred in the full run. Reviewed normal SQL
-  `.test.lua` scope (32 / 33 tests, 1,078 / 1,086 statements) also passed all
-  repeats and cross-width comparisons exactly; two raw `.test.sql` cases are
-  omitted because the adapter requires Lua test files. The A/B harness now
+  `.test.lua` scope (32 / 33 tests, 1,078 / 1,086 statements) passed all
+  repeats and cross-width comparisons exactly. The subsequent full SQL-suite
+  run includes both reviewed `.test.sql` policy entries: 34 / 35 files and
+  1,090 / 1,098 statements, with exact repeats and cross-width matches. The
+  child-server adapter still requires Lua files; raw SQL files use the strict
+  SQL-file harness. The A/B harness now
   accepts `--mode generated|cnp|llvm` across SQL-TAP, SQL-luatest, and SQL-suite
   adapters; each mode is held constant through both width configurations and
   repeats and recorded in the report. This is not cross-mode parity evidence.

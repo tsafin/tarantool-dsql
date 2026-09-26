@@ -351,9 +351,9 @@ same normal-runner adapter as SQL-luatest. SQL-suite selection uses the corpus
 policy's `evidence.<engine>.capture.audit_queries` count, rather than the
 SQL-TAP `captured_queries` or SQL-luatest generated-mode evidence contracts.
 `--full-corpus` enumerates reviewed adapter-compatible `.test.lua` tests
-eligible for the requested engine; raw `.test.sql` policy entries are omitted
-because the child-server adapter requires a Lua test file. `--test` is
-restricted to reviewed top-level `.test.lua` basenames.
+eligible for the requested engine. Strict SQL-file policy entries are captured
+through the SQL baseline harness instead of the child-server adapter; `--test`
+accepts reviewed top-level `.test.lua` and `.test.sql` basenames.
 Each of the default, default-repeat, candidate, and candidate-repeat runs is
 strictly diffed. The report additionally partitions EXPLAIN output differences
 from other result/diagnostic differences, without weakening strict parity.
@@ -401,3 +401,20 @@ were omitted because the normal child-server adapter currently requires a
 Lua test file. The report is local at
 `/tmp/tarantool-e1-full-sql-suite-fixed/report.json`; raw `.test.sql` coverage
 and hosted-CI execution remain open.
+
+### Full reviewed SQL suite including strict SQL files, 2026-09-27
+
+After adding strict SQL-file dispatch to the width harness, the full reviewed
+SQL suite was rerun at widths 1/5/10 and 2/8/16 with exact repeats. Source
+commit was `3c4c959606cbe11fa514e089c9db25a5a7e1fe4a`; binary SHA-256 was
+`7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`.
+Memtx covered 34 files / 1,090 statements and Vinyl 35 files / 1,098
+statements, including both previously omitted SQL-only cases
+(`gh-4256-do-not-change-order-during-insertion.test.sql` and
+`gh-4697-scalar-bool-sort-cmp.test.sql`). All default-repeat,
+candidate-repeat, and cross-width strict comparisons passed on both engines;
+EXPLAIN classification found no differences. Reports are at
+`/tmp/tarantool-e1-full-sql-plus-raw/report.json`. This closes the reviewed
+SQL-suite capture-coverage gap for the strict policy entries; native-mode SQL
+suite width comparisons, hosted CI, plan quality, and end-to-end latency remain
+separate evidence/gates.
