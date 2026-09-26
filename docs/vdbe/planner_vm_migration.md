@@ -418,6 +418,12 @@ look up rows by `(section, key)`, not by ordinal.
 | `planner` | map | Per-statement `candidate_count`, `elapsed_us`, `fallback_count`, and bounded-path `generated`, `dominated`, `truncated`, and `retained` counters. |
 
 This is a versioned diagnostic envelope, not yet a standalone replay input.
+Version 2 is diagnostic-only: it must have `replayable: false` and must not
+contain a `replay_inputs` key, including an empty or partial value. Capturers
+must reject a v2 object that violates either invariant rather than interpreting
+the flag as a promise. Adding normalized input fields requires a new envelope
+version. The producer omits the field, the M0 harness checks the false flag,
+and focused SQL coverage checks both invariants.
 Per-statement planner measurements are also copied into the harness run
 manifest (`planner_metrics_version: 2`, `planner_metrics`) for analysis; they
 are not part of the M0 result/parity gate. The path counters cover candidate

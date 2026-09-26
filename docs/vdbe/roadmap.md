@@ -343,8 +343,11 @@ them.
   relation/access-path data, and statistics) are captured; this subtask
   remains open. The migration spec now defines the minimum canonical,
   self-contained input and validation contract for a future replay envelope;
-  it intentionally does not choose persistence IDs or formats. Replay
-  execution stays in M1.5. *parallel: yes*.
+  it intentionally does not choose persistence IDs or formats. Focused SQL
+  checks assert v2 remains non-replayable and has no partial `replay_inputs`
+  on both legacy and fallback paths. This validates the diagnostic-only
+  boundary, not replay support. Replay execution stays in M1.5.
+  *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current M1.4
   envelope still has no normalized predicates, relation/access-path inputs,
