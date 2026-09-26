@@ -643,6 +643,56 @@ test_uniform_and_skewed_qerror(void)
 }
 
 static void
+test_synthetic_workload_range_matrix(void)
+{
+	plan(2);
+	header();
+	/* A compact corpus-like fixture: four ordered values with a heavy head
+	 * and a progressively thinner tail. Keep the source rows here (rather
+	 * than only a prebuilt summary) so expected CDFs are independently derived
+	 * from the synthetic workload. */
+	int keys[100];
+	struct sql_stats_ordered_value values[100];
+	for (size_t i = 0; i < 100; i++) {
+		keys[i] = i < 60 ? 0 : i < 80 ? 1 : i < 95 ? 2 : 3;
+		values[i] = (struct sql_stats_ordered_value){
+			.data = &keys[i], .size = sizeof(keys[i]),
+		};
+	}
+	struct sql_stats_histogram *hist = sql_stats_histogram_new(
+		values, 100, 4, compare_int, NULL, 4096);
+	ok(hist != NULL, "skewed workload histogram builds");
+	if (hist == NULL) {
+		footer();
+		check_plan();
+		return;
+	}
+	struct sql_stats_column_summary summary = {
+		.row_count = 100, .null_fraction = 0, .distinct_count = 4,
+		.confidence = 1, .sample_nonnull_rows = 100,
+		.histogram = hist, .compare = compare_int,
+	};
+	/* Check each corpus-like ordered predicate, not just one median point. */
+	const int boundaries[] = {0, 1, 2, 3};
+	const double actual_cdf[] = {0.60, 0.80, 0.95, 1.00};
+	bool all_within_qerror = true;
+	for (size_t i = 0; i < 4; i++) {
+		struct sql_stats_selectivity result;
+		if (sql_stats_estimate_range(&summary, &boundaries[i],
+					     sizeof(boundaries[i]), SQL_STATS_RANGE_LE,
+					     &result) != 0 ||
+	    q_error(result.value, actual_cdf[i]) > 1.06 ||
+		    result.source != SQL_STATS_SELECTIVITY_HISTOGRAM)
+			all_within_qerror = false;
+	}
+	ok(all_within_qerror,
+	   "skewed workload CDF range matrix has q-error at most 1.06");
+	sql_stats_histogram_delete(hist);
+	footer();
+	check_plan();
+}
+
+static void
 test_null_heavy_qerror(void)
 {
 	plan(3);
@@ -772,6 +822,7 @@ main(void)
 	test_exact_mcv_and_independence();
 	test_histogram_ranges();
 	test_uniform_and_skewed_qerror();
+	test_synthetic_workload_range_matrix();
 	test_null_heavy_qerror();
 	test_joint_mcv_equality_conjunction();
 	test_joint_mcv_range_conjunction();

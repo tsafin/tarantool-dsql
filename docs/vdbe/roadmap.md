@@ -634,8 +634,12 @@ the `where.c` selectivity adapter wait for that interface.
   drift fixture moves a selected pair's actual frequency from 80% to 1% and
   demonstrates q-error 80 for the stale joint sample versus 1 for the current
   sample, with lower caller-supplied confidence. These remain synthetic
-  algorithm probes, not a freshness policy or corpus validation. No production
-  q-error gate is active.
+  algorithm probes, not a freshness policy or corpus validation. A generated
+  100-row, four-value head/tail fixture now checks cumulative range q-error at
+  every distinct boundary (maximum 1.01) in
+  `test_synthetic_workload_range_matrix`; this remains a unit-level workload
+  probe, not an M0 SQL-corpus test or acceptance gate. No production q-error
+  gate is active.
   *parallel: yes*.
 - [x] **S2.7 prototype** Confidence/staleness metadata representation.
   The S1.4 snapshot records cardinality confidence/semantics, collection time,
