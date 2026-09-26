@@ -99,7 +99,8 @@ sample/confidence result. It must test both read amplification and sample
 quality under multiple ranges, compaction states, updates, and deletes.
 
 The generic S1.5 request/sink/result contract and memtx callback now exist.
-S1.6 can extend that contract with Vinyl-specific work bounds and partial or
-unsupported result semantics. Until that strategy is implemented and tested,
-S1.6 remains open; this status is a feasibility finding, not a completed
-sampler.
+The runtime dispatch test also verifies that Vinyl's currently missing
+callback fails closed with `ER_UNSUPPORTED` without delivering rows. S1.6 can
+extend the contract with Vinyl-specific work bounds and partial or unsupported
+result semantics. Until that strategy is implemented and tested, S1.6 remains
+open; this status is a feasibility finding, not a completed sampler.
