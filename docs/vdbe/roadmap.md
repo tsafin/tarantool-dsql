@@ -663,7 +663,7 @@ M0-B corpus for the evaluation workloads.
   paths and increased beam truncation, with candidate/fallback counts and path
   classes unchanged. `elapsed_us` was zero, so no latency or plan-quality gain
   is established. This is a bounded subset, not full-corpus evidence; the full
-  corpus comparison and quality evaluation remain open. An expanded 868-query
+  corpus comparison and quality evaluation remain open. An expanded 962-query
   exploratory subset is repeat-stable but has one width-sensitive
   `EXPLAIN QUERY PLAN` output difference (`whereK/q13`) on both engines; it is
   not counted as a full snapshot parity pass, though both configurations pass
