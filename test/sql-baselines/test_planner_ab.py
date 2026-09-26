@@ -58,8 +58,12 @@ class PlannerABTest(unittest.TestCase):
             (source / "manifests/sql-luatest").mkdir(parents=True)
             (source / "snapshots/sql-luatest/a/q001.yaml").write_text("snap")
             (source / "manifests/sql-luatest/a.memtx.json").write_text("manifest")
+            (source / "luatest-child-state.json").write_text("transient")
+            (source / "luatest-capture-error").write_text("transient")
             ab.merge_capture(source, dest)
             self.assertTrue((dest / "snapshots/sql-luatest/a/q001.yaml").is_file())
+            self.assertFalse((dest / "luatest-child-state.json").exists())
+            self.assertFalse((dest / "luatest-capture-error").exists())
             with self.assertRaises(ValueError):
                 ab.merge_capture(source, dest)
 

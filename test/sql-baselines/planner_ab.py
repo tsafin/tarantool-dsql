@@ -117,6 +117,12 @@ def merge_capture(source, destination):
     for path in source.rglob("*"):
         if not path.is_file():
             continue
+        # These files describe only the last child process in an isolated
+        # capture. They are not part of the aggregate snapshot/manifest
+        # contract and would collide for every subsequent test.
+        if path.relative_to(source).as_posix() in (
+                "luatest-child-state.json", "luatest-capture-error"):
+            continue
         target = destination / path.relative_to(source)
         if target.exists():
             raise ValueError(f"duplicate capture output: {target}")
