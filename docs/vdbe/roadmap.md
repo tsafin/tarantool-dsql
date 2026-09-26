@@ -77,25 +77,38 @@ or gate. The M0 contract and a small trusted corpus unblock development;
 full-corpus coverage is required before production promotion.
 
 ```mermaid
-flowchart LR
-    A["M0-A: validate harness and seed corpus"] --> B["M0-B: trusted baseline and CI"]
-    A --> C["M1: planner observability and replay"]
-    D["S0: audit complete"] --> E["S1: relation and index stats"]
+flowchart TD
+    A["M0-A: harness contract + seed corpus"] --> B["M0-B: trusted baseline + CI"]
+    A --> C["M1: observability / replay contract"]
+    D["S0: audit complete"] --> E["S1.4: in-memory snapshot API"]
     A --> E
-    E --> F["S2: column stats and selectivity"]
-    C --> G["M3: single-table IR and VDBE lowering"]
+    E --> F["S2.2-2.7: algorithm prototypes"]
+    C --> G["M3.1-3.4: IR / lowering prototypes"]
     A --> G
-    B --> H["promotion parity gate"]
-    F --> I["E1: bounded DP with properties"]
-    G --> I
-    I --> J["GATE: enumerator decision"]
-    H --> J
+    G --> H["M3.5-3.7: route, fallback, flag"]
+    C --> H
+    P["Human gate: approve persistent IDs / formats"] --> Q["S1.1 + S2.1: persistent spaces"]
+    E --> R["S1.5-1.6: engine sampling"]
+    Q --> S["S1.3: collection + persistence"]
+    R --> S
+    S --> T["S1.7-1.9: adapter + validation"]
+    Q --> U["S2 persistence / where.c integration"]
+    F --> U
+    U --> V["S2 integrated"]
+    T --> W["S1 integrated"]
+    H --> X["E1: bounded-DP evaluation"]
+    V --> X
+    B --> Y["promotion parity gate"]
+    X --> Z["GATE: enumerator decision"]
+    Y --> Z
 ```
 
-S1 and M1 can progress concurrently after the M0-A contract is stable.
-M3 may use the current estimates or a fixed test provider while S1/S2 are
-built. M3's first parity gate therefore does not depend on completed column
-statistics. E1 and the final decision require the real statistics path.
+The in-memory S1 snapshot, S2 algorithms, and M3 IR/lowering prototypes are
+independent tracks after their stated contracts; they can use isolated
+worktrees. Engine samplers are another independent track but must honor a
+shared request/sink contract. Persistent-space work, collection, and adapters
+stay behind the human IDs/formats gate. M3 can use fixed/current estimates
+while statistics are built; E1 waits for integrated M3 and S2.
 
 ## Parallel work and integration ownership
 
