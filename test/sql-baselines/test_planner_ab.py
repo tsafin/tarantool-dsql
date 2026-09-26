@@ -14,6 +14,18 @@ class PlannerABTest(unittest.TestCase):
         env = ab.environment((1, 5, 10))
         self.assertEqual([env[key] for key in ab.WIDTH_KEYS], ["1", "5", "10"])
 
+    def test_execution_mode_environment(self):
+        expected = {
+            "generated": ("generated", "0"),
+            "cnp": ("cnp", "0"),
+            "llvm": ("generated", "1"),
+        }
+        for mode, values in expected.items():
+            env = ab.environment((2, 8, 16), mode)
+            self.assertEqual((env["VDBE_DISPATCHER"], env["SQL_JIT_ENABLE"]), values)
+        with self.assertRaises(ValueError):
+            ab.environment((1, 5, 10), "unknown")
+
     def test_reviewed_query_budget(self):
         policy = {"included": [{"test": "sql-tap/join.test.lua", "engines": ["memtx"],
                                 "evidence": {"memtx": {"captured_queries": 10}}}]}

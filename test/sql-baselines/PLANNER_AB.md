@@ -17,6 +17,12 @@ required. `--test` may repeat, selecting reviewed top-level SQL-TAP basenames;
 subset to `--max-queries` (default 1000) per engine per run, and the actual
 capture count must agree. SQL-TAP captures are validated with the existing
 manifest/snapshot validator and compared with the existing diff tool.
+`--mode generated|cnp|llvm` selects one execution mode for all four width
+captures (default: generated). CnP and LLVM require a binary built with the
+corresponding support; native participation is checked by the suite adapter.
+The report records the requested mode, dispatcher setting, and JIT flag.
+Widths are compared only within a mode; the tool makes no cross-mode parity
+claim.
 
 The default subset is join, join2, join3, join5, and where3: 687 SQL statements
 per engine. It includes multi-relation joins, indexed WHERE queries, outer
@@ -31,6 +37,34 @@ path-class distribution, metric totals/deltas, and query-level structural
 deltas. A capture/TAP failure records its exact configuration and test before
 exiting. A snapshot divergence is reported and returns nonzero. Diagnostic
 metric changes do not change corpus acceptance policy.
+
+### Native-mode width comparisons
+
+The same A/B capture flow can run under CnP or LLVM without changing the
+SQL-TAP, SQL-luatest, or normal SQL-suite adapters. For example, a bounded
+single-test proof is:
+
+```sh
+python3 -B test/sql-baselines/planner_ab.py \
+  --repo /home/tsafin/tarantool --binary /tmp/tarantool-m1-build/src/tarantool \
+  --out /tmp/planner-ab-cnp --test join.test.lua --engine memtx \
+  --mode cnp --widths 2,8,16
+```
+
+Each invocation holds its mode constant across default, candidate, and both
+repeats. This enables per-mode width sensitivity and repeatability evaluation;
+it is not cross-mode parity or a performance/plan-quality result.
+
+Bounded native proof, 2026-09-26: source `484186523d9e`, binary SHA-256
+`7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`,
+`sql-tap/join.test.lua`, memtx, widths 1/5/10 vs 2/8/16. Both `--mode cnp`
+and `--mode llvm` completed all four 173-statement captures. Default-repeat,
+candidate-repeat, and cross-width comparisons each passed 173/173 snapshots
+for both modes. The two modes each reported 62 planner-metric snapshots and
+structural width effects; summed generated paths increased from 44,558 to
+70,955. Reports are local artifacts at `/tmp/planner-ab-native-cnp/report.json`
+and `/tmp/planner-ab-native-llvm/report.json`. This is a one-test capability
+proof, not E1 acceptance, broad parity evidence, or a native runtime benchmark.
 
 ## Local result, 2026-09-26
 

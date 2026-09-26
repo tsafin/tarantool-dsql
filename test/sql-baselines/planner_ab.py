@@ -33,10 +33,16 @@ def widths(value):
     return result
 
 
-def environment(config):
+MODES = ("generated", "cnp", "llvm")
+
+
+def environment(config, mode="generated"):
+    if mode not in MODES:
+        raise ValueError(f"unsupported execution mode: {mode}")
     env = os.environ.copy()
     env.update(dict(zip(WIDTH_KEYS, map(str, config))))
-    env.update(VDBE_DISPATCHER="generated", SQL_JIT_ENABLE="0")
+    env.update(VDBE_DISPATCHER="cnp" if mode == "cnp" else "generated",
+               SQL_JIT_ENABLE="1" if mode == "llvm" else "0")
     return env
 
 
@@ -238,6 +244,8 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--widths", type=widths, default=(2, 8, 16))
     parser.add_argument("--suite", choices=("sql-tap", "sql-luatest", "sql"), default="sql-tap")
+    parser.add_argument("--mode", choices=MODES, default="generated",
+                        help="execution mode used for every capture (default: generated)")
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--test", action="append")
     selection.add_argument("--full-corpus", action="store_true",
@@ -292,13 +300,16 @@ def main():
         "tests": {engine: [args.suite + "/" + name for name in names]
                   for engine, names in names_by_engine.items()},
         "default_widths": list(DEFAULT_WIDTHS), "candidate_widths": list(args.widths),
-        "dispatcher": "generated", "engines": {},
+        "mode": args.mode,
+        "dispatcher": "cnp" if args.mode == "cnp" else "generated",
+        "sql_jit_enable": args.mode == "llvm", "engines": {},
         "limitations": ["only reviewed tests in the selected suite and engine are captured; non-SQL suites are excluded",
                          "SQL-suite mode currently includes adapter-compatible .test.lua tests only; raw .test.sql corpus entries are excluded",
                          "not hosted CI",
                          "planner metrics describe compile-time EXPLAIN snapshots, not runtime latency",
                          "elapsed_us is diagnostic and not a deterministic acceptance gate",
                          "strict snapshot parity includes EXPLAIN rows; SQL-suite and SQL-luatest differences are partitioned into EXPLAIN output and non-EXPLAIN result/diagnostic differences",
+                         "execution mode is held constant within each width comparison; cross-mode parity is not evaluated",
                          "no native-dispatcher performance or plan-quality claim"]}
     for engine in engines:
         captured = {}
@@ -308,7 +319,7 @@ def main():
                               ("candidate", args.widths),
                               ("candidate-repeat", args.widths)):
             capture = out / engine / label
-            env = environment(config)
+            env = environment(config, args.mode)
             env["BUILDDIR"] = str(binary.parent.parent)
             with tempfile.TemporaryDirectory(prefix="planner-ab-work-") as temp:
                 for index, name in enumerate(names):
@@ -322,7 +333,7 @@ def main():
                                  "--runner-repo", runner_repo, "--binary", binary,
                                  "--out", test_capture, "--test", name,
                                  "--suite", args.suite, "--engine", engine,
-                                 "--mode", "generated"], env=env)
+                                 "--mode", args.mode], env=env)
                             merge_capture(test_capture, capture)
                         else:
                             run([binary, HERE / "harness/run.lua", repo / "test/sql-tap" / name,

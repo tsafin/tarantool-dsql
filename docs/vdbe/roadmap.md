@@ -922,9 +922,14 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   included; no differences occurred in the full run. Reviewed normal SQL
   `.test.lua` scope (32 / 33 tests, 1,078 / 1,086 statements) also passed all
   repeats and cross-width comparisons exactly; two raw `.test.sql` cases are
-  omitted because the adapter requires Lua test files. Native dispatchers
-  remain untested by this extension. Exact diffs and reproduction instructions
-  are in `test/sql-baselines/PLANNER_AB.md`. The capture/evaluation prototype
+  omitted because the adapter requires Lua test files. The A/B harness now
+  accepts `--mode generated|cnp|llvm` across SQL-TAP, SQL-luatest, and SQL-suite
+  adapters; each mode is held constant through both width configurations and
+  repeats and recorded in the report. This is not cross-mode parity evidence.
+  A bounded memtx `join.test.lua` proof passed all 173 snapshots across
+  default/candidate/repeats in each of CnP and LLVM mode; this verifies the
+  adapter path only and does not accept E1. Exact diffs and reproduction
+  instructions are in `test/sql-baselines/PLANNER_AB.md`. The capture/evaluation prototype
   is complete; strict SQL-TAP cross-width parity and
   full-width plan-quality evaluation remain open.
   *parallel: yes*.
