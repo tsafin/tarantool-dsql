@@ -301,7 +301,7 @@ struct Vdbe {
 	u8 errorAction;		/* Recovery action to do in case of an error */
 	bft expired:1;		/* True if the VM needs to be recompiled */
 	bft doingRerun:1;	/* True if rerunning after an auto-reprepare */
-	bft explain:2;		/* True if EXPLAIN present on SQL command */
+	bft explain:3;		/* EXPLAIN mode (1..4), 0 when disabled */
 	bft changeCntOn:1;	/* True to update the change-counter */
 	bft runOnlyOnce:1;	/* Automatically expire on reset */
 	/**

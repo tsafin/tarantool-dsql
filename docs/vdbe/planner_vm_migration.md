@@ -394,6 +394,26 @@ therefore reports NULL. Later M1 fields (counters and replay identifiers)
 extend this row set without changing column names or types. Consumers should
 look up rows by `(section, key)`, not by ordinal.
 
+### Planner snapshot result contract
+
+`EXPLAIN (planner = 'snapshot') <statement>` returns one `varbinary` column,
+`snapshot`, containing one MsgPack map. Version 1 has these keys:
+
+| Key | Type | Meaning |
+| --- | --- | --- |
+| `format` | string | `tarantool.sql.planner.snapshot` |
+| `version` | unsigned integer | Envelope version, initially `1`. |
+| `path_class` | string or nil | Path class recorded on the prepared statement. |
+| `fallback_reason` | nil | Reserved until fallback propagation is implemented. |
+| `replayable` | boolean | `false` until the object includes normalized planner inputs. |
+
+This is a versioned capture envelope, not yet a standalone replay input. The
+legacy planner does not expose normalized predicates, relation/access-path
+inputs, or statistics needed to reconstruct planning without live SQL state.
+The explicit `replayable` marker prevents consumers from treating the current
+diagnostic capture as executable replay data. M1.5 owns replay tooling; a
+future envelope version can add the normalized inputs when they are produced.
+
 ## Testing Strategy
 
 The roadmap's M0 milestone establishes the **parity corpus** that all

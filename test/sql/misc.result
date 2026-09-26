@@ -219,25 +219,13 @@ assert(summary.rows[2][3] == nil)
 planner_stats_after = box.stat.sql()
 ---
 ...
-assert(planner_stats_after.sql_planner_candidates_total >=
+assert(planner_stats_after.sql_planner_candidates_total > planner_stats_before.sql_planner_candidates_total)
 ---
-- error: '[string "assert(planner_stats_after.sql_planner_candid..."]:1: unexpected
-    symbol near ''<eof>'''
+- true
 ...
-       planner_stats_before.sql_planner_candidates_total)
+assert(planner_stats_after.sql_planner_elapsed_us >= planner_stats_before.sql_planner_elapsed_us)
 ---
-- error: '[string "       planner_stats_before.sql_planner_candi..."]:1: ''='' expected
-    near '')'''
-...
-assert(planner_stats_after.sql_planner_elapsed_us >=
----
-- error: '[string "assert(planner_stats_after.sql_planner_elapse..."]:1: unexpected
-    symbol near ''<eof>'''
-...
-       planner_stats_before.sql_planner_elapsed_us)
----
-- error: '[string "       planner_stats_before.sql_planner_elaps..."]:1: ''='' expected
-    near '')'''
+- true
 ...
 assert(planner_stats_after.sql_planner_fallback_total == 0)
 ---
@@ -246,14 +234,59 @@ assert(planner_stats_after.sql_planner_fallback_total == 0)
 _, err = box.execute([[DROP TABLE summary_t]])
 ---
 ...
-summary, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT 1]])
+_, err = box.execute([[CREATE TABLE planner_snapshot_t (id INTEGER PRIMARY KEY)]])
 ---
 ...
-assert(summary == nil)
+assert(err == nil)
 ---
 - true
 ...
-assert(err ~= nil)
+snapshot, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT id FROM planner_snapshot_t]])
+---
+...
+assert(err == nil)
+---
+- true
+...
+assert(#snapshot.metadata == 1)
+---
+- true
+...
+assert(snapshot.metadata[1].name == 'snapshot')
+---
+- true
+...
+assert(snapshot.metadata[1].type == 'varbinary')
+---
+- true
+...
+assert(#snapshot.rows == 1)
+---
+- true
+...
+snapshot_object = require('msgpack').decode(tostring(snapshot.rows[1][1]))
+---
+...
+assert(snapshot_object.format == 'tarantool.sql.planner.snapshot')
+---
+- true
+...
+assert(snapshot_object.version == 1)
+---
+- true
+...
+assert(snapshot_object.path_class == 'current_where_c')
+---
+- true
+...
+assert(snapshot_object.replayable == false)
+---
+- true
+...
+_, err = box.execute([[DROP TABLE planner_snapshot_t]])
+---
+...
+assert(err == nil)
 ---
 - true
 ...

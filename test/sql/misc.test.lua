@@ -57,16 +57,26 @@ assert(summary.rows[2][1] == 'planner')
 assert(summary.rows[2][2] == 'fallback_reason')
 assert(summary.rows[2][3] == nil)
 planner_stats_after = box.stat.sql()
-assert(planner_stats_after.sql_planner_candidates_total >=
-       planner_stats_before.sql_planner_candidates_total)
-assert(planner_stats_after.sql_planner_elapsed_us >=
-       planner_stats_before.sql_planner_elapsed_us)
+assert(planner_stats_after.sql_planner_candidates_total > planner_stats_before.sql_planner_candidates_total)
+assert(planner_stats_after.sql_planner_elapsed_us >= planner_stats_before.sql_planner_elapsed_us)
 assert(planner_stats_after.sql_planner_fallback_total == 0)
 _, err = box.execute([[DROP TABLE summary_t]])
 
-summary, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT 1]])
-assert(summary == nil)
-assert(err ~= nil)
+_, err = box.execute([[CREATE TABLE planner_snapshot_t (id INTEGER PRIMARY KEY)]])
+assert(err == nil)
+snapshot, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT id FROM planner_snapshot_t]])
+assert(err == nil)
+assert(#snapshot.metadata == 1)
+assert(snapshot.metadata[1].name == 'snapshot')
+assert(snapshot.metadata[1].type == 'varbinary')
+assert(#snapshot.rows == 1)
+snapshot_object = require('msgpack').decode(tostring(snapshot.rows[1][1]))
+assert(snapshot_object.format == 'tarantool.sql.planner.snapshot')
+assert(snapshot_object.version == 1)
+assert(snapshot_object.path_class == 'current_where_c')
+assert(snapshot_object.replayable == false)
+_, err = box.execute([[DROP TABLE planner_snapshot_t]])
+assert(err == nil)
 
 --
 -- gh-4267: Full power of vdbe_field_ref

@@ -1342,6 +1342,52 @@ sqlVdbeFrameDelete(VdbeFrame * p)
 int
 sqlVdbeList(Vdbe * p)
 {
+	if (p->explain == 4) {
+		Mem *pMem = &p->aMem[1];
+		releaseMemArray(pMem, 1);
+		p->pResultSet = NULL;
+		if (p->pc >= 1)
+			return SQL_DONE;
+		/*
+		 * Version 1 is deliberately a capture envelope, not a complete replay
+		 * input: the legacy planner does not expose normalized predicates,
+		 * statistics, or access-path alternatives yet. Keep the stable fields
+		 * explicit so later versions can add those inputs without guessing.
+		 */
+		const char *path_class = p->planner_path_class;
+		size_t path_class_size = path_class != NULL ?
+			mp_sizeof_str(strlen(path_class)) : mp_sizeof_nil();
+		size_t size = mp_sizeof_map(5) +
+			mp_sizeof_str(strlen("format")) +
+			mp_sizeof_str(strlen("tarantool.sql.planner.snapshot")) +
+			mp_sizeof_str(strlen("version")) + mp_sizeof_uint(1) +
+			mp_sizeof_str(strlen("path_class")) + path_class_size +
+			mp_sizeof_str(strlen("fallback_reason")) + mp_sizeof_nil() +
+			mp_sizeof_str(strlen("replayable")) + mp_sizeof_bool(false);
+		char *buf = sql_xmalloc(size);
+		char *pos = mp_encode_map(buf, 5);
+		pos = mp_encode_str(pos, "format", strlen("format"));
+		pos = mp_encode_str(pos, "tarantool.sql.planner.snapshot",
+				    strlen("tarantool.sql.planner.snapshot"));
+		pos = mp_encode_str(pos, "version", strlen("version"));
+		pos = mp_encode_uint(pos, 1);
+		pos = mp_encode_str(pos, "path_class", strlen("path_class"));
+		if (path_class != NULL) {
+			pos = mp_encode_str(pos, path_class, strlen(path_class));
+		} else {
+			pos = mp_encode_nil(pos);
+		}
+		pos = mp_encode_str(pos, "fallback_reason",
+				    strlen("fallback_reason"));
+		pos = mp_encode_nil(pos);
+		pos = mp_encode_str(pos, "replayable", strlen("replayable"));
+		pos = mp_encode_bool(pos, false);
+		mem_set_bin_allocated(&pMem[0], buf, pos - buf);
+		p->pc++;
+		p->nResColumn = 1;
+		p->pResultSet = pMem;
+		return SQL_ROW;
+	}
 	if (p->explain == 3) {
 		Mem *pMem = &p->aMem[1];
 		releaseMemArray(pMem, 3);

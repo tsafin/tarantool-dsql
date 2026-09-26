@@ -171,12 +171,13 @@ sql_set_explain_planner(Parse *pParse, const Token *name_token,
 		return;
 	}
 	if (sqlStrICmp(name, "planner") != 0 ||
-	    sqlStrICmp(value, "summary") != 0) {
+	    (sqlStrICmp(value, "summary") != 0 &&
+	     sqlStrICmp(value, "snapshot") != 0)) {
 		diag_set(ClientError, ER_SQL_EXECUTE,
 			 "unknown EXPLAIN planner option");
 		pParse->is_aborted = true;
 	} else {
-		pParse->explain = 3;
+		pParse->explain = sqlStrICmp(value, "snapshot") == 0 ? 4 : 3;
 	}
 	sql_xfree(name);
 	sql_xfree(value);

@@ -164,10 +164,15 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
 			/* 33 */ "text",
 			/* 34 */ "value",
 			/* 35 */ "text",
+			/* 36 */ "snapshot",
+			/* 37 */ "varbinary",
 		};
 
 		int name_first, name_count;
-		if (sParse.explain == 3) {
+		if (sParse.explain == 4) {
+			name_first = 36;
+			name_count = 1;
+		} else if (sParse.explain == 3) {
 			name_first = 30;
 			name_count = 3;
 		} else if (sParse.explain == 2) {
