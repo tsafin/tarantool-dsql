@@ -402,11 +402,12 @@ remains DRAFT pending human review of IDs and formats.
 statistics that turn selectivity estimation from "guess 25%" into
 "estimate based on data."
 
-**State:** `PROTOTYPE` (S2.2 HLL, S2.3 bounded MCV, and S2.4 histogram
-builder are implemented as in-memory APIs with focused unit tests; remaining
-S2 work is not integrated). Sketch algorithms and synthetic validation may
-start against a versioned S1 snapshot interface before S1 is end-to-end;
-persistence and the `where.c` selectivity adapter wait for that interface.
+**State:** `PROTOTYPE` (S2.2 HLL, S2.3 bounded MCV, S2.4 histogram builder,
+and a narrow S2.5 conjunction joint-MCV estimator are implemented as
+in-memory APIs with focused unit tests; none is integrated with persistence
+or the planner). Sketch algorithms and synthetic validation may start against
+a versioned S1 snapshot interface before S1 is end-to-end; persistence and
+the `where.c` selectivity adapter wait for that interface.
 
 **Exit criteria:**
 
@@ -444,10 +445,16 @@ persistence and the `where.c` selectivity adapter wait for that interface.
 - [ ] **S2.5 prototype** Single-column selectivity API implemented in
   `src/box/sql/sql_stats_selectivity.{h,c}`: unique equality, NULL fraction,
   sampled MCV equality, residual-NDV independence fallback, cumulative
-  histogram ranges, and conservative AND confidence. Focused unit tests cover
-  source precedence and strict/inclusive range boundaries. Multivariate MCV,
-  dependencies, correlation adjustment, normalized snapshot inputs, and
-  `where.c` integration remain open; this does not close S2.5.
+  histogram ranges, and conservative AND confidence. A separate narrow joint-
+  MCV API estimates fully specified non-NULL equality conjunctions from an
+  exact sampled tuple match and otherwise falls back to the single-column
+  independence product. Focused tests cover source precedence, strict/
+  inclusive range boundaries, correlated q-error improvement, fallback, and
+  malformed input rejection. Partial-tuple/range matching, joint NDV,
+  dependencies, general correlation adjustment, normalized snapshot inputs,
+  schema/group selection, and `where.c` integration remain open; this does
+  not close S2.5. *parallel: yes* (standalone algorithm; planner integration
+  remains serial).
   *parallel: no* (planner integration touches `where.c`).
 - [ ] **S2.6 prototype** Focused unit q-error probes now cover a uniform
   1,000-value distribution and a 90%-hot skewed distribution for equality
