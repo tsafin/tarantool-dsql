@@ -169,7 +169,7 @@ contains_bytes(const char *data, size_t size, const char *needle,
 static void
 test_extract_select_from_catalog(void)
 {
-	plan(5);
+	plan(6);
 	header();
 	struct field_def fields[] = {{
 		.type = FIELD_TYPE_INTEGER, .name = "id",
@@ -178,7 +178,7 @@ test_extract_select_from_catalog(void)
 	struct space_def *definition = calloc(1, sizeof(*definition) +
 					      sizeof("catalog_relation"));
 	if (definition == NULL) {
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 6; i++)
 			ok(false, "catalog SELECT fixture allocation succeeds");
 		footer();
 		check_plan();
@@ -191,7 +191,7 @@ test_extract_select_from_catalog(void)
 	struct key_def *key = calloc(1, sizeof(*key) + sizeof(key->parts[0]));
 	if (key == NULL) {
 		ok(false, "catalog index fixture allocation succeeds");
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 5; i++)
 			ok(false, "catalog snapshot assertions require index fixture");
 		free(definition);
 		footer();
@@ -291,6 +291,20 @@ test_extract_select_from_catalog(void)
 	if (snapshot != NULL)
 		sql_stats_snapshot_release(snapshot);
 	column.iColumn = 0;
+	stats_input.cardinality_semantics =
+		SQL_STATS_CARDINALITY_PHYSICAL_TUPLES;
+	snapshot = sql_stats_snapshot_new(1, 5, &stats_input, 1, 64 * 1024);
+	input = NULL;
+	ok(snapshot != NULL && sql_replay_input_extract_select_from_snapshot(
+		   &select, cursor_map, 2, 1, 2, 4, snapshot, 5, &input) ==
+	   SQL_REPLAY_INPUT_OK && input != NULL &&
+	   input->cardinality_semantics ==
+		   SQL_REPLAY_CARDINALITY_PHYSICAL_TUPLES,
+	   "physical tuple population semantics survive snapshot extraction");
+	if (input != NULL)
+		sql_replay_input_delete(input);
+	if (snapshot != NULL)
+		sql_stats_snapshot_release(snapshot);
 	stats_input.row_count = 42.5;
 	snapshot = sql_stats_snapshot_new(1, 5, &stats_input, 1, 64 * 1024);
 	input = NULL;

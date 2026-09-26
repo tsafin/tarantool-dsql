@@ -392,9 +392,9 @@ sql_replay_input_serialize(const struct sql_replay_input *in,
 	    in->projection_count > UINT32_MAX || in->order_by_count > UINT32_MAX)
 		return SQL_REPLAY_INPUT_INVALID;
 	if (in->statistics_present) {
-		if ((in->cardinality_semantics !=
-		     SQL_REPLAY_CARDINALITY_VISIBLE_ROWS &&
-		     in->cardinality_semantics != SQL_REPLAY_CARDINALITY_ESTIMATE) ||
+		if (in->cardinality_semantics <
+			    SQL_REPLAY_CARDINALITY_VISIBLE_ROWS ||
+		    in->cardinality_semantics > SQL_REPLAY_CARDINALITY_ESTIMATE ||
 		    in->population_basis == NULL || in->population_basis[0] == '\0' ||
 		    in->width_basis == NULL || in->width_basis[0] == '\0' ||
 		    in->width_denominator_count == 0 || in->confidence_ppm > 1000000 ||
@@ -561,8 +561,8 @@ valid_stats(const struct sql_replay_relation_spec *r)
 		       r->width_basis == NULL && r->width_denominator_count == 0 &&
 		       r->confidence_ppm == 0 && r->confidence_source == NULL &&
 		       r->collected_at == 0 && r->modification_epoch == 0;
-	return r->cardinality_semantics == SQL_REPLAY_CARDINALITY_VISIBLE_ROWS ||
-	       r->cardinality_semantics == SQL_REPLAY_CARDINALITY_ESTIMATE ?
+	return r->cardinality_semantics >= SQL_REPLAY_CARDINALITY_VISIBLE_ROWS &&
+	       r->cardinality_semantics <= SQL_REPLAY_CARDINALITY_ESTIMATE ?
 	       r->population_basis != NULL && r->population_basis[0] != '\0' &&
 	       r->width_basis != NULL && r->width_basis[0] != '\0' &&
 	       r->width_denominator_count != 0 && r->confidence_ppm <= 1000000 &&

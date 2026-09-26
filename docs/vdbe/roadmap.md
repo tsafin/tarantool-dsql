@@ -390,8 +390,9 @@ them.
   indexes whose identity is not modeled, and preserves repeated key ordinals.
   The catalog-only API keeps statistics absent; a snapshot-backed companion
   copies current-schema relation and index summaries from an immutable
-  `SqlStatsSnapshot`, including population/NDV provenance, width, confidence,
-  and freshness fields. Missing or stale relation summaries stay explicitly
+  `SqlStatsSnapshot`, including visible/physical/estimated population
+  semantics, population/NDV provenance, width, confidence, and freshness
+  fields. Missing or stale relation summaries stay explicitly
   absent; malformed or non-integral values that replay input v2 cannot
   represent exactly fail closed. Planner configuration remains caller-
   supplied. All extractors reject unsupported cursor bindings,

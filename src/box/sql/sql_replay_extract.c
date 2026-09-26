@@ -285,8 +285,8 @@ sql_replay_input_extract_select_from_snapshot(
 	if (lookup == SQL_STATS_LOOKUP_AVAILABLE) {
 		enum sql_stats_cardinality_semantics semantics =
 			sql_stats_relation_cardinality_semantics(stats_relation);
-		if (semantics != SQL_STATS_CARDINALITY_VISIBLE_ROWS &&
-		    semantics != SQL_STATS_CARDINALITY_ESTIMATE) {
+		if (semantics < SQL_STATS_CARDINALITY_VISIBLE_ROWS ||
+		    semantics > SQL_STATS_CARDINALITY_ESTIMATE) {
 			status = SQL_REPLAY_INPUT_INVALID;
 			goto cleanup;
 		}
@@ -309,10 +309,8 @@ sql_replay_input_extract_select_from_snapshot(
 		}
 		relation.statistics_present = true;
 		relation.row_count = row_count;
-		relation.cardinality_semantics = semantics ==
-			SQL_STATS_CARDINALITY_VISIBLE_ROWS ?
-			SQL_REPLAY_CARDINALITY_VISIBLE_ROWS :
-			SQL_REPLAY_CARDINALITY_ESTIMATE;
+		relation.cardinality_semantics =
+			(enum sql_replay_cardinality_semantics)semantics;
 		relation.population_basis =
 			sql_stats_relation_population_basis(stats_relation);
 		relation.average_row_width = average_width;
