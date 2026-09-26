@@ -267,9 +267,10 @@ S1 can start against this baseline.
 **Goal:** make the *current* planner's decisions inspectable, replayable, and
 counter-gated before changing the planner.
 
-**State:** `IN-PROGRESS`. M0-A/M0-B are accepted locally. M1.1 has a
-preparatory statement-compilation counter (`sql_statement_compiles_total`),
-but planner-boundary counters and planner-only elapsed time remain open.
+**State:** `IN-PROGRESS`. M0-A/M0-B are accepted locally. M1.1 has the
+preparatory statement-compilation counter (`sql_statement_compiles_total`)
+plus WHERE-planner candidate and elapsed aggregates. Reason-coded fallback
+accounting and full M1.1 validation remain open.
 M1.3's structured summary surface is implemented with the current planner's
 `current_where_c` classification; fallback propagation and replay remain
 open. Hosted CI publication is pending but does not block local M1 work.
