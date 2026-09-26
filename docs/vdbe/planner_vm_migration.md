@@ -493,9 +493,13 @@ column, and index definitions from the source catalog space using logical
 relation ordinal `r0`. Physical space/index IDs are not part of the serialized
 model; index IDs remain only in a separate in-memory association. Repeated
 index key ordinals are preserved. Views, functional indexes, and multikey
-indexes whose identity is not modeled fail closed. Statistics remain
-explicitly absent rather than fabricated, and planner configuration remains
-caller-supplied. The extractor canonicalizes predicate, projection, and ordering
+indexes whose identity is not modeled fail closed. The catalog-only entry
+point leaves statistics absent. The snapshot-backed variant copies measured
+relation/index summaries and their semantics, provenance, confidence, and
+freshness from an immutable provider; stale or missing relation statistics
+remain explicitly absent, while values not exactly representable by replay
+input v1 fail closed. Planner configuration remains caller-supplied. The
+extractor canonicalizes predicate, projection, and ordering
 expressions, captures sort direction and Tarantool's default NULL ordering,
 and extracts nonnegative integer literal LIMIT/OFFSET values. Unsupported
 functions/expressions and non-literal bounds fail closed. The output owns no

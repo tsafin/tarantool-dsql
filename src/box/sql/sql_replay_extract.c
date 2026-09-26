@@ -2,10 +2,12 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "box/space.h"
+#include "sql_stats_snapshot.h"
 #include "sqlInt.h"
 #include "sql_expr_canonical.h"
 #include "sql_logical_plan.h"
@@ -227,6 +229,149 @@ sql_replay_input_extract_select_from_catalog(
 	status = sql_replay_input_extract_select(select, &metadata,
 						 cursor_to_relation,
 						 cursor_count, result);
+	sql_replay_space_schema_destroy(&schema);
+	return status;
+}
+
+static bool
+replay_exact_uint64(double value, uint64_t *result)
+{
+	if (!isfinite(value) || value < 0 || value >= 0x1p64 ||
+	    floor(value) != value)
+		return false;
+	*result = (uint64_t)value;
+	return true;
+}
+
+enum sql_replay_input_status
+sql_replay_input_extract_select_from_snapshot(
+	const struct Select *select, const uint32_t *cursor_to_relation,
+	size_t cursor_count, uint32_t planner_algorithm_version,
+	uint32_t planner_config_version, uint32_t beam_width,
+	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
+	struct sql_replay_input **result)
+{
+	if (result == NULL)
+		return SQL_REPLAY_INPUT_INVALID;
+	*result = NULL;
+	if (select == NULL || select->pSrc == NULL || select->pSrc->nSrc != 1)
+		return SQL_REPLAY_INPUT_INVALID;
+	struct sql_replay_space_schema schema;
+	enum sql_replay_input_status status = sql_replay_space_schema_create(
+		select->pSrc->a[0].space, &schema);
+	if (status != SQL_REPLAY_INPUT_OK)
+		return status;
+	struct sql_replay_relation_spec relation = schema.relation;
+	size_t index_count = relation.index_count;
+	struct sql_replay_index_spec *indexes = index_count == 0 ? NULL :
+		calloc(index_count, sizeof(*indexes));
+	uint64_t **prefix_storage = index_count == 0 ? NULL :
+		calloc(index_count, sizeof(*prefix_storage));
+	if (index_count != 0 && (indexes == NULL || prefix_storage == NULL)) {
+		free(indexes);
+		free(prefix_storage);
+		sql_replay_space_schema_destroy(&schema);
+		return SQL_REPLAY_INPUT_NOMEM;
+	}
+	if (index_count != 0)
+		memcpy(indexes, schema.relation.indexes,
+		       index_count * sizeof(*indexes));
+	const struct sql_stats_relation *stats_relation = NULL;
+	enum sql_stats_lookup_status lookup = snapshot == NULL ?
+		SQL_STATS_LOOKUP_MISSING : sql_stats_snapshot_get_relation(
+			snapshot, current_schema_version,
+			select->pSrc->a[0].space->def->id, &stats_relation);
+	uint64_t row_count, average_width;
+	if (lookup == SQL_STATS_LOOKUP_AVAILABLE) {
+		enum sql_stats_cardinality_semantics semantics =
+			sql_stats_relation_cardinality_semantics(stats_relation);
+		if (semantics != SQL_STATS_CARDINALITY_VISIBLE_ROWS &&
+		    semantics != SQL_STATS_CARDINALITY_ESTIMATE) {
+			status = SQL_REPLAY_INPUT_INVALID;
+			goto cleanup;
+		}
+		if (!replay_exact_uint64(sql_stats_relation_row_count(stats_relation),
+					 &row_count) ||
+		    !replay_exact_uint64(
+				sql_stats_relation_average_row_width(stats_relation),
+				&average_width) ||
+		    sql_stats_relation_width_denominator_count(stats_relation) == 0 ||
+		    sql_stats_relation_population_basis(stats_relation) == NULL ||
+		    sql_stats_relation_width_basis(stats_relation) == NULL ||
+		    sql_stats_relation_confidence_source(stats_relation) == NULL) {
+			status = SQL_REPLAY_INPUT_INVALID;
+			goto cleanup;
+		}
+		double confidence = sql_stats_relation_confidence(stats_relation);
+		if (!isfinite(confidence) || confidence < 0 || confidence > 1) {
+			status = SQL_REPLAY_INPUT_INVALID;
+			goto cleanup;
+		}
+		relation.statistics_present = true;
+		relation.row_count = row_count;
+		relation.cardinality_semantics = semantics ==
+			SQL_STATS_CARDINALITY_VISIBLE_ROWS ?
+			SQL_REPLAY_CARDINALITY_VISIBLE_ROWS :
+			SQL_REPLAY_CARDINALITY_ESTIMATE;
+		relation.population_basis =
+			sql_stats_relation_population_basis(stats_relation);
+		relation.average_row_width = average_width;
+		relation.width_basis = sql_stats_relation_width_basis(stats_relation);
+		relation.width_denominator_count =
+			sql_stats_relation_width_denominator_count(stats_relation);
+		relation.confidence_ppm = (uint32_t)floor(confidence * 1000000 + 0.5);
+		relation.confidence_source =
+			sql_stats_relation_confidence_source(stats_relation);
+		relation.collected_at =
+			sql_stats_relation_collected_at(stats_relation);
+		relation.modification_epoch =
+			sql_stats_relation_modification_epoch(stats_relation);
+		for (size_t i = 0; i < index_count; i++) {
+			const struct sql_stats_index *stats_index = NULL;
+			lookup = sql_stats_relation_get_index(stats_relation,
+				schema.storage_index_ids[i], &stats_index);
+			if (lookup != SQL_STATS_LOOKUP_AVAILABLE)
+				continue;
+			size_t count = sql_stats_index_prefix_count(stats_index);
+			if (count != indexes[i].part_count ||
+			    count > SIZE_MAX / sizeof(**prefix_storage)) {
+				status = SQL_REPLAY_INPUT_INVALID;
+				goto cleanup;
+			}
+			prefix_storage[i] = count == 0 ? NULL :
+				calloc(count, sizeof(**prefix_storage));
+			if (count != 0 && prefix_storage[i] == NULL) {
+				status = SQL_REPLAY_INPUT_NOMEM;
+				goto cleanup;
+			}
+			for (size_t j = 0; j < count; j++)
+				prefix_storage[i][j] =
+					sql_stats_index_distinct_prefix(stats_index, j);
+			indexes[i].statistics_present = true;
+			indexes[i].tuple_count =
+				sql_stats_index_tuple_count(stats_index);
+			indexes[i].population_basis =
+				sql_stats_index_population_basis(stats_index);
+			indexes[i].ndv_basis = sql_stats_index_ndv_basis(stats_index);
+			indexes[i].distinct_prefixes = prefix_storage[i];
+			indexes[i].prefix_count = count;
+		}
+		relation.indexes = indexes;
+	}
+	struct sql_replay_input_spec metadata = {
+		.relation = relation,
+		.planner_algorithm_version = planner_algorithm_version,
+		.planner_config_version = planner_config_version,
+		.beam_width = beam_width,
+	};
+	status = sql_replay_input_extract_select(select, &metadata,
+						 cursor_to_relation,
+						 cursor_count, result);
+cleanup:
+	for (size_t i = 0; i < index_count; i++)
+		free(prefix_storage[i]);
+	free(prefix_storage);
+	free(indexes);
 	sql_replay_space_schema_destroy(&schema);
 	return status;
 }

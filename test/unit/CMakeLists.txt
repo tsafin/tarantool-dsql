@@ -177,6 +177,7 @@ create_unit_test(PREFIX sql_replay_input
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_replay_expr_list.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_replay_extract.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_replay_schema.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_snapshot.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_expr_canonical.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_logical_plan.c
                  LIBRARIES unit msgpuck m

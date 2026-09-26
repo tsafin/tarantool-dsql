@@ -6,6 +6,7 @@
 #include "box/sql/sqlInt.h"
 #include "box/space.h"
 #include "box/coll_id_cache.h"
+#include "box/sql/sql_stats_snapshot.h"
 #include "msgpuck.h"
 #include "unit.h"
 
@@ -168,7 +169,7 @@ contains_bytes(const char *data, size_t size, const char *needle,
 static void
 test_extract_select_from_catalog(void)
 {
-	plan(3);
+	plan(5);
 	header();
 	struct field_def fields[] = {{
 		.type = FIELD_TYPE_INTEGER, .name = "id",
@@ -177,7 +178,7 @@ test_extract_select_from_catalog(void)
 	struct space_def *definition = calloc(1, sizeof(*definition) +
 					      sizeof("catalog_relation"));
 	if (definition == NULL) {
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 5; i++)
 			ok(false, "catalog SELECT fixture allocation succeeds");
 		footer();
 		check_plan();
@@ -187,7 +188,33 @@ test_extract_select_from_catalog(void)
 	definition->fields = fields;
 	definition->field_count = 1;
 	strcpy(definition->name, "catalog_relation");
-	struct space source_space = {.def = definition};
+	struct key_def *key = calloc(1, sizeof(*key) + sizeof(key->parts[0]));
+	if (key == NULL) {
+		ok(false, "catalog index fixture allocation succeeds");
+		for (int i = 0; i < 4; i++)
+			ok(false, "catalog snapshot assertions require index fixture");
+		free(definition);
+		footer();
+		check_plan();
+		return;
+	}
+	key->part_count = 1;
+	key->parts[0] = (struct key_part) {
+		.fieldno = 0, .type = FIELD_TYPE_INTEGER,
+		.sort_order = SORT_ORDER_ASC,
+		.nullable_action = ON_CONFLICT_ACTION_ABORT,
+	};
+	struct index_def index_definition = {
+		.iid = 88, .space_id = 1234, .name = "primary",
+		.type = TREE, .opts = {.is_unique = true,
+				      .hint = INDEX_HINT_DEFAULT},
+		.key_def = key,
+	};
+	struct index index = {.def = &index_definition};
+	struct index *index_list[] = {&index};
+	struct space source_space = {
+		.def = definition, .index_count = 1, .index = index_list,
+	};
 	struct SrcList sources = {
 		.nSrc = 1,
 		.a = {{.space = &source_space, .iCursor = 1}},
@@ -203,27 +230,75 @@ test_extract_select_from_catalog(void)
 		.selFlags = SF_Resolved,
 	};
 	const uint32_t cursor_map[] = {UINT32_MAX, 0};
+	uint64_t distinct_prefixes[] = {12};
+	struct sql_stats_index_input index_stats = {
+		.index_id = 88, .tuple_count = 42,
+		.tuple_count_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.population_basis = "visible_rows@view-7",
+		.ndv_basis = "visible_rows@view-7", .definition_version = 1,
+		.distinct_prefixes = distinct_prefixes, .prefix_count = 1,
+	};
+	struct sql_stats_relation_input stats_input = {
+		.space_id = 1234, .row_count = 42,
+		.population_basis = "visible_rows@view-7",
+		.average_row_width = 11,
+		.width_basis = "payload_bytes/sample_rows",
+		.width_denominator_count = 7, .confidence = 0.75,
+		.confidence_source = "test-v1",
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.collected_at = 99, .modification_epoch = 3,
+		.indexes = &index_stats, .index_count = 1,
+	};
+	struct sql_stats_snapshot *snapshot = sql_stats_snapshot_new(
+		1, 5, &stats_input, 1, 64 * 1024);
 	struct sql_replay_input *input = NULL;
-	ok(sql_replay_input_extract_select_from_catalog(
-		   &select, cursor_map, 2, 1, 2, 4, &input) ==
+	ok(sql_replay_input_extract_select_from_snapshot(
+		   &select, cursor_map, 2, 1, 2, 4, snapshot, 5, &input) ==
 	   SQL_REPLAY_INPUT_OK && input != NULL &&
 	   strcmp(input->relation_key, "r0") == 0 &&
 	   strcmp(input->columns[0].type, "integer") == 0 &&
-	   input->planner_config_version == 2 && input->beam_width == 4,
-	   "catalog SELECT extraction captures detached schema and config");
+	   input->planner_config_version == 2 && input->beam_width == 4 &&
+	   input->statistics_present && input->row_count == 42 &&
+	   input->average_row_width == 11 && input->confidence_ppm == 750000 &&
+	   input->collected_at == 99 && input->modification_epoch == 3 &&
+	   input->index_count == 1 && input->indexes[0].statistics_present &&
+	   input->indexes[0].tuple_count == 42 &&
+	   input->indexes[0].distinct_prefixes[0] == 12,
+	   "catalog SELECT extraction captures detached schema, stats, and config");
 	char *bytes = NULL;
 	size_t size = 0;
 	bool serialized = input != NULL &&
 		sql_replay_input_serialize(input, &bytes, &size) ==
 		SQL_REPLAY_INPUT_OK;
-	ok(serialized && !contains_bytes(bytes, size, "1234", 4),
-	   "catalog storage space ID is absent from replay serialization");
+	ok(serialized && !contains_bytes(bytes, size, "1234", 4) &&
+	   !contains_bytes(bytes, size, "88", 2),
+	   "catalog storage space and index IDs are absent from replay serialization");
+	if (input != NULL)
+		sql_replay_input_delete(input);
+	input = NULL;
+	ok(sql_replay_input_extract_select_from_snapshot(
+		   &select, cursor_map, 2, 1, 2, 4, snapshot, 6, &input) ==
+	   SQL_REPLAY_INPUT_OK && input != NULL && !input->statistics_present,
+	   "stale snapshot statistics are omitted without blocking schema capture");
 	column.iColumn = 9;
 	ok(input != NULL && strcmp(input->projections[0], "col(r0,c0)") == 0,
 	   "catalog extraction owns normalized expressions after AST mutation");
 	free(bytes);
 	if (input != NULL)
 		sql_replay_input_delete(input);
+	if (snapshot != NULL)
+		sql_stats_snapshot_release(snapshot);
+	column.iColumn = 0;
+	stats_input.row_count = 42.5;
+	snapshot = sql_stats_snapshot_new(1, 5, &stats_input, 1, 64 * 1024);
+	input = NULL;
+	ok(snapshot != NULL && sql_replay_input_extract_select_from_snapshot(
+		   &select, cursor_map, 2, 1, 2, 4, snapshot, 5, &input) ==
+	   SQL_REPLAY_INPUT_INVALID && input == NULL,
+	   "fractional cardinality not representable in v1 fails closed");
+	if (snapshot != NULL)
+		sql_stats_snapshot_release(snapshot);
+	free(key);
 	free(definition);
 	footer();
 	check_plan();

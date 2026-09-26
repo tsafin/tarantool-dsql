@@ -387,12 +387,18 @@ them.
   logical relation ordinal `r0`; storage index IDs remain only in a separate
   in-memory association. It rejects views, functional indexes, and multikey
   indexes whose identity is not modeled, and preserves repeated key ordinals.
-  Statistics remain absent rather than fabricated, and planner configuration
-  is caller-supplied. Both extractors reject unsupported cursor bindings,
+  The catalog-only API keeps statistics absent; a snapshot-backed companion
+  copies current-schema relation and index summaries from an immutable
+  `SqlStatsSnapshot`, including population/NDV provenance, width, confidence,
+  and freshness fields. Missing or stale relation summaries stay explicitly
+  absent; malformed or non-integral values that replay input v1 cannot
+  represent exactly fail closed. Planner configuration remains caller-
+  supplied. All extractors reject unsupported cursor bindings,
   expressions/functions, limits, and SELECT structure without returning
   partial input; outputs retain no live AST/catalog pointers. This is not
   complete planner-input acquisition: access-path/cost-provider metadata,
-  measured stats/config capture, joins/aggregates, and a planner consumer
+  stats capture from the active planner provider, joins/aggregates, and a
+  planner consumer
   remain absent. M1.4 remains open and v2 remains
   `replayable=false`.
   *parallel: yes*.
