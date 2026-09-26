@@ -423,7 +423,8 @@ later phases gate against. Layers captured per `(test × engine)`:
 - **L2** diagnostic / error message;
 - **L3** path_class (`current_where_c`, `new_planner`, or
   `fallback_<reason>`);
-- **L6** forensic VDBE opcode trace (captured on diff, not gated);
+- **L6** forensic static VDBE program listing from `EXPLAIN` (captured on
+  request, not gated; does not claim the dynamic opcode dispatch sequence);
 - **L7** execution latency (perf trail, not gated).
 
 Dispatcher (generated / CnP / LLVM) is a runtime parity check, not a

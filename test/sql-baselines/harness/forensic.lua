@@ -1,7 +1,7 @@
 -- forensic.lua
--- M0.3 L6 forensic VDBE opcode trace capture.
+-- M0.3 L6 forensic VDBE program-listing capture.
 --
--- ## Per-statement trace investigation (read-only, src/ not modified)
+-- ## Capture contract
 --
 -- We investigated src/box/sql/vdbe.c for per-statement VDBE trace hooks:
 --
@@ -48,18 +48,18 @@
 --
 -- ## Current behavior of this module
 --
--- Because no per-statement trace API exists in the current build, M.write() emits
--- a single-line trace file containing only a comment explaining the limitation.
--- run.lua will still call M.write() when --forensic is passed; the resulting
--- .trace-query files are valid (non-empty) placeholders that can be replaced once
--- the C hook is implemented.
+-- The harness runs `EXPLAIN <statement>` before the statement and captures its
+-- stable VDBE program listing. This records the compiled opcode sequence and
+-- operands, but not the dynamic sequence taken at execution time. The file
+-- header makes this limitation explicit. Aggregate profile deltas are not used.
 --
 -- Output path:
 --   test/sql-baselines/forensics/<suite>/<test>/<seq_str>.<engine>.<dispatcher>.trace-query
 --
--- Format when data is available (future):
+-- Format when an EXPLAIN program is available:
 --   <pc>,<opcode_name>,<P1>,<P2>,<P3>,<P4_kind>:<P4_value>,<P5>
--- (per SCHEMA.md L6 forensic trace format)
+-- `EXPLAIN_TEXT` is used for P4 because SQL EXPLAIN does not expose the original
+-- internal P4 union tag. See SCHEMA.md L6 for the precise format.
 
 local fio = require('fio')
 
@@ -82,8 +82,8 @@ local function current_dispatcher()
     return d
 end
 
--- snapshot_before / snapshot_after are kept as stubs so run.lua can call them
--- unchanged. They return nil, which forensic.write() handles correctly.
+-- snapshot_before / snapshot_after remain stubs for compatibility with run.lua;
+-- L6 now comes from a separate EXPLAIN program listing, not aggregate counters.
 
 function M.snapshot_before(dispatcher)  -- luacheck: ignore
     -- No per-statement trace API available in the current build.
@@ -109,15 +109,6 @@ function M.write(params)
     local p = params
     local dispatcher = p.dispatcher or current_dispatcher()
 
-    -- Emit a placeholder trace file with a clear explanation.
-    -- This is NOT a silent fallback to aggregate stats.
-    io.stderr:write(string.format(
-        '[WARN] forensic: L6 per-statement VDBE trace not available in this build ' ..
-        '(no Lua-accessible per-opcode hook in src/box/sql/vdbe.c). ' ..
-        'Writing placeholder for %s q%s. ' ..
-        'See harness/forensic.lua for C hook requirements.\n',
-        p.suite .. '/' .. p.test_basename, tostring(p.seq)))
-
     local out_dir = p.baselines_root .. '/forensics/' .. p.suite .. '/' .. p.test_basename
     fio.mktree(out_dir)
     local fname = seq_str(p.seq) .. '.' .. p.engine .. '.' .. dispatcher .. '.trace-query'
@@ -128,12 +119,8 @@ function M.write(params)
         error('Cannot open for writing: ' .. out_path)
     end
 
-    -- Placeholder header — parse-safe: lines starting with '#' are comments.
-    -- A real implementation will overwrite this file with opcode CSV lines.
-    f:write('# L6 VDBE opcode trace — PLACEHOLDER\n')
-    f:write('# Per-statement trace unavailable: no Lua-accessible opcode hook in vdbe.c.\n')
-    f:write('# Required: C hook in sqlVdbeExec() before each opcode dispatch.\n')
-    f:write('# See test/sql-baselines/harness/forensic.lua for implementation options.\n')
+    f:write('# L6 VDBE static program listing from SQL EXPLAIN\n')
+    f:write('# This is not a dynamic execution trace; untaken branches are included.\n')
     f:write('# suite=' .. (p.suite or '') .. '\n')
     f:write('# test=' .. (p.test_basename or '') .. '\n')
     f:write('# query_index=' .. tostring(p.seq) .. '\n')
@@ -142,7 +129,25 @@ function M.write(params)
     if p.sql then
         f:write('# sql=' .. p.sql:gsub('\n', ' ') .. '\n')
     end
-    f:write('# format_when_available: <pc>,<opcode_name>,<P1>,<P2>,<P3>,<P4_kind>:<P4_value>,<P5>\n')
+    f:write('# format: <pc>,<opcode_name>,<P1>,<P2>,<P3>,<P4_kind>:<P4_value>,<P5>\n')
+    if type(p.program) == 'table' then
+        for _, row in ipairs(p.program) do
+            local p4_kind, p4_value = 'NONE', ''
+            if row[6] ~= nil and row[6] ~= '' then
+                p4_kind = 'EXPLAIN_TEXT'
+                p4_value = string.format('%q', tostring(row[6]))
+            end
+            f:write(string.format('%s,%s,%s,%s,%s,%s:%s,%s\n',
+                tostring(row[1] or ''), tostring(row[2] or ''),
+                tostring(row[3] or ''), tostring(row[4] or ''),
+                tostring(row[5] or ''), p4_kind, p4_value,
+                tostring(row[7] or '')))
+        end
+    elseif p.capture_error ~= nil then
+        f:write('# capture_unavailable=' .. tostring(p.capture_error):gsub('[\r\n]', ' ') .. '\n')
+    else
+        f:write('# capture_unavailable=no EXPLAIN program returned\n')
+    end
     f:close()
 
     return out_path

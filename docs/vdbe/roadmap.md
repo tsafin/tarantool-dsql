@@ -174,12 +174,11 @@ are deferred to M3 when the descriptor exists naturally.
   per captured query at `test/sql-baselines/snapshots/<suite>/<test>/q%02d.<engine>.yaml`
   per SCHEMA.md v1. Landed at nextgen_sql `4f8dc74e0b`. Verified end-to-end
   on a 7-statement mini SQL test.
-- [ ] **M0.3** Forensic L6 capture — `test/sql-baselines/harness/forensic.lua`
-  currently writes a marked placeholder to `test/sql-baselines/forensics/`.
-  Per-statement VDBE opcode trace requires a Lua-accessible hook in
-  `src/box/sql/vdbe.c` that does not yet exist; module header documents three
-  C-side implementation options for follow-up work. The scaffold landed
-  with M0.2; real trace capture remains deferred and is not an M0-B gate.
+- [x] **M0.3** Forensic L6 capture — when `--forensic` is enabled, the harness
+  runs `EXPLAIN` and records a static VDBE program listing under
+  `test/sql-baselines/forensics/`. This captures opcodes and operands without
+  claiming the dynamic dispatch path; statements unsupported by `EXPLAIN` get
+  an explicit comment-only capture. L6 remains advisory, not a parity gate.
 - [x] **M0.4** Diff tool — `test/sql-baselines/diff.lua`. Compares two
   snapshot trees, classifies drift as RESULT-REGRESSION / DIAGNOSTIC-CHANGE
   / PATH-CLASS-SHIFT (currently a hard gate) or SOFT-DRIFT (advisory). Emits text /

@@ -34,7 +34,7 @@ Captured per `(test, engine)`:
 | L3 — path_class | yes | policy gate (planner switch/fallback reviewed) |
 | L4 — access summary | **deferred to M3** (descriptor exists) | — |
 | L5 — algorithm choice | **deferred to M3** | — |
-| L6 — VDBE opcode trace | yes (forensic only, on diff) | not gated |
+| L6 — VDBE program listing | yes (forensic only, on request) | not gated |
 | L7 — latency bands | perf-trail CSV (separate file) | not gated |
 
 Dispatcher (generated / CnP / LLVM) is **not** a snapshot dimension. All
@@ -64,7 +64,7 @@ test/sql-baselines/
 │   │   └── ...
 │   └── sql-luatest/
 │       └── ...
-├── forensics/                         L6 traces (M0.3)
+├── forensics/                         L6 VDBE listings (M0.3)
 │   └── <suite>/<test>/q<N>.<engine>.<dispatcher>.trace-query
 └── perf/                              L7 CSVs (M0.7)
     └── <YYYY-MM-DD>-<commit_sha>.csv
@@ -272,14 +272,14 @@ switch to `new_planner` needs an explicit, reviewed path-change policy;
 not be used for PR baseline comparison. Until M1 supplies runtime path
 evidence, M0 CI proves L1/L2 parity but not planner routing.
 
-## L6 forensic trace format
+## L6 forensic VDBE listing format
 
-L6 traces are NOT in the snapshot YAML. They live under
+L6 listings are NOT in the snapshot YAML. They live under
 `test/sql-baselines/forensics/<suite>/<test>/q<N>.<engine>.<dispatcher>.trace-query`
 and are written only when the diff tool detects an L1 or L2 mismatch.
 
-The `.trace-query` extension distinguishes per-query VDBE traces from any
-other Tarantool trace artifacts that might land in the same directory tree.
+The `.trace-query` extension distinguishes per-query VDBE listings from other
+Tarantool trace artifacts that might land in the same directory tree.
 
 Format: one VDBE opcode per line, comma-separated:
 
@@ -289,10 +289,17 @@ Format: one VDBE opcode per line, comma-separated:
 
 `P4_value` is a stable rendering (string-quoted, integers as decimal,
 pointers stripped). `P4_kind` is one of: `INT32`, `INT64`, `STRING`,
-`COLLATE`, `KEYINFO`, `FUNCDEF`, `VTAB`, `NONE`.
+`COLLATE`, `KEYINFO`, `FUNCDEF`, `VTAB`, `NONE`, `EXPLAIN_TEXT`.
+`EXPLAIN_TEXT` means the capture came from SQL's public `EXPLAIN` result;
+that interface does not expose the original internal P4 union tag. L6 output
+is a static VDBE program listing: it includes untaken branches and is not a
+record of the dynamic opcode dispatch sequence. SQL statements unsupported by
+`EXPLAIN` produce a comment-only capture file with a reason.
 
 The forensic format is used for human inspection only; the diff tool does
-not gate on it. Format changes do NOT bump `schema_version`.
+not gate on it. It captures a static VDBE program listing, not the dynamic
+opcode sequence taken at execution time. Format changes do NOT bump
+`schema_version`.
 
 ## Perf-trail CSV (L7)
 

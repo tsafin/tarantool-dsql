@@ -40,6 +40,29 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("sql_type: map", snapshot)
             self.assertNotIn("table: 0x", snapshot)
 
+    def test_forensic_vdbe_program_listing(self):
+        if not BINARY.is_file():
+            self.skipTest(f"Tarantool binary not found: {BINARY}")
+        with tempfile.TemporaryDirectory(prefix="sql-forensic-capture-") as temp:
+            temp = Path(temp)
+            work = temp / "work"
+            work.mkdir()
+            out = temp / "capture"
+            env = os.environ.copy()
+            env["VDBE_DISPATCHER"] = "generated"
+            env["SQL_JIT_ENABLE"] = "0"
+            subprocess.run([str(BINARY), str(HARNESS), str(FIXTURE),
+                            "--suite=sql-tap", "--engine=memtx",
+                            f"--out={out}", f"--work-dir={work}", "--forensic"],
+                           check=True, env=env, stdout=subprocess.DEVNULL)
+            trace = out / "forensics/sql-tap/typed_sql/q01.memtx.generated.trace-query"
+            contents = trace.read_text()
+            self.assertIn("static program listing from SQL EXPLAIN", contents)
+            self.assertIn("not a dynamic execution trace", contents)
+            self.assertIn(",Init,", contents)
+            self.assertIn("EXPLAIN_TEXT", contents)
+            self.assertNotIn("PLACEHOLDER", contents)
+
 
 if __name__ == "__main__":
     unittest.main()

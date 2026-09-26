@@ -131,7 +131,8 @@ parity corpus. The captured layers per `(test × engine)`:
 - **L2** diagnostic / error message;
 - **L3** path_class (`current_where_c`, `new_planner`, or
   `fallback_<reason>`);
-- **L6** VDBE opcode trace (forensic, captured on diff only, not gated);
+- **L6** VDBE program listing (forensic, on request, not gated; not a dynamic
+  dispatch trace);
 - **L7** execution latency bands (perf trail, not gated).
 
 Dispatcher (generated / CnP / LLVM) is a runtime parity check, not a stored

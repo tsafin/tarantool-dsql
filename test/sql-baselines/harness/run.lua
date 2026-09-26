@@ -182,6 +182,34 @@ local function intercepted_execute(sql, bindings)
         end
     end
 
+    -- Capture the static VDBE program through SQL EXPLAIN when forensic mode
+    -- is requested. This is a program listing, not a dynamic dispatch trace;
+    -- the distinction is recorded in the L6 file header and schema.
+    local explain_rows, explain_error = nil, nil
+    if cfg.forensic then
+        local normalized_sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
+        local first_word = normalized_sql:match('^%s*(%a+)')
+        if first_word ~= nil and first_word:upper() ~= 'EXPLAIN' then
+            local explain_ok, explain_res, explain_err
+            if bindings ~= nil then
+                explain_ok, explain_res, explain_err =
+                    pcall(_real_box_execute, 'EXPLAIN ' .. sql, bindings)
+            else
+                explain_ok, explain_res, explain_err =
+                    pcall(_real_box_execute, 'EXPLAIN ' .. sql)
+            end
+            if explain_ok and explain_err == nil and explain_res ~= nil and
+               explain_res.rows ~= nil then
+                explain_rows = explain_res.rows
+            else
+                explain_error = explain_ok and tostring(explain_err) or
+                                tostring(explain_res)
+            end
+        else
+            explain_error = 'statement is already EXPLAIN or has no SQL keyword'
+        end
+    end
+
     -- Capture before-profile for forensic if enabled
     local profile_before = nil
     if cfg.forensic then
@@ -242,6 +270,8 @@ local function intercepted_execute(sql, bindings)
         native_delta = native_delta,
         compile_delta = compile_delta,
         success_delta = success_delta,
+        explain_rows = explain_rows,
+        explain_error = explain_error,
     })
 
     -- Re-raise on error so the test file's pcall/catchsql sees it
@@ -464,14 +494,16 @@ for seq, q in ipairs(test_ok and captured_queries or {}) do
         end
 
         -- Write forensic trace if requested
-        if cfg.forensic and q.profile_delta ~= nil then
+        if cfg.forensic then
             local ok_f, err_f = pcall(forensic_mod.write, {
                 baselines_root = cfg.baselines_root,
                 suite          = suite,
                 test_basename  = test_basename,
                 seq            = seq,
                 engine         = cfg.engine,
-                profile_delta  = q.profile_delta,
+                sql            = q.sql,
+                program        = q.explain_rows,
+                capture_error  = q.explain_error,
             })
             if not ok_f then
                 local seq_label = seq < 100 and string.format('q%02d', seq) or ('q'..seq)
