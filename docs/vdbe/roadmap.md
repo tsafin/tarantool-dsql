@@ -768,8 +768,9 @@ M0-B corpus for the evaluation workloads.
   `test/sql-baselines/planner_ab.py` and `PLANNER_AB.md`. On the reviewed
   join/WHERE subset (join, join2, join3, join5, where3), default 1/5/10 vs
   candidate 2/8/16 completed 687 statements per engine/run with zero snapshot
-  drift in both repeats and across widths. A repeat on source commit
-  `004683147a` also had zero drift and repeat-stable planner structure, with
+  drift in both repeats and across widths. A repeat after zero-source fallback
+  classification at source commit `4d5ca37e` also had zero drift and
+  repeat-stable planner structure, with
   294 successful planner snapshots per engine (failed SQL probes are now
   correctly excluded from planner metrics). Widths changed generated,
   retained, and truncated path totals; candidate/fallback counts and path
