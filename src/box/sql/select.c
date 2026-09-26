@@ -5633,6 +5633,24 @@ vdbe_code_raise_on_multiple_rows(struct Parse *parser, int limit_reg, int end_ma
 }
 
 static void
+sql_select_record_fallback_reason(Parse *parse,
+				 enum sql_logical_reject_reason logical_reason)
+{
+	Vdbe *v = parse->pVdbe;
+	if (v == NULL || v->planner_fallback_reason != NULL ||
+	    logical_reason == SQL_LOGICAL_REJECT_NONE)
+		return;
+	enum sql_plan_fallback_reason fallback_reason =
+		sql_plan_fallback_from_logical(logical_reason);
+	const char *reason = sql_plan_fallback_reason_name(fallback_reason);
+	if (reason == NULL)
+		return;
+	v->planner_path_class = "fallback";
+	v->planner_fallback_reason = reason;
+	sql_record_planner_fallback(fallback_reason);
+}
+
+static void
 sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 {
 	Vdbe *v = parse->pVdbe;
@@ -5659,16 +5677,31 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 			return;
 		}
 	}
-	if (logical_reason == SQL_LOGICAL_REJECT_NONE)
-		return;
-	enum sql_plan_fallback_reason fallback_reason =
-		sql_plan_fallback_from_logical(logical_reason);
-	const char *reason = sql_plan_fallback_reason_name(fallback_reason);
-	if (reason == NULL)
-		return;
-	v->planner_path_class = "fallback";
-	v->planner_fallback_reason = reason;
-	sql_record_planner_fallback(fallback_reason);
+	sql_select_record_fallback_reason(parse, logical_reason);
+}
+
+static void
+sql_select_record_preopt_fallback(Parse *parse, Select *select)
+{
+	if (select->pPrior != NULL || (select->selFlags & SF_Compound) != 0) {
+		sql_select_record_fallback_reason(parse,
+					 SQL_LOGICAL_REJECT_COMPOUND);
+	} else if (select->pWith != NULL) {
+		sql_select_record_fallback_reason(parse, SQL_LOGICAL_REJECT_CTE);
+	} else if (select->pGroupBy != NULL || select->pHaving != NULL) {
+		sql_select_record_fallback_reason(parse,
+					 SQL_LOGICAL_REJECT_AGGREGATE);
+	} else if ((select->selFlags & SF_Distinct) != 0) {
+		sql_select_record_fallback_reason(parse,
+					 SQL_LOGICAL_REJECT_DISTINCT);
+	} else if (select->pSrc != NULL && select->pSrc->nSrc > 1) {
+		sql_select_record_fallback_reason(parse,
+					 SQL_LOGICAL_REJECT_RELATION_COUNT);
+	} else if (select->pSrc != NULL && select->pSrc->nSrc == 1 &&
+		   (select->pSrc->a[0].pSelect != NULL ||
+		    select->pSrc->a[0].fg.isTabFunc)) {
+		sql_select_record_fallback_reason(parse, SQL_LOGICAL_REJECT_SUBQUERY);
+	}
 }
 
 /*
@@ -5773,6 +5806,14 @@ sqlSelect(Parse * pParse,		/* The parser context */
 		pParse->iSelectId = iRestoreSelectId;
 		return rc;
 	}
+	/* Preserve unsupported source shapes before SELECT normalization can
+	 * flatten or erase them. Simple COUNT(*) remains unclassified until the
+	 * aggregate path is known to invoke WHERE.
+	 */
+	v = sqlGetVdbe(pParse);
+	if (v == NULL)
+		goto select_end;
+	sql_select_record_preopt_fallback(pParse, p);
 	if (IgnorableOrderby(pDest)) {
 		assert(pDest->eDest == SRT_Exists || pDest->eDest == SRT_Union
 		       || pDest->eDest == SRT_Except

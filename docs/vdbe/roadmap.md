@@ -543,12 +543,16 @@ DML, triggers, subprograms, non-deterministic functions.
   exposes `path_class` plus an optional descriptor (`sql_plan_fallback.*`),
   with focused mapping tests. `sqlWhereBegin()` now records the actual legacy
   route for multi-relation queries as `fallback` /
-  `UNSUPPORTED_RELATION_COUNT`; summary/snapshot EXPLAIN and the aggregate
-  fallback counter are wired and exercised locally. This remains partial:
-  `UNSUPPORTED_AGGREGATE` is also produced for aggregate SELECTs with a WHERE
-  path. Other structural/physical rejection reasons are not routed or
-  accounted, no new-planner success path exists, and M0 baseline recapture/
-  parity review remains open. *parallel: no*.
+  `UNSUPPORTED_RELATION_COUNT`; summary/snapshot EXPLAIN and per-reason
+  counters are wired and exercised locally. Aggregate SELECTs with a WHERE
+  path plus DISTINCT, compound, CTE, and FROM-subquery forms now report their
+  stable structural reasons and increment corresponding counters. Structural
+  classification runs before flattening/rewrite can erase the rejected shape;
+  simple `COUNT(*)` stays unclassified because its fast path does not enter
+  `where.c`. This remains partial: physical rejection reasons and other
+  unclassified shapes are not routed/accounted, no new-planner success path
+  exists, and M0 baseline recapture/parity review remains open.
+  *parallel: no*.
 - [ ] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
   `path_class` / `fallback_reason`, instead of hardcoding
