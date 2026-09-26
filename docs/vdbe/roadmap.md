@@ -370,8 +370,12 @@ system-space schema remains DRAFT pending human review of IDs and formats.
   (`engine_sql_stats_sample`). A proposed bounded, seeded request/sink
   contract is documented in `sql_stats_sampling.md`; no engine entrypoint or
   sampler is implemented, so S1.5 remains open. *parallel: yes*.
-- [ ] **S1.6** Vinyl sampling interface — avoiding pathological full-LSM
-  reads, respect bloom/range structure. *parallel: yes*.
+- [ ] **S1.6** Vinyl sampling interface — open; no safe implementation with
+  current APIs. Vinyl `.random` is unsupported and its normal iterator's
+  output row limit does not bound LSM work. First settle/wire S1.5's generic
+  request/sink/result contract, then define and test a Vinyl-specific bounded
+  work strategy (range/run selection, visibility, partial-sample semantics).
+  See `sql_stats_sampling.md`. *parallel: depends on S1.5 contract*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
   `whereRangeScanEst()` consume snapshot, fall back to defaults on absence.
   *parallel: no* (touches `where.c` integration surface).

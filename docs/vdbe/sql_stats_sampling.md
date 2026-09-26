@@ -58,3 +58,36 @@ does not claim a read-view guarantee for a multi-pass sampler, transactional
 ANALYZE, or production wiring. Those require engine-specific implementation
 and tests before S1.5 can be marked complete. Vinyl must independently choose
 a bounded strategy that avoids pathological full-LSM reads.
+
+## Vinyl feasibility status (S1.6)
+
+S1.6 is **not implemented**. The current engine APIs do not provide a safe
+bounded Vinyl sampling primitive:
+
+* `vinyl_index_vtab` in `src/box/vinyl.c` installs
+  `generic_index_random()` for `.random`; `src/box/index.cc` implements that
+  helper by returning `UnsupportedIndexFeature`. The public random-index API
+  therefore is not a Vinyl sampling facility.
+* The ordinary Vinyl read iterator (`vy_read_iterator_open()` /
+  `vy_read_iterator_next()`) walks key order while merging transaction,
+  cache, mem and disk sources. Stopping after `max_rows` bounds delivered
+  tuples, not the cost to locate them or the number of LSM sources/pages
+  involved. Taking the first N rows is also order-biased.
+* The current request has row and delivered-byte limits, but no explicit work
+  budget or partial/unsupported result semantics. Those limits alone cannot
+  substantiate the required claim that statistics collection will not trigger
+  pathological full-LSM work.
+
+Do not implement Vinyl sampling by calling `.random`, by scanning the primary
+index and stopping at `max_rows`, or by independently sampling raw runs: the
+last option would need to resolve duplicate versions, deletes, and visibility
+consistently with Vinyl's read view. A viable follow-up needs an engine-owned
+design for bounded range/run-aware candidate selection, an explicit measure
+of bounded work (including I/O/source amplification), and a defined partial
+sample/confidence result. It must test both read amplification and sample
+quality under multiple ranges, compaction states, updates, and deletes.
+
+Dependencies: S1.5 must first settle and wire the generic request/sink/result
+contract; then S1.6 can extend that contract with Vinyl-specific work bounds
+and semantics before adding an engine entrypoint. Until then S1.6 remains
+open; this status is a feasibility finding, not a completed sampler.
