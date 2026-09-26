@@ -5650,6 +5650,8 @@ sql_select_record_fallback_reason(Parse *parse,
 	sql_record_planner_fallback(v, fallback_reason);
 }
 
+static bool sql_select_has_nondeterministic_func(Select *select);
+
 static void
 sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 {
@@ -5658,6 +5660,17 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 	if (v == NULL || v->planner_fallback_reason != NULL || src == NULL ||
 	    src->nSrc == 0)
 		return;
+	/* Ordinary scalar calls are annotated with EP_ConstFunc during name
+	 * resolution when their registered function definition declares them
+	 * deterministic. Do this before the logical-plan prototype is built and
+	 * before FROM-subquery flattening can mutate the expression tree.
+	 */
+	if ((select->selFlags & SF_Aggregate) == 0 &&
+	    sql_select_has_nondeterministic_func(select)) {
+		sql_select_record_fallback_reason(parse,
+				SQL_LOGICAL_REJECT_NONDETERMINISTIC);
+		return;
+	}
 	bool structurally_unsupported = is_aggregate || select->pPrior != NULL ||
 		select->pWith != NULL || select->pGroupBy != NULL ||
 		select->pHaving != NULL || (select->selFlags & SF_Distinct) != 0 ||
@@ -5704,6 +5717,29 @@ sql_select_has_subquery(Select *select)
 	Walker walker;
 	memset(&walker, 0, sizeof(walker));
 	walker.xExprCallback = sql_select_has_subquery_expr;
+	walker.xSelectCallback = sql_select_walk_subquery;
+	(void)sqlWalkSelect(&walker, select);
+	return walker.eCode != 0;
+}
+
+static int
+sql_select_has_nondeterministic_func_expr(Walker *walker, Expr *expr)
+{
+	/* resolve.c sets EP_ConstFunc for functions declared deterministic. */
+	if (expr->op == TK_FUNCTION &&
+	    !ExprHasProperty(expr, EP_ConstFunc)) {
+		walker->eCode = 1;
+		return WRC_Abort;
+	}
+	return WRC_Continue;
+}
+
+static bool
+sql_select_has_nondeterministic_func(Select *select)
+{
+	Walker walker;
+	memset(&walker, 0, sizeof(walker));
+	walker.xExprCallback = sql_select_has_nondeterministic_func_expr;
 	walker.xSelectCallback = sql_select_walk_subquery;
 	(void)sqlWalkSelect(&walker, select);
 	return walker.eCode != 0;

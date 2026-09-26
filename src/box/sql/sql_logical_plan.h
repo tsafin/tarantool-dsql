@@ -24,6 +24,7 @@ enum sql_logical_reject_reason {
 	SQL_LOGICAL_REJECT_COMPOUND,
 	SQL_LOGICAL_REJECT_CTE,
 	SQL_LOGICAL_REJECT_DISTINCT,
+	SQL_LOGICAL_REJECT_NONDETERMINISTIC,
 };
 
 struct sql_logical_node {

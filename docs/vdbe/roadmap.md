@@ -607,6 +607,13 @@ DML, triggers, subprograms, non-deterministic functions.
   or predicate are also detected before rewrite and report
   `UNSUPPORTED_SUBQUERY`; runtime assertions cover each form and the shared
   per-reason counter delta.
+  After name resolution, ordinary scalar calls lacking the deterministic
+  function property now report `UNSUPPORTED_NONDETERMINISTIC` before logical
+  plan construction/flattening; runtime coverage includes built-in `random()`,
+  a user-defined function registered non-deterministic, deterministic `abs()`,
+  and per-reason counter deltas. This property detects declared volatility,
+  but Tarantool has no separate function side-effect property, so deterministic
+  UDF side effects and argument-dependent volatility are not proven excluded.
   Structural
   classification runs before flattening/rewrite can erase the rejected shape;
   simple `COUNT(*)` stays unclassified because its fast path does not enter

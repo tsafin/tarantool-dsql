@@ -35,11 +35,20 @@ It maps the existing logical and physical reject enums to append-only numeric
 over physical candidate rejection. Unit tests cover every current mapping,
 the external name, and success/fallback result construction.
 
-This is not yet an execution gate: no resolver caller consumes this result,
-statements are not dispatched to `sqlWhereBegin()` on rejection, and no
-fallback reason/path class is written to the M0 snapshot or statement
-counters. These are the remaining M3.5 integration requirements (and M3.6
-snapshot wiring), so M3.5 remains open.
+M3.5's SQL producer path also walks the resolved expression tree before
+flattening. Ordinary function expressions without the resolver's
+`EP_ConstFunc` marker (from `func_def.is_deterministic`) are classified as
+`UNSUPPORTED_NONDETERMINISTIC`; tests cover built-in `random()`, a
+non-deterministic SQL UDF, deterministic `abs()`, and the reason counter.
+This metadata has no separate side-effect bit and can miss argument-dependent
+volatility, so it is not yet proof that every effectful expression is gated.
+
+This remains a producer prototype, not new-planner execution routing: no new
+resolver caller consumes a descriptor and statements are not dispatched to a
+new lowering path. Current `where.c` execution records supported scalar
+volatility/structural fallback metadata and reason counters; M0 snapshot
+capture and broader route coverage are tracked separately under M3.6. The
+missing new-planner success path and complete fallback coverage keep M3.5 open.
 
 ## Purpose
 

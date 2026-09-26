@@ -6,7 +6,7 @@
 static void
 test_reason_mapping(void)
 {
-	plan(21);
+	plan(23);
 	header();
 	const struct {
 		enum sql_logical_reject_reason input;
@@ -28,6 +28,9 @@ test_reason_mapping(void)
 		 SQL_PLAN_FALLBACK_UNSUPPORTED_CTE, "UNSUPPORTED_CTE"},
 		{SQL_LOGICAL_REJECT_DISTINCT,
 		 SQL_PLAN_FALLBACK_UNSUPPORTED_DISTINCT, "UNSUPPORTED_DISTINCT"},
+		{SQL_LOGICAL_REJECT_NONDETERMINISTIC,
+		 SQL_PLAN_FALLBACK_UNSUPPORTED_NONDETERMINISTIC,
+		 "UNSUPPORTED_NONDETERMINISTIC"},
 	};
 	for (size_t i = 0; i < sizeof(logical) / sizeof(logical[0]); ++i) {
 	enum sql_plan_fallback_reason reason =
