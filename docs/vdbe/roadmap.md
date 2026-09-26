@@ -419,11 +419,15 @@ remains DRAFT pending human review of IDs and formats.
   Iterator review confirms that a source/page cap cannot safely return tuples
   observed so far: an unvisited source may contain a newer visible version or
   tombstone, and first-N output is key-order biased. The next implementation
-  must propagate an operation-local source-probe/uncached-page budget through
-  both iterator layers and fail closed on exhaustion until logical-visible
-  candidate selection and partial-sample confidence semantics are defined.
-  The budget API treats exhaustion as an error, so callers must discard all
-  earlier sink state from that operation.
+  slice now propagates an optional caller-owned operation-local source-probe /
+  uncached-page budget through both iterator layers and fails closed on
+  exhaustion. Focused unit tests cover counter limits/sticky exhaustion, and
+  the production server builds; runtime tests do not yet attach a budget to a
+  real iterator or verify exhaustion cleanup/visibility. The budget API treats
+  exhaustion as an error, so callers must discard all earlier sink state from
+  that operation. Logical-visible candidate selection and partial-sample
+  confidence semantics remain undefined, so this instrumentation does not
+  complete the sampler.
   Existing cancellation can surface as `FiberIsCancelled` through the pinned
   slice cleanup path; synchronous recovery reads are not cancellable. This is
   a design constraint, not a completed sampler.
