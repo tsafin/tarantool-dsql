@@ -5680,6 +5680,35 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 	sql_select_record_fallback_reason(parse, logical_reason);
 }
 
+static int
+sql_select_has_subquery_expr(Walker *walker, Expr *expr)
+{
+	if (ExprHasProperty(expr, EP_Subquery)) {
+		walker->eCode = 1;
+		return WRC_Abort;
+	}
+	return WRC_Continue;
+}
+
+static int
+sql_select_walk_subquery(Walker *walker, Select *select)
+{
+	UNUSED_PARAMETER(walker);
+	UNUSED_PARAMETER(select);
+	return WRC_Continue;
+}
+
+static bool
+sql_select_has_subquery(Select *select)
+{
+	Walker walker;
+	memset(&walker, 0, sizeof(walker));
+	walker.xExprCallback = sql_select_has_subquery_expr;
+	walker.xSelectCallback = sql_select_walk_subquery;
+	(void)sqlWalkSelect(&walker, select);
+	return walker.eCode != 0;
+}
+
 static void
 sql_select_record_preopt_fallback(Parse *parse, Select *select)
 {
@@ -5700,6 +5729,8 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 	} else if (select->pSrc != NULL && select->pSrc->nSrc == 1 &&
 		   (select->pSrc->a[0].pSelect != NULL ||
 		    select->pSrc->a[0].fg.isTabFunc)) {
+		sql_select_record_fallback_reason(parse, SQL_LOGICAL_REJECT_SUBQUERY);
+	} else if (sql_select_has_subquery(select)) {
 		sql_select_record_fallback_reason(parse, SQL_LOGICAL_REJECT_SUBQUERY);
 	}
 }

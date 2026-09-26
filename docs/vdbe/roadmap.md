@@ -598,6 +598,10 @@ DML, triggers, subprograms, non-deterministic functions.
   path plus GROUP BY/HAVING, DISTINCT, compound, CTE, and FROM-subquery forms
   now report their stable structural reasons and increment corresponding
   counters; GROUP BY/HAVING has an explicit runtime capture regression.
+  Scalar, EXISTS, and IN subqueries embedded in a single-relation projection
+  or predicate are also detected before rewrite and report
+  `UNSUPPORTED_SUBQUERY`; runtime assertions cover each form and the shared
+  per-reason counter delta.
   Structural
   classification runs before flattening/rewrite can erase the rejected shape;
   simple `COUNT(*)` stays unclassified because its fast path does not enter
