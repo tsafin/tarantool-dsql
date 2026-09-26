@@ -7,9 +7,11 @@ The inventory command scans top-level `*.test.lua` and `*.test.sql` in
 `test/sql` and `test/sql-tap`, and `*_test.lua` in `test/sql-luatest`.
 An added test fails full-corpus inventory until both engine decisions are
 reviewed; it cannot silently inherit seed-smoke pending status. A narrowly
-scoped `introduced_after_baseline` exclusion may document a reviewed test that
-does not exist at the immutable baseline: only baseline capture may allow that
-absence, while candidate inventory must still contain the declared test.
+scoped `introduced_after_baseline` exclusion records a reviewed diagnostic
+fixture. Candidate inventory must always contain the declared test. Baseline
+capture may omit it only when the selected immutable anchor predates the test;
+if the anchor already contains it, the exact reviewed exclusion must also be
+present in that anchor's policy.
 
 Full-corpus acceptance requires a reviewed decision for both engines of
 every discovered test. Every inclusion is `verified_parity` with
@@ -18,8 +20,8 @@ and evidence. `capture_pending`, `parity_pending`, and other unreviewed states
 are rejected as full-corpus exclusions. The three suite reviews are assembled
 with `assemble_policy.py`; ordinary policy changes require a new reviewed
 anchor. The explicit `introduced_after_baseline` exclusion is the exception:
-it retains the accepted SHA while making a new, non-workload diagnostic test
-visible in candidate inventory and absent only from baseline capture.
+it retains the accepted SHA while making a non-workload diagnostic test
+visible in candidate inventory, without requiring an artificial snapshot.
 
 ```sh
 python3 test/sql-baselines/corpus.py inventory --repo . --out /tmp/sql-corpus-inventory.json
@@ -72,7 +74,7 @@ baseline from its named commit instead of committing bulk YAML.
 
 M0-B uses a *reproducible capture from a named integration commit* as
 the authoritative baseline. The accepted anchor is
-`04b63d19ab7deaa233ec2549d467b79d0cf4f5f2`. The `parity-corpus`
+`d8fc1e339b0bb8579c8b08e39d062e20edf66666`. The `parity-corpus`
 workflow reads `baseline_commit` from `corpus.json`; in full-corpus scope,
 the field is mandatory and must be a full 40-character SHA that is an
 ancestor of the PR head. The baseline commit must itself carry the same

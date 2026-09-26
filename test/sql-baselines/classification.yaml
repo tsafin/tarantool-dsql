@@ -3,7 +3,7 @@
 # Schema: test/sql-baselines/SCHEMA.md
 #
 classification_version: 1
-generated_at: '2026-09-24T19:22:50Z'
+generated_at: '2026-09-26T18:12:16Z'
 tests:
   - feature_tags: [ddl]
     file: autoincrement.test.lua
@@ -204,19 +204,31 @@ tests:
   - feature_tags:
       - aggregate
       - collation
+      - correlated_subquery
       - cross_join
+      - cte
       - ddl
+      - derived_table
+      - distinct
+      - exists
       - explain
       - filter
       - group_by
+      - in_subquery
       - index_hint
+      - inner_join
       - insert
+      - limit
+      - nondeterministic
       - offset
       - projection
+      - scalar_subquery
       - single_table_select
+      - union
       - update
       - values
     file: misc.test.lua
+    nondeterministic: true
     suite: sql
   - feature_tags: [delete, insert, projection, single_table_select, values]
     file: no-pk-space.test.lua
@@ -251,6 +263,9 @@ tests:
       - union
       - values
     file: persistency.test.lua
+    suite: sql
+  - feature_tags: [explain, projection, single_table_select]
+    file: planner_fallback_no_from.test.lua
     suite: sql
   - feature_tags:
       - aggregate
@@ -4004,4 +4019,4 @@ tests:
       - values
     file: sql_stats_test.lua
     suite: sql-luatest
-total_tests: 385
+total_tests: 386
