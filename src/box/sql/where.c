@@ -3528,7 +3528,8 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 					 * If WHERE_USE_LIMIT, then the limit amount
 					 */
 {
-	uint64_t planner_start_us = fiber_clock64();
+	uint64_t planner_start_us = 0;
+	bool planner_timer_active = false;
 	int nByteWInfo;		/* Num. bytes allocated for WhereInfo struct */
 	int nTabList;		/* Number of elements in pTabList */
 	WhereInfo *pWInfo;	/* Will become the return value of this function */
@@ -3711,6 +3712,8 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 	}
 #endif
 
+	planner_start_us = fiber_clock64();
+	planner_timer_active = true;
 	if (nTabList != 1 || where_loop_builder_shortcut(&sWLB) == 0) {
 		rc = whereLoopAddAll(&sWLB);
 		if (rc)
@@ -3735,6 +3738,8 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		if (pWInfo->pOrderBy != NULL)
 			wherePathSolver(pWInfo, pWInfo->nRowOut + 1);
 	}
+	sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
+	planner_timer_active = false;
 	/* The selected path is produced by the legacy WHERE planner. Keep the
 	 * classification on the statement so EXPLAIN and later replay tooling
 	 * consume the planner's result instead of inventing one at emission time.
@@ -3947,12 +3952,12 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 	}
 
 	/* Done. */
-	sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
 	return pWInfo;
 
 whereBeginError:
 	assert(pWInfo != NULL);
-	sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
+	if (planner_timer_active)
+		sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
 	pParse->nQueryLoop = pWInfo->savedNQueryLoop;
 	whereInfoFree(pWInfo);
 	return NULL;
