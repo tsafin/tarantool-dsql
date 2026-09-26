@@ -7,7 +7,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(20);
+	plan(21);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
@@ -84,10 +84,15 @@ test_deep_copy_lookup_and_lifetime(void)
 							 1, &rows) ==
 	   SQL_STATS_LOOKUP_STALE,
 	   "stale schema rejects index-prefix estimate");
+	rows = 123;
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 8, 42, 8,
+							 1, &rows) ==
+	   SQL_STATS_LOOKUP_STALE && rows == 123,
+	   "stale lookup leaves caller estimate untouched for fallback");
 	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 10,
 							 1, &rows) ==
-	   SQL_STATS_LOOKUP_MISSING,
-	   "missing index rejects index-prefix estimate");
+	   SQL_STATS_LOOKUP_MISSING && rows == 123,
+	   "missing index leaves caller estimate untouched for fallback");
 	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
 							 3, &rows) ==
 	   SQL_STATS_LOOKUP_MISSING,
