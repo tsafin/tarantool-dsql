@@ -675,9 +675,14 @@ DML, triggers, subprograms, non-deterministic functions.
   Structural
   classification runs before flattening/rewrite can erase the rejected shape;
   simple `COUNT(*)` stays unclassified because its fast path does not enter
-  `where.c`. This remains partial: physical rejection reasons and other
-  unclassified shapes are not routed/accounted, no new-planner success path
-  exists, and M0 baseline recapture/parity review remains open.
+  `where.c`. A bounded audit against every current reject in
+  `sql_logical_plan_from_select()` found the structural cases covered by
+  pre-/post-resolution classification; the remaining direct `COUNT(*)` path
+  emits `OP_Count`, so assigning it a fallback-to-`current_where_c` reason
+  would misstate the execution route. The existing SQL regression keeps that
+  path unclassified. M3.5 remains partial: physical rejection reasons are not
+  routed/accounted, no new-planner success path exists, and M0 baseline
+  recapture/parity review remains open.
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
