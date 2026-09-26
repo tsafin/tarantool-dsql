@@ -4,7 +4,7 @@
 
 This document is the single source of truth for the analytics-focused SQL
 engine work on `tsafin/nextgen_sql` and its descendants. Status below was
-reconciled with the local tree on 2026-09-25; uncommitted files are evidence
+reconciled with the local tree on 2026-09-26; uncommitted files are evidence
 of work in progress, not completed deliverables.
 
 Scope is deliberately narrow:
@@ -628,6 +628,6 @@ When converted, this roadmap should produce:
 - one task issue per subtask checkbox in this file;
 - a status label on each sub-issue matching the status legend above.
 
-The mermaid gantt above can be embedded directly in the epic body. Update
-the `dateFormat` start dates as work begins; the `after` dependencies will
-re-flow automatically.
+The Mermaid dependency graph above can be embedded directly in the epic body.
+No calendar dates are assigned while architectural approval and integration
+gates remain open; use the dependency edges to sequence work.
