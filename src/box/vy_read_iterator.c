@@ -390,6 +390,17 @@ vy_read_iterator_scan_disk(struct vy_read_iterator *itr, uint32_t disk_src,
 	struct vy_run_iterator *src_itr = &src->run_iterator;
 
 	assert(disk_src >= itr->disk_src && disk_src < itr->src_count);
+	if (itr->work_budget != NULL && fiber_is_cancelled()) {
+		diag_set(FiberIsCancelled);
+		return -1;
+	}
+	if (!src->is_started && !vy_iterator_work_budget_try_source(
+			itr->work_budget)) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "Vinyl statistics sampling",
+			 "configured disk-source work budget");
+		return -1;
+	}
 
 	if (!src->is_started || disk_src >= itr->skipped_src)
 		rc = vy_run_iterator_skip(src_itr, itr->last,
@@ -695,6 +706,7 @@ vy_read_iterator_add_disk(struct vy_read_iterator *itr)
 				     iterator_type, itr->key,
 				     itr->read_view, lsm->cmp_def,
 				     lsm->key_def, lsm->disk_format);
+		sub_src->run_iterator.work_budget = itr->work_budget;
 	}
 }
 
@@ -778,6 +790,14 @@ vy_read_iterator_open_after(struct vy_read_iterator *itr, struct vy_lsm *lsm,
 		 */
 		itr->need_check_eq = true;
 	}
+}
+
+void
+vy_read_iterator_set_work_budget(struct vy_read_iterator *itr,
+				 struct vy_iterator_work_budget *budget)
+{
+	assert(!itr->is_started && itr->src_count == 0);
+	itr->work_budget = budget;
 }
 
 /**

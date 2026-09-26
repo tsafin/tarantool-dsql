@@ -37,6 +37,7 @@
 #include "iterator_type.h"
 #include "trivia/util.h"
 #include "vy_entry.h"
+#include "vy_iterator_budget.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -58,6 +59,8 @@ struct vy_read_iterator {
 	struct vy_entry key;
 	/** Read view the iterator lives in. */
 	const struct vy_read_view **read_view;
+	/** Optional sampler work limits; owned by the caller. */
+	struct vy_iterator_work_budget *work_budget;
 	/**
 	 * Set if the resulting statement needs to be
 	 * checked to match the search key.
@@ -146,6 +149,14 @@ vy_read_iterator_open_after(struct vy_read_iterator *itr, struct vy_lsm *lsm,
 			    struct vy_tx *tx, enum iterator_type iterator_type,
 			    struct vy_entry key, struct vy_entry last,
 			    const struct vy_read_view **rv);
+
+/**
+ * Attach operation-local sampling limits before the first next() call.
+ * Exhaustion causes next() to fail rather than return an incomplete sample.
+ */
+void
+vy_read_iterator_set_work_budget(struct vy_read_iterator *itr,
+				 struct vy_iterator_work_budget *budget);
 
 static inline void
 vy_read_iterator_open(struct vy_read_iterator *itr, struct vy_lsm *lsm,

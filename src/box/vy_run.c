@@ -1031,6 +1031,25 @@ vy_run_iterator_load_page(struct vy_run_iterator *itr, uint32_t page_no,
 		*result = page;
 		return 0;
 	}
+	if (itr->work_budget != NULL) {
+		/* Sampling requires cancellable runtime I/O, not recovery reads. */
+		if (env->reader_pool == NULL) {
+			diag_set(ClientError, ER_UNSUPPORTED,
+				 "Vinyl statistics sampling",
+				 "synchronous page reads");
+			return -1;
+		}
+		if (fiber_is_cancelled()) {
+			diag_set(FiberIsCancelled);
+			return -1;
+		}
+		if (!vy_iterator_work_budget_try_page(itr->work_budget)) {
+			diag_set(ClientError, ER_UNSUPPORTED,
+				 "Vinyl statistics sampling",
+				 "configured uncached-page work budget");
+			return -1;
+		}
+	}
 
 	/* Allocate buffers */
 	struct vy_page_info *page_info = vy_run_page_info(slice->run, page_no);
@@ -1479,6 +1498,7 @@ vy_run_iterator_open(struct vy_run_iterator *itr,
 	itr->iterator_type = iterator_type;
 	itr->key = key;
 	itr->read_view = rv;
+	itr->work_budget = NULL;
 
 	itr->curr = vy_entry_none();
 	itr->curr_pos.page_no = slice->run->info.page_count;

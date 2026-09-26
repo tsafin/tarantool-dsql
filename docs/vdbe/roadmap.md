@@ -422,6 +422,8 @@ remains DRAFT pending human review of IDs and formats.
   must propagate an operation-local source-probe/uncached-page budget through
   both iterator layers and fail closed on exhaustion until logical-visible
   candidate selection and partial-sample confidence semantics are defined.
+  The budget API treats exhaustion as an error, so callers must discard all
+  earlier sink state from that operation.
   Existing cancellation can surface as `FiberIsCancelled` through the pinned
   slice cleanup path; synchronous recovery reads are not cancellable. This is
   a design constraint, not a completed sampler.

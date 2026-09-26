@@ -37,6 +37,7 @@
 #include "fiber_cond.h"
 #include "iterator_type.h"
 #include "vy_entry.h"
+#include "vy_iterator_budget.h"
 #include "vy_stmt_stream.h"
 #include "vy_read_view.h"
 #include "vy_stat.h"
@@ -284,6 +285,8 @@ struct vy_run_iterator {
 	 */
 	struct vy_page *curr_page;
 	struct vy_page *prev_page;
+	/** Optional per-operation statistics sampling budget. */
+	struct vy_iterator_work_budget *work_budget;
 	/** Is false until first .._get or .._next_.. method is called */
 	bool search_started;
 };

@@ -116,6 +116,13 @@ create_unit_test(PREFIX sql_stats_sample
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_sample.c
                  LIBRARIES unit
 )
+create_unit_test(PREFIX vy_iterator_budget
+                 SOURCES vy_iterator_budget.c
+                 LIBRARIES unit
+)
+target_include_directories(vy_iterator_budget.test PRIVATE
+	${PROJECT_SOURCE_DIR}/src/box
+)
 create_unit_test(PREFIX sql_stats_histogram
                  SOURCES sql_stats_histogram.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_histogram.c

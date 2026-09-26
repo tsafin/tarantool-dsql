@@ -110,10 +110,13 @@ errors and key-order bias. A future budget context should be operation-local
 and account at least source probes and uncached page-read attempts, propagated
 from the read iterator to run iterators. Exceeding the budget must fail closed
 until the sampler contract defines how incomplete samples are marked and how
-consumers adjust confidence. Cancellation can use the existing iterator error
-path (`FiberIsCancelled`) while disk slices are pinned/unpinned; sampling must
-not rely on synchronous recovery-time reads, which are not cooperatively
-interruptible. This budget instrumentation alone is not a sampling strategy:
+consumers adjust confidence. The initial iterator budget prototype treats
+exhaustion as an error; the caller must discard all sink state from that
+sampling operation rather than consume earlier callbacks as a partial sample.
+Cancellation can use the existing iterator error path (`FiberIsCancelled`)
+while disk slices are pinned/unpinned; sampling must not rely on synchronous
+recovery-time reads, which are not cooperatively interruptible. This budget
+instrumentation alone is not a sampling strategy:
 candidate selection still has to be evaluated over logical visible tuples
 across updates, deletes, and compaction.
 
