@@ -63,15 +63,6 @@ assert(planner_stats_after.sql_planner_fallback_total == planner_stats_before.sq
 assert(planner_stats_after.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total == planner_stats_before.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total)
 assert(planner_stats_after.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total == planner_stats_before.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total)
 
--- fiber_clock64() uses libev's cached time, which may not advance while SQL
--- planning runs inside one event-loop iteration. A nontrivial multiway plan
--- must accumulate a measurable duration from the direct monotonic clock.
-for i = 1, 6 do local name = string.format('planner_timer_t%d', i); _, err = box.execute(string.format('CREATE TABLE %s (id INTEGER PRIMARY KEY, x INTEGER)', name)); assert(err == nil); _, err = box.execute(string.format('CREATE INDEX planner_timer_i%d ON %s(x)', i, name)); assert(err == nil); end
-planner_elapsed_before = box.stat.sql().sql_planner_elapsed_us
-for i = 1, 20 do local sql = string.format('EXPLAIN QUERY PLAN SELECT t1.id FROM planner_timer_t1 AS t1 JOIN planner_timer_t2 AS t2 ON t1.x = t2.x JOIN planner_timer_t3 AS t3 ON t2.x = t3.x JOIN planner_timer_t4 AS t4 ON t3.x = t4.x JOIN planner_timer_t5 AS t5 ON t4.x = t5.x JOIN planner_timer_t6 AS t6 ON t5.x = t6.x WHERE t1.x = %d', i); local _, explain_err = box.execute(sql); assert(explain_err == nil); end
-assert(box.stat.sql().sql_planner_elapsed_us > planner_elapsed_before)
-for i = 1, 6 do _, err = box.execute(string.format('DROP TABLE planner_timer_t%d', i)); assert(err == nil); end
-
 simple_count_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT count(*) FROM summary_t]])
 assert(err == nil)
 assert(simple_count_summary.rows[1][3] == nil)
@@ -153,6 +144,16 @@ assert(cte_summary.rows[1][3] == 'fallback')
 assert(cte_summary.rows[2][3] == 'UNSUPPORTED_CTE')
 planner_stats_after_cte = box.stat.sql()
 assert(planner_stats_after_cte.sql_planner_fallback_UNSUPPORTED_CTE_total == planner_stats_before_cte.sql_planner_fallback_UNSUPPORTED_CTE_total + 1)
+
+-- fiber_clock64() uses libev's cached time, which may not advance while SQL
+-- planning runs inside one event-loop iteration. A nontrivial multiway plan
+-- must accumulate a measurable duration from the direct monotonic clock.
+for i = 1, 6 do local name = string.format('planner_timer_t%d', i); _, err = box.execute(string.format('CREATE TABLE %s (id INTEGER PRIMARY KEY, x INTEGER)', name)); assert(err == nil); _, err = box.execute(string.format('CREATE INDEX planner_timer_i%d ON %s(x)', i, name)); assert(err == nil); end
+planner_elapsed_before = box.stat.sql().sql_planner_elapsed_us
+for i = 1, 20 do local sql = string.format('EXPLAIN QUERY PLAN SELECT t1.id FROM planner_timer_t1 AS t1 JOIN planner_timer_t2 AS t2 ON t1.x = t2.x JOIN planner_timer_t3 AS t3 ON t2.x = t3.x JOIN planner_timer_t4 AS t4 ON t3.x = t4.x JOIN planner_timer_t5 AS t5 ON t4.x = t5.x JOIN planner_timer_t6 AS t6 ON t5.x = t6.x WHERE t1.x = %d', i); local _, explain_err = box.execute(sql); assert(explain_err == nil); end
+assert(box.stat.sql().sql_planner_elapsed_us > planner_elapsed_before)
+for i = 1, 6 do _, err = box.execute(string.format('DROP TABLE planner_timer_t%d', i)); assert(err == nil); end
+
 _, err = box.execute([[DROP TABLE summary_t]])
 
 _, err = box.execute([[CREATE TABLE planner_snapshot_t (id INTEGER PRIMARY KEY)]])
