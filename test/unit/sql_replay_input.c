@@ -241,7 +241,7 @@ test_rejects_incomplete_or_invalid_inputs(void)
 static void
 test_canonical_msgpack(void)
 {
-	plan(3);
+	plan(4);
 	header();
 	struct sql_replay_column_spec column = {"integer", "binary"};
 	uint32_t part = 0;
@@ -279,6 +279,15 @@ test_canonical_msgpack(void)
 	ok(bytes_a != NULL && mp_check(&cursor, bytes_a + size_a) == 0 &&
 	   cursor == bytes_a + size_a,
 	   "canonical serialization is one valid MsgPack value");
+	if (a != NULL)
+		a->indexes[0].tuple_count = 1;
+	char *invalid_bytes = NULL;
+	size_t invalid_size = 0;
+	ok(a != NULL && sql_replay_input_serialize(a, &invalid_bytes,
+			&invalid_size) == SQL_REPLAY_INPUT_INVALID &&
+	   invalid_bytes == NULL && invalid_size == 0,
+	   "serializer rejects inconsistent mutated values without partial output");
+	free(invalid_bytes);
 	free(bytes_a);
 	free(bytes_b);
 	sql_replay_input_delete(a);

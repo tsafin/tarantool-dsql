@@ -256,8 +256,11 @@ sql_replay_input_serialize(const struct sql_replay_input *in,
 			    strcmp(idx->logical_key, in->indexes[j].logical_key) == 0)
 				return SQL_REPLAY_INPUT_INVALID;
 		if (idx->statistics_present) {
-			if (!in->statistics_present || idx->population_basis == NULL ||
-			    idx->ndv_basis == NULL || idx->prefix_count != idx->part_count ||
+			if (!in->statistics_present || idx->tuple_count > in->row_count ||
+			    idx->population_basis == NULL ||
+			    idx->population_basis[0] == '\0' || idx->ndv_basis == NULL ||
+			    idx->ndv_basis[0] == '\0' ||
+			    idx->prefix_count != idx->part_count ||
 			    idx->prefix_count > UINT32_MAX || idx->distinct_prefixes == NULL)
 				return SQL_REPLAY_INPUT_INVALID;
 			for (size_t j = 0; j < idx->prefix_count; j++)
