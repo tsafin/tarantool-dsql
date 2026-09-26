@@ -68,6 +68,15 @@ enum { SQL_LAST_COMPILE_ERROR_MAX = 256 };
 static char sql_jit_last_compile_error[SQL_LAST_COMPILE_ERROR_MAX];
 static char sql_cnp_last_compile_error[SQL_LAST_COMPILE_ERROR_MAX];
 
+/* Number of SQL statements compiled into a VDBE program. */
+static int64_t sql_statement_compiles_total;
+
+void
+sql_record_statement_compile(void)
+{
+	sql_statement_compiles_total++;
+}
+
 static char *
 sql_last_compile_error_buf(enum sql_native_compile_backend backend)
 {
@@ -1315,6 +1324,8 @@ sql_debug_info(struct info_handler *h)
 	info_append_int(h, "sql_sort_count", sql_sort_count);
 	info_append_int(h, "sql_found_count", sql_found_count);
 	info_append_int(h, "sql_xfer_count", sql_xfer_count);
+	info_append_int(h, "sql_statement_compiles_total",
+			sql_statement_compiles_total);
 	info_append_int(h, "sql_interpreter_step_count",
 			sql_interpreter_step_count);
 	info_append_int(h, "sql_jit_step_count", sql_jit_step_count);

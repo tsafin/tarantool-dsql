@@ -329,6 +329,10 @@ sql_stmt_compile(const char *sql, int bytes_count, struct Vdbe *re_prepared,
 		 struct Vdbe **stmt, const char **sql_tail,
 		 bool is_prepared_stmt);
 
+/** Record a successful compilation into a VDBE program. */
+void
+sql_record_statement_compile(void);
+
 /** This is the top-level implementation of sqlStep(). */
 int
 sql_step(struct Vdbe *v);

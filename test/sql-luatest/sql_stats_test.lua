@@ -92,6 +92,28 @@ g.test_sql_stats_shape_and_growth = function()
     end)
 end
 
+g.test_sql_statement_compile_count = function()
+    local res = g.server:exec(function()
+        local before = box.stat.sql()
+        local stmt = box.prepare([[SELECT 177013 + 1;]])
+        local after_prepare = box.stat.sql()
+        local result = box.execute(stmt.stmt_id)
+        local after_execute = box.stat.sql()
+        box.unprepare(stmt.stmt_id)
+        return {
+            before = before.sql_statement_compiles_total,
+            after_prepare = after_prepare.sql_statement_compiles_total,
+            after_execute = after_execute.sql_statement_compiles_total,
+            rows = result.rows,
+        }
+    end)
+
+    t.assert_type(res.before, 'number')
+    t.assert_equals(res.after_prepare, res.before + 1)
+    t.assert_equals(res.after_execute, res.after_prepare)
+    t.assert_equals(res.rows, {{177014}})
+end
+
 g_jit.test_sql_jit_exec_count_growth = function()
     local res = g_jit.server:exec(function()
         local before = box.stat.sql()

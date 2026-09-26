@@ -160,6 +160,13 @@ builds while making it available automatically in debug/JIT verification work.
 The values in `time_us` are accumulated microseconds measured with
 `fiber_clock64()`.
 
+`box.stat.sql().sql_statement_compiles_total` counts successful SQL statement
+compilations that produced a VDBE program. It advances at prepare time, not
+execution time. It includes statements that do not invoke query planning, so
+it is a compilation counter rather than a planner-decision counter. Fallback
+reason counts and planner-only elapsed time require instrumentation at the
+planner boundary in `where.c`.
+
 `box.stat.sql()` also exposes the last **native compile failure** recorded by
 each backend:
 

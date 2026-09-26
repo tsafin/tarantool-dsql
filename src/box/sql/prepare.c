@@ -206,6 +206,8 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
  end_prepare:
 
 	sql_parser_destroy(&sParse);
+	if (rc == 0 && *ppStmt != NULL)
+		sql_record_statement_compile();
 	return rc;
 }
 
