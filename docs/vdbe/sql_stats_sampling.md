@@ -187,3 +187,40 @@ unit. It must build off to the side and publish only after all relation/index
 summaries are valid; a failure must leave the currently installed snapshot
 unchanged. This contract does not choose system-space IDs, tuple layouts, or
 payload formats, which remain in the separate DRAFT schema review.
+
+### S1.3a interface gap (2026-09)
+
+The current `sql_stats_relation_input` / `sql_stats_index_input` are snapshot
+constructor inputs, not a collection result. `sql_stats_snapshot_new()` checks
+that supplied values are internally representable, but it cannot prove that
+the set is complete: a relation with zero indexes or an omitted index is
+accepted, and there is no expected index-definition list against which to
+validate it. `sql_set_stats_snapshot()` then performs an unconditional global
+swap; it has no stale-generation check. Consequently these APIs do not yet
+implement S1.3a's all-or-nothing collection contract.
+
+The missing boundary is a normalized, volatile collection-result type, owned
+by the SQL layer and produced only after engine sampling succeeds. It must
+carry, per relation, the identity and captured schema/catalog generations;
+the row-count value and its population semantics; measured average width and
+its denominator/population basis; confidence plus its calibration/source;
+and the complete expected index identity list from that captured schema. Each
+index entry must carry its tuple-population value/semantics and exactly one
+NDV value for every leading key prefix, with the index definition/version
+needed to reject summaries from a different definition. Collection must
+define whether all of these values share a transaction/read view. Missing
+indices, missing prefixes, mixed population bases, or generation mismatch
+must make the whole result invalid. This description is an interface
+requirement, not a decision about how width, confidence, or NDV are estimated.
+
+The minimum next code slice, before ANALYZE grammar or persistence, is to add
+that result type and a pure candidate builder which validates completeness,
+converts a valid complete result to the existing deep-copying snapshot API,
+and leaves publication to a separate final step. Unit tests must cover each
+missing/mismatched relation or index summary, malformed counts/prefixes, and
+allocation failure; then a publication test must show that candidate-build
+failure preserves the previously installed snapshot. Before this can be
+implemented without guessed semantics, the collector contract still needs
+the producer choices for width, confidence, prefix NDVs, and a common
+visibility/generation boundary. `sql_stats_snapshot_new()` validation tests
+do not substitute for these completeness and publication tests.
