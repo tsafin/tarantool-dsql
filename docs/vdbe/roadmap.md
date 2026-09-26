@@ -448,8 +448,11 @@ the `where.c` selectivity adapter wait for that interface.
 - [x] **S2.2** HyperLogLog implementation for NDV. Mergeable. *parallel: yes*.
   In-memory opaque C API at `src/box/sql/sql_stats_hll.{h,c}`; precision
   4–18, deterministic caller-seeded byte hashing, seed/precision-checked
-  merges, and documented probabilistic accuracy. Unit tests cover 100k NDV
-  error, deterministic estimates, and merge compatibility. No persistence or
+  merges, and documented probabilistic accuracy. A composite tuple entry point
+  uses arity, type tags, and length-delimited values so it can sketch joint
+  NDV without ambiguous concatenation. Unit tests cover 100k NDV error,
+  deterministic estimates, merge compatibility, field boundaries, and type
+  tags. Callers still own canonical SQL encodings. No persistence or
   system-space IDs are included; payload integration remains pending S1/schema
   review.
 - [x] **S2.3** SpaceSaving heavy-hitter sketch for MCV. *parallel: yes*.
@@ -479,7 +482,7 @@ the `where.c` selectivity adapter wait for that interface.
   estimate. Focused tests cover source precedence, strict/inclusive range
   boundaries, mixed range/equality matching, correlated q-error improvement,
   fallback, and malformed input rejection. Multiple terms on one column,
-  partial-tuple matching, joint NDV,
+  partial-tuple matching,
   dependencies, general correlation adjustment, normalized snapshot inputs,
   schema/group selection, and `where.c` integration remain open; this does
   not close S2.5. *parallel: yes for the standalone API; no for planner

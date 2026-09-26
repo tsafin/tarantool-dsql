@@ -93,11 +93,87 @@ test_merge(void)
 	check_plan();
 }
 
+static void
+test_typed_tuple_encoding(void)
+{
+	plan(4);
+	header();
+	struct sql_stats_hll *hll = sql_stats_hll_new(12, 91);
+	fail_if(hll == NULL);
+	for (int i = 0; i < 1000; i++) {
+		char first[32];
+		char second[32];
+		char prefix[32];
+		char suffix[32];
+		int first_size = snprintf(first, sizeof(first), "x");
+		int second_size = snprintf(second, sizeof(second), "y%d", i);
+		int prefix_size = snprintf(prefix, sizeof(prefix), "xy");
+		int suffix_size = snprintf(suffix, sizeof(suffix), "%d", i);
+		fail_if(first_size < 0 || second_size < 0 || prefix_size < 0 ||
+			 suffix_size < 0);
+		struct sql_stats_hll_value tuple_a[] = {
+			{.type_tag = 1, .data = first,
+			 .size = (size_t)first_size},
+			{.type_tag = 1, .data = second,
+			 .size = (size_t)second_size},
+		};
+		struct sql_stats_hll_value tuple_b[] = {
+			{.type_tag = 1, .data = prefix,
+			 .size = (size_t)prefix_size},
+			{.type_tag = 1, .data = suffix,
+			 .size = (size_t)suffix_size},
+		};
+		if (sql_stats_hll_add_tuple(hll, tuple_a, 2) != 0 ||
+		    sql_stats_hll_add_tuple(hll, tuple_b, 2) != 0)
+			fail_if(true);
+	}
+	double estimate = sql_stats_hll_estimate(hll);
+	ok(fabs(estimate - 2000) / 2000 < 0.05,
+	   "lengths preserve field boundaries (NDV %.1f)", estimate);
+	for (int i = 0; i < 1000; i++) {
+		char first[32];
+		char second[32];
+		int first_size = snprintf(first, sizeof(first), "x");
+		int second_size = snprintf(second, sizeof(second), "y%d", i);
+		fail_if(first_size < 0 || second_size < 0);
+		struct sql_stats_hll_value typed[] = {
+			{.type_tag = 2, .data = first,
+			 .size = (size_t)first_size},
+			{.type_tag = 1, .data = second,
+			 .size = (size_t)second_size},
+		};
+		if (sql_stats_hll_add_tuple(hll, typed, 2) != 0)
+			fail_if(true);
+	}
+	estimate = sql_stats_hll_estimate(hll);
+	ok(fabs(estimate - 3000) / 3000 < 0.05,
+	   "type tags distinguish equal bytes of different types (NDV %.1f)",
+	   estimate);
+	struct sql_stats_hll_value duplicate[] = {
+		{.type_tag = 2, .data = "x", .size = 1},
+		{.type_tag = 1, .data = "y0", .size = 2},
+	};
+	double before_duplicate = sql_stats_hll_estimate(hll);
+	ok(sql_stats_hll_add_tuple(hll, duplicate, 2) == 0 &&
+	   sql_stats_hll_estimate(hll) == before_duplicate,
+	   "duplicate composite value does not increase NDV");
+	struct sql_stats_hll_value malformed = {
+		.type_tag = 1, .data = NULL, .size = 1,
+	};
+	ok(sql_stats_hll_add_tuple(hll, &malformed, 1) == -1 &&
+	   sql_stats_hll_add_tuple(NULL, NULL, 0) == -1,
+	   "malformed tuple input rejected");
+	sql_stats_hll_delete(hll);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
 	test_empty_and_validation();
 	test_accuracy_and_determinism();
 	test_merge();
+	test_typed_tuple_encoding();
 	return 0;
 }

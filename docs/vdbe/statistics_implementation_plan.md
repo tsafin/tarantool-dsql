@@ -174,8 +174,12 @@ targeted estimation corpus demonstrates value.
 
 The in-memory prototype lives at `src/box/sql/sql_stats_hll.{h,c}`. It accepts
 caller-encoded byte strings and does not define SQL value encoding: callers
-must include type and NULL distinctions in that encoding. A 64-bit
-endian-independent seeded hash makes test/replay results deterministic. Seed
+must provide canonical value bytes. `sql_stats_hll_add_tuple()` adds a
+composite-key path that encodes arity, one-byte caller type tags, 64-bit
+little-endian field lengths, and field bytes before hashing; this prevents
+ambiguous field boundaries and type-tag collisions while leaving collation
+and SQL canonicalization with the caller. Both add paths use a 64-bit
+endian-independent seeded hash and are deterministic. Seed
 and precision are sketch identity; merge is register-wise maximum and rejects
 either mismatch. The API is intentionally opaque and has no persistent
 encoding, snapshot ABI, or system-space dependency.

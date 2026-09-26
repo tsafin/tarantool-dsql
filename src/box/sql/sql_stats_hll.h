@@ -21,6 +21,13 @@
  */
 struct sql_stats_hll;
 
+/** One typed field of a composite value to add to a joint-NDV sketch. */
+struct sql_stats_hll_value {
+	uint8_t type_tag;
+	const void *data;
+	size_t size;
+};
+
 /** Allocate a sketch, or return NULL for invalid precision/allocation failure. */
 struct sql_stats_hll *
 sql_stats_hll_new(uint8_t precision, uint64_t seed);
@@ -32,6 +39,17 @@ sql_stats_hll_delete(struct sql_stats_hll *hll);
 /** Add one byte string. data may be NULL only when size is zero. */
 int
 sql_stats_hll_add(struct sql_stats_hll *hll, const void *data, size_t size);
+
+/**
+ * Add one composite value. The encoding includes tuple arity and, for every
+ * field, its type tag and an endian-independent 64-bit byte length, so field
+ * boundaries and SQL type distinctions are preserved. The caller remains
+ * responsible for canonical SQL-value bytes (including collation semantics).
+ */
+int
+sql_stats_hll_add_tuple(struct sql_stats_hll *hll,
+			const struct sql_stats_hll_value *values,
+			size_t value_count);
 
 /** Merge via register-wise maximum; returns -1 for incompatible sketches. */
 int
