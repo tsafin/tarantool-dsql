@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "box/sql/sql_replay_input.h"
+#include "msgpuck.h"
 #include "unit.h"
 
 static void
@@ -237,10 +238,60 @@ test_rejects_incomplete_or_invalid_inputs(void)
 	check_plan();
 }
 
+static void
+test_canonical_msgpack(void)
+{
+	plan(3);
+	header();
+	struct sql_replay_column_spec column = {"integer", "binary"};
+	uint32_t part = 0;
+	struct sql_replay_index_spec indexes[] = {
+		{.logical_key = "idx-a", .canonical_definition = "key(c0)",
+		 .part_columns = &part, .part_count = 1},
+		{.logical_key = "idx-b", .canonical_definition = "key(c0:desc)",
+		 .part_columns = &part, .part_count = 1},
+	};
+	struct sql_replay_relation_spec relation = {
+		.logical_key = "r0", .canonical_definition = "table(c0:integer)",
+		.columns = &column, .column_count = 1,
+		.indexes = indexes, .index_count = 2,
+	};
+	const char *projection[] = {"col(r0,c0)"};
+	struct sql_replay_input_spec spec = {
+		.relation = relation, .predicate = "true", .projections = projection,
+		.projection_count = 1, .planner_algorithm_version = 1,
+		.planner_config_version = 1, .beam_width = 1,
+	};
+	struct sql_replay_input *a = NULL, *b = NULL;
+	char *bytes_a = NULL, *bytes_b = NULL;
+	size_t size_a = 0, size_b = 0;
+	ok(sql_replay_input_create(&spec, &a) == SQL_REPLAY_INPUT_OK &&
+	   sql_replay_input_serialize(a, &bytes_a, &size_a) == SQL_REPLAY_INPUT_OK,
+	   "input serializes to owned MsgPack bytes");
+	struct sql_replay_index_spec reverse[] = {indexes[1], indexes[0]};
+	spec.relation.indexes = reverse;
+	ok(sql_replay_input_create(&spec, &b) == SQL_REPLAY_INPUT_OK &&
+	   sql_replay_input_serialize(b, &bytes_b, &size_b) == SQL_REPLAY_INPUT_OK &&
+	   bytes_a != NULL && bytes_b != NULL && size_a == size_b &&
+	   memcmp(bytes_a, bytes_b, size_a) == 0,
+	   "index input order canonicalizes to identical MsgPack");
+	const char *cursor = bytes_a;
+	ok(bytes_a != NULL && mp_check(&cursor, bytes_a + size_a) == 0 &&
+	   cursor == bytes_a + size_a,
+	   "canonical serialization is one valid MsgPack value");
+	free(bytes_a);
+	free(bytes_b);
+	sql_replay_input_delete(a);
+	sql_replay_input_delete(b);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
 	test_detached_single_relation_select();
 	test_rejects_incomplete_or_invalid_inputs();
+	test_canonical_msgpack();
 	return 0;
 }

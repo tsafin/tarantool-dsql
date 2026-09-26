@@ -1,7 +1,353 @@
 #include "sql_replay_input.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "msgpuck.h"
+
+struct replay_writer {
+	char *data;
+	size_t size;
+	size_t capacity;
+	bool invalid_size;
+};
+
+static bool
+writer_reserve(struct replay_writer *w, size_t add)
+{
+	if (add > SIZE_MAX - w->size)
+		return false;
+	size_t needed = w->size + add;
+	if (needed <= w->capacity)
+		return true;
+	size_t capacity = w->capacity == 0 ? 128 : w->capacity;
+	while (capacity < needed) {
+		if (capacity > SIZE_MAX / 2) {
+			capacity = needed;
+			break;
+		}
+		capacity *= 2;
+	}
+	char *data = realloc(w->data, capacity);
+	if (data == NULL)
+		return false;
+	w->data = data;
+	w->capacity = capacity;
+	return true;
+}
+
+static bool
+put_encoded(struct replay_writer *w, size_t size,
+	    char *(*encode)(char *, uint64_t), uint64_t value)
+{
+	if (!writer_reserve(w, size))
+		return false;
+	char *end = encode(w->data + w->size, value);
+	w->size = end - w->data;
+	return true;
+}
+
+static bool
+put_uint(struct replay_writer *w, uint64_t value)
+{
+	return put_encoded(w, mp_sizeof_uint(value), mp_encode_uint, value);
+}
+
+static bool
+put_bool(struct replay_writer *w, bool value)
+{
+	if (!writer_reserve(w, mp_sizeof_bool(value)))
+		return false;
+	w->size = mp_encode_bool(w->data + w->size, value) - w->data;
+	return true;
+}
+
+static bool
+put_nil(struct replay_writer *w)
+{
+	if (!writer_reserve(w, mp_sizeof_nil()))
+		return false;
+	w->size = mp_encode_nil(w->data + w->size) - w->data;
+	return true;
+}
+
+static bool
+put_array(struct replay_writer *w, size_t count)
+{
+	if (count > UINT32_MAX || !writer_reserve(w, mp_sizeof_array(count))) {
+		w->invalid_size |= count > UINT32_MAX;
+		return false;
+	}
+	w->size = mp_encode_array(w->data + w->size, count) - w->data;
+	return true;
+}
+
+static bool
+put_map(struct replay_writer *w, size_t count)
+{
+	if (count > UINT32_MAX || !writer_reserve(w, mp_sizeof_map(count))) {
+		w->invalid_size |= count > UINT32_MAX;
+		return false;
+	}
+	w->size = mp_encode_map(w->data + w->size, count) - w->data;
+	return true;
+}
+
+static bool
+put_string(struct replay_writer *w, const char *value)
+{
+	if (value == NULL)
+		return false;
+	size_t len = strlen(value);
+	if (len > UINT32_MAX) {
+		w->invalid_size = true;
+		return false;
+	}
+	if (!writer_reserve(w, mp_sizeof_str(len)))
+		return false;
+	w->size = mp_encode_str(w->data + w->size, value, len) - w->data;
+	return true;
+}
+
+#define PUT(expr) do { if (!(expr)) goto fail; } while (0)
+
+static int
+compare_replay_index_ptr(const void *lhs, const void *rhs)
+{
+	const struct sql_replay_index *a =
+		*(const struct sql_replay_index *const *)lhs;
+	const struct sql_replay_index *b =
+		*(const struct sql_replay_index *const *)rhs;
+	return strcmp(a->logical_key, b->logical_key);
+}
+
+static bool
+put_relation_statistics(struct replay_writer *w,
+			const struct sql_replay_input *in)
+{
+	if (!in->statistics_present)
+		return put_nil(w);
+	/* Keys are encoded in lexical order for canonical map representation. */
+	return put_map(w, 10) &&
+		put_string(w, "average_row_width") && put_uint(w, in->average_row_width) &&
+		put_string(w, "cardinality_semantics") &&
+		put_uint(w, in->cardinality_semantics) &&
+		put_string(w, "collected_at") && put_uint(w, in->collected_at) &&
+		put_string(w, "confidence_ppm") && put_uint(w, in->confidence_ppm) &&
+		put_string(w, "confidence_source") && put_string(w, in->confidence_source) &&
+		put_string(w, "modification_epoch") &&
+		put_uint(w, in->modification_epoch) &&
+		put_string(w, "population_basis") && put_string(w, in->population_basis) &&
+		put_string(w, "row_count") && put_uint(w, in->row_count) &&
+		put_string(w, "width_basis") && put_string(w, in->width_basis) &&
+		put_string(w, "width_denominator_count") &&
+		put_uint(w, in->width_denominator_count);
+}
+
+static bool
+put_index(struct replay_writer *w, const struct sql_replay_index *idx)
+{
+	if (!put_map(w, 4) || !put_string(w, "canonical_definition") ||
+	    !put_string(w, idx->canonical_definition) ||
+	    !put_string(w, "logical_key") || !put_string(w, idx->logical_key) ||
+	    !put_string(w, "part_columns") || !put_array(w, idx->part_count))
+		return false;
+	for (size_t i = 0; i < idx->part_count; i++)
+		if (!put_uint(w, idx->part_columns[i]))
+			return false;
+	if (!put_string(w, "statistics"))
+		return false;
+	if (!idx->statistics_present)
+		return put_nil(w);
+	if (!put_map(w, 4) || !put_string(w, "distinct_prefixes") ||
+	    !put_array(w, idx->prefix_count))
+		return false;
+	for (size_t i = 0; i < idx->prefix_count; i++)
+		if (!put_uint(w, idx->distinct_prefixes[i]))
+			return false;
+	return put_string(w, "ndv_basis") && put_string(w, idx->ndv_basis) &&
+	       put_string(w, "population_basis") &&
+	       put_string(w, idx->population_basis) &&
+	       put_string(w, "tuple_count") && put_uint(w, idx->tuple_count);
+}
+
+static bool
+put_relation(struct replay_writer *w, const struct sql_replay_input *in,
+	     const struct sql_replay_index **indexes)
+{
+	if (!put_map(w, 5) || !put_string(w, "columns") ||
+	    !put_array(w, in->column_count))
+		return false;
+	for (size_t i = 0; i < in->column_count; i++) {
+		if (!put_map(w, 2) || !put_string(w, "collation") ||
+		    !put_string(w, in->columns[i].collation) ||
+		    !put_string(w, "type") || !put_string(w, in->columns[i].type))
+			return false;
+	}
+	if (!put_string(w, "definition") ||
+	    !put_string(w, in->relation_definition) ||
+	    !put_string(w, "indexes") || !put_array(w, in->index_count))
+		return false;
+	for (size_t i = 0; i < in->index_count; i++)
+		if (!put_index(w, indexes[i]))
+			return false;
+	return put_string(w, "key") && put_string(w, in->relation_key) &&
+	       put_string(w, "statistics") && put_relation_statistics(w, in);
+}
+
+enum sql_replay_input_status
+sql_replay_input_serialize(const struct sql_replay_input *in,
+			   char **data, size_t *size)
+{
+	if (data == NULL || size == NULL)
+		return SQL_REPLAY_INPUT_INVALID;
+	*data = NULL;
+	*size = 0;
+	if (in == NULL || in->relation_key == NULL || in->relation_key[0] == '\0' ||
+	    in->relation_definition == NULL || in->relation_definition[0] == '\0' ||
+	    in->predicate == NULL || in->predicate[0] == '\0' ||
+	    in->planner_algorithm_version == 0 || in->planner_config_version == 0 ||
+	    in->beam_width == 0 || (!in->limit_present && in->limit != 0) ||
+	    (!in->offset_present && in->offset != 0) ||
+	    (in->offset_present && !in->limit_present) || in->column_count == 0 ||
+	    in->columns == NULL || (in->index_count != 0 && in->indexes == NULL) ||
+	    in->projection_count == 0 ||
+	    in->projections == NULL ||
+	    (in->order_by_count != 0 && in->order_by == NULL) ||
+	    in->index_count > UINT32_MAX || in->column_count > UINT32_MAX ||
+	    in->projection_count > UINT32_MAX || in->order_by_count > UINT32_MAX)
+		return SQL_REPLAY_INPUT_INVALID;
+	if (in->statistics_present) {
+		if ((in->cardinality_semantics !=
+		     SQL_REPLAY_CARDINALITY_VISIBLE_ROWS &&
+		     in->cardinality_semantics != SQL_REPLAY_CARDINALITY_ESTIMATE) ||
+		    in->population_basis == NULL || in->population_basis[0] == '\0' ||
+		    in->width_basis == NULL || in->width_basis[0] == '\0' ||
+		    in->width_denominator_count == 0 || in->confidence_ppm > 1000000 ||
+		    in->confidence_source == NULL || in->confidence_source[0] == '\0')
+			return SQL_REPLAY_INPUT_INVALID;
+	} else if (in->row_count != 0 || in->cardinality_semantics != 0 ||
+		   in->population_basis != NULL || in->average_row_width != 0 ||
+		   in->width_basis != NULL || in->width_denominator_count != 0 ||
+		   in->confidence_ppm != 0 || in->confidence_source != NULL ||
+		   in->collected_at != 0 || in->modification_epoch != 0) {
+		return SQL_REPLAY_INPUT_INVALID;
+	}
+	for (size_t i = 0; i < in->column_count; i++) {
+		if (in->columns[i].type == NULL || in->columns[i].type[0] == '\0' ||
+		    in->columns[i].collation == NULL ||
+		    in->columns[i].collation[0] == '\0')
+			return SQL_REPLAY_INPUT_INVALID;
+	}
+	for (size_t i = 0; i < in->index_count; i++) {
+		const struct sql_replay_index *idx = &in->indexes[i];
+		if (idx->logical_key == NULL || idx->logical_key[0] == '\0' ||
+		    idx->canonical_definition == NULL ||
+		    idx->canonical_definition[0] == '\0' || idx->part_count == 0 ||
+		    idx->part_count > in->column_count || idx->part_count > UINT32_MAX ||
+		    idx->part_columns == NULL)
+			return SQL_REPLAY_INPUT_INVALID;
+		for (size_t j = 0; j < idx->part_count; j++)
+			if (idx->part_columns[j] >= in->column_count)
+				return SQL_REPLAY_INPUT_INVALID;
+		for (size_t j = i + 1; j < in->index_count; j++)
+			if (in->indexes[j].logical_key == NULL ||
+			    strcmp(idx->logical_key, in->indexes[j].logical_key) == 0)
+				return SQL_REPLAY_INPUT_INVALID;
+		if (idx->statistics_present) {
+			if (!in->statistics_present || idx->population_basis == NULL ||
+			    idx->ndv_basis == NULL || idx->prefix_count != idx->part_count ||
+			    idx->prefix_count > UINT32_MAX || idx->distinct_prefixes == NULL)
+				return SQL_REPLAY_INPUT_INVALID;
+			for (size_t j = 0; j < idx->prefix_count; j++)
+				if (idx->distinct_prefixes[j] > idx->tuple_count ||
+				    (j != 0 && idx->distinct_prefixes[j] <
+				     idx->distinct_prefixes[j - 1]))
+					return SQL_REPLAY_INPUT_INVALID;
+		} else if (idx->tuple_count != 0 || idx->population_basis != NULL ||
+			   idx->ndv_basis != NULL || idx->prefix_count != 0 ||
+			   idx->distinct_prefixes != NULL) {
+			return SQL_REPLAY_INPUT_INVALID;
+		}
+	}
+	for (size_t i = 0; i < in->projection_count; i++) {
+		if (in->projections[i] == NULL || in->projections[i][0] == '\0')
+			return SQL_REPLAY_INPUT_INVALID;
+	}
+	for (size_t i = 0; i < in->order_by_count; i++) {
+		if (in->order_by[i].canonical_expression == NULL ||
+		    in->order_by[i].canonical_expression[0] == '\0')
+			return SQL_REPLAY_INPUT_INVALID;
+	}
+	if (in->statistics_present && (in->population_basis == NULL ||
+	    in->width_basis == NULL || in->confidence_source == NULL))
+		return SQL_REPLAY_INPUT_INVALID;
+	const struct sql_replay_index **indexes = NULL;
+	if (in->index_count != 0) {
+		if (in->index_count > SIZE_MAX / sizeof(*indexes))
+			return SQL_REPLAY_INPUT_INVALID;
+		indexes = malloc(in->index_count * sizeof(*indexes));
+		if (indexes == NULL)
+			return SQL_REPLAY_INPUT_NOMEM;
+		for (size_t i = 0; i < in->index_count; i++) {
+			if (in->indexes[i].logical_key == NULL) {
+				free(indexes);
+				return SQL_REPLAY_INPUT_INVALID;
+			}
+			indexes[i] = &in->indexes[i];
+		}
+		qsort(indexes, in->index_count, sizeof(*indexes),
+		      compare_replay_index_ptr);
+	}
+	struct replay_writer w = {0};
+	/* Top-level key order: limit, offset, order_by, planner, predicate,
+	 * projections, relation, version. */
+	PUT(put_map(&w, 8));
+	PUT(put_string(&w, "limit"));
+	PUT(in->limit_present ? put_uint(&w, in->limit) : put_nil(&w));
+	PUT(put_string(&w, "offset"));
+	PUT(in->offset_present ? put_uint(&w, in->offset) : put_nil(&w));
+	PUT(put_string(&w, "order_by"));
+	PUT(put_array(&w, in->order_by_count));
+	for (size_t i = 0; i < in->order_by_count; i++) {
+		PUT(put_map(&w, 3));
+		PUT(put_string(&w, "descending"));
+		PUT(put_bool(&w, in->order_by[i].descending));
+		PUT(put_string(&w, "expression"));
+		PUT(put_string(&w, in->order_by[i].canonical_expression));
+		PUT(put_string(&w, "nulls_first"));
+		PUT(put_bool(&w, in->order_by[i].nulls_first));
+	}
+	PUT(put_string(&w, "planner"));
+	PUT(put_map(&w, 3));
+	PUT(put_string(&w, "algorithm_version"));
+	PUT(put_uint(&w, in->planner_algorithm_version));
+	PUT(put_string(&w, "beam_width"));
+	PUT(put_uint(&w, in->beam_width));
+	PUT(put_string(&w, "config_version"));
+	PUT(put_uint(&w, in->planner_config_version));
+	PUT(put_string(&w, "predicate"));
+	PUT(put_string(&w, in->predicate));
+	PUT(put_string(&w, "projections"));
+	PUT(put_array(&w, in->projection_count));
+	for (size_t i = 0; i < in->projection_count; i++)
+		PUT(put_string(&w, in->projections[i]));
+	PUT(put_string(&w, "relation"));
+	PUT(put_relation(&w, in, indexes));
+	PUT(put_string(&w, "version"));
+	PUT(put_uint(&w, 1));
+	free(indexes);
+	*data = w.data;
+	*size = w.size;
+	return SQL_REPLAY_INPUT_OK;
+fail:
+	free(indexes);
+	free(w.data);
+	return w.invalid_size ? SQL_REPLAY_INPUT_INVALID : SQL_REPLAY_INPUT_NOMEM;
+}
+
+#undef PUT
 
 static char *
 copy_nonempty(const char *s)

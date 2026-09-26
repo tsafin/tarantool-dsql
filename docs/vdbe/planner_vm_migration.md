@@ -481,9 +481,10 @@ predicate/projection/order expressions, limit/offset, logical relation column
 types/collations, logical index definitions and part ordinals, relation/index
 population and NDV statistics, confidence/freshness metadata, and planner
 configuration scalars. It copies supplied values and stores no live `Expr`,
-catalog handle, cursor, or storage ID. It does not validate the canonical
-syntax of expressions/schema strings, serialize canonically, extract from SQL,
-or feed a planner. Multi-relation expressions, joins, aggregates, and other
+catalog handle, cursor, or storage ID. It emits an internal version-1 MsgPack
+representation with fixed map-key order and logical-index ordering, but does
+not validate canonical expression/schema syntax, extract from SQL, or feed a
+planner. Multi-relation expressions, joins, aggregates, and other
 planner semantics remain absent. It is not a `replay_inputs` payload and does
 not change version 2.
 

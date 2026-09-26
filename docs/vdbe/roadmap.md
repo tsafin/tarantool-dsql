@@ -369,10 +369,14 @@ them.
   offset), logical columns and index parts, and relation/index statistics
   with population, width, NDV, confidence, and freshness semantics. Validation
   rejects incomplete definitions, invalid index ordinals, inconsistent stats
-  absence, and malformed limit/order metadata. Supplied expression/schema
-  strings remain opaque and are not normalized or canonically serialized;
-  there is no SQL extractor or planner consumer, and joins/aggregates remain
-  outside this prototype. M1.4 remains open and v2 remains `replayable=false`.
+  absence, and malformed limit/order metadata. A deterministic internal
+  MsgPack input format v1 now emits fixed lexicographic map-key order, sorts
+  logical indexes by key, and preserves semantically ordered columns,
+  projections, ordering, and key parts. Reordered equivalent index inputs
+  serialize to byte-identical valid MsgPack. Supplied expression/schema
+  strings remain opaque and are not syntax-validated or normalized; there is
+  no SQL extractor or planner consumer, and joins/aggregates remain outside
+  this prototype. M1.4 remains open and v2 remains `replayable=false`.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current M1.4

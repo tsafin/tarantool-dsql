@@ -166,7 +166,7 @@ target_include_directories(sql_expr_canonical.test PRIVATE
 create_unit_test(PREFIX sql_replay_input
                  SOURCES sql_replay_input.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_replay_input.c
-                 LIBRARIES unit
+                 LIBRARIES unit msgpuck
 )
 create_unit_test(PREFIX sql_physical_plan
                  SOURCES sql_physical_plan.c
