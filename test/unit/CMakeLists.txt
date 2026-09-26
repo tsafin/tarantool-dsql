@@ -143,6 +143,14 @@ create_unit_test(PREFIX sql_physical_plan
 )
 target_include_directories(sql_physical_plan.test PRIVATE
                            ${PROJECT_BINARY_DIR}/src/box/sql)
+create_unit_test(PREFIX sql_plan_lowering
+                 SOURCES sql_plan_lowering.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_plan_descriptor.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_plan_lowering.c
+                 LIBRARIES unit m
+)
+target_include_directories(sql_plan_lowering.test PRIVATE
+                           ${PROJECT_BINARY_DIR}/src/box/sql)
 create_unit_test(PREFIX bitset_basic
                  SOURCES bitset_basic.c
                  LIBRARIES bitset

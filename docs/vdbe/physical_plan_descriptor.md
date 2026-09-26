@@ -16,6 +16,16 @@ index full scan, and table full scan. This remains an explicit candidate
 interface, not SQL expression analysis or `where.c` routing; the current
 logical IR has no stable expression-ID normalization contract yet.
 
+M3.4 adds `sql_plan_lower()`, an ordered callback contract over a descriptor:
+scan, each residual filter, projection, each finalize operator (sort/limit),
+then result. The unit test fixes ordering and callback error propagation. This
+is not an executable bytecode builder and does not call Tarantool's VDBE APIs.
+In particular, expression compilation, cursor allocation/opening, engine
+specific seek loops, sorter setup/comparison, limit registers, and SQL result
+delivery are not implemented. It is a boundary prototype only; parity and
+production `where.c` routing remain mandatory before M3 can be considered
+integrated.
+
 ## Purpose
 
 The physical plan descriptor is the **stable contract between the planner

@@ -480,8 +480,12 @@ DML, triggers, subprograms, non-deterministic functions.
   scans. Stable tie-break and reject reasons are unit tested. Estimates are
   fixed/current-provider inputs; no SQL routing or expression normalization
   is wired. *parallel: yes*.
-- [ ] **M3.4** VDBE lowering — `lower_scan`, `lower_filter`, `lower_project`,
-  `lower_sort`, `lower_limit`. *parallel: yes*.
+- [x] **M3.4 (contract prototype)** Lowering emitter contract for scan,
+  filters, projection, sort, limit, and result with stable callback ordering
+  and error propagation. It deliberately does not emit executable VDBE:
+  expression bytecode, cursor/engine setup, sort semantics, result delivery,
+  parity, and production routing remain open. See
+  `docs/vdbe/physical_plan_descriptor.md`. *parallel: yes*.
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
   `fallback_reason` and routes to current `where.c`. *parallel: no*.
 - [ ] **M3.6** Wire path_class through to M0 snapshot (`new_planner` vs
