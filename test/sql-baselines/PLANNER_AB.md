@@ -96,6 +96,32 @@ repeatability does not improve the candidate's plan quality, which remains
 unmeasured; keep the 1/5/10 production defaults pending an integrated workload
 decision.
 
+### Disposition of the three cross-width EXPLAIN differences
+
+Across the full reviewed SQL-TAP runs in generated, CnP, and LLVM modes, on
+both memtx and Vinyl, the only cross-width differences are the three captures
+above. Both widths pass the SQL-TAP test files, and the remaining captured
+statements match; the differences are confined to explicit `EXPLAIN` output.
+In particular, `select6/q96` is `EXPLAIN SELECT`, so its changed VDBE listing
+is compile-time evidence only: that capture does not execute the represented
+SELECT and cannot establish its runtime result. `where2/q128` and `whereK/q13`
+are `EXPLAIN QUERY PLAN` diagnostics; they report a changed index-range choice
+and OR-branch plan, respectively, including different row estimates for
+`where2`.
+
+The likely mechanism is the configured beam size in `wherePathSolver()`
+(`src/box/sql/where.c`): it obtains `mxChoice` from the join-size width tier,
+and the solver retains a bounded set of candidate paths. Changing widths can
+therefore change which path survives pruning and is selected. The captures
+show width sensitivity, but do not record enough candidate/rejection detail to
+prove the exact selection cause or determine which resulting plan is better.
+The passing SQL-TAP assertions and absence of non-EXPLAIN snapshot diffs are
+reassuring regression evidence, not proof that every SELECT represented by an
+EXPLAIN capture ran with identical results or latency. Strict cross-width
+parity remains false; plan quality and end-to-end query latency are still
+unmeasured. Do not accept E1 or change production defaults based on this
+evidence; final workload/acceptance review remains open.
+
 ## Local result, 2026-09-26
 
 Code source `5ee3d4dff6`; final capture source identity `ecada1b8ff` differs
