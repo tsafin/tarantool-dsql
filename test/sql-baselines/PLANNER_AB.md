@@ -188,3 +188,42 @@ where4 was intentionally omitted: its default capture encounters an unrelated
 EXPLAIN pointer-normalization error (`snapshot.lua:161`, void pointer lacks
 `match`). Neither tests nor parser/normalizer code were changed to hide it.
 This is a bounded diagnostic evaluation, not a full-corpus or hosted-CI pass.
+
+## SQL-luatest A/B subset support
+
+`planner_ab.py --suite sql-luatest` reuses reviewed per-engine generated-mode
+query evidence in `corpus.json` and captures selected tests through the normal
+SQL-luatest runner and child-server hook. `--test` selects reviewed
+`*_test.lua` basenames; `--full-corpus` selects every reviewed SQL-luatest
+test for requested engines. `--runner-repo` may point to a source tree with
+initialized `test-run` submodules when the implementation worktree lacks
+them. Four captures (two repeats and the A/B pair) and strict snapshot diffs
+are used as in SQL-TAP mode. Planner-metric totals are unavailable in this
+mode because the luatest adapter does not emit planner-metric manifests.
+
+The report partitions cross-width snapshot differences by captured SQL:
+`EXPLAIN` / `EXPLAIN QUERY PLAN` output differences are reported separately
+from non-EXPLAIN result or diagnostic differences. Unknown/missing SQL is
+unclassified and cannot count as semantic-result parity. Strict snapshot
+parity still includes every difference; partitioning is diagnostic, not a
+waiver. This compares captured results, not all side effects or test
+assertions.
+
+A bounded proof used reviewed `sql-luatest/collation_test.lua` on memtx (3
+captured statements) with binary `/tmp/tarantool-m1-build/src/tarantool`
+(SHA-256 `5a3fd28adbff7f1bc17f2b6ea18a917efc34cc9e82ef2af0c209eb1eab90c59f`):
+
+```sh
+python3 -B test/sql-baselines/planner_ab.py \
+  --repo /home/tsafin/tarantool --runner-repo /home/tsafin/tarantool \
+  --binary /tmp/tarantool-m1-build/src/tarantool \
+  --out /tmp/e1-luatest-ab-proof3 \
+  --suite sql-luatest --test collation_test.lua --engine memtx \
+  --widths 2,8,16
+```
+
+Default and candidate repeats and cross-width comparison all passed (3/3
+snapshots each); no semantic-result or EXPLAIN differences were observed.
+This verifies the single-file memtx adapter path only. It is not full M0
+SQL-luatest coverage, does not exercise Vinyl or native dispatchers, and does
+not satisfy E1 acceptance. The report remains a local artifact.
