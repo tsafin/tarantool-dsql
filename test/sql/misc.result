@@ -265,18 +265,7 @@ assert(err == nil)
 ---
 - true
 ...
-uses_op_count = false
----
-...
-for _, instruction in ipairs(simple_count_vdbe.rows) do
-    if instruction[2] == 'Count' then
-        uses_op_count = true
-        break
-    end
-end
----
-...
-assert(uses_op_count)
+assert((function() for _, instruction in ipairs(simple_count_vdbe.rows) do if instruction[2] == 'Count' then return true end end return false end)())
 ---
 - true
 ...
