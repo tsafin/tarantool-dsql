@@ -447,8 +447,9 @@ review of IDs and formats.
   relation/index data. `whereRangeScanEst()` applies its existing reduction
   to the resulting snapshot-backed input cardinality; S2 histogram range
   integration is not implied. Unit coverage exercises relation/prefix
-  estimates, distinct relation/index tuple populations, stale schemas, missing
-  indexes, and definition-length mismatch,
+  estimates, distinct relation/index tuple populations, stale schemas and
+  missing indexes (both leave caller output untouched for legacy fallback),
+  and definition-length mismatch,
   and the production SQL target links the snapshot API. This is only the
   reader/adapter side: no collection or SQL preparation path populates the
   provider, prepared statements do not own their own snapshot references,
