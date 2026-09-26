@@ -733,9 +733,19 @@ DML, triggers, subprograms, non-deterministic functions.
   always requires it. M3.6 capture/parity prototype is complete; new planner
   implementation, M3.5 classification closure, and M3.7 remain open.
   *parallel: yes*.
-  *parallel: yes*.
-- [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
-  *parallel: yes*.
+- [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — blocked,
+  do not add a no-op flag. The physical selector only accepts caller-supplied
+  candidates and `sql_plan_lower()` emits callbacks, not VDBE; neither is
+  called by SQL planning. `sqlWhereBegin()` therefore has no new-planner
+  success route for the flag to select. Once a candidate provider and
+  executable lowering exist, the default/off state must preserve current
+  routing exactly. The on state may report `new_planner` only after a complete
+  descriptor is lowered successfully; unsupported shapes or pre-emission
+  candidate/lowering rejection must retain the legacy route and stable
+  fallback reason. Avoid partial VDBE emission before fallback. The setting's
+  session/global scope remains to be decided with its config integration.
+  M3.5 success routing and executable M3.4 lowering are prerequisites.
+  *parallel: no* (shares the eventual `where.c` integration owner).
 
 ---
 

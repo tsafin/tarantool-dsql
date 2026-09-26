@@ -50,6 +50,27 @@ volatility/structural fallback metadata and reason counters; M0 snapshot
 capture and broader route coverage are tracked separately under M3.6. The
 missing new-planner success path and complete fallback coverage keep M3.5 open.
 
+### M3.7 feature-flag readiness
+
+`sql_new_planner_single_table=on/off` is not implementable as a meaningful
+switch yet. `sql_physical_plan_from_logical()` selects only from a candidate
+array supplied by its caller; SQL planning has no provider that constructs
+that array from resolved indexes and estimates. `sql_plan_lower()` then emits
+an abstract callback sequence, not VDBE bytecode, and neither API is called by
+`sqlWhereBegin()`. An on/off setting added before those connections would be a
+no-op or would claim a planner route that did not produce the executable plan.
+
+The eventual contract is: off (the default) preserves current planning and
+path classification. On may select `new_planner` only after candidate
+generation, complete descriptor validation, and executable lowering succeed.
+Unsupported shapes, absent candidates, and failures detected before bytecode
+emission use the current planner with their stable fallback classification;
+the new route must not emit partial VDBE and then fall back. Config scope
+(session or instance) is intentionally unresolved. Implement M3.7 only after
+an end-to-end success path exists, with tests proving default behavior is
+unchanged and that `on` selects an executable, parity-tested plan only for the
+supported query class.
+
 ## Purpose
 
 The physical plan descriptor is the **stable contract between the planner
