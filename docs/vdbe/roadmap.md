@@ -445,9 +445,10 @@ review of IDs and formats.
   completeness and catalog/schema/visibility/index-definition generations
   are checked. A narrow bridge now converts a known engine-sampler population
   into exact relation cardinality without mistaking delivered draws for the
-  population. It does not consume tuple samples into width or index/prefix
-  summaries, establish a shared engine visibility mechanism, or publish
-  globally; therefore this subtask remains open and
+  population; a second bridge exposes sample-average serialized tuple bytes
+  with its row denominator, without inventing width for an empty sample. It
+  does not derive index/prefix summaries or confidence, establish a shared
+  engine visibility mechanism, or publish globally; therefore this subtask remains open and
   `ANALYZE` stays disabled. The
   collection unit now sweeps the snapshot byte budget from immediate rejection
   through the first complete deep copy, releasing candidates and checking that

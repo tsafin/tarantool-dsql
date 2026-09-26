@@ -8,7 +8,7 @@
 static void
 test_population_from_engine_sample(void)
 {
-	plan(5);
+	plan(8);
 	header();
 	struct sql_stats_collected_population population;
 	struct sql_stats_sample_result sample = {
@@ -19,6 +19,14 @@ test_population_from_engine_sample(void)
 	   population.row_count == 20 &&
 	   population.semantics == SQL_STATS_CARDINALITY_VISIBLE_ROWS,
 	   "memtx sample draws retain exact visible population, not draw count");
+	struct sql_stats_collected_width width;
+	ok(sql_stats_collection_width_from_sample(&sample, &width) &&
+	   width.average_bytes == 32 && width.denominator_rows == 8,
+	   "sample bytes produce a row-count-denominated mean serialized width");
+	sample.bytes = 7;
+	ok(!sql_stats_collection_width_from_sample(&sample, &width),
+	   "sample byte count cannot be smaller than its tuple count");
+	sample.bytes = 256;
 	sample.with_replacement = false;
 	ok(sql_stats_collection_population_from_sample(&sample, &population),
 	   "exhaustive Vinyl population converts when sampled rows fit population");
@@ -30,6 +38,8 @@ test_population_from_engine_sample(void)
 	ok(sql_stats_collection_population_from_sample(&sample, &population) &&
 	   population.row_count == 0,
 	   "empty visible population is a valid exact count");
+	ok(!sql_stats_collection_width_from_sample(&sample, &width),
+	   "empty sample does not invent a row-width estimate");
 	sample.population_known = false;
 	ok(!sql_stats_collection_population_from_sample(&sample, &population),
 	   "unknown engine population cannot become exact relation count");

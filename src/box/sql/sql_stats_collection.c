@@ -64,6 +64,24 @@ sql_stats_collection_population_from_sample(
 	return true;
 }
 
+bool
+sql_stats_collection_width_from_sample(
+	const struct sql_stats_sample_result *sample,
+	struct sql_stats_collected_width *width)
+{
+	if (sample == NULL || width == NULL || !sample->population_known ||
+	    sample->rows == 0 || sample->bytes < sample->rows ||
+	    (sample->visible_population == 0 && sample->rows != 0) ||
+	    (!sample->with_replacement &&
+	     sample->rows > sample->visible_population))
+		return false;
+	*width = (struct sql_stats_collected_width) {
+		.average_bytes = sample->bytes / sample->rows,
+		.denominator_rows = sample->rows,
+	};
+	return true;
+}
+
 static const struct sql_stats_collected_relation *
 find_relation(const struct sql_stats_collection_result *result, uint32_t id)
 {

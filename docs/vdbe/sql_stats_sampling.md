@@ -225,8 +225,13 @@ no-replacement sample larger than the population. This covers memtx
 replacement draws and Vinyl's successful exhaustive scan/reservoir result.
 The helper does not invent a visibility token or prove that catalog/schema
 capture spans the sampling call; the producer must still establish one common
-generation boundary. It also does not derive per-index populations, prefix
-NDVs, width, confidence, or a complete candidate.
+generation boundary. `sql_stats_collection_width_from_sample()` separately
+exposes the integer sample-average serialized tuple size with sampled rows as
+its denominator. It rejects unknown/inconsistent populations, empty samples,
+and impossible byte totals rather than inventing width for an empty relation.
+This is only a width observation: the helper does not decode tuple fields,
+derive per-index populations or prefix NDVs, calibrate confidence, or build a
+complete candidate.
 
 The in-memory snapshot API version is now 2 so the new provenance and width
 denominator metadata are explicit. Existing designated/zero-initialized

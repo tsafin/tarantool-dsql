@@ -79,6 +79,17 @@ sql_stats_collection_population_from_sample(
 	const struct sql_stats_sample_result *sample,
 	struct sql_stats_collected_population *population);
 
+/* Sample-average serialized tuple width; unavailable for an empty sample. */
+struct sql_stats_collected_width {
+	uint64_t average_bytes;
+	uint64_t denominator_rows;
+};
+
+bool
+sql_stats_collection_width_from_sample(
+	const struct sql_stats_sample_result *sample,
+	struct sql_stats_collected_width *width);
+
 /*
  * Validate exact relation/index/prefix completeness and common generation,
  * then deep-copy a candidate through sql_stats_snapshot_new(). No global
