@@ -60,6 +60,19 @@ Elapsed-time counters were zero in this local sample; no latency conclusion
 is justified. Measurements describe compile-time EXPLAIN snapshots, not
 native dispatcher execution or runtime query performance.
 
+An expanded exploratory selection added join4, join6, where5, whereF,
+whereI, and whereK (868 statements per engine). All four captures completed;
+repeat comparisons were clean, but default-vs-candidate comparison reported
+one difference per engine: `whereK/q13`, an `EXPLAIN QUERY PLAN` result whose
+OR branches are ordered differently at widths 1/5/10 and 2/8/16. The harness
+classifies this expected-plan-output change as a hard mismatch, so the
+expanded run is not a parity pass. It is not evidence of a changed underlying
+SQL result; semantic result parity for that query still needs a direct check.
+The candidate run also observed seven fewer path candidates over this broader
+sample, while generated, dominated, truncated, and retained totals moved as
+expected with the wider beam. Evidence is at
+`/tmp/tarantool-e15-expanded.E01sFx/capture/report.json` (local, uncommitted).
+
 An exploratory **1/1/1** run changed where3 EXPLAIN QUERY PLAN join-order
 expectations (five TAP failures, including expected tB/tC/tA/tD versus
 tA/tB/tC/tD). This is a plan-output assertion difference, not an observed
