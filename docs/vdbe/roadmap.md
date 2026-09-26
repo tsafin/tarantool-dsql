@@ -350,7 +350,9 @@ system-space schema remains DRAFT pending human review of IDs and formats.
   not yet attached to prepare/prepared-statement lifetime; that integration
   remains part of S1.7. *parallel: yes*.
 - [ ] **S1.5** memtx sampling interface
-  (`engine_sql_stats_sample`). *parallel: yes*.
+  (`engine_sql_stats_sample`). A proposed bounded, seeded request/sink
+  contract is documented in `sql_stats_sampling.md`; no engine entrypoint or
+  sampler is implemented, so S1.5 remains open. *parallel: yes*.
 - [ ] **S1.6** Vinyl sampling interface — avoiding pathological full-LSM
   reads, respect bloom/range structure. *parallel: yes*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
