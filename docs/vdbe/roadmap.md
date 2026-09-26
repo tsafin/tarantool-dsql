@@ -681,8 +681,9 @@ DML, triggers, subprograms, non-deterministic functions.
   emits `OP_Count`, so assigning it a fallback-to-`current_where_c` reason
   would misstate the execution route. The existing SQL regression keeps that
   path unclassified. M3.5 remains partial: physical rejection reasons are not
-  routed/accounted, no new-planner success path exists, and M0 baseline
-  recapture/parity review remains open.
+  routed/accounted and no new-planner success path exists. Full-corpus
+  capture/parity review is complete under M3.6; it does not imply the missing
+  physical-reject accounting or new-planner route is implemented.
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
