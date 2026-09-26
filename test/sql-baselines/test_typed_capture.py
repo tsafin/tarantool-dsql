@@ -42,6 +42,8 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("sql_type: map", snapshot)
             self.assertIn("taken: current_where_c", snapshot)
             self.assertNotIn("table: 0x", snapshot)
+            no_planner_path = (out / "snapshots/sql-tap/typed_sql/q02.memtx.yaml").read_text()
+            self.assertIn("taken: null", no_planner_path)
 
     def test_fallback_reason_survives_sql_snapshot_capture(self):
         if not BINARY.is_file():
@@ -91,6 +93,7 @@ class TypedCaptureTest(unittest.TestCase):
                 ("reason: UNSUPPORTED_RELATION_COUNT", "reason: UNKNOWN_REASON"),
                 ("fallback_to: current_where_c", "fallback_to: new_planner"),
                 ("taken: fallback", "taken: current_where_c"),
+                ("taken: fallback", "taken: null"),
             )
             for original, replacement in invalid_fields:
                 with self.subTest(replacement=replacement):

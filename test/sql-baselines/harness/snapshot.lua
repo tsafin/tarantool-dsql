@@ -156,9 +156,13 @@ function M.write(params)
     local cls = load_classification()
     local cls_key = p.suite .. '/' .. p.test_basename
     local tags = cls[cls_key] or {}
-    local path_class = p.path_class or 'current_where_c'
+    -- EXPLAIN's MsgPack nil is decoded as box.NULL. Preserve the absence of a
+    -- WHERE-planner path instead of mislabeling it as current_where_c.
+    local path_class = p.path_class
+    if path_class == nil then path_class = box.NULL end
     local fallback_reason, fallback_to = nil, nil
-    if path_class == 'fallback' or path_class:match('^fallback_') then
+    if path_class == 'fallback' or
+       type(path_class) == 'string' and path_class:match('^fallback_') then
         fallback_reason = p.fallback_reason or
                           path_class:match('^fallback_(.+)$')
         fallback_to = 'current_where_c'

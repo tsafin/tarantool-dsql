@@ -124,12 +124,18 @@ local stable_fallback_reasons = {
     LOWERING_FAILED = true,
 }
 
+local function is_null(value)
+    return value == nil or value == box.NULL
+end
+
 local function valid_path_class(path)
-    if type(path) ~= 'table' or type(path.taken) ~= 'string' then
-        return false
-    end
+    if type(path) ~= 'table' then return false end
     local reason = path.reason
     local fallback_to = path.fallback_to
+    if is_null(path.taken) then
+        return is_null(reason) and is_null(fallback_to)
+    end
+    if type(path.taken) ~= 'string' then return false end
     if path.taken == 'current_where_c' or path.taken == 'new_planner' then
         return reason == nil and fallback_to == nil
     end

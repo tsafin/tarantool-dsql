@@ -623,7 +623,10 @@ DML, triggers, subprograms, non-deterministic functions.
   broader M3.6 capture/parity gate. The live harness now also fails capture if
   planner-snapshot EXPLAIN fails, returns no MsgPack, or violates the v2
   diagnostic envelope / `replayable: false` contract; it no longer silently
-  records missing metadata as an ordinary path.
+  records missing metadata as an ordinary path. It also preserves a nil path
+  as `l3_path_class.taken: null` for statements that do not enter the WHERE
+  planner, instead of crashing or mislabeling them `current_where_c`; the
+  schema, validator, and a DML fixture cover this case.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.

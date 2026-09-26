@@ -241,6 +241,8 @@ but not gating.
 
 Stable string values for `l3_path_class.taken`:
 
+- `null` — the statement did not enter the WHERE planner; no planner path
+  classification applies.
 - `current_where_c` — current planner produced this plan.
 - `new_planner` — new planner (M3+) produced this plan.
 - `fallback_<reason>` — new planner rejected the query; current planner ran.
@@ -273,8 +275,9 @@ reason in the separate `reason` field. Its append-only reason codes are
 Adding a reason code is append-only and does NOT bump `schema_version`.
 
 M0 capture obtains the path from `EXPLAIN (planner = 'snapshot')`: statements
-that use the legacy planner report `current_where_c`, while supported rejects
-report `fallback` with a stable reason and `fallback_to: current_where_c`.
+that use the legacy planner report `current_where_c`, statements that do not
+enter the WHERE planner report `null`, while supported rejects report
+`fallback` with a stable reason and `fallback_to: current_where_c`.
 The diff hard-gates a path change by default. A deliberate switch to
 `new_planner` needs an explicit, reviewed path-change policy;
 `--ignore-path-class` is reserved for same-build dispatcher parity and must
