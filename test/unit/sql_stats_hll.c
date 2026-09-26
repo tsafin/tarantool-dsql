@@ -168,6 +168,38 @@ test_typed_tuple_encoding(void)
 	check_plan();
 }
 
+static void
+test_typed_tuple_merge(void)
+{
+	plan(2);
+	header();
+	struct sql_stats_hll *left = sql_stats_hll_new(12, 27);
+	struct sql_stats_hll *right = sql_stats_hll_new(12, 27);
+	struct sql_stats_hll *whole = sql_stats_hll_new(12, 27);
+	struct sql_stats_hll *wrong_seed = sql_stats_hll_new(12, 28);
+	fail_if(left == NULL || right == NULL || whole == NULL ||
+		wrong_seed == NULL);
+	for (int i = 0; i < 10000; i++) {
+		struct sql_stats_hll_value value = {
+			.type_tag = (uint8_t)(i % 4), .data = &i, .size = sizeof(i),
+		};
+		struct sql_stats_hll *part = i < 5000 ? left : right;
+		fail_if(sql_stats_hll_add_tuple(part, &value, 1) != 0 ||
+			sql_stats_hll_add_tuple(whole, &value, 1) != 0);
+	}
+	fail_if(sql_stats_hll_merge(left, right) != 0);
+	ok(sql_stats_hll_estimate(left) == sql_stats_hll_estimate(whole),
+	   "typed tuple sketch merge equals single pass");
+	ok(sql_stats_hll_merge(left, wrong_seed) == -1,
+	   "typed tuple merge preserves seed compatibility rule");
+	sql_stats_hll_delete(left);
+	sql_stats_hll_delete(right);
+	sql_stats_hll_delete(whole);
+	sql_stats_hll_delete(wrong_seed);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
@@ -175,5 +207,6 @@ main(void)
 	test_accuracy_and_determinism();
 	test_merge();
 	test_typed_tuple_encoding();
+	test_typed_tuple_merge();
 	return 0;
 }

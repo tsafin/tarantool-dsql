@@ -181,8 +181,10 @@ ambiguous field boundaries and type-tag collisions while leaving collation
 and SQL canonicalization with the caller. Both add paths use a 64-bit
 endian-independent seeded hash and are deterministic. Seed
 and precision are sketch identity; merge is register-wise maximum and rejects
-either mismatch. The API is intentionally opaque and has no persistent
-encoding, snapshot ABI, or system-space dependency.
+either mismatch. Composite sketches can be merged only when callers use the
+same type-tag and canonical-value conventions for every field. The API is
+intentionally opaque and has no persistent encoding, snapshot ABI, or
+system-space dependency.
 
 Precision is supported from 4 through 18. The register array consumes
 `2^precision` bytes, excluding allocator overhead. The estimator uses the
