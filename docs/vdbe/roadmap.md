@@ -710,7 +710,16 @@ DML, triggers, subprograms, non-deterministic functions.
   EXPLAIN may reject the same invalid statement, so their path is null. A
   missing-relation SELECT regression exercises this exception while successful
   SELECT metric coverage remains fail-closed. This closes the metrics-coverage
-  hole, not baseline recapture or full M3.6 parity.
+  hole, not baseline recapture or full M3.6 parity. A local full-corpus
+  recapture was attempted from the declared base commit `04b63d19`, using the
+  head capture harness for both sides. The baseline server built successfully
+  with SQL CnP enabled, but capture stopped at
+  `gh_6572_nan_is_not_null_test.lua`: the baseline's pinned `test-run` gitlink
+  (`6e8cf169`) is no longer fetchable from its remote (`not our ref`), while
+  the available newer test-run is incompatible with that historical server.
+  The harness correctly failed closed; no snapshots were promoted and no
+  parity claim is made. Full recapture needs a recoverable matching test-run
+  revision or a newer reviewed baseline anchor. *parallel: yes*.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.
@@ -776,7 +785,9 @@ M0-B corpus for the evaluation workloads.
   retained, and truncated path totals; candidate/fallback counts and path
   classes remained unchanged. `elapsed_us` was zero, so no latency or plan-
   quality gain is established. This is a bounded subset, not full-corpus
-  evidence; the full-corpus comparison and quality evaluation remain open. An
+  evidence; the full-corpus comparison was attempted locally but is blocked by
+  the unavailable baseline `test-run` gitlink documented under M3.6. Full-corpus
+  comparison and quality evaluation remain open. An
   expanded 962-query
   exploratory subset is repeat-stable but has one width-sensitive
   `EXPLAIN QUERY PLAN` output difference (`whereK/q13`) on both engines; it is
