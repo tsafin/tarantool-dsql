@@ -122,6 +122,11 @@ create_unit_test(PREFIX sql_stats_selectivity
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_histogram.c
                  LIBRARIES unit m
 )
+create_unit_test(PREFIX sql_plan_descriptor
+                 SOURCES sql_plan_descriptor.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_plan_descriptor.c
+                 LIBRARIES unit m
+)
 create_unit_test(PREFIX bitset_basic
                  SOURCES bitset_basic.c
                  LIBRARIES bitset

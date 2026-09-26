@@ -2,8 +2,11 @@
 
 ## Status
 
-`SPEC-DRAFTED` — initial v1 covers only the single-table query class.
-Joins, aggregates, and subqueries extend the schema in later versions.
+`PROTOTYPE` — an internal immutable C descriptor API now validates and
+deep-copies the single-table v1 shape. It is not connected to planner
+resolution, VDBE lowering, MsgPack/YAML serialization, or fingerprinting;
+those remain later M3 subtasks. Joins, aggregates, and subqueries extend the
+schema in later versions.
 
 ## Purpose
 
@@ -251,8 +254,8 @@ Not required for M3, but worth flagging so v1 leaves room:
 
 ## Open questions
 
-These are deferred to M3.1 implementation. Document final decisions in
-this file as they are made:
+These remain deferred beyond the in-memory M3.1 contract. Document final
+decisions in this file as they are made:
 
 - **Q1.** Should `path_class.taken` carry a version of the new planner
   that produced it, so baselines distinguish "planner v1 chose X" from

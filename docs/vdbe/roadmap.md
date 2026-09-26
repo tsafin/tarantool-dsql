@@ -429,9 +429,10 @@ persistence and the `where.c` selectivity adapter wait for that interface.
 equivalent (in result and diagnostic) to current `where.c` for a controlled
 single-table query class.
 
-**State:** `NOT-STARTED`. Depends on the M1 path-class/replay contract and
-M0-A seed parity gate, not on S2. Use fixed or current estimates while the
-statistics track is under construction; integrate the real snapshot later.
+**State:** `PROTOTYPE` (M3.1 descriptor contract only). Depends on the M1
+path-class/replay contract and M0-A seed parity gate, not on S2. Use fixed
+or current estimates while the statistics track is under construction;
+integrate the real snapshot later.
 
 **Scope (exact):**
 
@@ -455,7 +456,7 @@ DML, triggers, subprograms, non-deterministic functions.
 
 **Subtasks:**
 
-- [ ] **M3.1** Physical-plan descriptor v1 — narrow form, single-table only.
+- [x] **M3.1** Physical-plan descriptor v1 — narrow form, single-table only.
   Written in `docs/vdbe/physical_plan_descriptor.md`. *parallel: no*
   (foundational contract).
 - [ ] **M3.2** Logical IR layer — resolved-tree → logical plan for the
