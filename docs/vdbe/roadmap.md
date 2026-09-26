@@ -796,7 +796,7 @@ quarters of bake-off work.
 **State:** `PROTOTYPE`. E1.1–E1.5 have configurable bounded-DP controls,
 per-statement metrics, and a reproducible full reviewed SQL-TAP width
 comparison. The wider candidate is repeat-stable but differs in three
-EXPLAIN outputs and costs about 2.5× aggregate planner time in these runs;
+EXPLAIN outputs and costs about 2–2.6× aggregate planner time in these runs;
 plan quality has not been measured. Offline A/B tooling now supports reviewed
 SQL-luatest and normal SQL-suite subsets and reports EXPLAIN-output drift
 separately from captured non-EXPLAIN result/diagnostic drift. Full reviewed
@@ -806,7 +806,10 @@ both passed all strict default/candidate and repeat comparisons with zero
 diffs. Two reviewed raw `.test.sql` cases are not supported by the child-server
 adapter. E1 acceptance and the GATE decision still depend on integrated M3 +
 S2 and an accepted evaluation workload with plan-quality and end-to-end latency
-data.
+data. Full reviewed SQL-TAP captures in CnP and LLVM modes show the same
+three cross-width EXPLAIN-only differences and exact within-width repeats;
+this confirms native-mode width sensitivity but does not measure query quality
+or execution latency.
 
 **Exit criteria:**
 
@@ -824,7 +827,10 @@ to explicit EXPLAIN captures and the SQL-TAP runs pass, but strict snapshot
 parity is false. More importantly, summed planner time is 2.58× (memtx) and
 2.52× (Vinyl) for the candidate, while the run measures neither end-to-end
 query latency nor plan quality. The full-width SQL-TAP capture is not hosted
-CI. Separate full reviewed SQL-luatest and adapter-compatible SQL `.test.lua`
+CI. Full CnP and LLVM SQL-TAP captures reproduce the same three EXPLAIN-only
+cross-width differences and exact within-width repeats; candidate planner time
+is roughly 2–2.6× default across modes and engines. Separate full reviewed
+SQL-luatest and adapter-compatible SQL `.test.lua`
 captures now have zero strict diffs; two raw `.test.sql` cases remain outside
 the SQL adapter. Of 24,263 memtx and 22,135 Vinyl
 successful planner snapshots, only 6,314 and 6,237 respectively used
@@ -929,8 +935,12 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   Bounded CnP and LLVM runs on five reviewed join/range files, both engines,
   each captured 687 statements with zero strict diffs across default/candidate
   and repeats; generated paths increased from 949,450 to 1,512,106, showing a
-  width effect. This is not a full-corpus native-mode run and does not accept
-  E1. Exact diffs and reproduction
+  width effect. Full reviewed SQL-TAP runs in both native modes now complete:
+  each mode has exact within-width repeats and the same three explicit EXPLAIN
+  cross-width differences per engine as generated mode. SQL assertions pass,
+  but strict snapshot parity is false; planner-time sums rise roughly 2–2.6×,
+  with no query-latency or plan-quality result. Native-mode evidence therefore
+  does not accept E1 or justify changing defaults. Exact diffs and reproduction
   instructions are in `test/sql-baselines/PLANNER_AB.md`. The capture/evaluation prototype
   is complete; strict SQL-TAP cross-width parity and
   full-width plan-quality evaluation remain open.

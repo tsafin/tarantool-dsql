@@ -69,6 +69,33 @@ increased from 949,450 to 1,512,106. Reports are local at
 `/tmp/tarantool-e1-llvm-join-subset/report.json`. This is bounded evidence,
 not a full-corpus native-mode run, E1 acceptance, or a runtime benchmark.
 
+### Full reviewed SQL-TAP widths in native modes, 2026-09-27
+
+The full reviewed SQL-TAP corpus was captured with CnP and LLVM separately on
+both engines, each at default 1/5/10 and candidate 2/8/16 widths with repeats.
+Both mode runs used source HEAD
+`7a8d328e1ad5680f230a672f4d3b0a9a8fade1ea` and binary SHA-256
+`7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`.
+
+All within-width repeats passed exactly. Cross-width strict snapshot parity
+was false in both modes and engines with the same three explicit EXPLAIN
+captures already seen in generated mode: `select6/q96`, `where2/q128`, and
+`whereK/q13` (47,943/47,946 memtx and 37,987/37,990 Vinyl snapshots matched).
+The SQL-TAP assertions passed in both configurations; no non-EXPLAIN result
+regression was observed. The full captures and reports are at
+`/tmp/tarantool-e1-full-tap-cnp/report.json` and
+`/tmp/tarantool-e1-full-tap-llvm/report.json`.
+
+Planner work increased in both native modes. CnP generated paths rose from
+1,019,739 to 1,582,459 on memtx and 1,013,614 to 1,576,334 on Vinyl; summed
+`elapsed_us` rose from 71,083 to 150,106 µs and 63,381 to 148,547 µs,
+respectively. LLVM generated the same path totals; summed planner time rose
+from 71,782 to 164,489 µs on memtx and 75,983 to 161,646 µs on Vinyl. These
+are planner-time sums, not execution latency. Native-mode full-corpus
+repeatability does not improve the candidate's plan quality, which remains
+unmeasured; keep the 1/5/10 production defaults pending an integrated workload
+decision.
+
 ## Local result, 2026-09-26
 
 Code source `5ee3d4dff6`; final capture source identity `ecada1b8ff` differs
