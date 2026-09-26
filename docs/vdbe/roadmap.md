@@ -403,9 +403,10 @@ remains DRAFT pending human review of IDs and formats.
   do not bound work. Before adding an engine callback, add operation-local
   source/page accounting and cancellation in the Vinyl iterator path, then
   test work-budget exhaustion with visibility and partial-sample semantics.
-  A fail-closed `ER_UNSUPPORTED` runtime test is the safe standalone step.
+  The standalone fail-closed runtime test now verifies `ER_UNSUPPORTED` and
+  zero rows/sink deliveries against a real Vinyl space; this does not complete
+  the bounded-work interface.
   See `sql_stats_sampling.md`. *parallel: yes, against the S1.5 contract*.
-  *parallel: yes, against the S1.5 contract*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
   `whereRangeScanEst()` consume snapshot, fall back to defaults on absence.
   *parallel: no* (touches `where.c` integration surface).
