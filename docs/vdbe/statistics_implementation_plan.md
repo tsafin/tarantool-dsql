@@ -270,9 +270,12 @@ skewed column with one value at 90% frequency, correlated/anti-correlated
 conjunctions, and a synthetic stale-MCV fixture where a distribution shift
 worsens q-error while the caller supplies lower confidence. Equality and
 selected range predicates are compared against known selectivities using
-q-error. These are algorithm sanity checks, not the M0 corpus gate: the
-estimator has no freshness/decay policy, representative stale-stat corpus
-variants and integrated plan-quality measurement remain open.
+q-error. A second drift fixture models an 80%-to-1% change in a joint pair
+frequency: the current sample has q-error 1 and the stale sample q-error 80,
+with lower confidence supplied by the caller. These are algorithm sanity
+checks, not the M0 corpus gate: the estimator has no freshness/decay policy,
+representative stale-stat corpus variants and integrated plan-quality
+measurement remain open.
 
 ## Refresh And Staleness
 

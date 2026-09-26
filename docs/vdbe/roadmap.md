@@ -523,8 +523,12 @@ the `where.c` selectivity adapter wait for that interface.
   correlated/anti-correlated and stale-stat variants. A synthetic stale-MCV
   probe now demonstrates that a distribution shift can worsen q-error while
   carrying caller-supplied lower confidence; the estimator has no freshness
-  policy and this fixture does not establish one. No production q-error gate
-  is active.
+  policy and this fixture does not establish one. A separate joint-correlation
+  drift fixture moves a selected pair's actual frequency from 80% to 1% and
+  demonstrates q-error 80 for the stale joint sample versus 1 for the current
+  sample, with lower caller-supplied confidence. These remain synthetic
+  algorithm probes, not a freshness policy or corpus validation. No production
+  q-error gate is active.
   *parallel: yes*.
 - [x] **S2.7 prototype** Confidence/staleness metadata representation.
   The S1.4 snapshot records cardinality confidence/semantics, collection time,

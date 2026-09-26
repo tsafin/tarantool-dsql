@@ -611,6 +611,59 @@ test_stale_summary_qerror(void)
 	check_plan();
 }
 
+static void
+test_stale_joint_summary_qerror(void)
+{
+	plan(3);
+	header();
+	/* Current marginals are 50/50 and the selected pair occurs 1%. The old
+	 * joint sample saw the same pair at 80%, modeling correlation drift. */
+	int hot = 1;
+	struct sql_stats_mcv_sample marginal = {
+		.value = &hot, .value_size = sizeof(hot), .count = 500,
+	};
+	struct sql_stats_mcv_sample stale_marginal = marginal;
+	stale_marginal.count = 900;
+	struct sql_stats_column_summary current[] = {
+		{.row_count = 1000, .distinct_count = 2, .confidence = 0.9,
+		 .sample_nonnull_rows = 1000, .mcv = &marginal, .mcv_count = 1,
+		 .compare = compare_int},
+		{.row_count = 1000, .distinct_count = 2, .confidence = 0.9,
+		 .sample_nonnull_rows = 1000, .mcv = &marginal, .mcv_count = 1,
+		 .compare = compare_int},
+	};
+	struct sql_stats_column_summary stale[] = {
+		current[0], current[1],
+	};
+	stale[0].mcv = &stale_marginal;
+	stale[1].mcv = &stale_marginal;
+	stale[0].confidence = 0.2;
+	stale[1].confidence = 0.2;
+	struct sql_stats_mcv_value tuple[] = {
+		{.value = &hot, .value_size = sizeof(hot)},
+		{.value = &hot, .value_size = sizeof(hot)},
+	};
+	struct sql_stats_joint_mcv_sample current_joint = {
+		.values = tuple, .value_count = 2, .count = 10,
+	};
+	struct sql_stats_joint_mcv_sample stale_joint = current_joint;
+	stale_joint.count = 800;
+	struct sql_stats_selectivity current_result;
+	struct sql_stats_selectivity stale_result;
+	ok(sql_stats_estimate_equality_conjunction(current, tuple, 2,
+		&current_joint, 1, 1000, &current_result) == 0 &&
+	   q_error(current_result.value, 0.01) == 1,
+	   "current joint sample estimates the shifted pair frequency accurately");
+	ok(sql_stats_estimate_equality_conjunction(stale, tuple, 2,
+		&stale_joint, 1, 1000, &stale_result) == 0 &&
+	   q_error(stale_result.value, 0.01) == 80,
+	   "stale joint correlation drives conjunction q-error to 80");
+	ok(stale_result.confidence < current_result.confidence,
+	   "caller-supplied stale confidence flags lower trust in joint estimate");
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
@@ -622,5 +675,6 @@ main(void)
 	test_same_column_equality_constraints();
 	test_correlated_range_conjunction_qerror();
 	test_stale_summary_qerror();
+	test_stale_joint_summary_qerror();
 	return 0;
 }
