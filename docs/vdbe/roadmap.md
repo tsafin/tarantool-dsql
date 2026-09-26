@@ -92,10 +92,14 @@ flowchart TD
     P["Human gate: approve persistent IDs / formats"] --> Q["S1.1 + S2.1: persistent spaces"]
     E --> R["S1.5: memtx sampling"]
     R --> R2["S1.6: Vinyl bounded-work strategy"]
-    Q --> S["S1.3: collection + persistence"]
-    R --> S
-    R2 --> S
-    S --> T["S1.7-1.9: adapter + validation"]
+    E --> S0["S1.3a: volatile collector + candidate snapshot"]
+    R --> S0
+    R2 --> S0
+    S0 --> S1["S1.2: ANALYZE grammar + volatile execution"]
+    S0 --> S2["S1.3b: persist collection generation"]
+    Q --> S2
+    S1 --> T["S1.7-1.9: adapter + validation"]
+    S2 --> T
     Q --> U["S2 persistence / where.c integration"]
     F --> U
     U --> V["S2 integrated"]
@@ -115,10 +119,11 @@ flowchart TD
 
 The in-memory S1 snapshot, S2 algorithms, and M3 IR/lowering prototypes are
 independent tracks after their stated contracts; they can use isolated
-worktrees. Engine samplers are another independent track but must honor a
-shared request/sink contract. Persistent-space work, collection, and adapters
-stay behind the human IDs/formats gate. M3 can use fixed/current estimates
-while statistics are built; E1 waits for integrated M3 and S2.
+worktrees. Engine samplers and S1.3a's volatile collector are independent of
+persistent IDs, but must honor the shared sampler/snapshot contracts.
+S1.3b persistence and any persistent ANALYZE behavior stay behind the human
+IDs/formats gate. M3 can use fixed/current estimates while statistics are
+built; E1 acceptance waits for integrated M3 and S2.
 
 ## Parallel work and integration ownership
 
@@ -132,7 +137,7 @@ against shared build directories, ports, or databases.
 | M0 harness validity | now | isolated test execution, capture manifest, failure propagation | SCHEMA.md semantics and harness API |
 | M0 corpus/CI | M0 harness contract | representative fixtures, coverage report, workflow wiring | CI gate and accepted snapshots |
 | M1 observability | M0-A contract | counters, replay serializer, EXPLAIN surface | one owner for `sql.c`, grammar and path-class API |
-| S1 statistics | S0 + M0-A contract | storage schema design, sampling adapters, immutable snapshot API | system-space IDs, `sql.c`, `where.c` adapter |
+| S1 statistics | S0 + M0-A contract | sampling adapters, immutable snapshot API, volatile collector/candidate builder | approved system-space IDs/formats, persistent publication, `sql.c` / `where.c` adapter |
 | S2 algorithms | S1 snapshot contract | HLL, MCV, histogram and synthetic data | persistence schema and selectivity adapter |
 | M3 planner | M1 path-class and replay contract | logical IR, physical IR, lowering tests using fixed stats | resolver/`where.c` routing and feature flag |
 | E1 evaluation | S2 + M3 integrated | benchmark workload design and measurement tooling | `wherePathSolver` and decision report |
@@ -395,19 +400,25 @@ review of IDs and formats.
   direction; no system-space IDs or payload-format choices are approved.
   *parallel: no* (system-space allocation is a one-way door — needs human
   sign-off).
-- [ ] **S1.2** Re-enable `ANALYZE` grammar; remove the
-  `unsupported ANALYZE` rejection path. *parallel: yes*.
-- [ ] **S1.3** Collection job — sample tuples, build summaries, persist
-  transactionally. Engine-agnostic core. *parallel: yes*. The sampler boundary
-  is implemented, but collection population semantics are not interchangeable:
-  memtx `index_size()` subtracts active-transaction invisible tuples, whereas
+- [ ] **S1.2** Re-enable `ANALYZE` grammar and execute the volatile collection
+  path without persistence. Remove the `unsupported ANALYZE` rejection only
+  after S1.3a defines complete candidate-snapshot publication semantics.
+  *parallel: yes, after S1.3a*.
+- [ ] **S1.3a** Volatile collection core — consume sampled tuples, build and
+  validate relation/index summaries, then atomically publish one immutable
+  candidate snapshot. No persistence or grammar dependency; test rollback on
+  any incomplete/invalid relation or index summary. *parallel: yes*.
+- [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
+  This is the persistence half of S1.3 and must not start before human approval
+  of system-space IDs and tuple/payload formats. *parallel: no*.
+  The sampler boundaries are implemented, but engine population semantics
+  are not interchangeable: memtx `index_size()` subtracts active-transaction
+  invisible tuples, whereas
   Vinyl `index_size()` is an approximate LSM-statement count that may include
   obsolete versions/tombstones. Vinyl visible population requires successful
-  exhaustive EOF, so budget exhaustion must fail collection closed. Next
-  implementation slice is a non-persistent candidate-snapshot builder with
-  complete relation/index validation and atomic in-memory publication. The
-  persistence/ANALYZE stages remain behind that contract; see
-  `sql_stats_sampling.md`. None of this approves or alters S1.1 IDs/formats.
+  exhaustive EOF, so budget exhaustion must fail collection closed. See
+  `sql_stats_sampling.md` for the volatile candidate-builder contract; see
+  `sql_stats_schema.md` for the explicitly unapproved persistence proposal.
 - [x] **S1.4 prototype** `SqlStatsSnapshot` API — immutable deep copy,
   reference-counted ownership, catalog/schema versions, relation/index
   cardinalities, confidence and freshness metadata, stale/missing lookup
