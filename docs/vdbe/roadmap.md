@@ -290,10 +290,12 @@ them.
   `sql_planner_elapsed_us`. Preparatory `sql_statement_compiles_total` is
   implemented, but does not satisfy this subtask. *parallel: yes* (only
   sql.c stat hookup).
-- [ ] **M1.2** Wire path_class emission in current `where.c` — every prepare
-  emits `path_class: current_where_c` to a per-stmt struct. M0 snapshots
-  start consuming it. *parallel: no* (touches the same `where.c` files M3
-  will modify; coordinate).
+- [x] **M1.2** Wire path_class emission in current `where.c` — statements
+  invoking the WHERE planner store `current_where_c` on the per-statement
+  VDBE; summary EXPLAIN reads that value, and statements that do not invoke
+  the planner report NULL. Wiring it into M0 snapshots remains follow-up
+  integration. *parallel: no* (touches the same `where.c` files M3 will
+  modify; coordinate).
 - [x] **M1.3** `EXPLAIN (planner = 'summary')` grammar + executor returning
   structured rows per the planner_vm_migration.md schema. *parallel: yes*.
 - [ ] **M1.4** `EXPLAIN (planner = 'snapshot')` returning a versioned MsgPack
