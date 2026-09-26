@@ -72,4 +72,9 @@ sql_stats_collection_build_candidate(
 	const struct sql_stats_expected_relation *expected, size_t expected_count,
 	const struct sql_stats_collection_result *result, size_t max_bytes);
 
+#ifdef SQL_STATS_COLLECTION_TESTING
+/* Unit-target-only one-shot failure after N successful staging allocations. */
+void sql_stats_collection_test_fail_allocation_after(long successful_allocations);
+#endif
+
 #endif /* TARANTOOL_SQL_STATS_COLLECTION_H */

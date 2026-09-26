@@ -3,6 +3,37 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef SQL_STATS_COLLECTION_TESTING
+static long test_allocations_before_failure = -1;
+
+void
+sql_stats_collection_test_fail_allocation_after(long successful_allocations)
+{
+	test_allocations_before_failure = successful_allocations;
+}
+
+static bool
+test_should_fail_allocation(void)
+{
+	if (test_allocations_before_failure < 0)
+		return false;
+	if (test_allocations_before_failure == 0) {
+		test_allocations_before_failure = -1;
+		return true;
+	}
+	test_allocations_before_failure--;
+	return false;
+}
+#else
+#define test_should_fail_allocation() false
+#endif
+
+static void *
+collection_calloc(size_t count, size_t size)
+{
+	return test_should_fail_allocation() ? NULL : calloc(count, size);
+}
+
 static bool
 valid_tag(const char *tag)
 {
@@ -76,7 +107,7 @@ sql_stats_collection_build_candidate(
 	    !expected_is_unique(expected, expected_count))
 		return NULL;
 	struct sql_stats_relation_input *inputs = expected_count == 0 ? NULL :
-		calloc(expected_count, sizeof(*inputs));
+		collection_calloc(expected_count, sizeof(*inputs));
 	if (expected_count != 0 && inputs == NULL)
 		return NULL;
 	bool valid = true;
@@ -97,7 +128,8 @@ sql_stats_collection_build_candidate(
 			break;
 		}
 		struct sql_stats_index_input *index_inputs = want->index_count == 0 ?
-			NULL : calloc(want->index_count, sizeof(*index_inputs));
+			NULL : collection_calloc(want->index_count,
+						 sizeof(*index_inputs));
 		if (want->index_count != 0 && index_inputs == NULL) {
 			valid = false;
 			break;

@@ -119,6 +119,8 @@ create_unit_test(PREFIX sql_stats_collection
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_snapshot.c
                  LIBRARIES unit m
 )
+target_compile_definitions(sql_stats_collection.test PRIVATE
+                           SQL_STATS_COLLECTION_TESTING)
 create_unit_test(PREFIX sql_stats_sample
                  SOURCES sql_stats_sample.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_sample.c

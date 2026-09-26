@@ -8,7 +8,7 @@
 static void
 test_complete_result_and_rejections(void)
 {
-	plan(21);
+	plan(22);
 	header();
 	uint64_t prefixes[] = {2, 4};
 	struct sql_stats_expected_index expected_index = {
@@ -76,6 +76,24 @@ test_complete_result_and_rejections(void)
 		ok(false, "candidate owns copied prefix values");
 	}
 	prefixes[0] = 2;
+	unsigned int staging_failures = 0;
+	bool complete_candidate = false;
+	for (long fail_after = 0; fail_after < 4; fail_after++) {
+		sql_stats_collection_test_fail_allocation_after(fail_after);
+		struct sql_stats_snapshot *candidate =
+			sql_stats_collection_build_candidate(&generation,
+				&expected_relation, 1, &result, 4096);
+		if (candidate == NULL) {
+			staging_failures++;
+			continue;
+		}
+		sql_stats_collection_test_fail_allocation_after(-1);
+		sql_stats_snapshot_release(candidate);
+		complete_candidate = true;
+		break;
+	}
+	ok(staging_failures == 2 && complete_candidate,
+	   "each collection staging allocation fails before candidate succeeds");
 	relation.index_count = 0;
 	ok(sql_stats_collection_build_candidate(&generation, &expected_relation, 1,
 		&result, 4096) == NULL, "missing expected index is rejected");
