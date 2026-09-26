@@ -239,6 +239,13 @@ prototype only: it does not yet model multivariate MCV, dependencies,
 correlation, MCV-aware range mass, or planner fallbacks, and is not connected
 to `where.c` or `SqlStatsSnapshot`.
 
+The focused unit probe includes a uniform 1,000-distinct-value column and a
+skewed column with one value at 90% frequency. Equality and selected range
+predicates are compared against known selectivities using q-error. These are
+algorithm sanity checks, not the M0 corpus gate; correlated and
+anti-correlated distributions, stale-stat variants, and integrated plan
+quality measurement remain open.
+
 ## Refresh And Staleness
 
 Initial policy is explicit `ANALYZE`; background refresh is not required for

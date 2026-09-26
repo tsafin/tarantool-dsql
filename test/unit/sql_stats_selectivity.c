@@ -158,10 +158,105 @@ test_histogram_ranges(void)
 	check_plan();
 }
 
+static double
+q_error(double estimate, double actual)
+{
+	if (estimate <= 0 || actual <= 0)
+		return estimate == actual ? 1 : INFINITY;
+	return estimate > actual ? estimate / actual : actual / estimate;
+}
+
+static void
+test_uniform_and_skewed_qerror(void)
+{
+	plan(7);
+	header();
+	int uniform_keys[1000];
+	struct sql_stats_ordered_value uniform_values[1000];
+	for (size_t i = 0; i < 1000; i++) {
+		uniform_keys[i] = (int)i;
+		uniform_values[i] = (struct sql_stats_ordered_value){
+			.data = &uniform_keys[i], .size = sizeof(uniform_keys[i]),
+		};
+	}
+	struct sql_stats_histogram *uniform_hist = sql_stats_histogram_new(
+		uniform_values, 1000, 20, compare_int, NULL, 4096);
+	ok(uniform_hist != NULL, "uniform histogram builds");
+	if (uniform_hist == NULL) {
+		footer();
+		check_plan();
+		return;
+	}
+	struct sql_stats_column_summary uniform = {
+		.row_count = 1000, .null_fraction = 0, .distinct_count = 1000,
+		.confidence = 1, .sample_nonnull_rows = 1000,
+		.histogram = uniform_hist, .compare = compare_int,
+	};
+	struct sql_stats_selectivity result;
+	int value = 317;
+	ok(sql_stats_estimate_equality(&uniform, &value, sizeof(value), false,
+				       &result) == 0 &&
+	   q_error(result.value, 1.0 / 1000) <= 1.01,
+	   "uniform equality q-error is near one");
+	value = 499;
+	ok(sql_stats_estimate_range(&uniform, &value, sizeof(value),
+		SQL_STATS_RANGE_LE, &result) == 0 &&
+	   q_error(result.value, 0.5) <= 1.05,
+	   "uniform median range q-error is near one");
+	sql_stats_histogram_delete(uniform_hist);
+
+	int skewed_keys[1000];
+	struct sql_stats_ordered_value skewed_values[1000];
+	for (size_t i = 0; i < 900; i++)
+		skewed_keys[i] = 0;
+	for (size_t i = 900; i < 1000; i++)
+		skewed_keys[i] = (int)(i - 899);
+	for (size_t i = 0; i < 1000; i++)
+		skewed_values[i] = (struct sql_stats_ordered_value){
+			.data = &skewed_keys[i], .size = sizeof(skewed_keys[i]),
+		};
+	struct sql_stats_histogram *skewed_hist = sql_stats_histogram_new(
+		skewed_values, 1000, 10, compare_int, NULL, 4096);
+	ok(skewed_hist != NULL, "skewed histogram builds");
+	if (skewed_hist == NULL) {
+		sql_stats_histogram_delete(skewed_hist);
+		footer();
+		check_plan();
+		return;
+	}
+	int hot = 0;
+	struct sql_stats_mcv_sample mcv[] = {
+		{.value = &hot, .value_size = sizeof(hot), .count = 900},
+	};
+	struct sql_stats_column_summary skewed = {
+		.row_count = 1000, .null_fraction = 0, .distinct_count = 101,
+		.confidence = 1, .sample_nonnull_rows = 1000,
+		.mcv = mcv, .mcv_count = 1, .histogram = skewed_hist,
+		.compare = compare_int,
+	};
+	ok(sql_stats_estimate_equality(&skewed, &hot, sizeof(hot), false,
+				       &result) == 0 &&
+	   q_error(result.value, 0.9) <= 1.01,
+	   "skewed MCV equality q-error is near one");
+	int cold = 42;
+	ok(sql_stats_estimate_equality(&skewed, &cold, sizeof(cold), false,
+				       &result) == 0 &&
+	   q_error(result.value, 0.001) <= 1.01,
+	   "skewed residual equality q-error is near one");
+	ok(sql_stats_estimate_range(&skewed, &hot, sizeof(hot),
+		SQL_STATS_RANGE_LE, &result) == 0 &&
+	   q_error(result.value, 0.9) <= 1.01,
+	   "duplicate-heavy histogram preserves skew mass");
+	sql_stats_histogram_delete(skewed_hist);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
 	test_exact_mcv_and_independence();
 	test_histogram_ranges();
+	test_uniform_and_skewed_qerror();
 	return 0;
 }
