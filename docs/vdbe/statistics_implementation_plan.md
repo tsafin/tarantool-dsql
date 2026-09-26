@@ -247,15 +247,23 @@ connected to `where.c` or `SqlStatsSnapshot`. A narrow joint-MCV prototype
 handles only a fully specified conjunction of non-NULL equality predicates:
 when the exact tuple is present it uses that sampled joint frequency; when it
 is absent, it falls back to the existing per-column independence product.
-The general predicate-conjunction entry point accepts at most one equality or
-range term per column. It can evaluate mixed terms exactly only when the
-distinct joint tuples exhaust the complete non-NULL sample for all summarized
-columns; partial joint MCV samples deliberately use the per-column
-independence product rather than silently treating the MCV list as a full
-distribution. S2.2's composite HLL input can sketch joint NDV, but this
-selectivity API does not yet consume that estimate. Multiple predicates on
-one column, joint-NDV-aware selectivity, dependency statistics, partial-tuple
-matching, and policy for choosing/storing multicolumn groups remain open.
+The general predicate-conjunction entry point combines repeated constraints
+on a column using its caller-supplied SQL comparator. Equivalent equalities
+are estimated once; distinct equalities, disjoint bounds, and strict/inclusive
+point intervals that exclude their endpoint produce exact zero. Equality
+combined with bounds is estimated as that equality if it satisfies every
+bound. Repeated bounds in one direction reduce to the strongest bound.
+Multiple distinct lower/upper bounds do not use an independence product.
+When their intersection is a non-point interval, only an exhaustive joint
+sample can estimate it; absent such a sample, the API rejects the input
+rather than subtracting independently interpolated histogram CDF estimates.
+With one combined predicate per column, mixed constraints remain exact only
+when distinct joint tuples exhaust the complete non-NULL sample for all
+summarized columns; partial joint MCV samples use the per-column independence
+fallback. S2.2's composite HLL input can sketch joint NDV, but this selectivity
+API does not yet consume that estimate. Joint-NDV-aware selectivity,
+dependency statistics, partial-tuple matching, and policy for choosing/storing
+multicolumn groups remain open.
 
 The focused unit probes include a uniform 1,000-distinct-value column, a
 skewed column with one value at 90% frequency, correlated/anti-correlated

@@ -202,6 +202,162 @@ sql_stats_selectivity_and(const struct sql_stats_selectivity *terms,
 	return 0;
 }
 
+struct column_constraint {
+	bool seen;
+	const struct sql_stats_predicate *equality;
+	const struct sql_stats_predicate *lower;
+	const struct sql_stats_predicate *upper;
+	bool contradiction;
+};
+
+static bool
+is_inclusive_lower(enum sql_stats_range_operator op)
+{
+	return op == SQL_STATS_RANGE_GE;
+}
+
+static bool
+is_inclusive_upper(enum sql_stats_range_operator op)
+{
+	return op == SQL_STATS_RANGE_LE;
+}
+
+static bool
+predicate_matches(const struct sql_stats_column_summary *summary,
+		  const struct sql_stats_predicate *predicate,
+		  const void *value, size_t value_size)
+{
+	int cmp = summary->compare(value, value_size, predicate->value,
+				   predicate->value_size,
+				   summary->compare_context);
+	if (predicate->kind == SQL_STATS_PREDICATE_EQUALITY)
+		return cmp == 0;
+	switch (predicate->range_operator) {
+	case SQL_STATS_RANGE_LT: return cmp < 0;
+	case SQL_STATS_RANGE_LE: return cmp <= 0;
+	case SQL_STATS_RANGE_GT: return cmp > 0;
+	case SQL_STATS_RANGE_GE: return cmp >= 0;
+	default: return false;
+	}
+}
+
+/* Combine the per-column constraints before applying independence fallback. */
+static int
+estimate_column_constraint(const struct sql_stats_column_summary *summary,
+			   const struct column_constraint *constraint,
+			   struct sql_stats_selectivity *result)
+{
+	if (constraint->contradiction) {
+		set_result(result, 0, 1, SQL_STATS_SELECTIVITY_EXACT);
+		return 0;
+	}
+	if (constraint->equality != NULL) {
+		const struct sql_stats_predicate *eq = constraint->equality;
+		if ((constraint->lower != NULL &&
+		     !predicate_matches(summary, constraint->lower, eq->value,
+					eq->value_size)) ||
+		    (constraint->upper != NULL &&
+		     !predicate_matches(summary, constraint->upper, eq->value,
+					eq->value_size))) {
+			set_result(result, 0, 1, SQL_STATS_SELECTIVITY_EXACT);
+			return 0;
+		}
+		return sql_stats_estimate_equality(summary, eq->value,
+						   eq->value_size, false, result);
+	}
+	if (constraint->lower == NULL)
+		return sql_stats_estimate_range(summary, constraint->upper->value,
+						constraint->upper->value_size,
+						constraint->upper->range_operator,
+						result);
+	if (constraint->upper == NULL)
+		return sql_stats_estimate_range(summary, constraint->lower->value,
+						constraint->lower->value_size,
+						constraint->lower->range_operator,
+						result);
+
+	/* A closed point interval is an equality; a half-open point is empty. */
+	int cmp = summary->compare(constraint->lower->value,
+				  constraint->lower->value_size,
+				  constraint->upper->value,
+				  constraint->upper->value_size,
+				  summary->compare_context);
+	if (cmp == 0) {
+		if (!is_inclusive_lower(constraint->lower->range_operator) ||
+		    !is_inclusive_upper(constraint->upper->range_operator)) {
+			set_result(result, 0, 1, SQL_STATS_SELECTIVITY_EXACT);
+			return 0;
+		}
+		return sql_stats_estimate_equality(summary,
+						   constraint->lower->value,
+						   constraint->lower->value_size,
+						   false, result);
+	}
+	/*
+	 * The histogram API has no interval-mass primitive. Subtracting two
+	 * independently interpolated CDFs would silently invent precision, so a
+	 * non-point two-sided interval is handled only by an exhaustive joint
+	 * sample in the caller.
+	 */
+	return -1;
+}
+
+static int
+add_column_constraint(const struct sql_stats_column_summary *summary,
+		      struct column_constraint *constraint,
+		      const struct sql_stats_predicate *predicate)
+{
+	constraint->seen = true;
+	if (predicate->kind == SQL_STATS_PREDICATE_EQUALITY) {
+		if (constraint->equality != NULL &&
+		    summary->compare(constraint->equality->value,
+				     constraint->equality->value_size,
+				     predicate->value, predicate->value_size,
+				     summary->compare_context) != 0)
+			constraint->contradiction = true;
+		else
+			constraint->equality = predicate;
+		return 0;
+	}
+	if (predicate->kind != SQL_STATS_PREDICATE_RANGE ||
+	    predicate->range_operator < SQL_STATS_RANGE_LT ||
+	    predicate->range_operator > SQL_STATS_RANGE_GE)
+		return -1;
+	bool lower = predicate->range_operator == SQL_STATS_RANGE_GT ||
+		     predicate->range_operator == SQL_STATS_RANGE_GE;
+	const struct sql_stats_predicate **bound = lower ?
+		&constraint->lower : &constraint->upper;
+	if (*bound == NULL) {
+		*bound = predicate;
+	} else {
+		int cmp = summary->compare(predicate->value, predicate->value_size,
+					   (*bound)->value, (*bound)->value_size,
+					   summary->compare_context);
+		bool candidate_strict = lower ?
+			predicate->range_operator == SQL_STATS_RANGE_GT :
+			predicate->range_operator == SQL_STATS_RANGE_LT;
+		bool current_strict = lower ?
+			(*bound)->range_operator == SQL_STATS_RANGE_GT :
+			(*bound)->range_operator == SQL_STATS_RANGE_LT;
+		/* Keep the larger lower bound / smaller upper bound. */
+		if ((lower && cmp > 0) || (!lower && cmp < 0) ||
+		    (cmp == 0 && candidate_strict && !current_strict))
+			*bound = predicate;
+	}
+	if (constraint->lower != NULL && constraint->upper != NULL) {
+		int cmp = summary->compare(constraint->lower->value,
+					   constraint->lower->value_size,
+					   constraint->upper->value,
+					   constraint->upper->value_size,
+					   summary->compare_context);
+		if (cmp > 0 || (cmp == 0 &&
+		    (!is_inclusive_lower(constraint->lower->range_operator) ||
+		     !is_inclusive_upper(constraint->upper->range_operator))))
+			constraint->contradiction = true;
+	}
+	return 0;
+}
+
 static bool
 joint_tuple_equal(const struct sql_stats_column_summary *summaries,
 		  const struct sql_stats_mcv_value *a,
@@ -298,10 +454,15 @@ sql_stats_estimate_predicate_conjunction(
 		return -1;
 	if (predicate_count == 0)
 		return sql_stats_selectivity_and(NULL, 0, result);
+	struct column_constraint *constraints =
+		calloc(summary_count, sizeof(*constraints));
 	struct sql_stats_selectivity *terms =
-		calloc(predicate_count, sizeof(*terms));
-	if (terms == NULL)
+		calloc(summary_count, sizeof(*terms));
+	if (constraints == NULL || terms == NULL) {
+		free(constraints);
+		free(terms);
 		return -1;
+	}
 	int rc = -1;
 	double confidence = 1;
 	for (size_t i = 0; i < predicate_count; i++) {
@@ -309,28 +470,40 @@ sql_stats_estimate_predicate_conjunction(
 		if (predicate->column_index >= summary_count ||
 		    (predicate->value == NULL && predicate->value_size != 0))
 			goto done;
-		for (size_t j = 0; j < i; j++) {
-			if (predicates[j].column_index == predicate->column_index)
-				goto done;
-		}
 		const struct sql_stats_column_summary *summary =
 			&summaries[predicate->column_index];
-		if (predicate->kind == SQL_STATS_PREDICATE_EQUALITY) {
-			if (sql_stats_estimate_equality(summary, predicate->value,
-							predicate->value_size, false,
-							&terms[i]) != 0)
-				goto done;
-		} else if (predicate->kind == SQL_STATS_PREDICATE_RANGE) {
-			if (sql_stats_estimate_range(summary, predicate->value,
-						     predicate->value_size,
-						     predicate->range_operator,
-						     &terms[i]) != 0)
-				goto done;
-		} else {
+		if (!valid_summary(summary))
 			goto done;
-		}
+		if (summary->compare == NULL &&
+		    (constraints[predicate->column_index].seen ||
+		     predicate->kind != SQL_STATS_PREDICATE_EQUALITY))
+			goto done;
+		if (add_column_constraint(summary,
+				  &constraints[predicate->column_index], predicate) != 0)
+			goto done;
 		if (summary->confidence < confidence)
 			confidence = summary->confidence;
+	}
+	/* Resolve each column once, never multiplying terms on that column. */
+	for (size_t i = 0; i < summary_count; i++) {
+		if (!constraints[i].seen)
+			continue;
+		if (constraints[i].lower != NULL && constraints[i].upper != NULL &&
+		    summaries[i].compare(constraints[i].lower->value,
+				 constraints[i].lower->value_size,
+				 constraints[i].upper->value,
+				 constraints[i].upper->value_size,
+				 summaries[i].compare_context) != 0)
+			continue;
+		if (estimate_column_constraint(&summaries[i], &constraints[i],
+					       &terms[i]) != 0)
+			goto done;
+		if (terms[i].value == 0 &&
+		    terms[i].source == SQL_STATS_SELECTIVITY_EXACT) {
+			set_result(result, 0, terms[i].confidence, terms[i].source);
+			rc = 0;
+			goto done;
+		}
 	}
 	if (joint_mcv_count != 0) {
 		uint64_t total = 0;
@@ -406,8 +579,25 @@ sql_stats_estimate_predicate_conjunction(
 			goto done;
 		}
 	}
-	rc = sql_stats_selectivity_and(terms, predicate_count, result);
+	for (size_t i = 0; i < summary_count; i++) {
+		if (constraints[i].lower == NULL || constraints[i].upper == NULL)
+			continue;
+		if (summaries[i].compare(constraints[i].lower->value,
+					 constraints[i].lower->value_size,
+					 constraints[i].upper->value,
+					 constraints[i].upper->value_size,
+					 summaries[i].compare_context) != 0)
+			goto done;
+	}
+	/* Unconstrained columns are multiplicative identity, so compact terms. */
+	size_t term_count = 0;
+	for (size_t i = 0; i < summary_count; i++) {
+		if (constraints[i].seen)
+			terms[term_count++] = terms[i];
+	}
+	rc = sql_stats_selectivity_and(terms, term_count, result);
 done:
+	free(constraints);
 	free(terms);
 	return rc;
 }

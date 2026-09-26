@@ -500,11 +500,16 @@ the `where.c` selectivity adapter wait for that interface.
   independence product. A predicate-conjunction API now also estimates one
   equality or range term per column exactly when distinct joint tuples cover
   the complete non-NULL sample; partial joint samples use the independent
-  estimate. Focused tests cover source precedence, strict/inclusive range
+  estimate. Repeated same-column equalities and one-sided range bounds are
+  combined using the supplied SQL comparator; contradictions are exact zero
+  and a matching equality is estimated once. A non-point two-sided range
+  requires an exhaustive joint sample; without one it is rejected because
+  the histogram API cannot safely derive interval mass from interpolated
+  CDFs. Focused tests cover source precedence, strict/inclusive range
   boundaries, mixed range/equality matching, correlated q-error improvement,
   fallback, and malformed input rejection. HLL now has a separate composite
   tuple input for joint-NDV sketching, but the selectivity API does not consume
-  it yet. Multiple terms on one column, joint-NDV-aware estimation,
+  it yet. Joint-NDV-aware estimation,
   partial-tuple matching, dependencies, general correlation adjustment,
   normalized snapshot inputs, schema/group selection, and `where.c` integration
   remain open; this does not close S2.5. *parallel: yes for the standalone

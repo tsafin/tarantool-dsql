@@ -241,7 +241,7 @@ test_joint_mcv_equality_conjunction(void)
 static void
 test_joint_mcv_range_conjunction(void)
 {
-	plan(7);
+	plan(8);
 	header();
 	int values0[] = {0, 0, 1, 1};
 	int values1[] = {0, 1, 0, 1};
@@ -327,10 +327,21 @@ test_joint_mcv_range_conjunction(void)
 	   fabs(result.value - 0.25) < 1e-12 &&
 	   result.source == SQL_STATS_SELECTIVITY_INDEPENDENCE,
 	   "incomplete joint sample falls back to independent terms");
-	struct sql_stats_predicate duplicate[] = {range, strict};
+	int minus_one = -1;
+	struct sql_stats_predicate duplicate[] = {
+		range,
+		{.column_index = 0, .kind = SQL_STATS_PREDICATE_RANGE,
+		 .range_operator = SQL_STATS_RANGE_GT,
+		 .value = &minus_one, .value_size = sizeof(minus_one)},
+	};
 	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, duplicate, 2,
-		joint, 4, 4, &result) == -1,
-	   "multiple predicates for one column rejected");
+		joint, 4, 4, &result) == 0 &&
+	   fabs(result.value - 0.25) < 1e-12 &&
+	   result.source == SQL_STATS_SELECTIVITY_MCV,
+	   "complete joint sample applies repeated same-column bounds together");
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, duplicate, 2,
+		joint, 2, 4, &result) == -1,
+	   "partial joint sample rejects unsupported two-sided range fallback");
 	struct sql_stats_joint_mcv_sample malformed = joint[0];
 	malformed.value_count = 1;
 	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, mixed, 2,
@@ -338,6 +349,60 @@ test_joint_mcv_range_conjunction(void)
 	   "joint range sample with wrong arity rejected");
 	sql_stats_histogram_delete(hist0);
 	sql_stats_histogram_delete(hist1);
+	footer();
+	check_plan();
+}
+
+static void
+test_same_column_equality_constraints(void)
+{
+	plan(4);
+	header();
+	int hot = 2;
+	int cold = 3;
+	struct sql_stats_mcv_sample mcv = {
+		.value = &hot, .value_size = sizeof(hot), .count = 4,
+	};
+	struct sql_stats_column_summary summary = {
+		.row_count = 10, .null_fraction = 0, .distinct_count = 3,
+		.confidence = 0.9, .sample_nonnull_rows = 8,
+		.mcv = &mcv, .mcv_count = 1, .compare = compare_int,
+	};
+	struct sql_stats_predicate same[] = {
+		{.column_index = 0, .kind = SQL_STATS_PREDICATE_EQUALITY,
+		 .value = &hot, .value_size = sizeof(hot)},
+		{.column_index = 0, .kind = SQL_STATS_PREDICATE_EQUALITY,
+		 .value = &hot, .value_size = sizeof(hot)},
+	};
+	struct sql_stats_selectivity result;
+	ok(sql_stats_estimate_predicate_conjunction(&summary, 1, same, 2,
+		NULL, 0, 0, &result) == 0 &&
+	   fabs(result.value - 0.5) < 1e-12 &&
+	   result.source == SQL_STATS_SELECTIVITY_MCV,
+	   "repeated equality on one column is estimated once, not squared");
+	same[1].value = &cold;
+	same[1].value_size = sizeof(cold);
+	ok(sql_stats_estimate_predicate_conjunction(&summary, 1, same, 2,
+		NULL, 0, 0, &result) == 0 && result.value == 0 &&
+	   result.source == SQL_STATS_SELECTIVITY_EXACT,
+	   "different equalities on one column are an exact contradiction");
+	struct sql_stats_predicate ranges[] = {
+		{.column_index = 0, .kind = SQL_STATS_PREDICATE_RANGE,
+		 .range_operator = SQL_STATS_RANGE_GT,
+		 .value = &hot, .value_size = sizeof(hot)},
+		{.column_index = 0, .kind = SQL_STATS_PREDICATE_RANGE,
+		 .range_operator = SQL_STATS_RANGE_GE,
+		 .value = &hot, .value_size = sizeof(hot)},
+	};
+	/* Without a histogram the selected strict bound must fail closed. */
+	ok(sql_stats_estimate_predicate_conjunction(&summary, 1, ranges, 2,
+		NULL, 0, 0, &result) == -1,
+	   "same-column ranges require stats or exhaustive joint sample");
+	ranges[1].range_operator = SQL_STATS_RANGE_LT;
+	ok(sql_stats_estimate_predicate_conjunction(&summary, 1, ranges, 2,
+		NULL, 0, 0, &result) == 0 && result.value == 0 &&
+	   result.source == SQL_STATS_SELECTIVITY_EXACT,
+	   "strict and inclusive bounds detect empty same-value interval");
 	footer();
 	check_plan();
 }
@@ -546,6 +611,7 @@ main(void)
 	test_uniform_and_skewed_qerror();
 	test_joint_mcv_equality_conjunction();
 	test_joint_mcv_range_conjunction();
+	test_same_column_equality_constraints();
 	test_correlated_range_conjunction_qerror();
 	test_stale_summary_qerror();
 	return 0;

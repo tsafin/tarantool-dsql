@@ -108,9 +108,13 @@ sql_stats_estimate_equality_conjunction(
 
 /*
  * Estimate a conjunction of equality and range predicates by column index.
+ * Repeated same-column predicates are combined before fallback. A non-point
+ * two-sided range needs an exhaustive joint sample; otherwise the function
+ * rejects it because histograms expose no interval-mass primitive.
  * An exhaustive joint sample (all non-NULL joint observations represented
- * by distinct tuples) answers the conjunction exactly; otherwise each term
- * is estimated independently and combined conservatively.
+ * by distinct tuples) answers the conjunction exactly; otherwise unique
+ * per-column constraints are combined conservatively. Unsupported intervals
+ * are rejected rather than treated as independent terms.
  */
 int
 sql_stats_estimate_predicate_conjunction(
