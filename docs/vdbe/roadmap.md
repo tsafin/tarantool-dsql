@@ -453,9 +453,8 @@ the `where.c` selectivity adapter wait for that interface.
   malformed input rejection. Partial-tuple/range matching, joint NDV,
   dependencies, general correlation adjustment, normalized snapshot inputs,
   schema/group selection, and `where.c` integration remain open; this does
-  not close S2.5. *parallel: yes* (standalone algorithm; planner integration
-  remains serial).
-  *parallel: no* (planner integration touches `where.c`).
+  not close S2.5. *parallel: yes for the standalone API; no for planner
+  integration, which touches `where.c`.
 - [ ] **S2.6 prototype** Focused unit q-error probes now cover a uniform
   1,000-value distribution and a 90%-hot skewed distribution for equality
   and histogram ranges. These validate the standalone estimator only; the
