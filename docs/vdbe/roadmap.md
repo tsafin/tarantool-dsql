@@ -545,10 +545,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
   `path_class` / `fallback_reason`, instead of hardcoding
   `current_where_c`. A multi-relation statement now produces and captures
-  the `fallback` path class in SQL EXPLAIN. The M0 normalizer recognizes
-  `fallback_*` but does not yet propagate a plain `fallback` token's reason
-  and target. Other new-planner/fallback classes, baseline recapture, and
-  parity validation remain open.
+  `fallback` / `UNSUPPORTED_RELATION_COUNT`. The M0 normalizer preserves that
+  path, reason, and `fallback_to: current_where_c`; a live harness capture and
+  schema validation exercise the complete route. Other new-planner/fallback
+  classes, baseline recapture, and parity validation remain open.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.

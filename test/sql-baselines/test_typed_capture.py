@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 BINARY = Path(os.environ.get("TARANTOOL_BINARY", ROOT / "build/src/tarantool"))
 HARNESS = ROOT / "test/sql-baselines/harness/run.lua"
 FIXTURE = ROOT / "test/sql-baselines/harness/fixtures/typed_sql.test.lua"
+FALLBACK_FIXTURE = ROOT / "test/sql-baselines/harness/fixtures/fallback_sql.test.lua"
 VALIDATE = ROOT / "test/sql-baselines/validate.lua"
 
 
@@ -40,6 +41,28 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("sql_type: map", snapshot)
             self.assertIn("taken: current_where_c", snapshot)
             self.assertNotIn("table: 0x", snapshot)
+
+    def test_fallback_reason_survives_sql_snapshot_capture(self):
+        if not BINARY.is_file():
+            self.skipTest(f"Tarantool binary not found: {BINARY}")
+        with tempfile.TemporaryDirectory(prefix="sql-fallback-capture-") as temp:
+            temp = Path(temp)
+            work = temp / "work"
+            work.mkdir()
+            out = temp / "capture"
+            env = os.environ.copy()
+            env["VDBE_DISPATCHER"] = "generated"
+            env["SQL_JIT_ENABLE"] = "0"
+            subprocess.run([str(BINARY), str(HARNESS), str(FALLBACK_FIXTURE),
+                            "--suite=sql-tap", "--engine=memtx",
+                            f"--out={out}", f"--work-dir={work}"],
+                           check=True, env=env, stdout=subprocess.DEVNULL)
+            subprocess.run([str(BINARY), str(VALIDATE), str(out)],
+                           check=True, stdout=subprocess.DEVNULL)
+            snapshot = (out / "snapshots/sql-tap/fallback_sql/q01.memtx.yaml").read_text()
+            self.assertIn("taken: fallback", snapshot)
+            self.assertIn("reason: UNSUPPORTED_RELATION_COUNT", snapshot)
+            self.assertIn("fallback_to: current_where_c", snapshot)
 
     def test_forensic_vdbe_program_listing(self):
         if not BINARY.is_file():

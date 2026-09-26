@@ -158,7 +158,7 @@ function M.write(params)
     local tags = cls[cls_key] or {}
     local path_class = p.path_class or 'current_where_c'
     local fallback_reason, fallback_to = nil, nil
-    if path_class:match('^fallback_') then
+    if path_class == 'fallback' or path_class:match('^fallback_') then
         fallback_reason = p.fallback_reason or
                           path_class:match('^fallback_(.+)$')
         fallback_to = 'current_where_c'
