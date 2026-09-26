@@ -488,7 +488,13 @@ DML, triggers, subprograms, non-deterministic functions.
   parity, and production routing remain open. See
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: yes*.
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
-  `fallback_reason` and routes to current `where.c`. *parallel: no*.
+  `fallback_reason` and routes to current `where.c`. Producer-contract
+  prototype now maps logical/physical reject enums to stable reason codes and
+  exposes `path_class` plus an optional descriptor (`sql_plan_fallback.*`),
+  with focused mapping tests. This remains partial: no resolver caller
+  dispatches rejected statements to `sqlWhereBegin()`, and no M0 snapshot or
+  counter wiring exists; both dispatch and observable snapshot integration
+  must be completed and tested before this checkbox closes. *parallel: no*.
 - [ ] **M3.6** Wire path_class through to M0 snapshot (`new_planner` vs
   `fallback_<reason>`). *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.

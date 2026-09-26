@@ -26,6 +26,21 @@ delivery are not implemented. It is a boundary prototype only; parity and
 production `where.c` routing remain mandatory before M3 can be considered
 integrated.
 
+M3.5 now has a producer-contract prototype in `sql_plan_fallback.{h,c}`.
+It maps the existing logical and physical reject enums to append-only numeric
+`sql_plan_fallback_reason` values and stable names, and returns an observable
+`sql_plan_producer_result`: either a borrowed new-planner descriptor with
+`path_class=new_planner`, or no descriptor with
+`path_class=fallback` and a reason. Logical-shape rejection takes precedence
+over physical candidate rejection. Unit tests cover every current mapping,
+the external name, and success/fallback result construction.
+
+This is not yet an execution gate: no resolver caller consumes this result,
+statements are not dispatched to `sqlWhereBegin()` on rejection, and no
+fallback reason/path class is written to the M0 snapshot or statement
+counters. These are the remaining M3.5 integration requirements (and M3.6
+snapshot wiring), so M3.5 remains open.
+
 ## Purpose
 
 The physical plan descriptor is the **stable contract between the planner
@@ -230,6 +245,12 @@ when join algorithms can differ in those dimensions.
 | `BUDGET_EXCEEDED` | Planner search budget exhausted. |
 | `LOW_CONFIDENCE_STATS` | Stats confidence below threshold (configurable). |
 | `LOWERING_FAILED` | Internal bug in lowering; record and fall back. |
+| `UNRESOLVED_INPUT` | Resolver did not provide a resolved SELECT shape. |
+| `UNSUPPORTED_RELATION_COUNT` | Relation count is outside the v1 single-relation shape. |
+| `UNSUPPORTED_DISTINCT` | DISTINCT is not supported by v1. |
+| `INVALID_LOGICAL_PLAN` | Logical IR is missing or structurally invalid. |
+| `NO_ACCESS_PATH` | No physical access candidate was supplied. |
+| `INVALID_CANDIDATE` | All physical candidates were invalid. |
 
 Reason codes are append-only. Adding one is a v1 schema change but does
 not require a `descriptor_version` bump because old codes still parse.

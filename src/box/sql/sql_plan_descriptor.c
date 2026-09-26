@@ -16,6 +16,35 @@ struct sql_plan_descriptor {
 	struct sql_plan_expression *expressions;
 };
 
+const char *
+sql_plan_fallback_reason_name(uint32_t reason)
+{
+	switch (reason) {
+	case SQL_PLAN_FALLBACK_UNRESOLVED_INPUT:
+		return "UNRESOLVED_INPUT";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_RELATION_COUNT:
+		return "UNSUPPORTED_RELATION_COUNT";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_SUBQUERY:
+		return "UNSUPPORTED_SUBQUERY";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_AGGREGATE:
+		return "UNSUPPORTED_AGGREGATE";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_COMPOUND:
+		return "UNSUPPORTED_COMPOUND";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_CTE:
+		return "UNSUPPORTED_CTE";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_DISTINCT:
+		return "UNSUPPORTED_DISTINCT";
+	case SQL_PLAN_FALLBACK_INVALID_LOGICAL_PLAN:
+		return "INVALID_LOGICAL_PLAN";
+	case SQL_PLAN_FALLBACK_NO_ACCESS_PATH:
+		return "NO_ACCESS_PATH";
+	case SQL_PLAN_FALLBACK_INVALID_CANDIDATE:
+		return "INVALID_CANDIDATE";
+	default:
+		return NULL;
+	}
+}
+
 static bool
 valid_array(const void *p, size_t n, size_t item)
 {
@@ -66,6 +95,8 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	    in->path_class < SQL_PLAN_CURRENT_WHERE_C ||
 	    in->path_class > SQL_PLAN_FALLBACK ||
 	    (in->path_class == SQL_PLAN_FALLBACK) != (in->fallback_reason != 0) ||
+	    (in->fallback_reason != SQL_PLAN_FALLBACK_NONE &&
+	     sql_plan_fallback_reason_name(in->fallback_reason) == NULL) ||
 	    in->access.kind < SQL_PLAN_PK_POINT_LOOKUP ||
 	    in->access.kind > SQL_PLAN_TABLE_FULL_SCAN ||
 	    in->access.direction < SQL_PLAN_ASC ||

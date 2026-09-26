@@ -19,6 +19,20 @@ enum sql_plan_bound_op { SQL_PLAN_EQ, SQL_PLAN_GT, SQL_PLAN_GE,
 			 SQL_PLAN_LT, SQL_PLAN_LE };
 enum sql_plan_path_class { SQL_PLAN_CURRENT_WHERE_C, SQL_PLAN_NEW_PLANNER,
 			   SQL_PLAN_FALLBACK };
+/* Stable, append-only reason codes exposed by the planner producer. */
+enum sql_plan_fallback_reason {
+	SQL_PLAN_FALLBACK_NONE = 0,
+	SQL_PLAN_FALLBACK_UNRESOLVED_INPUT = 1,
+	SQL_PLAN_FALLBACK_UNSUPPORTED_RELATION_COUNT = 2,
+	SQL_PLAN_FALLBACK_UNSUPPORTED_SUBQUERY = 3,
+	SQL_PLAN_FALLBACK_UNSUPPORTED_AGGREGATE = 4,
+	SQL_PLAN_FALLBACK_UNSUPPORTED_COMPOUND = 5,
+	SQL_PLAN_FALLBACK_UNSUPPORTED_CTE = 6,
+	SQL_PLAN_FALLBACK_UNSUPPORTED_DISTINCT = 7,
+	SQL_PLAN_FALLBACK_INVALID_LOGICAL_PLAN = 8,
+	SQL_PLAN_FALLBACK_NO_ACCESS_PATH = 9,
+	SQL_PLAN_FALLBACK_INVALID_CANDIDATE = 10,
+};
 enum sql_plan_finalize_kind { SQL_PLAN_SORT, SQL_PLAN_LIMIT };
 
 struct sql_plan_bound {
@@ -73,6 +87,8 @@ struct sql_plan_descriptor_input {
 	double cost_confidence;
 };
 struct sql_plan_descriptor;
+
+const char *sql_plan_fallback_reason_name(uint32_t reason);
 
 /* Deep-copies input; NULL means malformed input or allocation failure. */
 struct sql_plan_descriptor *
