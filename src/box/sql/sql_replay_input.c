@@ -414,7 +414,7 @@ sql_replay_input_serialize(const struct sql_replay_input *in,
 		if (idx->logical_key == NULL || idx->logical_key[0] == '\0' ||
 		    idx->canonical_definition == NULL ||
 		    idx->canonical_definition[0] == '\0' || idx->part_count == 0 ||
-		    idx->part_count > in->column_count || idx->part_count > UINT32_MAX ||
+		    idx->part_count > UINT32_MAX ||
 		    idx->part_columns == NULL)
 			return SQL_REPLAY_INPUT_INVALID;
 		for (size_t j = 0; j < idx->part_count; j++)
@@ -600,7 +600,7 @@ valid_index_specs(const struct sql_replay_input_spec *spec)
 		if (idx->logical_key == NULL || idx->logical_key[0] == '\0' ||
 		    idx->canonical_definition == NULL ||
 		    idx->canonical_definition[0] == '\0' || idx->part_count == 0 ||
-		    idx->part_count > r->column_count || idx->part_columns == NULL ||
+		    idx->part_columns == NULL ||
 		    idx->part_count > SIZE_MAX / sizeof(uint32_t) ||
 		    idx->prefix_count > SIZE_MAX / sizeof(uint64_t) ||
 		    (idx->prefix_count != 0 && idx->distinct_prefixes == NULL))

@@ -10,6 +10,7 @@
 #include "sql_expr_canonical.h"
 #include "sql_logical_plan.h"
 #include "sql_replay_expr_list.h"
+#include "sql_replay_schema.h"
 
 static enum sql_replay_input_status
 canonical_limit(const struct Expr *expr, const uint32_t *cursor_to_relation,
@@ -197,5 +198,35 @@ sql_replay_input_extract_select(const struct Select *select,
 	sql_replay_expr_list_destroy(&order_expressions);
 	sql_replay_expr_list_destroy(&projections);
 	sql_logical_plan_delete(logical);
+	return status;
+}
+
+enum sql_replay_input_status
+sql_replay_input_extract_select_from_catalog(
+	const struct Select *select, const uint32_t *cursor_to_relation,
+	size_t cursor_count, uint32_t planner_algorithm_version,
+	uint32_t planner_config_version, uint32_t beam_width,
+	struct sql_replay_input **result)
+{
+	if (result == NULL)
+		return SQL_REPLAY_INPUT_INVALID;
+	*result = NULL;
+	if (select == NULL || select->pSrc == NULL || select->pSrc->nSrc != 1)
+		return SQL_REPLAY_INPUT_INVALID;
+	struct sql_replay_space_schema schema;
+	enum sql_replay_input_status status = sql_replay_space_schema_create(
+		select->pSrc->a[0].space, &schema);
+	if (status != SQL_REPLAY_INPUT_OK)
+		return status;
+	struct sql_replay_input_spec metadata = {
+		.relation = schema.relation,
+		.planner_algorithm_version = planner_algorithm_version,
+		.planner_config_version = planner_config_version,
+		.beam_width = beam_width,
+	};
+	status = sql_replay_input_extract_select(select, &metadata,
+						 cursor_to_relation,
+						 cursor_count, result);
+	sql_replay_space_schema_destroy(&schema);
 	return status;
 }

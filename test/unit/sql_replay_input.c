@@ -5,8 +5,23 @@
 #include "box/sql/sql_replay_extract.h"
 #include "box/sql/sqlInt.h"
 #include "box/space.h"
+#include "box/coll_id_cache.h"
 #include "msgpuck.h"
 #include "unit.h"
+
+const char *field_type_strs[] = {
+	"any", "unsigned", "string", "number", "double", "integer",
+	"boolean", "varbinary", "scalar", "decimal", "uuid", "datetime",
+	"interval", "array", "map", "int8", "uint8", "int16", "uint16",
+	"int32", "uint32", "int64", "uint64", "float32", "float64",
+};
+const char *index_type_strs[] = {"HASH", "TREE", "BITSET", "RTREE"};
+struct coll_id *
+coll_by_id(uint32_t id)
+{
+	(void)id;
+	return NULL;
+}
 
 static void
 test_extract_resolved_select(void)
@@ -428,12 +443,12 @@ test_canonical_msgpack(void)
 	plan(4);
 	header();
 	struct sql_replay_column_spec column = {"integer", "binary"};
-	uint32_t part = 0;
+	uint32_t parts[] = {0, 0};
 	struct sql_replay_index_spec indexes[] = {
 		{.logical_key = "idx-a", .canonical_definition = "key(c0)",
-		 .part_columns = &part, .part_count = 1},
+		 .part_columns = parts, .part_count = 2},
 		{.logical_key = "idx-b", .canonical_definition = "key(c0:desc)",
-		 .part_columns = &part, .part_count = 1},
+		 .part_columns = parts, .part_count = 1},
 	};
 	struct sql_replay_relation_spec relation = {
 		.logical_key = "r0", .canonical_definition = "table(c0:integer)",

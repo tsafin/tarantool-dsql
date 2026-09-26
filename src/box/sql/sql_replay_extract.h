@@ -21,4 +21,15 @@ sql_replay_input_extract_select(const struct Select *select,
 				size_t cursor_count,
 				struct sql_replay_input **result);
 
+/* Capture catalog relation/index definitions from the resolved source space;
+ * statistics remain explicitly absent until an immutable stats provider is
+ * wired. Planner version/config values are supplied by the caller.
+ */
+enum sql_replay_input_status
+sql_replay_input_extract_select_from_catalog(
+	const struct Select *select, const uint32_t *cursor_to_relation,
+	size_t cursor_count, uint32_t planner_algorithm_version,
+	uint32_t planner_config_version, uint32_t beam_width,
+	struct sql_replay_input **result);
+
 #endif /* TARANTOOL_SQL_REPLAY_EXTRACT_H */

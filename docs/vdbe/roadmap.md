@@ -381,14 +381,19 @@ them.
   normalized. `sql_replay_input_extract_select()` now connects a resolved
   single-relation `Select` to detached input creation: it canonicalizes the
   predicate/projection/order trees, records sort direction/default NULL order,
-  and accepts only nonnegative integer literal LIMIT/OFFSET. Relation/index
-  schemas, statistics, and planner configuration remain caller-supplied; the
-  extractor rejects other cursor bindings, unsupported expressions/functions,
-  invalid limits, and unsupported SELECT structure without returning partial
-  input. It stores no live AST/catalog pointers. This is a SELECT-to-model
-  expression/bounds bridge, not complete planner-input acquisition: index and
-  access-path metadata, actual stats/config capture, joins/aggregates, and a
-  planner consumer remain absent. M1.4 remains open and v2 remains
+  and accepts only nonnegative integer literal LIMIT/OFFSET. A companion
+  `sql_replay_input_extract_select_from_catalog()` derives detached
+  relation/column/index definitions from the source catalog space using
+  logical relation ordinal `r0`; storage index IDs remain only in a separate
+  in-memory association. It rejects views, functional indexes, and multikey
+  indexes whose identity is not modeled, and preserves repeated key ordinals.
+  Statistics remain absent rather than fabricated, and planner configuration
+  is caller-supplied. Both extractors reject unsupported cursor bindings,
+  expressions/functions, limits, and SELECT structure without returning
+  partial input; outputs retain no live AST/catalog pointers. This is not
+  complete planner-input acquisition: access-path/cost-provider metadata,
+  measured stats/config capture, joins/aggregates, and a planner consumer
+  remain absent. M1.4 remains open and v2 remains
   `replayable=false`.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning

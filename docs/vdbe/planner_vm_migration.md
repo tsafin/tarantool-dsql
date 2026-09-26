@@ -487,13 +487,20 @@ representation with fixed map-key order and logical-index ordering. It still
 does not validate relation/index schema-definition syntax or feed a planner.
 `sql_replay_input_extract_select()` now accepts a resolved single-relation
 `Select`, caller-provided cursor bindings, and detached relation/statistics/
-planner metadata. It canonicalizes predicate, projection, and ordering
+planner metadata. A companion
+`sql_replay_input_extract_select_from_catalog()` derives detached relation,
+column, and index definitions from the source catalog space using logical
+relation ordinal `r0`. Physical space/index IDs are not part of the serialized
+model; index IDs remain only in a separate in-memory association. Repeated
+index key ordinals are preserved. Views, functional indexes, and multikey
+indexes whose identity is not modeled fail closed. Statistics remain
+explicitly absent rather than fabricated, and planner configuration remains
+caller-supplied. The extractor canonicalizes predicate, projection, and ordering
 expressions, captures sort direction and Tarantool's default NULL ordering,
 and extracts nonnegative integer literal LIMIT/OFFSET values. Unsupported
 functions/expressions and non-literal bounds fail closed. The output owns no
-AST or catalog pointers, but catalog/index definitions, statistics, and
-planner settings are not acquired by the extractor; these remain the
-caller's responsibility. Multi-relation expressions, joins, aggregates, and
+AST or catalog pointers; callers still provide planner settings and any
+measured statistics. Multi-relation expressions, joins, aggregates, and
 other planner semantics remain absent. It is not a `replay_inputs` payload
 and does not change version 2.
 
