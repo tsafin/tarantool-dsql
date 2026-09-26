@@ -96,6 +96,13 @@ payload format and selectivity integration wait for the S1 generation and
 staleness rules. This ordering prevents the storage schema and planner
 adapter from acquiring competing owners.
 
+The current adapter prototype installs an optional immutable snapshot on the
+SQL core and lets legacy index cardinality estimates read relation row counts
+and average rows per captured index prefix. Missing or schema-stale entries
+retain the existing fallback estimates. This is a reader-side seam only: no
+collector currently populates the provider, prepared statements do not retain
+their own snapshot generation, and no persisted IDs or formats are selected.
+
 ## Persistence
 
 Use versioned system spaces rather than extending the opaque `_sql_stat1`

@@ -29,6 +29,7 @@
  * SUCH DAMAGE.
  */
 #include <assert.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include "field_def.h"
@@ -36,6 +37,7 @@
 #include "sql.h"
 #include "sql/sqlInt.h"
 #include "sql/sql_plan_descriptor.h"
+#include "sql/sql_stats_snapshot.h"
 #include "sql/tarantoolInt.h"
 #include "sql/mem.h"
 #include "sql/vdbeInt.h"
@@ -205,6 +207,19 @@ sql *
 sql_get(void)
 {
 	return db;
+}
+
+void
+sql_set_stats_snapshot(struct sql_stats_snapshot *snapshot)
+{
+	if (db == NULL)
+		return;
+	if (snapshot != NULL)
+		sql_stats_snapshot_retain(snapshot);
+	struct sql_stats_snapshot *old = db->stats_snapshot;
+	db->stats_snapshot = snapshot;
+	if (old != NULL)
+		sql_stats_snapshot_release(old);
 }
 
 /*********************************************************************
@@ -1572,6 +1587,16 @@ sql_index_tuple_size(struct space *space, struct index *idx)
 const int16_t default_tuple_est[] = {DEFAULT_TUPLE_LOG_COUNT, 33, 32, 30, 28,
 				     26, 23};
 
+static LogEst
+sql_stats_rows_log_est(double rows)
+{
+	if (rows <= 1)
+		return 0;
+	if (rows >= (double)UINT64_MAX - 1)
+		return sqlLogEst(UINT64_MAX);
+	return sqlLogEst((uint64_t)(rows + 0.5));
+}
+
 LogEst
 sql_space_tuple_log_count(struct space *space)
 {
@@ -1583,6 +1608,15 @@ sql_space_tuple_log_count(struct space *space)
 	/* If space represents VIEW, return default number. */
 	if (pk == NULL)
 		return DEFAULT_TUPLE_LOG_COUNT;
+	if (db != NULL && db->stats_snapshot != NULL) {
+		double rows = 0;
+		enum sql_stats_lookup_status status =
+			sql_stats_snapshot_estimate_index_prefix_rows(
+				db->stats_snapshot, box_schema_version(),
+				space->def->id, pk->def->iid, 0, &rows);
+		if (status == SQL_STATS_LOOKUP_AVAILABLE)
+			return sql_stats_rows_log_est(rows);
+	}
 	return sqlLogEst(pk->vtab->size(pk));
 }
 
@@ -1603,6 +1637,16 @@ index_field_tuple_est(const struct index_def *idx_def, uint32_t field)
 	if (field == idx_def->key_def->part_count &&
 	    idx_def->opts.is_unique)
 		return 0;
+	if (db != NULL && db->stats_snapshot != NULL) {
+		double rows = 0;
+		enum sql_stats_lookup_status status =
+			sql_stats_snapshot_estimate_index_prefix_rows(
+				db->stats_snapshot, box_schema_version(),
+				idx_def->space_id, idx_def->iid, field, &rows);
+		if (status == SQL_STATS_LOOKUP_AVAILABLE) {
+			return sql_stats_rows_log_est(rows);
+		}
+	}
 	return default_tuple_est[field + 1 >= 6 ? 6 : field];
 }
 

@@ -1051,6 +1051,11 @@ whereRangeScanEst(struct WhereTerm *pLower, struct WhereTerm *pUpper,
 		  struct WhereLoop *pLoop)
 {
 	int rc = 0;
+	/* nOut is initialized from index_field_tuple_est(), which uses the
+	 * current immutable statistics snapshot when available. Until S2
+	 * histograms are wired, keep the legacy range reduction factors but apply
+	 * them to that snapshot-backed prefix cardinality.
+	 */
 	int nOut = pLoop->nOut;
 	LogEst nNew;
 	assert(pUpper == 0 || (pUpper->wtFlags & TERM_VNULL) == 0);

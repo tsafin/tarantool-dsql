@@ -7,7 +7,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(12);
+	plan(18);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	struct sql_stats_index_input indexes[] = {
@@ -56,6 +56,31 @@ test_deep_copy_lookup_and_lifetime(void)
 	   sql_stats_index_distinct_prefix(index, 0) == 2 &&
 	   sql_stats_index_distinct_prefix(index, 1) == 5,
 	   "index prefixes are retained independently");
+	double rows = -1;
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
+							 0, &rows) ==
+	   SQL_STATS_LOOKUP_AVAILABLE && rows == 10,
+	   "zero-length prefix uses relation cardinality");
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
+							 1, &rows) ==
+	   SQL_STATS_LOOKUP_AVAILABLE && rows == 5,
+	   "first key prefix estimates average rows from its NDV");
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
+							 2, &rows) ==
+	   SQL_STATS_LOOKUP_AVAILABLE && rows == 2,
+	   "full key prefix estimates average rows from its NDV");
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 8, 42, 8,
+							 1, &rows) ==
+	   SQL_STATS_LOOKUP_STALE,
+	   "stale schema rejects index-prefix estimate");
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 9,
+							 1, &rows) ==
+	   SQL_STATS_LOOKUP_MISSING,
+	   "missing index rejects index-prefix estimate");
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
+							 3, &rows) ==
+	   SQL_STATS_LOOKUP_MISSING,
+	   "prefix beyond captured definition rejects estimate");
 	ok(sql_stats_snapshot_get_relation(snapshot, 8, 42, &relation) ==
 	   SQL_STATS_LOOKUP_STALE && relation == NULL,
 	   "schema mismatch reports stale without relation");

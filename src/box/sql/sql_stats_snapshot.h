@@ -124,4 +124,17 @@ uint64_t
 sql_stats_index_distinct_prefix(const struct sql_stats_index *index,
 				size_t prefix_index);
 
+/**
+ * Estimate the average row count for a relation/index prefix. A zero
+ * prefix_count returns relation cardinality; otherwise prefix_count is the
+ * number of leading index parts constrained by equality. Missing/stale
+ * inputs are returned as lookup statuses so callers can preserve legacy
+ * estimates.
+ */
+enum sql_stats_lookup_status
+sql_stats_snapshot_estimate_index_prefix_rows(
+	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
+	uint32_t space_id, uint32_t index_id, uint32_t prefix_count,
+	double *rows);
+
 #endif /* TARANTOOL_SQL_STATS_SNAPSHOT_H */

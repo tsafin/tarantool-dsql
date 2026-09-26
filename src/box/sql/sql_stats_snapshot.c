@@ -269,3 +269,33 @@ size_t sql_stats_index_prefix_count(const struct sql_stats_index *i)
 uint64_t sql_stats_index_distinct_prefix(const struct sql_stats_index *i,
 					 size_t n)
 { return i == NULL || n >= i->prefix_count ? 0 : i->distinct_prefixes[n]; }
+
+enum sql_stats_lookup_status
+sql_stats_snapshot_estimate_index_prefix_rows(
+	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
+	uint32_t space_id, uint32_t index_id, uint32_t prefix_count, double *rows)
+{
+	if (rows == NULL)
+		return SQL_STATS_LOOKUP_MISSING;
+	const struct sql_stats_relation *relation = NULL;
+	enum sql_stats_lookup_status status = sql_stats_snapshot_get_relation(
+		snapshot, current_schema_version, space_id, &relation);
+	if (status != SQL_STATS_LOOKUP_AVAILABLE)
+		return status;
+	if (prefix_count == 0) {
+		*rows = sql_stats_relation_row_count(relation);
+		return SQL_STATS_LOOKUP_AVAILABLE;
+	}
+	const struct sql_stats_index *index = NULL;
+	status = sql_stats_relation_get_index(relation, index_id, &index);
+	if (status != SQL_STATS_LOOKUP_AVAILABLE)
+		return status;
+	if (prefix_count > sql_stats_index_prefix_count(index))
+		return SQL_STATS_LOOKUP_MISSING;
+	uint64_t distinct = sql_stats_index_distinct_prefix(index,
+							  prefix_count - 1);
+	if (distinct == 0)
+		return SQL_STATS_LOOKUP_MISSING;
+	*rows = sql_stats_relation_row_count(relation) / distinct;
+	return SQL_STATS_LOOKUP_AVAILABLE;
+}

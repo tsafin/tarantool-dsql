@@ -1001,6 +1001,7 @@ struct LookasideSlot {
 /*
  * Each database connection is an instance of the following structure.
  */
+struct sql_stats_snapshot;
 struct sql {
 	sql_vfs *pVfs;	/* OS Interface */
 	struct Vdbe *pVdbe;	/* List of active virtual machines */
@@ -1022,6 +1023,8 @@ struct sql {
 		u8 orphanTrigger;	/* Last statement is orphaned TEMP trigger */
 		u8 imposterTable;	/* Building an imposter table */
 	} init;
+	/** Immutable statistics snapshot used by the legacy planner adapter. */
+	struct sql_stats_snapshot *stats_snapshot;
 	int nVdbeActive;	/* Number of VDBEs currently running */
 	int nVdbeExec;		/* Number of nested calls to VdbeExec() */
 	int (*xTrace) (u32, void *, void *, void *);	/* Trace function */

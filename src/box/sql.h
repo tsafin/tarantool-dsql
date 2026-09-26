@@ -41,6 +41,7 @@
  * themselves.
  */
 struct Mem;
+struct sql_stats_snapshot;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -63,6 +64,10 @@ sql_init(void);
  */
 struct sql *
 sql_get(void);
+
+/** Replace the immutable planner statistics snapshot; takes a reference. */
+void
+sql_set_stats_snapshot(struct sql_stats_snapshot *snapshot);
 
 enum sql_native_compile_backend {
 	SQL_NATIVE_COMPILE_JIT = 0,

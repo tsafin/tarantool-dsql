@@ -366,9 +366,13 @@ width.
 **State:** `PROTOTYPE`. S1.4 has an immutable, deep-copying, reference-counted
 in-memory snapshot API with schema-staleness checks and a bounded allocation
 budget; S1.5 has a bounded memtx sampling prototype. Neither is attached to
-prepare/ANALYZE or consumed by `where.c`; persistent collection, Vinyl
-sampling, ANALYZE, and adapter work remain open. The system-space schema
-remains DRAFT pending human review of IDs and formats.
+prepare/ANALYZE or populated by a collection job. `sql.c` now accepts an
+optional immutable snapshot and legacy index cardinality estimates consume it
+when present, falling back on missing/stale data; `whereRangeScanEst()` still
+uses its heuristic reduction over the adapted base estimate. Persistent
+collection, prepared-statement snapshot ownership, Vinyl sampling, ANALYZE,
+and complete adapter validation remain open. The system-space schema remains
+DRAFT pending human review of IDs and formats.
 
 **Exit criteria:**
 
@@ -439,7 +443,19 @@ remains DRAFT pending human review of IDs and formats.
   See `sql_stats_sampling.md`. *parallel: yes, against the S1.5 contract*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
   `whereRangeScanEst()` consume snapshot, fall back to defaults on absence.
-  *parallel: no* (touches `where.c` integration surface).
+  `sql_set_stats_snapshot()` now installs a retained immutable snapshot in the
+  SQL core; `index_field_tuple_est()` and `sql_space_tuple_log_count()` use
+  schema-validated relation cardinality and average rows-per-index-prefix
+  estimates when available, preserving the legacy estimates on missing/stale
+  relation/index data. `whereRangeScanEst()` applies its existing reduction
+  to the resulting snapshot-backed input cardinality; S2 histogram range
+  integration is not implied. Unit coverage exercises relation/prefix
+  estimates, stale schemas, missing indexes, and definition-length mismatch,
+  and the production SQL target links the snapshot API. This is only the
+  reader/adapter side: no collection or SQL preparation path populates the
+  provider, prepared statements do not own their own snapshot references,
+  and there is no live SQL A/B estimate test. *parallel: no* (touches
+  `where.c` integration surface).
 - [ ] **S1.8** Re-enable disabled `analyze*.test.lua` tests, validate they
   pass. *parallel: yes*.
 - [ ] **S1.9** Add synthetic uniform / skewed validation cases to the M0
