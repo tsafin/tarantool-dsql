@@ -304,7 +304,11 @@ them.
   until normalized planner inputs are captured; this subtask remains open.
   Replay execution stays in M1.5. *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
-  from a snapshot, diffs fingerprint and fallback reason. *parallel: yes*.
+  from a snapshot, diffs fingerprint and fallback reason. The current M1.4
+  envelope has no normalized predicates, relation/access-path inputs, or
+  statistics and explicitly sets `replayable=false`; implementing a tool
+  against that payload would only relabel live-state planning, not replay.
+  Resume after an envelope version supplies those inputs. *parallel: yes*.
 
 ---
 
