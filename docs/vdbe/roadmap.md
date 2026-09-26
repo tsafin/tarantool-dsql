@@ -756,7 +756,10 @@ DML, triggers, subprograms, non-deterministic functions.
   pre-/post-resolution classification; the remaining direct `COUNT(*)` path
   emits `OP_Count`, so assigning it a fallback-to-`current_where_c` reason
   would misstate the execution route. The existing SQL regression keeps that
-  path unclassified. M3.5 remains partial: physical rejection reasons are not
+  path unclassified; its runtime regression now pairs the null planner
+  classification with an `EXPLAIN` opcode assertion for `OP_Count`, proving
+  this query bypasses `sqlWhereBegin()` rather than falling back through it.
+  M3.5 remains partial: physical rejection reasons are not
   routed/accounted and no new-planner success path exists. Full-corpus
   capture/parity review is complete under M3.6; it does not imply the missing
   physical-reject accounting or new-planner route is implemented.

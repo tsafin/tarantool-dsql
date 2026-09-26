@@ -67,6 +67,20 @@ simple_count_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT c
 assert(err == nil)
 assert(simple_count_summary.rows[1][3] == nil)
 assert(simple_count_summary.rows[2][3] == nil)
+-- This query takes the direct OP_Count fast path rather than a fallback from
+-- sqlWhereBegin(). Keep the unclassified diagnostic paired with opcode-level
+-- evidence so future instrumentation does not misreport it as current_where_c
+-- or fallback-to-where.c.
+simple_count_vdbe, err = box.execute([[EXPLAIN SELECT count(*) FROM summary_t]])
+assert(err == nil)
+uses_op_count = false
+for _, instruction in ipairs(simple_count_vdbe.rows) do
+    if instruction[2] == 'Count' then
+        uses_op_count = true
+        break
+    end
+end
+assert(uses_op_count)
 aggregate_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT a.id FROM summary_t AS a JOIN summary_t AS b ON a.id = b.id]])
 assert(err == nil)
 assert(aggregate_summary.rows[1][3] == 'fallback')
