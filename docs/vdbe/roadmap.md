@@ -717,27 +717,25 @@ DML, triggers, subprograms, non-deterministic functions.
   EXPLAIN may reject the same invalid statement, so their path is null. A
   missing-relation SELECT regression exercises this exception while successful
   SELECT metric coverage remains fail-closed. This closes the metrics-coverage
-  hole, not baseline recapture or full M3.6 parity. A local full-corpus
-  recapture was attempted from the declared base commit `04b63d19`, using the
-  head capture harness for both sides. The exact pinned `test-run` gitlink
-  (`6e8cf169`) was recovered from the local submodule object store; the
-  baseline server and required SQL modules built, and the previously failing
-  `gh_6572_nan_is_not_null_test.lua` passed. Capture then reached
-  `sql-tap/aggnested.test.lua` and correctly failed closed because that old
-  server cannot return the MsgPack envelope for `EXPLAIN (planner =
-  'snapshot')`. No snapshots were promoted and no parity claim is made. The
-  original anchor predates the diagnostic API. An exploratory capture from
-  snapshot-capable anchor `2bae9591` completed all 49,535 memtx snapshots,
-  but the head-side inventory initially rejected the newly added
-  `sql/planner_fallback_no_from.test.lua`. The corpus policy now records it as
-  an evidence-backed, post-baseline exclusion: it only asserts planner
-  diagnostics over `EXPLAIN` and does not execute a SQL workload. Baseline
-  capture alone may omit that explicitly reviewed file; candidate inventory
-  must still find it, and policy comparison verifies it is absent at the
-  immutable anchor. This resolves the inventory gap but does not establish
-  snapshot parity. The declared `04b63d19` anchor still predates the v2
-  snapshot envelope, so recapture against that anchor fails closed before a
-  full diff. No snapshots were promoted and no parity claim is made.
+  hole, not baseline recapture or full M3.6 parity. The declared
+  `04b63d19` anchor cannot be recaptured by the current harness: its server
+  predates the v2 diagnostic envelope required by
+  `EXPLAIN (planner = 'snapshot')`. A snapshot-capable exploratory anchor,
+  `2bae9591`, was captured on both engines. Coverage equality passed at 298
+  memtx tests / 49,535 statements and 290 Vinyl tests / 39,535 statements.
+  Diff found no L1 result, L2 error, column metadata, or other field drift;
+  the only differences were version labels and hard L3 path/reason changes:
+  13,258 memtx and 11,225 Vinyl snapshots across 11 transition classes.
+  Most are the expected `current_where_c` to
+  `fallback/UNSUPPORTED_RELATION_COUNT` classification; the remainder are
+  structural subquery, nondeterministic, and pre-optimization reason
+  refinements. These are reviewed as intended classifications, but they remain
+  hard L3 diffs against `2bae9591`, not an accepted parity pass. The
+  `planner_fallback_no_from` diagnostic-only fixture is now an evidence-backed
+  post-baseline exclusion; the workflow permits its absence only on the
+  immutable base and verifies that absence. The official SHA remains
+  `04b63d19`; no snapshots were promoted and M3.6 remains open until a
+  snapshot-capable reviewed baseline/promotion resolves the L3 gate.
   *parallel: yes*.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
@@ -803,10 +801,12 @@ M0-B corpus for the evaluation workloads.
   correctly excluded from planner metrics). Widths changed generated,
   retained, and truncated path totals; candidate/fallback counts and path
   classes remained unchanged. `elapsed_us` was zero, so no latency or plan-
-  quality gain is established. This is a bounded subset, not full-corpus
-  evidence; the full-corpus comparison was attempted locally but is blocked by
-  the unavailable baseline `test-run` gitlink documented under M3.6. Full-corpus
-  comparison and quality evaluation remain open. An
+  quality gain is established. A full-corpus generated-mode comparison against
+  the snapshot-capable exploratory anchor `2bae9591` now passes coverage
+  equality on both engines and shows the reviewed L3 classification changes
+  documented under M3.6. It is not an A/B comparison across width settings and
+  does not measure plan quality; the old official anchor remains incompatible.
+  Full-corpus width comparison and quality evaluation remain open. An
   expanded 962-query
   exploratory subset is repeat-stable but has one width-sensitive
   `EXPLAIN QUERY PLAN` output difference (`whereK/q13`) on both engines; it is
