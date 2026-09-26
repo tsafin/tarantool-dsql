@@ -60,6 +60,27 @@ Elapsed-time counters were zero in this local sample; no latency conclusion
 is justified. Measurements describe compile-time EXPLAIN snapshots, not
 native dispatcher execution or runtime query performance.
 
+The same four-run A/B was repeated after the capture-harness correction at
+source commit `004683147a178e2b449e4d47859f3e4b613bd699`. All 687 statements
+per engine/run again passed default-repeat, candidate-repeat, and cross-width
+snapshot comparison (zero hard or soft drift). Each engine measured 294
+successful planner snapshots; the two engines had identical metrics:
+
+| Metric | Default 1/5/10 | Candidate 2/8/16 | Delta |
+| --- | ---: | ---: | ---: |
+| candidate_count | 10,539 | 10,539 | 0 |
+| fallback_count | 283 | 283 | 0 |
+| generated | 949,450 | 1,512,106 | +562,656 |
+| dominated | 65,670 | 105,444 | +39,774 |
+| truncated | 840,791 | 1,339,443 | +498,652 |
+| retained | 42,989 | 67,219 | +24,230 |
+
+Both repeats remained structurally stable. The 294 path classes per engine
+were 11 `current_where_c` and 283 `fallback`. The binary SHA-256 was
+`f8635866e03c5162df9bd24c9c4d73df12b7106e7942b10abb7f1fbcf7921ab4`;
+full report: `/tmp/tarantool-e15-004683/report.json`. This updates the
+bounded-subset evidence, not the full-corpus or plan-quality gate.
+
 An expanded exploratory selection added join4, join6, where5, whereF,
 whereI, whereK, whereA, and whereC (962 statements per engine). All four
 captures completed; 434 SELECT/WITH planner snapshots were measured per
