@@ -387,11 +387,12 @@ result set:
 | `value` | text or NULL | Field value; NULL means unavailable or not applicable. |
 
 Rows are emitted in stable order. The initial implementation emits
-`planner.path_class` and `planner.fallback_reason`. Until the path-class
-producer and fallback propagation are wired, the legacy planner reports
-`current_where_c` and a NULL fallback reason. Later M1 fields (counters and
-replay identifiers) extend this row set without changing column names or
-types. Consumers should look up rows by `(section, key)`, not by ordinal.
+`planner.path_class` and `planner.fallback_reason`. A statement that invokes
+the legacy WHERE planner reports `current_where_c`; statements that do not
+invoke it report a NULL path class. Fallback propagation is not wired yet and
+therefore reports NULL. Later M1 fields (counters and replay identifiers)
+extend this row set without changing column names or types. Consumers should
+look up rows by `(section, key)`, not by ordinal.
 
 ## Testing Strategy
 

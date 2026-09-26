@@ -3731,6 +3731,11 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		if (pWInfo->pOrderBy != NULL)
 			wherePathSolver(pWInfo, pWInfo->nRowOut + 1);
 	}
+	/* The selected path is produced by the legacy WHERE planner. Keep the
+	 * classification on the statement so EXPLAIN and later replay tooling
+	 * consume the planner's result instead of inventing one at emission time.
+	 */
+	v->planner_path_class = "current_where_c";
 	if (pWInfo->pOrderBy == 0 &&
 	    (pParse->sql_flags & SQL_ReverseOrder) != 0) {
 		pWInfo->revMask = ALLBITS;

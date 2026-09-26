@@ -314,6 +314,8 @@ struct Vdbe {
 	/** Stable statement hash derived from the original SQL text. */
 	uint32_t stmt_id;
 	u8 explain_flags;	/* Requested EXPLAIN(...) modifiers */
+	/** Path class selected by the current WHERE planner, if any. */
+	const char *planner_path_class;
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
 	char *explain_text;	/* Cached row-oriented EXPLAIN text */

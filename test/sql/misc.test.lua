@@ -41,7 +41,8 @@ s:drop()
 
 -- Planner summaries are stable structured rows and retain SQL metadata.
 --
-summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT 1]])
+_, err = box.execute([[CREATE TABLE summary_t (id INTEGER PRIMARY KEY)]])
+summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM summary_t]])
 assert(err == nil)
 assert(#summary.metadata == 3)
 assert(summary.metadata[1].name == 'section')
@@ -54,6 +55,7 @@ assert(summary.rows[1][3] == 'current_where_c')
 assert(summary.rows[2][1] == 'planner')
 assert(summary.rows[2][2] == 'fallback_reason')
 assert(summary.rows[2][3] == nil)
+_, err = box.execute([[DROP TABLE summary_t]])
 
 summary, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT 1]])
 assert(summary == nil)
