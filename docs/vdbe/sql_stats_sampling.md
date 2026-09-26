@@ -75,8 +75,9 @@ avoids pathological full-LSM reads.
 
 ## Vinyl feasibility status (S1.6)
 
-S1.6 is **not implemented**. The current engine APIs do not provide a safe
-bounded Vinyl sampling primitive:
+The Vinyl sampling primitive is **not implemented**. A bounded-work iterator
+instrumentation prototype is present, but the current engine APIs do not
+provide a safe bounded Vinyl sampling strategy:
 
 * `vinyl_index_vtab` in `src/box/vinyl.c` installs
   `generic_index_random()` for `.random`; `src/box/index.cc` implements that
@@ -106,17 +107,17 @@ partial sample by returning the tuples seen so far. It merges transaction,
 cache, memory, and disk histories; an unvisited disk source may contain a newer
 visible version or a tombstone for a candidate already observed. Stopping at
 the cap and returning prior tuples would therefore risk both visibility
-errors and key-order bias. A future budget context should be operation-local
-and account at least source probes and uncached page-read attempts, propagated
-from the read iterator to run iterators. Exceeding the budget must fail closed
-until the sampler contract defines how incomplete samples are marked and how
-consumers adjust confidence. The initial iterator budget prototype treats
-exhaustion as an error; the caller must discard all sink state from that
-sampling operation rather than consume earlier callbacks as a partial sample.
-Cancellation can use the existing iterator error path (`FiberIsCancelled`)
-while disk slices are pinned/unpinned; sampling must not rely on synchronous
-recovery-time reads, which are not cooperatively interruptible. This budget
-instrumentation alone is not a sampling strategy:
+errors and key-order bias. The iterator prototype now attaches a caller-owned,
+operation-local budget and counts first disk-source probes and uncached
+page-read attempts through the read- and run-iterator layers. Exhaustion fails
+closed; the caller must discard all sink state from that operation, not
+consume earlier callbacks as a partial sample. Unit tests cover the budget
+counter limits and sticky exhaustion, while runtime tests do not yet attach a
+budget to a real iterator or verify exhaustion cleanup/visibility. Cancellation
+uses the existing iterator error path (`FiberIsCancelled`) at disk-source and
+uncached-page checkpoints; sampling must not rely on synchronous recovery-time
+reads, which are not cooperatively interruptible. This budget instrumentation
+alone is not a sampling strategy:
 candidate selection still has to be evaluated over logical visible tuples
 across updates, deletes, and compaction.
 
