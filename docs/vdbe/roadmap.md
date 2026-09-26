@@ -390,12 +390,14 @@ remains DRAFT pending human review of IDs and formats.
   ANALYZE/collection, has no runtime engine-dispatch integration test, and
   does not create an independent read view; these gates remain open.
   *parallel: yes*.
-- [ ] **S1.6** Vinyl sampling interface — open; no safe implementation with
-  current APIs. S1.5's generic request/sink/result contract is now wired;
-  Vinyl `.random` is unsupported and its normal iterator's output row limit
-  does not bound LSM work. Define and test a Vinyl-specific bounded-work
-  strategy (range/run selection, visibility, partial-sample semantics) before
-  adding an engine callback. See `sql_stats_sampling.md`.
+- [ ] **S1.6** Vinyl sampling interface — no safe sampler callback can use the
+  current public/index APIs: Vinyl `.random` is unsupported, and one normal
+  iterator `next()` may inspect many disk sources, so output row/byte limits
+  do not bound work. Before adding an engine callback, add operation-local
+  source/page accounting and cancellation in the Vinyl iterator path, then
+  test work-budget exhaustion with visibility and partial-sample semantics.
+  A fail-closed `ER_UNSUPPORTED` runtime test is the safe standalone step.
+  See `sql_stats_sampling.md`. *parallel: yes, against the S1.5 contract*.
   *parallel: yes, against the S1.5 contract*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
   `whereRangeScanEst()` consume snapshot, fall back to defaults on absence.
