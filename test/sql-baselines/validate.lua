@@ -140,7 +140,7 @@ local function valid_path_class(path)
     end
     local suffix = path.taken:match('^fallback_(.+)$')
     return suffix ~= nil and stable_fallback_reasons[suffix] == true and
-           (reason == nil or reason == suffix) and
+           reason == suffix and
            fallback_to == 'current_where_c'
 end
 

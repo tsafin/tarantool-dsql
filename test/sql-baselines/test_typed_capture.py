@@ -99,6 +99,16 @@ class TypedCaptureTest(unittest.TestCase):
                         text=True)
                     self.assertNotEqual(result.returncode, 0,
                                         "validator accepted inconsistent path metadata")
+            encoded_fallback = valid_snapshot.replace(
+                "taken: fallback", "taken: fallback_UNSUPPORTED_RELATION_COUNT", 1)
+            encoded_fallback = encoded_fallback.replace(
+                "reason: UNSUPPORTED_RELATION_COUNT", "reason: null", 1)
+            path.write_text(encoded_fallback)
+            result = subprocess.run(
+                [str(BINARY), str(VALIDATE), str(out)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            self.assertNotEqual(result.returncode, 0,
+                                "validator accepted encoded fallback without reason")
             path.write_text(valid_snapshot)
 
     def test_forensic_vdbe_program_listing(self):
