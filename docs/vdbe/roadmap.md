@@ -649,7 +649,12 @@ DML, triggers, subprograms, non-deterministic functions.
   schema, validator, and a DML fixture cover this case.
   A targeted standalone audit now captures and validates all 30,073 statements
   in `select2.test.lua` under both memtx and Vinyl; this is not a baseline
-  recapture or full-corpus parity result.
+  recapture or full-corpus parity result. When a manifest includes planner
+  metrics, validation now checks unique ordered query indexes, valid
+  path/reason combinations, and per-query agreement with the snapshot's L3
+  path metadata; a capture regression changes a valid metric reason to a
+  different valid code and verifies rejection. Metrics remain optional, so
+  this does not prove complete per-SELECT metric coverage or close M3.6.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.

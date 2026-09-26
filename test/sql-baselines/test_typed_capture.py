@@ -117,6 +117,19 @@ class TypedCaptureTest(unittest.TestCase):
                                 "validator accepted encoded fallback without reason")
             path.write_text(valid_snapshot)
 
+            manifest_path = out / "manifests/sql-tap/fallback_sql.memtx.json"
+            valid_manifest = manifest_path.read_text()
+            inconsistent_manifest = json.loads(valid_manifest)
+            inconsistent_manifest["planner_metrics"][0]["fallback_reason"] = \
+                "UNSUPPORTED_SUBQUERY"
+            manifest_path.write_text(json.dumps(inconsistent_manifest))
+            result = subprocess.run(
+                [str(BINARY), str(VALIDATE), str(out)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            self.assertNotEqual(result.returncode, 0,
+                                "validator accepted planner metrics that disagree with snapshot")
+            manifest_path.write_text(valid_manifest)
+
     def test_forensic_vdbe_program_listing(self):
         if not BINARY.is_file():
             self.skipTest(f"Tarantool binary not found: {BINARY}")

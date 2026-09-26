@@ -150,8 +150,51 @@ local function valid_path_class(path)
            fallback_to == 'current_where_c'
 end
 
+local function valid_planner_metrics(manifest)
+	local has_version = manifest.planner_metrics_version ~= nil
+	local has_metrics = manifest.planner_metrics ~= nil
+	if not has_version and not has_metrics then return {} end
+	if manifest.planner_metrics_version ~= 2 or
+	   type(manifest.planner_metrics) ~= 'table' or
+	   type(manifest.captured_queries) ~= 'number' then
+		return nil
+	end
+	local by_index = {}
+	local previous = 0
+	for _, metric in ipairs(manifest.planner_metrics) do
+		local taken = nil
+		if type(metric) == 'table' then taken = metric.path_class end
+		local fallback_to = nil
+		if taken == 'fallback' or
+		   type(taken) == 'string' and taken:match('^fallback_') then
+			fallback_to = 'current_where_c'
+		elseif is_null(taken) then
+			fallback_to = box.NULL
+		end
+		if type(metric) ~= 'table' or
+		   type(metric.query_index) ~= 'number' or
+		   metric.query_index % 1 ~= 0 or metric.query_index <= previous or
+		   metric.query_index > manifest.captured_queries or
+		   not valid_path_class({
+			taken = metric.path_class,
+			reason = metric.fallback_reason,
+			fallback_to = fallback_to,
+		   }) then
+			return nil
+		end
+		previous = metric.query_index
+		by_index[metric.query_index] = metric
+	end
+	return by_index
+end
+
+local function same_nullable(a, b)
+	return is_null(a) and is_null(b) or a == b
+end
+
 for _, path in ipairs(manifests) do
     local m, err = read_document(path, json.decode)
+    local planner_metrics = m and valid_planner_metrics(m) or nil
     if not m then
         reject(path .. ': ' .. err)
     elseif m.manifest_version ~= 1 or m.accepted ~= true or
@@ -164,6 +207,7 @@ for _, path in ipairs(manifests) do
            type(m.captured_queries) ~= 'number' or
            m.captured_queries < 1 or
            m.written_snapshots ~= m.captured_queries or
+           planner_metrics == nil or
            not valid_mode_proof(m) then
         reject(path .. ': rejected or inconsistent run outcome')
     elseif (m.engine ~= 'memtx' and m.engine ~= 'vinyl') or
@@ -190,6 +234,7 @@ for _, path in ipairs(manifests) do
                 end
                 expected[snapshot_path] = true
                 local s, snapshot_err = read_document(snapshot_path, yaml.decode)
+                local metric = planner_metrics[index]
                 if not s then
                     reject(snapshot_path .. ': ' .. snapshot_err)
                 elseif s.schema_version ~= 1 or s.engine ~= m.engine or
@@ -217,6 +262,13 @@ for _, path in ipairs(manifests) do
                         type(s.l2_diagnostic.error_code) ~= 'string') or
                        not valid_path_class(s.l3_path_class) then
                     reject(snapshot_path .. ': missing or inconsistent v1 fields')
+                elseif metric ~= nil and
+                       (not same_nullable(metric.path_class,
+                                          s.l3_path_class.taken) or
+                        not same_nullable(metric.fallback_reason,
+                                          s.l3_path_class.reason)) then
+                    reject(snapshot_path ..
+                           ': planner metrics disagree with snapshot path metadata')
                 elseif (s.l1_result.column_names == nil) ~=
                        (s.l1_result.column_types == nil) or
                        (s.l1_result.column_names ~= nil and
