@@ -290,6 +290,7 @@ local function intercepted_execute(sql, bindings)
         assert(planner_snapshot.format == 'tarantool.sql.planner.snapshot' and
                planner_snapshot.version == 2 and
                planner_snapshot.replayable == false and
+               planner_snapshot.replay_inputs == nil and
                type(planner_snapshot.planner) == 'table',
                'planner snapshot EXPLAIN returned an invalid v2 diagnostic envelope')
         planner_path_class = planner_snapshot.path_class

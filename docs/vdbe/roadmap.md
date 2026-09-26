@@ -345,7 +345,8 @@ them.
   self-contained input and validation contract for a future replay envelope;
   it intentionally does not choose persistence IDs or formats. Focused SQL
   checks assert v2 remains non-replayable and has no partial `replay_inputs`
-  on both legacy and fallback paths. This validates the diagnostic-only
+  on both legacy and fallback paths, and the corpus capturer rejects a v2
+  object that violates either invariant. This validates the diagnostic-only
   boundary, not replay support. Replay execution stays in M1.5.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
