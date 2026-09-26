@@ -926,9 +926,11 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   accepts `--mode generated|cnp|llvm` across SQL-TAP, SQL-luatest, and SQL-suite
   adapters; each mode is held constant through both width configurations and
   repeats and recorded in the report. This is not cross-mode parity evidence.
-  A bounded memtx `join.test.lua` proof passed all 173 snapshots across
-  default/candidate/repeats in each of CnP and LLVM mode; this verifies the
-  adapter path only and does not accept E1. Exact diffs and reproduction
+  Bounded CnP and LLVM runs on five reviewed join/range files, both engines,
+  each captured 687 statements with zero strict diffs across default/candidate
+  and repeats; generated paths increased from 949,450 to 1,512,106, showing a
+  width effect. This is not a full-corpus native-mode run and does not accept
+  E1. Exact diffs and reproduction
   instructions are in `test/sql-baselines/PLANNER_AB.md`. The capture/evaluation prototype
   is complete; strict SQL-TAP cross-width parity and
   full-width plan-quality evaluation remain open.

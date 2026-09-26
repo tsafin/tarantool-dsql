@@ -55,16 +55,19 @@ Each invocation holds its mode constant across default, candidate, and both
 repeats. This enables per-mode width sensitivity and repeatability evaluation;
 it is not cross-mode parity or a performance/plan-quality result.
 
-Bounded native proof, 2026-09-26: source `484186523d9e`, binary SHA-256
-`7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`,
-`sql-tap/join.test.lua`, memtx, widths 1/5/10 vs 2/8/16. Both `--mode cnp`
-and `--mode llvm` completed all four 173-statement captures. Default-repeat,
-candidate-repeat, and cross-width comparisons each passed 173/173 snapshots
-for both modes. The two modes each reported 62 planner-metric snapshots and
-structural width effects; summed generated paths increased from 44,558 to
-70,955. Reports are local artifacts at `/tmp/planner-ab-native-cnp/report.json`
-and `/tmp/planner-ab-native-llvm/report.json`. This is a one-test capability
-proof, not E1 acceptance, broad parity evidence, or a native runtime benchmark.
+Bounded native proof, 2026-09-26: source `c40594173ba82432cf5293311c329ebe6ec5e56c`,
+binary SHA-256
+`7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`.
+The five reviewed join/range SQL-TAP files (`join`, `join2`, `join3`, `join5`,
+`where3`) were compared at widths 1/5/10 vs 2/8/16 under both CnP and LLVM,
+on memtx and Vinyl. Each engine/mode captured 687 statements in all four
+configurations; default-repeat, candidate-repeat, and cross-width strict
+comparisons passed 687/687. There were 294 planner-metric snapshots per
+engine/mode, with structural width effects on 121 queries. Generated paths
+increased from 949,450 to 1,512,106. Reports are local at
+`/tmp/tarantool-e1-cnp-join-subset/report.json` and
+`/tmp/tarantool-e1-llvm-join-subset/report.json`. This is bounded evidence,
+not a full-corpus native-mode run, E1 acceptance, or a runtime benchmark.
 
 ## Local result, 2026-09-26
 
