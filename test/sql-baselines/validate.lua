@@ -271,6 +271,7 @@ for _, path in ipairs(manifests) do
                        not valid_path_class(s.l3_path_class) then
                     reject(snapshot_path .. ': missing or inconsistent v1 fields')
 				elseif m.planner_metrics_version == 2 and metric == nil and
+				       s.l1_result.ok and
 				       statement_requires_planner_metrics(s.test.query_sql) then
 					reject(snapshot_path ..
 					       ': planner metrics missing for SELECT/WITH statement')

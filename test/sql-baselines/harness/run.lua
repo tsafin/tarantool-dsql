@@ -193,33 +193,6 @@ local function intercepted_execute(sql, bindings)
     local first_word = normalized_sql:match('^%s*(%a+)')
     local is_select = first_word ~= nil and
         (first_word:upper() == 'SELECT' or first_word:upper() == 'WITH')
-    if is_select then
-        local snapshot_ok, snapshot_res
-        if bindings ~= nil then
-            snapshot_ok, snapshot_res = pcall(_real_box_execute,
-                "EXPLAIN (planner = 'snapshot') " .. sql, bindings)
-        else
-            snapshot_ok, snapshot_res = pcall(_real_box_execute,
-                "EXPLAIN (planner = 'snapshot') " .. sql)
-        end
-        assert(snapshot_ok, 'planner snapshot EXPLAIN failed: ' ..
-               tostring(snapshot_res))
-        assert(snapshot_res ~= nil and snapshot_res.rows ~= nil and
-               snapshot_res.rows[1] ~= nil and snapshot_res.rows[1][1] ~= nil,
-               'planner snapshot EXPLAIN returned no MsgPack envelope')
-        local decode_ok, planner_snapshot = pcall(msgpack.decode,
-            tostring(snapshot_res.rows[1][1]))
-        assert(decode_ok and type(planner_snapshot) == 'table',
-               'planner snapshot EXPLAIN returned malformed MsgPack')
-        assert(planner_snapshot.format == 'tarantool.sql.planner.snapshot' and
-               planner_snapshot.version == 2 and
-               planner_snapshot.replayable == false and
-               type(planner_snapshot.planner) == 'table',
-               'planner snapshot EXPLAIN returned an invalid v2 diagnostic envelope')
-        planner_path_class = planner_snapshot.path_class
-        planner_fallback_reason = planner_snapshot.fallback_reason
-        planner_metrics = planner_snapshot.planner
-    end
     if cfg.forensic then
         if is_select then
             local explain_ok, explain_res, explain_err
@@ -289,6 +262,39 @@ local function intercepted_execute(sql, bindings)
         end
     else
         err = ok and returned_err or res
+    end
+
+    -- Only statements that completed successfully must have a planner
+    -- snapshot. SQL-TAP includes expected compile/execute failures (for
+    -- example, a SELECT exceeding the join limit); EXPLAIN cannot produce a
+    -- VDBE envelope for those, and they did not complete a planner route that
+    -- can be compared. Keep successful SELECT capture fail-closed below.
+    if is_select and err == nil then
+        local snapshot_ok, snapshot_res
+        if bindings ~= nil then
+            snapshot_ok, snapshot_res = pcall(_real_box_execute,
+                "EXPLAIN (planner = 'snapshot') " .. sql, bindings)
+        else
+            snapshot_ok, snapshot_res = pcall(_real_box_execute,
+                "EXPLAIN (planner = 'snapshot') " .. sql)
+        end
+        assert(snapshot_ok, 'planner snapshot EXPLAIN failed: ' ..
+               tostring(snapshot_res))
+        assert(snapshot_res ~= nil and snapshot_res.rows ~= nil and
+               snapshot_res.rows[1] ~= nil and snapshot_res.rows[1][1] ~= nil,
+               'planner snapshot EXPLAIN returned no MsgPack envelope')
+        local decode_ok, planner_snapshot = pcall(msgpack.decode,
+            tostring(snapshot_res.rows[1][1]))
+        assert(decode_ok and type(planner_snapshot) == 'table',
+               'planner snapshot EXPLAIN returned malformed MsgPack')
+        assert(planner_snapshot.format == 'tarantool.sql.planner.snapshot' and
+               planner_snapshot.version == 2 and
+               planner_snapshot.replayable == false and
+               type(planner_snapshot.planner) == 'table',
+               'planner snapshot EXPLAIN returned an invalid v2 diagnostic envelope')
+        planner_path_class = planner_snapshot.path_class
+        planner_fallback_reason = planner_snapshot.fallback_reason
+        planner_metrics = planner_snapshot.planner
     end
 
     -- Record every SQL statement (including DDL / DML setup)

@@ -42,8 +42,14 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("sql_type: map", snapshot)
             self.assertIn("taken: current_where_c", snapshot)
             self.assertNotIn("table: 0x", snapshot)
-            no_planner_path = (out / "snapshots/sql-tap/typed_sql/q02.memtx.yaml").read_text()
+            rejected_select = (out / "snapshots/sql-tap/typed_sql/q02.memtx.yaml").read_text()
+            self.assertIn("status: error", rejected_select)
+            self.assertIn("taken: null", rejected_select)
+            no_planner_path = (out / "snapshots/sql-tap/typed_sql/q03.memtx.yaml").read_text()
             self.assertIn("taken: null", no_planner_path)
+            manifest = json.loads((out / "manifests/sql-tap/typed_sql.memtx.json").read_text())
+            self.assertEqual(manifest["captured_queries"], 3)
+            self.assertEqual(len(manifest["planner_metrics"]), 1)
 
     def test_fallback_reason_survives_sql_snapshot_capture(self):
         if not BINARY.is_file():

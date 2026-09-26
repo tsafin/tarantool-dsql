@@ -368,7 +368,8 @@ only; they are excluded from baseline equality and corpus acceptance gates.
 When present, the capture validator checks each entry's unique increasing
 query index, valid path/reason pair, and agreement with the corresponding
 snapshot's L3 path metadata. A v2 manifest must include one entry for every
-captured SELECT/WITH statement; non-SELECT statements have no planner metrics.
+successful SELECT/WITH statement; non-SELECT statements and failed SQL probes
+have no planner metrics and a null path. L1/L2 still gate failed probes.
 Manifests that omit the extension entirely remain valid for compatibility.
 
 The per-query native proof distinguishes execution from structural native

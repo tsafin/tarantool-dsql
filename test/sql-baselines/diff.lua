@@ -226,7 +226,8 @@ local function load_yaml_file(path)
        ((data.l1_result.column_names == nil) ~=
         (data.l1_result.column_types == nil)) or
        type(data.l3_path_class) ~= "table" or
-       type(data.l3_path_class.taken) ~= "string" then
+       (type(data.l3_path_class.taken) ~= "string" and
+        data.l3_path_class.taken ~= box.NULL) then
         return nil, "malformed v1 snapshot: " .. path
     end
     return data

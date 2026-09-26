@@ -682,9 +682,13 @@ DML, triggers, subprograms, non-deterministic functions.
   path/reason combinations, and per-query agreement with the snapshot's L3
   path metadata; a capture regression changes a valid metric reason to a
   different valid code and verifies rejection. A v2 metrics manifest must
-  also contain an entry for every SELECT/WITH snapshot; older manifests that
-  omit the extension remain accepted. This closes the metrics-coverage hole,
-  not baseline recapture or full M3.6 parity.
+  also contain an entry for every successful SELECT/WITH snapshot; older
+  manifests that omit the extension remain accepted. Expected failed
+  SELECT/WITH probes stay gated on L2 but do not require a planner envelope:
+  EXPLAIN may reject the same invalid statement, so their path is null. A
+  missing-relation SELECT regression exercises this exception while successful
+  SELECT metric coverage remains fail-closed. This closes the metrics-coverage
+  hole, not baseline recapture or full M3.6 parity.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.
