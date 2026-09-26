@@ -41,6 +41,8 @@
 #include "box/box.h"
 #include "box/coll_id_cache.h"
 #include "box/schema.h"
+#include "sql_logical_plan.h"
+#include "sql_plan_fallback.h"
 
 /*
  * Trace output macros
@@ -5630,6 +5632,45 @@ vdbe_code_raise_on_multiple_rows(struct Parse *parser, int limit_reg, int end_ma
 	sqlReleaseTempReg(parser, r1);
 }
 
+static void
+sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
+{
+	Vdbe *v = parse->pVdbe;
+	SrcList *src = select->pSrc;
+	if (v == NULL || v->planner_fallback_reason != NULL || src == NULL ||
+	    src->nSrc == 0)
+		return;
+	bool structurally_unsupported = is_aggregate || select->pPrior != NULL ||
+		select->pWith != NULL || select->pGroupBy != NULL ||
+		select->pHaving != NULL || (select->selFlags & SF_Distinct) != 0 ||
+		src->nSrc != 1 || src->a[0].pSelect != NULL ||
+		src->a[0].fg.isTabFunc;
+	if (!structurally_unsupported)
+		return;
+	enum sql_logical_reject_reason logical_reason =
+		SQL_LOGICAL_REJECT_NONE;
+	if (is_aggregate) {
+		logical_reason = SQL_LOGICAL_REJECT_AGGREGATE;
+	} else {
+		struct sql_logical_plan *logical =
+			sql_logical_plan_from_select(select, &logical_reason);
+		if (logical != NULL) {
+			sql_logical_plan_delete(logical);
+			return;
+		}
+	}
+	if (logical_reason == SQL_LOGICAL_REJECT_NONE)
+		return;
+	enum sql_plan_fallback_reason fallback_reason =
+		sql_plan_fallback_from_logical(logical_reason);
+	const char *reason = sql_plan_fallback_reason_name(fallback_reason);
+	if (reason == NULL)
+		return;
+	v->planner_path_class = "fallback";
+	v->planner_fallback_reason = reason;
+	sql_record_planner_fallback();
+}
+
 /*
  * Generate code for the SELECT statement given in the p argument.
  *
@@ -5755,6 +5796,11 @@ sqlSelect(Parse * pParse,		/* The parser context */
 		goto select_end;
 	assert(p->pEList != 0);
 	isAgg = (p->selFlags & SF_Aggregate) != 0;
+	/* Non-aggregate structural rejects are known after name resolution.
+	 * Aggregate fallback is recorded only once its path actually enters
+	 * sqlWhereBegin(), since simple count(*) can use OP_Count directly.
+	 */
+	sql_select_record_fallback(pParse, p, false);
 #ifdef SQL_DEBUG
 	if (sqlSelectTrace & 0x100) {
 		SELECTTRACE(0x100, pParse, p, ("after name resolution:\n"));
@@ -6610,6 +6656,7 @@ sqlSelect(Parse * pParse,		/* The parser context */
 				 * of output.
 				 */
 				resetAccumulator(pParse, &sAggInfo);
+				sql_select_record_fallback(pParse, p, true);
 				pWInfo =
 				    sqlWhereBegin(pParse, pTabList, pWhere,
 						      pMinMax, 0, flag, 0);
