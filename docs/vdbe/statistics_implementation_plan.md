@@ -269,10 +269,13 @@ rather than subtracting independently interpolated histogram CDF estimates.
 With one combined predicate per column, mixed constraints remain exact only
 when distinct joint tuples exhaust the complete non-NULL sample for all
 summarized columns; partial joint MCV samples use the per-column independence
-fallback. S2.2's composite HLL input can sketch joint NDV, but this selectivity
-API does not yet consume that estimate. Joint-NDV-aware selectivity,
-dependency statistics, partial-tuple matching, and policy for choosing/storing
-multicolumn groups remain open.
+fallback. A predicate constraining only a subset of joint dimensions is exact
+when that sample is exhaustive, by summing all matching tuple counts. For a
+truncated joint MCV list the sum is only a lower bound; the scalar full-group
+joint-NDV estimate cannot infer the missing marginal tail, so independence is
+preserved instead of extrapolating from MCV rows. Joint-NDV-aware
+partial-tuple estimation, dependency statistics, and policy for
+choosing/storing multicolumn groups remain open.
 
 The focused unit probes include a uniform 1,000-distinct-value column, a
 skewed column with one value at 90% frequency, correlated/anti-correlated

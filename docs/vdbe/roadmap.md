@@ -557,8 +557,13 @@ the `where.c` selectivity adapter wait for that interface.
   assumption. Exact MCV matches retain precedence; absent/invalid/incompatible
   sketch metadata preserves the prior independence estimate. This is a narrow
   full-tuple residual estimate, not partial-tuple matching, dependency
-  statistics, or a general correlation adjustment. Partial-tuple matching,
-  dependencies, general correlation adjustment,
+  statistics, or a general correlation adjustment. Partial-tuple matching
+  beyond an exhaustive joint sample remains unavailable: matching MCV rows in
+  a truncated joint sample gives only a lower bound, while the scalar
+  joint-NDV input describes the full group and cannot recover marginal tail
+  NDV. The existing predicate API is verified to sum partial-tuple matches
+  exactly when the joint sample is exhaustive and to retain independence when
+  it is partial. Dependencies, general correlation adjustment,
   normalized snapshot inputs, schema/group selection, and `where.c` integration
   remain open; this does not close S2.5. *parallel: yes for the standalone
   API; no for planner integration, which touches `where.c`.

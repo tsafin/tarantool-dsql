@@ -241,7 +241,7 @@ test_joint_mcv_equality_conjunction(void)
 static void
 test_joint_mcv_range_conjunction(void)
 {
-	plan(8);
+	plan(10);
 	header();
 	int values0[] = {0, 0, 1, 1};
 	int values1[] = {0, 1, 0, 1};
@@ -314,6 +314,21 @@ test_joint_mcv_range_conjunction(void)
 	   fabs(result.value - 0.25) < 1e-12 &&
 	   result.source == SQL_STATS_SELECTIVITY_MCV,
 	   "complete joint sample estimates mixed range/equality exactly");
+	struct sql_stats_predicate partial_tuple = {
+		.column_index = 0, .kind = SQL_STATS_PREDICATE_EQUALITY,
+		.value = &zero, .value_size = sizeof(zero),
+	};
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2,
+		&partial_tuple, 1, joint, 4, 4, &result) == 0 &&
+	   fabs(result.value - 0.5) < 1e-12 &&
+	   result.source == SQL_STATS_SELECTIVITY_MCV,
+	   "complete joint sample exactly estimates a partial-tuple predicate");
+	struct sql_stats_joint_mcv_sample partial_joint[] = {joint[0], joint[2]};
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2,
+		&partial_tuple, 1, partial_joint, 2, 4, &result) == 0 &&
+	   fabs(result.value - 0.5) < 1e-12 &&
+	   result.source == SQL_STATS_SELECTIVITY_INDEPENDENCE,
+	   "partial joint MCVs do not extrapolate an unobserved marginal tail");
 	struct sql_stats_predicate strict = range;
 	strict.range_operator = SQL_STATS_RANGE_LT;
 	strict.value = &one;
