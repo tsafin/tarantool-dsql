@@ -69,6 +69,11 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 		       const struct sql_stats_relation_input *relations,
 		       size_t relation_count, size_t max_bytes);
 
+#ifdef SQL_STATS_SNAPSHOT_TESTING
+/* Unit-target-only one-shot failure after N successful allocations. */
+void sql_stats_snapshot_test_fail_allocation_after(long successful_allocations);
+#endif
+
 void
 sql_stats_snapshot_retain(struct sql_stats_snapshot *snapshot);
 

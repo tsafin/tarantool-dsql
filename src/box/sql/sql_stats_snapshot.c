@@ -42,6 +42,44 @@ struct sql_stats_snapshot {
 	struct sql_stats_relation *relations;
 };
 
+#ifdef SQL_STATS_SNAPSHOT_TESTING
+/* One-shot allocation fault injection for the snapshot unit target only. */
+static long test_allocations_before_failure = -1;
+
+void
+sql_stats_snapshot_test_fail_allocation_after(long successful_allocations)
+{
+	test_allocations_before_failure = successful_allocations;
+}
+
+static bool
+test_should_fail_allocation(void)
+{
+	if (test_allocations_before_failure < 0)
+		return false;
+	if (test_allocations_before_failure == 0) {
+		test_allocations_before_failure = -1;
+		return true;
+	}
+	test_allocations_before_failure--;
+	return false;
+}
+#else
+#define test_should_fail_allocation() false
+#endif
+
+static void *
+stats_malloc(size_t size)
+{
+	return test_should_fail_allocation() ? NULL : malloc(size);
+}
+
+static void *
+stats_calloc(size_t count, size_t size)
+{
+	return test_should_fail_allocation() ? NULL : calloc(count, size);
+}
+
 static int
 compare_relation(const void *lhs, const void *rhs)
 {
@@ -75,7 +113,7 @@ copy_tag(const char *tag, size_t *bytes, size_t limit)
 	size_t len = strlen(tag);
 	if (len == SIZE_MAX || !add_bytes(bytes, len + 1, limit))
 		return NULL;
-	char *copy = malloc(len + 1);
+	char *copy = stats_malloc(len + 1);
 	if (copy != NULL)
 		memcpy(copy, tag, len + 1);
 	return copy;
@@ -112,11 +150,11 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 	if (!add_bytes(&bytes, relation_count * sizeof(struct sql_stats_relation),
 		       max_bytes))
 		return NULL;
-	struct sql_stats_snapshot *snapshot = calloc(1, sizeof(*snapshot));
+	struct sql_stats_snapshot *snapshot = stats_calloc(1, sizeof(*snapshot));
 	if (snapshot == NULL)
 		return NULL;
 	snapshot->relations = relation_count == 0 ? NULL :
-		calloc(relation_count, sizeof(*snapshot->relations));
+		stats_calloc(relation_count, sizeof(*snapshot->relations));
 	if (relation_count != 0 && snapshot->relations == NULL) {
 		free(snapshot);
 		return NULL;
@@ -165,7 +203,7 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 			       max_bytes))
 			goto error;
 		out->indexes = in->index_count == 0 ? NULL :
-			calloc(in->index_count, sizeof(*out->indexes));
+			stats_calloc(in->index_count, sizeof(*out->indexes));
 		if (in->index_count != 0 && out->indexes == NULL)
 			goto error;
 		for (size_t j = 0; j < in->index_count; j++) {
@@ -195,7 +233,7 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 				       max_bytes))
 				goto error;
 			if (index_in->prefix_count != 0) {
-				index->distinct_prefixes = malloc(index_in->prefix_count *
+				index->distinct_prefixes = stats_malloc(index_in->prefix_count *
 								 sizeof(uint64_t));
 				if (index->distinct_prefixes == NULL)
 					goto error;

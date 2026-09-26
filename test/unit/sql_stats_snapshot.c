@@ -149,10 +149,51 @@ test_reject_invalid_inputs(void)
 	check_plan();
 }
 
+static void
+test_allocation_failures_roll_back(void)
+{
+	plan(1);
+	header();
+	uint64_t prefixes[] = {2, 4};
+	struct sql_stats_index_input index = {
+		.index_id = 8, .tuple_count = 10,
+		.population_basis = "visible@view", .ndv_basis = "visible@view",
+		.distinct_prefixes = prefixes, .prefix_count = 2,
+	};
+	struct sql_stats_relation_input relation = {
+		.space_id = 42, .row_count = 10, .population_basis = "visible@view",
+		.average_row_width = 24, .width_basis = "payload/rows",
+		.width_denominator_count = 10, .confidence = 1,
+		.confidence_source = "exact", .cardinality_semantics =
+			SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.indexes = &index, .index_count = 1,
+	};
+	unsigned int failures = 0;
+	bool complete = false;
+	for (long fail_after = 0; fail_after < 32; fail_after++) {
+		sql_stats_snapshot_test_fail_allocation_after(fail_after);
+		struct sql_stats_snapshot *snapshot = sql_stats_snapshot_new(1, 1,
+			&relation, 1, 4096);
+		if (snapshot == NULL) {
+			failures++;
+			continue;
+		}
+		sql_stats_snapshot_test_fail_allocation_after(-1);
+		sql_stats_snapshot_release(snapshot);
+		complete = true;
+		break;
+	}
+	ok(failures >= 9 && complete,
+	   "each snapshot allocation failure rolls back before complete success");
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
 	test_deep_copy_lookup_and_lifetime();
 	test_reject_invalid_inputs();
+	test_allocation_failures_roll_back();
 	return 0;
 }
