@@ -3,6 +3,7 @@
 
 import argparse
 from collections import Counter
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -62,6 +63,15 @@ def run(command, env=None, timeout=300):
     if result.returncode:
         raise RuntimeError(result.stdout[-4000:])
     return result.stdout
+
+
+def binary_identity(binary):
+    digest = hashlib.sha256()
+    with binary.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return {"path": str(binary), "sha256": digest.hexdigest(),
+            "version": run([binary, "--version"]).splitlines()[0]}
 
 
 def measurements(out, engine):
@@ -132,6 +142,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     report = {"evaluation_version": 1, "source_commit": run(
         ["git", "-C", repo, "rev-parse", "HEAD"]).strip(),
+        "binary": binary_identity(binary),
         "tests": ["sql-tap/" + name for name in names],
         "default_widths": list(DEFAULT_WIDTHS), "candidate_widths": list(args.widths),
         "dispatcher": "generated", "engines": {},
