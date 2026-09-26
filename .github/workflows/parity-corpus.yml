@@ -161,7 +161,7 @@ jobs:
           cmake -S . -B build-head \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DENABLE_BACKTRACE=ON
-          for target in tarantool decimal gh-2579-custom-aggregate \
+          for target in tarantool decimal gh_6572 gh-2579-custom-aggregate \
             gh-5938-wrong-string-length gh-6024-funcs-return-bin sql_uuid; do
             cmake --build build-head --target "$target" --parallel 4
           done
@@ -172,7 +172,7 @@ jobs:
           cmake -S . -B build-base \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DENABLE_BACKTRACE=ON
-          for target in tarantool decimal gh-2579-custom-aggregate \
+          for target in tarantool decimal gh_6572 gh-2579-custom-aggregate \
             gh-5938-wrong-string-length gh-6024-funcs-return-bin sql_uuid; do
             cmake --build build-base --target "$target" --parallel 4
           done
