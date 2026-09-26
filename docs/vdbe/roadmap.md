@@ -405,7 +405,7 @@ review of IDs and formats.
   lifetime, schema mismatch, invalid values, and budget rejection. This is
   not yet attached to prepare/prepared-statement lifetime; that integration
   remains part of S1.7. *parallel: yes*.
-- [ ] **S1.5 prototype** `engine_sql_stats_sample` dispatch and a bounded,
+- [x] **S1.5 prototype** `engine_sql_stats_sample` dispatch and a bounded,
   seeded memtx sampler exist in `src/box/sql/sql_stats_sample.{h,c}`. It uses
   primary-index random access with replacement in the caller's active
   transaction and reports delivered rows/bytes; focused unit tests validate
@@ -415,7 +415,7 @@ review of IDs and formats.
   wired to ANALYZE/collection and does not create an independent read view;
   these gates remain open.
   *parallel: yes*.
-- [ ] **S1.6 prototype** Vinyl now has a bounded exhaustive primary-index
+- [x] **S1.6 prototype** Vinyl now has a bounded exhaustive primary-index
   sampler using the caller's transaction/read view when active (including
   own writes), or a short-lived autocommit view otherwise, and seeded
   Algorithm R reservoir selection without replacement. Standard Vinyl
