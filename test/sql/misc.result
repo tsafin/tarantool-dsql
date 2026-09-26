@@ -162,6 +162,9 @@ s:drop()
 _, err = box.execute([[CREATE TABLE summary_t (id INTEGER PRIMARY KEY)]])
 ---
 ...
+planner_stats_before = box.stat.sql()
+---
+...
 summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM summary_t]])
 ---
 ...
@@ -210,6 +213,33 @@ assert(summary.rows[2][2] == 'fallback_reason')
 - true
 ...
 assert(summary.rows[2][3] == nil)
+---
+- true
+...
+planner_stats_after = box.stat.sql()
+---
+...
+assert(planner_stats_after.sql_planner_candidates_total >=
+---
+- error: '[string "assert(planner_stats_after.sql_planner_candid..."]:1: unexpected
+    symbol near ''<eof>'''
+...
+       planner_stats_before.sql_planner_candidates_total)
+---
+- error: '[string "       planner_stats_before.sql_planner_candi..."]:1: ''='' expected
+    near '')'''
+...
+assert(planner_stats_after.sql_planner_elapsed_us >=
+---
+- error: '[string "assert(planner_stats_after.sql_planner_elapse..."]:1: unexpected
+    symbol near ''<eof>'''
+...
+       planner_stats_before.sql_planner_elapsed_us)
+---
+- error: '[string "       planner_stats_before.sql_planner_elaps..."]:1: ''='' expected
+    near '')'''
+...
+assert(planner_stats_after.sql_planner_fallback_total == 0)
 ---
 - true
 ...
