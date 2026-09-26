@@ -592,8 +592,12 @@ M0-B corpus for the evaluation workloads.
 
 **Subtasks:**
 
-- [ ] **E1.1** Configurable budget knobs replacing fixed `1/5/10` widths.
-  *parallel: no* (touches `wherePathSolver`).
+- [x] **E1.1** `wherePathSolver` beam widths are configurable at process start
+  with `SQL_PATH_SOLVER_WIDTH_ONE`, `SQL_PATH_SOLVER_WIDTH_TWO`, and
+  `SQL_PATH_SOLVER_WIDTH_MANY`. Defaults preserve `1/5/10`; invalid values
+  fall back to defaults and valid values are bounded to `1..64`. Active values
+  are exposed in `box.stat.sql()` and covered with a non-default luatest
+  server. Time/memory budgets remain open. *parallel: no*.
 - [ ] **E1.2** Candidate partitioning by relation subset and properties.
   *parallel: no* (same file).
 - [ ] **E1.3** Property-aware dominance before beam truncation. *parallel:

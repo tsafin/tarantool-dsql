@@ -1373,6 +1373,12 @@ sql_debug_info(struct info_handler *h)
 		info_append_int(h, key, sql_planner_fallback_by_reason[reason]);
 	}
 	info_append_int(h, "sql_planner_elapsed_us", sql_planner_elapsed_us);
+	info_append_int(h, "sql_planner_path_solver_width_one",
+			sql_path_solver_width(1));
+	info_append_int(h, "sql_planner_path_solver_width_two",
+			sql_path_solver_width(2));
+	info_append_int(h, "sql_planner_path_solver_width_many",
+			sql_path_solver_width(3));
 	info_append_int(h, "sql_interpreter_step_count",
 			sql_interpreter_step_count);
 	info_append_int(h, "sql_jit_step_count", sql_jit_step_count);

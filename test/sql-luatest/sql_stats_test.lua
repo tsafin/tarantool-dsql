@@ -3,6 +3,7 @@ local t = require('luatest')
 
 local g = t.group()
 local g_jit = t.group('sql_jit')
+local g_budget = t.group('sql_planner_budget')
 
 local function opcode_count(profile, ...)
     for i = 1, select('#', ...) do
@@ -40,6 +41,22 @@ end)
 
 g_jit.after_all(function()
     g_jit.server:stop()
+end)
+
+g_budget.before_all(function()
+    g_budget.server = server:new({
+        alias = 'sql_planner_budget',
+        env = {
+            SQL_PATH_SOLVER_WIDTH_ONE = '2',
+            SQL_PATH_SOLVER_WIDTH_TWO = '7',
+            SQL_PATH_SOLVER_WIDTH_MANY = '11',
+        },
+    })
+    g_budget.server:start()
+end)
+
+g_budget.after_all(function()
+    g_budget.server:stop()
 end)
 
 g.test_sql_stats_shape_and_growth = function()
@@ -112,6 +129,26 @@ g.test_sql_statement_compile_count = function()
     t.assert_equals(res.after_prepare, res.before + 1)
     t.assert_equals(res.after_execute, res.after_prepare)
     t.assert_equals(res.rows, {{177014}})
+end
+
+g_budget.test_path_solver_width_configuration = function()
+    local res = g_budget.server:exec(function()
+        box.execute([[CREATE TABLE t (id INT PRIMARY KEY, a INT);]])
+        box.execute([[INSERT INTO t VALUES (1, 10), (2, 20);]])
+        local rows = box.execute([[SELECT a FROM t WHERE id = 2;]]).rows
+        local stats = box.stat.sql()
+        box.execute([[DROP TABLE t;]])
+        return {
+            rows = rows,
+            one = stats.sql_planner_path_solver_width_one,
+            two = stats.sql_planner_path_solver_width_two,
+            many = stats.sql_planner_path_solver_width_many,
+        }
+    end)
+    t.assert_equals(res.rows, {{20}})
+    t.assert_equals(res.one, 2)
+    t.assert_equals(res.two, 7)
+    t.assert_equals(res.many, 11)
 end
 
 g_jit.test_sql_jit_exec_count_growth = function()

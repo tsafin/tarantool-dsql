@@ -344,6 +344,10 @@ sql_record_planner_fallback(struct Vdbe *vdbe, uint32_t reason);
 void
 sql_record_planner_elapsed(struct Vdbe *vdbe, uint64_t elapsed_us);
 
+/** Get a configured WHERE path-solver beam width for the given join size. */
+int
+sql_path_solver_width(int loop_count);
+
 /** This is the top-level implementation of sqlStep(). */
 int
 sql_step(struct Vdbe *v);

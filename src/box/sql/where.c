@@ -48,6 +48,9 @@
 #include "fiber.h"
 #include "sql_plan_fallback.h"
 
+#include <errno.h>
+#include <stdlib.h>
+
 /** Increase the memory allocation for p->aLTerm[] to be at least n. */
 static void
 whereLoopResize(struct WhereLoop *p, int n);
@@ -56,6 +59,46 @@ whereLoopResize(struct WhereLoop *p, int n);
 #ifdef SQL_DEBUG
 /***/ int sqlWhereTrace = 0; /* -1; */
 #endif
+
+#define SQL_PATH_SOLVER_WIDTH_MAX 64
+
+static int sql_path_solver_widths[3] = {1, 5, 10};
+static bool sql_path_solver_widths_loaded;
+
+static int
+sql_path_solver_parse_width(const char *name, int default_value)
+{
+	char value_buf[32];
+	const char *value = getenv_safe(name, value_buf, sizeof(value_buf));
+	if (value == NULL || value[0] == '\0')
+		return default_value;
+	errno = 0;
+	char *end = NULL;
+	long width = strtol(value, &end, 10);
+	if (errno != 0 || end == value || *end != '\0' || width < 1 ||
+	    width > SQL_PATH_SOLVER_WIDTH_MAX)
+		return default_value;
+	return (int)width;
+}
+
+int
+sql_path_solver_width(int loop_count)
+{
+	if (!sql_path_solver_widths_loaded) {
+		sql_path_solver_widths[0] = sql_path_solver_parse_width(
+			"SQL_PATH_SOLVER_WIDTH_ONE", 1);
+		sql_path_solver_widths[1] = sql_path_solver_parse_width(
+			"SQL_PATH_SOLVER_WIDTH_TWO", 5);
+		sql_path_solver_widths[2] = sql_path_solver_parse_width(
+			"SQL_PATH_SOLVER_WIDTH_MANY", 10);
+		sql_path_solver_widths_loaded = true;
+	}
+	if (loop_count <= 1)
+		return sql_path_solver_widths[0];
+	if (loop_count == 2)
+		return sql_path_solver_widths[1];
+	return sql_path_solver_widths[2];
+}
 
 /*
  * Return the estimated number of output rows from a WHERE clause
@@ -2906,11 +2949,10 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 
 	pParse = pWInfo->pParse;
 	nLoop = pWInfo->nLevel;
-	/* TUNING: For simple queries, only the best path is tracked.
-	 * For 2-way joins, the 5 best paths are followed.
-	 * For joins of 3 or more tables, track the 10 best paths
+	/* Preserve the historical 1/5/10 defaults while allowing deployments
+	 * to tune the bounded beam without changing the planner implementation.
 	 */
-	mxChoice = (nLoop <= 1) ? 1 : (nLoop == 2 ? 5 : 10);
+	mxChoice = sql_path_solver_width(nLoop);
 	assert(nLoop <= pWInfo->pTabList->nSrc);
 	WHERETRACE(0x002, ("---- begin solver.  (nRowEst=%d)\n", nRowEst));
 

@@ -784,6 +784,14 @@ The improved-current candidate is:
 This candidate establishes whether statistics, properties, and principled
 pruning provide most of the benefit without a new graph enumerator.
 
+The legacy `wherePathSolver` now accepts process-start beam-width overrides:
+`SQL_PATH_SOLVER_WIDTH_ONE`, `SQL_PATH_SOLVER_WIDTH_TWO`, and
+`SQL_PATH_SOLVER_WIDTH_MANY`. Defaults remain `1`, `5`, and `10`, respectively;
+positive values up to `64` are accepted and malformed/out-of-range values use
+the default. Current values are visible through `box.stat.sql()`. Candidate
+generation remains fully compatible with the old solver; separate elapsed-
+time and memory budgets are not implemented yet.
+
 ### Hypergraph construction scope
 
 The first graph builder extracts safe conjunctive connectivity and dependency
