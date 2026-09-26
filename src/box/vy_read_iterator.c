@@ -945,6 +945,12 @@ vy_read_iterator_next(struct vy_read_iterator *itr, struct vy_entry *result)
 
 	struct vy_entry entry;
 next_key:
+	if (!vy_iterator_work_budget_try_key(itr->work_budget)) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "Vinyl statistics sampling",
+			 "configured iterator-key work budget");
+		return -1;
+	}
 	if (vy_read_iterator_advance(itr) != 0)
 		return -1;
 	if (vy_read_iterator_apply_history(itr, &entry) != 0)

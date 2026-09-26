@@ -140,11 +140,98 @@ test_invalid_and_aborted_requests(void)
 	check_plan();
 }
 
+static void
+test_reservoir_without_replacement(void)
+{
+	plan(5);
+	header();
+	const char *input[] = {"aaaa", "bbbb", "cccc", "dddd"};
+	uint64_t metadata_bytes;
+	fail_if(sql_stats_sample_reservoir_metadata_bytes(2,
+							 &metadata_bytes) != 0);
+	struct sql_stats_sample_reservoir *a =
+		sql_stats_sample_reservoir_new(2, 8, metadata_bytes + 8, 17);
+	struct sql_stats_sample_reservoir *b =
+		sql_stats_sample_reservoir_new(2, 8, metadata_bytes + 8, 17);
+	struct capture ca = {}, cb = {};
+	struct sql_stats_sample_sink sa = {&ca, capture_tuple};
+	struct sql_stats_sample_sink sb = {&cb, capture_tuple};
+	struct sql_stats_sample_result ra = {}, rb = {};
+	ok(a != NULL && b != NULL, "reservoir allocates within payload and buffer bounds");
+	for (size_t i = 0; i < 4; ++i) {
+		fail_if(sql_stats_sample_reservoir_add(a, input[i], 4) != 0);
+		fail_if(sql_stats_sample_reservoir_add(b, input[i], 4) != 0);
+	}
+	ok(sql_stats_sample_reservoir_deliver(a, &sa, NULL, 0, &ra) == 0 &&
+	   sql_stats_sample_reservoir_deliver(b, &sb, NULL, 0, &rb) == 0,
+	   "completed reservoir can be delivered");
+	ok(ra.rows == 2 && ra.bytes == 8 && ra.population_known &&
+	   ra.visible_population == 4 && !ra.with_replacement,
+	   "result reports sample size and exhaustive visible population");
+	ok(ca.count == 2 && ca.rows[0] != ca.rows[1],
+	   "reservoir draws distinct tuples without replacement");
+	ok(ca.count == cb.count && memcmp(ca.rows, cb.rows, ca.count) == 0,
+	   "fixed seed makes the reservoir sample deterministic");
+	sql_stats_sample_reservoir_delete(a);
+	sql_stats_sample_reservoir_delete(b);
+	footer();
+	check_plan();
+}
+
+static void
+test_reservoir_uniformity_and_limits(void)
+{
+	plan(3);
+	header();
+	const char *input[] = {"aaaa", "bbbb", "cccc", "dddd"};
+	uint64_t metadata_bytes;
+	fail_if(sql_stats_sample_reservoir_metadata_bytes(1,
+							 &metadata_bytes) != 0);
+	uint32_t frequency[4] = {};
+	for (uint64_t seed = 1; seed <= 4096; ++seed) {
+		struct sql_stats_sample_reservoir *reservoir =
+			sql_stats_sample_reservoir_new(1, 4,
+						       metadata_bytes + 4, seed);
+		fail_if(reservoir == NULL);
+		for (size_t i = 0; i < 4; ++i)
+			fail_if(sql_stats_sample_reservoir_add(reservoir,
+								 input[i], 4) != 0);
+		struct capture capture = {};
+		struct sql_stats_sample_sink sink = {&capture, capture_tuple};
+		struct sql_stats_sample_result result = {};
+		fail_if(sql_stats_sample_reservoir_deliver(reservoir, &sink, NULL,
+								   0, &result) != 0);
+		fail_if(capture.count != 1);
+		frequency[capture.rows[0] - 'a']++;
+		sql_stats_sample_reservoir_delete(reservoir);
+	}
+	ok(frequency[0] > 900 && frequency[0] < 1150 &&
+	   frequency[1] > 900 && frequency[1] < 1150 &&
+	   frequency[2] > 900 && frequency[2] < 1150 &&
+	   frequency[3] > 900 && frequency[3] < 1150,
+	   "seed sweep is consistent with uniform inclusion over four input keys");
+	struct sql_stats_sample_reservoir *too_small =
+		sql_stats_sample_reservoir_new(1, 4, metadata_bytes - 1, 1);
+	ok(too_small == NULL,
+	   "slot metadata is rejected when it exceeds the hard buffer budget");
+	struct sql_stats_sample_reservoir *reservoir =
+		sql_stats_sample_reservoir_new(1, 3, metadata_bytes + 4, 1);
+	ok(reservoir != NULL &&
+	   sql_stats_sample_reservoir_add(reservoir, input[0], 4) != 0 &&
+	   sql_stats_sample_reservoir_population(reservoir) == 0,
+	   "payload byte exhaustion aborts before a sample is complete");
+	sql_stats_sample_reservoir_delete(reservoir);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
 	test_row_and_byte_budgets();
 	test_seed_and_replacement();
 	test_invalid_and_aborted_requests();
+	test_reservoir_without_replacement();
+	test_reservoir_uniformity_and_limits();
 	return 0;
 }

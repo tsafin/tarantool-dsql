@@ -368,14 +368,15 @@ width.
 
 **State:** `PROTOTYPE`. S1.4 has an immutable, deep-copying, reference-counted
 in-memory snapshot API with schema-staleness checks and a bounded allocation
-budget; S1.5 has a bounded memtx sampling prototype. Neither is attached to
-prepare/ANALYZE or populated by a collection job. `sql.c` now accepts an
-optional immutable snapshot and legacy index cardinality estimates consume it
-when present, falling back on missing/stale data; `whereRangeScanEst()` still
-uses its heuristic reduction over the adapted base estimate. Persistent
-collection, prepared-statement snapshot ownership, Vinyl sampling, ANALYZE,
-and complete adapter validation remain open. The system-space schema remains
-DRAFT pending human review of IDs and formats.
+budget; S1.5 has a bounded memtx sampling prototype; S1.6 now has a bounded,
+fail-closed Vinyl sampler prototype. None is attached to prepare/ANALYZE or
+populated by a collection job. `sql.c` accepts an optional immutable snapshot
+and legacy index cardinality estimates consume it when present, falling back
+on missing/stale data; `whereRangeScanEst()` still uses its heuristic
+reduction over the adapted base estimate. Persistent collection,
+prepared-statement snapshot ownership, ANALYZE, and complete adapter
+validation remain open. The system-space schema remains DRAFT pending human
+review of IDs and formats.
 
 **Exit criteria:**
 
@@ -414,38 +415,23 @@ DRAFT pending human review of IDs and formats.
   wired to ANALYZE/collection and does not create an independent read view;
   these gates remain open.
   *parallel: yes*.
-- [ ] **S1.6** Vinyl sampling interface — no safe sampler callback can use the
-  current public/index APIs: Vinyl `.random` is unsupported, and one normal
-  iterator `next()` may inspect many disk sources, so output row/byte limits
-  do not bound work. Before adding an engine callback, add operation-local
-  source/page accounting and cancellation in the Vinyl iterator path, then
-  test work-budget exhaustion with visibility and partial-sample semantics.
-  The standalone fail-closed runtime test now verifies `ER_UNSUPPORTED` and
-  zero rows/sink deliveries against a real Vinyl space; this does not complete
-  the bounded-work interface.
-  Iterator review confirms that a source/page cap cannot safely return tuples
-  observed so far: an unvisited source may contain a newer visible version or
-  tombstone, and first-N output is key-order biased. The next implementation
-  slice now propagates an optional caller-owned operation-local source-probe /
-  uncached-page budget through both iterator layers and fails closed on
-  exhaustion. Focused unit tests cover counter limits/sticky exhaustion, and
-  the production server builds. The Vinyl point-lookup unit fixture now also
-  attaches zero-source and zero-page budgets to a real read/merge iterator over
-  generated runs. It verifies source-budget exhaustion and no returned entry.
-  After the fixture's normal visibility checks, a cancellable reader pool is
-  enabled and a zero-page budget fails closed at an actual uncached-page
-  request; exhaustion accounting is set, no page-read slot is consumed, no
-  entry is returned, and the iterator is closed. This covers propagation,
-  cleanup, and page-cap exhaustion, not logical visibility across successful
-  sampling or partial-sample confidence. The budget API treats exhaustion as
-  an error, so callers must discard all earlier sink state from that operation.
-  Logical-visible
-  candidate selection and partial-sample confidence semantics remain
-  undefined, so this instrumentation does not complete the sampler.
-  Existing cancellation can surface as `FiberIsCancelled` through the pinned
-  slice cleanup path; synchronous recovery reads are not cancellable. This is
-  a design constraint, not a completed sampler.
-  See `sql_stats_sampling.md`. *parallel: yes, against the S1.5 contract*.
+- [ ] **S1.6 prototype** Vinyl now has a bounded exhaustive primary-index
+  sampler using the caller's transaction/read view when active (including
+  own writes), or a short-lived autocommit view otherwise, and seeded
+  Algorithm R reservoir selection without replacement. Standard Vinyl
+  iterator read tracking applies in active transactions and may affect later
+  conflict outcomes. The sampler publishes no callbacks before successful EOF and
+  fails closed on tuple, buffer, disk-source, uncached-page, key-advance, or
+  iterator failure. Separate `max_bytes` (payload) and `max_buffer_bytes`
+  (metadata + slots + copies) limits bound retained memory. The tuple cap must
+  leave room to observe EOF; key steps include tombstone skips and terminal
+  EOF. Focused unit/runtime tests cover deterministic no-replacement output,
+  fixed-fixture frequency smoke checks, visibility after update/delete/
+  compaction, and exhaustion paths. This does not yet integrate ANALYZE or a
+  collection job, calibrate confidence, or establish workload-level latency /
+  read-amplification limits; therefore it is a prototype, not a completed
+  statistics sampler. See `sql_stats_sampling.md`. *parallel: yes, against
+  the S1.5 contract*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
   `whereRangeScanEst()` consume snapshot, fall back to defaults on absence.
   `sql_set_stats_snapshot()` now installs a retained immutable snapshot in the

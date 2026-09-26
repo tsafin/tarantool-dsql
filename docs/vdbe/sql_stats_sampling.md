@@ -11,6 +11,11 @@ struct sql_stats_sample_request {
 	uint64_t max_rows;
 	uint64_t max_bytes;
 	uint64_t seed;
+	uint64_t max_buffer_bytes;       /* Vinyl reservoir allocation cap */
+	uint64_t max_tuples_examined;    /* Vinyl visible tuple cap */
+	uint64_t max_disk_sources;       /* Vinyl first-probe cap */
+	uint64_t max_page_reads;         /* Vinyl uncached-page cap */
+	uint64_t max_iterator_keys;      /* Vinyl key-advance cap */
 	const uint32_t *field_ids;
 	size_t field_count;
 };
@@ -24,6 +29,8 @@ struct sql_stats_sample_sink {
 struct sql_stats_sample_result {
 	uint64_t rows;
 	uint64_t bytes;
+	bool population_known;
+	uint64_t visible_population;
 	bool with_replacement;
 };
 
@@ -40,26 +47,61 @@ fields the common SQL layer should decode; engines return the raw tuple so no
 MsgPack parsing policy leaks into the storage layer. A zero field count is a
 valid cardinality-only request.
 
-Both limits are hard upper bounds: no more than `max_rows` callbacks and no
-more than `max_bytes` total tuple bytes may be delivered. A tuple that would
-exceed the remaining byte budget is not delivered. `max_rows == 0`,
-`max_bytes == 0`, or missing required pointers is an invalid request. An
-absent primary index and engines without a sampler report unsupported. A
-nonzero callback return aborts collection and propagates failure; callbacks
-that fail should leave a diagnostic for the caller. Engines must release any
-resources on every exit path.
+For memtx, `max_rows` and `max_bytes` cap delivered draws and tuple payload
+bytes. A draw that would exceed the remaining byte budget is not delivered.
+The result counts repeated draws and reports `with_replacement=true`; the
+population is unknown. For Vinyl, the same fields cap retained sample rows
+and retained tuple payload bytes, while `max_buffer_bytes` separately caps all
+reservoir-owned memory, including metadata, slot array, and tuple copies.
+Both Vinyl bounds are checked before retaining a tuple. Zero row, payload,
+buffer, or tuple-examination limits and missing required pointers are invalid;
+zero source/page/key work limits are valid and immediately reject the
+corresponding work. Engines without a sampler report unsupported. A nonzero
+callback return aborts delivery and propagates failure; callbacks that fail
+should leave a diagnostic for the caller. Engines release all resources on
+every exit path.
 
-The result reports delivered callback count and tuple bytes. Repeated tuples
-are separate draws and are counted separately. The seed makes the sequence of
-draw inputs reproducible for an unchanged relation and request. The current
-memtx prototype uses the primary index's random-access API repeatedly, with
-replacement, in the caller's active transaction (an active transaction is
-required). It holds no tuple copies;
-each borrowed tuple is consumed synchronously. If the next tuple would exceed
-the remaining byte budget, collection stops successfully with a partial
-sample, so callers must use the returned counts and lower confidence as
-appropriate. Sampling must not be implemented as “take the first N tuples”:
-primary-key order is correlated with common data distributions.
+The result reports delivered callback count and tuple payload bytes. The seed
+makes draws reproducible for an unchanged relation and request. The memtx
+prototype uses primary-index random access with replacement inside the caller's
+active transaction, includes that transaction's uncommitted writes, and holds
+no tuple copies; callbacks consume each borrowed tuple synchronously. A byte
+limit can end memtx sampling successfully with a partial sample, so consumers
+must use returned counts and confidence.
+
+Vinyl performs an exhaustive `ITER_ALL` scan of the primary index in key
+order. In an active transaction the iterator uses that transaction's `vy_tx`
+and read view, so it sees its own writes and preserves snapshot visibility;
+as with any normal Vinyl iterator, it adds read tracking to that transaction.
+This can affect later conflict outcomes and incurs read-set work proportional
+to the scan, so callers must account for that transaction side effect. Outside
+a transaction the sampler creates a short-lived autocommit `vy_tx` and uses
+its pinned view. A stable SplitMix64-based Algorithm R reservoir selects up to
+`max_rows` tuples without replacement; the seed reproduces the selected
+sequence for an unchanged visible population. The result reports the complete
+`visible_population`, `population_known=true`, and `with_replacement=false`
+only after successful EOF.
+
+Vinyl defers every sink callback until the scan has reached successful EOF.
+Any tuple, buffer, source, page, iterator-key, visible-tuple, allocation, or
+iterator error fails the whole operation and invokes zero callbacks. Reaching
+`max_tuples_examined` before observing EOF is an error, even if the last
+returned tuple might have been the relation's final row; callers need headroom
+for the terminal EOF probe. The independent `max_iterator_keys` counter is
+charged at each read-iterator key-advance loop, including invisible tombstone
+keys and the terminal EOF probe. `max_disk_sources` counts first probes of
+individual disk sources, and `max_page_reads` counts uncached disk-page read
+attempts. Together these cap tuple/key progression, first-source amplification,
+and uncached I/O. They do not cap resident page-cache hits or the number of
+versions merged within one key/source; those remain covered only by the
+iterator's surrounding key/source/page behavior, not by a separate history-
+statement counter.
+
+Because Vinyl must discover EOF before publishing an exhaustive sample, it
+does not return a successful partial sample. A successful sample whose
+population is smaller than `max_rows` returns the whole population. Taking
+the first N tuples is not sampling: primary-key order is correlated with
+common data distributions.
 
 ## Current prototype boundary
 
@@ -69,70 +111,54 @@ sink abort. The memtx adapter uses the engine's transaction-aware random index
 operation; a runtime engine-dispatch test verifies active-transaction
 requirements, visibility of uncommitted tuples, deterministic draws, hard row
 and byte caps, sink/result accounting, and unsupported/invalid inputs. It does
-not create an independent read view. The API is not wired to ANALYZE or
-planner preparation. Vinyl must independently choose a bounded strategy that
-avoids pathological full-LSM reads.
+not create an independent read view. Neither engine callback is wired to
+ANALYZE or planner preparation. Vinyl uses the separate bounded strategy
+described below.
 
 ## Vinyl feasibility status (S1.6)
 
-The Vinyl sampling primitive is **not implemented**. A bounded-work iterator
-instrumentation prototype is present, but the current engine APIs do not
-provide a safe bounded Vinyl sampling strategy:
+The Vinyl callback now has a bounded exhaustive-scan prototype. It uses the
+existing primary-index read iterator and a no-replacement reservoir, but is
+not wired to ANALYZE or a statistics collection job. Its bounded-work design
+is:
 
 * `vinyl_index_vtab` in `src/box/vinyl.c` installs
   `generic_index_random()` for `.random`; `src/box/index.cc` implements that
   helper by returning `UnsupportedIndexFeature`. The public random-index API
   therefore is not a Vinyl sampling facility.
-* The ordinary Vinyl read iterator (`vy_read_iterator_open()` /
-  `vy_read_iterator_next()`) walks key order while merging transaction,
-  cache, mem and disk sources. Stopping after `max_rows` bounds delivered
-  tuples, not the cost to locate them or the number of LSM sources/pages
-  involved. Taking the first N rows is also order-biased.
-* The current request has row and delivered-byte limits, but no explicit work
-  budget or partial/unsupported result semantics. Those limits alone cannot
-  substantiate the required claim that statistics collection will not trigger
-  pathological full-LSM work.
+* `max_disk_sources`, `max_page_reads`, `max_iterator_keys`, and
+  `max_tuples_examined` are caller supplied per-operation caps. Work-budget
+  exhaustion is sticky and returns an error; no buffered rows are delivered.
+* The sampler allocates its maximum slot array only if it fits under
+  `max_buffer_bytes`; tuple copies must fit both `max_bytes` and the remaining
+  total buffer budget. A copy/allocation failure discards the reservoir.
+* The iterator uses the caller's `vy_tx`/read view when active (including its
+  write set); outside a transaction it creates and destroys an autocommit
+  `vy_tx`. The LSM is referenced for iterator lifetime. In an active
+  transaction, ordinary Vinyl read tracking applies and may affect later
+  conflict outcomes; this is part of the prototype API contract.
 
-Do not implement Vinyl sampling by calling `.random`, by scanning the primary
-index and stopping at `max_rows`, or by independently sampling raw runs: the
-last option would need to resolve duplicate versions, deletes, and visibility
-consistently with Vinyl's read view. A viable follow-up needs an engine-owned
-design for bounded range/run-aware candidate selection, an explicit measure
-of bounded work (including I/O/source amplification), and a defined partial
-sample/confidence result. It must test both read amplification and sample
-quality under multiple ranges, compaction states, updates, and deletes.
+The sampler does not use `.random`, stop at `max_rows`, or sample raw runs.
+It traverses the logical visible population to EOF; source/page/key/tuple caps
+make this strategy fail closed when exhaustive work is too large. This is
+bounded work, not bounded work that always succeeds: users may need a larger
+budget or receive no sample.
 
-The normal `vy_read_iterator` cannot safely turn a source/page cap into a
-partial sample by returning the tuples seen so far. It merges transaction,
-cache, memory, and disk histories; an unvisited disk source may contain a newer
-visible version or a tombstone for a candidate already observed. Stopping at
-the cap and returning prior tuples would therefore risk both visibility
-errors and key-order bias. The iterator prototype now attaches a caller-owned,
-operation-local budget and counts first disk-source probes and uncached
-page-read attempts through the read- and run-iterator layers. Exhaustion fails
-closed; the caller must discard all sink state from that operation, not
-consume earlier callbacks as a partial sample. Unit tests cover the budget
-counter limits and sticky exhaustion, while runtime tests do not yet attach a
-budget to a real iterator or verify exhaustion cleanup/visibility. Cancellation
-uses the existing iterator error path (`FiberIsCancelled`) at disk-source and
-uncached-page checkpoints; sampling must not rely on synchronous recovery-time
-reads, which are not cooperatively interruptible. This budget instrumentation
-alone is not a sampling strategy:
-candidate selection still has to be evaluated over logical visible tuples
-across updates, deletes, and compaction.
-
-The Vinyl point-lookup unit fixture exercises both constraints through a real
-`vy_read_iterator` over generated runs. A zero disk-source budget reaches
-`ER_UNSUPPORTED` without exposing an entry. The zero-page case also fails
-closed, but earlier: this fixture has no cancellable reader pool, so synchronous
-page I/O is rejected before the page budget is consumed. Both iterators are
-closed after failure. This does not test page-cap exhaustion, successful
-candidate selection, visibility-preserving truncation, or a sample sink;
-exhaustion remains fail-closed.
-
-The generic S1.5 request/sink/result contract and memtx callback now exist.
-The runtime dispatch test also verifies that Vinyl's currently missing
-callback fails closed with `ER_UNSUPPORTED` without delivering rows. S1.6 can
-extend the contract with Vinyl-specific work bounds and partial or unsupported
-result semantics. Until that strategy is implemented and tested, S1.6 remains
-open; this status is a feasibility finding, not a completed sampler.
+The ordinary iterator cannot safely return a partial sample after a
+source/page/key cap: an unvisited source may hold a newer version or tombstone,
+and key-order prefixes are biased. Therefore callbacks happen only after
+successful EOF. Runtime coverage verifies zero delivery for transaction,
+source, page, iterator-key, visible-tuple, payload-byte, and buffer-budget
+rejections; active-transaction coverage verifies that the transaction's own
+uncommitted tuple is visible to the exhaustive scan. Other cases cover
+deterministic no-replacement sampling and visibility after
+update/delete/compaction. A fixed-fixture seed sweep is a quality smoke test,
+not a statistical proof. The test module and C/unit tests compile here, but
+the end-to-end runtime script remains unrun because this worktree's server
+build is blocked by the existing CnP-off compiler mismatch and CnP-on
+FindZLIB/LLVM imported-target collision. Cancellation is propagated through
+the iterator's
+existing error path; synchronous recovery-time reads are rejected while a
+sampling work budget is attached. The sampler remains a prototype: no
+ANALYZE/collection integration, confidence calibration, cross-engine shared
+snapshot, or workload-level latency/read-amplification evaluation exists.

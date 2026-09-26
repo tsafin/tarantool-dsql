@@ -13,8 +13,10 @@
 struct vy_iterator_work_budget {
 	uint64_t max_disk_sources;
 	uint64_t max_page_reads;
+	uint64_t max_key_steps;
 	uint64_t disk_sources_probed;
 	uint64_t page_reads_attempted;
+	uint64_t key_steps;
 	bool exhausted;
 };
 
@@ -29,6 +31,19 @@ vy_iterator_work_budget_try_source(struct vy_iterator_work_budget *budget)
 		return false;
 	}
 	budget->disk_sources_probed++;
+	return true;
+}
+
+static inline bool
+vy_iterator_work_budget_try_key(struct vy_iterator_work_budget *budget)
+{
+	if (budget == NULL)
+		return true;
+	if (budget->exhausted || budget->key_steps >= budget->max_key_steps) {
+		budget->exhausted = true;
+		return false;
+	}
+	budget->key_steps++;
 	return true;
 }
 

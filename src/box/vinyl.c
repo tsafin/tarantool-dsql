@@ -45,6 +45,7 @@
 #include "vy_scheduler.h"
 #include "vy_regulator.h"
 #include "vy_stat.h"
+#include "sql/sql_stats_sample.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -2424,6 +2425,134 @@ vinyl_space_execute_upsert(struct space *space, struct txn *txn,
 }
 
 static int
+vinyl_engine_sql_stats_sample(struct space *space,
+			      const struct sql_stats_sample_request *request,
+			      struct sql_stats_sample_sink *sink,
+			      struct sql_stats_sample_result *result)
+{
+	if (result == NULL) {
+		diag_set(ClientError, ER_ILLEGAL_PARAMS,
+			 "Invalid Vinyl SQL statistics sampling result");
+		return -1;
+	}
+	*result = (struct sql_stats_sample_result){};
+	if (space == NULL || request == NULL || sink == NULL ||
+	    sink->consume == NULL || request->max_rows == 0 ||
+	    request->max_bytes == 0 || request->max_tuples_examined == 0 ||
+	    request->max_buffer_bytes == 0 ||
+	    (request->field_count != 0 && request->field_ids == NULL)) {
+		diag_set(ClientError, ER_ILLEGAL_PARAMS,
+			 "Invalid Vinyl SQL statistics sampling request");
+		return -1;
+	}
+	struct index *primary = space_index(space, 0);
+	if (primary == NULL) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "Vinyl SQL statistics sampling",
+			 "a primary index is required");
+		return -1;
+	}
+	uint64_t metadata_bytes;
+	if (sql_stats_sample_reservoir_metadata_bytes(request->max_rows,
+						      &metadata_bytes) != 0 ||
+	    metadata_bytes > request->max_buffer_bytes) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "Vinyl SQL statistics sampling",
+			 "configured reservoir buffer budget is too small");
+		return -1;
+	}
+	struct vy_lsm *lsm = vy_lsm(primary);
+	struct vy_env *env = vy_env(space->engine);
+	struct sql_stats_sample_reservoir *reservoir =
+		sql_stats_sample_reservoir_new(request->max_rows,
+					       request->max_bytes,
+					       request->max_buffer_bytes,
+					       request->seed);
+	if (reservoir == NULL) {
+		diag_set(OutOfMemory, request->max_rows,
+			 "malloc", "SQL statistics sample reservoir");
+		return -1;
+	}
+	struct txn *txn = in_txn();
+	struct vy_tx tx_autocommit;
+	struct vy_tx *tx = txn != NULL ? txn->engine_tx : NULL;
+	if (tx != NULL && tx->state == VINYL_TX_ABORT) {
+		diag_set(ClientError, ER_TRANSACTION_CONFLICT);
+		sql_stats_sample_reservoir_delete(reservoir);
+		return -1;
+	}
+	if (tx == NULL) {
+		tx = &tx_autocommit;
+		vy_tx_create(env->xm, tx);
+	}
+	struct vy_iterator_work_budget work_budget = {
+		.max_disk_sources = request->max_disk_sources,
+		.max_page_reads = request->max_page_reads,
+		.max_key_steps = request->max_iterator_keys,
+	};
+	struct vy_read_iterator iterator;
+	vy_lsm_ref(lsm);
+	vy_read_iterator_open(&iterator, lsm, tx, ITER_ALL,
+			      lsm->env->empty_key,
+			      (const struct vy_read_view **)&tx->read_view);
+	vy_read_iterator_set_work_budget(&iterator, &work_budget);
+	int rc = -1;
+	for (;;) {
+		/* Require EOF strictly before the tuple cap. We cannot claim an
+		 * exhaustive population if stopping at the limit, even when the
+		 * last returned tuple may happen to have been the final row.
+		 */
+		if (sql_stats_sample_reservoir_population(reservoir) >=
+		    request->max_tuples_examined) {
+			diag_set(ClientError, ER_UNSUPPORTED,
+				 "Vinyl SQL statistics sampling",
+				 "configured tuple examination budget");
+			goto out;
+		}
+		struct vy_entry entry;
+		if (vy_read_iterator_next(&iterator, &entry) != 0)
+			goto out;
+		if (entry.stmt == NULL) {
+			rc = 0;
+			break;
+		}
+		int add_rc = sql_stats_sample_reservoir_add(reservoir,
+							     tuple_data(entry.stmt),
+							     tuple_bsize(entry.stmt));
+		if (add_rc == -2) {
+			diag_set(OutOfMemory, tuple_bsize(entry.stmt), "malloc",
+				 "SQL statistics sample tuple");
+			goto out;
+		}
+		if (add_rc != 0) {
+			diag_set(ClientError, ER_UNSUPPORTED,
+				 "Vinyl SQL statistics sampling",
+				 "configured reservoir byte budget");
+			goto out;
+		}
+	}
+	/* No sink callbacks occur before the iterator has returned successful
+	 * EOF. Any scan/budget/allocation error therefore leaves it untouched.
+	 */
+	if (sql_stats_sample_reservoir_deliver(reservoir, sink,
+					       request->field_ids,
+					       request->field_count,
+					       result) != 0) {
+		if (diag_last_error(diag_get()) == NULL)
+			diag_set(ClientError, ER_SQL_EXECUTE,
+				 "Vinyl SQL statistics sample sink failed");
+		rc = -1;
+	}
+out:
+	vy_read_iterator_close(&iterator);
+	vy_lsm_unref(lsm);
+	if (tx == &tx_autocommit)
+		vy_tx_destroy(tx);
+	sql_stats_sample_reservoir_delete(reservoir);
+	return rc;
+}
+
+static int
 vinyl_engine_begin(struct engine *engine, struct txn *txn)
 {
 	struct vy_env *env = vy_env(engine);
@@ -4655,7 +4784,7 @@ static const struct engine_vtab vinyl_engine_vtab = {
 	/* .memory_stat = */ vinyl_engine_memory_stat,
 	/* .reset_stat = */ vinyl_engine_reset_stat,
 	/* .check_space_def = */ vinyl_engine_check_space_def,
-	/* .sql_stats_sample = */ NULL,
+	/* .sql_stats_sample = */ vinyl_engine_sql_stats_sample,
 };
 
 static const struct space_vtab vinyl_space_vtab = {

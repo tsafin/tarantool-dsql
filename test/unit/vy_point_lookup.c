@@ -262,6 +262,7 @@ test_basic()
 	struct vy_iterator_work_budget source_budget = {
 		.max_disk_sources = 0,
 		.max_page_reads = UINT64_MAX,
+		.max_key_steps = UINT64_MAX,
 	};
 	vy_read_iterator_open(&read_itr, pk, NULL, ITER_GE, sample_key,
 			      &sample_prv);
@@ -345,6 +346,7 @@ test_basic()
 	struct vy_iterator_work_budget page_budget = {
 		.max_disk_sources = UINT64_MAX,
 		.max_page_reads = 0,
+		.max_key_steps = UINT64_MAX,
 	};
 	vy_read_iterator_open(&read_itr, pk, NULL, ITER_GE, sample_key,
 			      &sample_prv);
