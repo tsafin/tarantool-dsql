@@ -719,14 +719,16 @@ DML, triggers, subprograms, non-deterministic functions.
   SELECT metric coverage remains fail-closed. This closes the metrics-coverage
   hole, not baseline recapture or full M3.6 parity. A local full-corpus
   recapture was attempted from the declared base commit `04b63d19`, using the
-  head capture harness for both sides. The baseline server built successfully
-  with SQL CnP enabled, but capture stopped at
-  `gh_6572_nan_is_not_null_test.lua`: the baseline's pinned `test-run` gitlink
-  (`6e8cf169`) is no longer fetchable from its remote (`not our ref`), while
-  the available newer test-run is incompatible with that historical server.
-  The harness correctly failed closed; no snapshots were promoted and no
-  parity claim is made. Full recapture needs a recoverable matching test-run
-  revision or a newer reviewed baseline anchor. *parallel: yes*.
+  head capture harness for both sides. The exact pinned `test-run` gitlink
+  (`6e8cf169`) was recovered from the local submodule object store; the
+  baseline server and required SQL modules built, and the previously failing
+  `gh_6572_nan_is_not_null_test.lua` passed. Capture then reached
+  `sql-tap/aggnested.test.lua` and correctly failed closed because that old
+  server cannot return the MsgPack envelope for `EXPLAIN (planner =
+  'snapshot')`. No snapshots were promoted and no parity claim is made. The
+  original anchor predates the diagnostic API; completing recapture requires
+  a reviewed snapshot-capable baseline anchor or an explicitly versioned
+  legacy capture contract. *parallel: yes*.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.
