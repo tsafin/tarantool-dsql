@@ -299,10 +299,11 @@ them.
   modify; coordinate).
 - [x] **M1.3** `EXPLAIN (planner = 'summary')` grammar + executor returning
   structured rows per the planner_vm_migration.md schema. *parallel: yes*.
-- [x] **M1.4** `EXPLAIN (planner = 'snapshot')` returns a versioned MsgPack
-  capture envelope with statement `path_class`. Version 1 is explicitly
-  non-replayable until normalized planner inputs exist; replay execution stays
-  in M1.5. *parallel: yes*.
+- [ ] **M1.4** `EXPLAIN (planner = 'snapshot')` returns a versioned MsgPack
+  replay object. The v1 capture-envelope foundation and statement
+  `path_class` are implemented, but it explicitly reports `replayable=false`
+  until normalized planner inputs are captured; this subtask remains open.
+  Replay execution stays in M1.5. *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. *parallel: yes*.
 
