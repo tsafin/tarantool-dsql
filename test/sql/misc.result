@@ -474,6 +474,22 @@ assert(snapshot_object.planner.elapsed_us >= 0)
 ---
 - true
 ...
+assert(snapshot_object.planner.generated >= 0)
+---
+- true
+...
+assert(snapshot_object.planner.dominated >= 0)
+---
+- true
+...
+assert(snapshot_object.planner.truncated >= 0)
+---
+- true
+...
+assert(snapshot_object.planner.retained >= 0)
+---
+- true
+...
 simple_snapshot, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT id FROM planner_snapshot_t WHERE id = 1]])
 ---
 ...
@@ -493,6 +509,14 @@ assert(simple_snapshot_object.planner.candidate_count > 0)
 - true
 ...
 assert(simple_snapshot_object.planner.fallback_count == 0)
+---
+- true
+...
+assert(simple_snapshot_object.planner.generated > 0)
+---
+- true
+...
+assert(simple_snapshot_object.planner.retained > 0)
 ---
 - true
 ...

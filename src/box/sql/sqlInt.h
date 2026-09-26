@@ -335,8 +335,21 @@ sql_record_statement_compile(void);
 
 struct Vdbe;
 
+enum sql_planner_path_metric {
+	SQL_PLANNER_PATH_GENERATED,
+	SQL_PLANNER_PATH_DOMINATED,
+	SQL_PLANNER_PATH_TRUNCATED,
+	SQL_PLANNER_PATH_RETAINED,
+	SQL_PLANNER_PATH_METRIC_COUNT,
+};
+
 void
 sql_record_planner_candidate(struct Vdbe *vdbe);
+
+void
+sql_record_planner_path_metric(struct Vdbe *vdbe,
+			       enum sql_planner_path_metric metric,
+			       uint64_t count);
 
 void
 sql_record_planner_fallback(struct Vdbe *vdbe, uint32_t reason);

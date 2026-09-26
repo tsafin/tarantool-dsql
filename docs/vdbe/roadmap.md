@@ -618,11 +618,14 @@ M0-B corpus for the evaluation workloads.
   by a new candidate; retain incomparable candidates for future loop
   extensions. The global beam cap and E1.2 diversity eviction still apply.
   The 112-test SQL suite passes (6 disabled). *parallel: no*.
-- [ ] **E1.4** Legacy per-statement candidate, elapsed, and fallback counters
-  are included in snapshot v2 and copied to an optional, non-gating harness
-  manifest section. Global `box.stat.sql()` totals remain available. The E1
-  solver-specific generated/dominated/truncated/retained counters still need
-  wiring when its enumerator is implemented. *parallel: yes*.
+- [x] **E1.4** Snapshot v2 and the optional harness manifest now include
+  generated/dominated/truncated/retained bounded-path counts alongside legacy
+  candidate, elapsed, and fallback counts. Matching process totals are
+  available in `box.stat.sql()`. Metrics are diagnostic and non-gating.
+  `generated` counts feasible extensions; `dominated` counts path states
+  pruned; `truncated` counts candidate/victim paths lost at the beam boundary;
+  `retained` sums the beam contents after each join-depth round. *parallel:
+  yes* (instrumentation and harness schema are separable from E1.1-E1.3).
 - [ ] **E1.5** A/B comparison on the corpus. *parallel: yes*.
 
 ---

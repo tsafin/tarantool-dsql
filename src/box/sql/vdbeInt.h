@@ -322,6 +322,8 @@ struct Vdbe {
 	uint64_t planner_candidate_count;
 	uint64_t planner_elapsed_us;
 	uint64_t planner_fallback_count;
+	/* generated, dominated, truncated, and retained candidate paths. */
+	uint64_t planner_path_metrics[4];
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
 	char *explain_text;	/* Cached row-oriented EXPLAIN text */

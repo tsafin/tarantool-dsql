@@ -347,11 +347,12 @@ also records sorted query-index arrays: `executed_query_indices`,
 not an entire suite or an exclusion. Engine-specific inclusion/exclusion is
 defined by `corpus.json`.
 
-The manifest may also include `planner_metrics_version: 1` and a
+The manifest may also include `planner_metrics_version: 2` and a
 `planner_metrics` array copied from `EXPLAIN (planner = 'snapshot')`. Each
 entry identifies the query and its path/reason plus per-statement candidate,
-elapsed-time, and fallback counts. These measurements are diagnostic only;
-they are excluded from baseline equality and corpus acceptance gates.
+elapsed-time, and fallback counts, as well as generated, dominated,
+truncated, and retained bounded-path counts. These measurements are diagnostic
+only; they are excluded from baseline equality and corpus acceptance gates.
 
 The per-query native proof distinguishes execution from structural native
 eligibility. An executed query has a positive interpreter-step or selected

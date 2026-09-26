@@ -75,6 +75,13 @@ static int64_t sql_planner_candidates_total;
 static int64_t sql_planner_fallback_total;
 static int64_t sql_planner_fallback_by_reason[SQL_PLAN_FALLBACK_INVALID_CANDIDATE + 1];
 static int64_t sql_planner_elapsed_us;
+static int64_t sql_planner_path_metrics[SQL_PLANNER_PATH_METRIC_COUNT];
+static const char *sql_planner_path_metric_names[] = {
+	[SQL_PLANNER_PATH_GENERATED] = "sql_planner_paths_generated_total",
+	[SQL_PLANNER_PATH_DOMINATED] = "sql_planner_paths_dominated_total",
+	[SQL_PLANNER_PATH_TRUNCATED] = "sql_planner_paths_truncated_total",
+	[SQL_PLANNER_PATH_RETAINED] = "sql_planner_paths_retained_total",
+};
 
 void
 sql_record_statement_compile(void)
@@ -88,6 +95,17 @@ sql_record_planner_candidate(Vdbe *vdbe)
 	sql_planner_candidates_total++;
 	if (vdbe != NULL)
 		vdbe->planner_candidate_count++;
+}
+
+void
+sql_record_planner_path_metric(Vdbe *vdbe,
+			       enum sql_planner_path_metric metric,
+			       uint64_t count)
+{
+	assert(metric >= 0 && metric < SQL_PLANNER_PATH_METRIC_COUNT);
+	sql_planner_path_metrics[metric] += count;
+	if (vdbe != NULL)
+		vdbe->planner_path_metrics[metric] += count;
 }
 
 void
@@ -1373,6 +1391,9 @@ sql_debug_info(struct info_handler *h)
 		info_append_int(h, key, sql_planner_fallback_by_reason[reason]);
 	}
 	info_append_int(h, "sql_planner_elapsed_us", sql_planner_elapsed_us);
+	for (int metric = 0; metric < SQL_PLANNER_PATH_METRIC_COUNT; metric++)
+		info_append_int(h, sql_planner_path_metric_names[metric],
+				sql_planner_path_metrics[metric]);
 	info_append_int(h, "sql_planner_path_solver_width_one",
 			sql_path_solver_width(1));
 	info_append_int(h, "sql_planner_path_solver_width_two",

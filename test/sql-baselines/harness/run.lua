@@ -559,6 +559,10 @@ for query_index, q in ipairs(captured_queries) do
             candidate_count = q.planner_metrics.candidate_count,
             elapsed_us = q.planner_metrics.elapsed_us,
             fallback_count = q.planner_metrics.fallback_count,
+            generated = q.planner_metrics.generated,
+            dominated = q.planner_metrics.dominated,
+            truncated = q.planner_metrics.truncated,
+            retained = q.planner_metrics.retained,
         })
     end
 end
@@ -595,7 +599,7 @@ local manifest = {
     written_snapshots = written,
     skipped_queries = skipped,
     snapshot_errors = errors_seen,
-    planner_metrics_version = 1,
+    planner_metrics_version = 2,
     planner_metrics = planner_measurements,
     accepted = rc == 0,
 }

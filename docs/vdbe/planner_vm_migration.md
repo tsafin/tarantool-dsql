@@ -415,12 +415,16 @@ look up rows by `(section, key)`, not by ordinal.
 | `path_class` | string or nil | Path class recorded on the prepared statement. |
 | `fallback_reason` | string or nil | Stable structural reject reason when the legacy planner is the fallback route. |
 | `replayable` | boolean | `false` until the object includes normalized planner inputs. |
-| `planner` | map | Per-statement `candidate_count`, `elapsed_us`, and `fallback_count`. |
+| `planner` | map | Per-statement `candidate_count`, `elapsed_us`, `fallback_count`, and bounded-path `generated`, `dominated`, `truncated`, and `retained` counters. |
 
 This is a versioned diagnostic envelope, not yet a standalone replay input.
 Per-statement planner measurements are also copied into the harness run
-manifest (`planner_metrics_version: 1`, `planner_metrics`) for analysis; they
-are not part of the M0 result/parity gate. The legacy planner does not expose
+manifest (`planner_metrics_version: 2`, `planner_metrics`) for analysis; they
+are not part of the M0 result/parity gate. The path counters cover candidate
+extensions generated; path states pruned by dominance; candidate paths or
+incumbents discarded by the global beam; and the sum of retained states after
+each join-depth round. Thus generated need not equal the other counters: a
+path may be retained at one depth and later dominated or truncated. The legacy planner does not expose
 normalized predicates, relation/access-path inputs, or statistics needed to
 reconstruct planning without live SQL state. The explicit `replayable` marker
 prevents consumers from treating the current diagnostic capture as executable

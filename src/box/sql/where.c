@@ -3126,6 +3126,9 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 				} else {
 					rCost = rUnsorted;
 				}
+				sql_record_planner_path_metric(
+					pWInfo->pParse->pVdbe,
+					SQL_PLANNER_PATH_GENERATED, 1);
 
 				/* A path can dominate another only inside the same relation
 				 * subset/order/reverse-scan partition. Keep incomparable paths
@@ -3138,8 +3141,12 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 								      isOrdered, revMask))
 						continue;
 					if (where_path_dominates(pTo, rCost, rUnsorted,
-								 nOut))
+								 nOut)) {
+						sql_record_planner_path_metric(
+							pWInfo->pParse->pVdbe,
+							SQL_PLANNER_PATH_DOMINATED, 1);
 						goto candidate_dominated;
+					}
 					if (where_candidate_dominates(rCost, rUnsorted,
 							      nOut, pTo))
 						removes_dominated = true;
@@ -3152,6 +3159,9 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 						    where_candidate_dominates(rCost,
 								     rUnsorted, nOut,
 								     pTo)) {
+							sql_record_planner_path_metric(
+								pWInfo->pParse->pVdbe,
+								SQL_PLANNER_PATH_DOMINATED, 1);
 							int last = --nTo;
 							if (jj != last)
 								where_path_copy(pTo,
@@ -3198,8 +3208,15 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 					}
 					pTo = &aTo[replace];
 					if (pTo->rCost < rCost ||
-					    (pTo->rCost == rCost && pTo->nRow <= nOut))
+					    (pTo->rCost == rCost && pTo->nRow <= nOut)) {
+						sql_record_planner_path_metric(
+							pWInfo->pParse->pVdbe,
+							SQL_PLANNER_PATH_TRUNCATED, 1);
 						continue;
+					}
+					sql_record_planner_path_metric(
+						pWInfo->pParse->pVdbe,
+						SQL_PLANNER_PATH_TRUNCATED, 1);
 					jj = replace;
 					pTo = &aTo[jj];
 #ifdef SQL_DEBUG	/* 0x4 */
@@ -3238,6 +3255,8 @@ candidate_ready:
 				pTo->aLoop[iLoop] = pWLoop;
 			}
 		}
+		sql_record_planner_path_metric(pWInfo->pParse->pVdbe,
+					      SQL_PLANNER_PATH_RETAINED, nTo);
 
 #ifdef SQL_DEBUG	/* >=2 */
 		if (sqlWhereTrace & 0x02) {

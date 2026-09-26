@@ -1366,13 +1366,25 @@ sqlVdbeList(Vdbe * p)
 			mp_sizeof_str(strlen("path_class")) + path_class_size +
 			mp_sizeof_str(strlen("fallback_reason")) + fallback_reason_size +
 			mp_sizeof_str(strlen("replayable")) + mp_sizeof_bool(false) +
-			mp_sizeof_str(strlen("planner")) + mp_sizeof_map(3) +
+			mp_sizeof_str(strlen("planner")) + mp_sizeof_map(7) +
 			mp_sizeof_str(strlen("candidate_count")) +
 			mp_sizeof_uint(p->planner_candidate_count) +
 			mp_sizeof_str(strlen("elapsed_us")) +
 			mp_sizeof_uint(p->planner_elapsed_us) +
 			mp_sizeof_str(strlen("fallback_count")) +
-			mp_sizeof_uint(p->planner_fallback_count);
+			mp_sizeof_uint(p->planner_fallback_count) +
+			mp_sizeof_str(strlen("generated")) +
+			mp_sizeof_uint(p->planner_path_metrics[
+				SQL_PLANNER_PATH_GENERATED]) +
+			mp_sizeof_str(strlen("dominated")) +
+			mp_sizeof_uint(p->planner_path_metrics[
+				SQL_PLANNER_PATH_DOMINATED]) +
+			mp_sizeof_str(strlen("truncated")) +
+			mp_sizeof_uint(p->planner_path_metrics[
+				SQL_PLANNER_PATH_TRUNCATED]) +
+			mp_sizeof_str(strlen("retained")) +
+			mp_sizeof_uint(p->planner_path_metrics[
+				SQL_PLANNER_PATH_RETAINED]);
 		char *buf = sql_xmalloc(size);
 		char *pos = mp_encode_map(buf, 6);
 		pos = mp_encode_str(pos, "format", strlen("format"));
@@ -1397,7 +1409,7 @@ sqlVdbeList(Vdbe * p)
 		pos = mp_encode_str(pos, "replayable", strlen("replayable"));
 		pos = mp_encode_bool(pos, false);
 		pos = mp_encode_str(pos, "planner", strlen("planner"));
-		pos = mp_encode_map(pos, 3);
+		pos = mp_encode_map(pos, 7);
 		pos = mp_encode_str(pos, "candidate_count",
 				    strlen("candidate_count"));
 		pos = mp_encode_uint(pos, p->planner_candidate_count);
@@ -1406,6 +1418,18 @@ sqlVdbeList(Vdbe * p)
 		pos = mp_encode_str(pos, "fallback_count",
 				    strlen("fallback_count"));
 		pos = mp_encode_uint(pos, p->planner_fallback_count);
+		pos = mp_encode_str(pos, "generated", strlen("generated"));
+		pos = mp_encode_uint(pos, p->planner_path_metrics[
+					     SQL_PLANNER_PATH_GENERATED]);
+		pos = mp_encode_str(pos, "dominated", strlen("dominated"));
+		pos = mp_encode_uint(pos, p->planner_path_metrics[
+					     SQL_PLANNER_PATH_DOMINATED]);
+		pos = mp_encode_str(pos, "truncated", strlen("truncated"));
+		pos = mp_encode_uint(pos, p->planner_path_metrics[
+					     SQL_PLANNER_PATH_TRUNCATED]);
+		pos = mp_encode_str(pos, "retained", strlen("retained"));
+		pos = mp_encode_uint(pos, p->planner_path_metrics[
+					     SQL_PLANNER_PATH_RETAINED]);
 		mem_set_bin_allocated(&pMem[0], buf, pos - buf);
 		p->pc++;
 		p->nResColumn = 1;

@@ -83,6 +83,10 @@ g.test_sql_stats_shape_and_growth = function()
         t.assert_type(before.sql_jit_resume_skip_count, 'number')
         t.assert_type(before.sql_jit_guard_skip_count, 'number')
         t.assert_type(before.sql_opcode_profile_enabled, 'number')
+        t.assert_type(before.sql_planner_paths_generated_total, 'number')
+        t.assert_type(before.sql_planner_paths_dominated_total, 'number')
+        t.assert_type(before.sql_planner_paths_truncated_total, 'number')
+        t.assert_type(before.sql_planner_paths_retained_total, 'number')
         if before.sql_opcode_profile_enabled ~= 0 then
             t.assert_type(before.interpreter_opcode_profile, 'table')
             t.assert_type(before.interpreter_opcode_profile.count, 'table')
@@ -100,6 +104,10 @@ g.test_sql_stats_shape_and_growth = function()
                     before.sql_interpreter_step_count)
         t.assert_ge(after.sql_jit_step_count, before.sql_jit_step_count)
         t.assert_ge(after.sql_jit_compile_count, before.sql_jit_compile_count)
+        t.assert_gt(after.sql_planner_paths_generated_total,
+                    before.sql_planner_paths_generated_total)
+        t.assert_gt(after.sql_planner_paths_retained_total,
+                    before.sql_planner_paths_retained_total)
         if before.sql_opcode_profile_enabled ~= 0 then
             t.assert_gt(sum_values(after.interpreter_opcode_profile.count),
                         sum_values(before.interpreter_opcode_profile.count))
