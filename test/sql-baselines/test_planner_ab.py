@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""Unit checks for offline planner A/B bounds and metric comparison."""
+import argparse
+import unittest
+import planner_ab as ab
+
+
+class PlannerABTest(unittest.TestCase):
+    def test_width_bounds_and_explicit_environment(self):
+        self.assertEqual(ab.widths("1,8,16"), (1, 8, 16))
+        for value in ("1,2", "0,5,10", "1,5,65", "one,5,10"):
+            with self.assertRaises(argparse.ArgumentTypeError):
+                ab.widths(value)
+        env = ab.environment((1, 5, 10))
+        self.assertEqual([env[key] for key in ab.WIDTH_KEYS], ["1", "5", "10"])
+
+    def test_reviewed_query_budget(self):
+        policy = {"included": [{"test": "sql-tap/join.test.lua", "engines": ["memtx"],
+                                "evidence": {"memtx": {"captured_queries": 10}}}]}
+        self.assertEqual(ab.selected(policy, ["join.test.lua"], "memtx", 10), 10)
+        for engine, budget in (("vinyl", 10), ("memtx", 9)):
+            with self.assertRaises(ValueError):
+                ab.selected(policy, ["join.test.lua"], engine, budget)
+
+    def test_elapsed_does_not_imply_structural_width_effect(self):
+        row = dict.fromkeys(ab.METRICS, 1)
+        row["path_class"] = "fallback"
+        other = dict(row, elapsed_us=100)
+        report = ab.metric_delta({"q1": row}, {"q1": other})
+        self.assertFalse(report["width_effect_observed"])
+        other["truncated"] += 2
+        self.assertTrue(ab.metric_delta({"q1": row}, {"q1": other})["width_effect_observed"])
+        with self.assertRaises(ValueError):
+            ab.metric_delta({"q1": row}, {"q2": other})
+
+
+if __name__ == "__main__":
+    unittest.main()
