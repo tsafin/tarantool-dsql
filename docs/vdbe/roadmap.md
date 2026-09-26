@@ -376,8 +376,10 @@ remains DRAFT pending human review of IDs and formats.
 
 - [ ] **S1.1** Define new system spaces (`_sql_stats_relation`,
   `_sql_stats_index`) with versioned MsgPack payload format. Write a
-  short `docs/vdbe/sql_stats_schema.md`. *parallel: no* (system-space
-  allocation is a one-way door — needs human sign-off).
+  short `docs/vdbe/sql_stats_schema.md`. The spec remains **DRAFT** by explicit
+  direction; no system-space IDs or payload-format choices are approved.
+  *parallel: no* (system-space allocation is a one-way door — needs human
+  sign-off).
 - [ ] **S1.2** Re-enable `ANALYZE` grammar; remove the
   `unsupported ANALYZE` rejection path. *parallel: yes*.
 - [ ] **S1.3** Collection job — sample tuples, build summaries, persist
