@@ -14,5 +14,6 @@ assert(summary.rows[2][2] == 'fallback_reason')
 assert(summary.rows[2][3] == 'UNSUPPORTED_RELATION_COUNT')
 after = box.stat.sql()
 assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total + 1)
-assert(after.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total ==
-       before.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total + 1)
+reason_before = before.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total
+reason_after = after.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total
+assert(reason_after == reason_before + 1)
