@@ -436,11 +436,12 @@ persistence and the `where.c` selectivity adapter wait for that interface.
 equivalent (in result and diagnostic) to current `where.c` for a controlled
 single-table query class.
 
-**State:** `PROTOTYPE` (M3.1 descriptor and structural M3.2 logical-plan
-builder). Depends on the M1
-path-class/replay contract and M0-A seed parity gate, not on S2. Use fixed
-or current estimates while the statistics track is under construction;
-integrate the real snapshot later.
+**State:** `PROTOTYPE` (M3.1 descriptor, structural M3.2 logical-plan
+builder, M3.3 supplied-candidate selector, and M3.4 lowering callback
+contract). No executable VDBE generation, production planner routing, parity,
+or snapshot integration exists yet. Depends on the M1 path-class/replay
+contract and M0-A seed parity gate, not on S2. Use fixed or current estimates
+while statistics are under construction; integrate the real snapshot later.
 
 **Scope (exact):**
 
