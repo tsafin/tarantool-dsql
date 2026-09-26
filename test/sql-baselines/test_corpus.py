@@ -55,6 +55,42 @@ class CorpusPolicyTest(unittest.TestCase):
         self.assertEqual(rows[0]["engines"], ["memtx"])
         self.assertEqual(rows[0]["pending_engines"], [])
 
+    def test_post_baseline_exclusion_is_valid_when_test_is_absent(self):
+        test = "sql/planner_diagnostic.test.lua"
+        policy = self.policy(excluded=[{
+            "test": test, "engines": ["memtx", "vinyl"],
+            "reason": "diagnostic-only planner assertion",
+            "category": "planner_diagnostic",
+            "evidence": {"normal_runner": "passed"},
+            "introduced_after_baseline": True,
+        }])
+        policy["included"][0]["engines"].append("vinyl")
+        policy["included"][0]["evidence"]["vinyl"] = {"matrix": "passed"}
+        with self.assertRaisesRegex(ValueError, "invalid exclusion policy"):
+            corpus.inventory(self.repo, policy)
+        rows = corpus.inventory(self.repo, policy,
+                                allow_post_baseline_absent=True)
+        self.assertEqual(len(rows), 1)
+        (self.repo / "test/sql" / "planner_diagnostic.test.lua").touch()
+        rows = corpus.inventory(self.repo, policy)
+        added = next(row for row in rows if row["test"] == test)
+        self.assertEqual(added["status"], "excluded")
+        self.assertEqual(added["excluded_engines"], {
+            "memtx": "diagnostic-only planner assertion",
+            "vinyl": "diagnostic-only planner assertion",
+        })
+
+    def test_absent_exclusion_requires_post_baseline_marker(self):
+        policy = self.policy(excluded=[{
+            "test": "sql/planner_diagnostic.test.lua",
+            "engines": ["memtx", "vinyl"],
+            "reason": "diagnostic-only planner assertion",
+            "category": "planner_diagnostic",
+            "evidence": {"normal_runner": "passed"},
+        }])
+        with self.assertRaisesRegex(ValueError, "invalid exclusion policy"):
+            corpus.inventory(self.repo, policy)
+
     def test_full_policy_requires_both_engines_represented(self):
         policy = self.policy(excluded=[{
             "test": "sql-tap/example.test.lua", "engines": ["vinyl"],

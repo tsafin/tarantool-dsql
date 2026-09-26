@@ -25,7 +25,7 @@ HERE = Path(__file__).resolve().parent
 POLICY = json.loads((HERE / "corpus.json").read_text())
 
 
-def inventory(repo, policy=POLICY):
+def inventory(repo, policy=POLICY, allow_post_baseline_absent=False):
     if policy.get("scope") not in ("seed-smoke", "full-corpus") or \
        type(policy.get("policy_version")) is not int or \
        policy["policy_version"] < 1:
@@ -64,7 +64,13 @@ def inventory(repo, policy=POLICY):
     excluded = {}
     for entry in policy.get("excluded", []):
         test, engines = entry["test"], entry["engines"]
-        if test not in discovered or not engines or \
+        introduced_after_baseline = entry.get("introduced_after_baseline", False)
+        if type(introduced_after_baseline) is not bool or \
+           (introduced_after_baseline and policy["scope"] != "full-corpus"):
+            raise ValueError(f"invalid post-baseline exclusion marker for {test}")
+        if (test not in discovered and
+            (not introduced_after_baseline or not allow_post_baseline_absent)) or \
+           not engines or \
            not isinstance(entry.get("reason"), str) or \
            not entry["reason"].strip() or \
            len(engines) != len(set(engines)) or any(e not in ENGINES for e in engines):
@@ -218,6 +224,8 @@ def main():
     cap.add_argument("--out", type=Path, required=True)
     cap.add_argument("--engine", choices=("memtx", "vinyl"), required=True)
     cap.add_argument("--mode", choices=("generated", "cnp", "llvm"), required=True)
+    cap.add_argument("--allow-post-baseline-absent", action="store_true",
+                     help="allow reviewed post-baseline exclusions absent here")
     cmp = sub.add_parser("compare-coverage")
     cmp.add_argument("--base", type=Path, required=True)
     cmp.add_argument("--candidate", type=Path, required=True)
@@ -226,7 +234,8 @@ def main():
     cmp.add_argument("--base-mode", choices=("generated", "cnp", "llvm"), default="generated")
     cmp.add_argument("--candidate-mode", choices=("generated", "cnp", "llvm"), default="generated")
     args = parser.parse_args()
-    rows = inventory(args.repo.resolve())
+    rows = inventory(args.repo.resolve(), allow_post_baseline_absent=getattr(
+        args, "allow_post_baseline_absent", False))
     if args.command == "inventory":
         report = {"policy_version": POLICY["policy_version"],
                   "scope": POLICY["scope"], "tests": rows,

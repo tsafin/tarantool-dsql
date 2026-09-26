@@ -103,13 +103,30 @@ jobs:
               exit 1
             fi
             git show "$BASE_SHA:test/sql-baselines/corpus.json" > /tmp/sql-baseline-policy.json
-            python3 - /tmp/sql-baseline-policy.json test/sql-baselines/corpus.json <<'PY'
+            python3 - "$BASE_SHA" /tmp/sql-baseline-policy.json \
+              test/sql-baselines/corpus.json <<'PY'
           import json
+          import subprocess
           import sys
 
-          with open(sys.argv[1]) as base_file, open(sys.argv[2]) as head_file:
+          baseline_sha = sys.argv[1]
+          with open(sys.argv[2]) as base_file, open(sys.argv[3]) as head_file:
               base = json.load(base_file)
               head = json.load(head_file)
+          post_baseline = [entry for entry in head.get('excluded', [])
+                           if entry.get('introduced_after_baseline') is True]
+          for entry in post_baseline:
+              path = 'test/' + entry['test']
+              result = subprocess.run(
+                  ['git', 'cat-file', '-e', f'{baseline_sha}:{path}'],
+                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+              if result.returncode == 0:
+                  raise SystemExit(f'post-baseline exclusion exists at anchor: {path}')
+          # The only allowed corpus decision delta is a reviewed exclusion for
+          # a test absent from this immutable baseline; candidate inventory
+          # still requires the test to exist in the PR tree.
+          head['excluded'] = [entry for entry in head.get('excluded', [])
+                              if entry.get('introduced_after_baseline') is not True]
           # The promotion commit changes only this self-referential pointer.
           base.pop('baseline_commit', None)
           head.pop('baseline_commit', None)
@@ -184,7 +201,8 @@ jobs:
           python3 tarantool-head/test/sql-baselines/corpus.py capture \
             --repo=tarantool-base \
             --binary=tarantool-base/build-base/src/tarantool \
-            --out=/tmp/snapshots-base --engine=${{ matrix.engine }} --mode=generated
+            --out=/tmp/snapshots-base --engine=${{ matrix.engine }} \
+            --mode=generated --allow-post-baseline-absent
 
       - name: Capture reviewed ${{ matrix.engine }} corpus against PR head
         run: |

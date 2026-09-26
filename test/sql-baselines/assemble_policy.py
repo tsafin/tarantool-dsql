@@ -39,6 +39,10 @@ def assemble(repo, review_paths, baseline_commit, policy_version=2):
                    not isinstance(entry.get("reason"), str) or \
                    not entry["reason"].strip():
                     raise ValueError(f"invalid review: {test}/{engine}")
+                introduced = entry.get("introduced_after_baseline", False)
+                if type(introduced) is not bool or \
+                   (introduced and entry["decision"] != "exclude"):
+                    raise ValueError(f"invalid post-baseline review: {test}/{engine}")
             decisions[test] = engines
     included, excluded = [], []
     for test, engines in sorted(decisions.items()):
@@ -57,10 +61,13 @@ def assemble(repo, review_paths, baseline_commit, policy_version=2):
         for engine in corpus.ENGINES:
             entry = engines[engine]
             if entry["decision"] == "exclude":
-                excluded.append({"test": test, "engines": [engine],
-                                 "category": entry["category"],
-                                 "reason": entry["reason"],
-                                 "evidence": entry.get("evidence", {})})
+                exclusion = {"test": test, "engines": [engine],
+                             "category": entry["category"],
+                             "reason": entry["reason"],
+                             "evidence": entry.get("evidence", {})}
+                if entry.get("introduced_after_baseline", False):
+                    exclusion["introduced_after_baseline"] = True
+                excluded.append(exclusion)
     policy = {"policy_version": policy_version, "scope": "full-corpus",
               "baseline_commit": baseline_commit,
               "capture_limits": corpus.POLICY["capture_limits"],
