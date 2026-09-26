@@ -395,9 +395,11 @@ remains DRAFT pending human review of IDs and formats.
   seeded memtx sampler exist in `src/box/sql/sql_stats_sample.{h,c}`. It uses
   primary-index random access with replacement in the caller's active
   transaction and reports delivered rows/bytes; focused unit tests validate
-  the bounded loop, and the production target compiles. It is not wired to
-  ANALYZE/collection, has no runtime engine-dispatch integration test, and
-  does not create an independent read view; these gates remain open.
+  the bounded loop, and the production target compiles. A runtime engine-
+  dispatch test now covers memtx transaction visibility, deterministic draws,
+  row/byte limits, sink accounting, and unsupported/invalid inputs. It is not
+  wired to ANALYZE/collection and does not create an independent read view;
+  these gates remain open.
   *parallel: yes*.
 - [ ] **S1.6** Vinyl sampling interface — no safe sampler callback can use the
   current public/index APIs: Vinyl `.random` is unsupported, and one normal
