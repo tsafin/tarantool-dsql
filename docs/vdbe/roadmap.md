@@ -341,13 +341,19 @@ them.
   fallback reason, and per-statement planner measurements, but explicitly
   reports `replayable=false` until normalized planner inputs (predicates,
   relation/access-path data, and statistics) are captured; this subtask
-  remains open. Replay execution stays in M1.5. *parallel: yes*.
+  remains open. The migration spec now defines the minimum canonical,
+  self-contained input and validation contract for a future replay envelope;
+  it intentionally does not choose persistence IDs or formats. Replay
+  execution stays in M1.5. *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current M1.4
   envelope still has no normalized predicates, relation/access-path inputs,
   or statistics and explicitly sets `replayable=false`; implementing a tool
   against that payload would only relabel live-state planning, not replay.
-  Resume after an envelope version supplies those inputs. *parallel: yes*.
+  The planner currently has no entry point that consumes normalized IR,
+  logical access-path metadata, and captured statistics without the SQL
+  compiler/catalog/storage dependencies; the replay contract requires that
+  API and a test replaying after source state is unavailable. *parallel: yes*.
 
 ---
 

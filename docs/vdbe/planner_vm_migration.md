@@ -431,6 +431,44 @@ prevents consumers from treating the current diagnostic capture as executable
 replay data. M1.5 owns replay tooling; a later envelope version can add the
 normalized inputs when they are produced.
 
+#### Replay-input acceptance contract (future envelope)
+
+Do not set `replayable=true` on version 2 or add a replay command that reparses
+the original SQL against the current catalog. A replay-capable envelope must
+carry a self-contained, canonical `replay_inputs` object (in a new envelope
+version) sufficient to call a planner entry point without SQL text, a live
+catalog, storage-engine reads, or session-local statistics. At minimum it
+must encode:
+
+- a normalized relational expression, including relation instances and
+  bindings, predicates/operators/constants, projections, grouping, ordering,
+  limits, and all planner-relevant semantic flags;
+- the logical relation and index definitions exposed to enumeration (column
+  types/collations, key parts, uniqueness, ordering, and capabilities), using
+  stable logical identities rather than persistent system-space IDs;
+- the exact immutable cardinality/selectivity/statistics values consumed by
+  the planner, including their semantics and confidence, or an explicit
+  `statistics: absent` value when the planner uses defaults;
+- the planner configuration and algorithm/input-format versions required to
+  interpret costs and reproduce deterministic tie-breaking.
+
+The envelope must be canonical: equivalent normalized inputs serialize
+identically, map/collection ordering is specified, and unsupported values or
+features fail capture rather than being silently omitted. This contract does
+not select persistent system-space IDs or a storage format for collected
+statistics.
+
+A replay implementation must dispatch those embedded inputs directly to a
+planner API that has no SQL compiler, catalog, or storage dependency. A test
+must capture a fixture, make the source schema/data/statistics unavailable or
+change them, replay solely from the captured object, and verify the normalized
+selected-plan fingerprint and fallback reason. It must also show that changing
+an embedded planner input changes the replay result (or a documented reject
+outcome). Replanning the original SQL against live state, or comparing only
+the captured diagnostic fields to themselves, is not replay. Until this
+entry point and test exist, M1.4/M1.5 remain open and version 2 must continue to
+report `replayable=false`.
+
 ## Testing Strategy
 
 The roadmap's M0 milestone establishes the **parity corpus** that all
