@@ -364,7 +364,14 @@ them.
   extraction/validation API that rejects unsupported expressions and records
   logical relation/index metadata, statistics semantics, and planner config;
   only then can a new envelope version be evaluated. Replay execution stays
-  in M1.5.
+  in M1.5. A narrow M1.4 prototype now defines an owned single-relation input
+  value: logical relation/index labels, canonical predicate and access-path
+  strings, explicit statistics presence/value, and versioned planner config.
+  It copies caller bytes and has no Expr/catalog/storage-ID fields. This is a
+  detached-value boundary test, not a canonical serializer or planner
+  extraction API; relation/index definitions and stats semantics remain
+  underspecified, unsupported SQL is not yet rejected at extraction, and no
+  planner consumes it. M1.4 remains open and v2 remains `replayable=false`.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current M1.4

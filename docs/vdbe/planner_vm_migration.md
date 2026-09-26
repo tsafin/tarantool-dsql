@@ -475,6 +475,15 @@ the captured diagnostic fields to themselves, is not replay. Until this
 entry point and test exist, M1.4/M1.5 remain open and version 2 must continue to
 report `replayable=false`.
 
+The `sql_replay_input` unit prototype is intentionally narrower than this
+acceptance contract: it owns a single relation's logical labels, a canonical
+predicate string, optional logical candidate definition, explicit stats
+presence/value, and planner version/config scalars. It copies supplied bytes
+and stores no live `Expr`, catalog handle, cursor, or storage ID. It does not
+yet normalize/validate those strings, define complete relation/index metadata
+or statistics semantics, serialize canonically, extract from SQL, or feed a
+planner. It is not a `replay_inputs` payload and does not change version 2.
+
 ## Testing Strategy
 
 The roadmap's M0 milestone establishes the **parity corpus** that all
