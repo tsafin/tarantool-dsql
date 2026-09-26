@@ -163,9 +163,21 @@ The values in `time_us` are accumulated microseconds measured with
 `box.stat.sql().sql_statement_compiles_total` counts successful SQL statement
 compilations that produced a VDBE program. It advances at prepare time, not
 execution time. It includes statements that do not invoke query planning, so
-it is a compilation counter rather than a planner-decision counter. Fallback
-reason counts and planner-only elapsed time require instrumentation at the
-planner boundary in `where.c`.
+it is a compilation counter rather than a planner-decision counter.
+
+The current planner-boundary aggregates are:
+
+- `sql_planner_candidates_total`: cumulative `whereLoopInsert()` candidate
+  submissions, not a count of final plans;
+- `sql_planner_elapsed_us`: cumulative microseconds for WHERE-loop candidate
+  construction and path solving, excluding subsequent VDBE code generation;
+- `sql_planner_fallback_total`: aggregate fallback count. The current planner
+  has no alternate-planner fallback path, so this remains zero. Reason-labeled
+  fallback accounting is still pending the new planner integration.
+
+These are process-wide cumulative values, consistent with the existing SQL
+statistics. They do not attribute work to an individual statement; the
+statement-level path class is available through `EXPLAIN (planner = 'summary')`.
 
 `box.stat.sql()` also exposes the last **native compile failure** recorded by
 each backend:
