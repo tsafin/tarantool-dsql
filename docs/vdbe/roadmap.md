@@ -799,7 +799,7 @@ M0-B corpus for the evaluation workloads.
   pruned; `truncated` counts candidate/victim paths lost at the beam boundary;
   `retained` sums the beam contents after each join-depth round. *parallel:
   yes* (instrumentation and harness schema are separable from E1.1-E1.3).
-- [ ] **E1.5 prototype** Reproducible offline A/B capture exists in
+- [x] **E1.5 prototype** Reproducible offline A/B capture exists in
   `test/sql-baselines/planner_ab.py` and `PLANNER_AB.md`. On the reviewed
   join/WHERE subset (join, join2, join3, join5, where3), default 1/5/10 vs
   candidate 2/8/16 completed 687 statements per engine/run with zero snapshot
@@ -814,8 +814,7 @@ M0-B corpus for the evaluation workloads.
   the accepted snapshot-capable anchor `d8fc1e339b` passes coverage equality
   and exact snapshot comparison on both engines. This is not an A/B comparison
   across width settings and does not measure plan quality.
-  Full-corpus width comparison and quality evaluation remain open. An
-  expanded 962-query
+  An expanded 962-query
   exploratory subset is repeat-stable but has one width-sensitive
   `EXPLAIN QUERY PLAN` output difference (`whereK/q13`) on both engines; it is
   not counted as a full snapshot parity pass, though both configurations pass
@@ -835,8 +834,9 @@ M0-B corpus for the evaluation workloads.
   over successful SELECT/WITH snapshots, not end-to-end query latency or a
   plan-quality measurement. The comparison covers the reviewed SQL-TAP
   planner corpus, not the SQL and SQL-luatest M0 suites. Exact diffs and
-  reproduction instructions are in `test/sql-baselines/PLANNER_AB.md`; strict
-  cross-width parity and full-width plan-quality evaluation remain open.
+  reproduction instructions are in `test/sql-baselines/PLANNER_AB.md`. The
+  capture/evaluation prototype is complete; strict cross-width parity and
+  full-width plan-quality evaluation remain open.
   *parallel: yes*.
 
 ---
