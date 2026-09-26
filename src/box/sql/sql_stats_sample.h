@@ -37,7 +37,9 @@ struct sql_stats_sample_sink {
 struct sql_stats_sample_result {
 	uint64_t rows;
 	uint64_t bytes;
-	/* Set when visible_population is known (Vinyl exhaustive scan). */
+	/* Set when the engine can report visible_population (memtx transaction-
+	 * visible index count or Vinyl exhaustive scan).
+	 */
 	bool population_known;
 	uint64_t visible_population;
 	/* Memtx currently uses independent draws with replacement. */

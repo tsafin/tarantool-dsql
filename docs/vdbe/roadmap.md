@@ -420,7 +420,10 @@ review of IDs and formats.
   transaction and reports delivered rows/bytes; focused unit tests validate
   the bounded loop, and the production target compiles. A runtime engine-
   dispatch test now covers memtx transaction visibility, deterministic draws,
-  row/byte limits, sink accounting, and unsupported/invalid inputs. It is not
+  row/byte limits, sink accounting, and unsupported/invalid inputs. The result
+  also reports the transaction-visible primary-index population from memtx
+  `index_size()`, including uncommitted writes; runtime checks cover nonempty
+  and empty transaction states. It is not
   wired to ANALYZE/collection and does not create an independent read view;
   these gates remain open.
   *parallel: yes*.

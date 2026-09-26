@@ -1414,9 +1414,21 @@ memtx_engine_sql_stats_sample(struct space *space,
 			 "Invalid SQL statistics sampling limits or field list");
 		return -1;
 	}
+	/* memtx index_size() subtracts tuples invisible to the current
+	 * transaction, including replaced/deleted tuples, so it describes the
+	 * same transaction-visible primary-index population sampled below.
+	 */
+	ssize_t population = index_size(primary);
+	if (population < 0)
+		return -1;
 	/* Preserve diagnostics raised by index_random() or the consumer. */
-	return sql_stats_sample_run(request, sink, result,
-				    memtx_sql_stats_random_tuple, primary);
+	int rc = sql_stats_sample_run(request, sink, result,
+				      memtx_sql_stats_random_tuple, primary);
+	if (rc == 0) {
+		result->population_known = true;
+		result->visible_population = (uint64_t)population;
+	}
+	return rc;
 }
 
 static const struct engine_vtab memtx_engine_vtab = {

@@ -77,10 +77,13 @@ lbox_sample(lua_State *L)
 	set_integer(L, "code", err == NULL ? 0 : box_error_code((box_error_t *)err));
 	set_integer(L, "rows", result.rows);
 	set_integer(L, "bytes", result.bytes);
+	set_integer(L, "population", result.visible_population);
 	set_integer(L, "delivered", capture.calls);
 	set_integer(L, "delivered_bytes", capture.bytes);
 	lua_pushboolean(L, result.with_replacement);
 	lua_setfield(L, -2, "with_replacement");
+	lua_pushboolean(L, result.population_known);
+	lua_setfield(L, -2, "population_known");
 	lua_pushboolean(L, capture.fields_match);
 	lua_setfield(L, -2, "fields_match");
 	lua_pushvalue(L, capture.ids);

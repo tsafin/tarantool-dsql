@@ -35,9 +35,10 @@ rejected(sample(space.id, 3, 1024, 1), box.error.UNSUPPORTED)
 box.begin()
 local tuple = space:insert{{1, 'payload'}}
 local size = tuple:bsize()
-local function accepted(result, count)
+local function accepted(result, count, population)
     assert(result.rc == 0 and result.code == 0)
     assert(result.rows == count and result.delivered == count)
+    assert(result.population_known and result.population == population)
     assert(result.bytes == count * size)
     assert(result.bytes == result.delivered_bytes)
     assert(result.with_replacement and result.fields_match)
@@ -45,10 +46,10 @@ end
 -- Uncommitted tuples must be visible in the caller's transaction; repeated
 -- draws are intentional and count toward both limits.
 local rows = sample(space.id, 3, 1024, 7)
-accepted(rows, 3)
+accepted(rows, 3, 1)
 for _, id in ipairs(rows.ids) do assert(id == 1) end
-accepted(sample(space.id, 20, 2 * size, 7), 2)
-accepted(sample(space.id, 20, size - 1, 7), 0)
+accepted(sample(space.id, 20, 2 * size, 7), 2, 1)
+accepted(sample(space.id, 20, size - 1, 7), 0, 1)
 for _, invalid in ipairs{{'fields', 'sink', 'request'}} do
     rejected(sample(space.id, 3, 1024, 7, invalid), box.error.ILLEGAL_PARAMS)
 end
@@ -58,14 +59,14 @@ rejected(sample(4294967295, 3, 1024, 7), box.error.ILLEGAL_PARAMS)
 box.rollback()
 assert(space:count() == 0)
 box.begin()
-accepted(sample(space.id, 3, 1024, 7), 0)
+accepted(sample(space.id, 3, 1024, 7), 0, 0)
 box.rollback()
 for i = 1, 3 do space:insert{{i, 'payload'}} end
 box.begin()
 local first = sample(space.id, 12, 1024, 41)
 local repeat_draw = sample(space.id, 12, 1024, 41)
-accepted(first, 12)
-accepted(repeat_draw, 12)
+accepted(first, 12, 3)
+accepted(repeat_draw, 12, 3)
 for i, id in ipairs(first.ids) do
     assert(id >= 1 and id <= 3 and repeat_draw.ids[i] == id)
 end

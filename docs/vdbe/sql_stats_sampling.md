@@ -49,11 +49,12 @@ valid cardinality-only request.
 
 For memtx, `max_rows` and `max_bytes` cap delivered draws and tuple payload
 bytes. A draw that would exceed the remaining byte budget is not delivered.
-The result counts repeated draws and reports `with_replacement=true`; the
-population is unknown to this sampling API. Memtx primary-index `size()` does
-account for the current transaction's invisible tuples, but that count is not
-currently part of this API and must not be treated as a population observed
-under a different read view. For Vinyl, the same fields cap retained sample rows
+The result counts repeated draws and reports `with_replacement=true`. Memtx
+also reports `population_known=true` and the primary-index size as the
+transaction-visible population; its `size()` implementation subtracts tuples
+invisible to the active transaction. This is the count observed during the
+synchronous sample operation, not a separately pinned read view. For Vinyl,
+the same fields cap retained sample rows
 and retained tuple payload bytes, while `max_buffer_bytes` separately caps all
 reservoir-owned memory, including metadata, slot array, and tuple copies.
 Both Vinyl bounds are checked before retaining a tuple. Zero row, payload,
@@ -170,8 +171,9 @@ The sampler is not itself a collection job. A collector must define which
 population its summaries describe and keep counts and sampled tuples on the
 same visibility basis. Memtx index `size()` subtracts tuples invisible to the
 active transaction, while the sampler draws through that transaction; this is
-a possible exact population input, but the collector must still handle empty
-indexes, errors, and a concurrent/schema-generation boundary. Vinyl
+a possible exact population input, and the current sampler reports it; the
+collector must still handle empty indexes, errors, and a concurrent/schema-
+generation boundary. Vinyl
 `index_size()` is explicitly an approximate count of LSM statements and may
 include obsolete versions or tombstones, so it is not a visible-row count.
 Vinyl's visible population is known only after a successful exhaustive scan;
