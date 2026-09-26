@@ -359,9 +359,11 @@ IDs/formats and the `where.c` adapter integrate serially.
 statistics that turn selectivity estimation from "guess 25%" into
 "estimate based on data."
 
-**State:** `NOT-STARTED`. Sketch algorithms and synthetic validation may
-start against a versioned S1 snapshot interface before S1 is end-to-end;
-persistence and the `where.c` selectivity adapter wait for that interface.
+**State:** `PROTOTYPE` (S2.2 in-memory HLL slice implemented and unit-tested;
+remaining S2 work is not integrated). Sketch algorithms and synthetic
+validation may start against a versioned S1 snapshot interface before S1 is
+end-to-end; persistence and the `where.c` selectivity adapter wait for that
+interface.
 
 **Exit criteria:**
 
@@ -374,7 +376,13 @@ persistence and the `where.c` selectivity adapter wait for that interface.
 
 - [ ] **S2.1** `_sql_stats_column` system space + versioned payload. *parallel:
   no* (system-space allocation).
-- [ ] **S2.2** HyperLogLog implementation for NDV. Mergeable. *parallel: yes*.
+- [x] **S2.2** HyperLogLog implementation for NDV. Mergeable. *parallel: yes*.
+  In-memory opaque C API at `src/box/sql/sql_stats_hll.{h,c}`; precision
+  4–18, deterministic caller-seeded byte hashing, seed/precision-checked
+  merges, and documented probabilistic accuracy. Unit tests cover 100k NDV
+  error, deterministic estimates, and merge compatibility. No persistence or
+  system-space IDs are included; payload integration remains pending S1/schema
+  review.
 - [ ] **S2.3** SpaceSaving heavy-hitter sketch for MCV. *parallel: yes*.
 - [ ] **S2.4** Equi-depth histogram builder from sampled ordered values.
   *parallel: yes*.

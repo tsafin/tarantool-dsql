@@ -155,6 +155,24 @@ Initial production candidate:
 Correlation coefficients and more advanced sketches are added only when a
 targeted estimation corpus demonstrates value.
 
+### HyperLogLog prototype contract (S2.2)
+
+The in-memory prototype lives at `src/box/sql/sql_stats_hll.{h,c}`. It accepts
+caller-encoded byte strings and does not define SQL value encoding: callers
+must include type and NULL distinctions in that encoding. A 64-bit
+endian-independent seeded hash makes test/replay results deterministic. Seed
+and precision are sketch identity; merge is register-wise maximum and rejects
+either mismatch. The API is intentionally opaque and has no persistent
+encoding, snapshot ABI, or system-space dependency.
+
+Precision is supported from 4 through 18. The register array consumes
+`2^precision` bytes, excluding allocator overhead. The estimator uses the
+standard HLL harmonic estimate and linear-counting correction for small
+cardinalities. Its asymptotic relative standard error is approximately
+`1.04 / sqrt(2^precision)` (about 1.63% at precision 12); this is a statistical
+expectation, not an individual-result guarantee. Integration must preserve
+the seed/precision metadata and report confidence independently.
+
 ## Refresh And Staleness
 
 Initial policy is explicit `ANALYZE`; background refresh is not required for

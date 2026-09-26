@@ -96,6 +96,10 @@ create_unit_test(PREFIX bit
                  SOURCES bit.c
                  LIBRARIES bit
 )
+create_unit_test(PREFIX sql_stats_hll
+                 SOURCES sql_stats_hll.c ../src/box/sql/sql_stats_hll.c
+                 LIBRARIES unit m
+)
 create_unit_test(PREFIX bitset_basic
                  SOURCES bitset_basic.c
                  LIBRARIES bitset
