@@ -616,8 +616,10 @@ DML, triggers, subprograms, non-deterministic functions.
   UDF side effects and argument-dependent volatility are not proven excluded.
   Structural
   classification runs before flattening/rewrite can erase the rejected shape;
-  simple `COUNT(*)` stays unclassified because its fast path does not enter
-  `where.c`. This remains partial: physical rejection reasons and other
+  aggregate classification runs after name resolution, including simple
+  `COUNT(*)` queries that use the `OP_Count` fast path and never enter
+  `where.c`; runtime coverage verifies its stable reason on memtx and Vinyl.
+  This remains partial: physical rejection reasons and other
   unclassified shapes are not routed/accounted, no new-planner success path
   exists, and M0 baseline recapture/parity review remains open.
   *parallel: no*.
