@@ -90,9 +90,11 @@ flowchart TD
     G --> H["M3.5-3.7: route, fallback, flag"]
     C --> H
     P["Human gate: approve persistent IDs / formats"] --> Q["S1.1 + S2.1: persistent spaces"]
-    E --> R["S1.5-1.6: engine sampling"]
+    E --> R["S1.5: memtx sampling"]
+    R --> R2["S1.6: Vinyl bounded-work strategy"]
     Q --> S["S1.3: collection + persistence"]
     R --> S
+    R2 --> S
     S --> T["S1.7-1.9: adapter + validation"]
     Q --> U["S2 persistence / where.c integration"]
     F --> U
@@ -337,11 +339,12 @@ them.
 tables, and instead consumes real per-relation cardinality and average row
 width.
 
-**State:** `PROTOTYPE`. S1.4 now has an immutable, deep-copying,
-reference-counted in-memory snapshot API with schema-staleness checks and a
-bounded allocation budget. It is not yet created per prepare or consumed by
-`where.c`; persistence, sampling, ANALYZE, and adapter work remain open. The
-system-space schema remains DRAFT pending human review of IDs and formats.
+**State:** `PROTOTYPE`. S1.4 has an immutable, deep-copying, reference-counted
+in-memory snapshot API with schema-staleness checks and a bounded allocation
+budget; S1.5 has a bounded memtx sampling prototype. Neither is attached to
+prepare/ANALYZE or consumed by `where.c`; persistent collection, Vinyl
+sampling, ANALYZE, and adapter work remain open. The system-space schema
+remains DRAFT pending human review of IDs and formats.
 
 **Exit criteria:**
 
@@ -368,16 +371,20 @@ system-space schema remains DRAFT pending human review of IDs and formats.
   lifetime, schema mismatch, invalid values, and budget rejection. This is
   not yet attached to prepare/prepared-statement lifetime; that integration
   remains part of S1.7. *parallel: yes*.
-- [ ] **S1.5** memtx sampling interface
-  (`engine_sql_stats_sample`). A proposed bounded, seeded request/sink
-  contract is documented in `sql_stats_sampling.md`; no engine entrypoint or
-  sampler is implemented, so S1.5 remains open. *parallel: yes*.
+- [ ] **S1.5 prototype** `engine_sql_stats_sample` dispatch and a bounded,
+  seeded memtx sampler exist in `src/box/sql/sql_stats_sample.{h,c}`. It uses
+  primary-index random access with replacement in the caller's active
+  transaction and reports delivered rows/bytes; focused unit tests validate
+  the bounded loop. It is not wired to ANALYZE/collection, does not create an
+  independent read view, and requires full build/integration tests before
+  completion. *parallel: yes*.
 - [ ] **S1.6** Vinyl sampling interface — open; no safe implementation with
-  current APIs. Vinyl `.random` is unsupported and its normal iterator's
-  output row limit does not bound LSM work. First settle/wire S1.5's generic
-  request/sink/result contract, then define and test a Vinyl-specific bounded
-  work strategy (range/run selection, visibility, partial-sample semantics).
-  See `sql_stats_sampling.md`. *parallel: depends on S1.5 contract*.
+  current APIs. S1.5's generic request/sink/result contract is now wired;
+  Vinyl `.random` is unsupported and its normal iterator's output row limit
+  does not bound LSM work. Define and test a Vinyl-specific bounded-work
+  strategy (range/run selection, visibility, partial-sample semantics) before
+  adding an engine callback. See `sql_stats_sampling.md`.
+  *parallel: yes, against the S1.5 contract*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
   `whereRangeScanEst()` consume snapshot, fall back to defaults on absence.
   *parallel: no* (touches `where.c` integration surface).

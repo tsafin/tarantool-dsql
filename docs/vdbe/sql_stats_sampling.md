@@ -43,10 +43,11 @@ valid cardinality-only request.
 Both limits are hard upper bounds: no more than `max_rows` callbacks and no
 more than `max_bytes` total tuple bytes may be delivered. A tuple that would
 exceed the remaining byte budget is not delivered. `max_rows == 0`,
-`max_bytes == 0`, missing required pointers, or an absent primary index is an
-invalid request. A nonzero callback return aborts collection and propagates
-failure; callbacks that fail should leave a diagnostic for the caller. The
-generic dispatcher reports unsupported for engines without a sampler.
+`max_bytes == 0`, or missing required pointers is an invalid request. An
+absent primary index and engines without a sampler report unsupported. A
+nonzero callback return aborts collection and propagates failure; callbacks
+that fail should leave a diagnostic for the caller. Engines must release any
+resources on every exit path.
 
 The result reports delivered callback count and tuple bytes. Repeated tuples
 are separate draws and are counted separately. The seed makes the sequence of
@@ -97,7 +98,8 @@ of bounded work (including I/O/source amplification), and a defined partial
 sample/confidence result. It must test both read amplification and sample
 quality under multiple ranges, compaction states, updates, and deletes.
 
-Dependencies: S1.5 must first settle and wire the generic request/sink/result
-contract; then S1.6 can extend that contract with Vinyl-specific work bounds
-and semantics before adding an engine entrypoint. Until then S1.6 remains
-open; this status is a feasibility finding, not a completed sampler.
+The generic S1.5 request/sink/result contract and memtx callback now exist.
+S1.6 can extend that contract with Vinyl-specific work bounds and partial or
+unsupported result semantics. Until that strategy is implemented and tested,
+S1.6 remains open; this status is a feasibility finding, not a completed
+sampler.
