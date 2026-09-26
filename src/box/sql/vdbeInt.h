@@ -318,6 +318,10 @@ struct Vdbe {
 	const char *planner_path_class;
 	/** Stable reason when a structurally unsupported shape uses where.c. */
 	const char *planner_fallback_reason;
+	/** Per-statement planner measurements captured by snapshot EXPLAIN. */
+	uint64_t planner_candidate_count;
+	uint64_t planner_elapsed_us;
+	uint64_t planner_fallback_count;
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
 	char *explain_text;	/* Cached row-oriented EXPLAIN text */

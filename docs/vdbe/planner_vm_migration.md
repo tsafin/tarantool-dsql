@@ -406,22 +406,26 @@ look up rows by `(section, key)`, not by ordinal.
 ### Planner snapshot result contract
 
 `EXPLAIN (planner = 'snapshot') <statement>` returns one `varbinary` column,
-`snapshot`, containing one MsgPack map. Version 1 has these keys:
+`snapshot`, containing one MsgPack map. Version 2 has these keys:
 
 | Key | Type | Meaning |
 | --- | --- | --- |
 | `format` | string | `tarantool.sql.planner.snapshot` |
-| `version` | unsigned integer | Envelope version, initially `1`. |
+| `version` | unsigned integer | Envelope version, currently `2`. |
 | `path_class` | string or nil | Path class recorded on the prepared statement. |
-| `fallback_reason` | nil | Reserved until fallback propagation is implemented. |
+| `fallback_reason` | string or nil | Stable structural reject reason when the legacy planner is the fallback route. |
 | `replayable` | boolean | `false` until the object includes normalized planner inputs. |
+| `planner` | map | Per-statement `candidate_count`, `elapsed_us`, and `fallback_count`. |
 
-This is a versioned capture envelope, not yet a standalone replay input. The
-legacy planner does not expose normalized predicates, relation/access-path
-inputs, or statistics needed to reconstruct planning without live SQL state.
-The explicit `replayable` marker prevents consumers from treating the current
-diagnostic capture as executable replay data. M1.5 owns replay tooling; a
-future envelope version can add the normalized inputs when they are produced.
+This is a versioned diagnostic envelope, not yet a standalone replay input.
+Per-statement planner measurements are also copied into the harness run
+manifest (`planner_metrics_version: 1`, `planner_metrics`) for analysis; they
+are not part of the M0 result/parity gate. The legacy planner does not expose
+normalized predicates, relation/access-path inputs, or statistics needed to
+reconstruct planning without live SQL state. The explicit `replayable` marker
+prevents consumers from treating the current diagnostic capture as executable
+replay data. M1.5 owns replay tooling; a later envelope version can add the
+normalized inputs when they are produced.
 
 ## Testing Strategy
 

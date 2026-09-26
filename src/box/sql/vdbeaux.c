@@ -1349,10 +1349,9 @@ sqlVdbeList(Vdbe * p)
 		if (p->pc >= 1)
 			return SQL_DONE;
 		/*
-		 * Version 1 is deliberately a capture envelope, not a complete replay
-		 * input: the legacy planner does not expose normalized predicates,
-		 * statistics, or access-path alternatives yet. Keep the stable fields
-		 * explicit so later versions can add those inputs without guessing.
+		 * Version 2 adds per-statement planner measurements. It is still not a
+		 * complete replay input: normalized predicates, statistics, and
+		 * access-path alternatives are not captured yet.
 		 */
 		const char *path_class = p->planner_path_class;
 		const char *fallback_reason = p->planner_fallback_reason;
@@ -1360,20 +1359,27 @@ sqlVdbeList(Vdbe * p)
 			mp_sizeof_str(strlen(path_class)) : mp_sizeof_nil();
 		size_t fallback_reason_size = fallback_reason != NULL ?
 			mp_sizeof_str(strlen(fallback_reason)) : mp_sizeof_nil();
-		size_t size = mp_sizeof_map(5) +
+		size_t size = mp_sizeof_map(6) +
 			mp_sizeof_str(strlen("format")) +
 			mp_sizeof_str(strlen("tarantool.sql.planner.snapshot")) +
-			mp_sizeof_str(strlen("version")) + mp_sizeof_uint(1) +
+			mp_sizeof_str(strlen("version")) + mp_sizeof_uint(2) +
 			mp_sizeof_str(strlen("path_class")) + path_class_size +
 			mp_sizeof_str(strlen("fallback_reason")) + fallback_reason_size +
-			mp_sizeof_str(strlen("replayable")) + mp_sizeof_bool(false);
+			mp_sizeof_str(strlen("replayable")) + mp_sizeof_bool(false) +
+			mp_sizeof_str(strlen("planner")) + mp_sizeof_map(3) +
+			mp_sizeof_str(strlen("candidate_count")) +
+			mp_sizeof_uint(p->planner_candidate_count) +
+			mp_sizeof_str(strlen("elapsed_us")) +
+			mp_sizeof_uint(p->planner_elapsed_us) +
+			mp_sizeof_str(strlen("fallback_count")) +
+			mp_sizeof_uint(p->planner_fallback_count);
 		char *buf = sql_xmalloc(size);
-		char *pos = mp_encode_map(buf, 5);
+		char *pos = mp_encode_map(buf, 6);
 		pos = mp_encode_str(pos, "format", strlen("format"));
 		pos = mp_encode_str(pos, "tarantool.sql.planner.snapshot",
 				    strlen("tarantool.sql.planner.snapshot"));
 		pos = mp_encode_str(pos, "version", strlen("version"));
-		pos = mp_encode_uint(pos, 1);
+		pos = mp_encode_uint(pos, 2);
 		pos = mp_encode_str(pos, "path_class", strlen("path_class"));
 		if (path_class != NULL) {
 			pos = mp_encode_str(pos, path_class, strlen(path_class));
@@ -1390,6 +1396,16 @@ sqlVdbeList(Vdbe * p)
 		}
 		pos = mp_encode_str(pos, "replayable", strlen("replayable"));
 		pos = mp_encode_bool(pos, false);
+		pos = mp_encode_str(pos, "planner", strlen("planner"));
+		pos = mp_encode_map(pos, 3);
+		pos = mp_encode_str(pos, "candidate_count",
+				    strlen("candidate_count"));
+		pos = mp_encode_uint(pos, p->planner_candidate_count);
+		pos = mp_encode_str(pos, "elapsed_us", strlen("elapsed_us"));
+		pos = mp_encode_uint(pos, p->planner_elapsed_us);
+		pos = mp_encode_str(pos, "fallback_count",
+				    strlen("fallback_count"));
+		pos = mp_encode_uint(pos, p->planner_fallback_count);
 		mem_set_bin_allocated(&pMem[0], buf, pos - buf);
 		p->pc++;
 		p->nResColumn = 1;

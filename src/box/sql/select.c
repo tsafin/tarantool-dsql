@@ -5647,7 +5647,7 @@ sql_select_record_fallback_reason(Parse *parse,
 		return;
 	v->planner_path_class = "fallback";
 	v->planner_fallback_reason = reason;
-	sql_record_planner_fallback(fallback_reason);
+	sql_record_planner_fallback(v, fallback_reason);
 }
 
 static void

@@ -188,6 +188,7 @@ local function intercepted_execute(sql, bindings)
     -- the distinction is recorded in the L6 file header and schema.
     local explain_rows, explain_error = nil, nil
     local planner_path_class, planner_fallback_reason = nil, nil
+    local planner_metrics = nil
     local normalized_sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
     local first_word = normalized_sql:match('^%s*(%a+)')
     local is_select = first_word ~= nil and
@@ -208,6 +209,7 @@ local function intercepted_execute(sql, bindings)
             if decode_ok and type(planner_snapshot) == 'table' then
                 planner_path_class = planner_snapshot.path_class
                 planner_fallback_reason = planner_snapshot.fallback_reason
+                planner_metrics = planner_snapshot.planner
             end
         end
     end
@@ -297,6 +299,7 @@ local function intercepted_execute(sql, bindings)
         explain_error = explain_error,
         planner_path_class = planner_path_class,
         planner_fallback_reason = planner_fallback_reason,
+        planner_metrics = planner_metrics,
     })
 
     -- Re-raise on error so the test file's pcall/catchsql sees it
@@ -546,6 +549,19 @@ io.write(string.format('[harness] Done. written=%d skipped=%d errors=%d\n',
 
 local rc = (test_ok and errors_seen == 0 and skipped == 0 and
             written == #captured_queries) and 0 or 1
+local planner_measurements = {}
+for query_index, q in ipairs(captured_queries) do
+    if q.planner_metrics ~= nil then
+        table.insert(planner_measurements, {
+            query_index = query_index,
+            path_class = q.planner_path_class,
+            fallback_reason = q.planner_fallback_reason,
+            candidate_count = q.planner_metrics.candidate_count,
+            elapsed_us = q.planner_metrics.elapsed_us,
+            fallback_count = q.planner_metrics.fallback_count,
+        })
+    end
+end
 local manifest_path = string.format('%s/manifests/%s/%s.%s.json',
     cfg.baselines_root, suite, test_basename, cfg.engine)
 fio.mktree(manifest_path:match('^(.+)/[^/]+$'))
@@ -579,6 +595,8 @@ local manifest = {
     written_snapshots = written,
     skipped_queries = skipped,
     snapshot_errors = errors_seen,
+    planner_metrics_version = 1,
+    planner_metrics = planner_measurements,
     accepted = rc == 0,
 }
 local mf, mf_err = io.open(manifest_path, 'w')

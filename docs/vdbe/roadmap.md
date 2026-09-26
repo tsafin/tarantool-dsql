@@ -331,14 +331,15 @@ them.
 - [x] **M1.3** `EXPLAIN (planner = 'summary')` grammar + executor returning
   structured rows per the planner_vm_migration.md schema. *parallel: yes*.
 - [ ] **M1.4** `EXPLAIN (planner = 'snapshot')` returns a versioned MsgPack
-  replay object. The v1 capture-envelope foundation and statement
-  `path_class` are implemented, but it explicitly reports `replayable=false`
-  until normalized planner inputs are captured; this subtask remains open.
-  Replay execution stays in M1.5. *parallel: yes*.
+  replay object. The v2 capture envelope contains statement `path_class`,
+  fallback reason, and per-statement planner measurements, but explicitly
+  reports `replayable=false` until normalized planner inputs (predicates,
+  relation/access-path data, and statistics) are captured; this subtask
+  remains open. Replay execution stays in M1.5. *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current M1.4
-  envelope has no normalized predicates, relation/access-path inputs, or
-  statistics and explicitly sets `replayable=false`; implementing a tool
+  envelope still has no normalized predicates, relation/access-path inputs,
+  or statistics and explicitly sets `replayable=false`; implementing a tool
   against that payload would only relabel live-state planning, not replay.
   Resume after an envelope version supplies those inputs. *parallel: yes*.
 
@@ -597,8 +598,11 @@ M0-B corpus for the evaluation workloads.
   *parallel: no* (same file).
 - [ ] **E1.3** Property-aware dominance before beam truncation. *parallel:
   no*.
-- [ ] **E1.4** Counters / harness output integrated into M1 EXPLAIN snapshot.
-  *parallel: yes*.
+- [ ] **E1.4** Legacy per-statement candidate, elapsed, and fallback counters
+  are included in snapshot v2 and copied to an optional, non-gating harness
+  manifest section. Global `box.stat.sql()` totals remain available. The E1
+  solver-specific generated/dominated/truncated/retained counters still need
+  wiring when its enumerator is implemented. *parallel: yes*.
 - [ ] **E1.5** A/B comparison on the corpus. *parallel: yes*.
 
 ---

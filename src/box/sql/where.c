@@ -1454,7 +1454,7 @@ whereLoopInsert(WhereLoopBuilder * pBuilder, WhereLoop * pTemplate)
 	WhereInfo *pWInfo = pBuilder->pWInfo;
 	int rc;
 
-	sql_record_planner_candidate();
+	sql_record_planner_candidate(pWInfo->pParse->pVdbe);
 
 	/* If pBuilder->pOrSet is defined, then only keep track of the costs
 	 * and prereqs.
@@ -3603,7 +3603,7 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		v->planner_path_class = "fallback";
 		v->planner_fallback_reason =
 			sql_plan_fallback_reason_name(reason);
-		sql_record_planner_fallback(reason);
+		sql_record_planner_fallback(v, reason);
 	}
 
 	/* Allocate and initialize the WhereInfo structure that will become the
@@ -3752,7 +3752,7 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		if (pWInfo->pOrderBy != NULL)
 			wherePathSolver(pWInfo, pWInfo->nRowOut + 1);
 	}
-	sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
+	sql_record_planner_elapsed(v, fiber_clock64() - planner_start_us);
 	planner_timer_active = false;
 	/* The selected path is produced by the legacy WHERE planner unless a
 	 * structural fallback was recorded above. Keep the classification on the
@@ -3972,7 +3972,8 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 whereBeginError:
 	assert(pWInfo != NULL);
 	if (planner_timer_active)
-		sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
+		sql_record_planner_elapsed(pParse->pVdbe,
+					   fiber_clock64() - planner_start_us);
 	pParse->nQueryLoop = pWInfo->savedNQueryLoop;
 	whereInfoFree(pWInfo);
 	return NULL;

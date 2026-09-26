@@ -83,24 +83,30 @@ sql_record_statement_compile(void)
 }
 
 void
-sql_record_planner_candidate(void)
+sql_record_planner_candidate(Vdbe *vdbe)
 {
 	sql_planner_candidates_total++;
+	if (vdbe != NULL)
+		vdbe->planner_candidate_count++;
 }
 
 void
-sql_record_planner_fallback(uint32_t reason)
+sql_record_planner_fallback(Vdbe *vdbe, uint32_t reason)
 {
 	sql_planner_fallback_total++;
+	if (vdbe != NULL)
+		vdbe->planner_fallback_count++;
 	if (reason > SQL_PLAN_FALLBACK_NONE &&
 	    reason <= SQL_PLAN_FALLBACK_INVALID_CANDIDATE)
 		sql_planner_fallback_by_reason[reason]++;
 }
 
 void
-sql_record_planner_elapsed(uint64_t elapsed_us)
+sql_record_planner_elapsed(Vdbe *vdbe, uint64_t elapsed_us)
 {
 	sql_planner_elapsed_us += elapsed_us;
+	if (vdbe != NULL)
+		vdbe->planner_elapsed_us += elapsed_us;
 }
 
 static char *

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """End-to-end typed-value capture regression."""
 
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -63,6 +64,10 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("taken: fallback", snapshot)
             self.assertIn("reason: UNSUPPORTED_RELATION_COUNT", snapshot)
             self.assertIn("fallback_to: current_where_c", snapshot)
+            manifest = json.loads((out / "manifests/sql-tap/fallback_sql.memtx.json").read_text())
+            self.assertEqual(manifest["planner_metrics_version"], 1)
+            self.assertEqual(manifest["planner_metrics"][0]["path_class"], "fallback")
+            self.assertEqual(manifest["planner_metrics"][0]["fallback_count"], 1)
             for seq, reason in enumerate((
                     "UNSUPPORTED_AGGREGATE", "UNSUPPORTED_COMPOUND",
                     "UNSUPPORTED_DISTINCT", "UNSUPPORTED_SUBQUERY",

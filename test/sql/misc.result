@@ -446,7 +446,7 @@ assert(snapshot_object.format == 'tarantool.sql.planner.snapshot')
 ---
 - true
 ...
-assert(snapshot_object.version == 1)
+assert(snapshot_object.version == 2)
 ---
 - true
 ...
@@ -459,6 +459,40 @@ assert(snapshot_object.fallback_reason == 'UNSUPPORTED_RELATION_COUNT')
 - true
 ...
 assert(snapshot_object.replayable == false)
+---
+- true
+...
+assert(snapshot_object.planner.fallback_count == 1)
+---
+- true
+...
+assert(snapshot_object.planner.candidate_count >= 0)
+---
+- true
+...
+assert(snapshot_object.planner.elapsed_us >= 0)
+---
+- true
+...
+simple_snapshot, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT id FROM planner_snapshot_t WHERE id = 1]])
+---
+...
+assert(err == nil)
+---
+- true
+...
+simple_snapshot_object = require('msgpack').decode(tostring(simple_snapshot.rows[1][1]))
+---
+...
+assert(simple_snapshot_object.path_class == 'current_where_c')
+---
+- true
+...
+assert(simple_snapshot_object.planner.candidate_count > 0)
+---
+- true
+...
+assert(simple_snapshot_object.planner.fallback_count == 0)
 ---
 - true
 ...
