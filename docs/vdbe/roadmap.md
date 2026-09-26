@@ -677,7 +677,11 @@ DML, triggers, subprograms, non-deterministic functions.
   `Limit` chain. Expression trees are borrowed for statement lifetime; the
   builder rejects major unsupported SELECT shapes, but deterministic or
   side-effect-free expression validation remains a caller obligation. No
-  resolver/VDBE routing is wired. Focused unit test: `sql_logical_plan`.
+  resolver/VDBE routing is wired. A separate expression canonicalizer now
+  handles a conservative resolved scalar subset with caller-supplied logical
+  relation bindings; it is not yet wired into descriptor expression refs and
+  rejects function calls because stable identity/effect proof is absent.
+  Focused unit tests: `sql_logical_plan`, `sql_expr_canonical`.
   *parallel: yes*.
 - [x] **M3.3** Physical IR prototype — choose the least-cost supplied access
   candidate for a supported single-table logical chain; emits the immutable
@@ -1052,13 +1056,3 @@ When converted, this roadmap should produce:
 The Mermaid dependency graph above can be embedded directly in the epic body.
 No calendar dates are assigned while architectural approval and integration
 gates remain open; use the dependency edges to sequence work.
-
-M3 expression-normalization prerequisite: an isolated helper and focused
-unit test now cover owned statement-local encodings for resolved column refs,
-NULL/integer/finite-float/string constants, and a conservative scalar
-operator subset. Function calls and annotations outside an explicit flag
-allowlist are rejected. Column keys require a caller-provided cursor-to-
-logical-relation ordinal map and encode its mapped ordinal instead of the
-live iTable cursor. Stability depends on the caller preserving relation
-binding. Descriptor expression refs and lowering do not consume it; function
-identity/effect proof and route integration remain open.
