@@ -70,11 +70,32 @@ static char sql_cnp_last_compile_error[SQL_LAST_COMPILE_ERROR_MAX];
 
 /* Number of SQL statements compiled into a VDBE program. */
 static int64_t sql_statement_compiles_total;
+static int64_t sql_planner_candidates_total;
+static int64_t sql_planner_fallback_total;
+static int64_t sql_planner_elapsed_us;
 
 void
 sql_record_statement_compile(void)
 {
 	sql_statement_compiles_total++;
+}
+
+void
+sql_record_planner_candidate(void)
+{
+	sql_planner_candidates_total++;
+}
+
+void
+sql_record_planner_fallback(void)
+{
+	sql_planner_fallback_total++;
+}
+
+void
+sql_record_planner_elapsed(uint64_t elapsed_us)
+{
+	sql_planner_elapsed_us += elapsed_us;
 }
 
 static char *
@@ -1326,6 +1347,11 @@ sql_debug_info(struct info_handler *h)
 	info_append_int(h, "sql_xfer_count", sql_xfer_count);
 	info_append_int(h, "sql_statement_compiles_total",
 			sql_statement_compiles_total);
+	info_append_int(h, "sql_planner_candidates_total",
+			sql_planner_candidates_total);
+	info_append_int(h, "sql_planner_fallback_total",
+			sql_planner_fallback_total);
+	info_append_int(h, "sql_planner_elapsed_us", sql_planner_elapsed_us);
 	info_append_int(h, "sql_interpreter_step_count",
 			sql_interpreter_step_count);
 	info_append_int(h, "sql_jit_step_count", sql_jit_step_count);

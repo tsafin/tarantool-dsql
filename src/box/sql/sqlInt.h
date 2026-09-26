@@ -333,6 +333,15 @@ sql_stmt_compile(const char *sql, int bytes_count, struct Vdbe *re_prepared,
 void
 sql_record_statement_compile(void);
 
+void
+sql_record_planner_candidate(void);
+
+void
+sql_record_planner_fallback(void);
+
+void
+sql_record_planner_elapsed(uint64_t elapsed_us);
+
 /** This is the top-level implementation of sqlStep(). */
 int
 sql_step(struct Vdbe *v);

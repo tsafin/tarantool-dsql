@@ -45,6 +45,7 @@
 #include "whereInt.h"
 #include "box/coll_id_cache.h"
 #include "box/schema.h"
+#include "fiber.h"
 
 /** Increase the memory allocation for p->aLTerm[] to be at least n. */
 static void
@@ -1451,6 +1452,8 @@ whereLoopInsert(WhereLoopBuilder * pBuilder, WhereLoop * pTemplate)
 	WhereLoop **ppPrev, *p;
 	WhereInfo *pWInfo = pBuilder->pWInfo;
 	int rc;
+
+	sql_record_planner_candidate();
 
 	/* If pBuilder->pOrSet is defined, then only keep track of the costs
 	 * and prereqs.
@@ -3525,6 +3528,7 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 					 * If WHERE_USE_LIMIT, then the limit amount
 					 */
 {
+	uint64_t planner_start_us = fiber_clock64();
 	int nByteWInfo;		/* Num. bytes allocated for WhereInfo struct */
 	int nTabList;		/* Number of elements in pTabList */
 	WhereInfo *pWInfo;	/* Will become the return value of this function */
@@ -3943,10 +3947,12 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 	}
 
 	/* Done. */
+	sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
 	return pWInfo;
 
 whereBeginError:
 	assert(pWInfo != NULL);
+	sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
 	pParse->nQueryLoop = pWInfo->savedNQueryLoop;
 	whereInfoFree(pWInfo);
 	return NULL;

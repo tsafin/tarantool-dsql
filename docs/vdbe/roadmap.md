@@ -286,10 +286,10 @@ them.
 **Subtasks:**
 
 - [ ] **M1.1** Add planner counters to `box.stat.sql()` —
-  `sql_planner_decisions_total`, `sql_planner_fallback_total{reason=...}`,
-  `sql_planner_elapsed_us`. Preparatory `sql_statement_compiles_total` is
-  implemented, but does not satisfy this subtask. *parallel: yes* (only
-  sql.c stat hookup).
+  `sql_planner_candidates_total`, reasoned
+  `sql_planner_fallback_total`, and `sql_planner_elapsed_us`. Preparatory
+  `sql_statement_compiles_total` is implemented, but does not satisfy this
+  subtask. *parallel: yes* (only sql.c stat hookup).
 - [x] **M1.2** Wire path_class emission in current `where.c` — statements
   invoking the WHERE planner store `current_where_c` on the per-statement
   VDBE; summary EXPLAIN reads that value, and statements that do not invoke
