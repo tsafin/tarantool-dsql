@@ -173,6 +173,47 @@ test_detached_single_relation_select(void)
 }
 
 static void
+test_canonical_expression_grammar(void)
+{
+	plan(3);
+	header();
+	struct sql_replay_column_spec column = {"integer", "binary"};
+	struct sql_replay_relation_spec relation = {
+		.logical_key = "r0", .canonical_definition = "table",
+		.columns = &column, .column_count = 1,
+	};
+	const char *projections[] = {
+		"null", "str(6162)", "float(0x1p+0)",
+		"plus(int(1),int(2))", "notnull(col(r0,c0))",
+	};
+	struct sql_replay_input_spec spec = {
+		.relation = relation,
+		.predicate = "and(eq(col(r0,c0),int(1)),not(isnull(col(r0,c0))))",
+		.projections = projections, .projection_count = 5,
+		.planner_algorithm_version = 1, .planner_config_version = 1,
+		.beam_width = 1,
+	};
+	struct sql_replay_input *input = NULL;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_OK,
+	   "canonical literals, unary/binary operators, and columns are accepted");
+	if (input != NULL)
+		input->projections[1][strlen(input->projections[1]) - 2] = '\0';
+	char *bytes = NULL;
+	size_t size = 0;
+	ok(input != NULL && sql_replay_input_serialize(input, &bytes, &size) ==
+	   SQL_REPLAY_INPUT_INVALID && bytes == NULL && size == 0,
+	   "serializer rejects a mutated malformed canonical string");
+	free(bytes);
+	sql_replay_input_delete(input);
+	input = NULL;
+	projections[1] = "str(616)";
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID &&
+	   input == NULL, "string literals require complete lowercase hex pairs");
+	footer();
+	check_plan();
+}
+
+static void
 test_rejects_incomplete_or_invalid_inputs(void)
 {
 	plan(9);
@@ -312,6 +353,7 @@ int
 main(void)
 {
 	test_detached_single_relation_select();
+	test_canonical_expression_grammar();
 	test_rejects_incomplete_or_invalid_inputs();
 	test_canonical_msgpack();
 	return 0;
