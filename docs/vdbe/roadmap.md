@@ -611,8 +611,12 @@ M0-B corpus for the evaluation workloads.
   singletons. This is diversity-aware bounded admission, not a guarantee that
   every partition survives. The 112-test SQL suite passes (6 disabled).
   *parallel: no* (same `where.c` solver as E1.1/E1.3).
-- [ ] **E1.3** Property-aware dominance before beam truncation. *parallel:
-  no*.
+- [x] **E1.3** Before beam admission, discard a path dominated within the
+  same relation-subset/ORDER BY/reverse-scan partition across total cost,
+  unsorted cost, and estimated rows. Remove every same-partition path dominated
+  by a new candidate; retain incomparable candidates for future loop
+  extensions. The global beam cap and E1.2 diversity eviction still apply.
+  The 112-test SQL suite passes (6 disabled). *parallel: no*.
 - [ ] **E1.4** Legacy per-statement candidate, elapsed, and fallback counters
   are included in snapshot v2 and copied to an optional, non-gating harness
   manifest section. Global `box.stat.sql()` totals remain available. The E1

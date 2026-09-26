@@ -2927,6 +2927,31 @@ where_path_is_worse(const WherePath *a, const WherePath *b)
 	       (a->rCost == b->rCost && a->nRow > b->nRow);
 }
 
+static bool
+where_path_dominates(const WherePath *a, LogEst r_cost, LogEst r_unsorted,
+		     LogEst n_row)
+{
+	return a->rCost <= r_cost && a->rUnsorted <= r_unsorted &&
+	       a->nRow <= n_row;
+}
+
+static bool
+where_candidate_dominates(LogEst r_cost, LogEst r_unsorted, LogEst n_row,
+			  const WherePath *path)
+{
+	return r_cost <= path->rCost && r_unsorted <= path->rUnsorted &&
+	       n_row <= path->nRow;
+}
+
+static void
+where_path_copy(WherePath *dst, const WherePath *src, int n_loop)
+{
+	WhereLoop **a_loop = dst->aLoop;
+	*dst = *src;
+	dst->aLoop = a_loop;
+	memcpy(dst->aLoop, src->aLoop, sizeof(*a_loop) * n_loop);
+}
+
 /*
  * Given the list of WhereLoop objects at pWInfo->pLoops, this routine
  * attempts to find the lowest cost path that visits each WhereLoop
@@ -3102,63 +3127,80 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 					rCost = rUnsorted;
 				}
 
-				/* Check to see if pWLoop should be added to the set of
-				 * mxChoice best-so-far paths.
-				 *
-				 * First look for an existing path among best-so-far paths
-				 * that covers the same set of loops and has the same isOrdered
-				 * setting as the current path candidate.
-				 *
-				 * The term "((pTo->isOrdered^isOrdered)&0x80)==0" is equivalent
-				 * to (pTo->isOrdered==(-1))==(isOrdered==(-1))" for the range
-				 * of legal values for isOrdered, -1..64.
+				/* A path can dominate another only inside the same relation
+				 * subset/order/reverse-scan partition. Keep incomparable paths
+				 * because their lower unsorted cost or row estimate may pay off
+				 * when another loop is appended.
 				 */
+				bool removes_dominated = false;
 				for (jj = 0, pTo = aTo; jj < nTo; jj++, pTo++) {
-					if (where_path_same_partition(pTo, maskNew,
-								      isOrdered, revMask)) {
-						break;
-					}
+					if (!where_path_same_partition(pTo, maskNew,
+								      isOrdered, revMask))
+						continue;
+					if (where_path_dominates(pTo, rCost, rUnsorted,
+								 nOut))
+						goto candidate_dominated;
+					if (where_candidate_dominates(rCost, rUnsorted,
+							      nOut, pTo))
+						removes_dominated = true;
 				}
-				if (jj >= nTo) {
-					/* This candidate opens a new (relation subset, order
-					 * property) partition. Under a full global beam, preserve
-					 * diversity by evicting the worst member of a duplicated
-					 * partition before evicting a singleton partition.
-					 */
-					if (nTo < mxChoice) {
-						jj = nTo++;
-					} else {
-						int replace = -1;
-						for (int k = 0; k < nTo; k++) {
-							for (int m = k + 1; m < nTo; m++) {
-								if (!where_path_same_partition(
-									    &aTo[m], aTo[k].maskLoop,
-									    aTo[k].isOrdered,
-									    aTo[k].revLoop))
-									continue;
-								int worse = where_path_is_worse(
-									&aTo[k], &aTo[m]) ? k : m;
-								if (replace < 0 ||
-								    where_path_is_worse(
-									&aTo[worse], &aTo[replace]))
-									replace = worse;
-							}
-						}
-						if (replace < 0) {
-							replace = 0;
-							for (int k = 1; k < nTo; k++) {
-								if (where_path_is_worse(
-									    &aTo[k], &aTo[replace]))
-									replace = k;
-							}
-						}
-						pTo = &aTo[replace];
-						if (pTo->rCost < rCost ||
-						    (pTo->rCost == rCost &&
-						     pTo->nRow <= nOut))
+				if (removes_dominated) {
+					for (jj = 0; jj < nTo;) {
+						pTo = &aTo[jj];
+						if (where_path_same_partition(pTo, maskNew,
+									      isOrdered, revMask) &&
+						    where_candidate_dominates(rCost,
+								     rUnsorted, nOut,
+								     pTo)) {
+							int last = --nTo;
+							if (jj != last)
+								where_path_copy(pTo,
+										&aTo[last],
+										iLoop + 1);
 							continue;
-						jj = replace;
+						}
+						jj++;
 					}
+					jj = nTo++;
+					pTo = &aTo[jj];
+				} else if (nTo < mxChoice) {
+					jj = nTo++;
+					pTo = &aTo[jj];
+				} else {
+					/* This candidate opens a new (relation subset, order
+					 * property) partition, or is incomparable with all candidates
+					 * in its partition. Under a full global beam, preserve diversity
+					 * by evicting the worst member of a duplicated partition first.
+					 */
+					int replace = -1;
+					for (int k = 0; k < nTo; k++) {
+						for (int m = k + 1; m < nTo; m++) {
+							if (!where_path_same_partition(
+								    &aTo[m], aTo[k].maskLoop,
+								    aTo[k].isOrdered,
+								    aTo[k].revLoop))
+								continue;
+							int worse = where_path_is_worse(
+								&aTo[k], &aTo[m]) ? k : m;
+							if (replace < 0 ||
+							    where_path_is_worse(
+								&aTo[worse], &aTo[replace]))
+								replace = worse;
+						}
+					}
+					if (replace < 0) {
+						replace = 0;
+						for (int k = 1; k < nTo; k++) {
+							if (where_path_is_worse(
+								    &aTo[k], &aTo[replace]))
+								replace = k;
+						}
+					}
+					pTo = &aTo[replace];
+					if (pTo->rCost < rCost ||
+					    (pTo->rCost == rCost && pTo->nRow <= nOut))
+						continue;
+					jj = replace;
 					pTo = &aTo[jj];
 #ifdef SQL_DEBUG	/* 0x4 */
 					if (sqlWhereTrace & 0x4) {
@@ -3171,56 +3213,19 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 						     0 ? isOrdered + '0' : '?');
 					}
 #endif
-				} else {
-					/* Control reaches here if best-so-far path pTo=aTo[jj] covers the
-					 * same set of loops and has the sam isOrdered setting as the
-					 * candidate path.  Check to see if the candidate should replace
-					 * pTo or if the candidate should be skipped
-					 */
-					if (pTo->rCost < rCost
-					    || (pTo->rCost == rCost
-						&& pTo->nRow <= nOut)) {
-#ifdef SQL_DEBUG	/* 0x4 */
-						if (sqlWhereTrace & 0x4) {
-							sqlDebugPrintf("Skip   %s cost=%-3d,%3d order=%c",
-									   wherePathName(pFrom, iLoop,
-											 pWLoop),
-									   rCost,
-									   nOut,
-									   isOrdered >= 0 ? isOrdered + '0' : '?');
-							sqlDebugPrintf("   vs %s cost=%-3d,%d order=%c\n",
-									   wherePathName(pTo,
-											 iLoop + 1,
-											 0),
-									   pTo->rCost,
-									   pTo->nRow,
-									   pTo->isOrdered >= 0 ? pTo->isOrdered +'0' : '?');
-						}
-#endif
-						/* Discard the candidate path from further consideration */
-						continue;
-					}
-					/* Control reaches here if the candidate path is better than the
-					 * pTo path.  Replace pTo with the candidate.
-					 */
-#ifdef SQL_DEBUG	/* 0x4 */
-					if (sqlWhereTrace & 0x4) {
-						sqlDebugPrintf("Update %s cost=%-3d,%3d order=%c",
-								   wherePathName(pFrom, iLoop,
-										 pWLoop),
-								   rCost,
-								   nOut,
-								   isOrdered >= 0 ? isOrdered + '0' : '?');
-						sqlDebugPrintf("  was %s cost=%-3d,%3d order=%c\n",
-								   wherePathName(pTo,
-										 iLoop + 1,
-										 0),
-								   pTo->rCost,
-								   pTo->nRow,
-								   pTo->isOrdered >= 0 ? pTo->isOrdered + '0' : '?');
-					}
-#endif
 				}
+				goto candidate_ready;
+candidate_dominated:
+#ifdef SQL_DEBUG	/* 0x4 */
+				if (sqlWhereTrace & 0x4)
+					sqlDebugPrintf("Skip dominated path %s cost=%-3d,%3d order=%c\n",
+						       wherePathName(pFrom, iLoop,
+								     pWLoop),
+						       rCost, nOut,
+						       isOrdered >= 0 ? isOrdered + '0' : '?');
+#endif
+				continue;
+candidate_ready:
 				/* pWLoop is a winner.  Add it to the set of best so far */
 				pTo->maskLoop = pFrom->maskLoop | pWLoop->maskSelf;
 				pTo->revLoop = revMask;
