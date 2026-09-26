@@ -397,7 +397,16 @@ review of IDs and formats.
 - [ ] **S1.2** Re-enable `ANALYZE` grammar; remove the
   `unsupported ANALYZE` rejection path. *parallel: yes*.
 - [ ] **S1.3** Collection job — sample tuples, build summaries, persist
-  transactionally. Engine-agnostic core. *parallel: yes*.
+  transactionally. Engine-agnostic core. *parallel: yes*. The sampler boundary
+  is implemented, but collection population semantics are not interchangeable:
+  memtx `index_size()` subtracts active-transaction invisible tuples, whereas
+  Vinyl `index_size()` is an approximate LSM-statement count that may include
+  obsolete versions/tombstones. Vinyl visible population requires successful
+  exhaustive EOF, so budget exhaustion must fail collection closed. Next
+  implementation slice is a non-persistent candidate-snapshot builder with
+  complete relation/index validation and atomic in-memory publication. The
+  persistence/ANALYZE stages remain behind that contract; see
+  `sql_stats_sampling.md`. None of this approves or alters S1.1 IDs/formats.
 - [x] **S1.4 prototype** `SqlStatsSnapshot` API — immutable deep copy,
   reference-counted ownership, catalog/schema versions, relation/index
   cardinalities, confidence and freshness metadata, stale/missing lookup

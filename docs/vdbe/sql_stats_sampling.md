@@ -50,7 +50,10 @@ valid cardinality-only request.
 For memtx, `max_rows` and `max_bytes` cap delivered draws and tuple payload
 bytes. A draw that would exceed the remaining byte budget is not delivered.
 The result counts repeated draws and reports `with_replacement=true`; the
-population is unknown. For Vinyl, the same fields cap retained sample rows
+population is unknown to this sampling API. Memtx primary-index `size()` does
+account for the current transaction's invisible tuples, but that count is not
+currently part of this API and must not be treated as a population observed
+under a different read view. For Vinyl, the same fields cap retained sample rows
 and retained tuple payload bytes, while `max_buffer_bytes` separately caps all
 reservoir-owned memory, including metadata, slot array, and tuple copies.
 Both Vinyl bounds are checked before retaining a tuple. Zero row, payload,
@@ -153,12 +156,32 @@ rejections; active-transaction coverage verifies that the transaction's own
 uncommitted tuple is visible to the exhaustive scan. Other cases cover
 deterministic no-replacement sampling and visibility after
 update/delete/compaction. A fixed-fixture seed sweep is a quality smoke test,
-not a statistical proof. The test module and C/unit tests compile here, but
-the end-to-end runtime script remains unrun because this worktree's server
-build is blocked by the existing CnP-off compiler mismatch and CnP-on
-FindZLIB/LLVM imported-target collision. Cancellation is propagated through
-the iterator's
-existing error path; synchronous recovery-time reads are rejected while a
+not a statistical proof. The test module and C/unit tests compile, and the
+standalone Vinyl runtime guard passes against the configured CnP-enabled
+server build. Cancellation is propagated through the iterator's existing error
+path; synchronous recovery-time reads are rejected while a
 sampling work budget is attached. The sampler remains a prototype: no
 ANALYZE/collection integration, confidence calibration, cross-engine shared
 snapshot, or workload-level latency/read-amplification evaluation exists.
+
+## Collection contract still open (S1.3)
+
+The sampler is not itself a collection job. A collector must define which
+population its summaries describe and keep counts and sampled tuples on the
+same visibility basis. Memtx index `size()` subtracts tuples invisible to the
+active transaction, while the sampler draws through that transaction; this is
+a possible exact population input, but the collector must still handle empty
+indexes, errors, and a concurrent/schema-generation boundary. Vinyl
+`index_size()` is explicitly an approximate count of LSM statements and may
+include obsolete versions or tombstones, so it is not a visible-row count.
+Vinyl's visible population is known only after a successful exhaustive scan;
+bounded reservoir exhaustion is therefore a collection failure, not a partial
+publication.
+
+Before implementing ANALYZE, define a non-persistent candidate-snapshot
+builder that consumes one collection result and validates row count, average
+width, confidence, index tuple populations, and prefix NDVs as a complete
+unit. It must build off to the side and publish only after all relation/index
+summaries are valid; a failure must leave the currently installed snapshot
+unchanged. This contract does not choose system-space IDs, tuple layouts, or
+payload formats, which remain in the separate DRAFT schema review.
