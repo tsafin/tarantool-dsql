@@ -828,10 +828,16 @@ M0-B corpus for the evaluation workloads.
   engine (`select6/q96`, `where2/q128`, `whereK/q13`). All SQL-TAP runs passed;
   no accepted snapshots changed. The last two are plan/estimate diagnostic
   changes, and all three source statements are EXPLAIN captures. Aggregate
-  planner metrics changed as widths changed, but `elapsed_us` remained zero,
-  so this proves neither lower latency nor improved plan quality. Exact details
-  and reproduction instructions are in `test/sql-baselines/PLANNER_AB.md`;
-  full-width plan-quality evaluation remains open. *parallel: yes*.
+  planner metrics changed as widths changed. A rerun with the direct monotonic
+  planner timer records nonzero summed `elapsed_us`: memtx 53,882 µs default
+  versus 139,211 µs candidate (repeat 55,614 / 141,950 µs); Vinyl 55,871 µs
+  versus 140,882 µs (repeat 52,376 / 149,423 µs). These are planner-time sums
+  over successful SELECT/WITH snapshots, not end-to-end query latency or a
+  plan-quality measurement. The comparison covers the reviewed SQL-TAP
+  planner corpus, not the SQL and SQL-luatest M0 suites. Exact diffs and
+  reproduction instructions are in `test/sql-baselines/PLANNER_AB.md`; strict
+  cross-width parity and full-width plan-quality evaluation remain open.
+  *parallel: yes*.
 
 ---
 

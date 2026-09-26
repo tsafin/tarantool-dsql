@@ -139,6 +139,44 @@ same on both engines: candidate count −7, fallback count 0, generated
 captures reported `elapsed_us=0`; this provides no latency evidence. The
 complete local report is `/tmp/tarantool-e15-full-corpus-retry/report.json`.
 
+### Re-run with monotonic planner timing
+
+After the planner timer was changed to a direct monotonic clock, the same
+full reviewed SQL-TAP comparison was rerun from source HEAD
+`7122eb2474003803c6f9810913a4419b38361e4b`, using binary SHA-256
+`0af2e7313949650106df4404eb6de620414c90f5f5e143596e83b2d07310d337`:
+
+```sh
+python3 -B test/sql-baselines/planner_ab.py \
+  --repo /home/tsafin/tarantool \
+  --binary /tmp/tarantool-m1-build/src/tarantool \
+  --out /tmp/tarantool-e15-full-corpus-monotonic \
+  --widths 2,8,16 --full-corpus
+```
+
+All four captures again completed at 47,946 memtx and 37,990 Vinyl statements
+per run. Both default/candidate repeat comparisons passed with zero hard or
+soft snapshot differences, and planner metrics were structurally repeat-
+stable. Strict cross-width parity remains false with the same three explicit
+EXPLAIN differences per engine: `select6/q96`, `where2/q128`, and
+`whereK/q13`; matched counts remain 47,943/47,946 for memtx and 37,987/37,990
+for Vinyl. Their details and classifications are unchanged from the prior
+full-corpus run above.
+
+The monotonic planner timer produced nonzero summed `elapsed_us` totals across
+successful planner snapshots:
+
+| Engine | Planner snapshots/run | Default | Default repeat | Candidate | Candidate repeat |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| memtx | 24,263 | 53,882 µs | 55,614 µs | 139,211 µs | 141,950 µs |
+| Vinyl | 22,135 | 55,871 µs | 52,376 µs | 140,882 µs | 149,423 µs |
+
+Candidate/default first-run summed planner time is 2.58× for memtx and 2.52×
+for Vinyl. The timer is now useful for within-workload planning-cost
+comparison; these sums are not end-to-end query latency and do not evaluate
+plan quality. The full report is
+`/tmp/tarantool-e15-full-corpus-monotonic/report.json`.
+
 An exploratory **1/1/1** run changed where3 EXPLAIN QUERY PLAN join-order
 expectations (five TAP failures, including expected tB/tC/tA/tD versus
 tA/tB/tC/tD). This is a plan-output assertion difference, not an observed
