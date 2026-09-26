@@ -5668,7 +5668,7 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 		return;
 	v->planner_path_class = "fallback";
 	v->planner_fallback_reason = reason;
-	sql_record_planner_fallback();
+	sql_record_planner_fallback(fallback_reason);
 }
 
 /*

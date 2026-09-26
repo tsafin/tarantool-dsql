@@ -231,6 +231,14 @@ assert(planner_stats_after.sql_planner_fallback_total == 0)
 ---
 - true
 ...
+assert(planner_stats_after.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total == 0)
+---
+- true
+...
+assert(planner_stats_after.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total == 0)
+---
+- true
+...
 simple_count_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT count(*) FROM summary_t]])
 ---
 ...
@@ -268,6 +276,10 @@ assert(planner_stats_after_fallback.sql_planner_fallback_total > planner_stats_a
 ---
 - true
 ...
+assert(planner_stats_after_fallback.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total == planner_stats_after.sql_planner_fallback_UNSUPPORTED_RELATION_COUNT_total + 1)
+---
+- true
+...
 aggregate_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT count(*) FROM summary_t WHERE id > 0]])
 ---
 ...
@@ -287,6 +299,10 @@ planner_stats_after_aggregate_fallback = box.stat.sql()
 ---
 ...
 assert(planner_stats_after_aggregate_fallback.sql_planner_fallback_total > planner_stats_after_fallback.sql_planner_fallback_total)
+---
+- true
+...
+assert(planner_stats_after_aggregate_fallback.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total == planner_stats_after_fallback.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total + 1)
 ---
 - true
 ...

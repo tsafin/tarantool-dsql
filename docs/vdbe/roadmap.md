@@ -290,7 +290,7 @@ now increments at the multi-relation fallback route, and M1.2/M3.5 expose
 `fallback` plus stable `UNSUPPORTED_RELATION_COUNT` / `UNSUPPORTED_AGGREGATE`
 reasons through summary EXPLAIN; snapshot serialization preserves the reason
 and its live corpus capture is tested for the multi-relation case. Other
-fallback shapes, full M1.1 validation, and replay remain open. M1.3's
+fallback shapes and replay remain open. M1.3's
 structured summary surface handles both the legacy `current_where_c` path and
 that fallback outcome. Hosted CI publication is pending but does not block
 local M1 work.
@@ -306,15 +306,18 @@ them.
 
 **Subtasks:**
 
-- [ ] **M1.1** Add planner counters to `box.stat.sql()` —
+- [x] **M1.1** Add planner counters to `box.stat.sql()` —
   `sql_planner_candidates_total` and `sql_planner_elapsed_us` are hooked to
   WHERE-planner candidate insertion and elapsed-time paths.
   `sql_planner_fallback_total` now increments for the production multi-
   relation and aggregate fallback paths. They publish stable
   `UNSUPPORTED_RELATION_COUNT` and `UNSUPPORTED_AGGREGATE` reasons through
   summary EXPLAIN; snapshot serialization preserves the reason.
-  Per-reason counters, other fallback shapes, and broad end-to-end validation
-  remain open. `sql_statement_compiles_total` is preparatory only.
+  Per-reason counters are exposed as stable
+  `sql_planner_fallback_<REASON>_total` fields and tested for both routed
+  reasons. Candidate, elapsed, total fallback, and per-reason counter growth
+  are validated by the SQL suites. Other fallback shapes are tracked in M3.5;
+  `sql_statement_compiles_total` remains preparatory only.
   *parallel: no* (the fallback call site shares `where.c` with M3).
 - [x] **M1.2** Wire path_class emission in current `where.c` — statements
   invoking the WHERE planner store `current_where_c` on the per-statement

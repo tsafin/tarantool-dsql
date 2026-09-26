@@ -3603,7 +3603,7 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		v->planner_path_class = "fallback";
 		v->planner_fallback_reason =
 			sql_plan_fallback_reason_name(reason);
-		sql_record_planner_fallback();
+		sql_record_planner_fallback(reason);
 	}
 
 	/* Allocate and initialize the WhereInfo structure that will become the

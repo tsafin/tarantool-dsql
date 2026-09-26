@@ -337,7 +337,7 @@ void
 sql_record_planner_candidate(void);
 
 void
-sql_record_planner_fallback(void);
+sql_record_planner_fallback(uint32_t reason);
 
 void
 sql_record_planner_elapsed(uint64_t elapsed_us);

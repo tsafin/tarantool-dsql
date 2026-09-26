@@ -35,6 +35,7 @@
 #include "cfg.h"
 #include "sql.h"
 #include "sql/sqlInt.h"
+#include "sql/sql_plan_descriptor.h"
 #include "sql/tarantoolInt.h"
 #include "sql/mem.h"
 #include "sql/vdbeInt.h"
@@ -72,6 +73,7 @@ static char sql_cnp_last_compile_error[SQL_LAST_COMPILE_ERROR_MAX];
 static int64_t sql_statement_compiles_total;
 static int64_t sql_planner_candidates_total;
 static int64_t sql_planner_fallback_total;
+static int64_t sql_planner_fallback_by_reason[SQL_PLAN_FALLBACK_INVALID_CANDIDATE + 1];
 static int64_t sql_planner_elapsed_us;
 
 void
@@ -87,9 +89,12 @@ sql_record_planner_candidate(void)
 }
 
 void
-sql_record_planner_fallback(void)
+sql_record_planner_fallback(uint32_t reason)
 {
 	sql_planner_fallback_total++;
+	if (reason > SQL_PLAN_FALLBACK_NONE &&
+	    reason <= SQL_PLAN_FALLBACK_INVALID_CANDIDATE)
+		sql_planner_fallback_by_reason[reason]++;
 }
 
 void
@@ -1351,6 +1356,16 @@ sql_debug_info(struct info_handler *h)
 			sql_planner_candidates_total);
 	info_append_int(h, "sql_planner_fallback_total",
 			sql_planner_fallback_total);
+	for (uint32_t reason = SQL_PLAN_FALLBACK_UNRESOLVED_INPUT;
+	     reason <= SQL_PLAN_FALLBACK_INVALID_CANDIDATE; reason++) {
+		const char *reason_name = sql_plan_fallback_reason_name(reason);
+		if (reason_name == NULL)
+			continue;
+		char key[96];
+		snprintf(key, sizeof(key), "sql_planner_fallback_%s_total",
+			 reason_name);
+		info_append_int(h, key, sql_planner_fallback_by_reason[reason]);
+	}
 	info_append_int(h, "sql_planner_elapsed_us", sql_planner_elapsed_us);
 	info_append_int(h, "sql_interpreter_step_count",
 			sql_interpreter_step_count);
