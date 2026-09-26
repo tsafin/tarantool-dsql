@@ -1,49 +1,246 @@
 #include <stdlib.h>
 #include <string.h>
+
 #include "box/sql/sql_replay_input.h"
 #include "unit.h"
 
-static void test_detached_copy(void)
+static void
+test_detached_single_relation_select(void)
 {
-	plan(5); header();
-	char relation[] = "logical-r0", predicate[] = "eq(col(r0,c0),int(7))";
-	char index[] = "logical-i0", definition[] = "key(c0:int:binary;unique=false)";
-	struct sql_replay_input_spec spec = {relation, predicate, index, definition,
-		true, 12, 8, 1, 1, 32};
+	plan(8);
+	header();
+	char relation_key[] = "logical-r0";
+	char relation_def[] = "relation(columns=[int,binary;text,binary])";
+	char col_type0[] = "integer";
+	char col_coll0[] = "binary";
+	char col_type1[] = "string";
+	char col_coll1[] = "unicode";
+	struct sql_replay_column_spec columns[] = {
+		{col_type0, col_coll0}, {col_type1, col_coll1},
+	};
+	char index_key[] = "logical-i0";
+	char index_def[] = "key(parts=[c0:int:binary],unique=true)";
+	char pop_basis[] = "visible_rows@view-9";
+	char ndv_basis[] = "visible_rows@view-9";
+	uint32_t part_columns[] = {0};
+	uint64_t distinct_prefixes[] = {12};
+	struct sql_replay_index_spec indexes[] = {{
+		.logical_key = index_key, .canonical_definition = index_def,
+		.part_columns = part_columns, .part_count = 1,
+		.statistics_present = true, .tuple_count = 12,
+		.population_basis = pop_basis, .ndv_basis = ndv_basis,
+		.distinct_prefixes = distinct_prefixes, .prefix_count = 1,
+	}};
+	char relation_pop[] = "visible_rows@view-9";
+	char width_basis[] = "payload_bytes/sample_rows";
+	char confidence_source[] = "caller-calibrated-v1";
+	struct sql_replay_relation_spec relation = {
+		.logical_key = relation_key, .canonical_definition = relation_def,
+		.columns = columns, .column_count = 2, .indexes = indexes,
+		.index_count = 1, .statistics_present = true, .row_count = 12,
+		.cardinality_semantics = SQL_REPLAY_CARDINALITY_VISIBLE_ROWS,
+		.population_basis = relation_pop, .average_row_width = 8,
+		.width_basis = width_basis, .width_denominator_count = 12,
+		.confidence_ppm = 900000, .confidence_source = confidence_source,
+		.collected_at = 17, .modification_epoch = 3,
+	};
+	char predicate[] = "eq(col(r0,c0),int(7))";
+	char projection0[] = "col(r0,c0)";
+	char projection1[] = "col(r0,c1)";
+	const char *projections[] = {projection0, projection1};
+	char order_expr[] = "col(r0,c1)";
+	struct sql_replay_order_spec order[] = {{
+		.canonical_expression = order_expr, .descending = true,
+		.nulls_first = false,
+	}};
+	struct sql_replay_input_spec spec = {
+		.relation = relation, .predicate = predicate,
+		.projections = projections, .projection_count = 2,
+		.order_by = order, .order_by_count = 1,
+		.limit_present = true, .limit = 10,
+		.offset_present = true, .offset = 2,
+		.planner_algorithm_version = 1, .planner_config_version = 2,
+		.beam_width = 8,
+	};
 	struct sql_replay_input *input = NULL;
 	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_OK,
-	   "valid logical input accepted");
-	relation[0] = 'X'; predicate[0] = 'X'; index[0] = 'X'; definition[0] = 'X';
+	   "complete single-relation SELECT input accepted");
+	if (input == NULL) {
+		for (int i = 0; i < 7; i++)
+			ok(false, "detached input retains model components");
+		footer();
+		check_plan();
+		return;
+	}
+	strcpy(relation_key, "X");
+	strcpy(relation_def, "X");
+	strcpy(col_type0, "X");
+	strcpy(col_coll1, "X");
+	strcpy(index_key, "X");
+	strcpy(index_def, "X");
+	strcpy(pop_basis, "X");
+	strcpy(ndv_basis, "X");
+	strcpy(relation_pop, "X");
+	strcpy(width_basis, "X");
+	strcpy(confidence_source, "X");
+	strcpy(predicate, "X");
+	strcpy(projection0, "X");
+	strcpy(order_expr, "X");
+	part_columns[0] = 1;
+	distinct_prefixes[0] = 99;
 	ok(strcmp(input->relation_key, "logical-r0") == 0 &&
-	   strcmp(input->predicate, "eq(col(r0,c0),int(7))") == 0,
-	   "input owns relation and expression bytes");
-	ok(strcmp(input->index_key, "logical-i0") == 0 &&
-	   strcmp(input->index_definition,
-		  "key(c0:int:binary;unique=false)") == 0,
-	   "input owns logical access-path metadata");
+	   strcmp(input->relation_definition,
+		  "relation(columns=[int,binary;text,binary])") == 0 &&
+	   strcmp(input->columns[0].type, "integer") == 0 &&
+	   strcmp(input->columns[1].collation, "unicode") == 0,
+	   "relation, schema types, and collations are detached copies");
+	ok(input->index_count == 1 &&
+	   strcmp(input->indexes[0].logical_key, "logical-i0") == 0 &&
+	   strcmp(input->indexes[0].canonical_definition,
+		  "key(parts=[c0:int:binary],unique=true)") == 0 &&
+	   input->indexes[0].part_columns[0] == 0,
+	   "logical index definition and part ordinals are retained");
 	ok(input->statistics_present && input->row_count == 12 &&
-	   input->average_row_width == 8 && input->beam_width == 32,
-	   "statistics and planner config captured by value");
+	   input->cardinality_semantics == SQL_REPLAY_CARDINALITY_VISIBLE_ROWS &&
+	   strcmp(input->population_basis, "visible_rows@view-9") == 0 &&
+	   input->average_row_width == 8 && input->width_denominator_count == 12 &&
+	   input->confidence_ppm == 900000 && input->collected_at == 17 &&
+	   input->modification_epoch == 3,
+	   "relation statistics carry semantics, provenance, and freshness");
+	ok(input->indexes[0].statistics_present &&
+	   input->indexes[0].tuple_count == 12 &&
+	   strcmp(input->indexes[0].population_basis,
+		  "visible_rows@view-9") == 0 &&
+	   strcmp(input->indexes[0].ndv_basis,
+		  "visible_rows@view-9") == 0 &&
+	   input->indexes[0].distinct_prefixes[0] == 12,
+	   "index population and prefix NDV are copied with semantics");
+	ok(strcmp(input->predicate, "eq(col(r0,c0),int(7))") == 0 &&
+	   input->projection_count == 2 &&
+	   strcmp(input->projections[0], "col(r0,c0)") == 0 &&
+	   input->order_by_count == 1 &&
+	   strcmp(input->order_by[0].canonical_expression, "col(r0,c1)") == 0 &&
+	   input->order_by[0].descending && !input->order_by[0].nulls_first &&
+	   input->limit == 10 && input->offset == 2,
+	   "predicate, projection, order, limit, and offset are detached");	ok(input->planner_algorithm_version == 1 &&
+	   input->planner_config_version == 2 && input->beam_width == 8,
+	   "planner algorithm and configuration are captured");
 	sql_replay_input_delete(input);
 	input = NULL;
-	spec.index_key = "orphan"; spec.index_definition = NULL;
-	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID &&
-	   input == NULL, "incomplete candidate metadata rejected");
-	footer(); check_plan();
-}
 
-static void test_absent_stats(void)
-{
-	plan(2); header();
-	struct sql_replay_input_spec spec = {"r0", "true", NULL, NULL,
-		false, 0, 0, 1, 1, 1};
-	struct sql_replay_input *input = NULL;
-	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_OK,
-	   "explicitly absent statistics accepted");
-	ok(input != NULL && !input->statistics_present,
-	   "absence distinguished from measured zero");
+	indexes[0].part_columns = part_columns;
+	indexes[0].logical_key = "logical-i0";
+	indexes[0].canonical_definition = "key(c0)";
+	indexes[0].population_basis = "visible";
+	indexes[0].ndv_basis = "visible";
+	indexes[0].distinct_prefixes = distinct_prefixes;
+	indexes[0].prefix_count = 1;
+	indexes[0].part_count = 1;
+	indexes[0].statistics_present = true;
+	indexes[0].tuple_count = 12;
+	columns[0] = (struct sql_replay_column_spec){"integer", "binary"};
+	columns[1] = (struct sql_replay_column_spec){"string", "binary"};
+	projections[0] = "col(r0,c0)";
+	order[0].canonical_expression = "col(r0,c1)";
+	relation.logical_key = "r0";
+	relation.canonical_definition = "table";
+	relation.statistics_present = false;
+	relation.row_count = 0;
+	relation.cardinality_semantics = 0;
+	relation.population_basis = NULL;
+	relation.average_row_width = 0;
+	relation.width_basis = NULL;
+	relation.width_denominator_count = 0;
+	relation.confidence_ppm = 0;
+	relation.confidence_source = NULL;
+	relation.collected_at = 0;
+	relation.modification_epoch = 0;
+	relation.index_count = 0;
+	spec.relation = relation;
+	spec.predicate = "true";
+	spec.order_by_count = 0;
+	spec.limit_present = false;
+	spec.limit = 0;
+	spec.offset_present = false;
+	spec.offset = 0;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_OK &&
+	   input != NULL && !input->statistics_present && input->row_count == 0,
+	   "explicitly absent statistics differ from measured zero");
 	sql_replay_input_delete(input);
-	footer(); check_plan();
+	footer();
+	check_plan();
 }
 
-int main(void) { test_detached_copy(); test_absent_stats(); return 0; }
+static void
+test_rejects_incomplete_or_invalid_inputs(void)
+{
+	plan(6);
+	header();
+	struct sql_replay_column_spec column = {"integer", "binary"};
+	const char *projection[] = {"col(r0,c0)"};
+	struct sql_replay_relation_spec relation = {
+		.logical_key = "r0", .canonical_definition = "table",
+		.columns = &column, .column_count = 1,
+	};
+	struct sql_replay_input_spec spec = {
+		.relation = relation, .predicate = "true", .projections = projection,
+		.projection_count = 1, .planner_algorithm_version = 1,
+		.planner_config_version = 1, .beam_width = 1,
+	};
+	struct sql_replay_input *input = NULL;
+	struct sql_replay_index_spec bad_index = {
+		.logical_key = "i0", .canonical_definition = "key(c9)",
+		.part_columns = (uint32_t[]){9}, .part_count = 1,
+	};
+	spec.relation.indexes = &bad_index;
+	spec.relation.index_count = 1;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID &&
+	   input == NULL, "out-of-range index part rejected");
+	spec.relation.index_count = 0;
+	spec.relation.statistics_present = true;
+	spec.relation.row_count = 0;
+	spec.relation.cardinality_semantics = SQL_REPLAY_CARDINALITY_VISIBLE_ROWS;
+	spec.relation.population_basis = "visible";
+	spec.relation.width_basis = "bytes/rows";
+	spec.relation.width_denominator_count = 0;
+	spec.relation.confidence_ppm = 1000001;
+	spec.relation.confidence_source = "test";
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "missing width denominator and invalid confidence rejected");
+	spec.relation.statistics_present = false;
+	spec.relation.row_count = 0;
+	spec.relation.cardinality_semantics = 0;
+	spec.relation.population_basis = NULL;
+	spec.relation.width_basis = NULL;
+	spec.relation.width_denominator_count = 0;
+	spec.relation.confidence_ppm = 0;
+	spec.relation.confidence_source = NULL;
+	spec.offset_present = true;
+	spec.offset = 1;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "offset without a limit rejected");
+	spec.offset_present = false;
+	spec.offset = 0;
+	spec.relation.columns = NULL;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "missing logical column definitions rejected");
+	spec.relation.columns = &column;
+	spec.projections = NULL;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "missing normalized projection list rejected");
+	spec.projections = projection;
+	spec.relation.statistics_present = false;
+	spec.relation.row_count = 1;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "statistics absence cannot conceal a nonzero row count");
+	footer();
+	check_plan();
+}
+
+int
+main(void)
+{
+	test_detached_single_relation_select();
+	test_rejects_incomplete_or_invalid_inputs();
+	return 0;
+}

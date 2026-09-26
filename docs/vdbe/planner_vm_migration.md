@@ -476,13 +476,16 @@ entry point and test exist, M1.4/M1.5 remain open and version 2 must continue to
 report `replayable=false`.
 
 The `sql_replay_input` unit prototype is intentionally narrower than this
-acceptance contract: it owns a single relation's logical labels, a canonical
-predicate string, optional logical candidate definition, explicit stats
-presence/value, and planner version/config scalars. It copies supplied bytes
-and stores no live `Expr`, catalog handle, cursor, or storage ID. It does not
-yet normalize/validate those strings, define complete relation/index metadata
-or statistics semantics, serialize canonically, extract from SQL, or feed a
-planner. It is not a `replay_inputs` payload and does not change version 2.
+acceptance contract. It owns a single-relation SELECT subset: opaque normalized
+predicate/projection/order expressions, limit/offset, logical relation column
+types/collations, logical index definitions and part ordinals, relation/index
+population and NDV statistics, confidence/freshness metadata, and planner
+configuration scalars. It copies supplied values and stores no live `Expr`,
+catalog handle, cursor, or storage ID. It does not validate the canonical
+syntax of expressions/schema strings, serialize canonically, extract from SQL,
+or feed a planner. Multi-relation expressions, joins, aggregates, and other
+planner semantics remain absent. It is not a `replay_inputs` payload and does
+not change version 2.
 
 ## Testing Strategy
 
