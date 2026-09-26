@@ -32,6 +32,8 @@ each map to a sub-issue; their checklist items map to individual tasks.
   authoritative parity baseline (frozen subset).
 - [`statistics_implementation_plan.md`](statistics_implementation_plan.md) —
   statistics infrastructure design.
+- [`sql_stats_sampling.md`](sql_stats_sampling.md) — S1 memtx/Vinyl sampling
+  contracts and feasibility constraints.
 - [`planner_vm_migration.md`](planner_vm_migration.md) — staged migration
   of `where.c` to planner-IR + VDBE lowering.
 - [`next_gen_sql_planner.md`](next_gen_sql_planner.md) — architecture survey
