@@ -25597,6 +25597,48 @@
       }
     },
     {
+      "test": "sql/planner_fallback_no_from.test.lua",
+      "engines": [
+        "memtx",
+        "vinyl"
+      ],
+      "category": "planner_diagnostic",
+      "reason": "This fixture only asserts EXPLAIN planner summary metadata and counters; its SELECT is not executed, so it is not a SQL-result snapshot or native-dispatch workload.",
+      "introduced_after_baseline": true,
+      "evidence": {
+        "memtx": {
+          "normal_runner": {
+            "status": "pass",
+            "engines": ["memtx", "vinyl"],
+            "exit_code": 0
+          },
+          "classification": {
+            "status": "reviewed_exclusion",
+            "reason": "The sole box.execute statement is EXPLAIN (planner = 'summary') SELECT 1; planner assertions are covered by this regression but do not execute the target SELECT."
+          },
+          "native_matrix": {
+            "status": "not_applicable",
+            "reason": "No target SELECT executes, so CnP/LLVM native participation cannot be measured."
+          }
+        },
+        "vinyl": {
+          "normal_runner": {
+            "status": "pass",
+            "engines": ["memtx", "vinyl"],
+            "exit_code": 0
+          },
+          "classification": {
+            "status": "reviewed_exclusion",
+            "reason": "The sole box.execute statement is EXPLAIN (planner = 'summary') SELECT 1; planner assertions are covered by this regression but do not execute the target SELECT."
+          },
+          "native_matrix": {
+            "status": "not_applicable",
+            "reason": "No target SELECT executes, so CnP/LLVM native participation cannot be measured."
+          }
+        }
+      }
+    },
+    {
       "test": "sql/persistency.test.lua",
       "engines": [
         "memtx"

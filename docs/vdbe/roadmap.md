@@ -152,8 +152,8 @@ gated on "no result regression, no diagnostic regression, and reviewed
 planner-path changes."
 
 **State:** `COMPLETE` for the M0-A/M0-B parity gate in this branch. Manifest
-v1 capture is fail-closed. Policy v2 reviews all 385 tests / 770 engine
-pairs: 588 included, 182 excluded with evidence, none pending. The accepted
+v1 capture is fail-closed. Policy v2 reviews all 386 tests / 772 engine
+pairs: 588 included, 184 excluded with evidence, none pending. The accepted
 anchor is `04b63d19ab7deaa233ec2549d467b79d0cf4f5f2`; the CI jobs use
 that named full-corpus policy. A clean native build passed the full local
 generated/CnP/LLVM matrix (298 memtx tests / 49,535 queries and 290 Vinyl
@@ -728,13 +728,17 @@ DML, triggers, subprograms, non-deterministic functions.
   'snapshot')`. No snapshots were promoted and no parity claim is made. The
   original anchor predates the diagnostic API. An exploratory capture from
   snapshot-capable anchor `2bae9591` completed all 49,535 memtx snapshots,
-  but the head-side inventory then rejected the newly added
-  `sql/planner_fallback_no_from.test.lua` because it has no reviewed entry in
-  `corpus.json`; therefore coverage equality and diff were not run. The
-  remaining choice is to update the reviewed baseline/policy to a compatible
-  anchor that contains the new fixture, or add an explicit candidate-only
-  corpus policy with independently reviewed evidence. No snapshots were
-  promoted and no parity claim is made. *parallel: yes*.
+  but the head-side inventory initially rejected the newly added
+  `sql/planner_fallback_no_from.test.lua`. The corpus policy now records it as
+  an evidence-backed, post-baseline exclusion: it only asserts planner
+  diagnostics over `EXPLAIN` and does not execute a SQL workload. Baseline
+  capture alone may omit that explicitly reviewed file; candidate inventory
+  must still find it, and policy comparison verifies it is absent at the
+  immutable anchor. This resolves the inventory gap but does not establish
+  snapshot parity. The declared `04b63d19` anchor still predates the v2
+  snapshot envelope, so recapture against that anchor fails closed before a
+  full diff. No snapshots were promoted and no parity claim is made.
+  *parallel: yes*.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.

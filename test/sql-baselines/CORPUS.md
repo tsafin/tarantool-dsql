@@ -1,19 +1,25 @@
 # SQL parity corpus policy
 
-`corpus.json` is the accepted **full-corpus v2** policy. It covers all 385
+`corpus.json` is the accepted **full-corpus v2** policy. It covers all 386
 discovered tests across SQL TAP, SQL-language, and luatest: 588 test/engine
-pairs are included and 182 are explicitly excluded, with no pending pair.
+pairs are included and 184 are explicitly excluded, with no pending pair.
 The inventory command scans top-level `*.test.lua` and `*.test.sql` in
 `test/sql` and `test/sql-tap`, and `*_test.lua` in `test/sql-luatest`.
 An added test fails full-corpus inventory until both engine decisions are
-reviewed; it cannot silently inherit seed-smoke pending status.
+reviewed; it cannot silently inherit seed-smoke pending status. A narrowly
+scoped `introduced_after_baseline` exclusion may document a reviewed test that
+does not exist at the immutable baseline: only baseline capture may allow that
+absence, while candidate inventory must still contain the declared test.
 
 Full-corpus acceptance requires a reviewed decision for both engines of
 every discovered test. Every inclusion is `verified_parity` with
 per-engine audit evidence; every exclusion needs a specific category, reason,
 and evidence. `capture_pending`, `parity_pending`, and other unreviewed states
 are rejected as full-corpus exclusions. The three suite reviews are assembled
-with `assemble_policy.py`; later policy changes require a new reviewed anchor.
+with `assemble_policy.py`; ordinary policy changes require a new reviewed
+anchor. The explicit `introduced_after_baseline` exclusion is the exception:
+it retains the accepted SHA while making a new, non-workload diagnostic test
+visible in candidate inventory and absent only from baseline capture.
 
 ```sh
 python3 test/sql-baselines/corpus.py inventory --repo . --out /tmp/sql-corpus-inventory.json
