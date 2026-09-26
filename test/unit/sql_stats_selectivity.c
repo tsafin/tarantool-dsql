@@ -559,7 +559,7 @@ test_joint_ndv_residual_tail(void)
 static void
 test_uniform_and_skewed_qerror(void)
 {
-	plan(7);
+	plan(8);
 	header();
 	int uniform_keys[1000];
 	struct sql_stats_ordered_value uniform_values[1000];
@@ -593,6 +593,23 @@ test_uniform_and_skewed_qerror(void)
 		SQL_STATS_RANGE_LE, &result) == 0 &&
 	   q_error(result.value, 0.5) <= 1.05,
 	   "uniform median range q-error is near one");
+	/* Exercise every histogram bucket edge against the source distribution,
+	 * not just a median point. This remains a standalone estimator probe;
+	 * these values are not captured SQL. */
+	bool uniform_ranges_within_bound = true;
+	for (int bucket = 0; bucket < 20; bucket++) {
+		int boundary = (bucket + 1) * 50 - 1;
+		if (sql_stats_estimate_range(&uniform, &boundary,
+					     sizeof(boundary), SQL_STATS_RANGE_LE,
+					     &result) != 0 ||
+		    result.source != SQL_STATS_SELECTIVITY_HISTOGRAM ||
+		    q_error(result.value, (boundary + 1) / 1000.0) > 1.05) {
+			uniform_ranges_within_bound = false;
+			break;
+		}
+	}
+	ok(uniform_ranges_within_bound,
+	   "uniform range matrix has q-error at most 1.05 at every bucket edge");
 	sql_stats_histogram_delete(uniform_hist);
 
 	int skewed_keys[1000];

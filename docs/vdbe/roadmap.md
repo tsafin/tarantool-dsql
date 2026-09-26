@@ -542,8 +542,17 @@ review of IDs and formats.
   in `test/unit/sql_stats_selectivity.c`). These validate estimator behavior
   with supplied summaries, but do not collect statistics from the M0 SQL
   corpus or establish planner q-error improvement; S1.9 remains open pending
-  corpus integration and a reviewed q-error acceptance criterion. *parallel:
-  yes*.
+  corpus integration and a reviewed q-error acceptance criterion. The M0
+  snapshot contract captures executed SQL results and planner path diagnostics;
+  it has no field for estimated cardinalities or actual-vs-estimated rows, and
+  the standalone estimator has no SQL collection/provider path. Writing its
+  synthetic values as ordinary M0 snapshots would falsely imply execution and
+  planner evidence. As a bounded validation improvement, the uniform unit
+  fixture now checks q-error at all 20 histogram bucket edges (<= 1.05), while
+  the separate skewed workload fixture checks each distinct CDF boundary
+  (<= 1.06). Both remain algorithm-only probes. Closing S1.9 still requires a
+  reviewed estimate/actual evidence shape, corpus workload integration through
+  a real stats provider, and an accepted q-error gate. *parallel: yes*.
 
 ---
 
@@ -638,6 +647,8 @@ the `where.c` selectivity adapter wait for that interface.
   equality, and a negatively correlated rare conjunction where the joint MCV
   corrects independence's q-error from 25 to 1. A complete joint sample also
   corrects a mixed range/equality correlation probe's q-error from 2 to 1.
+  Uniform range estimates now also have a q-error matrix at every bucket edge
+  (maximum 1.05), complementing the existing skewed CDF boundary matrix.
   A NULL-heavy (90%) fixture checks `IS NULL`, MCV, and residual equality
   estimates against their known frequencies, each at q-error 1.
   These validate the standalone estimator only; the M0 SQL corpus still lacks
