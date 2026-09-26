@@ -152,6 +152,83 @@ test_extract_resolved_select(void)
 	check_plan();
 }
 
+static bool
+contains_bytes(const char *data, size_t size, const char *needle,
+	       size_t needle_size)
+{
+	if (needle_size > size)
+		return false;
+	for (size_t i = 0; i <= size - needle_size; i++) {
+		if (memcmp(data + i, needle, needle_size) == 0)
+			return true;
+	}
+	return false;
+}
+
+static void
+test_extract_select_from_catalog(void)
+{
+	plan(3);
+	header();
+	struct field_def fields[] = {{
+		.type = FIELD_TYPE_INTEGER, .name = "id",
+		.nullable_action = ON_CONFLICT_ACTION_ABORT,
+	}};
+	struct space_def *definition = calloc(1, sizeof(*definition) +
+					      sizeof("catalog_relation"));
+	if (definition == NULL) {
+		for (int i = 0; i < 3; i++)
+			ok(false, "catalog SELECT fixture allocation succeeds");
+		footer();
+		check_plan();
+		return;
+	}
+	definition->id = 1234;
+	definition->fields = fields;
+	definition->field_count = 1;
+	strcpy(definition->name, "catalog_relation");
+	struct space source_space = {.def = definition};
+	struct SrcList sources = {
+		.nSrc = 1,
+		.a = {{.space = &source_space, .iCursor = 1}},
+	};
+	struct Expr column = {
+		.op = TK_COLUMN_REF, .flags = EP_Resolved, .iTable = 1,
+		.iColumn = 0,
+	};
+	struct ExprList_item projection_item = {.pExpr = &column};
+	struct ExprList projection = {.nExpr = 1, .a = &projection_item};
+	struct Select select = {
+		.pEList = &projection, .pSrc = &sources,
+		.selFlags = SF_Resolved,
+	};
+	const uint32_t cursor_map[] = {UINT32_MAX, 0};
+	struct sql_replay_input *input = NULL;
+	ok(sql_replay_input_extract_select_from_catalog(
+		   &select, cursor_map, 2, 1, 2, 4, &input) ==
+	   SQL_REPLAY_INPUT_OK && input != NULL &&
+	   strcmp(input->relation_key, "r0") == 0 &&
+	   strcmp(input->columns[0].type, "integer") == 0 &&
+	   input->planner_config_version == 2 && input->beam_width == 4,
+	   "catalog SELECT extraction captures detached schema and config");
+	char *bytes = NULL;
+	size_t size = 0;
+	bool serialized = input != NULL &&
+		sql_replay_input_serialize(input, &bytes, &size) ==
+		SQL_REPLAY_INPUT_OK;
+	ok(serialized && !contains_bytes(bytes, size, "1234", 4),
+	   "catalog storage space ID is absent from replay serialization");
+	column.iColumn = 9;
+	ok(input != NULL && strcmp(input->projections[0], "col(r0,c0)") == 0,
+	   "catalog extraction owns normalized expressions after AST mutation");
+	free(bytes);
+	if (input != NULL)
+		sql_replay_input_delete(input);
+	free(definition);
+	footer();
+	check_plan();
+}
+
 static void
 test_detached_single_relation_select(void)
 {
@@ -500,6 +577,7 @@ int
 main(void)
 {
 	test_extract_resolved_select();
+	test_extract_select_from_catalog();
 	test_detached_single_relation_select();
 	test_canonical_expression_grammar();
 	test_rejects_incomplete_or_invalid_inputs();
