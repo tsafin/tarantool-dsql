@@ -351,8 +351,20 @@ them.
   it intentionally does not choose persistence IDs or formats. Focused SQL
   checks assert v2 remains non-replayable and has no partial `replay_inputs`
   on both legacy and fallback paths, and the corpus capturer rejects a v2
-  object that violates either invariant. This validates the diagnostic-only
-  boundary, not replay support. Replay execution stays in M1.5.
+  object that violates either invariant. An audit of the narrow M3 single-
+  relation IR found it is not yet a safe source for a new replay envelope:
+  logical nodes borrow resolved `Expr` / `ExprList` trees from the live
+  statement and carry the catalog `space_id`; the physical planner receives
+  access candidates from a caller-supplied provider, while the IR does not
+  capture relation/index definitions or the exact statistics/configuration
+  used to form those candidates. Serializing that object would therefore
+  retain live compiler/catalog dependencies and omit planner inputs. This
+  validates the diagnostic-only boundary, not replay support. The smallest
+  prerequisite is a detached canonical normalized-input model plus an
+  extraction/validation API that rejects unsupported expressions and records
+  logical relation/index metadata, statistics semantics, and planner config;
+  only then can a new envelope version be evaluated. Replay execution stays
+  in M1.5.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current M1.4
