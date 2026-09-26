@@ -57,6 +57,46 @@ struct sql_replay_order_spec {
 	bool nulls_first;
 };
 
+enum sql_replay_access_kind {
+	SQL_REPLAY_ACCESS_PRIMARY_KEY_POINT = 1,
+	SQL_REPLAY_ACCESS_INDEX_POINT = 2,
+	SQL_REPLAY_ACCESS_INDEX_RANGE = 3,
+	SQL_REPLAY_ACCESS_INDEX_FULL = 4,
+	SQL_REPLAY_ACCESS_TABLE_FULL = 5,
+};
+
+enum sql_replay_constraint_operator {
+	SQL_REPLAY_CONSTRAINT_EQUAL = 1,
+	SQL_REPLAY_CONSTRAINT_LOWER = 2,
+	SQL_REPLAY_CONSTRAINT_UPPER = 3,
+};
+
+struct sql_replay_constraint_spec {
+	const char *canonical_expression;
+	enum sql_replay_constraint_operator op;
+};
+
+struct sql_replay_access_candidate_spec {
+	/* Stable logical identity; provider rank is represented by array order. */
+	const char *logical_key;
+	enum sql_replay_access_kind kind;
+	const char *index_key;
+	const struct sql_replay_constraint_spec *constraints;
+	size_t constraint_count;
+	bool descending;
+	const uint32_t *projected_columns;
+	size_t projected_column_count;
+	const struct sql_replay_order_spec *produced_order;
+	size_t produced_order_count;
+	double estimated_rows;
+	uint32_t estimate_confidence_ppm;
+	double startup_cost;
+	double total_cost;
+	double estimated_width;
+	uint32_t cost_confidence_ppm;
+	double cost_rows;
+};
+
 /* Detached normalized single-relation SELECT subset. All strings are copied
  * by create(); identifiers are logical ordinals/labels, never storage IDs.
  * Expression strings are expected to come from the validated M3 normalizer.
@@ -68,6 +108,9 @@ struct sql_replay_input_spec {
 	size_t projection_count;
 	const struct sql_replay_order_spec *order_by;
 	size_t order_by_count;
+	const struct sql_replay_access_candidate_spec *access_candidates;
+	size_t access_candidate_count;
+	bool access_candidates_present;
 	bool limit_present;
 	uint64_t limit;
 	bool offset_present;
@@ -103,6 +146,31 @@ struct sql_replay_order {
 	bool nulls_first;
 };
 
+struct sql_replay_constraint {
+	char *canonical_expression;
+	enum sql_replay_constraint_operator op;
+};
+
+struct sql_replay_access_candidate {
+	char *logical_key;
+	enum sql_replay_access_kind kind;
+	char *index_key;
+	struct sql_replay_constraint *constraints;
+	size_t constraint_count;
+	bool descending;
+	uint32_t *projected_columns;
+	size_t projected_column_count;
+	struct sql_replay_order *produced_order;
+	size_t produced_order_count;
+	double estimated_rows;
+	uint32_t estimate_confidence_ppm;
+	double startup_cost;
+	double total_cost;
+	double estimated_width;
+	uint32_t cost_confidence_ppm;
+	double cost_rows;
+};
+
 struct sql_replay_input {
 	char *relation_key;
 	char *relation_definition;
@@ -126,6 +194,9 @@ struct sql_replay_input {
 	size_t projection_count;
 	struct sql_replay_order *order_by;
 	size_t order_by_count;
+	struct sql_replay_access_candidate *access_candidates;
+	size_t access_candidate_count;
+	bool access_candidates_present;
 	bool limit_present;
 	uint64_t limit;
 	bool offset_present;
@@ -144,11 +215,12 @@ enum sql_replay_input_status {
 enum sql_replay_input_status
 sql_replay_input_create(const struct sql_replay_input_spec *spec,
 			struct sql_replay_input **result);
-void sql_replay_input_delete(struct sql_replay_input *input);
+void
+sql_replay_input_delete(struct sql_replay_input *input);
 
 /* Return owned deterministic MsgPack bytes for input format version 2. */
 enum sql_replay_input_status
-sql_replay_input_serialize(const struct sql_replay_input *input,
-			   char **data, size_t *size);
+sql_replay_input_serialize(const struct sql_replay_input *input, char **data,
+			   size_t *size);
 
 #endif

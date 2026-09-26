@@ -371,7 +371,7 @@ them.
   per-index tuple-count semantics and definition version. Validation
   rejects incomplete definitions, invalid index ordinals, inconsistent stats
   absence, and malformed limit/order metadata. A deterministic internal
-  MsgPack input format v2 emits fixed lexicographic map-key order, sorts
+  MsgPack input format v3 emits fixed lexicographic map-key order, sorts
   logical indexes by key, and preserves semantically ordered columns,
   projections, ordering, and key parts. Reordered equivalent index inputs
   serialize to byte-identical valid MsgPack. Predicate, projection, and
@@ -393,16 +393,23 @@ them.
   `SqlStatsSnapshot`, including visible/physical/estimated population
   semantics, population/NDV provenance, width, confidence, and freshness
   fields. Missing or stale relation summaries stay explicitly
-  absent; malformed or non-integral values that replay input v2 cannot
+  absent; malformed or non-integral values that replay input v3 cannot
   represent exactly fail closed. Planner configuration remains caller-
   supplied. All extractors reject unsupported cursor bindings,
   expressions/functions, limits, and SELECT structure without returning
-  partial input; outputs retain no live AST/catalog pointers. This is not
-  complete planner-input acquisition: access-path/cost-provider metadata,
-  stats capture from the active planner provider, joins/aggregates, and a
-  planner consumer
-  remain absent. M1.4 remains open and v2 remains
-  `replayable=false`.
+  partial input; outputs retain no live AST/catalog pointers. The owned model
+  also optionally carries a provider-supplied ordered access-
+  candidate list distinguishing primary-key point, index point/range/full, and
+  table-full access, with logical index keys, canonical constraints, scan
+  direction, projected logical columns, produced order, separate access-
+  estimated and cost rows, and finite confidence/cost metrics. Rank order is
+  preserved because planner tie-breaking may consume it; stable candidate keys
+  must be unique. Missing provider output differs from a known empty set. This
+  remains caller/provider supplied: the active SQL planner producer is not
+  wired to it. Stats capture from the active planner provider, joins/aggregates,
+  and a planner consumer remain absent. M1.4 remains open. The external
+  diagnostic envelope remains v2 and `replayable=false`; the internal detached
+  input prototype is v3 and is not embedded in that envelope.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2

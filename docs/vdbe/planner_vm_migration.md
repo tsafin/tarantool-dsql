@@ -482,10 +482,18 @@ scalar-expression grammar and relation column bounds, limit/offset, logical rela
 types/collations, logical index definitions and part ordinals, relation/index
 population and NDV statistics, confidence/freshness metadata, and planner
 configuration scalars, plus per-index tuple-count semantics and definition
-version. It copies supplied values and stores no live `Expr`, catalog handle,
-cursor, or storage ID. It emits an internal version-2 MsgPack
-representation with fixed map-key order and logical-index ordering. It still
-does not validate relation/index schema-definition syntax or feed a planner.
+version. It optionally carries provider-supplied ordered access candidates for
+primary-key point, index point/range/full, or table-full access, with logical
+index keys, canonical constraints, scan direction, projected logical columns,
+produced ordering, access-estimated rows, and separate cost rows/startup/total/
+width/confidence. Candidate rank is preserved because provider tie-break order
+may be meaningful; stable logical candidate keys must be unique. Missing
+provider output differs from a known empty set. All candidate data is supplied
+by callers/providers: no active SQL planner producer is wired to this model.
+It copies values and stores no live `Expr`, catalog handle, cursor, or storage
+ID. It emits an internal version-3 MsgPack representation with fixed map-key
+order and logical-index ordering. It still does not validate relation/index
+schema-definition syntax or feed a planner.
 `sql_replay_input_extract_select()` now accepts a resolved single-relation
 `Select`, caller-provided cursor bindings, and detached relation/statistics/
 planner metadata. A companion
@@ -499,7 +507,7 @@ point leaves statistics absent. The snapshot-backed variant copies measured
 relation/index summaries and their semantics, provenance, confidence, and
 freshness from an immutable provider; stale or missing relation statistics
 remain explicitly absent, while values not exactly representable by replay
-input v2 fail closed. Planner configuration remains caller-supplied. The
+input v3 fail closed. Planner configuration remains caller-supplied. The
 extractor canonicalizes predicate, projection, and ordering
 expressions, captures sort direction and Tarantool's default NULL ordering,
 and extracts nonnegative integer literal LIMIT/OFFSET values. Unsupported
@@ -507,7 +515,7 @@ functions/expressions and non-literal bounds fail closed. The output owns no
 AST or catalog pointers; callers still provide planner settings and any
 measured statistics. Multi-relation expressions, joins, aggregates, and
 other planner semantics remain absent. It is not a `replay_inputs` payload
-and does not change version 2.
+and does not change the external diagnostic envelope version.
 
 ## Testing Strategy
 
