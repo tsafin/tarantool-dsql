@@ -51,7 +51,7 @@ test_descriptor_owns_input(void)
 static void
 test_rejects_invalid_contract(void)
 {
-	plan(4);
+	plan(6);
 	header();
 	struct sql_plan_expression expr[] = {{1, "x"}};
 	struct sql_plan_descriptor_input input = {
@@ -67,6 +67,9 @@ test_rejects_invalid_contract(void)
 	sql_plan_descriptor_delete(d);
 	input.descriptor_version = 2;
 	ok(sql_plan_descriptor_new(&input) == NULL, "unknown schema rejected");
+	ok(sql_plan_descriptor_get_input(NULL) == NULL &&
+	   sql_plan_descriptor_version(NULL) == 0,
+	   "NULL descriptor getters are safe");
 	input.descriptor_version = 1;
 	input.path_class = SQL_PLAN_FALLBACK;
 	ok(sql_plan_descriptor_new(&input) == NULL,
@@ -75,6 +78,10 @@ test_rejects_invalid_contract(void)
 	d = sql_plan_descriptor_new(&input);
 	ok(d != NULL, "fallback with reason accepted");
 	sql_plan_descriptor_delete(d);
+	input.path_class = (enum sql_plan_path_class)-1;
+	input.fallback_reason = 0;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "negative enum values rejected");
 	footer();
 	check_plan();
 }

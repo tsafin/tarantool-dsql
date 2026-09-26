@@ -36,7 +36,8 @@ valid_terms(const struct sql_plan_order_term *terms, size_t n)
 {
 	if (!valid_array(terms, n, sizeof(*terms))) return false;
 	for (size_t i = 0; i < n; ++i)
-		if (terms[i].direction > SQL_PLAN_DESC ||
+		if (terms[i].direction < SQL_PLAN_ASC ||
+		    terms[i].direction > SQL_PLAN_DESC ||
 		    (terms[i].nulls_first != 0 && terms[i].nulls_first != 1))
 			return false;
 	return true;
@@ -61,9 +62,13 @@ struct sql_plan_descriptor *
 sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 {
 	if (in == NULL || in->descriptor_version != 1 ||
-	    in->planner_version == 0 || in->path_class > SQL_PLAN_FALLBACK ||
+	    in->planner_version == 0 ||
+	    in->path_class < SQL_PLAN_CURRENT_WHERE_C ||
+	    in->path_class > SQL_PLAN_FALLBACK ||
 	    (in->path_class == SQL_PLAN_FALLBACK) != (in->fallback_reason != 0) ||
+	    in->access.kind < SQL_PLAN_PK_POINT_LOOKUP ||
 	    in->access.kind > SQL_PLAN_TABLE_FULL_SCAN ||
+	    in->access.direction < SQL_PLAN_ASC ||
 	    in->access.direction > SQL_PLAN_DESC ||
 	    !valid_array(in->access.bounds, in->access.bound_count,
 			 sizeof(*in->access.bounds)) ||
@@ -89,7 +94,8 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		return NULL;
 	for (size_t i = 0; i < in->access.bound_count; ++i) {
 		const struct sql_plan_bound *b = &in->access.bounds[i];
-		if (b->side > SQL_PLAN_UPPER || b->op > SQL_PLAN_LE ||
+		if (b->side < SQL_PLAN_LOWER || b->side > SQL_PLAN_UPPER ||
+		    b->op < SQL_PLAN_EQ || b->op > SQL_PLAN_LE ||
 		    !has_expr(in, b->expr_ref)) return NULL;
 	}
 	if ((in->access.kind == SQL_PLAN_PK_POINT_LOOKUP ||
@@ -118,7 +124,8 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	}
 	for (size_t i = 0; i < in->finalize_count; ++i) {
 		const struct sql_plan_finalize *f = &in->finalize[i];
-		if (f->kind > SQL_PLAN_LIMIT || !valid_terms(f->keys, f->key_count) ||
+		if (f->kind < SQL_PLAN_SORT || f->kind > SQL_PLAN_LIMIT ||
+		    !valid_terms(f->keys, f->key_count) ||
 		    (f->kind == SQL_PLAN_SORT && f->key_count == 0) ||
 		    (f->kind == SQL_PLAN_LIMIT && f->key_count != 0)) return NULL;
 	}
@@ -154,6 +161,7 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		if (d->finalize == NULL) goto error;
 		for (size_t i = 0; i < in->finalize_count; ++i) {
 			d->finalize[i] = in->finalize[i];
+			d->finalize[i].keys = NULL;
 			if (in->finalize[i].key_count != 0) {
 				struct sql_plan_order_term *keys = malloc(
 					in->finalize[i].key_count * sizeof(*keys));
@@ -184,10 +192,18 @@ error:
 }
 
 void sql_plan_descriptor_delete(struct sql_plan_descriptor *d) { free_descriptor(d); }
-uint32_t sql_plan_descriptor_version(const struct sql_plan_descriptor *d) { return d->value.descriptor_version; }
-const struct sql_plan_descriptor_input *sql_plan_descriptor_get_input(const struct sql_plan_descriptor *d) { return &d->value; }
-uint32_t sql_plan_descriptor_space_id(const struct sql_plan_descriptor *d) { return d->value.space_id; }
-const char *sql_plan_descriptor_space_name(const struct sql_plan_descriptor *d) { return d->value.space_name; }
-enum sql_plan_access_kind sql_plan_descriptor_access_kind(const struct sql_plan_descriptor *d) { return d->value.access.kind; }
-size_t sql_plan_descriptor_filter_count(const struct sql_plan_descriptor *d) { return d->value.filter_count; }
-size_t sql_plan_descriptor_expression_count(const struct sql_plan_descriptor *d) { return d->value.expression_count; }
+uint32_t sql_plan_descriptor_version(const struct sql_plan_descriptor *d)
+{ return d == NULL ? 0 : d->value.descriptor_version; }
+const struct sql_plan_descriptor_input *
+sql_plan_descriptor_get_input(const struct sql_plan_descriptor *d)
+{ return d == NULL ? NULL : &d->value; }
+uint32_t sql_plan_descriptor_space_id(const struct sql_plan_descriptor *d)
+{ return d == NULL ? 0 : d->value.space_id; }
+const char *sql_plan_descriptor_space_name(const struct sql_plan_descriptor *d)
+{ return d == NULL ? NULL : d->value.space_name; }
+enum sql_plan_access_kind sql_plan_descriptor_access_kind(const struct sql_plan_descriptor *d)
+{ return d == NULL ? SQL_PLAN_TABLE_FULL_SCAN : d->value.access.kind; }
+size_t sql_plan_descriptor_filter_count(const struct sql_plan_descriptor *d)
+{ return d == NULL ? 0 : d->value.filter_count; }
+size_t sql_plan_descriptor_expression_count(const struct sql_plan_descriptor *d)
+{ return d == NULL ? 0 : d->value.expression_count; }
