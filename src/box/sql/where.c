@@ -2912,6 +2912,21 @@ whereSortingCost(WhereInfo * pWInfo, LogEst nRow, int nOrderBy, int nSorted)
 	return rSortCost;
 }
 
+static bool
+where_path_same_partition(const WherePath *path, Bitmask mask_loop,
+			  i8 is_ordered, Bitmask rev_loop)
+{
+	return path->maskLoop == mask_loop && path->isOrdered == is_ordered &&
+	       path->revLoop == rev_loop;
+}
+
+static bool
+where_path_is_worse(const WherePath *a, const WherePath *b)
+{
+	return a->rCost > b->rCost ||
+	       (a->rCost == b->rCost && a->nRow > b->nRow);
+}
+
 /*
  * Given the list of WhereLoop objects at pWInfo->pLoops, this routine
  * attempts to find the lowest cost path that visits each WhereLoop
@@ -2932,10 +2947,7 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 	Parse *pParse;		/* Parsing context */
 	int iLoop;		/* Loop counter over the terms of the join */
 	int ii, jj;		/* Loop counters */
-	int mxI = 0;		/* Index of next entry to replace */
 	int nOrderBy;		/* Number of ORDER BY clause terms */
-	LogEst mxCost = 0;	/* Maximum cost of a set of paths */
-	LogEst mxUnsorted = 0;	/* Maximum unsorted cost of a set of path */
 	int nTo, nFrom;		/* Number of valid entries in aTo[] and aFrom[] */
 	WherePath *aFrom;	/* All nFrom paths at the previous level */
 	WherePath *aTo;		/* The nTo best paths at the current level */
@@ -3102,44 +3114,50 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 				 * of legal values for isOrdered, -1..64.
 				 */
 				for (jj = 0, pTo = aTo; jj < nTo; jj++, pTo++) {
-					if (pTo->maskLoop == maskNew
-					    && ((pTo->isOrdered ^ isOrdered) &
-						0x80) == 0) {
+					if (where_path_same_partition(pTo, maskNew,
+								      isOrdered, revMask)) {
 						break;
 					}
 				}
 				if (jj >= nTo) {
-					/* None of the existing best-so-far paths match the candidate. */
-					if (nTo >= mxChoice
-					    && (rCost > mxCost
-						|| (rCost == mxCost
-						    && rUnsorted >= mxUnsorted))
-					    ) {
-						/* The current candidate is no better than any of the mxChoice
-						 * paths currently in the best-so-far buffer.  So discard
-						 * this candidate as not viable.
-						 */
-#ifdef SQL_DEBUG	/* 0x4 */
-						if (sqlWhereTrace & 0x4) {
-							sqlDebugPrintf("Skip   %s cost=%-3d,%3d order=%c\n",
-									   wherePathName(pFrom, iLoop,
-											 pWLoop),
-									   rCost,
-									   nOut,
-									   isOrdered >= 0 ? isOrdered + '0' : '?');
-						}
-#endif
-						continue;
-					}
-					/* If we reach this points it means that the new candidate path
-					 * needs to be added to the set of best-so-far paths.
+					/* This candidate opens a new (relation subset, order
+					 * property) partition. Under a full global beam, preserve
+					 * diversity by evicting the worst member of a duplicated
+					 * partition before evicting a singleton partition.
 					 */
 					if (nTo < mxChoice) {
-						/* Increase the size of the aTo set by one */
 						jj = nTo++;
 					} else {
-						/* New path replaces the prior worst to keep count below mxChoice */
-						jj = mxI;
+						int replace = -1;
+						for (int k = 0; k < nTo; k++) {
+							for (int m = k + 1; m < nTo; m++) {
+								if (!where_path_same_partition(
+									    &aTo[m], aTo[k].maskLoop,
+									    aTo[k].isOrdered,
+									    aTo[k].revLoop))
+									continue;
+								int worse = where_path_is_worse(
+									&aTo[k], &aTo[m]) ? k : m;
+								if (replace < 0 ||
+								    where_path_is_worse(
+									&aTo[worse], &aTo[replace]))
+									replace = worse;
+							}
+						}
+						if (replace < 0) {
+							replace = 0;
+							for (int k = 1; k < nTo; k++) {
+								if (where_path_is_worse(
+									    &aTo[k], &aTo[replace]))
+									replace = k;
+							}
+						}
+						pTo = &aTo[replace];
+						if (pTo->rCost < rCost ||
+						    (pTo->rCost == rCost &&
+						     pTo->nRow <= nOut))
+							continue;
+						jj = replace;
 					}
 					pTo = &aTo[jj];
 #ifdef SQL_DEBUG	/* 0x4 */
@@ -3213,24 +3231,6 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 				memcpy(pTo->aLoop, pFrom->aLoop,
 				       sizeof(WhereLoop *) * iLoop);
 				pTo->aLoop[iLoop] = pWLoop;
-				if (nTo >= mxChoice) {
-					mxI = 0;
-					mxCost = aTo[0].rCost;
-					mxUnsorted = aTo[0].nRow;
-					for (jj = 1, pTo = &aTo[1];
-					     jj < mxChoice; jj++, pTo++) {
-						if (pTo->rCost > mxCost
-						    || (pTo->rCost == mxCost
-							&& pTo->rUnsorted >
-							mxUnsorted)
-						    ) {
-							mxCost = pTo->rCost;
-							mxUnsorted =
-							    pTo->rUnsorted;
-							mxI = jj;
-						}
-					}
-				}
 			}
 		}
 

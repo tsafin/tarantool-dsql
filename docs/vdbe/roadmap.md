@@ -102,6 +102,12 @@ flowchart TD
     T --> W["S1 integrated"]
     H --> X["E1: bounded-DP evaluation"]
     V --> X
+    X --> X1["E1.1: configurable widths"]
+    X1 --> X2["E1.2: subset/property partitions"]
+    X2 --> X3["E1.3: property-aware dominance"]
+    X1 -. "independent instrumentation" .-> X4["E1.4: per-statement solver metrics"]
+    X3 --> X5["E1.5: corpus A/B"]
+    X4 --> X5
     B --> Y["promotion parity gate"]
     X --> Z["GATE: enumerator decision"]
     Y --> Z
@@ -598,8 +604,13 @@ M0-B corpus for the evaluation workloads.
   fall back to defaults and valid values are bounded to `1..64`. Active values
   are exposed in `box.stat.sql()` and covered with a non-default luatest
   server. Time/memory budgets remain open. *parallel: no*.
-- [ ] **E1.2** Candidate partitioning by relation subset and properties.
-  *parallel: no* (same file).
+- [x] **E1.2** Candidate paths are partitioned by relation subset, ORDER BY
+  satisfaction, and reverse-scan mask. A global beam cap is retained; when
+  full, admission prefers evicting the worst member of a duplicated partition
+  before a singleton, falling back to the global worst when all partitions are
+  singletons. This is diversity-aware bounded admission, not a guarantee that
+  every partition survives. The 112-test SQL suite passes (6 disabled).
+  *parallel: no* (same `where.c` solver as E1.1/E1.3).
 - [ ] **E1.3** Property-aware dominance before beam truncation. *parallel:
   no*.
 - [ ] **E1.4** Legacy per-statement candidate, elapsed, and fallback counters
