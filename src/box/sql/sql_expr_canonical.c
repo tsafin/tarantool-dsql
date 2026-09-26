@@ -1,0 +1,215 @@
+#include "sql_expr_canonical.h"
+
+#include <errno.h>
+#include <inttypes.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "sqlInt.h"
+
+struct buffer {
+	char *data;
+	size_t len;
+	size_t cap;
+};
+
+static bool
+append(struct buffer *b, const char *s, size_t n)
+{
+	if (n > SIZE_MAX - b->len - 1)
+		return false;
+	size_t need = b->len + n + 1;
+	if (need > b->cap) {
+		size_t cap = b->cap == 0 ? 64 : b->cap;
+		while (cap < need) {
+			if (cap > SIZE_MAX / 2) {
+				cap = need;
+				break;
+			}
+			cap *= 2;
+		}
+		char *data = realloc(b->data, cap);
+		if (data == NULL)
+			return false;
+		b->data = data;
+		b->cap = cap;
+	}
+	memcpy(b->data + b->len, s, n);
+	b->len += n;
+	b->data[b->len] = '\0';
+	return true;
+}
+
+static const char *
+operator_name(int op)
+{
+	switch (op) {
+	case TK_OR: return "or";
+	case TK_AND: return "and";
+	case TK_NOT: return "not";
+	case TK_IS: return "is";
+	case TK_NE: return "ne";
+	case TK_EQ: return "eq";
+	case TK_GT: return "gt";
+	case TK_LE: return "le";
+	case TK_LT: return "lt";
+	case TK_GE: return "ge";
+	case TK_BITAND: return "bitand";
+	case TK_BITOR: return "bitor";
+	case TK_LSHIFT: return "lshift";
+	case TK_RSHIFT: return "rshift";
+	case TK_PLUS: return "plus";
+	case TK_MINUS: return "minus";
+	case TK_STAR: return "multiply";
+	case TK_SLASH: return "divide";
+	case TK_REM: return "remainder";
+	case TK_CONCAT: return "concat";
+	case TK_ISNULL: return "isnull";
+	case TK_NOTNULL: return "notnull";
+	case TK_UMINUS: return "unary_minus";
+	case TK_UPLUS: return "unary_plus";
+	default: return NULL;
+	}
+}
+
+static enum sql_expr_canonical_reject
+encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
+       const uint32_t *cursor_to_relation, size_t cursor_count)
+{
+	if (expr == NULL || depth > 256)
+		return SQL_EXPR_CANONICAL_MALFORMED;
+	/* Reduced nodes omit fields; allow only fully resolved plain nodes. */
+	uint32_t allowed = EP_Resolved | EP_IntValue | EP_Leaf;
+	if ((expr->flags & EP_Resolved) == 0 ||
+	    (expr->flags & (EP_Reduced | EP_TokenOnly)) != 0)
+		return SQL_EXPR_CANONICAL_UNSUPPORTED;
+	if ((expr->flags & ~allowed) != 0)
+		return SQL_EXPR_CANONICAL_UNSUPPORTED;
+	if (expr->op == TK_COLUMN_REF) {
+		if (expr->pLeft != NULL || expr->pRight != NULL ||
+		    expr->iTable < 0 || expr->iColumn < 0)
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		if (cursor_to_relation == NULL ||
+		    (size_t)expr->iTable >= cursor_count ||
+		    cursor_to_relation[expr->iTable] == UINT32_MAX)
+			return SQL_EXPR_CANONICAL_UNSUPPORTED;
+		char tmp[80];
+		int n = snprintf(tmp, sizeof(tmp), "col(r%" PRIu32 ",c%d)",
+				 cursor_to_relation[expr->iTable], expr->iColumn);
+		if (n < 0 || (size_t)n >= sizeof(tmp) ||
+		    !append(b, tmp, (size_t)n))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		return SQL_EXPR_CANONICAL_OK;
+	}
+	if (expr->op == TK_NULL) {
+		if (expr->pLeft != NULL || expr->pRight != NULL)
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		return append(b, "null", 4) ? SQL_EXPR_CANONICAL_OK :
+			SQL_EXPR_CANONICAL_NOMEM;
+	}
+	if (expr->op == TK_INTEGER) {
+		if (expr->pLeft != NULL || expr->pRight != NULL)
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		char tmp[48];
+		int n;
+		if ((expr->flags & EP_IntValue) != 0) {
+			n = snprintf(tmp, sizeof(tmp), "int(%d)", expr->u.iValue);
+		} else {
+			if (expr->u.zToken == NULL)
+				return SQL_EXPR_CANONICAL_MALFORMED;
+			char *end;
+			errno = 0;
+			long long value = strtoll(expr->u.zToken, &end, 10);
+			if (*expr->u.zToken == '\0' || *end != '\0' || errno == ERANGE)
+				return SQL_EXPR_CANONICAL_UNSUPPORTED;
+			n = snprintf(tmp, sizeof(tmp), "int(%lld)", value);
+		}
+		if (n < 0 || (size_t)n >= sizeof(tmp) ||
+		    !append(b, tmp, (size_t)n))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		return SQL_EXPR_CANONICAL_OK;
+	}
+	if (expr->op == TK_FLOAT) {
+		if (expr->pLeft != NULL || expr->pRight != NULL ||
+		    expr->u.zToken == NULL)
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		char *end;
+		errno = 0;
+		double value = strtod(expr->u.zToken, &end);
+		if (*expr->u.zToken == '\0' || *end != '\0' || errno == ERANGE ||
+		    !isfinite(value))
+			return SQL_EXPR_CANONICAL_UNSUPPORTED;
+		char tmp[64];
+		int n = snprintf(tmp, sizeof(tmp), "float(%a)", value);
+		if (n < 0 || (size_t)n >= sizeof(tmp) ||
+		    !append(b, tmp, (size_t)n))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		return SQL_EXPR_CANONICAL_OK;
+	}
+	if (expr->op == TK_STRING) {
+		if (expr->pLeft != NULL || expr->pRight != NULL ||
+		    expr->u.zToken == NULL)
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		static const char hex[] = "0123456789abcdef";
+		if (!append(b, "str(", 4))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		for (const unsigned char *p = (const unsigned char *)expr->u.zToken;
+		     *p != '\0'; ++p) {
+			char pair[] = {hex[*p >> 4], hex[*p & 0xf]};
+			if (!append(b, pair, sizeof(pair)))
+				return SQL_EXPR_CANONICAL_NOMEM;
+		}
+		return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
+			SQL_EXPR_CANONICAL_NOMEM;
+	}
+	/* Expr stores a source token, not a stable resolved function identity. */
+	const char *op = operator_name(expr->op);
+	if (op == NULL)
+		return SQL_EXPR_CANONICAL_UNSUPPORTED;
+	bool unary = expr->op == TK_NOT || expr->op == TK_ISNULL ||
+		expr->op == TK_NOTNULL || expr->op == TK_UMINUS ||
+		expr->op == TK_UPLUS;
+	if (expr->x.pList != NULL || expr->pLeft == NULL ||
+	    (unary ? expr->pRight != NULL : expr->pRight == NULL))
+		return SQL_EXPR_CANONICAL_MALFORMED;
+	if (!append(b, op, strlen(op)) || !append(b, "(", 1))
+		return SQL_EXPR_CANONICAL_NOMEM;
+	enum sql_expr_canonical_reject rc = encode(expr->pLeft, b, depth + 1,
+						    cursor_to_relation,
+						    cursor_count);
+	if (rc != SQL_EXPR_CANONICAL_OK)
+		return rc;
+	if (!unary) {
+		if (!append(b, ",", 1))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		rc = encode(expr->pRight, b, depth + 1, cursor_to_relation,
+			     cursor_count);
+		if (rc != SQL_EXPR_CANONICAL_OK)
+			return rc;
+	}
+	return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
+		SQL_EXPR_CANONICAL_NOMEM;
+}
+
+char *
+sql_expr_canonicalize(const struct Expr *expr,
+		      const uint32_t *cursor_to_relation,
+		      size_t cursor_count,
+		      enum sql_expr_canonical_reject *reason)
+{
+	if (reason != NULL)
+		*reason = SQL_EXPR_CANONICAL_OK;
+	struct buffer b = {0};
+	enum sql_expr_canonical_reject rc = encode(expr, &b, 0,
+						    cursor_to_relation,
+						    cursor_count);
+	if (rc != SQL_EXPR_CANONICAL_OK) {
+		free(b.data);
+		if (reason != NULL)
+			*reason = rc;
+		return NULL;
+	}
+	return b.data;
+}

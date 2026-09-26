@@ -1,5 +1,19 @@
 # Physical Plan Descriptor
 
+## Expression normalization prerequisite
+
+sql_expr_canonicalize() is an isolated M3 prerequisite prototype. It returns
+an owned structural encoding for resolved columns, NULL/integer/finite-float/
+string constants, and a fixed scalar operator set. It rejects function calls,
+reduced/token-only nodes, flags outside its allowlist, and unknown operators.
+Expr exposes function source tokens but does not by itself prove a stable
+function identity or absence of side effects. The helper is not wired into
+descriptor expression references, resolver routing, or lowering. Column
+encoding requires a caller-supplied cursor-to-logical-relation ordinal map
+and emits that ordinal, not Expr.iTable. Stability therefore holds only
+under the same relation binding; this is not yet a replay or cross-statement
+fingerprint.
+
 ## Status
 
 `PROTOTYPE` — an internal immutable C descriptor API now validates and

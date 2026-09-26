@@ -1052,3 +1052,13 @@ When converted, this roadmap should produce:
 The Mermaid dependency graph above can be embedded directly in the epic body.
 No calendar dates are assigned while architectural approval and integration
 gates remain open; use the dependency edges to sequence work.
+
+M3 expression-normalization prerequisite: an isolated helper and focused
+unit test now cover owned statement-local encodings for resolved column refs,
+NULL/integer/finite-float/string constants, and a conservative scalar
+operator subset. Function calls and annotations outside an explicit flag
+allowlist are rejected. Column keys require a caller-provided cursor-to-
+logical-relation ordinal map and encode its mapped ordinal instead of the
+live iTable cursor. Stability depends on the caller preserving relation
+binding. Descriptor expression refs and lowering do not consume it; function
+identity/effect proof and route integration remain open.
