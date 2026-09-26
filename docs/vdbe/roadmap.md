@@ -916,7 +916,13 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   supported through the normal child-server adapter; the full reviewed subset
   (32 memtx / 31 Vinyl tests, 499 / 447 statements) passed repeats and strict
   cross-width parity with zero diffs. SQL-vs-EXPLAIN classification is
-  included, though no differences occurred in the full run. Native dispatchers
+  included, though no differences occurred in the full run. The adapter also
+  supports reviewed normal `sql` test-run tests using the distinct
+  `capture.audit_queries` policy evidence; strict A/B/repeat comparison and
+  EXPLAIN classification are implemented, but no SQL-suite A/B matrix has run
+  yet. A focused memtx `autoincrement.test.lua` proof passed all 3 strict
+  comparisons (3 statements); full SQL-suite and Vinyl A/B remain unrun.
+  Native dispatchers
   remain untested by this extension. Exact diffs and reproduction instructions
   are in `test/sql-baselines/PLANNER_AB.md`. The capture/evaluation prototype
   is complete; strict SQL-TAP cross-width parity and

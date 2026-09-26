@@ -252,3 +252,39 @@ clean. This closes the reviewed SQL-luatest comparison slice only; it does
 not include the M0 SQL suite, native dispatchers, runtime query latency, or
 plan-quality evaluation. The report is local at
 `/tmp/tarantool-e1-full-luatest-fixed/report.json`.
+
+### Normal SQL-suite A/B support
+
+`planner_ab.py --suite sql` now selects reviewed tests from the ordinary
+`test/sql` `test-run.py` suite and captures their child-server SQL through the
+same normal-runner adapter as SQL-luatest. SQL-suite selection uses the corpus
+policy's `evidence.<engine>.capture.audit_queries` count, rather than the
+SQL-TAP `captured_queries` or SQL-luatest generated-mode evidence contracts.
+`--full-corpus` enumerates reviewed adapter-compatible `.test.lua` tests
+eligible for the requested engine; raw `.test.sql` policy entries are omitted
+because the child-server adapter requires a Lua test file. `--test` is
+restricted to reviewed top-level `.test.lua` basenames.
+Each of the default, default-repeat, candidate, and candidate-repeat runs is
+strictly diffed. The report additionally partitions EXPLAIN output differences
+from other result/diagnostic differences, without weakening strict parity.
+Planner-metric aggregation is not available for this adapter; SQL-TAP retains
+its own metrics-manifest path.
+
+This is tooling support only. No SQL-suite A/B matrix has yet been run, so it
+does not change E1 acceptance or establish parity for that suite. A focused
+proof captured `sql/autoincrement.test.lua` on memtx (3 statements) using the
+binary SHA-256 `7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`:
+
+```sh
+python3 -B test/sql-baselines/planner_ab.py \
+  --repo /tmp/tarantool-e1-sql-suite --runner-repo /home/tsafin/tarantool \
+  --binary /tmp/tarantool-m1-build/src/tarantool \
+  --out /tmp/e1-sql-single-test-proof \
+  --suite sql --test autoincrement.test.lua --engine memtx \
+  --widths 2,8,16
+```
+
+The default repeat, candidate repeat, and cross-width diff each passed with
+three exact snapshots. This checks the SQL-suite adapter path, not the full
+reviewed SQL suite or both-engine scope. The report remains local at
+`/tmp/e1-sql-single-test-proof/report.json`.

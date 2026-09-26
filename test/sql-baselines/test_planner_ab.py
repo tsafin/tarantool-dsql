@@ -34,6 +34,38 @@ class PlannerABTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             ab.selected_luatest(policy, ["base_test.lua"], "memtx", 3)
 
+    def test_reviewed_sql_budget_uses_normal_runner_audit_evidence(self):
+        policy = {"included": [{"test": "sql/autoincrement.test.lua",
+                   "engines": ["memtx"], "evidence": {"memtx": {"capture": {
+                       "audit_status": "captured", "audit_queries": 3}}}}]}
+        self.assertEqual(ab.selected_sql(policy, ["autoincrement.test.lua"],
+                                         "memtx", 3), 3)
+        for engine, budget in (("vinyl", 3), ("memtx", 2)):
+            with self.assertRaises(ValueError):
+                ab.selected_sql(policy, ["autoincrement.test.lua"], engine, budget)
+        policy["included"][0]["evidence"]["memtx"]["capture"]["audit_queries"] = 0
+        with self.assertRaises(ValueError):
+            ab.selected_sql(policy, ["autoincrement.test.lua"], "memtx", 3)
+
+    def test_full_sql_corpus_selection_tracks_engine_eligibility(self):
+        import json
+        from pathlib import Path
+        policy = json.loads((Path(__file__).parent / "corpus.json").read_text())
+        memtx = ab.full_sql_tests(policy, "memtx")
+        vinyl = ab.full_sql_tests(policy, "vinyl")
+        self.assertEqual(memtx, sorted(memtx))
+        for engine, names in (("memtx", memtx), ("vinyl", vinyl)):
+            expected = sorted(row["test"][len("sql/"):]
+                              for row in policy["included"]
+                              if row["test"].startswith("sql/") and
+                              row["test"].endswith(".test.lua") and
+                              engine in row["engines"])
+            self.assertEqual(names, expected)
+        self.assertTrue(memtx)
+        self.assertTrue(vinyl)
+        self.assertTrue(all(ab.selected_sql(policy, [name], "memtx", 2**63 - 1) > 0
+                            for name in memtx))
+
     def test_explain_output_is_not_classified_as_semantic_result_drift(self):
         from pathlib import Path
         import tempfile

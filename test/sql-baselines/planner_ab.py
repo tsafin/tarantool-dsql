@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline bounded-DP width A/B on reviewed SQL-TAP tests."""
+"""Offline bounded-DP width A/B on reviewed SQL corpus tests."""
 
 import argparse
 from collections import Counter
@@ -64,6 +64,35 @@ def full_corpus_tests(policy, engine):
     return sorted(row["test"][len("sql-tap/"):]
                   for row in policy["included"]
                   if row["test"].startswith("sql-tap/") and
+                  engine in row["engines"])
+
+
+def selected_sql(policy, names, engine, budget):
+    """Validate normal test-run SQL tests against their corpus audit evidence."""
+    included = {row["test"]: row for row in policy["included"]}
+    total = 0
+    for name in names:
+        if "/" in name or not name.endswith(".test.lua"):
+            raise ValueError("select top-level SQL .test.lua basenames")
+        identity = "sql/" + name
+        row = included.get(identity)
+        if row is None or engine not in row["engines"]:
+            raise ValueError(f"not reviewed for {engine}: {identity}")
+        count = row.get("evidence", {}).get(engine, {}).get("capture", {}).get("audit_queries")
+        if type(count) is not int or count < 1:
+            raise ValueError(f"missing reviewed audit query count: {identity}/{engine}")
+        total += count
+    if total > budget:
+        raise ValueError(f"reviewed subset has {total} queries, exceeds {budget}")
+    return total
+
+
+def full_sql_tests(policy, engine):
+    """Return reviewed Lua SQL tests supported by the child-server adapter."""
+    return sorted(row["test"][len("sql/"):]
+                  for row in policy["included"]
+                  if row["test"].startswith("sql/") and
+                  row["test"].endswith(".test.lua") and
                   engine in row["engines"])
 
 
@@ -201,7 +230,7 @@ def main():
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--widths", type=widths, default=(2, 8, 16))
-    parser.add_argument("--suite", choices=("sql-tap", "sql-luatest"), default="sql-tap")
+    parser.add_argument("--suite", choices=("sql-tap", "sql-luatest", "sql"), default="sql-tap")
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--test", action="append")
     selection.add_argument("--full-corpus", action="store_true",
@@ -226,6 +255,12 @@ def main():
                             engine in row["engines"])
                      if args.full_corpus else
                      sorted(set(args.test or DEFAULT_LUATEST_TESTS)))
+            for engine in engines}
+    elif args.suite == "sql":
+        selector = selected_sql
+        names_by_engine = {
+            engine: (full_sql_tests(policy, engine) if args.full_corpus else
+                     sorted(set(args.test or ("autoincrement.test.lua",))))
             for engine in engines}
     else:
         selector = selected
@@ -252,10 +287,11 @@ def main():
         "default_widths": list(DEFAULT_WIDTHS), "candidate_widths": list(args.widths),
         "dispatcher": "generated", "engines": {},
         "limitations": ["only reviewed tests in the selected suite and engine are captured; non-SQL suites are excluded",
+                         "SQL-suite mode currently includes adapter-compatible .test.lua tests only; raw .test.sql corpus entries are excluded",
                          "not hosted CI",
                          "planner metrics describe compile-time EXPLAIN snapshots, not runtime latency",
                          "elapsed_us is diagnostic and not a deterministic acceptance gate",
-                         "strict snapshot parity includes EXPLAIN rows; SQL-luatest differences are partitioned into EXPLAIN output and non-EXPLAIN result/diagnostic differences",
+                         "strict snapshot parity includes EXPLAIN rows; SQL-suite and SQL-luatest differences are partitioned into EXPLAIN output and non-EXPLAIN result/diagnostic differences",
                          "no native-dispatcher performance or plan-quality claim"]}
     for engine in engines:
         captured = {}
@@ -273,7 +309,7 @@ def main():
                     work.mkdir()
                     env["LISTEN"] = f"unix/:{work}/listen.sock"
                     try:
-                        if args.suite == "sql-luatest":
+                        if args.suite in ("sql", "sql-luatest"):
                             test_capture = Path(temp) / f"luatest-{index}"
                             run(["python3", HERE / "luatest_capture.py", "--repo", repo,
                                  "--runner-repo", runner_repo, "--binary", binary,
@@ -297,7 +333,7 @@ def main():
                 count, captured[label] = measurements(capture, engine)
             else:
                 run([binary, HERE / "validate.lua", capture])
-                manifest_files = list((capture / "manifests/sql-luatest").glob(f"*.{engine}.json"))
+                manifest_files = list((capture / f"manifests/{args.suite}").glob(f"*.{engine}.json"))
                 count = sum(json.loads(path.read_text())["captured_queries"]
                             for path in manifest_files)
                 captured[label] = {}
@@ -323,7 +359,7 @@ def main():
                 if args.suite == "sql-tap" else None),
             "planner_metrics": (metric_delta(captured["default"], captured["candidate"])
                                 if args.suite == "sql-tap" else None)}
-        if args.suite == "sql-luatest":
+        if args.suite in ("sql", "sql-luatest"):
             report["engines"][engine]["semantic_vs_explain"] = explain_changes(
                 comparisons["candidate"], out / engine / "candidate", args.suite)
         (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
