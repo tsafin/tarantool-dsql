@@ -365,11 +365,11 @@ system-space schema remains DRAFT pending human review of IDs and formats.
 statistics that turn selectivity estimation from "guess 25%" into
 "estimate based on data."
 
-**State:** `PROTOTYPE` (S2.2 in-memory HLL and S2.3 bounded MCV slices are
-implemented and unit-tested; remaining S2 work is not integrated). Sketch algorithms and synthetic
-validation may start against a versioned S1 snapshot interface before S1 is
-end-to-end; persistence and the `where.c` selectivity adapter wait for that
-interface.
+**State:** `PROTOTYPE` (S2.2 HLL, S2.3 bounded MCV, and S2.4 histogram
+builder are implemented as in-memory APIs with focused unit tests; remaining
+S2 work is not integrated). Sketch algorithms and synthetic validation may
+start against a versioned S1 snapshot interface before S1 is end-to-end;
+persistence and the `where.c` selectivity adapter wait for that interface.
 
 **Exit criteria:**
 
@@ -395,8 +395,15 @@ interface.
   intervals, and single-stream `N / capacity` error bound. Unit tests cover
   heavy-hitter bounds, deterministic ties, and merge. Contract is documented
   in `statistics_implementation_plan.md`; no persistence or system-space IDs.
-- [ ] **S2.4** Equi-depth histogram builder from sampled ordered values.
-  *parallel: yes*.
+- [x] **S2.4** Equi-depth histogram builder from sampled ordered values.
+  *parallel: yes*. In-memory API at
+  `src/box/sql/sql_stats_histogram.{h,c}` validates sorted caller-encoded
+  values using a caller-supplied SQL-order comparator, deep-copies bounded
+  quantile boundaries, and preserves equal-value groups (therefore may return
+  fewer than the requested bucket count for duplicate-heavy samples). The
+  opaque result reports cumulative sample counts; no SQL value encoding,
+  persistence format, or system-space ID is defined. Focused unit tests cover
+  quantiles, duplicate handling, deep copy, invalid ordering, and byte budget.
 - [ ] **S2.5** Selectivity estimator — implements the precedence order from
   `next_gen_sql_planner.md`. Plug into `where.c` selectivity functions.
   *parallel: no* (touches `where.c`).

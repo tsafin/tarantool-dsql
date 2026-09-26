@@ -201,6 +201,22 @@ or overflow failure. The API defines no SQL value encoding, persistence
 format, confidence metadata, or system-space ID; those remain integration and
 schema-review work.
 
+### Equi-depth histogram prototype contract (S2.4)
+
+The in-memory builder is `src/box/sql/sql_stats_histogram.{h,c}`. Its caller
+supplies an already sorted sample of opaque byte strings and a comparator
+implementing the SQL type's total ordering, including collation and NULL
+rules. This keeps type encoding and comparison policy outside the generic
+summary algorithm. The builder selects cumulative quantile boundaries and
+deep-copies them under a caller-provided byte budget. It never splits equal
+values: when a target quantile falls inside a duplicate run, the boundary
+advances to the end of that run, and repeated boundaries collapse. Therefore
+the result can contain fewer buckets than requested. Each boundary reports
+its cumulative sample count; the final bucket covers the full sample. The API
+is opaque and in-memory only, with no persistence encoding or system-space
+dependency. Interpolation and conversion of these sample counts into planner
+selectivity remain separate estimator work (S2.5).
+
 ## Refresh And Staleness
 
 Initial policy is explicit `ANALYZE`; background refresh is not required for
