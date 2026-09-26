@@ -169,7 +169,7 @@ q_error(double estimate, double actual)
 static void
 test_joint_mcv_equality_conjunction(void)
 {
-	plan(5);
+	plan(6);
 	header();
 	int zero = 0;
 	int one = 1;
@@ -211,6 +211,14 @@ test_joint_mcv_equality_conjunction(void)
 	   fabs(result.value - 0.25) < 1e-12 &&
 	   result.source == SQL_STATS_SELECTIVITY_INDEPENDENCE,
 	   "missing joint MCV uses independence fallback");
+	struct sql_stats_joint_mcv_sample rare_joint[] = {
+		{.values = hot_tuple, .value_count = 2, .count = 10},
+	};
+	ok(sql_stats_estimate_equality_conjunction(summaries, hot_tuple, 2,
+		rare_joint, 1, 1000, &result) == 0 &&
+	   q_error(result.value, 0.01) == 1 &&
+	   q_error(result.value, 0.01) < q_error(fallback.value, 0.01),
+	   "joint MCV corrects anti-correlated rare conjunction q-error");
 	struct sql_stats_joint_mcv_sample invalid = joint[0];
 	invalid.value_count = 1;
 	ok(sql_stats_estimate_equality_conjunction(summaries, hot_tuple, 2,

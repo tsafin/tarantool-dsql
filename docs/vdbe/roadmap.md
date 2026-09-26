@@ -480,11 +480,13 @@ the `where.c` selectivity adapter wait for that interface.
   schema/group selection, and `where.c` integration remain open; this does
   not close S2.5. *parallel: yes for the standalone API; no for planner
   integration, which touches `where.c`.
-- [ ] **S2.6 prototype** Focused unit q-error probes now cover a uniform
-  1,000-value distribution and a 90%-hot skewed distribution for equality
-  and histogram ranges. These validate the standalone estimator only; the
-  M0 SQL corpus still lacks correlated/anti-correlated and stale-stat variants,
-  and no production q-error gate is active. *parallel: yes*.
+- [ ] **S2.6 prototype** Focused unit q-error probes cover a uniform
+  1,000-value distribution, a 90%-hot skewed distribution, correlated joint
+  equality, and a negatively correlated rare conjunction where the joint MCV
+  corrects independence's q-error from 25 to 1. These validate the standalone
+  estimator only; the M0 SQL corpus still lacks correlated/anti-correlated
+  and stale-stat variants, and no production q-error gate is active.
+  *parallel: yes*.
 - [x] **S2.7 prototype** Confidence/staleness metadata representation.
   The S1.4 snapshot records cardinality confidence/semantics, collection time,
   and modification epoch; lookup explicitly reports schema-version mismatch
