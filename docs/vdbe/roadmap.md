@@ -592,8 +592,10 @@ DML, triggers, subprograms, non-deterministic functions.
   route for multi-relation queries as `fallback` /
   `UNSUPPORTED_RELATION_COUNT`; summary/snapshot EXPLAIN and per-reason
   counters are wired and exercised locally. Aggregate SELECTs with a WHERE
-  path plus DISTINCT, compound, CTE, and FROM-subquery forms now report their
-  stable structural reasons and increment corresponding counters. Structural
+  path plus GROUP BY/HAVING, DISTINCT, compound, CTE, and FROM-subquery forms
+  now report their stable structural reasons and increment corresponding
+  counters; GROUP BY/HAVING has an explicit runtime capture regression.
+  Structural
   classification runs before flattening/rewrite can erase the rejected shape;
   simple `COUNT(*)` stays unclassified because its fast path does not enter
   `where.c`. This remains partial: physical rejection reasons and other

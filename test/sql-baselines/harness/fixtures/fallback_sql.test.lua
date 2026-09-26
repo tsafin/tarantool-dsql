@@ -1,6 +1,6 @@
 local tap = require('tap')
 local test = tap.test('SQL planner fallback capture')
-test:plan(6)
+test:plan(7)
 
 local format = {{name = 'id', type = 'unsigned'}}
 local a = box.schema.space.create('sql_fallback_a', {
@@ -29,6 +29,9 @@ result, err = box.execute([[SELECT id FROM
 test:ok(result ~= nil, tostring(err))
 result, err = box.execute([[WITH cte AS (SELECT id FROM sql_fallback_a)
     SELECT id FROM cte]])
+test:ok(result ~= nil, tostring(err))
+result, err = box.execute([[SELECT id, count(*) FROM sql_fallback_a
+    GROUP BY id HAVING count(*) > 0]])
 test:ok(result ~= nil, tostring(err))
 
 b:drop()

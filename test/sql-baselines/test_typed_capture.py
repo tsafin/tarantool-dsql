@@ -75,11 +75,14 @@ class TypedCaptureTest(unittest.TestCase):
             for seq, reason in enumerate((
                     "UNSUPPORTED_AGGREGATE", "UNSUPPORTED_COMPOUND",
                     "UNSUPPORTED_DISTINCT", "UNSUPPORTED_SUBQUERY",
-                    "UNSUPPORTED_CTE"), start=2):
+                    "UNSUPPORTED_CTE", "UNSUPPORTED_AGGREGATE"), start=2):
                 snapshot = (out / f"snapshots/sql-tap/fallback_sql/q{seq:02d}.memtx.yaml").read_text()
                 self.assertIn("taken: fallback", snapshot)
                 self.assertIn(f"reason: {reason}", snapshot)
                 self.assertIn("fallback_to: current_where_c", snapshot)
+                metrics = manifest["planner_metrics"][seq - 1]
+                self.assertEqual(metrics["path_class"], "fallback")
+                self.assertEqual(metrics["fallback_count"], 1)
 
             path = out / "snapshots/sql-tap/fallback_sql/q01.memtx.yaml"
             valid_snapshot = path.read_text()
