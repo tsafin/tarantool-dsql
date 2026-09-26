@@ -127,9 +127,10 @@ sql_stats_index_distinct_prefix(const struct sql_stats_index *index,
 /**
  * Estimate the average row count for a relation/index prefix. A zero
  * prefix_count returns relation cardinality; otherwise prefix_count is the
- * number of leading index parts constrained by equality. Missing/stale
- * inputs are returned as lookup statuses so callers can preserve legacy
- * estimates.
+ * number of leading index parts constrained by equality and the average is
+ * based on that index's tuple count divided by its distinct-prefix count.
+ * Missing/stale inputs are returned as lookup statuses so callers can
+ * preserve legacy estimates.
  */
 enum sql_stats_lookup_status
 sql_stats_snapshot_estimate_index_prefix_rows(

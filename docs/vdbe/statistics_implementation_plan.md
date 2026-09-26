@@ -98,10 +98,12 @@ adapter from acquiring competing owners.
 
 The current adapter prototype installs an optional immutable snapshot on the
 SQL core and lets legacy index cardinality estimates read relation row counts
-and average rows per captured index prefix. Missing or schema-stale entries
-retain the existing fallback estimates. This is a reader-side seam only: no
-collector currently populates the provider, prepared statements do not retain
-their own snapshot generation, and no persisted IDs or formats are selected.
+and average rows per captured index prefix (index tuple count divided by the
+matching prefix NDV, not relation count). This keeps sparse-index prefix
+estimates tied to the index population. Missing or schema-stale entries retain
+the existing fallback estimates. This is a reader-side seam only: no collector
+currently populates the provider, prepared statements do not retain their own
+snapshot generation, and no persisted IDs or formats are selected.
 
 ## Persistence
 

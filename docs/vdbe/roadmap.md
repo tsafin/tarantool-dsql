@@ -451,11 +451,13 @@ DRAFT pending human review of IDs and formats.
   `sql_set_stats_snapshot()` now installs a retained immutable snapshot in the
   SQL core; `index_field_tuple_est()` and `sql_space_tuple_log_count()` use
   schema-validated relation cardinality and average rows-per-index-prefix
+  (index tuple count divided by matching prefix NDV, for sparse-index safety)
   estimates when available, preserving the legacy estimates on missing/stale
   relation/index data. `whereRangeScanEst()` applies its existing reduction
   to the resulting snapshot-backed input cardinality; S2 histogram range
   integration is not implied. Unit coverage exercises relation/prefix
-  estimates, stale schemas, missing indexes, and definition-length mismatch,
+  estimates, distinct relation/index tuple populations, stale schemas, missing
+  indexes, and definition-length mismatch,
   and the production SQL target links the snapshot API. This is only the
   reader/adapter side: no collection or SQL preparation path populates the
   provider, prepared statements do not own their own snapshot references,

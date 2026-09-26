@@ -7,19 +7,22 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(18);
+	plan(20);
 	header();
 	uint64_t prefixes[] = {2, 5};
+	uint64_t sparse_prefixes[] = {2, 4};
 	struct sql_stats_index_input indexes[] = {
 		{.index_id = 8, .tuple_count = 10, .distinct_prefixes = prefixes,
 		 .prefix_count = 2},
+		{.index_id = 9, .tuple_count = 6,
+		 .distinct_prefixes = sparse_prefixes, .prefix_count = 2},
 	};
 	struct sql_stats_relation_input relations[] = {
 		{.space_id = 42, .row_count = 10, .average_row_width = 24,
 		 .confidence = 0.9,
 		 .cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
 		 .collected_at = 11, .modification_epoch = 12,
-		 .indexes = indexes, .index_count = 1},
+		 .indexes = indexes, .index_count = 2},
 	};
 	struct sql_stats_snapshot *snapshot = sql_stats_snapshot_new(4, 7,
 		relations, 1, 4096);
@@ -65,6 +68,14 @@ test_deep_copy_lookup_and_lifetime(void)
 							 1, &rows) ==
 	   SQL_STATS_LOOKUP_AVAILABLE && rows == 5,
 	   "first key prefix estimates average rows from its NDV");
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 9,
+							 1, &rows) ==
+	   SQL_STATS_LOOKUP_AVAILABLE && rows == 3,
+	   "sparse index prefix uses its own tuple population");
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 9,
+							 2, &rows) ==
+	   SQL_STATS_LOOKUP_AVAILABLE && rows == 1.5,
+	   "sparse full prefix uses index population rather than relation rows");
 	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
 							 2, &rows) ==
 	   SQL_STATS_LOOKUP_AVAILABLE && rows == 2,
@@ -73,7 +84,7 @@ test_deep_copy_lookup_and_lifetime(void)
 							 1, &rows) ==
 	   SQL_STATS_LOOKUP_STALE,
 	   "stale schema rejects index-prefix estimate");
-	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 9,
+	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 10,
 							 1, &rows) ==
 	   SQL_STATS_LOOKUP_MISSING,
 	   "missing index rejects index-prefix estimate");

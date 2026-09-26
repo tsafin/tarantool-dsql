@@ -296,6 +296,8 @@ sql_stats_snapshot_estimate_index_prefix_rows(
 							  prefix_count - 1);
 	if (distinct == 0)
 		return SQL_STATS_LOOKUP_MISSING;
-	*rows = sql_stats_relation_row_count(relation) / distinct;
+	/* Prefix NDVs describe the index population, which may be smaller than
+	 * the relation. */
+	*rows = (double)sql_stats_index_tuple_count(index) / distinct;
 	return SQL_STATS_LOOKUP_AVAILABLE;
 }
