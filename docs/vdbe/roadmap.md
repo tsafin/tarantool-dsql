@@ -548,7 +548,7 @@ the `where.c` selectivity adapter wait for that interface.
   opaque result reports cumulative sample counts; no SQL value encoding,
   persistence format, or system-space ID is defined. Focused unit tests cover
   quantiles, duplicate handling, deep copy, invalid ordering, and byte budget.
-- [ ] **S2.5 prototype** Single-column selectivity API implemented in
+- [x] **S2.5 prototype** Single-column selectivity API implemented in
   `src/box/sql/sql_stats_selectivity.{h,c}`: unique equality, NULL fraction,
   sampled MCV equality, residual-NDV independence fallback, cumulative
   histogram ranges, and conservative AND confidence. A separate narrow joint-
@@ -572,8 +572,10 @@ the `where.c` selectivity adapter wait for that interface.
   result as `JOINT_NDV`, and lowers confidence for the uniform residual-tail
   assumption. Exact MCV matches retain precedence; absent/invalid/incompatible
   sketch metadata preserves the prior independence estimate. This is a narrow
-  full-tuple residual estimate, not partial-tuple matching, dependency
-  statistics, or a general correlation adjustment. Partial-tuple matching
+  standalone estimator prototype with focused unit coverage; it is not wired
+  to snapshot collection, persistence, `where.c`, or the M0 workload corpus.
+  This is a narrow full-tuple residual estimate, not partial-tuple matching,
+  dependency statistics, or a general correlation adjustment. Partial-tuple matching
   beyond an exhaustive joint sample remains unavailable: matching MCV rows in
   a truncated joint sample gives only a lower bound, while the scalar
   joint-NDV input describes the full group and cannot recover marginal tail
