@@ -19,6 +19,7 @@ struct sql_stats_index {
 struct sql_stats_relation {
 	uint32_t space_id;
 	double row_count;
+	char *population_basis;
 	double average_row_width;
 	char *width_basis;
 	uint64_t width_denominator_count;
@@ -84,6 +85,7 @@ static void
 destroy_relations(struct sql_stats_relation *relations, size_t count)
 {
 	for (size_t i = 0; i < count; i++) {
+		free(relations[i].population_basis);
 		free(relations[i].width_basis);
 		free(relations[i].confidence_source);
 		if (relations[i].indexes != NULL) {
@@ -138,6 +140,10 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 			goto error;
 		out->space_id = in->space_id;
 		out->row_count = in->row_count;
+		out->population_basis = copy_tag(in->population_basis,
+						 &snapshot->bytes, max_bytes);
+		if (in->population_basis != NULL && out->population_basis == NULL)
+			goto error;
 		out->average_row_width = in->average_row_width;
 		out->width_denominator_count = in->width_denominator_count;
 		out->width_basis = copy_tag(in->width_basis, &snapshot->bytes,
@@ -300,6 +306,8 @@ uint32_t sql_stats_relation_space_id(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->space_id; }
 double sql_stats_relation_row_count(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->row_count; }
+const char *sql_stats_relation_population_basis(const struct sql_stats_relation *r)
+{ return r == NULL ? NULL : r->population_basis; }
 double sql_stats_relation_average_row_width(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->average_row_width; }
 const char *sql_stats_relation_width_basis(const struct sql_stats_relation *r)

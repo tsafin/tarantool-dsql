@@ -27,6 +27,8 @@ struct sql_stats_index_input {
 struct sql_stats_relation_input {
 	uint32_t space_id;
 	double row_count;
+	/* Optional caller-defined population semantics/provenance. */
+	const char *population_basis;
 	double average_row_width;
 	/* Optional caller-defined provenance; NULL preserves legacy callers. */
 	const char *width_basis;
@@ -104,6 +106,9 @@ sql_stats_relation_space_id(const struct sql_stats_relation *relation);
 
 double
 sql_stats_relation_row_count(const struct sql_stats_relation *relation);
+
+const char *
+sql_stats_relation_population_basis(const struct sql_stats_relation *relation);
 
 double
 sql_stats_relation_average_row_width(const struct sql_stats_relation *relation);

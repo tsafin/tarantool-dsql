@@ -51,6 +51,8 @@ test_complete_result_and_rejections(void)
 		   SQL_STATS_LOOKUP_AVAILABLE, "candidate contains relation");
 		ok(strcmp(sql_stats_relation_width_basis(r),
 			  "sampled_payload_bytes/sample_rows") == 0 &&
+		   strcmp(sql_stats_relation_population_basis(r),
+			  "visible_rows@view-9") == 0 &&
 		   sql_stats_relation_width_denominator_count(r) == 8 &&
 		   strcmp(sql_stats_relation_confidence_source(r),
 			  "caller-calibrated-v1") == 0 &&

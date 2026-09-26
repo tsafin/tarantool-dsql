@@ -139,6 +139,7 @@ sql_stats_collection_build_candidate(
 			inputs[i] = (struct sql_stats_relation_input) {
 				.space_id = have->space_id,
 				.row_count = have->row_count,
+				.population_basis = have->population_basis,
 				.average_row_width = have->average_row_width,
 				.width_basis = have->width_basis,
 				.width_denominator_count = have->width_denominator_count,
