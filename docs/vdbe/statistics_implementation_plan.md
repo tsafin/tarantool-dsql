@@ -173,6 +173,28 @@ cardinalities. Its asymptotic relative standard error is approximately
 expectation, not an individual-result guarantee. Integration must preserve
 the seed/precision metadata and report confidence independently.
 
+### SpaceSaving prototype contract (S2.3)
+
+The in-memory bounded MCV candidate sketch is exposed by
+`src/box/sql/sql_stats_spacesaving.{h,c}`. Capacity is fixed at construction;
+each key is an opaque caller-encoded byte string, so SQL callers must encode
+type and NULL distinctions unambiguously. A tracked value returns an upper
+frequency estimate and an error; its sample frequency is in
+`[estimate - error, estimate]`. For a single stream of `N` updates, the
+SpaceSaving error for every tracked value is at most `ceil(N / capacity)`.
+Keys use bytewise lexical order (shorter prefix first) to resolve equal-count
+victim and output-selection ties, making results deterministic.
+
+Merge keeps the destination capacity. For a value tracked on both sides,
+upper estimates and errors are added. If it is absent on one side, that side's
+minimum counter is added to both estimate and error, conservatively covering
+the frequency that may have been omitted there. The bound for a tracked result
+is therefore no worse than the sum of the per-input SpaceSaving bounds; merge
+is not an exact union and may omit candidates. Merge is atomic on allocation
+or overflow failure. The API defines no SQL value encoding, persistence
+format, confidence metadata, or system-space ID; those remain integration and
+schema-review work.
+
 ## Refresh And Staleness
 
 Initial policy is explicit `ANALYZE`; background refresh is not required for

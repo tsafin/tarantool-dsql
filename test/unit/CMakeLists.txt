@@ -101,6 +101,11 @@ create_unit_test(PREFIX sql_stats_hll
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
                  LIBRARIES unit m
 )
+create_unit_test(PREFIX sql_stats_spacesaving
+                 SOURCES sql_stats_spacesaving.c
+                         ../src/box/sql/sql_stats_spacesaving.c
+                 LIBRARIES unit
+)
 create_unit_test(PREFIX bitset_basic
                  SOURCES bitset_basic.c
                  LIBRARIES bitset

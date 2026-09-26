@@ -358,8 +358,8 @@ IDs/formats and the `where.c` adapter integrate serially.
 statistics that turn selectivity estimation from "guess 25%" into
 "estimate based on data."
 
-**State:** `PROTOTYPE` (S2.2 in-memory HLL slice implemented and unit-tested;
-remaining S2 work is not integrated). Sketch algorithms and synthetic
+**State:** `PROTOTYPE` (S2.2 in-memory HLL and S2.3 bounded MCV slices are
+implemented and unit-tested; remaining S2 work is not integrated). Sketch algorithms and synthetic
 validation may start against a versioned S1 snapshot interface before S1 is
 end-to-end; persistence and the `where.c` selectivity adapter wait for that
 interface.
@@ -382,7 +382,12 @@ interface.
   error, deterministic estimates, and merge compatibility. No persistence or
   system-space IDs are included; payload integration remains pending S1/schema
   review.
-- [ ] **S2.3** SpaceSaving heavy-hitter sketch for MCV. *parallel: yes*.
+- [x] **S2.3** SpaceSaving heavy-hitter sketch for MCV. *parallel: yes*.
+  In-memory opaque API at `src/box/sql/sql_stats_spacesaving.{h,c}` with
+  fixed capacity, deterministic lexical tie handling, conservative merge
+  intervals, and single-stream `N / capacity` error bound. Unit tests cover
+  heavy-hitter bounds, deterministic ties, and merge. Contract is documented
+  in `statistics_implementation_plan.md`; no persistence or system-space IDs.
 - [ ] **S2.4** Equi-depth histogram builder from sampled ordered values.
   *parallel: yes*.
 - [ ] **S2.5** Selectivity estimator — implements the precedence order from
