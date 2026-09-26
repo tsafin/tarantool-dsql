@@ -1,6 +1,7 @@
 #include "sql_stats_selectivity.h"
 
 #include <math.h>
+#include <stdlib.h>
 
 static bool
 valid_summary(const struct sql_stats_column_summary *s)
@@ -199,4 +200,84 @@ sql_stats_selectivity_and(const struct sql_stats_selectivity *terms,
 	set_result(result, value, confidence,
 		   SQL_STATS_SELECTIVITY_INDEPENDENCE);
 	return 0;
+}
+
+static bool
+joint_tuple_equal(const struct sql_stats_column_summary *summaries,
+		  const struct sql_stats_mcv_value *a,
+		  const struct sql_stats_mcv_value *b, size_t count)
+{
+	for (size_t i = 0; i < count; i++) {
+		if (summaries[i].compare(a[i].value, a[i].value_size,
+					 b[i].value, b[i].value_size,
+					 summaries[i].compare_context) != 0)
+			return false;
+	}
+	return true;
+}
+
+int
+sql_stats_estimate_equality_conjunction(
+	const struct sql_stats_column_summary *summaries,
+	const struct sql_stats_mcv_value *predicates, size_t term_count,
+	const struct sql_stats_joint_mcv_sample *joint_mcv,
+	size_t joint_mcv_count, uint64_t sample_nonnull_rows,
+	struct sql_stats_selectivity *result)
+{
+	if (result == NULL || summaries == NULL || predicates == NULL ||
+	    term_count == 0 || (joint_mcv_count != 0 &&
+	    (joint_mcv == NULL || sample_nonnull_rows == 0)))
+		return -1;
+	double confidence = 1;
+	struct sql_stats_selectivity *terms = calloc(term_count, sizeof(*terms));
+	if (terms == NULL)
+		return -1;
+	int rc = -1;
+	for (size_t i = 0; i < term_count; i++) {
+		if (predicates[i].value == NULL && predicates[i].value_size != 0)
+			goto done;
+		if (sql_stats_estimate_equality(&summaries[i], predicates[i].value,
+						predicates[i].value_size, false,
+						&terms[i]) != 0)
+			goto done;
+		if (summaries[i].confidence < confidence)
+			confidence = summaries[i].confidence;
+	}
+	{
+		uint64_t total = 0;
+		for (size_t i = 0; i < joint_mcv_count; i++) {
+			const struct sql_stats_joint_mcv_sample *entry = &joint_mcv[i];
+			if (entry->values == NULL || entry->value_count != term_count ||
+			    entry->count == 0 || total > sample_nonnull_rows ||
+			    entry->count > sample_nonnull_rows - total)
+				goto done;
+			for (size_t c = 0; c < term_count; c++) {
+				if (entry->values[c].value == NULL &&
+				    entry->values[c].value_size != 0)
+					goto done;
+			}
+			for (size_t j = 0; j < i; j++) {
+				if (joint_tuple_equal(summaries, entry->values,
+						      joint_mcv[j].values,
+						      term_count))
+					goto done;
+			}
+			total += entry->count;
+		}
+	}
+	for (size_t i = 0; i < joint_mcv_count; i++) {
+		if (joint_tuple_equal(summaries, predicates, joint_mcv[i].values,
+				      term_count)) {
+			double estimate = (double)joint_mcv[i].count /
+				sample_nonnull_rows;
+			set_result(result, estimate, confidence,
+				   SQL_STATS_SELECTIVITY_MCV);
+			rc = 0;
+			goto done;
+		}
+	}
+	rc = sql_stats_selectivity_and(terms, term_count, result);
+done:
+	free(terms);
+	return rc;
 }

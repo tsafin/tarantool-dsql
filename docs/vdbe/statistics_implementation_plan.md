@@ -235,9 +235,14 @@ residual NDV with deliberately reduced confidence. Range predicates use
 cumulative histogram counts, with midpoint estimates inside a bucket and
 strict/inclusive behavior at exact boundaries. Independent conjunctions
 multiply selectivities and retain the minimum confidence. This is a narrow
-prototype only: it does not yet model multivariate MCV, dependencies,
-correlation, MCV-aware range mass, or planner fallbacks, and is not connected
-to `where.c` or `SqlStatsSnapshot`.
+prototype only: beyond that exact-tuple case it does not model dependencies,
+general correlation, MCV-aware range mass, or planner fallbacks, and is not
+connected to `where.c` or `SqlStatsSnapshot`. A narrow joint-MCV prototype
+handles only a fully specified conjunction of non-NULL equality predicates:
+when the exact tuple is present it uses that sampled joint frequency; when it
+is absent, it falls back to the existing per-column independence product.
+This does not provide joint NDV, dependency statistics, partial-tuple or
+range matching, nor policy for choosing/storing multicolumn groups.
 
 The focused unit probe includes a uniform 1,000-distinct-value column and a
 skewed column with one value at 90% frequency. Equality and selected range

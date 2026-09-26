@@ -13,6 +13,19 @@ struct sql_stats_mcv_sample {
 	uint64_t count;
 };
 
+/* One non-NULL component of a multivariate MCV tuple. */
+struct sql_stats_mcv_value {
+	const void *value;
+	size_t value_size;
+};
+
+/* A joint MCV entry for a fully specified conjunction of equalities. */
+struct sql_stats_joint_mcv_sample {
+	const struct sql_stats_mcv_value *values;
+	size_t value_count;
+	uint64_t count;
+};
+
 struct sql_stats_column_summary {
 	double row_count;
 	double null_fraction;
@@ -66,5 +79,18 @@ int
 sql_stats_selectivity_and(const struct sql_stats_selectivity *terms,
 			  size_t term_count,
 			  struct sql_stats_selectivity *result);
+
+/*
+ * Estimate a conjunction of non-NULL equalities. A matching joint MCV is
+ * authoritative; otherwise per-column estimates are combined by independence.
+ * Joint sample counts are measured over sample_nonnull_rows observations.
+ */
+int
+sql_stats_estimate_equality_conjunction(
+	const struct sql_stats_column_summary *summaries,
+	const struct sql_stats_mcv_value *predicates, size_t term_count,
+	const struct sql_stats_joint_mcv_sample *joint_mcv,
+	size_t joint_mcv_count, uint64_t sample_nonnull_rows,
+	struct sql_stats_selectivity *result);
 
 #endif /* TARANTOOL_SQL_STATS_SELECTIVITY_H */

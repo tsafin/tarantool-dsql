@@ -167,6 +167,70 @@ q_error(double estimate, double actual)
 }
 
 static void
+test_joint_mcv_equality_conjunction(void)
+{
+	plan(5);
+	header();
+	int zero = 0;
+	int one = 1;
+	struct sql_stats_mcv_sample col0_mcv = {
+		.value = &zero, .value_size = sizeof(zero), .count = 500,
+	};
+	struct sql_stats_mcv_sample col1_mcv = col0_mcv;
+	struct sql_stats_column_summary summaries[] = {
+		{.row_count = 1000, .distinct_count = 2, .confidence = 0.9,
+		 .sample_nonnull_rows = 1000, .mcv = &col0_mcv, .mcv_count = 1,
+		 .compare = compare_int},
+		{.row_count = 1000, .distinct_count = 2, .confidence = 0.8,
+		 .sample_nonnull_rows = 1000, .mcv = &col1_mcv, .mcv_count = 1,
+		 .compare = compare_int},
+	};
+	struct sql_stats_mcv_value hot_tuple[] = {
+		{.value = &zero, .value_size = sizeof(zero)},
+		{.value = &zero, .value_size = sizeof(zero)},
+	};
+	struct sql_stats_joint_mcv_sample joint[] = {
+		{.values = hot_tuple, .value_count = 2, .count = 400},
+	};
+	struct sql_stats_selectivity result;
+	struct sql_stats_selectivity fallback;
+	ok(sql_stats_estimate_equality_conjunction(summaries, hot_tuple, 2,
+		NULL, 0, 0, &fallback) == 0 &&
+	   sql_stats_estimate_equality_conjunction(summaries, hot_tuple, 2,
+		joint, 1, 1000, &result) == 0 &&
+	   q_error(result.value, 0.4) == 1 &&
+	   q_error(result.value, 0.4) < q_error(fallback.value, 0.4) &&
+	   result.source == SQL_STATS_SELECTIVITY_MCV,
+	   "joint MCV corrects correlated conjunction q-error");
+	struct sql_stats_mcv_value cold_tuple[] = {
+		{.value = &one, .value_size = sizeof(one)},
+		{.value = &one, .value_size = sizeof(one)},
+	};
+	ok(sql_stats_estimate_equality_conjunction(summaries, cold_tuple, 2,
+		joint, 1, 1000, &result) == 0 &&
+	   fabs(result.value - 0.25) < 1e-12 &&
+	   result.source == SQL_STATS_SELECTIVITY_INDEPENDENCE,
+	   "missing joint MCV uses independence fallback");
+	struct sql_stats_joint_mcv_sample invalid = joint[0];
+	invalid.value_count = 1;
+	ok(sql_stats_estimate_equality_conjunction(summaries, hot_tuple, 2,
+		&invalid, 1, 1000, &result) == -1,
+	   "joint MCV arity mismatch rejected");
+	struct sql_stats_joint_mcv_sample duplicate[] = {joint[0], joint[0]};
+	ok(sql_stats_estimate_equality_conjunction(summaries, hot_tuple, 2,
+		duplicate, 2, 1000, &result) == -1,
+	   "duplicate joint MCV tuples rejected");
+	struct sql_stats_mcv_value malformed = {
+		.value = NULL, .value_size = sizeof(int),
+	};
+	ok(sql_stats_estimate_equality_conjunction(summaries, &malformed, 1,
+		NULL, 0, 0, &result) == -1,
+	   "malformed equality input rejected");
+	footer();
+	check_plan();
+}
+
+static void
 test_uniform_and_skewed_qerror(void)
 {
 	plan(7);
@@ -258,5 +322,6 @@ main(void)
 	test_exact_mcv_and_independence();
 	test_histogram_ranges();
 	test_uniform_and_skewed_qerror();
+	test_joint_mcv_equality_conjunction();
 	return 0;
 }
