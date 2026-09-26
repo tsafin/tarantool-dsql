@@ -276,29 +276,6 @@ test_basic()
 	vy_read_iterator_close(&read_itr);
 	diag_clear(diag_get());
 
-	struct vy_iterator_work_budget page_budget = {
-		.max_disk_sources = UINT64_MAX,
-		.max_page_reads = 0,
-	};
-	vy_read_iterator_open(&read_itr, pk, NULL, ITER_GE, sample_key,
-			      &sample_prv);
-	vy_read_iterator_set_work_budget(&read_itr, &page_budget);
-	rc = vy_read_iterator_next(&read_itr, &sample_result);
-	error = diag_last_error(diag_get());
-	ok(rc < 0 && error != NULL && error->code == ER_UNSUPPORTED,
-	   "budgeted iterator rejects synchronous page I/O");
-	ok(!page_budget.exhausted,
-	   "synchronous page rejection precedes budget consumption");
-	ok(page_budget.disk_sources_probed > 0,
-	   "page-budgeted iterator probes sources before I/O rejection");
-	ok(page_budget.page_reads_attempted == 0,
-	   "no uncached page read is attempted without a reader pool");
-	ok(sample_result.stmt == NULL,
-	   "synchronous page rejection does not expose a partial entry");
-	vy_read_iterator_close(&read_itr);
-	diag_clear(diag_get());
-	tuple_unref(sample_key.stmt);
-
 	/* Compare with expected */
 	bool results_ok = true;
 	bool has_errors = false;
@@ -359,6 +336,34 @@ test_basic()
 
 	is(results_ok, true, "select results");
 	is(has_errors, false, "no errors happened");
+
+	/* Enable cancellable page I/O after the lookup checks: a zero page budget
+	 * must now reject an actual uncached-page request, not just the absence of
+	 * a reader pool.
+	 */
+	vy_run_env_enable_coio(&run_env);
+	struct vy_iterator_work_budget page_budget = {
+		.max_disk_sources = UINT64_MAX,
+		.max_page_reads = 0,
+	};
+	vy_read_iterator_open(&read_itr, pk, NULL, ITER_GE, sample_key,
+			      &sample_prv);
+	vy_read_iterator_set_work_budget(&read_itr, &page_budget);
+	rc = vy_read_iterator_next(&read_itr, &sample_result);
+	error = diag_last_error(diag_get());
+	ok(rc < 0 && error != NULL && error->code == ER_UNSUPPORTED,
+	   "uncached-page work budget fails closed through read iterator");
+	ok(page_budget.exhausted,
+	   "page-budget exhaustion is reported by the shared operation budget");
+	ok(page_budget.disk_sources_probed > 0,
+	   "page-budgeted iterator probes sources before uncached-page I/O");
+	ok(page_budget.page_reads_attempted == 0,
+	   "zero budget rejects before submitting an uncached page read");
+	ok(sample_result.stmt == NULL,
+	   "page exhaustion does not expose a partial entry");
+	vy_read_iterator_close(&read_itr);
+	diag_clear(diag_get());
+	tuple_unref(sample_key.stmt);
 
 	vy_lsm_delete(pk);
 	index_def_delete(index_def);

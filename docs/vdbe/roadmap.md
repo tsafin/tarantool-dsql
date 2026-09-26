@@ -431,13 +431,15 @@ DRAFT pending human review of IDs and formats.
   exhaustion. Focused unit tests cover counter limits/sticky exhaustion, and
   the production server builds. The Vinyl point-lookup unit fixture now also
   attaches zero-source and zero-page budgets to a real read/merge iterator over
-  generated runs. It verifies source-budget exhaustion and no returned entry;
-  the page-budget case fails closed earlier because this fixture has no
-  cancellable reader pool, before consuming a page budget. Each iterator is
-  closed after failure. This covers propagation/cleanup constraints, not page-
-  cap exhaustion, logical visibility across successful sampling, or partial-
-  sample confidence. The budget API treats exhaustion as an error, so callers
-  must discard all earlier sink state from that operation. Logical-visible
+  generated runs. It verifies source-budget exhaustion and no returned entry.
+  After the fixture's normal visibility checks, a cancellable reader pool is
+  enabled and a zero-page budget fails closed at an actual uncached-page
+  request; exhaustion accounting is set, no page-read slot is consumed, no
+  entry is returned, and the iterator is closed. This covers propagation,
+  cleanup, and page-cap exhaustion, not logical visibility across successful
+  sampling or partial-sample confidence. The budget API treats exhaustion as
+  an error, so callers must discard all earlier sink state from that operation.
+  Logical-visible
   candidate selection and partial-sample confidence semantics remain
   undefined, so this instrumentation does not complete the sampler.
   Existing cancellation can surface as `FiberIsCancelled` through the pinned
