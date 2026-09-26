@@ -379,10 +379,11 @@ them.
   this prototype. M1.4 remains open and v2 remains `replayable=false`.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
-  from a snapshot, diffs fingerprint and fallback reason. The current M1.4
-  envelope still has no normalized predicates, relation/access-path inputs,
-  or statistics and explicitly sets `replayable=false`; implementing a tool
-  against that payload would only relabel live-state planning, not replay.
+  from a snapshot, diffs fingerprint and fallback reason. The current v2
+  diagnostic envelope still has no normalized predicates, relation/access-path
+  inputs, or statistics and explicitly sets `replayable=false`; the detached
+  M1.4 value prototype is not embedded in it. Implementing a tool against v2
+  would only relabel live-state planning, not replay.
   The planner currently has no entry point that consumes normalized IR,
   logical access-path metadata, and captured statistics without the SQL
   compiler/catalog/storage dependencies; the replay contract requires that
