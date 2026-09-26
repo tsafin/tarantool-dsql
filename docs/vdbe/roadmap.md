@@ -422,12 +422,15 @@ remains DRAFT pending human review of IDs and formats.
   slice now propagates an optional caller-owned operation-local source-probe /
   uncached-page budget through both iterator layers and fails closed on
   exhaustion. Focused unit tests cover counter limits/sticky exhaustion, and
-  the production server builds; runtime tests do not yet attach a budget to a
-  real iterator or verify exhaustion cleanup/visibility. The budget API treats
-  exhaustion as an error, so callers must discard all earlier sink state from
-  that operation. Logical-visible candidate selection and partial-sample
-  confidence semantics remain undefined, so this instrumentation does not
-  complete the sampler.
+  the production server builds. The Vinyl point-lookup unit fixture now also
+  attaches zero-source and zero-page budgets to a real read/merge iterator over
+  generated runs, asserts `ER_UNSUPPORTED` and no returned entry, and closes
+  each exhausted iterator. This covers fail-closed propagation and cleanup,
+  not logical visibility across successful sampling or partial-sample
+  confidence. The budget API treats exhaustion as an error, so callers must
+  discard all earlier sink state from that operation. Logical-visible
+  candidate selection and partial-sample confidence semantics remain
+  undefined, so this instrumentation does not complete the sampler.
   Existing cancellation can surface as `FiberIsCancelled` through the pinned
   slice cleanup path; synchronous recovery reads are not cancellable. This is
   a design constraint, not a completed sampler.

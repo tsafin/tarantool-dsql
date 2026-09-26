@@ -461,6 +461,7 @@ create_unit_test(PREFIX vy_point_lookup
                          vy_iterators_helper.c
                          vy_log_stub.c
                          ${PROJECT_SOURCE_DIR}/src/box/vy_point_lookup.c
+                         ${PROJECT_SOURCE_DIR}/src/box/vy_read_iterator.c
                          ${PROJECT_SOURCE_DIR}/src/box/vy_write_iterator.c
                          ${PROJECT_SOURCE_DIR}/src/box/vy_stmt.c
                          ${PROJECT_SOURCE_DIR}/src/box/vy_mem.c

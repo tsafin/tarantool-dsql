@@ -6,6 +6,9 @@
 #include <bit/bit.h>
 #include <crc32.h>
 #include <box/vy_point_lookup.h>
+#include <box/vy_read_iterator.h>
+#include "box/error.h"
+#include "diag.h"
 #include "vy_iterators_helper.h"
 #include "vy_write_iterator.h"
 #include "identifier.h"
@@ -58,7 +61,7 @@ static void
 test_basic()
 {
 	header();
-	plan(15);
+	plan(23);
 
 	/** Suppress info messages from vy_run_writer. */
 	say_set_log_level(S_WARN);
@@ -244,6 +247,52 @@ test_basic()
 			     pk->cmp_def);
 	vy_range_add_slice(range, slice);
 	vy_run_unref(run);
+
+	/* Exercise the optional limits through a real merge iterator over the
+	 * generated runs. A cap is an error, not a partial visible tuple result;
+	 * close must clean every opened source after either failure.
+	 */
+	struct vy_read_view sample_rv = {.vlsn = INT64_MAX};
+	const struct vy_read_view *sample_prv = &sample_rv;
+	struct vy_stmt_template sample_key_tmpl = STMT_TEMPLATE(0, SELECT, 0);
+	struct vy_entry sample_key = vy_new_simple_stmt(format, key_def,
+						       &sample_key_tmpl);
+	struct vy_entry sample_result = vy_entry_none();
+	struct vy_read_iterator read_itr;
+	struct vy_iterator_work_budget source_budget = {
+		.max_disk_sources = 0,
+		.max_page_reads = UINT64_MAX,
+	};
+	vy_read_iterator_open(&read_itr, pk, NULL, ITER_GE, sample_key,
+			      &sample_prv);
+	vy_read_iterator_set_work_budget(&read_itr, &source_budget);
+	rc = vy_read_iterator_next(&read_itr, &sample_result);
+	struct error *error = diag_last_error(diag_get());
+	ok(rc < 0 && error != NULL && error->code == ER_UNSUPPORTED,
+	   "disk-source budget fails closed through read iterator");
+	ok(source_budget.exhausted && source_budget.disk_sources_probed == 0 &&
+	   sample_result.stmt == NULL,
+	   "source exhaustion does not expose a partial entry");
+	vy_read_iterator_close(&read_itr);
+	diag_clear(diag_get());
+
+	struct vy_iterator_work_budget page_budget = {
+		.max_disk_sources = UINT64_MAX,
+		.max_page_reads = 0,
+	};
+	vy_read_iterator_open(&read_itr, pk, NULL, ITER_GE, sample_key,
+			      &sample_prv);
+	vy_read_iterator_set_work_budget(&read_itr, &page_budget);
+	rc = vy_read_iterator_next(&read_itr, &sample_result);
+	error = diag_last_error(diag_get());
+	ok(rc < 0 && error != NULL && error->code == ER_UNSUPPORTED,
+	   "uncached-page budget fails closed through read iterator");
+	ok(page_budget.exhausted && page_budget.disk_sources_probed > 0 &&
+	   page_budget.page_reads_attempted == 0 && sample_result.stmt == NULL,
+	   "page exhaustion preserves result and accounts attempted work");
+	vy_read_iterator_close(&read_itr);
+	diag_clear(diag_get());
+	tuple_unref(sample_key.stmt);
 
 	/* Compare with expected */
 	bool results_ok = true;
