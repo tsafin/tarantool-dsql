@@ -627,6 +627,9 @@ DML, triggers, subprograms, non-deterministic functions.
   as `l3_path_class.taken: null` for statements that do not enter the WHERE
   planner, instead of crashing or mislabeling them `current_where_c`; the
   schema, validator, and a DML fixture cover this case.
+  A targeted standalone audit now captures and validates all 30,073 statements
+  in `select2.test.lua` under both memtx and Vinyl; this is not a baseline
+  recapture or full-corpus parity result.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.
