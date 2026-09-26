@@ -49,6 +49,9 @@ struct space;
 struct space_def;
 struct vclock;
 struct xstream;
+struct sql_stats_sample_request;
+struct sql_stats_sample_sink;
+struct sql_stats_sample_result;
 
 extern struct rlist engines;
 
@@ -102,6 +105,11 @@ struct engine_vtab {
 	/** Allocate a new space instance. */
 	struct space *(*create_space)(struct engine *engine,
 			struct space_def *def, struct rlist *key_list);
+	/** Optional engine-owned in-transaction SQL statistics sampler. */
+	int (*sql_stats_sample)(struct space *space,
+			const struct sql_stats_sample_request *request,
+			struct sql_stats_sample_sink *sink,
+			struct sql_stats_sample_result *result);
 	/**
 	 * Create a read view of the data stored in the engine.
 	 *
@@ -255,6 +263,13 @@ struct engine_vtab {
 	 */
 	int (*check_space_def)(struct space_def *);
 };
+
+/** Dispatch a bounded sample request to the space's storage engine. */
+int
+engine_sql_stats_sample(struct space *space,
+			const struct sql_stats_sample_request *request,
+			struct sql_stats_sample_sink *sink,
+			struct sql_stats_sample_result *result);
 
 enum {
 	/**

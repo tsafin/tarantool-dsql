@@ -30,6 +30,9 @@
  */
 #include "engine.h"
 
+#include "box/sql/sql_stats_sample.h"
+#include "space.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
@@ -39,6 +42,27 @@
 #include "small/rlist.h"
 
 RLIST_HEAD(engines);
+
+int
+engine_sql_stats_sample(struct space *space,
+			const struct sql_stats_sample_request *request,
+			struct sql_stats_sample_sink *sink,
+			struct sql_stats_sample_result *result)
+{
+	if (space == NULL || space->engine == NULL || request == NULL ||
+	    sink == NULL || sink->consume == NULL || result == NULL) {
+		diag_set(ClientError, ER_ILLEGAL_PARAMS,
+			 "Invalid SQL statistics sampling arguments");
+		return -1;
+	}
+	if (space->engine->vtab->sql_stats_sample == NULL) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "SQL statistics sampling is unsupported by this engine");
+		return -1;
+	}
+	return space->engine->vtab->sql_stats_sample(space, request, sink,
+						     result);
+}
 
 enum recovery_state recovery_state = RECOVERY_NOT_STARTED;
 

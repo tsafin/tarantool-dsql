@@ -62,6 +62,7 @@
 #include "memtx_space_upgrade.h"
 #include "tt_sort.h"
 #include "assoc.h"
+#include "box/sql/sql_stats_sample.h"
 
 #include <type_traits>
 
@@ -1369,10 +1370,60 @@ memtx_engine_memory_stat(struct engine *engine, struct engine_memory_stat *stat)
 							MEMTX_EXTENT_SIZE;
 }
 
+static int
+memtx_sql_stats_random_tuple(void *context, uint32_t seed,
+			     const char **data, size_t *size)
+{
+	struct index *primary = (struct index *)context;
+	struct tuple *tuple = NULL;
+	if (index_random(primary, seed, &tuple) != 0)
+		return -1;
+	if (tuple != NULL) {
+		*data = tuple_data(tuple);
+		*size = tuple_bsize(tuple);
+	}
+	return 0;
+}
+
+static int
+memtx_engine_sql_stats_sample(struct space *space,
+			      const struct sql_stats_sample_request *request,
+			      struct sql_stats_sample_sink *sink,
+			      struct sql_stats_sample_result *result)
+{
+	if (in_txn() == NULL) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "memtx SQL statistics sampling requires an active transaction");
+		return -1;
+	}
+	struct index *primary = space_index(space, 0);
+	if (primary == NULL) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "memtx SQL statistics sampling requires a primary index");
+		return -1;
+	}
+	if (request == NULL || sink == NULL || result == NULL) {
+		diag_set(ClientError, ER_ILLEGAL_PARAMS,
+			 "Invalid SQL statistics sampling arguments");
+		return -1;
+	}
+	if (request->max_rows == 0 || request->max_bytes == 0 ||
+	    sink->consume == NULL ||
+	    (request->field_count != 0 && request->field_ids == NULL)) {
+		diag_set(ClientError, ER_ILLEGAL_PARAMS,
+			 "Invalid SQL statistics sampling limits or field list");
+		return -1;
+	}
+	/* Preserve diagnostics raised by index_random() or the consumer. */
+	return sql_stats_sample_run(request, sink, result,
+				    memtx_sql_stats_random_tuple, primary);
+}
+
 static const struct engine_vtab memtx_engine_vtab = {
 	/* .free = */ memtx_engine_free,
 	/* .shutdown = */ generic_engine_shutdown,
 	/* .create_space = */ memtx_engine_create_space,
+	/* .sql_stats_sample = */ memtx_engine_sql_stats_sample,
 	/* .create_read_view = */ memtx_engine_create_read_view,
 	/* .prepare_join = */ memtx_engine_prepare_join,
 	/* .join = */ memtx_engine_join,

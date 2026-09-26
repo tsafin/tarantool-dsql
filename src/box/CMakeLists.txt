@@ -598,6 +598,7 @@ add_library(xlog STATIC ${xlog_sources})
 target_link_libraries(xlog core box_error crc32 ${ZSTD_LIBRARIES})
 
 set(box_sources
+    sql/sql_stats_sample.c
     allocator.cc
     memtx_allocator.cc
     msgpack.c
