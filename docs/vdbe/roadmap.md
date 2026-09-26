@@ -268,8 +268,9 @@ counter-gated before changing the planner.
 
 **State:** `IN-PROGRESS`. M0-A/M0-B are accepted locally. M1.1 has the
 preparatory statement-compilation counter (`sql_statement_compiles_total`)
-plus WHERE-planner candidate and elapsed aggregates. Reason-coded fallback
-accounting and full M1.1 validation remain open.
+plus WHERE-planner candidate and elapsed aggregates. A fallback aggregate
+exists but has no production call site, and reason-coded accounting and full
+M1.1 validation remain open.
 M1.3's structured summary surface is implemented with the current planner's
 `current_where_c` classification; fallback propagation and replay remain
 open. Hosted CI publication is pending but does not block local M1 work.
@@ -286,16 +287,19 @@ them.
 **Subtasks:**
 
 - [ ] **M1.1** Add planner counters to `box.stat.sql()` —
-  `sql_planner_candidates_total`, reasoned
-  `sql_planner_fallback_total`, and `sql_planner_elapsed_us`. Preparatory
-  `sql_statement_compiles_total` is implemented, but does not satisfy this
-  subtask. *parallel: yes* (only sql.c stat hookup).
+  `sql_planner_candidates_total` and `sql_planner_elapsed_us` are hooked to
+  WHERE-planner candidate insertion and elapsed-time paths;
+  `sql_planner_fallback_total` is exposed but currently has no production
+  increment site. Reason-specific fallback counters and end-to-end validation
+  remain open. `sql_statement_compiles_total` is preparatory only.
+  *parallel: yes* (only sql.c stat hookup).
 - [x] **M1.2** Wire path_class emission in current `where.c` — statements
   invoking the WHERE planner store `current_where_c` on the per-statement
   VDBE; summary EXPLAIN reads that value, and statements that do not invoke
-  the planner report NULL. Wiring it into M0 snapshots remains follow-up
-  integration. *parallel: no* (touches the same `where.c` files M3 will
-  modify; coordinate).
+  the planner report NULL. M0 snapshot capture consumes the versioned
+  EXPLAIN snapshot through the M3.6 harness prototype; new-planner/fallback
+  path classes still require M3 dispatch. *parallel: no* (touches the same
+  `where.c` files M3 will modify; coordinate).
 - [x] **M1.3** `EXPLAIN (planner = 'summary')` grammar + executor returning
   structured rows per the planner_vm_migration.md schema. *parallel: yes*.
 - [ ] **M1.4** `EXPLAIN (planner = 'snapshot')` returns a versioned MsgPack
