@@ -66,9 +66,12 @@ primary-key order is correlated with common data distributions.
 The in-memory bounded-loop unit tests exercise request validation, exact row
 and byte limits, deterministic seed behavior, repeated draw accounting, and
 sink abort. The memtx adapter uses the engine's transaction-aware random index
-operation; it does not create an independent read view. The API is not wired
-to ANALYZE or planner preparation. Vinyl must independently choose a bounded
-strategy that avoids pathological full-LSM reads.
+operation; a runtime engine-dispatch test verifies active-transaction
+requirements, visibility of uncommitted tuples, deterministic draws, hard row
+and byte caps, sink/result accounting, and unsupported/invalid inputs. It does
+not create an independent read view. The API is not wired to ANALYZE or
+planner preparation. Vinyl must independently choose a bounded strategy that
+avoids pathological full-LSM reads.
 
 ## Vinyl feasibility status (S1.6)
 
