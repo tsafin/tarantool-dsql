@@ -193,8 +193,8 @@ function M.write(params)
         },
 
         l3_path_class = {
-            taken       = 'current_where_c',
-            reason      = nil,
+            taken       = p.path_class or 'current_where_c',
+            reason      = p.fallback_reason,
             fallback_to = nil,
         },
 

@@ -43,6 +43,7 @@ local json = require('json')
 local snapshot_mod = require('snapshot')
 local forensic_mod = require('forensic')
 local canonicalize = require('canonicalize')
+local msgpack = require('msgpack')
 
 -- ── Argument parsing ──────────────────────────────────────────────────────────
 
@@ -186,9 +187,29 @@ local function intercepted_execute(sql, bindings)
     -- is requested. This is a program listing, not a dynamic dispatch trace;
     -- the distinction is recorded in the L6 file header and schema.
     local explain_rows, explain_error = nil, nil
+    local planner_path_class, planner_fallback_reason = nil, nil
+    local normalized_sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
+    local first_word = normalized_sql:match('^%s*(%a+)')
+    if first_word ~= nil and first_word:upper() == 'SELECT' then
+        local snapshot_ok, snapshot_res
+        if bindings ~= nil then
+            snapshot_ok, snapshot_res = pcall(_real_box_execute,
+                "EXPLAIN (planner = 'snapshot') " .. sql, bindings)
+        else
+            snapshot_ok, snapshot_res = pcall(_real_box_execute,
+                "EXPLAIN (planner = 'snapshot') " .. sql)
+        end
+        if snapshot_ok and snapshot_res ~= nil and
+           snapshot_res.rows ~= nil and snapshot_res.rows[1] ~= nil then
+            local decode_ok, planner_snapshot = pcall(msgpack.decode,
+                tostring(snapshot_res.rows[1][1]))
+            if decode_ok and type(planner_snapshot) == 'table' then
+                planner_path_class = planner_snapshot.path_class
+                planner_fallback_reason = planner_snapshot.fallback_reason
+            end
+        end
+    end
     if cfg.forensic then
-        local normalized_sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
-        local first_word = normalized_sql:match('^%s*(%a+)')
         if first_word ~= nil and first_word:upper() ~= 'EXPLAIN' then
             local explain_ok, explain_res, explain_err
             if bindings ~= nil then
@@ -272,6 +293,8 @@ local function intercepted_execute(sql, bindings)
         success_delta = success_delta,
         explain_rows = explain_rows,
         explain_error = explain_error,
+        planner_path_class = planner_path_class,
+        planner_fallback_reason = planner_fallback_reason,
     })
 
     -- Re-raise on error so the test file's pcall/catchsql sees it
@@ -482,6 +505,8 @@ for seq, q in ipairs(test_ok and captured_queries or {}) do
             rows           = q.rows,
             metadata       = q.metadata,
             err            = q.err,
+            path_class     = q.planner_path_class,
+            fallback_reason = q.planner_fallback_reason,
         })
         if ok_w then
             written = written + 1

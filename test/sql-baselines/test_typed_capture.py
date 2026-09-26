@@ -38,6 +38,7 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("sql_type: datetime", snapshot)
             self.assertIn("sql_type: array", snapshot)
             self.assertIn("sql_type: map", snapshot)
+            self.assertIn("taken: current_where_c", snapshot)
             self.assertNotIn("table: 0x", snapshot)
 
     def test_forensic_vdbe_program_listing(self):

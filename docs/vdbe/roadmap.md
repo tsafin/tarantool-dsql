@@ -495,8 +495,13 @@ DML, triggers, subprograms, non-deterministic functions.
   dispatches rejected statements to `sqlWhereBegin()`, and no M0 snapshot or
   counter wiring exists; both dispatch and observable snapshot integration
   must be completed and tested before this checkbox closes. *parallel: no*.
-- [ ] **M3.6** Wire path_class through to M0 snapshot (`new_planner` vs
-  `fallback_<reason>`). *parallel: yes*.
+- [ ] **M3.6 prototype** M0 snapshot capture now asks
+  `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
+  `path_class` / `fallback_reason`, instead of hardcoding
+  `current_where_c`. The currently wired planner still reports only
+  `current_where_c`; new-planner and fallback classifications await actual
+  M3.5 dispatch, and baseline recapture/parity validation remains open.
+  *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.
 
