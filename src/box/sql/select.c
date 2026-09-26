@@ -5904,11 +5904,11 @@ sqlSelect(Parse * pParse,		/* The parser context */
 		goto select_end;
 	assert(p->pEList != 0);
 	isAgg = (p->selFlags & SF_Aggregate) != 0;
-	/* Aggregate status is known after name resolution. Even the simple
-	 * COUNT(*) OP_Count optimization stays on the legacy planner path and
-	 * must be visible as such in planner diagnostics.
+	/* Non-aggregate structural rejects are known after name resolution.
+	 * Aggregate fallback is recorded only once its path actually enters
+	 * sqlWhereBegin(), since simple count(*) can use OP_Count directly.
 	 */
-	sql_select_record_fallback(pParse, p, isAgg);
+	sql_select_record_fallback(pParse, p, false);
 #ifdef SQL_DEBUG
 	if (sqlSelectTrace & 0x100) {
 		SELECTTRACE(0x100, pParse, p, ("after name resolution:\n"));
