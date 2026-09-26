@@ -343,6 +343,76 @@ test_joint_mcv_range_conjunction(void)
 }
 
 static void
+test_correlated_range_conjunction_qerror(void)
+{
+	plan(2);
+	header();
+	int keys[100];
+	struct sql_stats_ordered_value ordered[100];
+	for (size_t i = 0; i < 100; i++) {
+		keys[i] = i < 50 ? 0 : 1;
+		ordered[i] = (struct sql_stats_ordered_value){
+			.data = &keys[i], .size = sizeof(keys[i]),
+		};
+	}
+	struct sql_stats_histogram *hist0 = sql_stats_histogram_new(
+		ordered, 100, 2, compare_int, NULL, 4096);
+	struct sql_stats_histogram *hist1 = sql_stats_histogram_new(
+		ordered, 100, 2, compare_int, NULL, 4096);
+	ok(hist0 != NULL && hist1 != NULL,
+	   "correlated range fixture histograms build");
+	if (hist0 == NULL || hist1 == NULL) {
+		sql_stats_histogram_delete(hist0);
+		sql_stats_histogram_delete(hist1);
+		footer();
+		check_plan();
+		return;
+	}
+	struct sql_stats_column_summary summaries[] = {
+		{.row_count = 100, .distinct_count = 2, .confidence = 0.9,
+		 .sample_nonnull_rows = 100, .histogram = hist0,
+		 .compare = compare_int},
+		{.row_count = 100, .distinct_count = 2, .confidence = 0.9,
+		 .sample_nonnull_rows = 100, .histogram = hist1,
+		 .compare = compare_int},
+	};
+	int zero = 0;
+	int one = 1;
+	struct sql_stats_mcv_value tuple0[] = {
+		{.value = &zero, .value_size = sizeof(zero)},
+		{.value = &zero, .value_size = sizeof(zero)},
+	};
+	struct sql_stats_mcv_value tuple1[] = {
+		{.value = &one, .value_size = sizeof(one)},
+		{.value = &one, .value_size = sizeof(one)},
+	};
+	struct sql_stats_joint_mcv_sample joint[] = {
+		{.values = tuple0, .value_count = 2, .count = 50},
+		{.values = tuple1, .value_count = 2, .count = 50},
+	};
+	struct sql_stats_predicate predicates[] = {
+		{.column_index = 0, .kind = SQL_STATS_PREDICATE_RANGE,
+		 .range_operator = SQL_STATS_RANGE_LE,
+		 .value = &zero, .value_size = sizeof(zero)},
+		{.column_index = 1, .kind = SQL_STATS_PREDICATE_EQUALITY,
+		 .value = &zero, .value_size = sizeof(zero)},
+	};
+	struct sql_stats_selectivity exact;
+	struct sql_stats_selectivity independent;
+	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, predicates, 2,
+		joint, 2, 100, &exact) == 0 &&
+	   sql_stats_estimate_predicate_conjunction(summaries, 2, predicates, 2,
+		NULL, 0, 0, &independent) == 0 &&
+	   q_error(exact.value, 0.5) == 1 &&
+	   q_error(exact.value, 0.5) < q_error(independent.value, 0.5),
+	   "joint range/equality sample corrects correlation q-error");
+	sql_stats_histogram_delete(hist0);
+	sql_stats_histogram_delete(hist1);
+	footer();
+	check_plan();
+}
+
+static void
 test_uniform_and_skewed_qerror(void)
 {
 	plan(7);
@@ -436,5 +506,6 @@ main(void)
 	test_uniform_and_skewed_qerror();
 	test_joint_mcv_equality_conjunction();
 	test_joint_mcv_range_conjunction();
+	test_correlated_range_conjunction_qerror();
 	return 0;
 }
