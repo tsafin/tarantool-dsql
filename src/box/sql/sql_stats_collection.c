@@ -1,0 +1,168 @@
+#include "sql_stats_collection.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+static bool
+valid_tag(const char *tag)
+{
+	return tag != NULL && tag[0] != '\0';
+}
+
+static bool
+valid_cardinality_semantics(enum sql_stats_cardinality_semantics semantics)
+{
+	return semantics >= SQL_STATS_CARDINALITY_VISIBLE_ROWS &&
+	       semantics <= SQL_STATS_CARDINALITY_ESTIMATE;
+}
+
+static const struct sql_stats_collected_relation *
+find_relation(const struct sql_stats_collection_result *result, uint32_t id)
+{
+	for (size_t i = 0; i < result->relation_count; i++) {
+		if (result->relations[i].space_id == id)
+			return &result->relations[i];
+	}
+	return NULL;
+}
+
+static const struct sql_stats_collected_index *
+find_index(const struct sql_stats_collected_relation *relation, uint32_t id)
+{
+	for (size_t i = 0; i < relation->index_count; i++) {
+		if (relation->indexes[i].index_id == id)
+			return &relation->indexes[i];
+	}
+	return NULL;
+}
+
+static bool
+expected_is_unique(const struct sql_stats_expected_relation *expected,
+		   size_t count)
+{
+	for (size_t i = 0; i < count; i++) {
+		if (expected[i].index_count != 0 && expected[i].indexes == NULL)
+			return false;
+		for (size_t j = i + 1; j < count; j++) {
+			if (expected[i].space_id == expected[j].space_id)
+				return false;
+		}
+		for (size_t j = 0; j < expected[i].index_count; j++) {
+			for (size_t k = j + 1; k < expected[i].index_count; k++) {
+				if (expected[i].indexes[j].index_id ==
+				    expected[i].indexes[k].index_id)
+					return false;
+			}
+		}
+	}
+	return true;
+}
+
+struct sql_stats_snapshot *
+sql_stats_collection_build_candidate(
+	const struct sql_stats_collection_generation *expected_generation,
+	const struct sql_stats_expected_relation *expected, size_t expected_count,
+	const struct sql_stats_collection_result *result, size_t max_bytes)
+{
+	if (result == NULL || expected_generation == NULL ||
+	    (expected_count != 0 && expected == NULL) ||
+	    (result->relation_count != 0 && result->relations == NULL) ||
+	    expected_count != result->relation_count ||
+	    result->generation.catalog_version != expected_generation->catalog_version ||
+	    result->generation.schema_version != expected_generation->schema_version ||
+	    result->generation.visibility_id != expected_generation->visibility_id ||
+	    result->generation.visibility_id == 0 ||
+	    expected_generation->visibility_id == 0 ||
+	    !expected_is_unique(expected, expected_count))
+		return NULL;
+	struct sql_stats_relation_input *inputs = expected_count == 0 ? NULL :
+		calloc(expected_count, sizeof(*inputs));
+	if (expected_count != 0 && inputs == NULL)
+		return NULL;
+	bool valid = true;
+	for (size_t i = 0; i < expected_count && valid; i++) {
+		const struct sql_stats_expected_relation *want = &expected[i];
+		const struct sql_stats_collected_relation *have =
+			find_relation(result, want->space_id);
+		if (have == NULL || have->catalog_version !=
+		    result->generation.catalog_version || have->schema_version !=
+		    result->generation.schema_version || have->visibility_id !=
+		    result->generation.visibility_id || have->visibility_id == 0 ||
+		    have->width_denominator_count == 0 || have->modification_epoch !=
+		    want->modification_epoch || have->index_count != want->index_count ||
+		    (have->index_count != 0 && have->indexes == NULL) ||
+		    !valid_tag(have->population_basis) || !valid_tag(have->width_basis) ||
+		    !valid_tag(have->confidence_source)) {
+			valid = false;
+			break;
+		}
+		struct sql_stats_index_input *index_inputs = want->index_count == 0 ?
+			NULL : calloc(want->index_count, sizeof(*index_inputs));
+		if (want->index_count != 0 && index_inputs == NULL) {
+			valid = false;
+			break;
+		}
+		for (size_t j = 0; j < want->index_count && valid; j++) {
+			const struct sql_stats_expected_index *expected_index =
+				&want->indexes[j];
+			const struct sql_stats_collected_index *collected_index =
+				find_index(have, expected_index->index_id);
+			if (collected_index == NULL || expected_index->definition_version == 0 ||
+			    collected_index->definition_version == 0 ||
+			    collected_index->definition_version !=
+			    expected_index->definition_version || collected_index->visibility_id !=
+			    result->generation.visibility_id || collected_index->visibility_id == 0 ||
+			    collected_index->prefix_count !=
+			    expected_index->part_count || (collected_index->prefix_count != 0 &&
+			    collected_index->distinct_prefixes == NULL) ||
+			    !valid_tag(collected_index->population_basis) ||
+			    !valid_tag(collected_index->ndv_basis) ||
+			    !valid_cardinality_semantics(
+				collected_index->tuple_count_semantics) ||
+			    strcmp(collected_index->population_basis,
+				   collected_index->ndv_basis) != 0) {
+				valid = false;
+				break;
+			}
+			index_inputs[j] = (struct sql_stats_index_input) {
+				.index_id = collected_index->index_id,
+				.tuple_count = collected_index->tuple_count,
+				.tuple_count_semantics = collected_index->tuple_count_semantics,
+				.population_basis = collected_index->population_basis,
+				.ndv_basis = collected_index->ndv_basis,
+				.definition_version = collected_index->definition_version,
+				.distinct_prefixes = collected_index->distinct_prefixes,
+				.prefix_count = collected_index->prefix_count,
+			};
+		}
+		if (valid) {
+			inputs[i] = (struct sql_stats_relation_input) {
+				.space_id = have->space_id,
+				.row_count = have->row_count,
+				.average_row_width = have->average_row_width,
+				.width_basis = have->width_basis,
+				.width_denominator_count = have->width_denominator_count,
+				.confidence = have->confidence,
+				.confidence_source = have->confidence_source,
+				.cardinality_semantics = have->cardinality_semantics,
+				.collected_at = have->collected_at,
+				.modification_epoch = have->modification_epoch,
+				.visibility_id = have->visibility_id,
+				.indexes = index_inputs,
+				.index_count = want->index_count,
+			};
+		} else {
+			free(index_inputs);
+		}
+	}
+	struct sql_stats_snapshot *candidate = NULL;
+	if (valid) {
+		candidate = sql_stats_snapshot_new(result->generation.catalog_version,
+			result->generation.schema_version, inputs, expected_count,
+			max_bytes);
+	}
+	for (size_t i = 0; i < expected_count; i++)
+		free((void *)inputs[i].indexes);
+	free(inputs);
+	return candidate;
+}

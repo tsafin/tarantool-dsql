@@ -15,6 +15,11 @@ enum sql_stats_cardinality_semantics {
 struct sql_stats_index_input {
 	uint32_t index_id;
 	uint64_t tuple_count;
+	/* Optional caller-defined provenance; NULL/zero preserves legacy callers. */
+	enum sql_stats_cardinality_semantics tuple_count_semantics;
+	const char *population_basis;
+	const char *ndv_basis;
+	uint64_t definition_version;
 	const uint64_t *distinct_prefixes;
 	size_t prefix_count;
 };
@@ -23,11 +28,16 @@ struct sql_stats_relation_input {
 	uint32_t space_id;
 	double row_count;
 	double average_row_width;
+	/* Optional caller-defined provenance; NULL preserves legacy callers. */
+	const char *width_basis;
+	uint64_t width_denominator_count;
 	double confidence;
+	const char *confidence_source;
 	enum sql_stats_cardinality_semantics cardinality_semantics;
 	/* Opaque units: the API stores but does not interpret these values. */
 	uint64_t collected_at;
 	uint64_t modification_epoch;
+	uint64_t visibility_id;
 	const struct sql_stats_index_input *indexes;
 	size_t index_count;
 };
@@ -48,7 +58,7 @@ enum sql_stats_lookup_status {
  * zero is invalid. Duplicate IDs, invalid numeric values, malformed prefix
  * counts, or budget overflow reject the whole snapshot and return NULL.
  *
- * Snapshot API version is currently 1 and intentionally distinct from the
+ * Snapshot API version is currently 2 and intentionally distinct from the
  * persistence payload/catalog/schema versions. `schema_version` mismatch at
  * lookup time reports STALE instead of making ordinary prepare fail.
  */
@@ -98,8 +108,17 @@ sql_stats_relation_row_count(const struct sql_stats_relation *relation);
 double
 sql_stats_relation_average_row_width(const struct sql_stats_relation *relation);
 
+const char *
+sql_stats_relation_width_basis(const struct sql_stats_relation *relation);
+
+uint64_t
+sql_stats_relation_width_denominator_count(const struct sql_stats_relation *relation);
+
 double
 sql_stats_relation_confidence(const struct sql_stats_relation *relation);
+
+const char *
+sql_stats_relation_confidence_source(const struct sql_stats_relation *relation);
 
 enum sql_stats_cardinality_semantics
 sql_stats_relation_cardinality_semantics(
@@ -111,11 +130,26 @@ sql_stats_relation_collected_at(const struct sql_stats_relation *relation);
 uint64_t
 sql_stats_relation_modification_epoch(const struct sql_stats_relation *relation);
 
+uint64_t
+sql_stats_relation_visibility_id(const struct sql_stats_relation *relation);
+
 uint32_t
 sql_stats_index_id(const struct sql_stats_index *index);
 
 uint64_t
 sql_stats_index_tuple_count(const struct sql_stats_index *index);
+
+enum sql_stats_cardinality_semantics
+sql_stats_index_tuple_count_semantics(const struct sql_stats_index *index);
+
+const char *
+sql_stats_index_population_basis(const struct sql_stats_index *index);
+
+const char *
+sql_stats_index_ndv_basis(const struct sql_stats_index *index);
+
+uint64_t
+sql_stats_index_definition_version(const struct sql_stats_index *index);
 
 size_t
 sql_stats_index_prefix_count(const struct sql_stats_index *index);

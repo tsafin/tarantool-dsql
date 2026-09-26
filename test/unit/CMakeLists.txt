@@ -111,6 +111,12 @@ create_unit_test(PREFIX sql_stats_snapshot
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_snapshot.c
                  LIBRARIES unit m
 )
+create_unit_test(PREFIX sql_stats_collection
+                 SOURCES sql_stats_collection.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_collection.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_snapshot.c
+                 LIBRARIES unit m
+)
 create_unit_test(PREFIX sql_stats_sample
                  SOURCES sql_stats_sample.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_sample.c

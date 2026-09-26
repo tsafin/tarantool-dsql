@@ -32,7 +32,7 @@ test_deep_copy_lookup_and_lifetime(void)
 		check_plan();
 		return;
 	}
-	ok(sql_stats_snapshot_api_version(snapshot) == 1,
+	ok(sql_stats_snapshot_api_version(snapshot) == 2,
 	   "snapshot API version is explicit");
 	ok(sql_stats_snapshot_catalog_version(snapshot) == 4 &&
 	   sql_stats_snapshot_schema_version(snapshot) == 7,

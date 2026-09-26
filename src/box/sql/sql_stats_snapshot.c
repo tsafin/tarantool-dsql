@@ -8,6 +8,10 @@
 struct sql_stats_index {
 	uint32_t index_id;
 	uint64_t tuple_count;
+	enum sql_stats_cardinality_semantics tuple_count_semantics;
+	char *population_basis;
+	char *ndv_basis;
+	uint64_t definition_version;
 	size_t prefix_count;
 	uint64_t *distinct_prefixes;
 };
@@ -16,10 +20,14 @@ struct sql_stats_relation {
 	uint32_t space_id;
 	double row_count;
 	double average_row_width;
+	char *width_basis;
+	uint64_t width_denominator_count;
 	double confidence;
+	char *confidence_source;
 	enum sql_stats_cardinality_semantics cardinality_semantics;
 	uint64_t collected_at;
 	uint64_t modification_epoch;
+	uint64_t visibility_id;
 	size_t index_count;
 	struct sql_stats_index *indexes;
 };
@@ -58,12 +66,33 @@ add_bytes(size_t *total, size_t amount, size_t limit)
 	return true;
 }
 
+static char *
+copy_tag(const char *tag, size_t *bytes, size_t limit)
+{
+	if (tag == NULL)
+		return NULL;
+	size_t len = strlen(tag);
+	if (len == SIZE_MAX || !add_bytes(bytes, len + 1, limit))
+		return NULL;
+	char *copy = malloc(len + 1);
+	if (copy != NULL)
+		memcpy(copy, tag, len + 1);
+	return copy;
+}
+
 static void
 destroy_relations(struct sql_stats_relation *relations, size_t count)
 {
 	for (size_t i = 0; i < count; i++) {
-		for (size_t j = 0; j < relations[i].index_count; j++)
-			free(relations[i].indexes[j].distinct_prefixes);
+		free(relations[i].width_basis);
+		free(relations[i].confidence_source);
+		if (relations[i].indexes != NULL) {
+			for (size_t j = 0; j < relations[i].index_count; j++) {
+				free(relations[i].indexes[j].population_basis);
+				free(relations[i].indexes[j].ndv_basis);
+				free(relations[i].indexes[j].distinct_prefixes);
+			}
+		}
 		free(relations[i].indexes);
 	}
 	free(relations);
@@ -110,10 +139,20 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 		out->space_id = in->space_id;
 		out->row_count = in->row_count;
 		out->average_row_width = in->average_row_width;
+		out->width_denominator_count = in->width_denominator_count;
+		out->width_basis = copy_tag(in->width_basis, &snapshot->bytes,
+					    max_bytes);
+		if (in->width_basis != NULL && out->width_basis == NULL)
+			goto error;
 		out->confidence = in->confidence;
+		out->confidence_source = copy_tag(in->confidence_source,
+						  &snapshot->bytes, max_bytes);
+		if (in->confidence_source != NULL && out->confidence_source == NULL)
+			goto error;
 		out->cardinality_semantics = in->cardinality_semantics;
 		out->collected_at = in->collected_at;
 		out->modification_epoch = in->modification_epoch;
+		out->visibility_id = in->visibility_id;
 		out->index_count = in->index_count;
 		if (!add_bytes(&snapshot->bytes,
 			       in->index_count * sizeof(struct sql_stats_index),
@@ -132,6 +171,18 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 				goto error;
 			index->index_id = index_in->index_id;
 			index->tuple_count = index_in->tuple_count;
+			index->tuple_count_semantics =
+				index_in->tuple_count_semantics;
+			index->population_basis = copy_tag(index_in->population_basis,
+							   &snapshot->bytes, max_bytes);
+			if (index_in->population_basis != NULL &&
+			    index->population_basis == NULL)
+				goto error;
+			index->ndv_basis = copy_tag(index_in->ndv_basis,
+						     &snapshot->bytes, max_bytes);
+			if (index_in->ndv_basis != NULL && index->ndv_basis == NULL)
+				goto error;
+			index->definition_version = index_in->definition_version;
 			index->prefix_count = index_in->prefix_count;
 			if (!add_bytes(&snapshot->bytes,
 				       index_in->prefix_count * sizeof(uint64_t),
@@ -197,7 +248,7 @@ sql_stats_snapshot_release(struct sql_stats_snapshot *snapshot)
 }
 
 uint32_t sql_stats_snapshot_api_version(const struct sql_stats_snapshot *s)
-{ return s == NULL ? 0 : 1; }
+{ return s == NULL ? 0 : 2; }
 uint64_t sql_stats_snapshot_catalog_version(const struct sql_stats_snapshot *s)
 { return s == NULL ? 0 : s->catalog_version; }
 uint64_t sql_stats_snapshot_schema_version(const struct sql_stats_snapshot *s)
@@ -251,8 +302,15 @@ double sql_stats_relation_row_count(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->row_count; }
 double sql_stats_relation_average_row_width(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->average_row_width; }
+const char *sql_stats_relation_width_basis(const struct sql_stats_relation *r)
+{ return r == NULL ? NULL : r->width_basis; }
+uint64_t sql_stats_relation_width_denominator_count(
+	const struct sql_stats_relation *r)
+{ return r == NULL ? 0 : r->width_denominator_count; }
 double sql_stats_relation_confidence(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->confidence; }
+const char *sql_stats_relation_confidence_source(const struct sql_stats_relation *r)
+{ return r == NULL ? NULL : r->confidence_source; }
 enum sql_stats_cardinality_semantics
 sql_stats_relation_cardinality_semantics(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->cardinality_semantics; }
@@ -260,10 +318,21 @@ uint64_t sql_stats_relation_collected_at(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->collected_at; }
 uint64_t sql_stats_relation_modification_epoch(const struct sql_stats_relation *r)
 { return r == NULL ? 0 : r->modification_epoch; }
+uint64_t sql_stats_relation_visibility_id(const struct sql_stats_relation *r)
+{ return r == NULL ? 0 : r->visibility_id; }
 uint32_t sql_stats_index_id(const struct sql_stats_index *i)
 { return i == NULL ? 0 : i->index_id; }
 uint64_t sql_stats_index_tuple_count(const struct sql_stats_index *i)
 { return i == NULL ? 0 : i->tuple_count; }
+enum sql_stats_cardinality_semantics
+sql_stats_index_tuple_count_semantics(const struct sql_stats_index *i)
+{ return i == NULL ? 0 : i->tuple_count_semantics; }
+const char *sql_stats_index_population_basis(const struct sql_stats_index *i)
+{ return i == NULL ? NULL : i->population_basis; }
+const char *sql_stats_index_ndv_basis(const struct sql_stats_index *i)
+{ return i == NULL ? NULL : i->ndv_basis; }
+uint64_t sql_stats_index_definition_version(const struct sql_stats_index *i)
+{ return i == NULL ? 0 : i->definition_version; }
 size_t sql_stats_index_prefix_count(const struct sql_stats_index *i)
 { return i == NULL ? 0 : i->prefix_count; }
 uint64_t sql_stats_index_distinct_prefix(const struct sql_stats_index *i,

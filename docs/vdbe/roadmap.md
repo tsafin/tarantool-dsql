@@ -420,12 +420,16 @@ review of IDs and formats.
   validate relation/index summaries, then atomically publish one immutable
   candidate snapshot. No persistence or grammar dependency; test rollback on
   any incomplete/invalid relation or index summary. *parallel: yes*.
-  **Status note:** not yet safely implementable: current snapshot inputs are
-  constructor values, not a normalized complete collection result, and the
-  publisher is an unconditional swap. The required normalized interface and
-  minimum next code slice are specified in `sql_stats_sampling.md` (S1.3a
-  interface gap); width/confidence/NDV producers and a shared visibility /
-  generation boundary remain unspecified.
+  **Status note:** partial prototype only. A normalized volatile result and
+  pure completeness validator now build a detached, deep-copied snapshot
+  candidate. Caller-defined width/population/confidence provenance tokens
+  plus the width denominator count are retained without selecting estimator
+  policy; relation/index/prefix
+  completeness and catalog/schema/visibility/index-definition generations
+  are checked. No sampling producer, shared engine visibility mechanism,
+  global publication, allocator-fault injection, or rollback test exists yet;
+  therefore this subtask remains open and `ANALYZE` stays disabled. See
+  `sql_stats_sampling.md` for the exact contract and local unit evidence.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
   of system-space IDs and tuple/payload formats. *parallel: no*.
