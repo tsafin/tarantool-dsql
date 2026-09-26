@@ -66,6 +66,20 @@ class PlannerABTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             ab.selected_sql(vinyl_policy, ["transition.test.lua"], "vinyl", 44)
 
+    def test_reviewed_sql_file_budget_requires_strict_matrix_evidence(self):
+        policy = {"included": [{"test": "sql/raw.test.sql",
+                   "engines": ["memtx"], "evidence": {"memtx": {
+                       "matrix": {"status": "accepted", "mode_queries": {
+                           "generated": 5, "cnp": 5, "llvm": 5,
+                           "generated-repeat": 5}}}}}]}
+        self.assertEqual(ab.selected_sql(policy, ["raw.test.sql"], "memtx", 5), 5)
+        for engine, budget in (("vinyl", 5), ("memtx", 4)):
+            with self.assertRaises(ValueError):
+                ab.selected_sql(policy, ["raw.test.sql"], engine, budget)
+        policy["included"][0]["evidence"]["memtx"]["matrix"]["mode_queries"]["llvm"] = 6
+        with self.assertRaises(ValueError):
+            ab.selected_sql(policy, ["raw.test.sql"], "memtx", 5)
+
     def test_full_sql_corpus_selection_tracks_engine_eligibility(self):
         import json
         from pathlib import Path
@@ -77,13 +91,15 @@ class PlannerABTest(unittest.TestCase):
             expected = sorted(row["test"][len("sql/"):]
                               for row in policy["included"]
                               if row["test"].startswith("sql/") and
-                              row["test"].endswith(".test.lua") and
+                              (row["test"].endswith(".test.lua") or
+                               row["test"].endswith(".test.sql")) and
                               engine in row["engines"])
             self.assertEqual(names, expected)
         self.assertTrue(memtx)
         self.assertTrue(vinyl)
         self.assertTrue(all(ab.selected_sql(policy, [name], "memtx", 2**63 - 1) > 0
                             for name in memtx))
+        self.assertEqual(sum(name.endswith(".test.sql") for name in memtx), 2)
 
     def test_explain_output_is_not_classified_as_semantic_result_drift(self):
         from pathlib import Path

@@ -74,17 +74,29 @@ def full_corpus_tests(policy, engine):
 
 
 def selected_sql(policy, names, engine, budget):
-    """Validate normal test-run SQL tests against their corpus audit evidence."""
+    """Validate SQL Lua and strict SQL-file tests against reviewed evidence."""
     included = {row["test"]: row for row in policy["included"]}
     total = 0
     for name in names:
-        if "/" in name or not name.endswith(".test.lua"):
-            raise ValueError("select top-level SQL .test.lua basenames")
+        if "/" in name or not (name.endswith(".test.lua") or
+                                name.endswith(".test.sql")):
+            raise ValueError("select top-level SQL .test.lua/.test.sql basenames")
         identity = "sql/" + name
         row = included.get(identity)
         if row is None or engine not in row["engines"]:
             raise ValueError(f"not reviewed for {engine}: {identity}")
         evidence = row.get("evidence", {}).get(engine, {})
+        if name.endswith(".test.sql"):
+            matrix = evidence.get("matrix", {})
+            mode_counts = matrix.get("mode_queries", {})
+            count = mode_counts.get("generated")
+            if matrix.get("status") != "accepted" or \
+               type(count) is not int or count < 1 or any(
+                   mode_counts.get(mode) != count for mode in
+                   ("cnp", "llvm", "generated-repeat")):
+                raise ValueError(f"missing reviewed SQL-file matrix: {identity}/{engine}")
+            total += count
+            continue
         count = evidence.get("capture", {}).get("audit_queries")
         if type(count) is not int or count < 1:
             matrix = evidence.get("matrix", {})
@@ -101,11 +113,12 @@ def selected_sql(policy, names, engine, budget):
 
 
 def full_sql_tests(policy, engine):
-    """Return reviewed Lua SQL tests supported by the child-server adapter."""
+    """Return all reviewed SQL files supported by their applicable adapters."""
     return sorted(row["test"][len("sql/"):]
                   for row in policy["included"]
                   if row["test"].startswith("sql/") and
-                  row["test"].endswith(".test.lua") and
+                  (row["test"].endswith(".test.lua") or
+                   row["test"].endswith(".test.sql")) and
                   engine in row["engines"])
 
 
@@ -304,7 +317,7 @@ def main():
         "dispatcher": "cnp" if args.mode == "cnp" else "generated",
         "sql_jit_enable": args.mode == "llvm", "engines": {},
         "limitations": ["only reviewed tests in the selected suite and engine are captured; non-SQL suites are excluded",
-                         "SQL-suite mode currently includes adapter-compatible .test.lua tests only; raw .test.sql corpus entries are excluded",
+                         "SQL-suite .test.lua tests use the child-server adapter; reviewed raw .test.sql files use the strict SQL-file harness",
                          "not hosted CI",
                          "planner metrics describe compile-time EXPLAIN snapshots, not runtime latency",
                          "elapsed_us is diagnostic and not a deterministic acceptance gate",
@@ -327,7 +340,8 @@ def main():
                     work.mkdir()
                     env["LISTEN"] = f"unix/:{work}/listen.sock"
                     try:
-                        if args.suite in ("sql", "sql-luatest"):
+                        if args.suite == "sql-luatest" or (
+                                args.suite == "sql" and name.endswith(".test.lua")):
                             test_capture = Path(temp) / f"luatest-{index}"
                             run(["python3", HERE / "luatest_capture.py", "--repo", repo,
                                  "--runner-repo", runner_repo, "--binary", binary,
@@ -336,9 +350,11 @@ def main():
                                  "--mode", args.mode], env=env)
                             merge_capture(test_capture, capture)
                         else:
-                            run([binary, HERE / "harness/run.lua", repo / "test/sql-tap" / name,
+                            test_dir = "sql" if args.suite == "sql" else "sql-tap"
+                            run([binary, HERE / "harness/run.lua", repo / "test" / test_dir / name,
                                  f"--engine={engine}", f"--out={capture}",
-                                 f"--work-dir={work}"], env=env)
+                                 f"--work-dir={work}",
+                                 f"--suite={args.suite}"], env=env)
                     except (RuntimeError, subprocess.TimeoutExpired) as exc:
                         report["failure"] = {"engine": engine, "configuration": label,
                                              "test": args.suite + "/" + name,
