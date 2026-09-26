@@ -101,6 +101,7 @@ set(sql_sources
     ${SQL_BIN_DIR}/opcodes.c
     ${SQL_BIN_DIR}/parse.c
     sql/sql_expr_canonical.c
+    sql/sql_replay_expr_list.c
     sql/sql_logical_plan.c
     sql/sql_plan_descriptor.c
     sql/sql_plan_fallback.c

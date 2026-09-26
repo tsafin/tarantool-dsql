@@ -163,6 +163,14 @@ create_unit_test(PREFIX sql_expr_canonical
 )
 target_include_directories(sql_expr_canonical.test PRIVATE
                            ${PROJECT_BINARY_DIR}/src/box/sql)
+create_unit_test(PREFIX sql_replay_expr_list
+                 SOURCES sql_replay_expr_list.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_replay_expr_list.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_expr_canonical.c
+                 LIBRARIES unit m
+)
+target_include_directories(sql_replay_expr_list.test PRIVATE
+                           ${PROJECT_BINARY_DIR}/src/box/sql)
 create_unit_test(PREFIX sql_replay_input
                  SOURCES sql_replay_input.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_replay_input.c

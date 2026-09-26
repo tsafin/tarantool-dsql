@@ -485,9 +485,12 @@ configuration scalars. It copies supplied values and stores no live `Expr`,
 catalog handle, cursor, or storage ID. It emits an internal version-1 MsgPack
 representation with fixed map-key order and logical-index ordering. It still
 does not validate relation/index schema-definition syntax, extract from SQL,
-or feed a planner. Multi-relation expressions, joins, aggregates, and other
-planner semantics remain absent. It is not a `replay_inputs` payload and does
-not change version 2.
+or feed a planner. The separate `sql_replay_expr_list` helper converts an
+ordered resolved `ExprList` into owned canonical strings with caller-supplied
+cursor bindings, but it is not wired to a `Select` boundary, the detached
+input model, or limit/offset extraction. Multi-relation expressions, joins,
+aggregates, and other planner semantics remain absent. It is not a
+`replay_inputs` payload and does not change version 2.
 
 ## Testing Strategy
 

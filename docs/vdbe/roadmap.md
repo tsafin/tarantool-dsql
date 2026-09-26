@@ -378,9 +378,12 @@ them.
   scalar-expression grammar, including column bounds; SQL text, unsupported
   calls, and malformed expressions fail closed. Relation/index
   schema-definition strings remain opaque and are not syntax-validated or
-  normalized; there is
-  no SQL extractor or planner consumer, and joins/aggregates remain outside
-  this prototype. M1.4 remains open and v2 remains `replayable=false`.
+  normalized. A new ordered `ExprList` bridge returns detached canonical
+  expression strings and rejects an entire list if any member is unsupported;
+  it is not yet connected to resolved `Select` extraction or model creation.
+  There is no SELECT-to-model extractor or planner consumer, and joins/
+  aggregates remain outside this prototype. M1.4 remains open and v2 remains
+  `replayable=false`.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2
