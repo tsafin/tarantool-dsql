@@ -650,8 +650,8 @@ M0-B corpus for the evaluation workloads.
   corpus comparison and quality evaluation remain open. An expanded 868-query
   exploratory subset is repeat-stable but has one width-sensitive
   `EXPLAIN QUERY PLAN` output difference (`whereK/q13`) on both engines; it is
-  not counted as a parity pass, and underlying SQL-result parity remains to
-  be checked directly. *parallel: yes*.
+  not counted as a full snapshot parity pass, though both configurations pass
+  the corresponding whereK SQL result assertions. *parallel: yes*.
 
 ---
 

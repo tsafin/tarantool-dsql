@@ -67,7 +67,9 @@ one difference per engine: `whereK/q13`, an `EXPLAIN QUERY PLAN` result whose
 OR branches are ordered differently at widths 1/5/10 and 2/8/16. The harness
 classifies this expected-plan-output change as a hard mismatch, so the
 expanded run is not a parity pass. It is not evidence of a changed underlying
-SQL result; semantic result parity for that query still needs a direct check.
+SQL result: both width configurations completed the `whereK` SQL-TAP file,
+whose paired SELECT assertion returned its expected rows. The difference is
+confined to the `EXPLAIN QUERY PLAN` output captured for comparison.
 The candidate run also observed seven fewer path candidates over this broader
 sample, while generated, dominated, truncated, and retained totals moved as
 expected with the wider beam. Evidence is at
