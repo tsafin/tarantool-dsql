@@ -1,6 +1,9 @@
 #include "sql_replay_input.h"
 
+#include <errno.h>
 #include <limits.h>
+#include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -111,6 +114,172 @@ put_string(struct replay_writer *w, const char *value)
 }
 
 #define PUT(expr) do { if (!(expr)) goto fail; } while (0)
+
+struct expression_parser {
+	const char *p;
+	size_t column_count;
+};
+
+static bool parse_canonical_expression(struct expression_parser *parser,
+				       unsigned int depth);
+
+static bool
+parse_decimal_ordinal(struct expression_parser *parser, uint32_t *value)
+{
+	if (*parser->p < '0' || *parser->p > '9')
+		return false;
+	if (*parser->p == '0' && parser->p[1] >= '0' && parser->p[1] <= '9')
+		return false;
+	uint64_t number = 0;
+	do {
+		unsigned int digit = (unsigned int)(*parser->p - '0');
+		if (number > (UINT32_MAX - digit) / 10)
+			return false;
+		number = number * 10 + digit;
+		parser->p++;
+	} while (*parser->p >= '0' && *parser->p <= '9');
+	*value = (uint32_t)number;
+	return true;
+}
+
+static bool
+parse_literal(struct expression_parser *parser, const char *prefix,
+	      bool floating)
+{
+	size_t prefix_len = strlen(prefix);
+	if (strncmp(parser->p, prefix, prefix_len) != 0)
+		return false;
+	parser->p += prefix_len;
+	const char *start = parser->p;
+	while (*parser->p != '\0' && *parser->p != ')')
+		parser->p++;
+	size_t len = parser->p - start;
+	if (len == 0 || *parser->p != ')')
+		return false;
+	char token[128];
+	if (len >= sizeof(token))
+		return false;
+	memcpy(token, start, len);
+	token[len] = '\0';
+	char canonical[160];
+	if (floating) {
+		errno = 0;
+		char *end;
+		double value = strtod(token, &end);
+		if (*end != '\0' || errno == ERANGE || !isfinite(value))
+			return false;
+		int n = snprintf(canonical, sizeof(canonical), "float(%a)", value);
+		if (n < 0 || (size_t)n >= sizeof(canonical) ||
+		    (size_t)n != len + strlen("float()") ||
+		    memcmp(canonical, start - strlen("float("), (size_t)n) != 0)
+			return false;
+	} else {
+		errno = 0;
+		char *end;
+		long long value = strtoll(token, &end, 10);
+		if (*end != '\0' || errno == ERANGE)
+			return false;
+		int n = snprintf(canonical, sizeof(canonical), "int(%lld)", value);
+		if (n < 0 || (size_t)n >= sizeof(canonical) ||
+		    (size_t)n != len + strlen("int()") ||
+		    memcmp(canonical, start - strlen("int("), (size_t)n) != 0)
+			return false;
+	}
+	parser->p++;
+	return true;
+}
+
+static bool
+parse_operator(struct expression_parser *parser, unsigned int depth)
+{
+	static const struct {
+		const char *name;
+		bool unary;
+	} operators[] = {
+		{"and", false}, {"bitand", false}, {"bitor", false},
+		{"concat", false}, {"divide", false}, {"eq", false},
+		{"ge", false}, {"gt", false}, {"is", false}, {"isnull", true},
+		{"le", false}, {"lshift", false}, {"lt", false},
+		{"minus", false}, {"multiply", false}, {"ne", false},
+		{"not", true}, {"notnull", true}, {"or", false},
+		{"plus", false}, {"remainder", false}, {"rshift", false},
+		{"unary_minus", true},
+		{"unary_plus", true},
+	};
+	const char *start = parser->p;
+	while ((*parser->p >= 'a' && *parser->p <= 'z') ||
+	       *parser->p == '_')
+		parser->p++;
+	size_t len = parser->p - start;
+	if (len == 0 || *parser->p++ != '(')
+		return false;
+	bool unary = false;
+	bool found = false;
+	for (size_t i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
+		if (strlen(operators[i].name) == len &&
+		    memcmp(start, operators[i].name, len) == 0) {
+			unary = operators[i].unary;
+			found = true;
+			break;
+		}
+	}
+	if (!found || !parse_canonical_expression(parser, depth + 1))
+		return false;
+	if (unary)
+		return *parser->p++ == ')';
+	if (*parser->p++ != ',' ||
+	    !parse_canonical_expression(parser, depth + 1))
+		return false;
+	return *parser->p++ == ')';
+}
+
+static bool
+parse_canonical_expression(struct expression_parser *parser, unsigned int depth)
+{
+	if (depth > 256)
+		return false;
+	if (strncmp(parser->p, "null", 4) == 0) {
+		parser->p += 4;
+		return true;
+	}
+	if (strncmp(parser->p, "str(", 4) == 0) {
+		parser->p += 4;
+		const char *hex_start = parser->p;
+		while ((*parser->p >= '0' && *parser->p <= '9') ||
+		       (*parser->p >= 'a' && *parser->p <= 'f'))
+			parser->p++;
+		if (((size_t)(parser->p - hex_start) & 1) != 0)
+			return false;
+		return *parser->p++ == ')';
+	}
+	if (strncmp(parser->p, "int(", 4) == 0)
+		return parse_literal(parser, "int(", false);
+	if (strncmp(parser->p, "float(", 6) == 0)
+		return parse_literal(parser, "float(", true);
+	if (strncmp(parser->p, "col(r", 5) == 0) {
+		parser->p += 5;
+		uint32_t relation, column;
+		if (!parse_decimal_ordinal(parser, &relation) || relation != 0 ||
+		    *parser->p++ != ',' || *parser->p++ != 'c' ||
+		    !parse_decimal_ordinal(parser, &column) ||
+		    column >= parser->column_count || *parser->p++ != ')')
+			return false;
+		return true;
+	}
+	return parse_operator(parser, depth);
+}
+
+static bool
+canonical_expression_valid(const char *expression, size_t column_count)
+{
+	if (expression == NULL || expression[0] == '\0')
+		return false;
+	struct expression_parser parser = {
+		.p = expression,
+		.column_count = column_count,
+	};
+	return parse_canonical_expression(&parser, 0) && *parser.p == '\0';
+}
 
 static int
 compare_replay_index_ptr(const void *lhs, const void *rhs)
@@ -275,14 +444,17 @@ sql_replay_input_serialize(const struct sql_replay_input *in,
 		}
 	}
 	for (size_t i = 0; i < in->projection_count; i++) {
-		if (in->projections[i] == NULL || in->projections[i][0] == '\0')
+		if (!canonical_expression_valid(in->projections[i], in->column_count))
 			return SQL_REPLAY_INPUT_INVALID;
 	}
 	for (size_t i = 0; i < in->order_by_count; i++) {
-		if (in->order_by[i].canonical_expression == NULL ||
-		    in->order_by[i].canonical_expression[0] == '\0')
+		if (!canonical_expression_valid(
+			    in->order_by[i].canonical_expression,
+			    in->column_count))
 			return SQL_REPLAY_INPUT_INVALID;
 	}
+	if (!canonical_expression_valid(in->predicate, in->column_count))
+		return SQL_REPLAY_INPUT_INVALID;
 	if (in->statistics_present && (in->population_basis == NULL ||
 	    in->width_basis == NULL || in->confidence_source == NULL))
 		return SQL_REPLAY_INPUT_INVALID;
@@ -475,7 +647,8 @@ valid_spec(const struct sql_replay_input_spec *spec)
 	    spec->relation.index_count > SIZE_MAX / sizeof(struct sql_replay_index) ||
 	    (spec->relation.index_count != 0 && spec->relation.indexes == NULL) ||
 	    !valid_stats(&spec->relation) || !valid_index_specs(spec) ||
-	    spec->predicate == NULL || spec->predicate[0] == '\0' ||
+	    !canonical_expression_valid(spec->predicate,
+				spec->relation.column_count) ||
 	    spec->projection_count == 0 || spec->projections == NULL ||
 	    spec->projection_count > SIZE_MAX / sizeof(char *) ||
 	    (spec->order_by_count != 0 && spec->order_by == NULL) ||
@@ -494,12 +667,14 @@ valid_spec(const struct sql_replay_input_spec *spec)
 			return false;
 	}
 	for (size_t i = 0; i < spec->projection_count; i++) {
-		if (spec->projections[i] == NULL || spec->projections[i][0] == '\0')
+		if (!canonical_expression_valid(spec->projections[i],
+						 spec->relation.column_count))
 			return false;
 	}
 	for (size_t i = 0; i < spec->order_by_count; i++) {
-		if (spec->order_by[i].canonical_expression == NULL ||
-		    spec->order_by[i].canonical_expression[0] == '\0')
+		if (!canonical_expression_valid(
+			spec->order_by[i].canonical_expression,
+			spec->relation.column_count))
 			return false;
 	}
 	return true;

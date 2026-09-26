@@ -158,7 +158,7 @@ test_detached_single_relation_select(void)
 	relation.modification_epoch = 0;
 	relation.index_count = 0;
 	spec.relation = relation;
-	spec.predicate = "true";
+	spec.predicate = "eq(int(1),int(1))";
 	spec.order_by_count = 0;
 	spec.limit_present = false;
 	spec.limit = 0;
@@ -175,7 +175,7 @@ test_detached_single_relation_select(void)
 static void
 test_rejects_incomplete_or_invalid_inputs(void)
 {
-	plan(6);
+	plan(9);
 	header();
 	struct sql_replay_column_spec column = {"integer", "binary"};
 	const char *projection[] = {"col(r0,c0)"};
@@ -184,7 +184,8 @@ test_rejects_incomplete_or_invalid_inputs(void)
 		.columns = &column, .column_count = 1,
 	};
 	struct sql_replay_input_spec spec = {
-		.relation = relation, .predicate = "true", .projections = projection,
+		.relation = relation, .predicate = "eq(int(1),int(1))",
+		.projections = projection,
 		.projection_count = 1, .planner_algorithm_version = 1,
 		.planner_config_version = 1, .beam_width = 1,
 	};
@@ -234,6 +235,16 @@ test_rejects_incomplete_or_invalid_inputs(void)
 	spec.relation.row_count = 1;
 	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
 	   "statistics absence cannot conceal a nonzero row count");
+	spec.relation.row_count = 0;
+	spec.predicate = "SELECT 1";
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "SQL text is not accepted as a canonical expression");
+	spec.predicate = "call(int(1))";
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "unsupported expression calls are rejected");
+	spec.predicate = "eq(col(r0,c1),int(1))";
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "out-of-range canonical column references are rejected");
 	footer();
 	check_plan();
 }
@@ -258,7 +269,8 @@ test_canonical_msgpack(void)
 	};
 	const char *projection[] = {"col(r0,c0)"};
 	struct sql_replay_input_spec spec = {
-		.relation = relation, .predicate = "true", .projections = projection,
+		.relation = relation, .predicate = "eq(int(1),int(1))",
+		.projections = projection,
 		.projection_count = 1, .planner_algorithm_version = 1,
 		.planner_config_version = 1, .beam_width = 1,
 	};

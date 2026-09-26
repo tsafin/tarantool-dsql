@@ -373,8 +373,12 @@ them.
   MsgPack input format v1 now emits fixed lexicographic map-key order, sorts
   logical indexes by key, and preserves semantically ordered columns,
   projections, ordering, and key parts. Reordered equivalent index inputs
-  serialize to byte-identical valid MsgPack. Supplied expression/schema
-  strings remain opaque and are not syntax-validated or normalized; there is
+  serialize to byte-identical valid MsgPack. Predicate, projection, and
+  ordering strings are checked against the prototype's narrow canonical
+  scalar-expression grammar, including column bounds; SQL text, unsupported
+  calls, and malformed expressions fail closed. Relation/index
+  schema-definition strings remain opaque and are not syntax-validated or
+  normalized; there is
   no SQL extractor or planner consumer, and joins/aggregates remain outside
   this prototype. M1.4 remains open and v2 remains `replayable=false`.
   *parallel: yes*.
