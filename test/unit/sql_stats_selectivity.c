@@ -336,7 +336,7 @@ test_joint_mcv_range_conjunction(void)
 	};
 	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, duplicate, 2,
 		joint, 4, 4, &result) == 0 &&
-	   fabs(result.value - 0.25) < 1e-12 &&
+	   fabs(result.value - 0.5) < 1e-12 &&
 	   result.source == SQL_STATS_SELECTIVITY_MCV,
 	   "complete joint sample applies repeated same-column bounds together");
 	ok(sql_stats_estimate_predicate_conjunction(summaries, 2, duplicate, 2,

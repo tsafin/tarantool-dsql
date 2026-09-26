@@ -595,7 +595,12 @@ sql_stats_estimate_predicate_conjunction(
 		if (constraints[i].seen)
 			terms[term_count++] = terms[i];
 	}
-	rc = sql_stats_selectivity_and(terms, term_count, result);
+	if (term_count == 1) {
+		*result = terms[0];
+		rc = 0;
+	} else {
+		rc = sql_stats_selectivity_and(terms, term_count, result);
+	}
 done:
 	free(constraints);
 	free(terms);
