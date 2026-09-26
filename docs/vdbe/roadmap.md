@@ -628,7 +628,16 @@ M0-B corpus for the evaluation workloads.
   pruned; `truncated` counts candidate/victim paths lost at the beam boundary;
   `retained` sums the beam contents after each join-depth round. *parallel:
   yes* (instrumentation and harness schema are separable from E1.1-E1.3).
-- [ ] **E1.5** A/B comparison on the corpus. *parallel: yes*.
+- [ ] **E1.5 prototype** Reproducible offline A/B capture exists in
+  `test/sql-baselines/planner_ab.py` and `PLANNER_AB.md`. On the reviewed
+  join/WHERE subset (join, join2, join3, join5, where3), default 1/5/10 vs
+  candidate 2/8/16 completed 687 statements per engine/run with zero snapshot
+  drift in both repeats and across widths. Each engine measured 296 planner
+  snapshots; 121 query metrics changed. Totals show more generated/retained
+  paths and increased beam truncation, with candidate/fallback counts and path
+  classes unchanged. `elapsed_us` was zero, so no latency or plan-quality gain
+  is established. This is a bounded subset, not full-corpus evidence; the full
+  corpus comparison and quality evaluation remain open. *parallel: yes*.
 
 ---
 
