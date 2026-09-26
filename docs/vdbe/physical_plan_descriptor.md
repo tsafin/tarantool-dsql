@@ -8,6 +8,14 @@ resolution, VDBE lowering, MsgPack/YAML serialization, or fingerprinting;
 those remain later M3 subtasks. Joins, aggregates, and subqueries extend the
 schema in later versions.
 
+M3.3 adds a separately testable physical selector: given a supported logical
+chain and access candidates supplied by fixed/current estimates, it chooses
+the least estimated total cost (stable ties by access kind then index ID) and
+builds this descriptor. It handles primary/secondary point lookup, range,
+index full scan, and table full scan. This remains an explicit candidate
+interface, not SQL expression analysis or `where.c` routing; the current
+logical IR has no stable expression-ID normalization contract yet.
+
 ## Purpose
 
 The physical plan descriptor is the **stable contract between the planner

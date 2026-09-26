@@ -474,8 +474,12 @@ DML, triggers, subprograms, non-deterministic functions.
   side-effect-free expression validation remains a caller obligation. No
   resolver/VDBE routing is wired. Focused unit test: `sql_logical_plan`.
   *parallel: yes*.
-- [ ] **M3.3** Physical IR layer — logical → physical (access path
-  selection for single relation). *parallel: yes*.
+- [x] **M3.3** Physical IR prototype — choose the least-cost supplied access
+  candidate for a supported single-table logical chain; emits the immutable
+  descriptor for primary/secondary point, range, index full, and table full
+  scans. Stable tie-break and reject reasons are unit tested. Estimates are
+  fixed/current-provider inputs; no SQL routing or expression normalization
+  is wired. *parallel: yes*.
 - [ ] **M3.4** VDBE lowering — `lower_scan`, `lower_filter`, `lower_project`,
   `lower_sort`, `lower_limit`. *parallel: yes*.
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
