@@ -356,7 +356,7 @@ test_joint_mcv_range_conjunction(void)
 static void
 test_same_column_equality_constraints(void)
 {
-	plan(4);
+	plan(5);
 	header();
 	int hot = 2;
 	int cold = 3;
@@ -403,6 +403,14 @@ test_same_column_equality_constraints(void)
 		NULL, 0, 0, &result) == 0 && result.value == 0 &&
 	   result.source == SQL_STATS_SELECTIVITY_EXACT,
 	   "strict and inclusive bounds detect empty same-value interval");
+	struct sql_stats_column_summary no_comparator = summary;
+	no_comparator.compare = NULL;
+	no_comparator.mcv = NULL;
+	no_comparator.mcv_count = 0;
+same[1] = same[0];
+	ok(sql_stats_estimate_predicate_conjunction(&no_comparator, 1, same, 2,
+		NULL, 0, 0, &result) == -1,
+	   "repeated constraints reject safely without a SQL comparator");
 	footer();
 	check_plan();
 }
