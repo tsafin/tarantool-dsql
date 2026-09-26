@@ -46,6 +46,7 @@
 #include "box/coll_id_cache.h"
 #include "box/schema.h"
 #include "fiber.h"
+#include "clock.h"
 #include "sql_plan_fallback.h"
 
 #include <errno.h>
@@ -3600,7 +3601,7 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 					 * If WHERE_USE_LIMIT, then the limit amount
 					 */
 {
-	uint64_t planner_start_us = 0;
+	uint64_t planner_start_ns = 0;
 	bool planner_timer_active = false;
 	int nByteWInfo;		/* Num. bytes allocated for WhereInfo struct */
 	int nTabList;		/* Number of elements in pTabList */
@@ -3797,7 +3798,12 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 	}
 #endif
 
-	planner_start_us = fiber_clock64();
+	/* fiber_clock64() is based on libev's cached time. It usually does not
+	 * advance while a planner runs inside one event-loop iteration, which
+	 * makes short per-statement measurements collapse to zero. Read the
+	 * monotonic clock directly and convert to microseconds at the boundary.
+	 */
+	planner_start_ns = clock_monotonic64();
 	planner_timer_active = true;
 	if (nTabList != 1 || where_loop_builder_shortcut(&sWLB) == 0) {
 		rc = whereLoopAddAll(&sWLB);
@@ -3823,7 +3829,8 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		if (pWInfo->pOrderBy != NULL)
 			wherePathSolver(pWInfo, pWInfo->nRowOut + 1);
 	}
-	sql_record_planner_elapsed(v, fiber_clock64() - planner_start_us);
+	sql_record_planner_elapsed(v,
+				   (clock_monotonic64() - planner_start_ns) / 1000);
 	planner_timer_active = false;
 	/* The selected path is produced by the legacy WHERE planner unless a
 	 * structural fallback was recorded above. Keep the classification on the
@@ -4044,7 +4051,8 @@ whereBeginError:
 	assert(pWInfo != NULL);
 	if (planner_timer_active)
 		sql_record_planner_elapsed(pParse->pVdbe,
-					   fiber_clock64() - planner_start_us);
+					   (clock_monotonic64() - planner_start_ns) /
+					   1000);
 	pParse->nQueryLoop = pWInfo->savedNQueryLoop;
 	whereInfoFree(pWInfo);
 	return NULL;
