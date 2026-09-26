@@ -36,7 +36,13 @@ loading, and planner consumption.
 
 ## Planner-Facing Contract
 
-The planner reads an immutable `SqlStatsSnapshot` built once per prepare:
+The intended planner contract is an immutable `SqlStatsSnapshot` built once
+per prepare. The in-memory API prototype is implemented in
+`src/box/sql/sql_stats_snapshot.{h,c}`; construction deep-copies and sorts
+relation/index data, enforces a byte budget, and uses a reference count for
+lifetime management. It stores catalog/schema versions and gives a stale
+lookup result when the current schema version differs. The current prototype
+is not wired to prepare or the planner yet:
 
 ```c
 struct SqlStatsSnapshot {
@@ -256,7 +262,7 @@ content for each.
 | Milestone | Scope | Status (see roadmap) |
 | --- | --- | --- |
 | S0 audit | inventory disabled/scaffold code and current estimates; documented reuse/delete decisions | COMPLETE (report at `docs/vdbe/s0_audit_report.md`) |
-| S1 relation/index basics | cardinality semantics, width, index-prefix facts; versioned persistence; snapshot API; budgets; current-planner compatibility adapter into `where.c` | NOT-STARTED |
+| S1 relation/index basics | cardinality semantics, width, index-prefix facts; versioned persistence; snapshot API; budgets; current-planner compatibility adapter into `where.c` | PROTOTYPE (snapshot API only) |
 | S2 columns | null fraction, NDV (HLL), MCV (SpaceSaving), histograms; memtx/Vinyl sampling; stale/confidence policy; selectivity estimator | NOT-STARTED |
 
 S1 absorbs the work originally drafted as a separate S4

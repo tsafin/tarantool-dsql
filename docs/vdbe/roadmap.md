@@ -314,9 +314,11 @@ them.
 tables, and instead consumes real per-relation cardinality and average row
 width.
 
-**State:** `NOT-STARTED`. S0 is complete. Schema design and sampling
-prototypes can start alongside M1 after M0-A, but persisted system-space
-IDs/formats and the `where.c` adapter integrate serially.
+**State:** `PROTOTYPE`. S1.4 now has an immutable, deep-copying,
+reference-counted in-memory snapshot API with schema-staleness checks and a
+bounded allocation budget. It is not yet created per prepare or consumed by
+`where.c`; persistence, sampling, ANALYZE, and adapter work remain open. The
+system-space schema remains DRAFT pending human review of IDs and formats.
 
 **Exit criteria:**
 
@@ -336,8 +338,13 @@ IDs/formats and the `where.c` adapter integrate serially.
   `unsupported ANALYZE` rejection path. *parallel: yes*.
 - [ ] **S1.3** Collection job — sample tuples, build summaries, persist
   transactionally. Engine-agnostic core. *parallel: yes*.
-- [ ] **S1.4** `SqlStatsSnapshot` API — built once per prepare, ref-counted
-  at prepared-statement lifetime. *parallel: yes*.
+- [x] **S1.4 prototype** `SqlStatsSnapshot` API — immutable deep copy,
+  reference-counted ownership, catalog/schema versions, relation/index
+  cardinalities, confidence and freshness metadata, stale/missing lookup
+  states, and a caller-specified memory budget. Unit tests cover deep copy,
+  lifetime, schema mismatch, invalid values, and budget rejection. This is
+  not yet attached to prepare/prepared-statement lifetime; that integration
+  remains part of S1.7. *parallel: yes*.
 - [ ] **S1.5** memtx sampling interface
   (`engine_sql_stats_sample`). *parallel: yes*.
 - [ ] **S1.6** Vinyl sampling interface — avoiding pathological full-LSM
