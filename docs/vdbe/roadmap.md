@@ -427,9 +427,14 @@ review of IDs and formats.
   leave room to observe EOF; key steps include tombstone skips and terminal
   EOF. Focused unit/runtime tests cover deterministic no-replacement output,
   fixed-fixture frequency smoke checks, visibility after update/delete/
-  compaction, and exhaustion paths. This does not yet integrate ANALYZE or a
-  collection job, calibrate confidence, or establish workload-level latency /
-  read-amplification limits; therefore it is a prototype, not a completed
+  compaction, and exhaustion paths. The production `tarantool` target and
+  test module compile locally; `sql_stats_sample.test`,
+  `vy_iterator_budget.test`, `vy_point_lookup.test`, and the standalone Vinyl
+  runtime guard pass. The test module reads its optional failure argument
+  before constructing the result table, and the runtime fixture uses the
+  nested update-operation shape required by Vinyl. This does not yet integrate
+  ANALYZE or a collection job, calibrate confidence, or establish workload-
+  level latency / read-amplification limits; therefore it is a prototype, not a completed
   statistics sampler. See `sql_stats_sampling.md`. *parallel: yes, against
   the S1.5 contract*.
 - [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
