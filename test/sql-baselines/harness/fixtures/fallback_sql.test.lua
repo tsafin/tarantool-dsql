@@ -1,6 +1,6 @@
 local tap = require('tap')
 local test = tap.test('SQL planner fallback capture')
-test:plan(1)
+test:plan(6)
 
 local format = {{name = 'id', type = 'unsigned'}}
 local a = box.schema.space.create('sql_fallback_a', {
@@ -16,6 +16,19 @@ b:insert({1})
 
 local result, err = box.execute([[SELECT a.id FROM sql_fallback_a AS a
     JOIN sql_fallback_b AS b ON a.id = b.id]])
+test:ok(result ~= nil, tostring(err))
+result, err = box.execute([[SELECT count(*) FROM sql_fallback_a WHERE id > 0]])
+test:ok(result ~= nil, tostring(err))
+result, err = box.execute([[SELECT id FROM sql_fallback_a
+    UNION SELECT id FROM sql_fallback_b]])
+test:ok(result ~= nil, tostring(err))
+result, err = box.execute([[SELECT DISTINCT id % 2 FROM sql_fallback_a]])
+test:ok(result ~= nil, tostring(err))
+result, err = box.execute([[SELECT id FROM
+    (SELECT id FROM sql_fallback_a LIMIT 1)]])
+test:ok(result ~= nil, tostring(err))
+result, err = box.execute([[WITH cte AS (SELECT id FROM sql_fallback_a)
+    SELECT id FROM cte]])
 test:ok(result ~= nil, tostring(err))
 
 b:drop()

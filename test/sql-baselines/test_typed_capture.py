@@ -63,6 +63,14 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("taken: fallback", snapshot)
             self.assertIn("reason: UNSUPPORTED_RELATION_COUNT", snapshot)
             self.assertIn("fallback_to: current_where_c", snapshot)
+            for seq, reason in enumerate((
+                    "UNSUPPORTED_AGGREGATE", "UNSUPPORTED_COMPOUND",
+                    "UNSUPPORTED_DISTINCT", "UNSUPPORTED_SUBQUERY",
+                    "UNSUPPORTED_CTE"), start=2):
+                snapshot = (out / f"snapshots/sql-tap/fallback_sql/q{seq:02d}.memtx.yaml").read_text()
+                self.assertIn("taken: fallback", snapshot)
+                self.assertIn(f"reason: {reason}", snapshot)
+                self.assertIn("fallback_to: current_where_c", snapshot)
 
     def test_forensic_vdbe_program_listing(self):
         if not BINARY.is_file():

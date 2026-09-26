@@ -190,7 +190,9 @@ local function intercepted_execute(sql, bindings)
     local planner_path_class, planner_fallback_reason = nil, nil
     local normalized_sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
     local first_word = normalized_sql:match('^%s*(%a+)')
-    if first_word ~= nil and first_word:upper() == 'SELECT' then
+    local is_select = first_word ~= nil and
+        (first_word:upper() == 'SELECT' or first_word:upper() == 'WITH')
+    if is_select then
         local snapshot_ok, snapshot_res
         if bindings ~= nil then
             snapshot_ok, snapshot_res = pcall(_real_box_execute,
@@ -210,7 +212,7 @@ local function intercepted_execute(sql, bindings)
         end
     end
     if cfg.forensic then
-        if first_word ~= nil and first_word:upper() ~= 'EXPLAIN' then
+        if is_select then
             local explain_ok, explain_res, explain_err
             if bindings ~= nil then
                 explain_ok, explain_res, explain_err =
