@@ -798,12 +798,15 @@ per-statement metrics, and a reproducible full reviewed SQL-TAP width
 comparison. The wider candidate is repeat-stable but differs in three
 EXPLAIN outputs and costs about 2.5× aggregate planner time in these runs;
 plan quality has not been measured. Offline A/B tooling now supports reviewed
-SQL-luatest subsets and reports EXPLAIN-output drift separately from captured
-non-EXPLAIN result/diagnostic drift. The full reviewed SQL-luatest subset was
-captured on both engines (32 memtx / 31 Vinyl tests; 499 / 447 statements)
-with zero strict diffs across default/candidate and both repeats. E1 acceptance
-and the GATE decision still depend on the M0 SQL suite, integrated M3 + S2, and
-an accepted evaluation workload with plan-quality and end-to-end latency data.
+SQL-luatest and normal SQL-suite subsets and reports EXPLAIN-output drift
+separately from captured non-EXPLAIN result/diagnostic drift. Full reviewed
+adapter-compatible SQL-luatest (32 memtx / 31 Vinyl tests; 499 / 447
+statements) and SQL `.test.lua` scope (32 / 33 tests; 1,078 / 1,086 statements)
+both passed all strict default/candidate and repeat comparisons with zero
+diffs. Two reviewed raw `.test.sql` cases are not supported by the child-server
+adapter. E1 acceptance and the GATE decision still depend on integrated M3 +
+S2 and an accepted evaluation workload with plan-quality and end-to-end latency
+data.
 
 **Exit criteria:**
 
@@ -820,10 +823,10 @@ acceptance of wider defaults. Its three cross-width differences are confined
 to explicit EXPLAIN captures and the SQL-TAP runs pass, but strict snapshot
 parity is false. More importantly, summed planner time is 2.58× (memtx) and
 2.52× (Vinyl) for the candidate, while the run measures neither end-to-end
-query latency nor plan quality. The full-width SQL-TAP capture excludes SQL
-and SQL-luatest M0 suites and is not hosted CI; a separate SQL-luatest run now
-has zero strict diffs on its reviewed scope, but does not cover the SQL suite.
-Of 24,263 memtx and 22,135 Vinyl
+query latency nor plan quality. The full-width SQL-TAP capture is not hosted
+CI. Separate full reviewed SQL-luatest and adapter-compatible SQL `.test.lua`
+captures now have zero strict diffs; two raw `.test.sql` cases remain outside
+the SQL adapter. Of 24,263 memtx and 22,135 Vinyl
 successful planner snapshots, only 6,314 and 6,237 respectively used
 `current_where_c`; the rest were fallback or null path classes. This therefore
 does not establish the value of wider bounds for an integrated M3/S2 planner.
@@ -916,13 +919,10 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   supported through the normal child-server adapter; the full reviewed subset
   (32 memtx / 31 Vinyl tests, 499 / 447 statements) passed repeats and strict
   cross-width parity with zero diffs. SQL-vs-EXPLAIN classification is
-  included, though no differences occurred in the full run. The adapter also
-  supports reviewed normal `sql` test-run tests using the distinct
-  `capture.audit_queries` policy evidence; strict A/B/repeat comparison and
-  EXPLAIN classification are implemented, but no SQL-suite A/B matrix has run
-  yet. A focused memtx `autoincrement.test.lua` proof passed all 3 strict
-  comparisons (3 statements); full SQL-suite and Vinyl A/B remain unrun.
-  Native dispatchers
+  included; no differences occurred in the full run. Reviewed normal SQL
+  `.test.lua` scope (32 / 33 tests, 1,078 / 1,086 statements) also passed all
+  repeats and cross-width comparisons exactly; two raw `.test.sql` cases are
+  omitted because the adapter requires Lua test files. Native dispatchers
   remain untested by this extension. Exact diffs and reproduction instructions
   are in `test/sql-baselines/PLANNER_AB.md`. The capture/evaluation prototype
   is complete; strict SQL-TAP cross-width parity and

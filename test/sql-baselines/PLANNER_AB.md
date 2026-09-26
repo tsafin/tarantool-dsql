@@ -270,8 +270,7 @@ from other result/diagnostic differences, without weakening strict parity.
 Planner-metric aggregation is not available for this adapter; SQL-TAP retains
 its own metrics-manifest path.
 
-This is tooling support only. No SQL-suite A/B matrix has yet been run, so it
-does not change E1 acceptance or establish parity for that suite. A focused
+This adapter emits diagnostics only; it does not change E1 acceptance. A focused
 proof captured `sql/autoincrement.test.lua` on memtx (3 statements) using the
 binary SHA-256 `7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`:
 
@@ -288,3 +287,27 @@ The default repeat, candidate repeat, and cross-width diff each passed with
 three exact snapshots. This checks the SQL-suite adapter path, not the full
 reviewed SQL suite or both-engine scope. The report remains local at
 `/tmp/e1-sql-single-test-proof/report.json`.
+
+### Full reviewed SQL `.test.lua` subset, 2026-09-26
+
+The full adapter-compatible SQL suite was captured on both engines using
+default/candidate widths and repeats. The run used source HEAD
+`9aa7837f4d51ea1654bd2f33c990ea8880152196` and binary SHA-256
+`7f85e7d52b5becd6d813c2ad2f4eeaeb42889efe54ba245e4bbe0f46c0062cd4`:
+
+```sh
+python3 -B test/sql-baselines/planner_ab.py \
+  --repo /home/tsafin/tarantool --runner-repo /home/tsafin/tarantool \
+  --binary /tmp/tarantool-m1-build/src/tarantool \
+  --out /tmp/tarantool-e1-full-sql-suite-fixed \
+  --suite sql --full-corpus --widths 2,8,16
+```
+
+Memtx covered 32 `.test.lua` files / 1,078 statements; Vinyl covered 33 files /
+1,086 statements. Default-repeat, candidate-repeat, and cross-width strict
+diffs all passed exactly on both engines. SQL-vs-EXPLAIN classification found
+no width-sensitive differences. Two reviewed raw `.test.sql` policy entries
+were omitted because the normal child-server adapter currently requires a
+Lua test file. The report is local at
+`/tmp/tarantool-e1-full-sql-suite-fixed/report.json`; raw `.test.sql` coverage
+and hosted-CI execution remain open.
