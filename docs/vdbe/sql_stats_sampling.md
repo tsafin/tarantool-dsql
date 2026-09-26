@@ -121,12 +121,14 @@ alone is not a sampling strategy:
 candidate selection still has to be evaluated over logical visible tuples
 across updates, deletes, and compaction.
 
-The Vinyl point-lookup unit fixture exercises both budget failures through a
-real `vy_read_iterator` over generated runs. It verifies that a zero disk-source
-budget and a zero uncached-page budget return `ER_UNSUPPORTED` without exposing
-an entry, and that the caller can close each failed iterator. It does not test
-successful candidate selection, visibility-preserving truncation, or a sample
-sink; exhaustion remains fail-closed.
+The Vinyl point-lookup unit fixture exercises both constraints through a real
+`vy_read_iterator` over generated runs. A zero disk-source budget reaches
+`ER_UNSUPPORTED` without exposing an entry. The zero-page case also fails
+closed, but earlier: this fixture has no cancellable reader pool, so synchronous
+page I/O is rejected before the page budget is consumed. Both iterators are
+closed after failure. This does not test page-cap exhaustion, successful
+candidate selection, visibility-preserving truncation, or a sample sink;
+exhaustion remains fail-closed.
 
 The generic S1.5 request/sink/result contract and memtx callback now exist.
 The runtime dispatch test also verifies that Vinyl's currently missing

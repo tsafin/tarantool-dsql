@@ -61,7 +61,7 @@ static void
 test_basic()
 {
 	header();
-	plan(23);
+	plan(22);
 
 	/** Suppress info messages from vy_run_writer. */
 	say_set_log_level(S_WARN);
@@ -286,10 +286,15 @@ test_basic()
 	rc = vy_read_iterator_next(&read_itr, &sample_result);
 	error = diag_last_error(diag_get());
 	ok(rc < 0 && error != NULL && error->code == ER_UNSUPPORTED,
-	   "uncached-page budget fails closed through read iterator");
-	ok(page_budget.exhausted && page_budget.disk_sources_probed > 0 &&
-	   page_budget.page_reads_attempted == 0 && sample_result.stmt == NULL,
-	   "page exhaustion preserves result and accounts attempted work");
+	   "budgeted iterator rejects synchronous page I/O");
+	ok(!page_budget.exhausted,
+	   "synchronous page rejection precedes budget consumption");
+	ok(page_budget.disk_sources_probed > 0,
+	   "page-budgeted iterator probes sources before I/O rejection");
+	ok(page_budget.page_reads_attempted == 0,
+	   "no uncached page read is attempted without a reader pool");
+	ok(sample_result.stmt == NULL,
+	   "synchronous page rejection does not expose a partial entry");
 	vy_read_iterator_close(&read_itr);
 	diag_clear(diag_get());
 	tuple_unref(sample_key.stmt);
