@@ -257,12 +257,14 @@ selectivity API does not yet consume that estimate. Multiple predicates on
 one column, joint-NDV-aware selectivity, dependency statistics, partial-tuple
 matching, and policy for choosing/storing multicolumn groups remain open.
 
-The focused unit probe includes a uniform 1,000-distinct-value column and a
-skewed column with one value at 90% frequency. Equality and selected range
-predicates are compared against known selectivities using q-error. These are
-algorithm sanity checks, not the M0 corpus gate; correlated and
-anti-correlated distributions, stale-stat variants, and integrated plan
-quality measurement remain open.
+The focused unit probes include a uniform 1,000-distinct-value column, a
+skewed column with one value at 90% frequency, correlated/anti-correlated
+conjunctions, and a synthetic stale-MCV fixture where a distribution shift
+worsens q-error while the caller supplies lower confidence. Equality and
+selected range predicates are compared against known selectivities using
+q-error. These are algorithm sanity checks, not the M0 corpus gate: the
+estimator has no freshness/decay policy, representative stale-stat corpus
+variants and integrated plan-quality measurement remain open.
 
 ## Refresh And Staleness
 

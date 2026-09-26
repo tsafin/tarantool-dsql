@@ -498,6 +498,46 @@ test_uniform_and_skewed_qerror(void)
 	check_plan();
 }
 
+static void
+test_stale_summary_qerror(void)
+{
+	plan(3);
+	header();
+	/* The collection sample says value 1 is hot; the current population has
+	 * shifted so value 0 is hot. The stale summary has lower confidence. */
+	int old_hot = 1;
+	int current_hot = 0;
+	struct sql_stats_mcv_sample fresh_mcv = {
+		.value = &current_hot, .value_size = sizeof(current_hot),
+		.count = 900,
+	};
+	struct sql_stats_mcv_sample stale_mcv = {
+		.value = &old_hot, .value_size = sizeof(old_hot), .count = 900,
+	};
+	struct sql_stats_column_summary fresh = {
+		.row_count = 1000, .null_fraction = 0, .distinct_count = 10,
+		.confidence = 0.9, .sample_nonnull_rows = 1000,
+		.mcv = &fresh_mcv, .mcv_count = 1, .compare = compare_int,
+	};
+	struct sql_stats_column_summary stale = fresh;
+	stale.confidence = 0.25;
+	stale.mcv = &stale_mcv;
+	struct sql_stats_selectivity fresh_result;
+	struct sql_stats_selectivity stale_result;
+	ok(sql_stats_estimate_equality(&fresh, &current_hot,
+		 sizeof(current_hot), false, &fresh_result) == 0 &&
+	   q_error(fresh_result.value, 0.9) == 1,
+	   "current MCV summary estimates shifted hot value accurately");
+	ok(sql_stats_estimate_equality(&stale, &current_hot,
+		 sizeof(current_hot), false, &stale_result) == 0 &&
+	   q_error(stale_result.value, 0.9) > q_error(fresh_result.value, 0.9),
+	   "stale MCV fixture exposes q-error after distribution shift");
+	ok(stale_result.confidence < fresh_result.confidence,
+	   "caller-supplied stale confidence remains visible in result");
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
@@ -507,5 +547,6 @@ main(void)
 	test_joint_mcv_equality_conjunction();
 	test_joint_mcv_range_conjunction();
 	test_correlated_range_conjunction_qerror();
+	test_stale_summary_qerror();
 	return 0;
 }
