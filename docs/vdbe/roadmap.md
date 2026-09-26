@@ -378,11 +378,17 @@ them.
   scalar-expression grammar, including column bounds; SQL text, unsupported
   calls, and malformed expressions fail closed. Relation/index
   schema-definition strings remain opaque and are not syntax-validated or
-  normalized. A new ordered `ExprList` bridge returns detached canonical
-  expression strings and rejects an entire list if any member is unsupported;
-  it is not yet connected to resolved `Select` extraction or model creation.
-  There is no SELECT-to-model extractor or planner consumer, and joins/
-  aggregates remain outside this prototype. M1.4 remains open and v2 remains
+  normalized. `sql_replay_input_extract_select()` now connects a resolved
+  single-relation `Select` to detached input creation: it canonicalizes the
+  predicate/projection/order trees, records sort direction/default NULL order,
+  and accepts only nonnegative integer literal LIMIT/OFFSET. Relation/index
+  schemas, statistics, and planner configuration remain caller-supplied; the
+  extractor rejects other cursor bindings, unsupported expressions/functions,
+  invalid limits, and unsupported SELECT structure without returning partial
+  input. It stores no live AST/catalog pointers. This is a SELECT-to-model
+  expression/bounds bridge, not complete planner-input acquisition: index and
+  access-path metadata, actual stats/config capture, joins/aggregates, and a
+  planner consumer remain absent. M1.4 remains open and v2 remains
   `replayable=false`.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning

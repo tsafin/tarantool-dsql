@@ -484,13 +484,18 @@ population and NDV statistics, confidence/freshness metadata, and planner
 configuration scalars. It copies supplied values and stores no live `Expr`,
 catalog handle, cursor, or storage ID. It emits an internal version-1 MsgPack
 representation with fixed map-key order and logical-index ordering. It still
-does not validate relation/index schema-definition syntax, extract from SQL,
-or feed a planner. The separate `sql_replay_expr_list` helper converts an
-ordered resolved `ExprList` into owned canonical strings with caller-supplied
-cursor bindings, but it is not wired to a `Select` boundary, the detached
-input model, or limit/offset extraction. Multi-relation expressions, joins,
-aggregates, and other planner semantics remain absent. It is not a
-`replay_inputs` payload and does not change version 2.
+does not validate relation/index schema-definition syntax or feed a planner.
+`sql_replay_input_extract_select()` now accepts a resolved single-relation
+`Select`, caller-provided cursor bindings, and detached relation/statistics/
+planner metadata. It canonicalizes predicate, projection, and ordering
+expressions, captures sort direction and Tarantool's default NULL ordering,
+and extracts nonnegative integer literal LIMIT/OFFSET values. Unsupported
+functions/expressions and non-literal bounds fail closed. The output owns no
+AST or catalog pointers, but catalog/index definitions, statistics, and
+planner settings are not acquired by the extractor; these remain the
+caller's responsibility. Multi-relation expressions, joins, aggregates, and
+other planner semantics remain absent. It is not a `replay_inputs` payload
+and does not change version 2.
 
 ## Testing Strategy
 

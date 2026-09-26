@@ -2,8 +2,140 @@
 #include <string.h>
 
 #include "box/sql/sql_replay_input.h"
+#include "box/sql/sql_replay_extract.h"
+#include "box/sql/sqlInt.h"
+#include "box/space.h"
 #include "msgpuck.h"
 #include "unit.h"
+
+static void
+test_extract_resolved_select(void)
+{
+	plan(9);
+	header();
+	struct sql_replay_column_spec column = {"integer", "binary"};
+	struct sql_replay_input_spec metadata = {
+		.relation = {
+			.logical_key = "logical-r0",
+			.canonical_definition = "table(c0:integer)",
+			.columns = &column, .column_count = 1,
+		},
+		/* These expression fields must be replaced by Select extraction. */
+		.predicate = "SQL text", .planner_algorithm_version = 1,
+		.planner_config_version = 1, .beam_width = 1,
+	};
+	const uint32_t cursor_map[] = {UINT32_MAX, 0};
+	struct Expr column_expr = {
+		.op = TK_COLUMN_REF, .flags = EP_Resolved, .iTable = 1,
+		.iColumn = 0,
+	};
+	struct Expr one = {
+		.op = TK_INTEGER, .flags = EP_Resolved | EP_IntValue,
+		.u.iValue = 1,
+	};
+	struct Expr predicate = {
+		.op = TK_EQ, .flags = EP_Resolved, .pLeft = &column_expr,
+		.pRight = &one,
+	};
+	struct Expr limit = {
+		.op = TK_INTEGER, .flags = EP_Resolved | EP_IntValue,
+		.u.iValue = 10,
+	};
+	struct Expr offset = {
+		.op = TK_INTEGER, .flags = EP_Resolved | EP_IntValue,
+		.u.iValue = 2,
+	};
+	struct ExprList_item projection_items[] = {{.pExpr = &column_expr}};
+	struct ExprList projection = {.nExpr = 1, .a = projection_items};
+	struct ExprList_item order_items[] = {{
+		.pExpr = &column_expr, .sort_order = SORT_ORDER_DESC,
+	}};
+	struct ExprList order = {.nExpr = 1, .a = order_items};
+	struct space_def space_definition = {.field_count = 1};
+	struct space source_space = {.def = &space_definition};
+	struct SrcList sources = {
+		.nSrc = 1,
+		.a = {{.space = &source_space, .iCursor = 1}},
+	};
+	struct Select select = {
+		.pEList = &projection, .pSrc = &sources, .pWhere = &predicate,
+		.pOrderBy = &order, .pLimit = &limit, .pOffset = &offset,
+		.selFlags = SF_Resolved,
+	};
+	struct sql_replay_input *input = NULL;
+	ok(sql_replay_input_extract_select(&select, &metadata, cursor_map, 2,
+					   &input) == SQL_REPLAY_INPUT_OK &&
+	   input != NULL && strcmp(input->predicate,
+				   "eq(col(r0,c0),int(1))") == 0 &&
+	   input->projection_count == 1 &&
+	   strcmp(input->projections[0], "col(r0,c0)") == 0,
+	   "resolved single-table SELECT expressions populate detached replay input");
+	column_expr.iColumn = 9;
+	ok(input != NULL && strcmp(input->projections[0], "col(r0,c0)") == 0 &&
+	   input->order_by_count == 1 && input->order_by[0].descending &&
+	   !input->order_by[0].nulls_first && input->limit_present &&
+	   input->limit == 10 && input->offset_present && input->offset == 2,
+	   "order, limits, and expressions are detached from the SQL AST");
+	if (input != NULL)
+		sql_replay_input_delete(input);
+	column_expr.iColumn = 0;
+	select.pWhere = NULL;
+	select.pOrderBy = NULL;
+	select.pLimit = NULL;
+	select.pOffset = NULL;
+	input = NULL;
+	ok(sql_replay_input_extract_select(&select, &metadata, cursor_map, 2,
+					   &input) == SQL_REPLAY_INPUT_OK &&
+	   input != NULL && strcmp(input->predicate, "int(1)") == 0 &&
+	   input->order_by_count == 0 && !input->limit_present,
+	   "absent WHERE and optional clauses extract with explicit truth predicate");
+	if (input != NULL)
+		sql_replay_input_delete(input);
+	struct Expr function = {
+		.op = TK_FUNCTION, .flags = EP_Resolved | EP_ConstFunc,
+		.u.zToken = "abs",
+	};
+	select.pWhere = &function;
+	input = NULL;
+	ok(sql_replay_input_extract_select(&select, &metadata, cursor_map, 2,
+					   &input) == SQL_REPLAY_INPUT_INVALID &&
+	   input == NULL,
+	   "unsupported scalar function rejects SELECT extraction without output");
+	select.pWhere = NULL;
+	struct Expr negative_limit = {
+		.op = TK_UMINUS, .flags = EP_Resolved, .pLeft = &one,
+	};
+	select.pLimit = &negative_limit;
+	ok(sql_replay_input_extract_select(&select, &metadata, cursor_map, 2,
+					   &input) == SQL_REPLAY_INPUT_INVALID &&
+	   input == NULL,
+	   "negative LIMIT is rejected rather than reinterpreted as unsigned");
+	select.pLimit = NULL;
+	const uint32_t invalid_cursor_map[] = {0, UINT32_MAX};
+	ok(sql_replay_input_extract_select(&select, &metadata, invalid_cursor_map, 2,
+					   &input) == SQL_REPLAY_INPUT_INVALID &&
+	   input == NULL,
+	   "cursor bindings must identify the source as logical relation zero");
+	sources.a[0].fg.notIndexed = true;
+	ok(sql_replay_input_extract_select(&select, &metadata, cursor_map, 2,
+					   &input) == SQL_REPLAY_INPUT_INVALID &&
+	   input == NULL,
+	   "unmodeled NOT INDEXED access restriction is rejected");
+	sources.a[0].fg.notIndexed = false;
+	space_definition.opts.is_view = true;
+	ok(sql_replay_input_extract_select(&select, &metadata, cursor_map, 2,
+					   &input) == SQL_REPLAY_INPUT_INVALID &&
+	   input == NULL,
+	   "views are outside the base-relation replay model");
+	space_definition.opts.is_view = false;
+	select.selFlags |= SF_Distinct;
+	ok(sql_replay_input_extract_select(&select, &metadata, cursor_map, 2,
+					   &input) == SQL_REPLAY_INPUT_INVALID &&
+	   input == NULL,
+	   "unsupported DISTINCT shape is rejected by logical-plan validation");
+	footer();
+	check_plan();
+}
 
 static void
 test_detached_single_relation_select(void)
@@ -352,6 +484,7 @@ test_canonical_msgpack(void)
 int
 main(void)
 {
+	test_extract_resolved_select();
 	test_detached_single_relation_select();
 	test_canonical_expression_grammar();
 	test_rejects_incomplete_or_invalid_inputs();
