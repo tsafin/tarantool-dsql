@@ -267,10 +267,14 @@ S1 can start against this baseline.
 **Goal:** make the *current* planner's decisions inspectable, replayable, and
 counter-gated before changing the planner.
 
-**State:** `NOT-STARTED`. Start implementation after the M0-A capture
-contract and seed corpus are accepted; full M0-B coverage can proceed in
-parallel. Freeze the planner event/path-class and replay envelope before M3
-consumes them.
+**State:** `IN-PROGRESS`. M0-A/M0-B are accepted locally. M1.1 has a
+preparatory statement-compilation counter (`sql_statement_compiles_total`),
+but planner-boundary counters and planner-only elapsed time remain open.
+M1.3's structured summary surface is implemented with the current planner's
+`current_where_c` classification; fallback propagation and replay remain
+open. Hosted CI publication is pending but does not block local M1 work.
+Freeze the planner event/path-class and replay envelope before M3 consumes
+them.
 
 **Exit criteria:**
 
@@ -283,12 +287,14 @@ consumes them.
 
 - [ ] **M1.1** Add planner counters to `box.stat.sql()` —
   `sql_planner_decisions_total`, `sql_planner_fallback_total{reason=...}`,
-  `sql_planner_elapsed_us`. *parallel: yes* (only sql.c stat hookup).
+  `sql_planner_elapsed_us`. Preparatory `sql_statement_compiles_total` is
+  implemented, but does not satisfy this subtask. *parallel: yes* (only
+  sql.c stat hookup).
 - [ ] **M1.2** Wire path_class emission in current `where.c` — every prepare
   emits `path_class: current_where_c` to a per-stmt struct. M0 snapshots
   start consuming it. *parallel: no* (touches the same `where.c` files M3
   will modify; coordinate).
-- [ ] **M1.3** `EXPLAIN (planner = 'summary')` grammar + executor returning
+- [x] **M1.3** `EXPLAIN (planner = 'summary')` grammar + executor returning
   structured rows per the planner_vm_migration.md schema. *parallel: yes*.
 - [ ] **M1.4** `EXPLAIN (planner = 'snapshot')` returning a versioned MsgPack
   replay object. *parallel: yes*.
