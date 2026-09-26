@@ -615,7 +615,10 @@ DML, triggers, subprograms, non-deterministic functions.
   either field. Negative validation tests cover missing/unknown reasons,
   wrong fallback destinations, and fallback metadata attached to a
   `current_where_c` path. This closes a schema-validation hole, not the
-  broader M3.6 capture/parity gate.
+  broader M3.6 capture/parity gate. The live harness now also fails capture if
+  planner-snapshot EXPLAIN fails, returns no MsgPack, or violates the v2
+  diagnostic envelope / `replayable: false` contract; it no longer silently
+  records missing metadata as an ordinary path.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.

@@ -202,16 +202,23 @@ local function intercepted_execute(sql, bindings)
             snapshot_ok, snapshot_res = pcall(_real_box_execute,
                 "EXPLAIN (planner = 'snapshot') " .. sql)
         end
-        if snapshot_ok and snapshot_res ~= nil and
-           snapshot_res.rows ~= nil and snapshot_res.rows[1] ~= nil then
-            local decode_ok, planner_snapshot = pcall(msgpack.decode,
-                tostring(snapshot_res.rows[1][1]))
-            if decode_ok and type(planner_snapshot) == 'table' then
-                planner_path_class = planner_snapshot.path_class
-                planner_fallback_reason = planner_snapshot.fallback_reason
-                planner_metrics = planner_snapshot.planner
-            end
-        end
+        assert(snapshot_ok, 'planner snapshot EXPLAIN failed: ' ..
+               tostring(snapshot_res))
+        assert(snapshot_res ~= nil and snapshot_res.rows ~= nil and
+               snapshot_res.rows[1] ~= nil and snapshot_res.rows[1][1] ~= nil,
+               'planner snapshot EXPLAIN returned no MsgPack envelope')
+        local decode_ok, planner_snapshot = pcall(msgpack.decode,
+            tostring(snapshot_res.rows[1][1]))
+        assert(decode_ok and type(planner_snapshot) == 'table',
+               'planner snapshot EXPLAIN returned malformed MsgPack')
+        assert(planner_snapshot.format == 'tarantool.sql.planner.snapshot' and
+               planner_snapshot.version == 2 and
+               planner_snapshot.replayable == false and
+               type(planner_snapshot.planner) == 'table',
+               'planner snapshot EXPLAIN returned an invalid v2 diagnostic envelope')
+        planner_path_class = planner_snapshot.path_class
+        planner_fallback_reason = planner_snapshot.fallback_reason
+        planner_metrics = planner_snapshot.planner
     end
     if cfg.forensic then
         if is_select then
