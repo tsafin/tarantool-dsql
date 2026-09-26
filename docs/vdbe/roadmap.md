@@ -759,8 +759,13 @@ hypothesis that most plan-quality gain comes from statistics + properties,
 not from a new enumerator. This is the cheap experiment that may save
 quarters of bake-off work.
 
-**State:** `NOT-STARTED`. Depends on integrated M3 + S2 and an accepted
-M0-B corpus for the evaluation workloads.
+**State:** `PROTOTYPE`. E1.1–E1.5 have configurable bounded-DP controls,
+per-statement metrics, and a reproducible full reviewed SQL-TAP width
+comparison. The wider candidate is repeat-stable but differs in three
+EXPLAIN outputs and costs about 2.5× aggregate planner time in these runs;
+plan quality has not been measured. E1 acceptance and the GATE decision still
+depend on integrated M3 + S2 and an accepted M0-B corpus for evaluation
+workloads.
 
 **Exit criteria:**
 
