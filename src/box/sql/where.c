@@ -46,6 +46,7 @@
 #include "box/coll_id_cache.h"
 #include "box/schema.h"
 #include "fiber.h"
+#include "sql_plan_fallback.h"
 
 /** Increase the memory allocation for p->aLTerm[] to be at least n. */
 static void
@@ -3591,6 +3592,19 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 	 * any cursors associated with subsequent tables are uninitialized.
 	 */
 	nTabList = (wctrlFlags & WHERE_OR_SUBCLAUSE) ? 1 : pTabList->nSrc;
+	/* A multi-relation shape is outside the single-table planner contract.
+	 * This function is the legacy routing point, so record the fallback here
+	 * before it starts producing the current WHERE plan.
+	 */
+	if (nTabList > 1 && v->planner_fallback_reason == NULL) {
+		enum sql_plan_fallback_reason reason =
+			sql_plan_fallback_from_logical(
+				SQL_LOGICAL_REJECT_RELATION_COUNT);
+		v->planner_path_class = "fallback";
+		v->planner_fallback_reason =
+			sql_plan_fallback_reason_name(reason);
+		sql_record_planner_fallback();
+	}
 
 	/* Allocate and initialize the WhereInfo structure that will become the
 	 * return value. A single allocation is used to store the WhereInfo
@@ -3740,11 +3754,12 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 	}
 	sql_record_planner_elapsed(fiber_clock64() - planner_start_us);
 	planner_timer_active = false;
-	/* The selected path is produced by the legacy WHERE planner. Keep the
-	 * classification on the statement so EXPLAIN and later replay tooling
-	 * consume the planner's result instead of inventing one at emission time.
+	/* The selected path is produced by the legacy WHERE planner unless a
+	 * structural fallback was recorded above. Keep the classification on the
+	 * statement so EXPLAIN and replay tooling consume this decision directly.
 	 */
-	v->planner_path_class = "current_where_c";
+	if (v->planner_path_class == NULL)
+		v->planner_path_class = "current_where_c";
 	if (pWInfo->pOrderBy == 0 &&
 	    (pParse->sql_flags & SQL_ReverseOrder) != 0) {
 		pWInfo->revMask = ALLBITS;

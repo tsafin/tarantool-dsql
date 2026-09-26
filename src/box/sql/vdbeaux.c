@@ -1355,14 +1355,17 @@ sqlVdbeList(Vdbe * p)
 		 * explicit so later versions can add those inputs without guessing.
 		 */
 		const char *path_class = p->planner_path_class;
+		const char *fallback_reason = p->planner_fallback_reason;
 		size_t path_class_size = path_class != NULL ?
 			mp_sizeof_str(strlen(path_class)) : mp_sizeof_nil();
+		size_t fallback_reason_size = fallback_reason != NULL ?
+			mp_sizeof_str(strlen(fallback_reason)) : mp_sizeof_nil();
 		size_t size = mp_sizeof_map(5) +
 			mp_sizeof_str(strlen("format")) +
 			mp_sizeof_str(strlen("tarantool.sql.planner.snapshot")) +
 			mp_sizeof_str(strlen("version")) + mp_sizeof_uint(1) +
 			mp_sizeof_str(strlen("path_class")) + path_class_size +
-			mp_sizeof_str(strlen("fallback_reason")) + mp_sizeof_nil() +
+			mp_sizeof_str(strlen("fallback_reason")) + fallback_reason_size +
 			mp_sizeof_str(strlen("replayable")) + mp_sizeof_bool(false);
 		char *buf = sql_xmalloc(size);
 		char *pos = mp_encode_map(buf, 5);
@@ -1379,7 +1382,12 @@ sqlVdbeList(Vdbe * p)
 		}
 		pos = mp_encode_str(pos, "fallback_reason",
 				    strlen("fallback_reason"));
-		pos = mp_encode_nil(pos);
+		if (fallback_reason != NULL) {
+			pos = mp_encode_str(pos, fallback_reason,
+					    strlen(fallback_reason));
+		} else {
+			pos = mp_encode_nil(pos);
+		}
 		pos = mp_encode_str(pos, "replayable", strlen("replayable"));
 		pos = mp_encode_bool(pos, false);
 		mem_set_bin_allocated(&pMem[0], buf, pos - buf);
@@ -1403,7 +1411,12 @@ sqlVdbeList(Vdbe * p)
 				mem_set_null(&pMem[2]);
 		} else {
 			mem_set_str0_static(&pMem[1], "fallback_reason");
-			mem_set_null(&pMem[2]);
+			if (p->planner_fallback_reason != NULL) {
+				mem_set_str0_static(&pMem[2],
+						   p->planner_fallback_reason);
+			} else {
+				mem_set_null(&pMem[2]);
+			}
 		}
 		p->pc++;
 		p->nResColumn = 3;

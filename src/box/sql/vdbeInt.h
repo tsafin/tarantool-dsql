@@ -316,6 +316,8 @@ struct Vdbe {
 	u8 explain_flags;	/* Requested EXPLAIN(...) modifiers */
 	/** Path class selected by the current WHERE planner, if any. */
 	const char *planner_path_class;
+	/** Stable reason when a structurally unsupported shape uses where.c. */
+	const char *planner_fallback_reason;
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
 	char *explain_text;	/* Cached row-oriented EXPLAIN text */

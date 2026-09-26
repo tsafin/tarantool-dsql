@@ -100,6 +100,8 @@ endif()
 set(sql_sources
     ${SQL_BIN_DIR}/opcodes.c
     ${SQL_BIN_DIR}/parse.c
+    sql/sql_plan_descriptor.c
+    sql/sql_plan_fallback.c
     sql/alter.c
     sql/cursor.c
     sql/build.c

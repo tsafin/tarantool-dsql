@@ -286,11 +286,12 @@ counter-gated before changing the planner.
 **State:** `IN-PROGRESS`. M0-A/M0-B are accepted locally. M1.1 has the
 preparatory statement-compilation counter (`sql_statement_compiles_total`)
 plus WHERE-planner candidate and elapsed aggregates. A fallback aggregate
-exists but has no production call site, and reason-coded accounting and full
-M1.1 validation remain open.
-M1.3's structured summary surface is implemented with the current planner's
-`current_where_c` classification; fallback propagation and replay remain
-open. Hosted CI publication is pending but does not block local M1 work.
+now increments at the multi-relation fallback route, and M1.2/M3.5 expose
+`fallback` plus `UNSUPPORTED_RELATION_COUNT` through summary and snapshot
+EXPLAIN. Other fallback shapes/reasons, full M1.1 validation, and replay
+remain open. M1.3's structured summary surface handles both the legacy
+`current_where_c` path and that fallback outcome. Hosted CI publication is
+pending but does not block local M1 work.
 Freeze the planner event/path-class and replay envelope before M3 consumes
 them.
 
@@ -305,17 +306,20 @@ them.
 
 - [ ] **M1.1** Add planner counters to `box.stat.sql()` —
   `sql_planner_candidates_total` and `sql_planner_elapsed_us` are hooked to
-  WHERE-planner candidate insertion and elapsed-time paths;
-  `sql_planner_fallback_total` is exposed but currently has no production
-  increment site. Reason-specific fallback counters and end-to-end validation
+  WHERE-planner candidate insertion and elapsed-time paths.
+  `sql_planner_fallback_total` now increments for the production multi-
+  relation fallback path. That path publishes stable
+  `UNSUPPORTED_RELATION_COUNT` through both summary and snapshot EXPLAIN.
+  Per-reason counters, other fallback shapes, and broad end-to-end validation
   remain open. `sql_statement_compiles_total` is preparatory only.
-  *parallel: yes* (only sql.c stat hookup).
+  *parallel: no* (the fallback call site shares `where.c` with M3).
 - [x] **M1.2** Wire path_class emission in current `where.c` — statements
   invoking the WHERE planner store `current_where_c` on the per-statement
   VDBE; summary EXPLAIN reads that value, and statements that do not invoke
   the planner report NULL. M0 snapshot capture consumes the versioned
-  EXPLAIN snapshot through the M3.6 harness prototype; new-planner/fallback
-  path classes still require M3 dispatch. *parallel: no* (touches the same
+  EXPLAIN snapshot through the M3.6 harness prototype. Multi-relation SELECTs
+  now report `fallback` with a stable reason; remaining new-planner/fallback
+  classes still require M3 dispatch. *parallel: no* (touches the same
   `where.c` files M3 will modify; coordinate).
 - [x] **M1.3** `EXPLAIN (planner = 'summary')` grammar + executor returning
   structured rows per the planner_vm_migration.md schema. *parallel: yes*.
@@ -530,16 +534,21 @@ DML, triggers, subprograms, non-deterministic functions.
   `fallback_reason` and routes to current `where.c`. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and
   exposes `path_class` plus an optional descriptor (`sql_plan_fallback.*`),
-  with focused mapping tests. This remains partial: no resolver caller
-  dispatches rejected statements to `sqlWhereBegin()`, and no M0 snapshot or
-  counter wiring exists; both dispatch and observable snapshot integration
-  must be completed and tested before this checkbox closes. *parallel: no*.
+  with focused mapping tests. `sqlWhereBegin()` now records the actual legacy
+  route for multi-relation queries as `fallback` /
+  `UNSUPPORTED_RELATION_COUNT`; summary/snapshot EXPLAIN and the aggregate
+  fallback counter are wired and exercised locally. This remains partial:
+  other structural/physical rejection reasons are not routed or accounted,
+  no new-planner success path exists, and M0 baseline recapture/parity review
+  remains open. *parallel: no*.
 - [ ] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
   `path_class` / `fallback_reason`, instead of hardcoding
-  `current_where_c`. The currently wired planner still reports only
-  `current_where_c`; new-planner and fallback classifications await actual
-  M3.5 dispatch, and baseline recapture/parity validation remains open.
+  `current_where_c`. A multi-relation statement now produces and captures
+  the `fallback` path class in SQL EXPLAIN. The M0 normalizer recognizes
+  `fallback_*` but does not yet propagate a plain `fallback` token's reason
+  and target. Other new-planner/fallback classes, baseline recapture, and
+  parity validation remain open.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.
