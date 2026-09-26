@@ -1423,7 +1423,6 @@ static const struct engine_vtab memtx_engine_vtab = {
 	/* .free = */ memtx_engine_free,
 	/* .shutdown = */ generic_engine_shutdown,
 	/* .create_space = */ memtx_engine_create_space,
-	/* .sql_stats_sample = */ memtx_engine_sql_stats_sample,
 	/* .create_read_view = */ memtx_engine_create_read_view,
 	/* .prepare_join = */ memtx_engine_prepare_join,
 	/* .join = */ memtx_engine_join,
@@ -1449,6 +1448,7 @@ static const struct engine_vtab memtx_engine_vtab = {
 	/* .memory_stat = */ memtx_engine_memory_stat,
 	/* .reset_stat = */ generic_engine_reset_stat,
 	/* .check_space_def = */ generic_engine_check_space_def,
+	/* .sql_stats_sample = */ memtx_engine_sql_stats_sample,
 };
 
 /**

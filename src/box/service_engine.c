@@ -116,6 +116,7 @@ static const struct engine_vtab service_engine_vtab = {
 	/* .memory_stat = */ generic_engine_memory_stat,
 	/* .reset_stat = */ generic_engine_reset_stat,
 	/* .check_space_def = */ generic_engine_check_space_def,
+	/* .sql_stats_sample = */ NULL,
 };
 
 struct engine *

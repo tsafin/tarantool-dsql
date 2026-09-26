@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct space;
 
 struct sql_stats_sample_request {
@@ -50,5 +54,9 @@ engine_sql_stats_sample(struct space *space,
 			const struct sql_stats_sample_request *request,
 			struct sql_stats_sample_sink *sink,
 			struct sql_stats_sample_result *result);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TARANTOOL_SQL_STATS_SAMPLE_H */

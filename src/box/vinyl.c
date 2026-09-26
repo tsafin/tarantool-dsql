@@ -4655,6 +4655,7 @@ static const struct engine_vtab vinyl_engine_vtab = {
 	/* .memory_stat = */ vinyl_engine_memory_stat,
 	/* .reset_stat = */ vinyl_engine_reset_stat,
 	/* .check_space_def = */ vinyl_engine_check_space_def,
+	/* .sql_stats_sample = */ NULL,
 };
 
 static const struct space_vtab vinyl_space_vtab = {
