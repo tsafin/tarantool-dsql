@@ -481,12 +481,13 @@ the `where.c` selectivity adapter wait for that interface.
   the complete non-NULL sample; partial joint samples use the independent
   estimate. Focused tests cover source precedence, strict/inclusive range
   boundaries, mixed range/equality matching, correlated q-error improvement,
-  fallback, and malformed input rejection. Multiple terms on one column,
-  partial-tuple matching,
-  dependencies, general correlation adjustment, normalized snapshot inputs,
-  schema/group selection, and `where.c` integration remain open; this does
-  not close S2.5. *parallel: yes for the standalone API; no for planner
-  integration, which touches `where.c`.
+  fallback, and malformed input rejection. HLL now has a separate composite
+  tuple input for joint-NDV sketching, but the selectivity API does not consume
+  it yet. Multiple terms on one column, joint-NDV-aware estimation,
+  partial-tuple matching, dependencies, general correlation adjustment,
+  normalized snapshot inputs, schema/group selection, and `where.c` integration
+  remain open; this does not close S2.5. *parallel: yes for the standalone
+  API; no for planner integration, which touches `where.c`.
 - [ ] **S2.6 prototype** Focused unit q-error probes cover a uniform
   1,000-value distribution, a 90%-hot skewed distribution, correlated joint
   equality, and a negatively correlated rare conjunction where the joint MCV

@@ -250,9 +250,10 @@ range term per column. It can evaluate mixed terms exactly only when the
 distinct joint tuples exhaust the complete non-NULL sample for all summarized
 columns; partial joint MCV samples deliberately use the per-column
 independence product rather than silently treating the MCV list as a full
-distribution. Multiple predicates on one column, joint NDV, dependency
-statistics, partial-tuple matching, and policy for choosing/storing
-multicolumn groups remain open.
+distribution. S2.2's composite HLL input can sketch joint NDV, but this
+selectivity API does not yet consume that estimate. Multiple predicates on
+one column, joint-NDV-aware selectivity, dependency statistics, partial-tuple
+matching, and policy for choosing/storing multicolumn groups remain open.
 
 The focused unit probe includes a uniform 1,000-distinct-value column and a
 skewed column with one value at 90% frequency. Equality and selected range
