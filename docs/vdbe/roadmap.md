@@ -677,7 +677,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `path_class` / `fallback_reason`, instead of hardcoding
   `current_where_c`. A multi-relation statement now produces and captures
   `fallback` / `UNSUPPORTED_RELATION_COUNT`; live harness capture now also
-  verifies aggregate, compound, DISTINCT, subquery, and CTE reasons. The M0
+  verifies aggregate, compound, DISTINCT, subquery, and CTE reasons. Constant
+  zero-source SELECTs now use the same relation-count reason; this changes L3
+  from their prior unclassified `current_where_c` value, so baseline recapture
+  and review of that path shift are still pending. The M0
   normalizer preserves path, reason, and `fallback_to: current_where_c`; live
   harness capture and schema validation exercise the complete route. Other
   new-planner/fallback classes, baseline recapture, and parity validation
