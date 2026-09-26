@@ -127,6 +127,11 @@ create_unit_test(PREFIX sql_plan_descriptor
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_plan_descriptor.c
                  LIBRARIES unit m
 )
+create_unit_test(PREFIX sql_logical_plan
+                 SOURCES sql_logical_plan.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_logical_plan.c
+                 LIBRARIES unit
+)
 create_unit_test(PREFIX bitset_basic
                  SOURCES bitset_basic.c
                  LIBRARIES bitset

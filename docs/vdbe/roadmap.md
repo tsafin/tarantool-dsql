@@ -429,7 +429,8 @@ persistence and the `where.c` selectivity adapter wait for that interface.
 equivalent (in result and diagnostic) to current `where.c` for a controlled
 single-table query class.
 
-**State:** `PROTOTYPE` (M3.1 descriptor contract only). Depends on the M1
+**State:** `PROTOTYPE` (M3.1 descriptor and structural M3.2 logical-plan
+builder). Depends on the M1
 path-class/replay contract and M0-A seed parity gate, not on S2. Use fixed
 or current estimates while the statistics track is under construction;
 integrate the real snapshot later.
@@ -459,8 +460,13 @@ DML, triggers, subprograms, non-deterministic functions.
 - [x] **M3.1** Physical-plan descriptor v1 — narrow form, single-table only.
   Written in `docs/vdbe/physical_plan_descriptor.md`. *parallel: no*
   (foundational contract).
-- [ ] **M3.2** Logical IR layer — resolved-tree → logical plan for the
-  supported scope. *parallel: yes*.
+- [x] **M3.2** Logical IR layer — resolved `Select` → single-relation
+  `Scan` / optional `Filter` / `Project` / optional `Sort` / optional
+  `Limit` chain. Expression trees are borrowed for statement lifetime; the
+  builder rejects major unsupported SELECT shapes, but deterministic or
+  side-effect-free expression validation remains a caller obligation. No
+  resolver/VDBE routing is wired. Focused unit test: `sql_logical_plan`.
+  *parallel: yes*.
 - [ ] **M3.3** Physical IR layer — logical → physical (access path
   selection for single relation). *parallel: yes*.
 - [ ] **M3.4** VDBE lowering — `lower_scan`, `lower_filter`, `lower_project`,

@@ -189,6 +189,15 @@ Start with small C structs, not a full class hierarchy:
 These should initially be internal compile-time objects allocated in the parse
 region or another statement-lifetime arena.
 
+The M3.2 prototype in `src/box/sql/sql_logical_plan.{h,c}` maps a resolved
+single-relation `Select` to a bottom-up chain of `Scan`, optional `Filter`,
+`Project`, optional `Sort`, and optional `Limit`. It borrows resolved
+expression lists and LIMIT/OFFSET expressions for the statement lifetime.
+This is structural IR only: it does not recognize nondeterministic functions,
+perform rewrites, select physical access paths, or route query compilation.
+The caller must reject side-effecting/nondeterministic expressions until that
+validation is implemented.
+
 ## Compatibility rule
 
 Every new planner phase must have an explicit, observable fallback:
