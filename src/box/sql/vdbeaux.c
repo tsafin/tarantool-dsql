@@ -1342,6 +1342,25 @@ sqlVdbeFrameDelete(VdbeFrame * p)
 int
 sqlVdbeList(Vdbe * p)
 {
+	if (p->explain == 3) {
+		Mem *pMem = &p->aMem[1];
+		releaseMemArray(pMem, 3);
+		p->pResultSet = NULL;
+		if (p->pc >= 2)
+			return SQL_DONE;
+		mem_set_str0_static(&pMem[0], "planner");
+		if (p->pc == 0) {
+			mem_set_str0_static(&pMem[1], "path_class");
+			mem_set_str0_static(&pMem[2], "current_where_c");
+		} else {
+			mem_set_str0_static(&pMem[1], "fallback_reason");
+			mem_set_null(&pMem[2]);
+		}
+		p->pc++;
+		p->nResColumn = 3;
+		p->pResultSet = pMem;
+		return SQL_ROW;
+	}
 	if ((p->explain_flags & SQL_EXPLAIN_DISASSEMBLE) != 0) {
 		Mem *pMem = &p->aMem[1];
 		releaseMemArray(pMem, 3);

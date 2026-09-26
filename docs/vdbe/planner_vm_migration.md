@@ -375,6 +375,24 @@ Fallback is a correctness mechanism, not a success metric. Record a stable
 reason code in `EXPLAIN`, metrics, and replay. Broad enablement requires a
 declining fallback rate for the target query class.
 
+### Planner summary result contract
+
+`EXPLAIN (planner = 'summary') <statement>` returns a stable three-column
+result set:
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| `section` | text | Summary group, initially `planner`. |
+| `key` | text | Stable field name within the section. |
+| `value` | text or NULL | Field value; NULL means unavailable or not applicable. |
+
+Rows are emitted in stable order. The initial implementation emits
+`planner.path_class` and `planner.fallback_reason`. Until the path-class
+producer and fallback propagation are wired, the legacy planner reports
+`current_where_c` and a NULL fallback reason. Later M1 fields (counters and
+replay identifiers) extend this row set without changing column names or
+types. Consumers should look up rows by `(section, key)`, not by ordinal.
+
 ## Testing Strategy
 
 The roadmap's M0 milestone establishes the **parity corpus** that all

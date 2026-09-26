@@ -39,6 +39,26 @@ i = s:create_index('i')
 box.execute('select * from "s"')
 s:drop()
 
+-- Planner summaries are stable structured rows and retain SQL metadata.
+--
+summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT 1]])
+assert(err == nil)
+assert(#summary.metadata == 3)
+assert(summary.metadata[1].name == 'section')
+assert(summary.metadata[2].name == 'key')
+assert(summary.metadata[3].name == 'value')
+assert(#summary.rows == 2)
+assert(summary.rows[1][1] == 'planner')
+assert(summary.rows[1][2] == 'path_class')
+assert(summary.rows[1][3] == 'current_where_c')
+assert(summary.rows[2][1] == 'planner')
+assert(summary.rows[2][2] == 'fallback_reason')
+assert(summary.rows[2][3] == nil)
+
+summary, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT 1]])
+assert(summary == nil)
+assert(err ~= nil)
+
 --
 -- gh-4267: Full power of vdbe_field_ref
 -- Tarantool's SQL internally stores data offset for all acceded

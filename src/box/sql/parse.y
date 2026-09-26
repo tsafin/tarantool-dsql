@@ -158,6 +158,30 @@ sql_set_explain_option(Parse *pParse, int *flags, const Token *name_token,
 	sql_xfree(name);
 }
 
+static void
+sql_set_explain_planner(Parse *pParse, const Token *name_token,
+			const Token *value_token)
+{
+	char *name = sql_name_from_token(name_token);
+	char *value = sql_name_from_token(value_token);
+	if (name == NULL || value == NULL) {
+		sql_xfree(name);
+		sql_xfree(value);
+		pParse->is_aborted = true;
+		return;
+	}
+	if (sqlStrICmp(name, "planner") != 0 ||
+	    sqlStrICmp(value, "summary") != 0) {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "unknown EXPLAIN planner option");
+		pParse->is_aborted = true;
+	} else {
+		pParse->explain = 3;
+	}
+	sql_xfree(name);
+	sql_xfree(value);
+}
+
 } // end %include
 
 // Define operator precedence early so that this is the first occurrence
@@ -1912,6 +1936,9 @@ explain ::= EXPLAIN LP explain_opt_list(X) RP. {
     pParse->explain = 1;
     pParse->explain_flags = (u8)X;
   }
+}
+explain ::= EXPLAIN LP nm(X) EQ STRING(Y) RP. {
+  sql_set_explain_planner(pParse, &X, &Y);
 }
 explain ::= EXPLAIN. { pParse->explain = 1; }
 explain ::= EXPLAIN QUERY PLAN.   { pParse->explain = 2; }
