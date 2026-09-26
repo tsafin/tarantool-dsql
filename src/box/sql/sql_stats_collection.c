@@ -47,6 +47,23 @@ valid_cardinality_semantics(enum sql_stats_cardinality_semantics semantics)
 	       semantics <= SQL_STATS_CARDINALITY_ESTIMATE;
 }
 
+bool
+sql_stats_collection_population_from_sample(
+	const struct sql_stats_sample_result *sample,
+	struct sql_stats_collected_population *population)
+{
+	if (sample == NULL || population == NULL || !sample->population_known ||
+	    (sample->visible_population == 0 && sample->rows != 0) ||
+	    (!sample->with_replacement &&
+	     sample->rows > sample->visible_population))
+		return false;
+	*population = (struct sql_stats_collected_population) {
+		.row_count = sample->visible_population,
+		.semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+	};
+	return true;
+}
+
 static const struct sql_stats_collected_relation *
 find_relation(const struct sql_stats_collection_result *result, uint32_t id)
 {

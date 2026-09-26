@@ -2,6 +2,7 @@
 #define TARANTOOL_SQL_STATS_COLLECTION_H
 
 #include "sql_stats_snapshot.h"
+#include "sql_stats_sample.h"
 
 /* Opaque producer-defined tokens: this API assigns no estimator policy. */
 struct sql_stats_collection_generation {
@@ -59,6 +60,24 @@ struct sql_stats_collection_result {
 	const struct sql_stats_collected_relation *relations;
 	size_t relation_count;
 };
+
+/* Exact relation population fact produced by an engine sampler. */
+struct sql_stats_collected_population {
+	uint64_t row_count;
+	enum sql_stats_cardinality_semantics semantics;
+};
+
+/*
+ * Extract the exact visible population from a successful engine sample.
+ * This does not establish/assign a visibility token or generation: the
+ * caller must capture that boundary around the engine call before combining
+ * the fact with any other summaries. Returns false for unknown or internally
+ * inconsistent sampler results.
+ */
+bool
+sql_stats_collection_population_from_sample(
+	const struct sql_stats_sample_result *sample,
+	struct sql_stats_collected_population *population);
 
 /*
  * Validate exact relation/index/prefix completeness and common generation,

@@ -217,6 +217,17 @@ generation are validated, and the width denominator count must be present and
 nonzero. The engine mechanism that establishes that boundary remains
 undefined.
 
+`sql_stats_collection_population_from_sample()` is a narrow producer bridge:
+when the engine reports a known population, it yields that visible population
+as relation cardinality rather than confusing it with delivered draws. It
+rejects unknown populations, a nonempty sample from an empty population, and a
+no-replacement sample larger than the population. This covers memtx
+replacement draws and Vinyl's successful exhaustive scan/reservoir result.
+The helper does not invent a visibility token or prove that catalog/schema
+capture spans the sampling call; the producer must still establish one common
+generation boundary. It also does not derive per-index populations, prefix
+NDVs, width, confidence, or a complete candidate.
+
 The in-memory snapshot API version is now 2 so the new provenance and width
 denominator metadata are explicit. Existing designated/zero-initialized
 snapshot callers may omit metadata and it stays unset, with no inferred
@@ -227,9 +238,13 @@ Unit tests cover complete construction and deep-copying, missing relations and
 indexes, missing prefixes, mismatched index definition/visibility/generation,
 mixed comparable population bases, invalid cardinality semantics and numeric
 values for relations and indices, and snapshot allocation-budget rejection.
-Actual allocator-fault injection and publication rollback are not covered:
-there is no publication in this slice. S1.3a remains incomplete until sampling
-producers populate this contract, a shared visibility/generation mechanism is
-defined, allocation-failure behavior is tested, and an independent
-publication step proves that failed construction preserves the installed
-snapshot. Nothing here enables `ANALYZE` or persistent statistics.
+Unit coverage verifies the engine-population-to-relation-count bridge,
+including replacement draws, no-replacement bounds, empty populations, and
+unknown/inconsistent results. Allocation failures are injected at snapshot
+deep-copy and collection staging points. There is still no publication in
+this slice, so publication rollback is not covered. S1.3a remains incomplete
+until a producer consumes sampled tuples to populate the remaining
+relation/index summaries, a shared visibility/generation mechanism is defined,
+and an independent publication step proves that failed construction preserves
+the installed snapshot. Nothing here enables `ANALYZE` or persistent
+statistics.

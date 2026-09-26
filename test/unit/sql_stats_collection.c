@@ -6,6 +6,38 @@
 #include "unit.h"
 
 static void
+test_population_from_engine_sample(void)
+{
+	plan(5);
+	header();
+	struct sql_stats_collected_population population;
+	struct sql_stats_sample_result sample = {
+		.rows = 8, .bytes = 256, .population_known = true,
+		.visible_population = 20, .with_replacement = true,
+	};
+	ok(sql_stats_collection_population_from_sample(&sample, &population) &&
+	   population.row_count == 20 &&
+	   population.semantics == SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+	   "memtx sample draws retain exact visible population, not draw count");
+	sample.with_replacement = false;
+	ok(sql_stats_collection_population_from_sample(&sample, &population),
+	   "exhaustive Vinyl population converts when sampled rows fit population");
+	sample.rows = 21;
+	ok(!sql_stats_collection_population_from_sample(&sample, &population),
+	   "without-replacement rows cannot exceed visible population");
+	sample.rows = 0;
+	sample.visible_population = 0;
+	ok(sql_stats_collection_population_from_sample(&sample, &population) &&
+	   population.row_count == 0,
+	   "empty visible population is a valid exact count");
+	sample.population_known = false;
+	ok(!sql_stats_collection_population_from_sample(&sample, &population),
+	   "unknown engine population cannot become exact relation count");
+	footer();
+	check_plan();
+}
+
+static void
 test_complete_result_and_rejections(void)
 {
 	plan(22);
@@ -173,6 +205,7 @@ test_complete_result_and_rejections(void)
 int
 main(void)
 {
+	test_population_from_engine_sample();
 	test_complete_result_and_rejections();
 	return 0;
 }
