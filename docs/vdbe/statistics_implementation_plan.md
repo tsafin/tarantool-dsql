@@ -67,8 +67,17 @@ struct SqlRelationStats {
 };
 ```
 
-The snapshot is compact, immutable, reference-counted at prepared-statement
-lifetime, and bounded by configuration. Planner inner loops only read it.
+The intended snapshot is compact, immutable, reference-counted at
+prepared-statement lifetime, and bounded by configuration. Planner inner
+loops only read it. The prototype API has not yet been wired into prepare or
+planner execution.
+
+The S1.4 API prototype currently records `confidence`, named cardinality
+semantics, `collected_at`, and `modification_epoch` per relation. It compares
+the caller's current schema version at lookup and returns `STALE` on mismatch.
+It intentionally does not define age thresholds, confidence decay, refresh
+scheduling, or persistent provenance; those policies remain part of S1/S2
+integration and the human-reviewed schema.
 
 ### Parallel contract boundary
 
