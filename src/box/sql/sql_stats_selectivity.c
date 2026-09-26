@@ -5,14 +5,19 @@
 static bool
 valid_summary(const struct sql_stats_column_summary *s)
 {
-	return s != NULL && isfinite(s->row_count) && s->row_count >= 0 &&
-		isfinite(s->null_fraction) && s->null_fraction >= 0 &&
-		s->null_fraction <= 1 && isfinite(s->distinct_count) &&
-	s->distinct_count >= 0 && isfinite(s->confidence) &&
-	s->confidence >= 0 && s->confidence <= 1 &&
-	(s->mcv_count == 0 || (s->mcv != NULL && s->compare != NULL)) &&
-	(s->histogram == NULL ||
-	 (s->compare != NULL && s->sample_nonnull_rows != 0));
+	if (s == NULL || !isfinite(s->row_count) || s->row_count < 0 ||
+	    !isfinite(s->null_fraction) || s->null_fraction < 0 ||
+	    s->null_fraction > 1 || !isfinite(s->distinct_count) ||
+	    s->distinct_count < 0 || !isfinite(s->confidence) ||
+	    s->confidence < 0 || s->confidence > 1 ||
+	    (s->mcv_count != 0 && (s->mcv == NULL || s->compare == NULL)) ||
+	    (s->mcv_count > s->distinct_count) ||
+	    (s->row_count > 0 && s->null_fraction < 1 &&
+	     s->distinct_count < 1) ||
+	    (s->histogram != NULL &&
+	     (s->compare == NULL || s->sample_nonnull_rows == 0)))
+		return false;
+	return true;
 }
 
 static double
@@ -120,6 +125,11 @@ sql_stats_estimate_range(const struct sql_stats_column_summary *s,
 	}
 	size_t buckets = sql_stats_histogram_bucket_count(s->histogram);
 	if (buckets == 0)
+		return -1;
+	struct sql_stats_histogram_bucket tail;
+	if (sql_stats_histogram_get_bucket(s->histogram, buckets - 1,
+					   &tail) != 0 ||
+	    tail.cumulative_count != s->sample_nonnull_rows)
 		return -1;
 	uint64_t previous_count = 0;
 	double fraction = 0;

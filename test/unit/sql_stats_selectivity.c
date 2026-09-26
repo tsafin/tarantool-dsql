@@ -91,7 +91,7 @@ test_exact_mcv_and_independence(void)
 static void
 test_histogram_ranges(void)
 {
-	plan(7);
+	plan(8);
 	header();
 	int keys[] = {1, 1, 2, 2, 3, 3, 4, 4};
 	struct sql_stats_ordered_value values[8];
@@ -139,6 +139,10 @@ test_histogram_ranges(void)
 	ok(sql_stats_estimate_range(&summary, &boundary, sizeof(boundary),
 		(enum sql_stats_range_operator)99, &result) == -1,
 	   "invalid range operator rejected");
+	summary.sample_nonnull_rows = 7;
+	ok(sql_stats_estimate_range(&summary, &boundary, sizeof(boundary),
+		SQL_STATS_RANGE_LE, &result) == -1,
+	   "histogram sample-size mismatch rejected");
 	sql_stats_histogram_delete(hist);
 	footer();
 	check_plan();
