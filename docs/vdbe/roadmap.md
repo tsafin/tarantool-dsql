@@ -571,11 +571,13 @@ the `where.c` selectivity adapter wait for that interface.
   normalized snapshot inputs, schema/group selection, and `where.c` integration
   remain open; this does not close S2.5. *parallel: yes for the standalone
   API; no for planner integration, which touches `where.c`.
-- [ ] **S2.6 prototype** Focused unit q-error probes cover a uniform
+- [x] **S2.6 prototype** Focused unit q-error probes cover a uniform
   1,000-value distribution, a 90%-hot skewed distribution, correlated joint
   equality, and a negatively correlated rare conjunction where the joint MCV
   corrects independence's q-error from 25 to 1. A complete joint sample also
   corrects a mixed range/equality correlation probe's q-error from 2 to 1.
+  A NULL-heavy (90%) fixture checks `IS NULL`, MCV, and residual equality
+  estimates against their known frequencies, each at q-error 1.
   These validate the standalone estimator only; the M0 SQL corpus still lacks
   correlated/anti-correlated and stale-stat variants. A synthetic stale-MCV
   probe now demonstrates that a distribution shift can worsen q-error while

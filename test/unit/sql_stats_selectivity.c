@@ -643,6 +643,37 @@ test_uniform_and_skewed_qerror(void)
 }
 
 static void
+test_null_heavy_qerror(void)
+{
+	plan(3);
+	header();
+	int hot = 7;
+	int cold = 9;
+	struct sql_stats_mcv_sample mcv = {
+		.value = &hot, .value_size = sizeof(hot), .count = 50,
+	};
+	struct sql_stats_column_summary summary = {
+		.row_count = 1000, .null_fraction = 0.9, .distinct_count = 6,
+		.confidence = 1, .sample_nonnull_rows = 100,
+		.mcv = &mcv, .mcv_count = 1, .compare = compare_int,
+	};
+	struct sql_stats_selectivity result;
+	ok(sql_stats_estimate_equality(&summary, NULL, 0, true, &result) == 0 &&
+	   q_error(result.value, 0.9) <= 1.0000001,
+	   "NULL-heavy IS NULL q-error is one");
+	ok(sql_stats_estimate_equality(&summary, &hot, sizeof(hot), false,
+				       &result) == 0 &&
+	   q_error(result.value, 0.05) <= 1.0000001,
+	   "NULL-heavy MCV equality q-error is one");
+	ok(sql_stats_estimate_equality(&summary, &cold, sizeof(cold), false,
+				       &result) == 0 &&
+	   q_error(result.value, 0.01) <= 1.0000001,
+	   "NULL-heavy residual equality q-error is one");
+	footer();
+	check_plan();
+}
+
+static void
 test_stale_summary_qerror(void)
 {
 	plan(3);
@@ -741,6 +772,7 @@ main(void)
 	test_exact_mcv_and_independence();
 	test_histogram_ranges();
 	test_uniform_and_skewed_qerror();
+	test_null_heavy_qerror();
 	test_joint_mcv_equality_conjunction();
 	test_joint_mcv_range_conjunction();
 	test_same_column_equality_constraints();
