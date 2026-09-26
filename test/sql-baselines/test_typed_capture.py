@@ -40,7 +40,9 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("sql_type: datetime", snapshot)
             self.assertIn("sql_type: array", snapshot)
             self.assertIn("sql_type: map", snapshot)
-            self.assertIn("taken: current_where_c", snapshot)
+            self.assertIn("taken: fallback", snapshot)
+            self.assertIn("reason: UNSUPPORTED_RELATION_COUNT", snapshot)
+            self.assertIn("fallback_to: current_where_c", snapshot)
             self.assertNotIn("table: 0x", snapshot)
             rejected_select = (out / "snapshots/sql-tap/typed_sql/q02.memtx.yaml").read_text()
             self.assertIn("status: error", rejected_select)
@@ -50,6 +52,8 @@ class TypedCaptureTest(unittest.TestCase):
             manifest = json.loads((out / "manifests/sql-tap/typed_sql.memtx.json").read_text())
             self.assertEqual(manifest["captured_queries"], 3)
             self.assertEqual(len(manifest["planner_metrics"]), 1)
+            self.assertEqual(manifest["planner_metrics"][0]["path_class"], "fallback")
+            self.assertEqual(manifest["planner_metrics"][0]["fallback_count"], 1)
 
     def test_fallback_reason_survives_sql_snapshot_capture(self):
         if not BINARY.is_file():
