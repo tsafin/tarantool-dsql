@@ -329,7 +329,9 @@ put_index(struct replay_writer *w, const struct sql_replay_index *idx)
 		return false;
 	if (!idx->statistics_present)
 		return put_nil(w);
-	if (!put_map(w, 4) || !put_string(w, "distinct_prefixes") ||
+	if (!put_map(w, 6) || !put_string(w, "definition_version") ||
+	    !put_uint(w, idx->definition_version) ||
+	    !put_string(w, "distinct_prefixes") ||
 	    !put_array(w, idx->prefix_count))
 		return false;
 	for (size_t i = 0; i < idx->prefix_count; i++)
@@ -338,7 +340,9 @@ put_index(struct replay_writer *w, const struct sql_replay_index *idx)
 	return put_string(w, "ndv_basis") && put_string(w, idx->ndv_basis) &&
 	       put_string(w, "population_basis") &&
 	       put_string(w, idx->population_basis) &&
-	       put_string(w, "tuple_count") && put_uint(w, idx->tuple_count);
+	       put_string(w, "tuple_count") && put_uint(w, idx->tuple_count) &&
+	       put_string(w, "tuple_count_semantics") &&
+	       put_uint(w, idx->tuple_count_semantics);
 }
 
 static bool
@@ -425,7 +429,15 @@ sql_replay_input_serialize(const struct sql_replay_input *in,
 			    strcmp(idx->logical_key, in->indexes[j].logical_key) == 0)
 				return SQL_REPLAY_INPUT_INVALID;
 		if (idx->statistics_present) {
-			if (!in->statistics_present || idx->tuple_count > in->row_count ||
+			if (!in->statistics_present || idx->definition_version == 0 ||
+			    idx->tuple_count_semantics <
+				    SQL_REPLAY_CARDINALITY_VISIBLE_ROWS ||
+			    idx->tuple_count_semantics > SQL_REPLAY_CARDINALITY_ESTIMATE ||
+			    (idx->tuple_count_semantics ==
+				     SQL_REPLAY_CARDINALITY_VISIBLE_ROWS &&
+			     in->cardinality_semantics ==
+				     SQL_REPLAY_CARDINALITY_VISIBLE_ROWS &&
+			     idx->tuple_count > in->row_count) ||
 			    idx->population_basis == NULL ||
 			    idx->population_basis[0] == '\0' || idx->ndv_basis == NULL ||
 			    idx->ndv_basis[0] == '\0' ||
@@ -437,7 +449,9 @@ sql_replay_input_serialize(const struct sql_replay_input *in,
 				    (j != 0 && idx->distinct_prefixes[j] <
 				     idx->distinct_prefixes[j - 1]))
 					return SQL_REPLAY_INPUT_INVALID;
-		} else if (idx->tuple_count != 0 || idx->population_basis != NULL ||
+		} else if (idx->tuple_count != 0 || idx->tuple_count_semantics != 0 ||
+			   idx->definition_version != 0 ||
+			   idx->population_basis != NULL ||
 			   idx->ndv_basis != NULL || idx->prefix_count != 0 ||
 			   idx->distinct_prefixes != NULL) {
 			return SQL_REPLAY_INPUT_INVALID;
@@ -511,7 +525,7 @@ sql_replay_input_serialize(const struct sql_replay_input *in,
 	PUT(put_string(&w, "relation"));
 	PUT(put_relation(&w, in, indexes));
 	PUT(put_string(&w, "version"));
-	PUT(put_uint(&w, 1));
+	PUT(put_uint(&w, 2));
 	free(indexes);
 	*data = w.data;
 	*size = w.size;
@@ -617,6 +631,10 @@ valid_index_specs(const struct sql_replay_input_spec *spec)
 		if (idx->statistics_present) {
 			if (idx->population_basis == NULL || idx->population_basis[0] == '\0' ||
 			    idx->ndv_basis == NULL || idx->ndv_basis[0] == '\0' ||
+			    idx->definition_version == 0 ||
+			    idx->tuple_count_semantics <
+				    SQL_REPLAY_CARDINALITY_VISIBLE_ROWS ||
+			    idx->tuple_count_semantics > SQL_REPLAY_CARDINALITY_ESTIMATE ||
 			    idx->prefix_count != idx->part_count ||
 			    !r->statistics_present)
 				return false;
@@ -627,7 +645,9 @@ valid_index_specs(const struct sql_replay_input_spec *spec)
 					return false;
 				prev = ndv;
 			}
-		} else if (idx->tuple_count != 0 || idx->population_basis != NULL ||
+		} else if (idx->tuple_count != 0 || idx->tuple_count_semantics != 0 ||
+			   idx->definition_version != 0 ||
+			   idx->population_basis != NULL ||
 			   idx->ndv_basis != NULL || idx->prefix_count != 0) {
 			return false;
 		}
@@ -733,6 +753,8 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 		dst->part_count = src->part_count;
 		dst->statistics_present = src->statistics_present;
 		dst->tuple_count = src->tuple_count;
+		dst->tuple_count_semantics = src->tuple_count_semantics;
+		dst->definition_version = src->definition_version;
 		dst->prefix_count = src->prefix_count;
 		dst->part_columns = malloc(src->part_count * sizeof(*dst->part_columns));
 		if (dst->part_columns == NULL)

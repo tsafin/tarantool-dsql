@@ -367,10 +367,11 @@ them.
   in M1.5. The M1.4 owned-value prototype now models a normalized
   single-relation SELECT subset (predicate, projections, ordering, limit and
   offset), logical columns and index parts, and relation/index statistics
-  with population, width, NDV, confidence, and freshness semantics. Validation
+  with population, width, NDV, confidence, and freshness semantics, including
+  per-index tuple-count semantics and definition version. Validation
   rejects incomplete definitions, invalid index ordinals, inconsistent stats
   absence, and malformed limit/order metadata. A deterministic internal
-  MsgPack input format v1 now emits fixed lexicographic map-key order, sorts
+  MsgPack input format v2 emits fixed lexicographic map-key order, sorts
   logical indexes by key, and preserves semantically ordered columns,
   projections, ordering, and key parts. Reordered equivalent index inputs
   serialize to byte-identical valid MsgPack. Predicate, projection, and
@@ -391,7 +392,7 @@ them.
   copies current-schema relation and index summaries from an immutable
   `SqlStatsSnapshot`, including population/NDV provenance, width, confidence,
   and freshness fields. Missing or stale relation summaries stay explicitly
-  absent; malformed or non-integral values that replay input v1 cannot
+  absent; malformed or non-integral values that replay input v2 cannot
   represent exactly fail closed. Planner configuration remains caller-
   supplied. All extractors reject unsupported cursor bindings,
   expressions/functions, limits, and SELECT structure without returning

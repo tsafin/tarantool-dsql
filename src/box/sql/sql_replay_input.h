@@ -7,7 +7,8 @@
 
 enum sql_replay_cardinality_semantics {
 	SQL_REPLAY_CARDINALITY_VISIBLE_ROWS = 1,
-	SQL_REPLAY_CARDINALITY_ESTIMATE = 2,
+	SQL_REPLAY_CARDINALITY_PHYSICAL_TUPLES = 2,
+	SQL_REPLAY_CARDINALITY_ESTIMATE = 3,
 };
 
 struct sql_replay_index_spec {
@@ -17,6 +18,8 @@ struct sql_replay_index_spec {
 	size_t part_count;
 	bool statistics_present;
 	uint64_t tuple_count;
+	enum sql_replay_cardinality_semantics tuple_count_semantics;
+	uint64_t definition_version;
 	const char *population_basis;
 	const char *ndv_basis;
 	const uint64_t *distinct_prefixes;
@@ -81,6 +84,8 @@ struct sql_replay_index {
 	size_t part_count;
 	bool statistics_present;
 	uint64_t tuple_count;
+	enum sql_replay_cardinality_semantics tuple_count_semantics;
+	uint64_t definition_version;
 	char *population_basis;
 	char *ndv_basis;
 	uint64_t *distinct_prefixes;
@@ -141,7 +146,7 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 			struct sql_replay_input **result);
 void sql_replay_input_delete(struct sql_replay_input *input);
 
-/* Return owned deterministic MsgPack bytes for input format version 1. */
+/* Return owned deterministic MsgPack bytes for input format version 2. */
 enum sql_replay_input_status
 sql_replay_input_serialize(const struct sql_replay_input *input,
 			   char **data, size_t *size);

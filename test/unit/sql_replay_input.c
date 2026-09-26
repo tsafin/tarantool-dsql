@@ -232,8 +232,8 @@ test_extract_select_from_catalog(void)
 	const uint32_t cursor_map[] = {UINT32_MAX, 0};
 	uint64_t distinct_prefixes[] = {12};
 	struct sql_stats_index_input index_stats = {
-		.index_id = 88, .tuple_count = 42,
-		.tuple_count_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.index_id = 88, .tuple_count = 50,
+		.tuple_count_semantics = SQL_STATS_CARDINALITY_PHYSICAL_TUPLES,
 		.population_basis = "visible_rows@view-7",
 		.ndv_basis = "visible_rows@view-7", .definition_version = 1,
 		.distinct_prefixes = distinct_prefixes, .prefix_count = 1,
@@ -262,7 +262,9 @@ test_extract_select_from_catalog(void)
 	   input->average_row_width == 11 && input->confidence_ppm == 750000 &&
 	   input->collected_at == 99 && input->modification_epoch == 3 &&
 	   input->index_count == 1 && input->indexes[0].statistics_present &&
-	   input->indexes[0].tuple_count == 42 &&
+	   input->indexes[0].tuple_count == 50 &&
+	   input->indexes[0].tuple_count_semantics ==
+		   SQL_REPLAY_CARDINALITY_PHYSICAL_TUPLES &&
 	   input->indexes[0].distinct_prefixes[0] == 12,
 	   "catalog SELECT extraction captures detached schema, stats, and config");
 	char *bytes = NULL;
@@ -295,7 +297,7 @@ test_extract_select_from_catalog(void)
 	ok(snapshot != NULL && sql_replay_input_extract_select_from_snapshot(
 		   &select, cursor_map, 2, 1, 2, 4, snapshot, 5, &input) ==
 	   SQL_REPLAY_INPUT_INVALID && input == NULL,
-	   "fractional cardinality not representable in v1 fails closed");
+	   "fractional cardinality not representable in v2 fails closed");
 	if (snapshot != NULL)
 		sql_stats_snapshot_release(snapshot);
 	free(key);
@@ -328,6 +330,8 @@ test_detached_single_relation_select(void)
 		.logical_key = index_key, .canonical_definition = index_def,
 		.part_columns = part_columns, .part_count = 1,
 		.statistics_present = true, .tuple_count = 12,
+		.tuple_count_semantics = SQL_REPLAY_CARDINALITY_VISIBLE_ROWS,
+		.definition_version = 1,
 		.population_basis = pop_basis, .ndv_basis = ndv_basis,
 		.distinct_prefixes = distinct_prefixes, .prefix_count = 1,
 	}};
@@ -438,6 +442,8 @@ test_detached_single_relation_select(void)
 	indexes[0].part_count = 1;
 	indexes[0].statistics_present = true;
 	indexes[0].tuple_count = 12;
+	indexes[0].tuple_count_semantics = SQL_REPLAY_CARDINALITY_VISIBLE_ROWS;
+	indexes[0].definition_version = 1;
 	columns[0] = (struct sql_replay_column_spec){"integer", "binary"};
 	columns[1] = (struct sql_replay_column_spec){"string", "binary"};
 	projections[0] = "col(r0,c0)";

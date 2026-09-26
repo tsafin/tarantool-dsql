@@ -481,8 +481,9 @@ predicate/projection/order expressions validated against its narrow canonical
 scalar-expression grammar and relation column bounds, limit/offset, logical relation column
 types/collations, logical index definitions and part ordinals, relation/index
 population and NDV statistics, confidence/freshness metadata, and planner
-configuration scalars. It copies supplied values and stores no live `Expr`,
-catalog handle, cursor, or storage ID. It emits an internal version-1 MsgPack
+configuration scalars, plus per-index tuple-count semantics and definition
+version. It copies supplied values and stores no live `Expr`, catalog handle,
+cursor, or storage ID. It emits an internal version-2 MsgPack
 representation with fixed map-key order and logical-index ordering. It still
 does not validate relation/index schema-definition syntax or feed a planner.
 `sql_replay_input_extract_select()` now accepts a resolved single-relation
@@ -498,7 +499,7 @@ point leaves statistics absent. The snapshot-backed variant copies measured
 relation/index summaries and their semantics, provenance, confidence, and
 freshness from an immutable provider; stale or missing relation statistics
 remain explicitly absent, while values not exactly representable by replay
-input v1 fail closed. Planner configuration remains caller-supplied. The
+input v2 fail closed. Planner configuration remains caller-supplied. The
 extractor canonicalizes predicate, projection, and ordering
 expressions, captures sort direction and Tarantool's default NULL ordering,
 and extracts nonnegative integer literal LIMIT/OFFSET values. Unsupported

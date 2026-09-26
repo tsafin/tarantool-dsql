@@ -350,6 +350,17 @@ sql_replay_input_extract_select_from_snapshot(
 			indexes[i].statistics_present = true;
 			indexes[i].tuple_count =
 				sql_stats_index_tuple_count(stats_index);
+			enum sql_stats_cardinality_semantics index_semantics =
+				sql_stats_index_tuple_count_semantics(stats_index);
+			if (index_semantics < SQL_STATS_CARDINALITY_VISIBLE_ROWS ||
+			    index_semantics > SQL_STATS_CARDINALITY_ESTIMATE) {
+				status = SQL_REPLAY_INPUT_INVALID;
+				goto cleanup;
+			}
+			indexes[i].tuple_count_semantics =
+				(enum sql_replay_cardinality_semantics)index_semantics;
+			indexes[i].definition_version =
+				sql_stats_index_definition_version(stats_index);
 			indexes[i].population_basis =
 				sql_stats_index_population_basis(stats_index);
 			indexes[i].ndv_basis = sql_stats_index_ndv_basis(stats_index);
