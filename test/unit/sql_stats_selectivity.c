@@ -23,7 +23,7 @@ compare_int(const void *a, size_t a_size, const void *b, size_t b_size,
 static void
 test_exact_mcv_and_independence(void)
 {
-	plan(8);
+	plan(9);
 	header();
 	int hot = 2;
 	struct sql_stats_mcv_sample mcv[] = {
@@ -84,6 +84,16 @@ test_exact_mcv_and_independence(void)
 	ok(sql_stats_estimate_equality(&invalid, &cold, sizeof(cold), false,
 				       &result) == -1,
 	   "invalid column summary rejected");
+	struct sql_stats_mcv_sample duplicates[] = {
+		{.value = &hot, .value_size = sizeof(hot), .count = 3},
+		{.value = &hot, .value_size = sizeof(hot), .count = 1},
+	};
+	invalid = summary;
+	invalid.mcv = duplicates;
+	invalid.mcv_count = 2;
+	ok(sql_stats_estimate_equality(&invalid, &hot, sizeof(hot), false,
+				       &result) == -1,
+	   "duplicate MCV entries rejected");
 	footer();
 	check_plan();
 }

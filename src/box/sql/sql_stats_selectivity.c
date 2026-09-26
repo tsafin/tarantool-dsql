@@ -44,10 +44,17 @@ valid_mcv(const struct sql_stats_column_summary *s)
 {
 	uint64_t total = 0;
 	for (size_t i = 0; i < s->mcv_count; i++) {
-		if ((s->mcv[i].value == NULL && s->mcv[i].value_size != 0) ||
+		if (s->mcv[i].count == 0 ||
+		    (s->mcv[i].value == NULL && s->mcv[i].value_size != 0) ||
 		    total > s->sample_nonnull_rows ||
 		    s->mcv[i].count > s->sample_nonnull_rows - total)
 			return false;
+		for (size_t j = 0; j < i; j++) {
+			if (s->compare(s->mcv[i].value, s->mcv[i].value_size,
+				       s->mcv[j].value, s->mcv[j].value_size,
+				       s->compare_context) == 0)
+				return false;
+		}
 		total += s->mcv[i].count;
 	}
 	return true;
