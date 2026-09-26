@@ -790,6 +790,40 @@ workloads.
   emitted to M0 corpus;
 - A/B comparison against fixed-1/5/10 widths on the corpus.
 
+**Acceptance decision (2026-09-26):** retain the production defaults at
+1/5/10. The 2/8/16 configuration remains experimental; the full reviewed
+SQL-TAP comparison is evidence of repeatability and width sensitivity, not an
+acceptance of wider defaults. Its three cross-width differences are confined
+to explicit EXPLAIN captures and the SQL-TAP runs pass, but strict snapshot
+parity is false. More importantly, summed planner time is 2.58× (memtx) and
+2.52× (Vinyl) for the candidate, while the run measures neither end-to-end
+query latency nor plan quality. The capture also excludes SQL and
+SQL-luatest M0 suites and is not hosted CI. Of 24,263 memtx and 22,135 Vinyl
+successful planner snapshots, only 6,314 and 6,237 respectively used
+`current_where_c`; the rest were fallback or null path classes. This therefore
+does not establish the value of wider bounds for an integrated M3/S2 planner.
+
+Before E1 can be accepted or the defaults reconsidered, record all of the
+following in a reviewed decision report:
+
+- explain and disposition the three width-sensitive EXPLAIN captures
+  (`select6/q96`, `where2/q128`, `whereK/q13`) without treating expected plan
+  text differences as semantic regressions or silently excluding them;
+- run candidate-vs-default parity over the accepted M0 SQL and SQL-luatest
+  scope, on both engines and supported dispatchers, with semantic result
+  parity reported separately from plan/diagnostic output;
+- evaluate the integrated M3/S2 path on an agreed analytical workload, with
+  executed-result correctness and a reviewed plan-quality measure (for
+  example, cardinality q-error against actual rows), not EXPLAIN shape alone;
+- measure end-to-end query latency as well as planner cost on that workload,
+  with repeated runs and a documented acceptance threshold that justifies any
+  wider-budget cost.
+
+Until those gates pass and are reviewed, do not change the 1/5/10 defaults or
+claim a production plan-quality improvement. The detailed capture, counts,
+timings, and reproducible command are in `test/sql-baselines/PLANNER_AB.md`;
+the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
+
 **Subtasks:**
 
 - [x] **E1.1** `wherePathSolver` beam widths are configurable at process start
