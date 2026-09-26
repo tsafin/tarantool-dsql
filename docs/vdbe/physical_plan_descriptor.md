@@ -28,7 +28,10 @@ the least estimated total cost (stable ties by access kind then index ID) and
 builds this descriptor. It handles primary/secondary point lookup, range,
 index full scan, and table full scan. This remains an explicit candidate
 interface, not SQL expression analysis or `where.c` routing; the current
-logical IR has no stable expression-ID normalization contract yet.
+logical IR does not consume the isolated `sql_expr_canonicalize()` helper.
+Descriptor expression references therefore still lack stable normalized
+identities, and this selector is not a detached normalized-input model for
+M1 replay.
 
 M3.4 adds `sql_plan_lower()`, an ordered callback contract over a descriptor:
 scan, each residual filter, projection, each finalize operator (sort/limit),
