@@ -27,7 +27,7 @@ coll_by_id(uint32_t id)
 static void
 test_detached_catalog_schema(void)
 {
-	plan(6);
+	plan(12);
 	header();
 	struct field_def fields[] = {
 		{.type = FIELD_TYPE_INTEGER, .name = "id",
@@ -101,6 +101,93 @@ test_detached_catalog_schema(void)
 	ok(sql_replay_space_schema_create(&space, &schema) ==
 	   SQL_REPLAY_INPUT_INVALID && schema.relation.columns == NULL,
 	   "functional index with unmodeled identity fails closed");
+	free(key_def);
+	free(space_def);
+	/* Unsupported schema shapes must fail closed without leaking partial data. */
+	space_def = calloc(1, def_size);
+	key_def = calloc(1, sizeof(*key_def) + sizeof(key_def->parts[0]));
+	if (space_def == NULL || key_def == NULL) {
+		ok(false, "unsupported-schema fixture allocations succeed");
+		free(space_def);
+		free(key_def);
+		for (int i = 0; i < 5; i++)
+			ok(false, "unsupported schema assertions require fixture");
+		footer();
+		check_plan();
+		return;
+	}
+	strcpy(space_def->name, "alpha");
+	space_def->id = 1234;
+	space_def->field_count = 2;
+	space_def->fields = fields;
+	key_def->part_count = 1;
+	key_def->parts[0] = (struct key_part) {
+		.fieldno = 0, .type = FIELD_TYPE_INTEGER,
+		.sort_order = SORT_ORDER_ASC,
+		.nullable_action = ON_CONFLICT_ACTION_ABORT,
+	};
+	struct index_def bad_index_def = {
+		.iid = 88, .space_id = 1234, .name = "bad",
+		.type = TREE, .opts = {.hint = INDEX_HINT_DEFAULT},
+		.key_def = key_def,
+	};
+	struct index bad_index = {.def = &bad_index_def};
+	struct index *bad_indexes[] = {&bad_index};
+	space = (struct space) {
+		.def = space_def, .index_count = 1, .index = bad_indexes,
+	};
+	struct sql_replay_space_schema rejected;
+	key_def->is_multikey = true;
+	ok(sql_replay_space_schema_create(&space, &rejected) ==
+	   SQL_REPLAY_INPUT_INVALID && rejected.relation.columns == NULL,
+	   "multikey index metadata is rejected without returning a partial schema");
+	key_def->is_multikey = false;
+	space_def->opts.is_view = true;
+	ok(sql_replay_space_schema_create(&space, &rejected) ==
+	   SQL_REPLAY_INPUT_INVALID && rejected.relation.columns == NULL,
+	   "views are rejected without returning a partial schema");
+	space_def->opts.is_view = false;
+	key_def->parts[0].fieldno = 2;
+	ok(sql_replay_space_schema_create(&space, &rejected) ==
+	   SQL_REPLAY_INPUT_INVALID && rejected.relation.columns == NULL,
+	   "out-of-range index field ordinal is rejected");
+	key_def->parts[0].fieldno = 0;
+	key_def->parts[0].path_len = 1;
+	key_def->parts[0].path = NULL;
+	ok(sql_replay_space_schema_create(&space, &rejected) ==
+	   SQL_REPLAY_INPUT_INVALID && rejected.relation.indexes == NULL,
+	   "malformed JSON path metadata is rejected");
+	key_def->parts[0].path_len = 0;
+	key_def->parts[0].path = NULL;
+	key_def->parts[0].coll_id = 77;
+	ok(sql_replay_space_schema_create(&space, &rejected) ==
+	   SQL_REPLAY_INPUT_INVALID && rejected.relation.columns == NULL,
+	   "unknown collation metadata is rejected");
+	key_def->parts[0].coll_id = COLL_NONE;
+	struct key_def *bad_key_def = calloc(1, sizeof(*bad_key_def) +
+						 sizeof(bad_key_def->parts[0]));
+	if (bad_key_def == NULL) {
+		ok(false, "partial-cleanup fixture allocation succeeds");
+		ok(false, "partial-cleanup assertions require fixture");
+	} else {
+		bad_key_def->part_count = 1;
+		bad_key_def->parts[0] = key_def->parts[0];
+		bad_key_def->parts[0].fieldno = 9;
+		struct index_def bad_second_def = bad_index_def;
+		bad_second_def.iid = 89;
+		bad_second_def.name = "bad_second";
+		bad_second_def.key_def = bad_key_def;
+		struct index bad_second = {.def = &bad_second_def};
+		struct index *two_indexes[] = {&bad_index, &bad_second};
+		space.index_count = 2;
+		space.index = two_indexes;
+		ok(sql_replay_space_schema_create(&space, &rejected) ==
+		   SQL_REPLAY_INPUT_INVALID && rejected.relation.columns == NULL &&
+		   rejected.relation.indexes == NULL &&
+		   rejected.storage_index_ids == NULL,
+		   "later malformed index releases earlier partially built schema");
+		free(bad_key_def);
+	}
 	free(key_def);
 	free(space_def);
 	footer();
