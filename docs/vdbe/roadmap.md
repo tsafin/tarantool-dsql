@@ -819,7 +819,19 @@ M0-B corpus for the evaluation workloads.
   exploratory subset is repeat-stable but has one width-sensitive
   `EXPLAIN QUERY PLAN` output difference (`whereK/q13`) on both engines; it is
   not counted as a full snapshot parity pass, though both configurations pass
-  the corresponding whereK SQL result assertions. *parallel: yes*.
+  the corresponding whereK SQL result assertions. A new reproducible
+  `--full-corpus` mode completed default and candidate captures plus repeats
+  across all reviewed SQL-TAP tests: 47,946 memtx and 37,990 Vinyl query
+  snapshots per capture. Within-width repeats are exact and planner metrics
+  are repeat-stable; strict cross-width snapshot parity is false with exactly
+  three identical explicit EXPLAIN / EXPLAIN QUERY PLAN differences per
+  engine (`select6/q96`, `where2/q128`, `whereK/q13`). All SQL-TAP runs passed;
+  no accepted snapshots changed. The last two are plan/estimate diagnostic
+  changes, and all three source statements are EXPLAIN captures. Aggregate
+  planner metrics changed as widths changed, but `elapsed_us` remained zero,
+  so this proves neither lower latency nor improved plan quality. Exact details
+  and reproduction instructions are in `test/sql-baselines/PLANNER_AB.md`;
+  full-width plan-quality evaluation remains open. *parallel: yes*.
 
 ---
 
