@@ -78,9 +78,16 @@ def selected_sql(policy, names, engine, budget):
         row = included.get(identity)
         if row is None or engine not in row["engines"]:
             raise ValueError(f"not reviewed for {engine}: {identity}")
-        count = row.get("evidence", {}).get(engine, {}).get("capture", {}).get("audit_queries")
+        evidence = row.get("evidence", {}).get(engine, {})
+        count = evidence.get("capture", {}).get("audit_queries")
         if type(count) is not int or count < 1:
-            raise ValueError(f"missing reviewed audit query count: {identity}/{engine}")
+            matrix = evidence.get("matrix", {})
+            mode_counts = matrix.get("mode_queries", {})
+            count = mode_counts.get("generated")
+            if matrix.get("status") != "accepted":
+                count = None
+        if type(count) is not int or count < 1:
+            raise ValueError(f"missing reviewed query count: {identity}/{engine}")
         total += count
     if total > budget:
         raise ValueError(f"reviewed subset has {total} queries, exceeds {budget}")

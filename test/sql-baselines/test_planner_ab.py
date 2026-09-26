@@ -43,9 +43,16 @@ class PlannerABTest(unittest.TestCase):
         for engine, budget in (("vinyl", 3), ("memtx", 2)):
             with self.assertRaises(ValueError):
                 ab.selected_sql(policy, ["autoincrement.test.lua"], engine, budget)
-        policy["included"][0]["evidence"]["memtx"]["capture"]["audit_queries"] = 0
+        vinyl_policy = {"included": [{"test": "sql/transition.test.lua",
+                         "engines": ["vinyl"], "evidence": {"vinyl": {
+                             "capture": {"audit_status": "timeout"},
+                             "matrix": {"status": "accepted",
+                                        "mode_queries": {"generated": 44}}}}}]}
+        self.assertEqual(ab.selected_sql(vinyl_policy,
+                         ["transition.test.lua"], "vinyl", 44), 44)
+        vinyl_policy["included"][0]["evidence"]["vinyl"]["matrix"]["status"] = "failed"
         with self.assertRaises(ValueError):
-            ab.selected_sql(policy, ["autoincrement.test.lua"], "memtx", 3)
+            ab.selected_sql(vinyl_policy, ["transition.test.lua"], "vinyl", 44)
 
     def test_full_sql_corpus_selection_tracks_engine_eligibility(self):
         import json
