@@ -726,9 +726,15 @@ DML, triggers, subprograms, non-deterministic functions.
   `sql-tap/aggnested.test.lua` and correctly failed closed because that old
   server cannot return the MsgPack envelope for `EXPLAIN (planner =
   'snapshot')`. No snapshots were promoted and no parity claim is made. The
-  original anchor predates the diagnostic API; completing recapture requires
-  a reviewed snapshot-capable baseline anchor or an explicitly versioned
-  legacy capture contract. *parallel: yes*.
+  original anchor predates the diagnostic API. An exploratory capture from
+  snapshot-capable anchor `2bae9591` completed all 49,535 memtx snapshots,
+  but the head-side inventory then rejected the newly added
+  `sql/planner_fallback_no_from.test.lua` because it has no reviewed entry in
+  `corpus.json`; therefore coverage equality and diff were not run. The
+  remaining choice is to update the reviewed baseline/policy to a compatible
+  anchor that contains the new fixture, or add an explicit candidate-only
+  corpus policy with independently reviewed evidence. No snapshots were
+  promoted and no parity claim is made. *parallel: yes*.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off`.
   *parallel: yes*.
