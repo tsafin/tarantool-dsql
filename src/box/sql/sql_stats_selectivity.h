@@ -46,6 +46,7 @@ enum sql_stats_selectivity_source {
 	SQL_STATS_SELECTIVITY_MCV,
 	SQL_STATS_SELECTIVITY_HISTOGRAM,
 	SQL_STATS_SELECTIVITY_INDEPENDENCE,
+	SQL_STATS_SELECTIVITY_JOINT_NDV,
 };
 
 struct sql_stats_selectivity {
@@ -104,6 +105,24 @@ sql_stats_estimate_equality_conjunction(
 	const struct sql_stats_mcv_value *predicates, size_t term_count,
 	const struct sql_stats_joint_mcv_sample *joint_mcv,
 	size_t joint_mcv_count, uint64_t sample_nonnull_rows,
+	struct sql_stats_selectivity *result);
+
+/*
+ * As above, but use a compatible joint-NDV estimate for an equality tuple
+ * absent from joint_mcv. joint_ndv must describe the same non-NULL sample as
+ * sample_nonnull_rows; the residual tail is modeled uniformly across
+ * joint_ndv - joint_mcv_count distinct tuples. This is a low-confidence tail
+ * estimate, not a dependency model. Missing, invalid, or incompatible NDV
+ * metadata preserves the independence fallback. Exact joint MCV matches keep
+ * precedence. joint_ndv_confidence must be in [0, 1].
+ */
+int
+sql_stats_estimate_equality_conjunction_with_joint_ndv(
+	const struct sql_stats_column_summary *summaries,
+	const struct sql_stats_mcv_value *predicates, size_t term_count,
+	const struct sql_stats_joint_mcv_sample *joint_mcv,
+	size_t joint_mcv_count, uint64_t sample_nonnull_rows,
+	double joint_ndv, double joint_ndv_confidence,
 	struct sql_stats_selectivity *result);
 
 /*

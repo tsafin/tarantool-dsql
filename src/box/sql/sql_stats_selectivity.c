@@ -439,6 +439,48 @@ done:
 }
 
 int
+sql_stats_estimate_equality_conjunction_with_joint_ndv(
+	const struct sql_stats_column_summary *summaries,
+	const struct sql_stats_mcv_value *predicates, size_t term_count,
+	const struct sql_stats_joint_mcv_sample *joint_mcv,
+	size_t joint_mcv_count, uint64_t sample_nonnull_rows,
+	double joint_ndv, double joint_ndv_confidence,
+	struct sql_stats_selectivity *result)
+{
+	if (sql_stats_estimate_equality_conjunction(summaries, predicates,
+		term_count, joint_mcv, joint_mcv_count, sample_nonnull_rows,
+		result) != 0)
+		return -1;
+	/* A sample MCV match is observed evidence and outranks the sketch. */
+	if (result->source == SQL_STATS_SELECTIVITY_MCV)
+		return 0;
+	/* Incompatible or absent sketch metadata must not change old behavior. */
+	if (!isfinite(joint_ndv) || joint_ndv <= joint_mcv_count ||
+	    !isfinite(joint_ndv_confidence) || joint_ndv_confidence <= 0 ||
+	    joint_ndv_confidence > 1 || sample_nonnull_rows == 0)
+		return 0;
+	uint64_t mcv_rows = 0;
+	for (size_t i = 0; i < joint_mcv_count; i++)
+		mcv_rows += joint_mcv[i].count;
+	if (mcv_rows > sample_nonnull_rows)
+		return 0;
+	double residual_ndv = joint_ndv - joint_mcv_count;
+	if (residual_ndv < 1)
+		return 0;
+	double residual_fraction = (double)(sample_nonnull_rows - mcv_rows) /
+		sample_nonnull_rows;
+	double estimate = residual_fraction / residual_ndv;
+	/* Uniform-tail assumption is intrinsically weaker than observed MCV data. */
+	double confidence = joint_ndv_confidence * 0.5;
+	for (size_t i = 0; i < term_count; i++) {
+		if (summaries[i].confidence < confidence)
+			confidence = summaries[i].confidence * 0.5;
+	}
+	set_result(result, estimate, confidence, SQL_STATS_SELECTIVITY_JOINT_NDV);
+	return 0;
+}
+
+int
 sql_stats_estimate_predicate_conjunction(
 	const struct sql_stats_column_summary *summaries, size_t summary_count,
 	const struct sql_stats_predicate *predicates, size_t predicate_count,

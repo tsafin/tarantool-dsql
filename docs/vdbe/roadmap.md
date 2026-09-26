@@ -528,10 +528,17 @@ the `where.c` selectivity adapter wait for that interface.
   the histogram API cannot safely derive interval mass from interpolated
   CDFs. Focused tests cover source precedence, strict/inclusive range
   boundaries, mixed range/equality matching, correlated q-error improvement,
-  fallback, and malformed input rejection. HLL now has a separate composite
-  tuple input for joint-NDV sketching, but the selectivity API does not consume
-  it yet. Joint-NDV-aware estimation,
-  partial-tuple matching, dependencies, general correlation adjustment,
+  fallback, and malformed input rejection. HLL has a composite tuple input
+  for joint-NDV sketching. A separate equality-conjunction API now consumes
+  a compatible same-sample joint-NDV estimate for a tuple absent from the
+  joint MCV list:
+  it divides residual sample mass by residual joint distinct count, marks the
+  result as `JOINT_NDV`, and lowers confidence for the uniform residual-tail
+  assumption. Exact MCV matches retain precedence; absent/invalid/incompatible
+  sketch metadata preserves the prior independence estimate. This is a narrow
+  full-tuple residual estimate, not partial-tuple matching, dependency
+  statistics, or a general correlation adjustment. Partial-tuple matching,
+  dependencies, general correlation adjustment,
   normalized snapshot inputs, schema/group selection, and `where.c` integration
   remain open; this does not close S2.5. *parallel: yes for the standalone
   API; no for planner integration, which touches `where.c`.

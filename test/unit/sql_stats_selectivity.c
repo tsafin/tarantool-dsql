@@ -486,6 +486,62 @@ test_correlated_range_conjunction_qerror(void)
 }
 
 static void
+test_joint_ndv_residual_tail(void)
+{
+	plan(4);
+	header();
+	int hot = 0;
+	int unseen = 1;
+	struct sql_stats_column_summary summaries[2] = {
+		{.row_count = 1000, .null_fraction = 0, .distinct_count = 10,
+		 .confidence = 1, .sample_nonnull_rows = 1000,
+		 .compare = compare_int},
+		{.row_count = 1000, .null_fraction = 0, .distinct_count = 10,
+		 .confidence = 1, .sample_nonnull_rows = 1000,
+		 .compare = compare_int},
+	};
+	struct sql_stats_mcv_value hot_tuple[] = {
+		{.value = &hot, .value_size = sizeof(hot)},
+		{.value = &hot, .value_size = sizeof(hot)},
+	};
+	struct sql_stats_mcv_value unseen_tuple[] = {
+		{.value = &unseen, .value_size = sizeof(unseen)},
+		{.value = &unseen, .value_size = sizeof(unseen)},
+	};
+	struct sql_stats_joint_mcv_sample joint = {
+		.values = hot_tuple, .value_count = 2, .count = 600,
+	};
+	struct sql_stats_selectivity independent;
+	struct sql_stats_selectivity ndv;
+	struct sql_stats_selectivity exact;
+	ok(sql_stats_estimate_equality_conjunction(summaries, unseen_tuple, 2,
+		&joint, 1, 1000, &independent) == 0 &&
+	   sql_stats_estimate_equality_conjunction_with_joint_ndv(summaries,
+		unseen_tuple, 2, &joint, 1, 1000, 10, 0.9, &ndv) == 0 &&
+	   ndv.source == SQL_STATS_SELECTIVITY_JOINT_NDV &&
+	   fabs(ndv.value - (0.4 / 9.0)) < 1e-12 &&
+	   ndv.confidence == 0.45 && ndv.value > independent.value,
+	   "joint NDV estimates unseen tuple from residual tail");
+	ok(sql_stats_estimate_equality_conjunction_with_joint_ndv(summaries,
+		hot_tuple, 2, &joint, 1, 1000, 10, 0.9, &exact) == 0 &&
+	   exact.source == SQL_STATS_SELECTIVITY_MCV && exact.value == 0.6,
+	   "observed joint MCV takes precedence over joint NDV");
+	struct sql_stats_selectivity incompatible;
+	ok(sql_stats_estimate_equality_conjunction_with_joint_ndv(summaries,
+		unseen_tuple, 2, &joint, 1, 1000, 1, 0.9, &incompatible) == 0 &&
+	   incompatible.source == independent.source &&
+	   incompatible.value == independent.value,
+	   "incompatible joint NDV preserves independence fallback");
+	struct sql_stats_selectivity absent;
+	ok(sql_stats_estimate_equality_conjunction_with_joint_ndv(summaries,
+		unseen_tuple, 2, &joint, 1, 1000, NAN, 0.9, &absent) == 0 &&
+	   absent.source == independent.source && absent.value == independent.value,
+	   "missing joint NDV preserves independence fallback");
+	footer();
+	check_plan();
+}
+
+static void
 test_uniform_and_skewed_qerror(void)
 {
 	plan(7);
@@ -676,5 +732,6 @@ main(void)
 	test_correlated_range_conjunction_qerror();
 	test_stale_summary_qerror();
 	test_stale_joint_summary_qerror();
+	test_joint_ndv_residual_tail();
 	return 0;
 }
