@@ -3,19 +3,29 @@
 
 #include "box/sql/sqlInt.h"
 #include "box/sql/sql_select_preflight.h"
+#include "box/index.h"
+#include "box/index_def.h"
+#include "box/key_def.h"
 #include "box/space.h"
 #include "unit.h"
 
 static void
 test_preflight(void)
 {
-	plan(14);
+	plan(16);
 	header();
 	struct space_def *def = calloc(1, sizeof(*def) + sizeof("preflight_t"));
 	strcpy(def->name, "preflight_t");
 	def->id = 512;
 	def->field_count = 3;
-	struct space space = {.def = def};
+	struct key_def *key_def = calloc(1, sizeof(*key_def) +
+					 sizeof(key_def->parts[0]));
+	key_def->part_count = 1;
+	key_def->parts[0].fieldno = 0;
+	struct index_def index_def = {.type = TREE, .key_def = key_def};
+	struct index index = {.def = &index_def};
+	struct index *indexes[] = {&index};
+	struct space space = {.def = def, .index_map = indexes};
 	struct SrcList source = {.nSrc = 1};
 	source.a[0].space = &space;
 	source.a[0].iCursor = 4;
@@ -72,6 +82,21 @@ test_preflight(void)
 	   SQL_SELECT_PREFLIGHT_OK,
 	   "unary IS NOT NULL test reaches producer validation");
 	select.pWhere = NULL;
+	struct Expr order_expr = {
+		.op = TK_COLUMN_REF, .iTable = 4, .iColumn = 0,
+	};
+	struct ExprList_item order_item = {.pExpr = &order_expr};
+	struct ExprList order_list = {.nExpr = 1, .a = &order_item};
+	select.pOrderBy = &order_list;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_OK,
+	   "primary-key ordering reaches producer validation");
+	order_expr.iColumn = 1;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_SHAPE,
+	   "non-primary ordering is rejected before physical attempt");
+	order_expr.iColumn = 0;
+	select.pOrderBy = NULL;
 	expr.op = TK_PLUS;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
 	   SQL_SELECT_PREFLIGHT_PROJECTION,
@@ -111,6 +136,7 @@ test_preflight(void)
 	   memcmp(&expr, &expr_before, sizeof(expr)) == 0,
 	   "rejected preflight also leaves all caller inputs unchanged");
 	free(def);
+	free(key_def);
 	footer();
 	check_plan();
 }
