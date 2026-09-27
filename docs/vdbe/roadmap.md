@@ -590,10 +590,15 @@ review of IDs and formats.
   now installs an immutable fixture through `sql_set_stats_snapshot()` and a
   live SQL luatest compares relation and index-prefix estimates before/after
   install, after clear, for a missing prefix, and for a stale schema. The SQL
-  result is checked unchanged. This closes live adapter exercise only: no
-  collection or SQL preparation path populates the provider, prepared
-  statements do not own their own snapshot references, and estimates are not
-  yet measured against actual SQL-corpus cardinalities. *parallel: no* (touches
+  result is checked unchanged. Separate EXPLAIN statements compiled with a
+  hot-key versus unique-key fixture also report the corresponding higher vs
+  lower estimated row counts through the live `where.c` path; a range EXPLAIN
+  confirms `whereRangeScanEst()` scales down when snapshot relation
+  cardinality replaces the legacy default. This closes
+  planner-consumption validation only: no collection or SQL preparation path
+  populates the provider, prepared statements do not own their own snapshot
+  references, and estimates are not yet measured against actual SQL-corpus
+  cardinalities. *parallel: no* (touches
   `where.c` integration surface).
 - [ ] **S1.8** Re-enable disabled `analyze*.test.lua` tests, validate they
   pass. Audit of the 12 disabled suites found no safe file-level subset yet:

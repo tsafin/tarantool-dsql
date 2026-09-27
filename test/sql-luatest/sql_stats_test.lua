@@ -162,8 +162,19 @@ g.test_snapshot_estimate_adapter = function()
         local space = box.space.sql_stats_adapter_t
         local index_id = space.index.sql_stats_adapter_ix.id
         local baseline = adapter.estimates(space.id, index_id)
+        local function explain_estimate(marker, predicate)
+            local query = 'EXPLAIN QUERY PLAN SELECT id FROM '..
+                          'sql_stats_adapter_t WHERE '..predicate..'; -- '..
+                          marker
+            local plan = box.execute(query).rows
+            return tonumber(plan[1][4]:match('~([0-9]+) row'))
+        end
+        local baseline_plan_estimate = explain_estimate('baseline', 'a = 1')
+        local baseline_range_estimate = explain_estimate('baseline range',
+                                                         'a >= 2')
         adapter.install(space.id, index_id, 128, 96, 32, false)
         local current = adapter.estimates(space.id, index_id)
+        local range_estimate = explain_estimate('snapshot range', 'a >= 2')
         adapter.clear()
         local cleared = adapter.estimates(space.id, index_id)
         adapter.install(space.id, index_id, 128, 96, 0, false)
@@ -171,8 +182,14 @@ g.test_snapshot_estimate_adapter = function()
         adapter.clear()
         adapter.install(space.id, index_id, 128, 96, 32, true)
         local stale = adapter.estimates(space.id, index_id)
+        adapter.install(space.id, index_id, 1000000, 1000000, 1, false)
+        local hot_plan_estimate = explain_estimate('hot distribution',
+                                                   'a = 1')
+        adapter.install(space.id, index_id, 1000000, 1000000, 1000000, false)
+        local unique_plan_estimate = explain_estimate('unique distribution',
+                                                      'a = 1')
         local rows = box.execute([[SELECT id FROM sql_stats_adapter_t
-                                   WHERE id = 3;]]).rows
+                                   WHERE a = 1;]]).rows
         adapter.clear()
         box.execute([[DROP TABLE sql_stats_adapter_t;]])
         return {
@@ -181,6 +198,11 @@ g.test_snapshot_estimate_adapter = function()
             cleared = cleared,
             missing_prefix = missing_prefix,
             stale = stale,
+            baseline_plan_estimate = baseline_plan_estimate,
+            baseline_range_estimate = baseline_range_estimate,
+            range_estimate = range_estimate,
+            hot_plan_estimate = hot_plan_estimate,
+            unique_plan_estimate = unique_plan_estimate,
             rows = rows,
         }
     end)
@@ -191,7 +213,10 @@ g.test_snapshot_estimate_adapter = function()
     t.assert_gt(res.missing_prefix.relation, res.baseline.relation)
     t.assert_equals(res.missing_prefix.prefix, res.baseline.prefix)
     t.assert_equals(res.stale, res.baseline)
-    t.assert_equals(res.rows, {{3}})
+    t.assert_lt(res.range_estimate, res.baseline_range_estimate)
+    t.assert_gt(res.hot_plan_estimate, res.baseline_plan_estimate)
+    t.assert_lt(res.unique_plan_estimate, res.baseline_plan_estimate)
+    t.assert_equals(res.rows, {{1}, {2}, {3}})
 end
 
 g_budget.test_path_solver_width_configuration = function()
