@@ -1581,11 +1581,15 @@ DML, triggers, subprograms, non-deterministic functions.
   passed with the same counts. The CnP crash was an ABI mismatch: stencils
   called `SQL_PRESERVE_NONE` handlers using SysV argument registers. A typed
   bridge now performs the calling-convention transition; the expanded
-  `planner_final_paths_test.lua` passes under CnP and generated dispatchers.
-  The broader CnP `planner_flag_parity_test.lua` still fails in the text-key
-  ordering case (returned bytes differ) and then crashes in `vdbe_op_compare`;
-  CnP native parity is therefore still open. Full SQL-luatest and SQL-suite
-  reviewed-corpus audits also remain outstanding.
+  `planner_final_paths_test.lua` and `planner_flag_parity_test.lua` both pass
+  under CnP and generated dispatchers. The flag matrix exposed a second
+  correctness bug in fast MessagePack string extraction: argument evaluation
+  could store the encoded string marker instead of its payload. Both string
+  decoders now advance to the payload before constructing the ephemeral Mem;
+  a direct multirow string VALUES assertion guards the path. Generated-mode
+  memtx capture passes with 28 snapshots and no errors. This is focused
+  planner-route evidence, not a full native parity claim. Full SQL-luatest
+  and SQL-suite reviewed-corpus audits remain outstanding.
 
   ```mermaid
   flowchart TD
