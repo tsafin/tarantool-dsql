@@ -716,7 +716,15 @@ review of IDs and formats.
   candidate assembly and publication, but
   not a common cross-engine visibility boundary or production ANALYZE wiring,
   so S1.3a stays open. Local READ_CONFIRMED and vclock/catalog/schema checks
-  are not durable or cross-node snapshot claims.
+  are not durable or cross-node snapshot claims. A source audit committed as
+  `a68268c9a4` confirms that neither core `read_view` nor READ_CONFIRMED pins
+  one shared memtx/Vinyl cut. The minimum safe next slice is a box-owned API
+  that atomically pins catalog/index metadata and a commit cut, retains
+  per-engine views, provides bounded Vinyl pinned-VLSN iteration, and fails
+  closed when any engine cannot honor the cut. A barrier-controlled
+  insert/delete test must prove primary and secondary candidates match one
+  common before-or-after population. This cannot be completed at the SQL
+  collector layer with current engine APIs; production ANALYZE remains open.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
   of system-space IDs and tuple/payload formats. *parallel: no*.
