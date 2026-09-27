@@ -140,8 +140,11 @@ metadata are outside that rollback contract.
 `sql_select_preflight_table_scan()` is a side-effect-free predicate for the
 narrow producer class: a resolved one-base-table SELECT, direct column
 references bound to that source cursor, and `SRT_Output` destination, with no
-filter/order or other unsupported shape. Literal nonnegative LIMIT and
-optional OFFSET are passed to the producer for range validation. It runs at
+unsupported shape. Its bounded filter grammar admits primary-key bounds and
+unary `IS NULL` / `IS NOT NULL` column tests for producer validation; only the
+primary-key NULL tests are lowerable by schema invariant, while other-column
+NULL tests fail closed. Literal nonnegative LIMIT and optional OFFSET are
+passed to the producer for range validation. It runs at
 `sqlSelect()` entry before the select ID is advanced or that function emits
 preamble VDBE.
 Explicit reject values distinguish unresolved input, destination, relation,
@@ -176,7 +179,10 @@ opens/closes the cursor, invokes the VDBE table-scan lowering under a codegen
 checkpoint, and commits `SelectDest` metadata only after successful emission.
 Focused SQL execution passes for memtx and Vinyl, including NULL,
 empty-table, `LIMIT 0`, `LIMIT 1`, `LIMIT 1 OFFSET 1`, and descending primary-
-key order with LIMIT cases. Non-primary-key ordering remains on legacy codegen.
+key order with LIMIT cases. `primary_key IS NOT NULL` retains the full scan,
+while `primary_key IS NULL` lowers as a zero-row `Limit` finalizer; SQL tests
+pin flag-off/on parity for both on memtx and Vinyl. Non-primary-key NULL
+predicates and ordering remain on legacy codegen.
 M3.4 remains
 open: estimates are coarse, only direct
 projection/table-full-scan is routed, error-injection and broader
