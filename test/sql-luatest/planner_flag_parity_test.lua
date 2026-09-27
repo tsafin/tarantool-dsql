@@ -467,6 +467,9 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             }
             local ordered = ('SELECT c, v FROM %s WHERE a = 1 AND b = 7 ' ..
                              'ORDER BY c ASC'):format(name)
+            local ordered_full_key_prefix = ('SELECT a, b, c, v FROM %s ' ..
+                'WHERE a = 1 AND b = 7 ORDER BY a ASC, b ASC, c ASC')
+                :format(name)
             local function capture(enabled)
                 local rows = {}
                 for i, sql in ipairs(queries) do
@@ -493,6 +496,8 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             local off = capture(false)
             local ordered_off = box.execute(ordered).rows
+            local full_key_order_off = box.execute(
+                ordered_full_key_prefix).rows
             local off_limited = {}
             for i, sql in ipairs(limited_queries) do
                 local result, err = box.execute(sql)
@@ -513,6 +518,17 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             local ordered_on = box.execute(ordered)
             t.assert_equals(ordered_on.rows, ordered_off)
             t.assert_equals(ordered_on.rows, {{2, 'a'}, {4, 'b'}})
+
+            local full_key_order_explain, full_key_order_err = box.execute(
+                [[EXPLAIN (planner = 'summary') ]] ..
+                ordered_full_key_prefix)
+            t.assert(full_key_order_err == nil,
+                     full_key_order_err and full_key_order_err.message)
+            t.assert_equals(full_key_order_explain.rows[1][3], 'new_planner')
+            local full_key_order_on = box.execute(ordered_full_key_prefix)
+            t.assert_equals(full_key_order_on.rows, full_key_order_off)
+            t.assert_equals(full_key_order_on.rows,
+                {{1, 7, 2, 'a'}, {1, 7, 4, 'b'}})
 
             local nonleading = ('SELECT c, v FROM %s WHERE b = 7 AND c = 2')
                 :format(name)

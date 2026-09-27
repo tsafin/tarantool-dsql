@@ -1194,8 +1194,9 @@ DML, triggers, subprograms, non-deterministic functions.
   covers reversed two-part prefixes, misses, and UINT64_MAX in an UNSIGNED
   prefix component. Literal LIMIT/OFFSET (including zero LIMIT and positive
   OFFSET) retain `new_planner` and off/on result parity; ascending ordering on
-  the unfixed contiguous suffix uses that same walk, while descending and
-  unrelated orderings remain stable fallbacks. The VDBE unit pins the
+  either the unfixed contiguous suffix or a leading key prefix (including
+  equality-fixed parts) uses that same walk, while descending and unrelated
+  orderings remain stable fallbacks. The VDBE unit pins the
   multi-part seek, mismatch checks, and limit/offset placement.
   *parallel: no (extends the existing producer/descriptor/lowering chain)*.
   The route also lowers `primary_key_part IS NOT NULL` as a full
@@ -1832,10 +1833,9 @@ DML, triggers, subprograms, non-deterministic functions.
   Three-part point cases also verify LIMIT and OFFSET result parity and retain
   `new_planner` when enabled. Generated and CnP runs pass on memtx and Vinyl.
   Prefix-scan cases verify ascending ORDER BY over single- and multi-column
-  unfixed contiguous primary-key suffixes and stable fallback for descending
-  order; local executable smoke checks confirm `new_planner`, ordered rows,
-  and fallback classification. The integration test includes both memtx and
-  Vinyl.
+  unfixed contiguous primary-key suffixes, plus a key-order prefix including
+  equality-fixed columns; descending order remains a stable fallback. The
+  focused memtx/Vinyl luatest and local executable smoke checks pass.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

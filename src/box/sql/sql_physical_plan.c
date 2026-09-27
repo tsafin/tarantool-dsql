@@ -530,7 +530,29 @@ predicate_parsed:
 		enum sql_plan_direction order_direction = SQL_PLAN_ASC;
 		uint32_t first_order_part = 0;
 		if (has_prefix_scan) {
-			first_order_part = (uint32_t)composite_point_count;
+			const struct Expr *first_order_expr = order_by->a[0].pExpr;
+			if (first_order_expr == NULL ||
+			    first_order_expr->op != TK_COLUMN_REF ||
+			    first_order_expr->iColumn < 0) {
+				free(order_terms);
+				goto invalid_predicate;
+			}
+			first_order_part = UINT32_MAX;
+			for (uint32_t part = 0; part < key_def->part_count; ++part) {
+				if (key_def->parts[part].fieldno ==
+				    (uint32_t)first_order_expr->iColumn) {
+					first_order_part = part;
+					break;
+				}
+			}
+			/* The scan produces either an ordinary leading key order or,
+			 * more usefully, an order beginning at the first unfixed part.
+			 */
+			if (first_order_part != 0 && first_order_part !=
+			    composite_point_count) {
+				free(order_terms);
+				goto invalid_predicate;
+			}
 			if ((uint32_t)order_by->nExpr >
 			    key_def->part_count - first_order_part) {
 				free(order_terms);
