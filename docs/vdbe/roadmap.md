@@ -411,6 +411,26 @@ them.
   and a planner consumer remain absent. M1.4 remains open. The external
   diagnostic envelope remains v2 and `replayable=false`; the internal detached
   input prototype is v4 and is not embedded in that envelope.
+  A follow-up live-path audit confirms there is no safe capture-only splice
+  yet. `sqlVdbeList()` in `src/box/sql/vdbeaux.c` writes the diagnostic
+  envelope directly and has no retained `Select`, cursor map, stats snapshot,
+  or candidate-provider result. `sql_replay_input_extract_select_from_snapshot()`
+  in `src/box/sql/sql_replay_extract.c` can extract a resolved one-relation
+  SELECT and stats, but planner algorithm/config versions and beam width are
+  caller arguments; the active prepare/planner path has no corresponding
+  replay-input caller or authoritative values to pass. Its access-candidate
+  list is not derived from the WHERE planner. The live `whereLoopInsert()`
+  hook (`src/box/sql/where.c`) calls `sql_record_planner_candidate()`, whose
+  VDBE-facing data is aggregate candidate/path counters, not normalized
+  candidate identities, constraints, estimates, ordering, or costs. Therefore
+  neither a complete candidate list nor a known-empty list can be asserted
+  from that hook. The snapshot extractor initializes candidate metadata as
+  missing, not present-empty. The bounded implementation step is to establish
+  a planner-owned capture context at preparation with explicit algorithm/config
+  identity, immutable stats provenance, and an all-or-nothing ordered candidate
+  result; only after that context is complete should the v3 diagnostic envelope
+  gain `replay_inputs` and `replayable=true`. Until then, no partial embedding
+  or diagnostic behavior change is justified.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2
