@@ -1836,6 +1836,12 @@ DML, triggers, subprograms, non-deterministic functions.
   flag-off preserves the existing non-TREE rejection, while flag-on reports
   `new_planner` and returns all rows; generated and CnP dispatch pass. This
   does not change the default-off session contract.
+  A focused fallback-parity luatest now runs deterministic-function and
+  `NOT INDEXED` queries through off/on/off phases on both memtx and Vinyl. It
+  asserts stable `UNSUPPORTED_FUNCTION` / `UNSUPPORTED_ACCESS_HINT` routes,
+  identical executed rows, and exact total-reason counter deltas for enabled
+  and disabled EXPLAIN plus execution. This extends feature-flag evidence to
+  unsupported shapes without claiming corpus-wide acceptance.
   Composite-primary-key prefix predicates now also participate in the same
   off/on/off feature gate: equality scans, one-sided bounds, a two-sided bound,
   and descending equality-prefix order return identical rows on memtx and
