@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <string.h>
 
 #include "unit.h"
 
@@ -490,11 +491,47 @@ main(void)
 	   "non-point descriptor is rejected before VDBE mutation by the point lowerer");
 	int saved_point_n_mem = parse.nMem;
 	int before_late_invalid_point = vdbe.nOp;
+	int saved_n_tab = parse.nTab;
+	int saved_n_label = parse.nLabel;
+	int saved_n_range_reg = parse.nRangeReg;
+	int saved_i_range_reg = parse.iRangeReg;
+	int saved_n_temp_reg = parse.nTempReg;
+	int saved_n_col_cache = parse.nColCache;
+	int saved_i_cache_level = parse.iCacheLevel;
+	int saved_i_cache_count = parse.iCacheCnt;
+	int saved_i_self_tab = parse.iSelfTab;
+	int saved_vdbe_field_ref_reg = parse.vdbe_field_ref_reg;
+	int saved_col_names_set = parse.colNamesSet;
+	bool saved_parse_is_aborted = parse.is_aborted;
+	u32 saved_n_query_loop = parse.nQueryLoop;
+	unsigned char saved_col_cache[sizeof(parse.aColCache)];
+	memcpy(saved_col_cache, parse.aColCache, sizeof(saved_col_cache));
+	struct VdbeOp saved_last_op = vdbe.aOp[before_late_invalid_point - 1];
 	ok(sql_plan_lower_vdbe_pk_point(late_invalid_point_desc, &vdbe, 4, 20) == -1 &&
-	   vdbe.nOp == before_late_invalid_point && parse.nMem == saved_point_n_mem &&
+	   vdbe.nOp == before_late_invalid_point &&
+	   memcmp(&vdbe.aOp[before_late_invalid_point - 1], &saved_last_op,
+		  sizeof(saved_last_op)) == 0 &&
+	   parse.nMem == saved_point_n_mem && parse.nTab == saved_n_tab &&
+	   parse.nLabel == saved_n_label &&
+	   parse.nRangeReg == saved_n_range_reg &&
+	   parse.iRangeReg == saved_i_range_reg &&
+	   parse.nTempReg == saved_n_temp_reg &&
+	   parse.nColCache == saved_n_col_cache &&
+	   parse.iCacheLevel == saved_i_cache_level &&
+	   parse.iCacheCnt == saved_i_cache_count &&
+	   parse.iSelfTab == saved_i_self_tab &&
+	   parse.vdbe_field_ref_reg == saved_vdbe_field_ref_reg &&
+	   parse.colNamesSet == saved_col_names_set &&
+	   parse.is_aborted == saved_parse_is_aborted &&
+	   parse.nQueryLoop == saved_n_query_loop &&
+	   memcmp(parse.aColCache, saved_col_cache, sizeof(saved_col_cache)) == 0 &&
+	   vdbe.aOp[before_late_invalid_point].opcode == 0 &&
 	   vdbe.aOp[before_late_invalid_point].p4type == P4_NOTUSED &&
-	   vdbe.aOp[before_late_invalid_point].p4.p == NULL,
-	   "late projection rejection rolls back key opcodes, P4 ownership, and registers");
+	   vdbe.aOp[before_late_invalid_point].p4.p == NULL &&
+	   vdbe.aOp[before_late_invalid_point + 1].opcode == 0 &&
+	   vdbe.aOp[before_late_invalid_point + 1].p4type == P4_NOTUSED &&
+	   vdbe.aOp[before_late_invalid_point + 1].p4.p == NULL,
+	   "post-emission reject restores checkpoint counters/register cache and clears key P4/opcode suffix");
 	int before_point = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_point].opcode == OP_Int64 &&
