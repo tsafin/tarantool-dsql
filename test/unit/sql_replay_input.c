@@ -739,7 +739,7 @@ byte_sequence_present(const char *data, size_t size, const char *needle)
 static void
 test_access_candidates(void)
 {
-	plan(10);
+	plan(14);
 	header();
 	struct sql_replay_column_spec column = { "integer", "binary" };
 	uint32_t part = 0;
@@ -806,6 +806,8 @@ test_access_candidates(void)
 		   input->access_candidates[0].projected_columns[0] == 0 &&
 		   input->access_candidates[0].cost_rows == 1.75,
 	   "candidate fields and logical ordinals are detached");
+	ok(sql_replay_input_check_replay_ready(input) == SQL_REPLAY_INPUT_OK,
+	   "known candidate provider output satisfies the replay-input gate");
 	const char *cursor = NULL;
 	ok(input != NULL &&
 		   sql_replay_input_serialize(input, &bytes, &size) ==
@@ -831,6 +833,9 @@ test_access_candidates(void)
 					      &absent_size) ==
 			   SQL_REPLAY_INPUT_OK,
 	   "missing access-candidate provider represented as absent");
+	ok(sql_replay_input_check_replay_ready(absent) ==
+		   SQL_REPLAY_INPUT_INCOMPLETE,
+	   "missing candidate provider fails the replay-input completeness gate");
 	spec.access_candidates_present = true;
 	struct sql_replay_input *empty = NULL;
 	char *empty_bytes = NULL;
@@ -842,6 +847,11 @@ test_access_candidates(void)
 		   (absent_size != empty_size ||
 		    memcmp(absent_bytes, empty_bytes, absent_size) != 0),
 	   "known empty candidate set differs from unavailable provider");
+	ok(sql_replay_input_check_replay_ready(empty) == SQL_REPLAY_INPUT_OK,
+	   "known empty candidate set passes capture completeness");
+	ok(sql_replay_input_check_replay_ready(NULL) ==
+		   SQL_REPLAY_INPUT_INVALID,
+	   "null replay input cannot pass the completeness gate");
 	free(absent_bytes);
 	free(empty_bytes);
 	sql_replay_input_delete(absent);

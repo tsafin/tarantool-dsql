@@ -396,6 +396,21 @@ put_relation(struct replay_writer *w, const struct sql_replay_input *in,
 }
 
 enum sql_replay_input_status
+sql_replay_input_check_replay_ready(const struct sql_replay_input *input)
+{
+	if (input == NULL || input->planner_algorithm_version == 0 ||
+	    input->planner_config_version == 0 || input->beam_width == 0 ||
+	    (input->access_candidate_count != 0 &&
+	     input->access_candidates == NULL) ||
+	    (!input->access_candidates_present &&
+	     input->access_candidate_count != 0))
+		return SQL_REPLAY_INPUT_INVALID;
+	if (!input->access_candidates_present)
+		return SQL_REPLAY_INPUT_INCOMPLETE;
+	return SQL_REPLAY_INPUT_OK;
+}
+
+enum sql_replay_input_status
 sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 			   size_t *size)
 {

@@ -445,7 +445,14 @@ them.
   The planner currently has no entry point that consumes normalized IR,
   logical access-path metadata, and captured statistics without the SQL
   compiler/catalog/storage dependencies; the replay contract requires that
-  API and a test replaying after source state is unavailable. *parallel: yes*.
+  API and a test replaying after source state is unavailable. The v4 input
+  prototype now exposes a capture-completeness gate: missing candidate-provider
+  output is `INCOMPLETE`, while a known empty list is complete and permits a
+  future replay implementation to report no access path. This is only a
+  prerequisite check; it does not
+  dispatch a planner, establish supported algorithm/config versions, or change
+  the external envelope's `replayable=false` status. M1.5 remains open.
+  *parallel: yes*.
 
 ---
 

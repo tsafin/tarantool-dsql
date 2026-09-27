@@ -210,11 +210,23 @@ enum sql_replay_input_status {
 	SQL_REPLAY_INPUT_OK = 0,
 	SQL_REPLAY_INPUT_INVALID,
 	SQL_REPLAY_INPUT_NOMEM,
+	SQL_REPLAY_INPUT_INCOMPLETE,
 };
 
 enum sql_replay_input_status
 sql_replay_input_create(const struct sql_replay_input_spec *spec,
 			struct sql_replay_input **result);
+
+/*
+ * Check the minimum capture-completeness prerequisite for a future replay
+ * tool. A missing candidate provider is incomplete; a known empty candidate
+ * set is complete (and lets the replay planner report no access path). This
+ * does not assert that an algorithm/config version is supported or that an
+ * external EXPLAIN envelope is replayable.
+ */
+enum sql_replay_input_status
+sql_replay_input_check_replay_ready(const struct sql_replay_input *input);
+
 void
 sql_replay_input_delete(struct sql_replay_input *input);
 
