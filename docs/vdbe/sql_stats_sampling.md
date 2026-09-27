@@ -677,18 +677,42 @@ ANALYZE resolved one space, reported `ER_NO_SUCH_SPACE` for a missing name and
 `ER_SQL_ANALYZE_ARGUMENT` for a view, then used the same analyzer (so a system
 space reached the system-space early return). That named system case was an
 effective no-collection path, though the old persistent implementation also
-cleared its legacy stats rows. The old code did not explicitly test temporary
-space status. It scanned each selected index exhaustively, so it provides no
-historical bounded-sampling or numeric-budget defaults.
+cleared its legacy stats rows. The old code did not explicitly test
+data-temporary status: bare enumeration attempted every non-system, non-view
+space it encountered, and named resolution had no temporary-space rejection.
+However, SQL `CREATE TEMP[ORARY] TABLE` is unsupported (the TAP regression
+expects a syntax error), and no legacy SQL test establishes behavior for a
+Lua-created data-temporary space. It scanned each selected index
+exhaustively, so it provides no historical bounded-sampling or numeric-budget
+defaults.
 
-Thus bare scope can follow the historical non-system, non-view, all-index
-baseline, and named lookup can retain missing/view errors. Remaining scope
-decisions are temporary-space compatibility, named system-space semantics in a
-volatile implementation, and whether an unsupported engine/index makes the
-whole requested collection fail (recommended, matching the current fail-closed
-batch contract) or is omitted. All-index collection is the documented
-historical behavior; any narrower index subset would be a deliberate scope
-change, not an existing ambiguity.
+The volatile compatibility rule is now explicit: bare collection follows the
+legacy non-system, non-view, all-index scope for persistent spaces; it excludes
+data-temporary spaces because the shared read-view API defaults to excluding
+them and cannot promise a common pinned cut for them. Named lookup retains the
+legacy missing-space and view errors. A named system space keeps the legacy
+no-collection behavior and must not publish a candidate; unlike the removed
+persistent implementation, it has no legacy stats rows to clear. Explicitly
+named data-temporary targets fail closed before candidate publication. This is
+not a claim that the old path excluded such spaces; it is the limitation of the
+new volatile shared-view contract.
+
+An unsupported engine or an index for which the chosen producer cannot create
+and run a supported summary adapter fails the whole requested collection; it
+is never silently omitted from the all-index target set. The read-view layer
+skips spaces whose engine lacks read-view support (and data-temporary spaces by
+default), so requesting one leaves the target absent and collection-context
+creation fails. The native index-summary adapter also returns failure for
+unsupported index types, functional/multikey definitions, or unsupported key
+types/collations. The batch assembler returns no candidate on these failures;
+the caller cannot publish a partial relation set, and the installed snapshot
+is unchanged unless the caller explicitly invokes the one-shot publisher with
+a complete candidate. Existing tests cover missing pinned-index context
+failure and later-relation sampling failure with installed-snapshot pointer and
+content preservation. A direct unsupported-engine/index failure-injection
+case is still needed in the SQL producer integration suite; it should assert
+no candidate/publication and exact installed-snapshot preservation for both
+the named and bare request paths.
 
 One production policy is still unchosen and must be explicit before
 implementing that operation:
@@ -712,10 +736,13 @@ Minimum SQL integration test matrix after these policies are chosen:
 | `ANALYZE name` | Exactly one relation is refreshed; unrelated prior relation rows survive same-generation replacement; exactly one publication occurs. | Force target scan/validation failure and verify installed snapshot identity and contents are unchanged. |
 | bare `ANALYZE` | The discovered eligible set is complete and unique; all relations appear together after exactly one publication. | Fail a later relation or exceed aggregate budget before publish; verify the exact prior snapshot remains installed. |
 | either form | Run on memtx and Vinyl; verify pinned visibility/catalog/schema and index-definition metadata are accepted. | Mutate catalog/schema or data visibility between discovery and publish; candidate is rejected and prior snapshot is preserved. |
-| named ineligible target / empty eligible database | Assert the chosen error/no-op semantics. | Assert no publication and unchanged prior snapshot. |
+| named system target | Preserve effective legacy no-collection semantics; no candidate or publication. | Verify the prior snapshot remains unchanged. |
+| named view/missing/data-temporary target | Preserve view and missing-name diagnostics; data-temporary is a fail-closed unsupported target. | Verify no publication and unchanged prior snapshot. |
+| bare set with unsupported engine/index | Fail the complete all-index batch rather than omit one target. | Verify no candidate/publication and exact prior snapshot identity/content. |
 
-Until the remaining runtime scope exceptions and numeric/default budget policy
-are recorded, SQL grammar and execution remain disabled. Keep S1.1's persistence
+Target semantics are now recorded; numeric/default budget limits and their
+configuration surface remain the S1.2 policy gate. SQL grammar and execution
+remain disabled until that caller policy is approved. Keep S1.1's persistence
 schema DRAFT.
 
 ```mermaid
