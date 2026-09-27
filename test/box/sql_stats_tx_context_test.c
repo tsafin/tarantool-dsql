@@ -615,8 +615,15 @@ lbox_collect_multirelation(lua_State *L)
 	struct read_view probe_view;
 	struct read_view_opts probe_opts;
 	read_view_opts_create(&probe_opts);
+	probe_opts.name = "sql-stats-native-probe";
 	probe_opts.enable_vinyl = true;
 	probe_opts.enable_field_names = true;
+	struct live_read_view_filter probe_filter = {
+		.space_ids = {space_ids[0]}, .space_count = 1,
+	};
+	probe_opts.filter_space = live_filter_space;
+	probe_opts.filter_index = live_filter_index;
+	probe_opts.filter_arg = &probe_filter;
 	if (read_view_open(&probe_view, &probe_opts) == 0) {
 		probe_view_opened = true;
 		struct space_read_view *space_view;
