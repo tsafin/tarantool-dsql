@@ -1896,6 +1896,11 @@ DML, triggers, subprograms, non-deterministic functions.
   unfixed contiguous primary-key suffixes, plus a key-order prefix including
   equality-fixed columns; descending order remains a stable fallback. The
   focused memtx/Vinyl luatest and local executable smoke checks pass.
+  Equality-prefix-plus-next-part suffix ranges now also report
+  `new_planner` for lower-only, upper-only, bounded, high-UNSIGNED, and
+  literal-left forms. Their isolated off/on/off fixture has 72 snapshots per
+  engine and exact generated-repeat/CnP parity; descriptor and VDBE lowering
+  unit coverage pins accepted/rejected metadata and seek/termination opcodes.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
