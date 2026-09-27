@@ -538,7 +538,23 @@ review of IDs and formats.
   supported it pins data to the core view, but does not supply per-relation
   modification epochs or catalog/index-definition versions needed for
   complete candidate validation/publication. Current nonzero visibility
-  tokens outside the context remain caller-supplied claims.
+  tokens outside the context remain caller-supplied claims. A separate
+  `sql_stats_tx_context` now owns a box transaction, sets READ_CONFIRMED before
+  sampling, validates transaction ID/isolation/schema/index definitions, and
+  bounds/stages each requested index sample before delivery. Its finish commits
+  only after every requested target succeeds; otherwise it rolls back. The
+  focused `sql_stats_collection.test` target builds and passes locally,
+  including all 21 transaction-context checks. The CMake target was rebuilt
+  from the root build; live memtx/Vinyl integration was not run.
+  READ_CONFIRMED excludes
+  prepared/unconfirmed writes but does not freeze confirmed commits between
+  index calls; the transaction ID is not a shared visibility token and must
+  not populate `sql_stats_collection_generation`. A completed earlier sample
+  can reach the caller's off-side staging sink if a later target fails, so the
+  caller must discard all staging unless the full collection validates. This
+  helper neither builds nor publishes a candidate and does not enable
+  `ANALYZE`; S1.3a remains open for a common visibility/generation mechanism,
+  candidate production, and failure-safe publication.
   `sql_set_stats_snapshot()` already retains/releases the installed immutable
   snapshot and expires prepared statements, but collection does not call it.
   There is no collector-owned install transaction that revalidates the

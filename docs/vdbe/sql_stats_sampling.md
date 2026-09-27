@@ -300,6 +300,10 @@ commits only when every requested index succeeded; otherwise it rolls back.
 `abort` only rolls back if the calling fiber still owns the captured
 transaction ID. The API returns no visibility token and cannot be converted
 to `sql_stats_collection_generation` by its interface.
+The focused `sql_stats_collection.test` CMake target builds and passes,
+including transaction lifecycle, isolation/schema drift, staging, and
+all-target finish checks. This is unit-stub coverage; no live memtx/Vinyl
+integration run has validated this context.
 
 This transaction context is not a frozen database snapshot. `READ_CONFIRMED`
 excludes prepared/unconfirmed writes, but it does not freeze confirmed writes
