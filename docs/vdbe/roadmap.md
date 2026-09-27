@@ -1428,12 +1428,11 @@ DML, triggers, subprograms, non-deterministic functions.
   fallback-reason absence plus exact counter deltas; it passes on memtx and
   Vinyl. The signed INTEGER range-boundary regression also checks the full
   domain and strict/inclusive minimum/maximum bounds. All supported enabled
-  cases report `new_planner`; off, nonnegative-bound cases report
-  `current_where_c`, while negative-extreme predicates are explicitly
-  classified `fallback / UNSUPPORTED_EXPRESSION` by the current canonical
-  expression checker. The test asserts the corresponding exact total and
-  per-reason counter deltas across EXPLAIN plus execution and confirms row
-  parity; memtx and Vinyl pass.
+  cases report `new_planner`; all flag-off cases report `current_where_c`.
+  The canonical expression grammar now recognizes the parser's unary-minus
+  representation of `INT64_MIN`, avoiding a false unsupported-expression
+  fallback. The test asserts unchanged total and per-reason fallback counters
+  across EXPLAIN plus execution and confirms row parity; memtx and Vinyl pass.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
