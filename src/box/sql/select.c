@@ -44,7 +44,10 @@
 #include "sql_logical_plan.h"
 #include "sql_expr_canonical.h"
 #include "sql_plan_fallback.h"
+#include "sql_physical_plan.h"
+#include "sql_plan_lowering.h"
 #include "sql_select_preflight.h"
+#include "box/index.h"
 
 /*
  * Trace output macros
@@ -5652,6 +5655,23 @@ sql_select_record_fallback_reason(Parse *parse,
 	sql_record_planner_fallback(v, fallback_reason);
 }
 
+static void
+sql_select_record_physical_fallback(Parse *parse,
+				    enum sql_physical_reject_reason reason)
+{
+	Vdbe *vdbe = parse->pVdbe;
+	if (vdbe == NULL || vdbe->planner_fallback_reason != NULL)
+		return;
+	enum sql_plan_fallback_reason fallback_reason =
+		sql_plan_fallback_from_physical(reason);
+	const char *name = sql_plan_fallback_reason_name(fallback_reason);
+	if (name == NULL)
+		return;
+	vdbe->planner_path_class = "fallback";
+	vdbe->planner_fallback_reason = name;
+	sql_record_planner_fallback(vdbe, fallback_reason);
+}
+
 static bool sql_select_has_nondeterministic_func(Select *select);
 static bool sql_select_has_func(Select *select);
 static bool sql_select_has_collation(Select *select);
@@ -5924,6 +5944,92 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 	} else if (sql_select_has_subquery(select)) {
 		sql_select_record_fallback_reason(parse, SQL_LOGICAL_REJECT_SUBQUERY);
 	}
+}
+
+/*
+ * Route the first executable physical-plan slice: a resolved, direct-column
+ * projection over one TREE primary index, with no predicates or finalizers.
+ * Everything needed for the producer and emitter is validated before VDBE
+ * mutation. A recoverable emission rejection rolls back to the legacy path;
+ * a hard diagnostic remains an error.
+ */
+static int
+sql_select_try_lower_table_scan(Parse *parse, Select *select,
+				SelectDest *dest)
+{
+	if ((parse->sql_flags & SQL_NewPlannerSingleTable) == 0 || dest == NULL ||
+	    sql_select_preflight_table_scan(select, dest) !=
+		SQL_SELECT_PREFLIGHT_OK)
+		return 0;
+	struct SrcList_item *source = &select->pSrc->a[0];
+	struct space *space = source->space;
+	if (space->index_map == NULL || space->index_map[0] == NULL ||
+	    space->index_map[0]->def->type != TREE) {
+		sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
+		return 0;
+	}
+	ssize_t row_count = index_size(space->index_map[0]);
+	if (row_count < 0) {
+		sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
+		return 0;
+	}
+	struct sql_physical_table_scan_estimate estimate = {
+		.startup_cost = 0,
+		.total_cost = (double)row_count,
+		.rows = (double)row_count,
+		.row_width = 0,
+		.confidence = 0,
+	};
+	enum sql_physical_reject_reason reason;
+	struct sql_plan_descriptor *plan =
+		sql_physical_table_scan_from_select(select, &estimate, &reason);
+	if (plan == NULL) {
+		sql_select_record_physical_fallback(parse, reason);
+		return 0;
+	}
+	Vdbe *vdbe = parse->pVdbe;
+	struct vdbe_codegen_checkpoint checkpoint;
+	bool hard_error;
+	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0) {
+		sql_plan_descriptor_delete(plan);
+		sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_INVALID_CANDIDATE);
+		return 0;
+	}
+	int result_first_reg = parse->nMem + 1;
+	parse->nMem += select->pEList->nExpr;
+	vdbe_emit_open_cursor(parse, source->iCursor, 0, space);
+	if (parse->is_aborted)
+		goto emission_error;
+	if (sql_plan_lower_vdbe_table_scan(plan, vdbe, source->iCursor,
+					   result_first_reg) != 0)
+		goto emission_error;
+	int close_op = sqlVdbeAddOp1(vdbe, OP_Close, source->iCursor);
+	if (close_op != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error)
+		goto emission_error;
+	sql_expr_type_cache_change(parse, result_first_reg,
+				   select->pEList->nExpr);
+	dest->iSdst = result_first_reg;
+	dest->nSdst = select->pEList->nExpr;
+	vdbe->planner_path_class = "new_planner";
+	vdbe_codegen_checkpoint_commit(&checkpoint);
+	sql_plan_descriptor_delete(plan);
+	return 1;
+emission_error:
+	hard_error = parse->is_aborted ||
+		diag_last_error(diag_get()) != checkpoint.diag_error;
+	vdbe_codegen_checkpoint_rollback(&checkpoint);
+	sql_plan_descriptor_delete(plan);
+	if (hard_error) {
+		parse->is_aborted = true;
+		return -1;
+	}
+	sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_INVALID_CANDIDATE);
+	return 0;
 }
 
 /*
@@ -6279,6 +6385,13 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	pGroupBy = p->pGroupBy;
 	pHaving = p->pHaving;
 	sDistinct.isTnct = (p->selFlags & SF_Distinct) != 0;
+	int lower_rc = sql_select_try_lower_table_scan(pParse, p, pDest);
+	if (lower_rc < 0)
+		goto select_end;
+	if (lower_rc > 0) {
+		rc = 0;
+		goto select_end;
+	}
 
 #ifdef SQL_DEBUG
 	if (sqlSelectTrace & 0x400) {
@@ -6649,7 +6762,6 @@ sqlSelect(Parse * pParse,		/* The parser context */
 				 * in sorted order
 				 */
 				int regBase;
-				int regRecord;
 				int nCol;
 				int nGroupBy;
 

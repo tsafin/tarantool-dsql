@@ -46,6 +46,7 @@ const char *session_setting_strs[SESSION_SETTING_COUNT] = {
 	"sql_full_column_names",
 	"sql_full_metadata",
 	"sql_jit",
+	"sql_new_planner_single_table",
 	"sql_parser_debug",
 	"sql_recursive_triggers",
 	"sql_reverse_unordered_selects",

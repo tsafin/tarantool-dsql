@@ -1054,6 +1054,7 @@ struct sql {
 #define SQL_WhereTrace     0x00008000       /* Debug info about optimizer's work */
 #define SQL_VdbeListing    0x00000400	/* Debug listings of VDBE programs */
 #define SQL_ReverseOrder   0x00020000	/* Reverse unordered SELECTs */
+#define SQL_NewPlannerSingleTable 0x00010000 /* Use the bounded SQL planner */
 #define SQL_RecTriggers    0x00040000	/* Enable recursive triggers */
 #define SQL_AutoIndex      0x00100000	/* Enable automatic indexes */
 #define SQL_EnableTrigger  0x01000000	/* True to enable triggers */
