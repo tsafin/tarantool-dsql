@@ -370,6 +370,8 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 	if (index_count > SIZE_MAX / sizeof(**indexes) ||
 	    index_count > SIZE_MAX / sizeof(**prefixes))
 		return false;
+	/* Make partial-allocation cleanup aware of every owned prefix slot. */
+	relation->index_count = index_count;
 	size_t index_bytes = index_count * sizeof(**indexes);
 	size_t prefix_ptr_bytes = index_count * sizeof(**prefixes);
 	if (index_bytes > max_bytes - *scratch_bytes ||
