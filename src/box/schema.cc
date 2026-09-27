@@ -85,6 +85,12 @@ box_schema_version(void)
 	return schema_version;
 }
 
+API_EXPORT uint64_t
+box_catalog_version(void)
+{
+	return space_cache_version;
+}
+
 /** Called from Lua via FFI to get the current schema version. */
 extern "C" uint32_t
 box_dd_version_id(void)

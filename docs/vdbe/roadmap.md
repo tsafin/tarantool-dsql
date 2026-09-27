@@ -588,10 +588,12 @@ review of IDs and formats.
   engine stubs for lifecycle/error injection.
   The context now captures the local commit-vclock signature and rejects
   sampling/finish if it changes, with unit coverage for drift during engine
-  sampling and again at finish. This is only a volatile local commit-generation
-  guard, not a durable/cross-node snapshot identity; callers still need
-  catalog/schema/index-definition provenance before it can participate in a
-  candidate generation. READ_CONFIRMED excludes prepared/unconfirmed writes but does
+  sampling and again at finish. It now also captures and revalidates the local
+  `space_cache_version` catalog generation alongside schema version and
+  per-index unique IDs; tests inject catalog-cache drift both during sampling
+  and at finish, and the catalog token is exposed to the volatile collector.
+  These are local volatile generation guards, not durable/cross-node snapshot
+  identities. `READ_CONFIRMED` excludes prepared/unconfirmed writes but does
   not itself freeze confirmed commits. A completed earlier sample
   can reach the caller's off-side staging sink if a later target fails, so the
   caller must discard all staging unless the full collection validates. This

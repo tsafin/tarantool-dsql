@@ -21,6 +21,7 @@ struct sql_stats_tx_context {
 	struct sql_stats_tx_target *targets;
 	size_t target_count;
 	int64_t txn_id;
+	uint64_t catalog_version;
 	uint64_t schema_version;
 	uint64_t visibility_id;
 	bool active;
@@ -160,6 +161,7 @@ tx_context_valid(struct sql_stats_tx_context *context)
 {
 	return has_required_isolation(context) &&
 		has_same_visibility(context) &&
+		box_catalog_version() == context->catalog_version &&
 		box_schema_version() == context->schema_version &&
 		validate_targets(context, true);
 }
@@ -195,6 +197,7 @@ sql_stats_tx_context_begin(
 		}
 	}
 	context->schema_version = box_schema_version();
+	context->catalog_version = box_catalog_version();
 	if (box_vclock == NULL || vclock_sum(box_vclock) < 0) {
 		free_context(context);
 		return -1;
@@ -213,6 +216,7 @@ sql_stats_tx_context_begin(
 	if (context->txn_id < 0 ||
 	    box_txn_set_isolation(TXN_ISOLATION_READ_CONFIRMED) != 0 ||
 	    !has_required_isolation(context) ||
+	    box_catalog_version() != context->catalog_version ||
 	    box_schema_version() != context->schema_version ||
 	    !validate_targets(context, true)) {
 		if (owns_current_txn(context))
@@ -229,6 +233,13 @@ sql_stats_tx_context_visibility_id(
 	const struct sql_stats_tx_context *context)
 {
 	return context == NULL ? 0 : context->visibility_id;
+}
+
+uint64_t
+sql_stats_tx_context_catalog_version(
+	const struct sql_stats_tx_context *context)
+{
+	return context == NULL ? 0 : context->catalog_version;
 }
 
 int
@@ -321,6 +332,7 @@ sql_stats_tx_context_finish(struct sql_stats_tx_context **context_ptr)
 		return -1;
 	bool complete = !context->failed && has_required_isolation(context) &&
 		has_same_visibility(context) &&
+		box_catalog_version() == context->catalog_version &&
 		box_schema_version() == context->schema_version &&
 		validate_targets(context, true);
 	for (size_t i = 0; i < context->target_count; i++)

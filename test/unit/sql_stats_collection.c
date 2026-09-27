@@ -18,6 +18,7 @@
 
 static struct vclock test_vclock;
 const struct vclock *box_vclock = &test_vclock;
+uint32_t space_cache_version;
 
 static uint64_t test_schema_version = 12;
 static int test_read_view_mode;
@@ -138,6 +139,12 @@ uint64_t
 box_schema_version(void)
 {
 	return test_schema_version;
+}
+
+uint64_t
+box_catalog_version(void)
+{
+	return space_cache_version;
 }
 
 bool
@@ -375,6 +382,7 @@ reset_test_txn(void)
 	test_schema_change_on_isolation = false;
 	test_engine_sample_mode = 0;
 	test_schema_version = 12;
+	space_cache_version = 4;
 	vclock_create(&test_vclock);
 	test_space_index_map[8] = &test_index;
 	test_index.unique_id = 808;
@@ -383,7 +391,7 @@ reset_test_txn(void)
 static void
 test_transaction_sample_context(void)
 {
-	plan(27);
+	plan(32);
 	header();
 	reset_test_txn();
 	struct sql_stats_collection_target target = {.space_id = 42, .index_id = 8};
@@ -424,6 +432,8 @@ test_transaction_sample_context(void)
 	   test_txn_isolation == TXN_ISOLATION_READ_CONFIRMED &&
 	   sql_stats_tx_context_visibility_id(context) == 0,
 	   "context owns a READ_CONFIRMED transaction and captures visibility");
+	ok(sql_stats_tx_context_catalog_version(context) == space_cache_version,
+	   "context captures the local catalog-cache generation");
 	struct test_sink_state sink_state = {};
 	struct sql_stats_sample_sink sink = {
 		.context = &sink_state, .consume = test_sink_consume,
@@ -491,6 +501,25 @@ test_transaction_sample_context(void)
 	   "schema-drifted sample context rolls back");
 	reset_test_txn();
 	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0,
+	   "context begins before a local catalog-cache generation change");
+	space_cache_version++;
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_sample_index(context, &target, &request,
+		&sink, &result) != 0 && sink_state.rows == 0 && result.rows == 0 &&
+	   sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
+	   !test_txn_active,
+	   "catalog-cache drift rejects sampling and rolls back the context");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_sample_index(context, &target, &request,
+	   &sink, &result) == 0,
+	   "sample completes before a local catalog-cache generation change");
+	space_cache_version++;
+	ok(sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
+	   !test_txn_active,
+	   "finish-boundary catalog-cache drift rolls back the context");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0,
 	   "context begins before abort ownership validation");
 	int64_t owned_id = test_txn_id;
 	test_txn_id++;
@@ -506,6 +535,7 @@ test_transaction_sample_context(void)
 	   !test_txn_active,
 	   "explicit abort rolls back and consumes the owned context");
 	reset_test_txn();
+	sink_state = (struct test_sink_state){};
 	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
 	   sql_stats_tx_context_sample_index(context, &target, &request,
 		&sink, &result) == 0 && sink_state.rows == 2,

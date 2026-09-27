@@ -128,6 +128,11 @@ uint64_t
 sql_stats_tx_context_visibility_id(
 	const struct sql_stats_tx_context *context);
 
+/* Local space-cache generation captured and checked by the owned context. */
+uint64_t
+sql_stats_tx_context_catalog_version(
+	const struct sql_stats_tx_context *context);
+
 /* Finish commits only after every requested index sample succeeds. */
 int
 sql_stats_tx_context_finish(struct sql_stats_tx_context **context);

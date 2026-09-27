@@ -72,6 +72,14 @@ dd_check_is_disabled(void);
 API_EXPORT uint64_t
 box_schema_version(void);
 
+/**
+ * Returns the current local catalog-cache generation. Unlike the public
+ * schema version, this may advance for cache invalidations that do not
+ * constitute a user-visible DDL change. It is process-local and volatile.
+ */
+API_EXPORT uint64_t
+box_catalog_version(void);
+
 /** \endcond public */
 
 /**
