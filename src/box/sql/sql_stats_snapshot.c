@@ -244,7 +244,8 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 			uint64_t previous = 0;
 			for (size_t k = 0; k < index->prefix_count; k++) {
 				uint64_t value = index->distinct_prefixes[k];
-				if (value == 0 || value > index->tuple_count ||
+				if ((index->tuple_count != 0 && value == 0) ||
+				    value > index->tuple_count ||
 				    (k != 0 && value < previous))
 					goto error;
 				previous = value;

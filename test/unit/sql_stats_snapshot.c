@@ -115,7 +115,7 @@ test_deep_copy_lookup_and_lifetime(void)
 static void
 test_reject_invalid_inputs(void)
 {
-	plan(6);
+	plan(8);
 	header();
 	struct sql_stats_relation_input relation = {
 		.space_id = 1, .row_count = NAN, .average_row_width = 1,
@@ -145,6 +145,19 @@ test_reject_invalid_inputs(void)
 	index.distinct_prefixes = &bad_prefix;
 	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
 	   "distinct count exceeding tuple count rejected");
+	uint64_t empty_prefix = 0;
+	index.tuple_count = 0;
+	index.distinct_prefixes = &empty_prefix;
+	relation.row_count = 0;
+	struct sql_stats_snapshot *empty_snapshot = sql_stats_snapshot_new(1, 1,
+		&relation, 1, 4096);
+	ok(empty_snapshot != NULL,
+	   "zero prefix NDV is accepted for an empty index population");
+	sql_stats_snapshot_release(empty_snapshot);
+	index.tuple_count = 3;
+	relation.row_count = 3;
+	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
+	   "zero prefix NDV remains invalid for a nonempty index");
 	footer();
 	check_plan();
 }
