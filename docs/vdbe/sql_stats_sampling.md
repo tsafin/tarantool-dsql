@@ -602,3 +602,19 @@ or indexes, generation drift, scan-budget failures, and candidate-construction
 failures must preserve the exact installed snapshot. This gate does not depend
 on, or authorize, any persistent schema ID or format choice; the persistence
 schema remains DRAFT.
+
+The immutable snapshot now supports ordered read-only enumeration of borrowed
+relation and index views while the caller retains its reference. This is a
+foundation for the later merge/replace API, not permission to mutate installed
+snapshots or publish relation-by-relation.
+
+```mermaid
+flowchart LR
+    A[One shared read view] --> B[Assemble all relation candidates]
+    B --> C[Build one detached multi-relation snapshot]
+    C --> D{Generations unchanged?}
+    D -- yes --> E[Publish once]
+    D -- no / any failure --> F[Preserve installed snapshot]
+    G[Named ANALYZE] --> H[Merge target into same-generation snapshot]
+    H --> C
+```

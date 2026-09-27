@@ -95,6 +95,25 @@ sql_stats_snapshot_bytes(const struct sql_stats_snapshot *snapshot);
 size_t
 sql_stats_snapshot_relation_count(const struct sql_stats_snapshot *snapshot);
 
+/*
+ * Read-only ordered enumeration for snapshot merge/replace operations. The
+ * returned relation/index pointers are borrowed and valid while the snapshot
+ * is retained by the caller. Out-of-range requests return MISSING and leave
+ * the output pointer NULL.
+ */
+enum sql_stats_lookup_status
+sql_stats_snapshot_relation_at(const struct sql_stats_snapshot *snapshot,
+			       size_t ordinal,
+			       const struct sql_stats_relation **relation);
+
+size_t
+sql_stats_relation_index_count(const struct sql_stats_relation *relation);
+
+enum sql_stats_lookup_status
+sql_stats_relation_index_at(const struct sql_stats_relation *relation,
+			    size_t ordinal,
+			    const struct sql_stats_index **index);
+
 enum sql_stats_lookup_status
 sql_stats_snapshot_get_relation(const struct sql_stats_snapshot *snapshot,
 				uint64_t current_schema_version,

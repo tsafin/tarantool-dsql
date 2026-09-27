@@ -559,6 +559,10 @@ format approval is implied.
   table-target case; (3) add the SQL execution operation and grammar for bare
   and named `ANALYZE`, then test rollback/preservation across both forms.
   Do not route either grammar form through the current one-relation publisher.
+  As groundwork for step (2), the immutable snapshot API now exposes ordered,
+  borrowed relation/index enumeration while the caller retains the snapshot;
+  this is read-only access, not yet merge/replace semantics. The focused
+  `sql_stats_snapshot.test` passes with bounds and lifetime checks.
 - [x] **S1.3a prototype** Volatile collection core — consume sampled tuples, build and
   validate relation/index summaries, then atomically publish one immutable
   candidate snapshot. No persistence or grammar dependency; test rollback on

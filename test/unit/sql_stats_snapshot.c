@@ -7,7 +7,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(21);
+	plan(24);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
@@ -44,6 +44,13 @@ test_deep_copy_lookup_and_lifetime(void)
 	const struct sql_stats_relation *relation = NULL;
 	ok(sql_stats_snapshot_get_relation(snapshot, 7, 42, &relation) ==
 	   SQL_STATS_LOOKUP_AVAILABLE, "matching schema finds relation");
+	const struct sql_stats_relation *ordinal_relation = NULL;
+	ok(sql_stats_snapshot_relation_at(snapshot, 0, &ordinal_relation) ==
+	   SQL_STATS_LOOKUP_AVAILABLE && ordinal_relation == relation,
+	   "snapshot exposes borrowed ordered relation iteration");
+	ok(sql_stats_snapshot_relation_at(snapshot, 1, &ordinal_relation) ==
+	   SQL_STATS_LOOKUP_MISSING && ordinal_relation == NULL,
+	   "out-of-range relation iteration fails closed");
 	ok(sql_stats_relation_row_count(relation) == 10,
 	   "relation data is deep-copied");
 	ok(sql_stats_relation_average_row_width(relation) == 24 &&
@@ -54,6 +61,11 @@ test_deep_copy_lookup_and_lifetime(void)
 	const struct sql_stats_index *index = NULL;
 	ok(sql_stats_relation_get_index(relation, 8, &index) ==
 	   SQL_STATS_LOOKUP_AVAILABLE, "index lookup succeeds");
+	ok(sql_stats_relation_index_count(relation) == 2 &&
+	   sql_stats_relation_index_at(relation, 0, &index) ==
+		   SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_index_id(index) == 8,
+	   "relation exposes borrowed ordered index iteration");
 	ok(sql_stats_index_tuple_count(index) == 10 &&
 	   sql_stats_index_prefix_count(index) == 2 &&
 	   sql_stats_index_distinct_prefix(index, 0) == 2 &&

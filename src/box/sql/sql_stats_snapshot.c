@@ -304,6 +304,34 @@ size_t sql_stats_snapshot_relation_count(const struct sql_stats_snapshot *s)
 { return s == NULL ? 0 : s->relation_count; }
 
 enum sql_stats_lookup_status
+sql_stats_snapshot_relation_at(const struct sql_stats_snapshot *s,
+			       size_t ordinal,
+			       const struct sql_stats_relation **result)
+{
+	if (result != NULL)
+		*result = NULL;
+	if (s == NULL || result == NULL || ordinal >= s->relation_count)
+		return SQL_STATS_LOOKUP_MISSING;
+	*result = &s->relations[ordinal];
+	return SQL_STATS_LOOKUP_AVAILABLE;
+}
+
+size_t sql_stats_relation_index_count(const struct sql_stats_relation *r)
+{ return r == NULL ? 0 : r->index_count; }
+
+enum sql_stats_lookup_status
+sql_stats_relation_index_at(const struct sql_stats_relation *r, size_t ordinal,
+			    const struct sql_stats_index **result)
+{
+	if (result != NULL)
+		*result = NULL;
+	if (r == NULL || result == NULL || ordinal >= r->index_count)
+		return SQL_STATS_LOOKUP_MISSING;
+	*result = &r->indexes[ordinal];
+	return SQL_STATS_LOOKUP_AVAILABLE;
+}
+
+enum sql_stats_lookup_status
 sql_stats_snapshot_get_relation(const struct sql_stats_snapshot *s,
 				uint64_t schema_version, uint32_t space_id,
 				const struct sql_stats_relation **result)
