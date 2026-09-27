@@ -582,7 +582,10 @@ format approval is implied.
   hash adapter where no canonical extractor is supplied; unsupported key
   definitions remain fail-closed. Native output is labeled as 32-bit hash
   equivalence-class NDV (with collision-risk confidence discount), not exact
-  SQL NDV. The TEST_BUILD memtx/Vinyl test checks this provenance. The shared
+  SQL NDV. The TEST_BUILD memtx/Vinyl test checks this provenance; candidate
+  validation separately requires index and relation population bases to match,
+  while allowing the NDV basis to identify the hash domain. Both focused
+  collection unit and SQL runtime targets pass locally. The shared
   view and candidate API are volatile only.
   **Remaining S1.2 gate:** production SQL still needs table/relation discovery,
   the `ANALYZE` execution operation and grammar, and rollback/preservation

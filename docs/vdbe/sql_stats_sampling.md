@@ -302,10 +302,11 @@ caller; raw MessagePack encodings are not treated as SQL values. The native
 format and copies the index key definition, reconstructs native Tarantool
 tuples from delivered full-row bytes, then hashes each prefix using
 `tuple_hash_key_part()` and the key-part type/collation. It initially accepts
-only TREE/HASH indexes with STRING, DOUBLE, BOOLEAN, or UNSIGNED parts and
-rejects multikey and functional key definitions. BOOLEAN is supported because its
-accepted MessagePack domain has exactly two canonical boolean encodings and
-the comparator decodes those values before comparing. Native mode reports
+only TREE/HASH indexes with STRING, DOUBLE, BOOLEAN, UNSIGNED, or signed
+INTEGER parts and rejects multikey and functional key definitions. BOOLEAN is
+supported because its accepted MessagePack domain has exactly two canonical
+boolean encodings and the comparator decodes those values before comparing;
+INTEGER accepts canonical signed MessagePack encodings. Native mode reports
 `hash_bits=32`: because HLL receives the engine's 32-bit index hash, distinct
 SQL keys can collide before sketching,
 so estimates can be biased for high cardinalities. It does not claim exact or
@@ -323,6 +324,10 @@ while custom canonical extractors retain `visible-engine-index-count-v1`.
 Confidence is reduced by the estimator's 32-bit collision-risk penalty. This
 does not make hash-equivalence NDV interchangeable with exact SQL NDV, and
 transaction-owned collectors still require explicit canonical extractors.
+Candidate validation requires each index's `population_basis` to match the
+relation's row-population basis, while allowing `ndv_basis` to identify the
+independent hash/estimator domain. This preserves the shared population gate
+without forcing hash-equivalence counts to masquerade as exact row-derived NDV.
 The TEST_BUILD memtx/Vinyl collector test exercises native collection and
 asserts the hash-specific provenance label. This is still a volatile producer
 building block, not SQL `ANALYZE`. Native-adapter checks were added
