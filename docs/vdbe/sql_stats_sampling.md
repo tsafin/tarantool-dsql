@@ -265,8 +265,9 @@ or the temporary prefix-hash vector. The caller must supply a format and key
 definition from the same captured schema version. This is an aggregation
 building block, not a complete S1.3a producer. Native-adapter checks were added
 to `key_def.test` for leading prefixes, unsupported type rejection, and the
-DOUBLE hash normalization of integer/floating encodings; a manually linked
-local `key_def.test` run passed. The full configured CMake target was not run.
+DOUBLE hash normalization of integer/floating encodings. The full configured
+CMake `key_def.test` target was built and passed locally, including all 10
+native-adapter checks.
 
 No common cross-engine visibility mechanism has been established. A viable
 collector boundary must atomically capture catalog/schema/index definitions

@@ -516,7 +516,9 @@ review of IDs and formats.
   canonical SQL-value extractor. It counts delivered rows/bytes, bounds
   accumulator memory, and suppresses output on extractor failure; it
   deliberately does not hash raw MessagePack or infer population-level NDV.
-  Eight focused unit checks pass. A focused runtime luatest also exercises the
+  Eight generic-summary checks pass. The native index-hash adapter is also
+  covered by 10 checks in the fully configured `key_def.test` target, which
+  builds and passes locally. A focused runtime luatest also exercises the
   owned READ_CONFIRMED context against real memtx and Vinyl primary and
   secondary indexes; `sql_stats_test` passes locally. Neither slice provides
   a common cross-index visibility boundary or a complete candidate. The
