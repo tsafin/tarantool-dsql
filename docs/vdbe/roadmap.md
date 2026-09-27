@@ -1408,6 +1408,16 @@ DML, triggers, subprograms, non-deterministic functions.
   route ledger; M3.5 remains open. The focused `planner_fallback_access_hint`
   test-run passed on both memtx and Vinyl in the root Clang-19 build.
 
+  **Recursive CTE producer regression (2026-09-27).** The prior CTE check used
+  only a non-recursive CTE and ran with the feature disabled. A focused SQL
+  regression now enables the new planner for a recursive CTE whose anchor is a
+  direct `VALUES` emitter and whose recursive term is a SELECT. It asserts the
+  enclosing statement remains `fallback` / `UNSUPPORTED_CTE` and increments
+  exactly one total and CTE-specific fallback counter. This proves stable
+  statement-level preflight classification across this mixed recursive shape;
+  it does not supply per-component route evidence or close the shared-VDBE
+  ownership gap in the inventory above.
+
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
