@@ -1178,6 +1178,12 @@ DML, triggers, subprograms, non-deterministic functions.
   back. One-sided bounds now also reject a scan direction that cannot
   terminate correctly (lower-bound scans must ascend; upper-bound scans must
   descend) before VDBE mutation; the focused unit target passes all 32 checks.
+  A SQL-luatest exercises unsafe opposite directions on memtx and Vinyl:
+  `id > 1 ORDER BY id DESC` and `id < 3 ORDER BY id ASC` preserve ordered
+  legacy results with the feature enabled, report
+  `fallback / UNSUPPORTED_FILTER` on that attempted route, and retain the
+  existing `fallback / UNSUPPORTED_EXPRESSION` classification when disabled.
+  The focused planner-flag parity test passes all five cases.
   Those emitter checks pin all four range opcodes (`SeekGT`,
   `SeekGE`, `SeekLT`, `SeekLE`), ascending/descending step opcodes, signed
   negative range key encoding, and full-width unsigned `P4_UINT64` preservation, alongside
@@ -1591,7 +1597,9 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_EXPRESSION` classification for ordering outside the resolved
   expression contract, and exact total/per-reason fallback deltas (14 for
   seven disabled EXPLAIN+execution pairs, two for the single rejected enabled
-  pair). The focused luatest passes locally. A separate two-connection case
+  pair). Opposite-direction one-sided ranges now also pin flag-on
+  `UNSUPPORTED_FILTER` versus flag-off `UNSUPPORTED_EXPRESSION` with ordered
+  result parity. The focused luatest passes locally. A separate two-connection case
   also verifies session isolation: enabling or disabling
   `sql_new_planner_single_table` changes only that net.box session's route,
   while another connection retains its prior/default route. This focused
