@@ -5964,7 +5964,10 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		return 0;
 	if (sql_select_preflight_table_scan(select, dest) !=
 	    SQL_SELECT_PREFLIGHT_OK) {
-		if (select->pWhere != NULL)
+		if (select->pOrderBy != NULL)
+			sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_UNSUPPORTED_ORDER);
+		else if (select->pWhere != NULL)
 			sql_select_record_physical_fallback(parse,
 				SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER);
 		return 0;
