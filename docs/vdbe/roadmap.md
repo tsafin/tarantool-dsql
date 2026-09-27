@@ -1048,7 +1048,12 @@ DML, triggers, subprograms, non-deterministic functions.
   `SelectDest` result registers. It accepts only a resolved direct-column
   projection from one base table and requires a TREE primary index. The
   no-filter route supports optional primary-key ordering by scanning in the
-  requested direction. It also lowers `primary_key_part IS NOT NULL` as a full
+  requested direction. Composite primary indexes now support ORDER BY on a
+  leading key prefix with uniform ASC or DESC direction; mixed directions and
+  non-prefix terms remain on legacy codegen. Memtx/Vinyl off/on result parity
+  covers ascending prefix order and complete ascending/descending composite
+  key order, while preflight unit tests reject mixed and non-prefix shapes. It
+  also lowers `primary_key_part IS NOT NULL` as a full
   scan, relying on the primary-key non-null invariant, and `primary_key_part
   IS NULL` as an empty result using the same invariant, including secondary
   parts of a composite primary key. Other columns' IS NULL and IS NOT NULL
@@ -1433,6 +1438,10 @@ DML, triggers, subprograms, non-deterministic functions.
   representation of `INT64_MIN`, avoiding a false unsupported-expression
   fallback. The test asserts unchanged total and per-reason fallback counters
   across EXPLAIN plus execution and confirms row parity; memtx and Vinyl pass.
+  A new `planner_composite_pk_order.test.lua` acceptance case confirms the
+  prefix and full-key routes report `new_planner`, preserves ASC/DESC row order
+  on both engines, and leaves mixed-direction or non-prefix ordering on the
+  legacy route with exact flag-off/on result parity.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
