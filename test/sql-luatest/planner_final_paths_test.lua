@@ -288,12 +288,16 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
             direct_null_range_filter = [[SELECT id FROM
                 planner_component_matrix WHERE v IS NOT NULL AND id > 1
                 ORDER BY id ASC]],
+            unsupported_null_filter = [[SELECT id FROM
+                planner_component_matrix WHERE v IS NULL AND
+                v IS NOT NULL]],
         }
         local result = {}
         for name, sql in pairs(queries) do
             if name == 'nested_destination' or
                name == 'direct_null_filter' or
-               name == 'direct_null_range_filter' then
+               name == 'direct_null_range_filter' or
+               name == 'unsupported_null_filter' then
                 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
             end
             local explain_sql = sql
@@ -335,7 +339,8 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
             result[name] = item
             if name == 'nested_destination' or
                name == 'direct_null_filter' or
-               name == 'direct_null_range_filter' then
+               name == 'direct_null_range_filter' or
+               name == 'unsupported_null_filter' then
                 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             end
         end
@@ -353,6 +358,10 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                     'new_planner')
     t.assert_equals(snapshots.direct_null_range_filter.routes[1],
                     'new_planner')
+    t.assert_equals(snapshots.unsupported_null_filter.path_class, 'fallback')
+    t.assert_equals(snapshots.unsupported_null_filter.fallback_reason,
+                    'UNSUPPORTED_FILTER')
+    t.assert_equals(snapshots.unsupported_null_filter.routes[1], 'fallback')
     t.assert_gt(snapshots.union.count, 1)
     t.assert_gt(snapshots.intersect.count, 1)
     t.assert_gt(snapshots.scalar_exists.count, 1)
