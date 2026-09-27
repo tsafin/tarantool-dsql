@@ -5678,7 +5678,8 @@ static bool sql_select_has_collation(Select *select);
 static bool sql_select_has_unsupported_expr(Parse *parse, Select *select);
 
 static void
-sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
+sql_select_record_fallback(Parse *parse, Select *select, SelectDest *dest,
+			   bool is_aggregate)
 {
 	Vdbe *v = parse->pVdbe;
 	SrcList *src = select->pSrc;
@@ -5726,7 +5727,8 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 					SQL_LOGICAL_REJECT_COLLATION);
 		else if (sql_select_has_unsupported_expr(parse, select) &&
 			 !((parse->sql_flags & SQL_NewPlannerSingleTable) != 0 &&
-			   select->pWhere != NULL))
+			   sql_select_preflight_table_scan(select, dest) ==
+			   SQL_SELECT_PREFLIGHT_OK))
 			sql_select_record_fallback_reason(parse,
 					SQL_LOGICAL_REJECT_EXPRESSION);
 		return;
@@ -6202,7 +6204,7 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	 * Aggregate fallback is recorded only once its path actually enters
 	 * sqlWhereBegin(), since simple count(*) can use OP_Count directly.
 	 */
-	sql_select_record_fallback(pParse, p, false);
+	sql_select_record_fallback(pParse, p, pDest, false);
 #ifdef SQL_DEBUG
 	if (sqlSelectTrace & 0x100) {
 		SELECTTRACE(0x100, pParse, p, ("after name resolution:\n"));
@@ -7065,7 +7067,7 @@ sqlSelect(Parse * pParse,		/* The parser context */
 				 */
 				resetAccumulator(pParse, &sAggInfo);
 				/* The simple COUNT(*) branch above bypasses sqlWhereBegin(). */
-				sql_select_record_fallback(pParse, p, true);
+				sql_select_record_fallback(pParse, p, pDest, true);
 				pWInfo =
 				    sqlWhereBegin(pParse, pTabList, pWhere,
 						      pMinMax, 0, flag, 0);

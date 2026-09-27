@@ -116,3 +116,83 @@ g.test_unsigned_primary_key_off_on_off_parity = function()
         end
     end)
 end
+
+g.test_text_primary_key_scan_off_on_off_parity = function()
+    g.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_flag_text_' .. engine
+            box.execute(('CREATE TABLE %s (id TEXT PRIMARY KEY, v INTEGER) ' ..
+                         "WITH ENGINE = '%s'"):format(name, engine))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         "('b', NULL), ('a', 10), ('c', 30)"):format(name))
+            local queries = {
+                ('SELECT id, v FROM %s'):format(name),
+                ('SELECT id FROM %s ORDER BY id DESC LIMIT 2'):format(name),
+            }
+            local function capture(routes)
+                local rows = {}
+                for i, sql in ipairs(queries) do
+                    local explain = box.execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. sql)
+                    t.assert_equals(explain.rows[1][3], routes[i][1],
+                                    ('query %d route on %s: %s/%s')
+                                    :format(i, engine,
+                                            tostring(explain.rows[1][3]),
+                                            tostring(explain.rows[2][3])))
+                    t.assert_equals(explain.rows[2][3], routes[i][2],
+                                    ('query %d reason on %s')
+                                    :format(i, engine))
+                    rows[i] = box.execute(sql).rows
+                end
+                return rows
+            end
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local disabled_before = box.stat.sql()
+            local disabled = capture({
+                {'current_where_c'},
+                {'fallback', 'UNSUPPORTED_EXPRESSION'},
+            })
+            local disabled_after = box.stat.sql()
+            t.assert_equals(disabled_after.sql_planner_fallback_total,
+                            disabled_before.sql_planner_fallback_total + 2)
+            t.assert_equals(
+                disabled_after.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total,
+                disabled_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total + 2)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            local enabled_before = box.stat.sql()
+            local enabled = capture({
+                {'new_planner'},
+                {'new_planner'},
+            })
+            local enabled_after = box.stat.sql()
+            t.assert_equals(enabled_after.sql_planner_fallback_total,
+                            enabled_before.sql_planner_fallback_total)
+            t.assert_equals(
+                enabled_after.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total,
+                enabled_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total)
+            t.assert_equals(enabled[2], {{'c'}, {'b'}})
+            t.assert_equals(disabled[2], {{'c'}, {'b'}})
+            for i = 1, #queries do
+                table.sort(enabled[i], function(a, b) return a[1] < b[1] end)
+                table.sort(disabled[i], function(a, b) return a[1] < b[1] end)
+                t.assert_equals(enabled[i], disabled[i],
+                                ('text-key rows differ for query %d on %s')
+                                :format(i, engine))
+            end
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local disabled_again = capture({
+                {'current_where_c'},
+                {'fallback', 'UNSUPPORTED_EXPRESSION'},
+            })
+            for i = 1, #queries do
+                table.sort(disabled_again[i],
+                           function(a, b) return a[1] < b[1] end)
+                t.assert_equals(disabled_again[i], disabled[i],
+                                ('repeat rows differ for query %d on %s')
+                                :format(i, engine))
+            end
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
