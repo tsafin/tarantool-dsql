@@ -84,6 +84,10 @@ g.test_bare_and_named_analyze_publish_atomically = function()
             parts = {{field = 'coordinates', type = 'array'}},
         })
         unsupported:insert({1, {1, 2}})
+        local before_bare_failure = adapter.state()
+        local bare_unsupported_ok, _, bare_unsupported_error = pcall(box.execute,
+            [[ANALYZE]])
+        local after_bare_failure = adapter.state()
         local before_failure = adapter.state()
         local unsupported_ok, _, unsupported_error = pcall(box.execute,
             [[ANALYZE analyze_volatile_unsupported]])
@@ -101,6 +105,10 @@ g.test_bare_and_named_analyze_publish_atomically = function()
             view_rejected = view_ok and view_error ~= nil,
             unsupported_rejected = unsupported_ok and
                 unsupported_error ~= nil,
+            bare_unsupported_rejected = bare_unsupported_ok and
+                bare_unsupported_error ~= nil,
+            bare_failure_preserved = same_snapshot(before_bare_failure,
+                                                   after_bare_failure),
             failure_preserved = same_snapshot(before_failure, after_failure),
             memtx_id = memtx.id,
             vinyl_id = vinyl.id,
@@ -123,6 +131,8 @@ g.test_bare_and_named_analyze_publish_atomically = function()
     t.assert_equals(result.missing_rejected, true)
     t.assert_equals(result.view_rejected, true)
     t.assert_equals(result.unsupported_rejected, true)
+    t.assert_equals(result.bare_unsupported_rejected, true)
+    t.assert_equals(result.bare_failure_preserved, true)
     t.assert_equals(result.failure_preserved, true)
 
     local row_counts = {}

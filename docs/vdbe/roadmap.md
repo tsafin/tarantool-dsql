@@ -605,7 +605,10 @@ format approval is implied.
   `sql_stats_analyze_budget.h` and `sql_stats_sampling.md`. The focused
   `analyze_volatile_test.lua` runtime suite and `sql_stats_collection.test`
   unit target pass against the current build. Runtime wiring must consume
-  those exact ceilings.
+  those exact ceilings. The volatile SQL integration test now injects an
+  unsupported R-tree index into both named and bare collection requests and
+  verifies each failure leaves the installed snapshot unchanged; the TEST_BUILD
+  runtime suite passes locally.
 
   ```mermaid
   flowchart TD
