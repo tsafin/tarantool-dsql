@@ -374,7 +374,7 @@ them.
   per-index tuple-count semantics and definition version. Validation
   rejects incomplete definitions, invalid index ordinals, inconsistent stats
   absence, and malformed limit/order metadata. A deterministic internal
-  MsgPack input format v4 emits fixed lexicographic map-key order, sorts
+  MsgPack input format v5 emits fixed lexicographic map-key order, sorts
   logical indexes by key, and preserves semantically ordered columns,
   projections, ordering, and key parts. Reordered equivalent index inputs
   serialize to byte-identical valid MsgPack. Predicate, projection, and
@@ -396,7 +396,7 @@ them.
   `SqlStatsSnapshot`, including visible/physical/estimated population
   semantics, population/NDV provenance, width, confidence, and freshness
   fields. Missing or stale relation summaries stay explicitly
-  absent; malformed or non-integral cardinalities that replay input v4 cannot
+  absent; malformed or non-integral cardinalities that replay input v5 cannot
   represent exactly fail closed. Fractional average row widths are retained
   exactly as finite doubles. Planner configuration remains caller-supplied.
   All extractors reject unsupported cursor bindings,
@@ -415,7 +415,7 @@ them.
   wired to it. Stats capture from the active planner provider, joins/aggregates,
   and a planner consumer remain absent. M1.4 remains open. The external
   diagnostic envelope remains v2 and `replayable=false`; the internal detached
-  input prototype is v4 and is not embedded in that envelope.
+  input prototype is v5 and is not embedded in that envelope.
   A follow-up live-path audit confirms there is no safe capture-only splice
   yet. `sqlVdbeList()` in `src/box/sql/vdbeaux.c` writes the diagnostic
   envelope directly and has no retained `Select`, cursor map, stats snapshot,
@@ -483,27 +483,27 @@ them.
   v2 diagnostic envelope remains `replayable=false` with no replay inputs.
   `planner_vm_migration.md` records the scope boundary and Mermaid flow.
   *parallel: yes*.
-- [ ] **M1.4/M1.5 selection-consumer contract audit.** The newly chosen
-  selection-only scope is not yet an executable selector specification, so no
-  scoring or tie-break implementation is safe. The only active selector found
-  is `wherePathSolver()` (`src/box/sql/where.c`): it combines loops into
-  multi-relation paths, gates by prerequisite/relation masks, maintains
-  order/reverse-scan state, prunes by dominance within partitions, applies a
-  configured global beam, and may include ORDER BY sorting cost (with a second
-  solver pass). The v4 candidate record instead exposes per-candidate estimated
-  rows and floating-point startup/total costs, without defining their mapping
-  to the solver's `LogEst` values, path state, sorting behavior, or equal-cost
-  tie-break. Its preserved input rank is a provider ordering, not a selector
-  result. A standalone `min(total_cost)` consumer would therefore invent
-  behavior and cannot claim to reproduce the live selector. The smallest
-  prerequisite is a versioned selection contract: explicitly define the
-  supported candidate domain (including one-relation restrictions), canonical
-  cost representation/conversion, ordering and tie-break semantics, and
-  whether ORDER BY/path properties participate. Then expose a detached
-  consumer for that contract and test reordered/equal-cost candidates plus
-  unavailable-state rejection. Keep external diagnostic v2 unchanged and
-  `replayable=false`; this audit changes no live planning behavior.
-  *parallel: no, this contract must precede the consumer.*
+- [ ] **M1.4/M1.5 final-path selector prototype.** A versioned detached
+  selector now reproduces the final reduction in `wherePathSolver()` over an
+  explicitly captured, post-beam final-path list: compare exact signed
+  16-bit `LogEst` `rCost`, replace only on strict improvement, and therefore
+  retain the first path on equal cost. It is deliberately not a min-cost
+  selector over access loops and does not rerun enumeration, dominance, or
+  beam pruning. Internal replay input now serializes ordered final-path
+  fingerprints, exact path/unsorted/output LogEst values, `isOrdered`, and the
+  one-relation reverse-scan mask, plus selector identity; the internal format
+  advances to v5. Tests cover unique-min reorder stability, first-on-tie input
+  order, captured ORDER BY/reverse metadata, unavailable versus known-empty
+  final paths, and selector identity. Access-loop candidates alone no longer
+  pass replay readiness. This closes only the detached reducer contract: no
+  active `wherePathSolver()` producer captures the final retained `aFrom`
+  paths, their final `rCost`, and stable plan fingerprints. A producer must
+  attach after the solver's final beam state is known (including the relevant
+  ORDER BY pass), publish all paths or none, and preserve retained list order;
+  capture tests must pin empty/error/unavailable cases. Until then, M1.4 stays
+  open, M1.5 has no live artifact to consume, external v2 remains
+  `replayable=false`, and execution/EXPLAIN behavior is unchanged.
+  *parallel: yes; selector prototype is independent of live producer capture.*
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2
   diagnostic envelope still has no normalized predicates, relation/access-path
@@ -513,13 +513,14 @@ them.
   The planner currently has no entry point that consumes normalized IR,
   logical access-path metadata, and captured statistics without the SQL
   compiler/catalog/storage dependencies; the replay contract requires that
-  API and a test replaying after source state is unavailable. The v4 input
-  prototype now exposes a capture-completeness gate: missing candidate-provider
-  output is `INCOMPLETE`, while a known empty list is complete and permits a
-  future replay implementation to report no access path. This is only a
-  prerequisite check; it does not
-  dispatch a planner, establish supported algorithm/config versions, or change
-  the external envelope's `replayable=false` status. M1.5 remains open.
+  API and a test replaying after source state is unavailable. The v5 input
+  prototype's readiness gate requires complete final-path capture: absent
+  paths are `INCOMPLETE`, while a known empty post-beam list is complete and
+  permits the selector to report `NO_PLAN`. Access-loop candidates alone are
+  insufficient. The selector is only a detached final reducer: without a live
+  final-path producer, it cannot dispatch from an EXPLAIN snapshot or support
+  source-unavailable replay. It does not change the external envelope's
+  `replayable=false` status. M1.5 remains open.
   *parallel: yes*.
 
 ---

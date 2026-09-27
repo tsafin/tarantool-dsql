@@ -535,7 +535,7 @@ may be meaningful; stable logical candidate keys must be unique. Missing
 provider output differs from a known empty set. All candidate data is supplied
 by callers/providers: no active SQL planner producer is wired to this model.
 It copies values and stores no live `Expr`, catalog handle, cursor, or storage
-ID. It emits an internal version-4 MsgPack representation with fixed map-key
+ID. It emits an internal version-5 MsgPack representation with fixed map-key
 order and logical-index ordering. It still does not validate relation/index
 schema-definition syntax or feed a planner.
 `sql_replay_input_extract_select()` now accepts a resolved single-relation
@@ -622,31 +622,29 @@ or change the external v2 diagnostic envelope.
 #### M1.4 replay-scope contract gate
 
 The replay scope is **selection only**, conditional on a complete ordered
-`access_candidates` list captured by the live planner. This is the bounded
-claim the v4 owned-input model can represent without embedding compiler,
-catalog, or storage dependencies. A successful replay will verify selection
-and deterministic tie-breaking for that captured candidate set; it will not
-verify that live enumeration discovered every viable path. Candidate capture
-must therefore have an explicit post-enumeration completion boundary and be
-all-or-nothing. Candidate enumeration is an input to replay, not rerun by it.
-The provider-completeness tests establish detached transport behavior only,
-not producer completeness.
-The configured Clang-19 `sql_replay_input.test` target was rebuilt and passed
-locally (including 19 access-candidate checks); those tests validate detached
-encoding, absent-vs-empty provider state, and incomplete-prefix rejection, not
-the enumeration-versus-selection scope decision.
+final `WherePath` list captured by the live planner. The detached v5 model
+represents these final candidates separately from pre-selection
+`access_candidates`, without embedding compiler, catalog, or storage
+dependencies. A successful replay verifies only the final reducer's choice
+and deterministic tie-breaking for that captured post-beam list; it does not
+verify that live enumeration discovered every viable path. Candidate
+enumeration, dominance, and beam pruning are inputs to replay, not rerun by it.
+The producer must capture final cost after relevant ORDER BY costing and
+publish the complete retained list or none. The current SQL planner has no
+such capture caller.
 
 The selected scope has these boundaries:
 
 | Scope | Replay input | What a passing replay proves |
 | --- | --- | --- |
-| Selection only (selected) | The complete ordered candidate set plus selector configuration/identity | Selection and deterministic tie-breaking conditional on that candidate set |
+| Selection only (selected) | Complete ordered final-path set with exact `LogEst` final costs plus selector identity | Final path choice and first-retained equal-cost tie-break conditional on that set |
 | Enumeration + selection (out of scope) | Normalized expression, logical schema, exact stats, and planner configuration/algorithm identity; no precomputed candidate list | Candidate discovery and selected-plan behavior for the supported planner subset |
 
-For M1.4, v4 `access_candidates` are replay input and the offline planner API
-must implement only selection under a captured selector identity/configuration.
-The acceptance test must vary candidate ordering/content and verify the
-selected-plan fingerprint. `replayable` will mean selection-replayable, not
+For M1.4, v5 `final_path_candidates` are replay input and the detached API
+implements the final `wherePathSolver()` reducer under
+`SQL_REPLAY_SELECTOR_FINAL_PATH_V1`: strict minimum exact `LogEst` `rCost`,
+first retained candidate on ties. The acceptance test varies final-path order
+and content and verifies the selected-plan fingerprint. `replayable` will mean selection-replayable, not
 enumeration-replayable. This decision does not affect the diagnostic-only v2
 contract: v2 remains
 `replayable=false`, with no `replay_inputs`. No outer envelope version, new
@@ -662,41 +660,41 @@ flowchart LR
     E[Enumeration replay] -. explicitly out of M1.4 scope .-> C
 ```
 
-#### M1.4/M1.5 offline selector contract audit
+#### M1.4/M1.5 detached final-path selector prototype
 
-The selection-only decision narrows what replay should prove, but the source
-does not currently define a detached selector that can consume v4
-`access_candidates`. The only active path selector is `wherePathSolver()` in
-`src/box/sql/where.c`. It is a path-combination search, not a ranked-list
-consumer: for each level it checks prerequisite and relation masks, computes
-path run/setup and output-row estimates in `LogEst`, tracks ORDER BY coverage
-and reverse-scan state, applies same-partition dominance, and retains a bounded
-beam. When relevant it adds sort cost, and WHERE planning may invoke it twice
-to account for ORDER BY. Final equal-cost behavior follows retained-path
-iteration order. These are observable selection semantics that a replay
-consumer would need to preserve if it claimed selector parity.
+The exact bounded selector contract is the final reduction in
+`wherePathSolver()` (`src/box/sql/where.c`): after all path-generation,
+dominance, and beam rounds have produced the retained final `WherePath` array,
+scan that array in order and replace the winner only when another path has a
+strictly smaller `rCost`. Costs are exact signed 16-bit `LogEst` values. Equal
+cost retains the first final-array entry. This consumer does not repeat path
+enumeration, dominance, beam pruning, or ORDER BY costing; those operations
+must already be reflected in the captured final paths' `rCost`.
 
-The v4 `sql_replay_access_candidate` instead stores a candidate kind, logical
-index and constraints, scan direction, projected columns and produced order,
-estimated rows, and floating-point startup/total/width/confidence values.
-That is enough detached material to describe candidates, but there is no
-contract translating those fields into the live solver's `WhereLoop`/`WherePath`
-state or `LogEst` units. In particular, `beam_width` alone does not specify
-how candidates with different order properties or constraints interact, and
-the provider's retained list rank is explicitly not a chosen-plan ranking.
-Picking minimum `total_cost`, using first-on-tie, or converting costs to
-`LogEst` would each create new semantics rather than reproduce a defined
-contract.
+The detached internal input now has an ordered `final_path_candidates` field
+distinct from pre-selection `access_candidates`. Each final path carries a
+stable full-plan fingerprint, exact path/unsorted/output LogEst values,
+`isOrdered`, and reverse-scan mask. The selector identity is
+`SQL_REPLAY_SELECTOR_FINAL_PATH_V1`; v1 is restricted to the existing
+single-relation input model and validates its order/reverse metadata. Missing
+final-path data is unavailable/incomplete; a known empty array is complete but
+returns `NO_PLAN`. Provider order is preserved because it is the live final
+beam order used by the tie-break. The internal MsgPack format advances from
+v4 to v5 and serializes these fields canonically; this is internal prototype
+data, not an external planner snapshot change.
 
-The smallest missing item is a versioned selector contract before a consumer
-API: supported candidate domain (initially, if desired, a single-relation
-subset), canonical cost units/conversion and row estimates, whether order and
-sort costs participate, and deterministic tie-breaking. The consumer can then
-be a detached function over a complete v4 candidate set and its selector
-identity/configuration; tests should vary candidate order/content and exercise
-equal-cost ties, empty versus unavailable candidates, and source-state removal.
-Until then M1.4/M1.5 remain open, v2 remains diagnostic-only with
-`replayable=false`, and live v2 capture/planning must not change.
+Focused unit coverage asserts unique-min selection is invariant to candidate
+reordering, equal-cost selection follows first-retained order, captured
+ORDER BY/reverse metadata stays attached to the selected fingerprint, absent
+and known-empty states differ, and unsupported selector versions fail closed.
+This validates the detached final reducer only. The active SQL planner does
+not yet capture the final retained path array, exact post-costing `rCost`, and
+stable full-plan fingerprints. The live producer must publish all final paths
+or none after the final relevant `wherePathSolver()` pass, preserving array
+order and distinguishing unavailable, error/incomplete, and known-empty
+results. No active producer calls the new fields/API. Therefore M1.4/M1.5
+remain open, external v2 stays `replayable=false`, and no live EXPLAIN,
+counters, or execution route changes.
 
 ## Testing Strategy
 
