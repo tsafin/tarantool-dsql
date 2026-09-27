@@ -1997,6 +1997,11 @@ DML, triggers, subprograms, non-deterministic functions.
   The scalar non-primary `IS NULL` / `IS NOT NULL` scan route also has exact
   off/on/off result assertions, plus exact generated/CnP parity on memtx and
   Vinyl (85/85 snapshots per engine); generated-repeat also matches exactly.
+  The single-part primary-key point path now admits up to eight such residual
+  filters. The memtx/Vinyl off/on/off matrix verifies mixed NULL/NOT NULL
+  predicates, reversed order, hit/reject/miss behavior, and `new_planner` on
+  enabled execution; multiple-filter ranges, scans, and composite point paths
+  remain explicitly outside the feature gate.
   A material lowering extension admits up to eight direct non-primary `IS NULL`
   or `IS NOT NULL` predicates alongside a single-part INTEGER/UNSIGNED
   primary-key equality. The point lowerer evaluates all residuals after
