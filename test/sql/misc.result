@@ -324,6 +324,10 @@ assert(planner_stats_after_aggregate_fallback.sql_planner_fallback_UNSUPPORTED_A
 planner_stats_before_subquery = box.stat.sql()
 ---
 ...
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+---
+- row_count: 1
+...
 subquery_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM (SELECT id FROM summary_t LIMIT 1)]])
 ---
 ...
@@ -400,6 +404,10 @@ planner_stats_after_expression_subqueries = box.stat.sql()
 assert(planner_stats_after_expression_subqueries.sql_planner_fallback_UNSUPPORTED_SUBQUERY_total == planner_stats_before_expression_subqueries.sql_planner_fallback_UNSUPPORTED_SUBQUERY_total + 3)
 ---
 - true
+...
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+---
+- row_count: 1
 ...
 planner_stats_before_nondeterministic = box.stat.sql()
 ---
