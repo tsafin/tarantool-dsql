@@ -596,7 +596,9 @@ review of IDs and formats.
   confirms `whereRangeScanEst()` scales down when snapshot relation
   cardinality replaces the legacy default. On a near-uniform three-key SQL
   fixture, the measured equality estimate also lowers q-error against the
-  actual returned-row count relative to the legacy estimate. This closes
+  actual returned-row count relative to the legacy estimate. Replacing the
+  snapshot also expires cached VDBEs so the same SQL text is recompiled using
+  the new estimates. This closes
   planner-consumption validation only: no collection or SQL preparation path
   populates the provider, prepared statements do not own their own snapshot
   references, and estimates are not yet measured against actual SQL-corpus

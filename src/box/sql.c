@@ -215,12 +215,18 @@ sql_set_stats_snapshot(struct sql_stats_snapshot *snapshot)
 {
 	if (db == NULL)
 		return;
+	if (db->stats_snapshot == snapshot)
+		return;
 	if (snapshot != NULL)
 		sql_stats_snapshot_retain(snapshot);
 	struct sql_stats_snapshot *old = db->stats_snapshot;
 	db->stats_snapshot = snapshot;
 	if (old != NULL)
 		sql_stats_snapshot_release(old);
+	/* Planner estimates are baked into prepared VDBEs. Recompile them against
+	 * the new immutable statistics generation on their next use.
+	 */
+	sqlExpirePreparedStatements();
 }
 
 /*********************************************************************

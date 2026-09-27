@@ -170,9 +170,11 @@ g.test_snapshot_estimate_adapter = function()
             return tonumber(plan[1][4]:match('~([0-9]+) row'))
         end
         local baseline_plan_estimate = explain_estimate('baseline', 'a = 1')
+        local cached_plan_before = explain_estimate('stats refresh', 'a = 1')
         local baseline_range_estimate = explain_estimate('baseline range',
                                                          'a >= 2')
         adapter.install(space.id, index_id, 128, 96, 32, false)
+        local cached_plan_after = explain_estimate('stats refresh', 'a = 1')
         local current = adapter.estimates(space.id, index_id)
         local range_estimate = explain_estimate('snapshot range', 'a >= 2')
         adapter.clear()
@@ -204,6 +206,8 @@ g.test_snapshot_estimate_adapter = function()
             missing_prefix = missing_prefix,
             stale = stale,
             baseline_plan_estimate = baseline_plan_estimate,
+            cached_plan_before = cached_plan_before,
+            cached_plan_after = cached_plan_after,
             baseline_range_estimate = baseline_range_estimate,
             range_estimate = range_estimate,
             hot_plan_estimate = hot_plan_estimate,
@@ -220,6 +224,7 @@ g.test_snapshot_estimate_adapter = function()
     t.assert_gt(res.missing_prefix.relation, res.baseline.relation)
     t.assert_equals(res.missing_prefix.prefix, res.baseline.prefix)
     t.assert_equals(res.stale, res.baseline)
+    t.assert_lt(res.cached_plan_after, res.cached_plan_before)
     t.assert_lt(res.range_estimate, res.baseline_range_estimate)
     t.assert_gt(res.hot_plan_estimate, res.baseline_plan_estimate)
     t.assert_lt(res.unique_plan_estimate, res.baseline_plan_estimate)
