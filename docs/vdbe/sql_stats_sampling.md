@@ -585,32 +585,43 @@ does not enable `ANALYZE` or persistent statistics.
 
 ### ANALYZE integration gate (2026-09)
 
-The shared-view collection context and candidate publisher currently accept one
-relation's complete index set and atomically replace the entire installed
-snapshot. That is a valid prototype boundary, but it is not sufficient for
-either SQL form: `ANALYZE table` must preserve statistics for unrelated
-relations, and bare `ANALYZE` must collect all requested relations under one
-shared visibility cut and install one complete candidate. Publishing a series
-of per-relation candidates is unsafe because it exposes intermediate states
-and a later failure cannot restore the original snapshot atomically.
+The shared-view context now accepts a bounded set of relation specs and builds
+one detached multi-relation candidate from the exact index targets pinned by
+its read view. All relation/index ownership and aggregate request, staging,
+temporary-memory, and work bounds are checked before scans begin. Relation
+scans are sequential, so the aggregate reservoir allocation is the largest
+per-index buffer and each relation's summaries are released before the next
+relation. Candidate parts remain private and are combined once; the existing
+publisher accepts only the resulting whole-set candidate.
+`sql_stats_snapshot_combine()` and
+`sql_stats_snapshot_replace_relation()` supply detached, same-generation copy
+primitives. Publishing a series of per-relation candidates remains
+unsafe because it exposes intermediate states and a later failure cannot
+restore the original snapshot atomically.
 
-Therefore neither grammar form is enabled yet. The required volatile API work
-is multi-relation collection/assembly through one pinned view, followed by one
-publication, plus immutable snapshot iteration and same-catalog/schema
-merge-replace semantics for the table-target form. All unsupported relations
-or indexes, generation drift, scan-budget failures, and candidate-construction
-failures must preserve the exact installed snapshot. This gate does not depend
-on, or authorize, any persistent schema ID or format choice; the persistence
-schema remains DRAFT.
+Therefore neither grammar form is enabled yet. The shared-view multi-relation
+candidate API is implemented, but SQL execution and its end-to-end failure
+tests remain pending. Unsupported relations or indexes, generation drift,
+scan-budget failures, and candidate-construction failures return no candidate
+and preserve the exact installed snapshot. The focused collection unit suite
+passes, including aggregate work-budget rejection before extraction. A
+TEST_BUILD runtime test now covers two relations (memtx first, Vinyl second),
+one publication, and a later-relation extraction failure with installed
+snapshot pointer/content preservation; changed server translation units
+compiled, but local final linking stopped with `No space left on device`, so
+this runtime test has not yet executed. This gate does not depend on, or
+authorize, any persistent schema ID or format choice; the persistence schema
+remains DRAFT.
 
 The immutable snapshot supports ordered read-only enumeration of borrowed
-relation and index views while the caller retains its reference. It can also
-combine disjoint snapshots or replace exactly one relation from a snapshot
-with the same catalog/schema generation. Both operations deep-copy into a new
-detached snapshot; they do not mutate either input. Duplicate ownership,
-generation mismatch, and allocation-budget failures reject the whole result.
-These primitives do not yet assemble all relations from one shared view or
-authorize relation-by-relation publication.
+relation and index views while the caller retains its reference, and detached
+same-generation combine/replace helpers. The shared-view multi-relation
+assembler is complete at the volatile API level; SQL grammar/execution remains
+closed, and the live memtx/Vinyl regression still needs execution with adequate
+local build capacity. A named `ANALYZE table` path must select and replace that
+target in the same-generation snapshot while preserving unrelated relations.
+This does not depend on, or authorize, persistent schema IDs or payload
+formats; the schema remains DRAFT.
 
 ```mermaid
 flowchart LR

@@ -567,6 +567,24 @@ format approval is implied.
   `sql_stats_snapshot.test` covers enumeration lifetime/bounds, disjoint
   combine, target replacement, generation mismatch, duplicate ownership, and
   the deep-copy allocation budget.
+  **Multi-relation API slice (2026-09):** the shared-view context now has a
+  batch candidate assembler for complete relation/index spec sets. It checks
+  exact flattened target coverage, duplicate relation/index ownership, and
+  aggregate request, staging, temporary-memory, and scan/estimator work limits
+  before sampling. Relation scans are sequential; summaries and reservoir
+  memory are bounded in aggregate, with the largest reservoir charged because
+  it is destroyed before the next relation. Detached relation parts remain
+  private to the batch and are combined once; the existing publisher accepts
+  only that final candidate. A later relation failure exposes no candidate and
+  cannot replace the installed snapshot. The focused collection unit target
+  passes, including work-budget rejection before extractor invocation and the
+  prior repeated-assembly rejection/preservation case. TEST_BUILD server and
+  live-wrapper changed translation units compiled; final tarantool linking
+  stopped at `ranlib: libbox.a: No space left on device` on the shared
+  filesystem, so the 2-relation memtx-then-Vinyl runtime case remains
+  unexecuted pending local disk capacity. This advances only the volatile
+  API, not production ANALYZE: grammar and execution remain disabled. S1.1's
+  persistence schema remains DRAFT.
 - [x] **S1.3a prototype** Volatile collection core — consume sampled tuples, build and
   validate relation/index summaries, then atomically publish one immutable
   candidate snapshot. No persistence or grammar dependency; test rollback on
