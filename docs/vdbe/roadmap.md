@@ -1038,8 +1038,8 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_FILTER` and increment its per-reason counter; earlier, they
   were indistinguishable from ordinary `current_where_c` execution. The point
   lookup boundary now has focused fallback coverage for a bind parameter,
-  equality on a non-primary column, a negative literal, a range, and OR, with
-  matching legacy-result checks on both engines. More specific
+  equality on a non-primary column, NULL/computed/negative values, a range, and
+  OR, with matching legacy-result checks on both engines. More specific
   expression/function rejection reasons retain precedence.
   M3.5 remains partial: the narrow table-scan route now records physical
   rejection reasons at the attempted producer/lowering boundary, but the
