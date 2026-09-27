@@ -1,0 +1,116 @@
+#include "unit.h"
+
+#include "box/box.h"
+#include "box/sql.h"
+#include "main.h"
+#include "box/sql/sqlInt.h"
+#include "box/sql/vdbeInt.h"
+
+#include "coll/coll.h"
+
+#include "core/event.h"
+#include "core/fiber.h"
+#include "core/memory.h"
+
+/* box.cc references these server entry-point globals; this unit target links
+ * libbox without the server executable. */
+char tarantool_path[PATH_MAX];
+long tarantool_start_time;
+
+sigint_cb_t
+set_sigint_cb(sigint_cb_t new_sigint_cb)
+{
+	static sigint_cb_t sigint_cb;
+	sigint_cb_t old_sigint_cb = sigint_cb;
+	sigint_cb = new_sigint_cb;
+	return old_sigint_cb;
+}
+
+int
+main(void)
+{
+	memory_init();
+	fiber_init(fiber_c_invoke);
+	coll_init();
+	event_init();
+	box_init();
+	sql_init();
+
+	plan(7);
+	header();
+	struct Parse parse = {};
+	struct Vdbe vdbe = {};
+	vdbe.magic = VDBE_MAGIC_INIT;
+	vdbe.pParse = &parse;
+	int old_op = sqlVdbeAddOp0(&vdbe, OP_Noop);
+	int old_label = sqlVdbeMakeLabel(&vdbe);
+	assert(old_op == 0);
+	assert(old_label < 0);
+	struct vdbe_codegen_checkpoint checkpoint;
+	ok(vdbe_codegen_checkpoint_init(&checkpoint, &vdbe) == 0,
+	   "checkpoint initializes at VDBE construction time");
+
+	parse.nMem = 7;
+	parse.nTab = 3;
+	parse.nRangeReg = 2;
+	parse.iRangeReg = 5;
+	parse.nTempReg = 1;
+	parse.aTempReg[0] = 11;
+	parse.nColCache = 1;
+	parse.iCacheLevel = 9;
+	parse.iCacheCnt = 13;
+	parse.aColCache[0].iReg = 17;
+	parse.nQueryLoop = 23;
+	sqlVdbeResolveLabel(&vdbe, old_label);
+	int new_label = sqlVdbeMakeLabel(&vdbe);
+	sqlVdbeResolveLabel(&vdbe, new_label);
+	char *owned_p4 = sql_xmalloc(sizeof("owned P4"));
+	memcpy(owned_p4, "owned P4", sizeof("owned P4"));
+	int dynamic_op = sqlVdbeAddOp4(&vdbe, OP_String8, 0, 1, 0,
+				       owned_p4, P4_DYNAMIC);
+	assert(dynamic_op == 1);
+#ifdef SQL_ENABLE_EXPLAIN_COMMENTS
+	sqlVdbeComment(&vdbe, "owned comment");
+#endif
+
+	vdbe_codegen_checkpoint_rollback(&checkpoint);
+	ok(vdbe.nOp == 1 && vdbe.aOp[0].opcode == OP_Noop,
+	   "rollback drops only instructions emitted after the mark");
+	ok(parse.nMem == 0 && parse.nTab == 0 && parse.nRangeReg == 0 &&
+	   parse.iRangeReg == 0 && parse.nTempReg == 0 &&
+	   parse.nColCache == 0 && parse.iCacheLevel == 0 &&
+	   parse.iCacheCnt == 0 && parse.nQueryLoop == 0,
+	   "rollback restores parse register, cursor, and cache counters");
+	ok(parse.nLabel == 1 && parse.aLabel[0] == -1,
+	   "rollback restores prior label values and count");
+	ok(vdbe.aOp[1].p4type == P4_NOTUSED &&
+	   vdbe.aOp[1].p4.p == NULL,
+	   "rollback clears the freed opcode slot and owned P4");
+
+	ok(vdbe_codegen_checkpoint_init(&checkpoint, &vdbe) == 0,
+	   "checkpoint can be reused after rollback");
+	char *committed_p4 = sql_xmalloc(sizeof("committed P4"));
+	memcpy(committed_p4, "committed P4", sizeof("committed P4"));
+	sqlVdbeAddOp4(&vdbe, OP_String8, 0, 1, 0, committed_p4, P4_DYNAMIC);
+	vdbe_codegen_checkpoint_commit(&checkpoint);
+	ok(vdbe.nOp == 2 && vdbe.aOp[1].p4type == P4_DYNAMIC,
+	   "commit keeps emitted instructions and their owned P4");
+
+	vdbe_codegen_checkpoint_init(&checkpoint, &vdbe);
+	vdbe_codegen_checkpoint_rollback(&checkpoint);
+	/* The test owns this synthetic VDBE; release its retained opcode payloads. */
+	for (int i = 0; i < vdbe.nOp; ++i) {
+		if (vdbe.aOp[i].p4type == P4_DYNAMIC)
+			sql_xfree(vdbe.aOp[i].p4.p);
+	}
+	sql_xfree(vdbe.aOp);
+	sql_xfree(parse.aLabel);
+	footer();
+	int rc = check_plan();
+	box_free();
+	event_free();
+	coll_free();
+	fiber_free();
+	memory_free();
+	return rc;
+}

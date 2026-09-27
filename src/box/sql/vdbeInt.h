@@ -374,6 +374,42 @@ struct Vdbe {
 #endif
 };
 
+/*
+ * Rollback point for speculative bytecode generation. This snapshots only
+ * VDBE instruction ownership and Parse's codegen allocator, label, and
+ * expression-cache state. It does not cover arbitrary parser mutations, AST
+ * allocations, schema side effects, or VDBE metadata.
+ */
+struct vdbe_codegen_checkpoint {
+	Vdbe *vdbe;
+	Parse *parse;
+	int n_op;
+	int n_mem;
+	int n_tab;
+	int n_label;
+	int *labels;
+	int n_range_reg;
+	int i_range_reg;
+	int n_temp_reg;
+	int temp_reg[8];
+	int n_col_cache;
+	int i_cache_level;
+	int i_cache_count;
+	int i_self_tab;
+	int vdbe_field_ref_reg;
+	int col_names_set;
+	unsigned char col_cache[sizeof(((Parse *)0)->aColCache)];
+	u32 n_query_loop;
+};
+
+int
+vdbe_codegen_checkpoint_init(struct vdbe_codegen_checkpoint *checkpoint,
+			     Vdbe *vdbe);
+void
+vdbe_codegen_checkpoint_commit(struct vdbe_codegen_checkpoint *checkpoint);
+void
+vdbe_codegen_checkpoint_rollback(struct vdbe_codegen_checkpoint *checkpoint);
+
 #ifdef ENABLE_SQL_CNP
 struct cnp_arith_imm {
 	uint8_t mask;

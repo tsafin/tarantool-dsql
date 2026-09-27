@@ -834,6 +834,103 @@ vdbeFreeOpArray(struct VdbeOp *aOp, int nOp)
 	sql_xfree(aOp);
 }
 
+int
+vdbe_codegen_checkpoint_init(struct vdbe_codegen_checkpoint *checkpoint,
+			     Vdbe *vdbe)
+{
+	if (checkpoint == NULL || vdbe == NULL || vdbe->pParse == NULL ||
+	    vdbe->magic != VDBE_MAGIC_INIT)
+		return -1;
+	Parse *parse = vdbe->pParse;
+	memset(checkpoint, 0, sizeof(*checkpoint));
+	checkpoint->vdbe = vdbe;
+	checkpoint->parse = parse;
+	checkpoint->n_op = vdbe->nOp;
+	checkpoint->n_mem = parse->nMem;
+	checkpoint->n_tab = parse->nTab;
+	checkpoint->n_label = parse->nLabel;
+	if (parse->nLabel > 0) {
+		assert(parse->aLabel != NULL);
+		checkpoint->labels = sql_xmalloc(parse->nLabel *
+						 sizeof(checkpoint->labels[0]));
+		if (checkpoint->labels == NULL) {
+			memset(checkpoint, 0, sizeof(*checkpoint));
+			return -1;
+		}
+		memcpy(checkpoint->labels, parse->aLabel,
+		       parse->nLabel * sizeof(checkpoint->labels[0]));
+	}
+	checkpoint->n_range_reg = parse->nRangeReg;
+	checkpoint->i_range_reg = parse->iRangeReg;
+	checkpoint->n_temp_reg = parse->nTempReg;
+	memcpy(checkpoint->temp_reg, parse->aTempReg,
+	       sizeof(checkpoint->temp_reg));
+	checkpoint->n_col_cache = parse->nColCache;
+	checkpoint->i_cache_level = parse->iCacheLevel;
+	checkpoint->i_cache_count = parse->iCacheCnt;
+	checkpoint->i_self_tab = parse->iSelfTab;
+	checkpoint->vdbe_field_ref_reg = parse->vdbe_field_ref_reg;
+	checkpoint->col_names_set = parse->colNamesSet;
+	memcpy(checkpoint->col_cache, parse->aColCache,
+	       sizeof(parse->aColCache));
+	checkpoint->n_query_loop = parse->nQueryLoop;
+	return 0;
+}
+
+void
+vdbe_codegen_checkpoint_commit(struct vdbe_codegen_checkpoint *checkpoint)
+{
+	if (checkpoint == NULL)
+		return;
+	sql_xfree(checkpoint->labels);
+	memset(checkpoint, 0, sizeof(*checkpoint));
+}
+
+void
+vdbe_codegen_checkpoint_rollback(struct vdbe_codegen_checkpoint *checkpoint)
+{
+	if (checkpoint == NULL || checkpoint->vdbe == NULL ||
+	    checkpoint->parse == NULL)
+		return;
+	Vdbe *vdbe = checkpoint->vdbe;
+	Parse *parse = checkpoint->parse;
+	assert(vdbe->magic == VDBE_MAGIC_INIT);
+	assert(vdbe->nOp >= checkpoint->n_op);
+	for (int i = checkpoint->n_op; i < vdbe->nOp; ++i) {
+		Op *op = &vdbe->aOp[i];
+		if (op->p4type != P4_NOTUSED)
+			freeP4(op->p4type, op->p4.p);
+#ifdef SQL_ENABLE_EXPLAIN_COMMENTS
+		sql_xfree(op->zComment);
+#endif
+		memset(op, 0, sizeof(*op));
+	}
+	vdbe->nOp = checkpoint->n_op;
+	parse->nMem = checkpoint->n_mem;
+	parse->nTab = checkpoint->n_tab;
+	parse->nLabel = checkpoint->n_label;
+	if (checkpoint->n_label > 0) {
+		assert(parse->aLabel != NULL);
+		memcpy(parse->aLabel, checkpoint->labels,
+		       checkpoint->n_label * sizeof(checkpoint->labels[0]));
+	}
+	parse->nRangeReg = checkpoint->n_range_reg;
+	parse->iRangeReg = checkpoint->i_range_reg;
+	parse->nTempReg = checkpoint->n_temp_reg;
+	memcpy(parse->aTempReg, checkpoint->temp_reg,
+	       sizeof(checkpoint->temp_reg));
+	parse->nColCache = checkpoint->n_col_cache;
+	parse->iCacheLevel = checkpoint->i_cache_level;
+	parse->iCacheCnt = checkpoint->i_cache_count;
+	parse->iSelfTab = checkpoint->i_self_tab;
+	parse->vdbe_field_ref_reg = checkpoint->vdbe_field_ref_reg;
+	parse->colNamesSet = checkpoint->col_names_set;
+	memcpy(parse->aColCache, checkpoint->col_cache,
+	       sizeof(parse->aColCache));
+	parse->nQueryLoop = checkpoint->n_query_loop;
+	vdbe_codegen_checkpoint_commit(checkpoint);
+}
+
 /*
  * Link the SubProgram object passed as the second argument into the linked
  * list at Vdbe.pSubProgram. This list is used to delete all sub-program
