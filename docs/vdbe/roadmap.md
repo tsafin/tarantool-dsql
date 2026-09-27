@@ -1715,6 +1715,13 @@ DML, triggers, subprograms, non-deterministic functions.
   the two still-uncollected files, the full SQL-TAP corpus, SQL/SQL-luatest
   reviewed corpus, or the remaining M3.5 route/reason dispositions.
 
+  The same regular-runner check passes `sort.test.lua` and
+  `gh-3332-tuple-format-leak.test.lua` on their explicitly configured memtx
+  variants (5.8 seconds each, with the latter run under `--long`). These
+  ordinary test passes do not change the separate baseline-capture timeout:
+  both still exceed the 60-second standalone capture budget, and Vinyl was
+  not configured for these two ordinary runs.
+
   **SQL-luatest capture extension (2026-09-27).** The child capture adapter
   now records planner metrics and component routes for successful
   SELECT/WITH-SELECT/VALUES executions, alongside each SQL snapshot's
