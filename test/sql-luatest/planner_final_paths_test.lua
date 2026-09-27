@@ -40,6 +40,7 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
             WHERE value >= 1 ORDER BY value]])
         assert(err == nil, err and err.message)
         local snapshot = msgpack.decode(tostring(explain.rows[1][1]))
+        local snapshot_bytes = tostring(explain.rows[1][1])
         local paths = snapshot.planner.final_paths
         local join_explain = box.execute(
             [[EXPLAIN (planner = 'snapshot')
@@ -58,6 +59,7 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
             join_count = #join.planner.final_paths,
             selected_fingerprint =
                 snapshot.planner.selected_final_path_fingerprint,
+            snapshot_bytes = snapshot_bytes,
         }
         local best = paths[1]
         for i = 2, #paths do
@@ -96,6 +98,37 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
             result.paths_valid = true
         end
         space:drop()
+        local replay = require('sql_replay')
+        local replayed = replay.replay_snapshot(snapshot_bytes)
+        result.replayed_fingerprint = replayed.fingerprint
+        result.replay_matches_captured = replayed.matches_captured
+
+        -- Mutating only captured costs must change selection; no live SQL
+        -- relation or statistics are consulted by the replay API.
+        local changed = msgpack.decode(snapshot_bytes)
+        local changed_input =
+            msgpack.decode(tostring(changed.replay_inputs))
+        local paths = changed_input.final_path_candidates
+        for _, path in ipairs(paths) do
+            path.path_cost_logest = 32767
+        end
+        local altered = paths[1]
+        paths[#paths + 1] = {
+            is_ordered = altered.is_ordered,
+            output_rows_logest = altered.output_rows_logest,
+            path_cost_logest = -32768,
+            plan_fingerprint = '0000000000000000',
+            reverse_mask = altered.reverse_mask,
+            unsorted_cost_logest = altered.unsorted_cost_logest,
+        }
+        assert(paths[#paths].plan_fingerprint ~= replayed.fingerprint)
+        local counterfactual = replay.replay_input(
+            msgpack.encode(changed_input))
+        result.counterfactual_fingerprint = counterfactual.fingerprint
+        changed.replay_inputs = msgpack.encode(changed_input)
+        local changed_ok = pcall(replay.replay_snapshot,
+                                 msgpack.encode(changed))
+        result.changed_artifact_rejected = not changed_ok
         return result
     end)
 
@@ -105,6 +138,11 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
     t.assert_equals(result.input_selector_version, 1)
     t.assert_equals(result.input_final_path_count, result.count)
     t.assert_equals(result.selected_matches_min, true)
+    t.assert_equals(result.replayed_fingerprint,
+                    result.selected_fingerprint)
+    t.assert_equals(result.replay_matches_captured, true)
+    t.assert_equals(result.counterfactual_fingerprint, '0000000000000000')
+    t.assert_equals(result.changed_artifact_rejected, true)
     t.assert_equals(result.input_paths_match_capture, true)
     t.assert_equals(result.status, 'complete')
     t.assert_gt(result.count, 0)
