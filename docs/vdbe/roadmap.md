@@ -1660,14 +1660,13 @@ DML, triggers, subprograms, non-deterministic functions.
   engines). This extends
   component-level route evidence to both accepted new-planner and rejected
   filter candidates without changing the reviewed-corpus gate.
-  Component producer roles now use the existing `SF_NestedFrom` and
-  `SF_SingleRow` markers to distinguish nested-FROM wrappers and scalar
-  expression subqueries from generic subqueries. The component matrix asserts
-  both labels, including a parenthesized multi-relation FROM producer and a
-  scalar `count(*)` component. This closes role attribution for these marked
-  producers only; ordinary single-source FROM subqueries and EXISTS/IN
-  expression subqueries still need call-site context, and the M3.5
-  reviewed-corpus producer gate remains open.
+  Component producer roles now distinguish FROM-subqueries at the two
+  recursive code-generation call sites (coroutine and materialized) and scalar
+  expression subqueries via `SF_SingleRow`. The component matrix asserts the
+  FROM label on a grouped FROM-subquery that survives flattening, and the
+  scalar label on a `count(*)` component. EXISTS/IN expression subqueries
+  still need call-site context; the M3.5 reviewed-corpus producer gate remains
+  open.
   The capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.

@@ -2103,6 +2103,8 @@ struct Parse {
 	int nHeight;		/* Expression tree height of current sub-select */
 	int iSelectId;		/* ID of current select for EXPLAIN output */
 	int iNextSelectId;	/* Next available select ID for EXPLAIN output */
+	/* Producer-role hint for the next sqlSelect() recursion, if any. */
+	int planner_component_role;
 	VList *pVList;		/* Mapping between variable names and numbers */
 	Vdbe *pReprepare;	/* VM being reprepared (sqlReprepare()) */
 	const char *zTail;	/* All SQL text past the last semicolon parsed */

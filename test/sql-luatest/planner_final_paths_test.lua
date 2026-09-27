@@ -267,9 +267,8 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
             nested_function = [[SELECT (SELECT abs(id)
                 FROM planner_component_matrix WHERE id = 1)
                 FROM planner_component_matrix]],
-            nested_from_wrapper = [[SELECT q.id FROM (
-                planner_component_matrix AS a JOIN
-                planner_component_matrix AS b ON a.id = b.id) AS q]],
+            grouped_from_subquery = [[SELECT q.id FROM
+                (SELECT id FROM planner_component_matrix GROUP BY id) AS q]],
             nested_destination = [[SELECT (SELECT id
                 FROM planner_component_matrix)
                 FROM planner_component_matrix]],
@@ -403,7 +402,12 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_equals(scalar_count[2].parent_id, scalar_count[1].id)
     t.assert_equals(scalar_count[2].role, 'scalar_subquery')
     t.assert_equals(scalar_count[2].route, 'direct_op_count')
-    t.assert(snapshots.nested_from_wrapper.roles.from_subquery)
+    local from_subquery_routes =
+        snapshots.grouped_from_subquery.component_routes
+    t.assert_gt(#from_subquery_routes, 1)
+    t.assert_equals(from_subquery_routes[2].parent_id,
+                    from_subquery_routes[1].id)
+    t.assert_equals(from_subquery_routes[2].role, 'from_subquery')
     t.assert_gt(snapshots.recursive_cte.count, 2)
     t.assert(snapshots.recursive_cte.roles.recursive_term)
     t.assert(snapshots.recursive_cte.roles.values)

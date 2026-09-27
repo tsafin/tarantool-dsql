@@ -5645,7 +5645,7 @@ vdbe_code_raise_on_multiple_rows(struct Parse *parser, int limit_reg, int end_ma
 
 static void
 sql_select_component_register(Parse *parse, Select *select,
-			      int parent_select_id)
+			      int parent_select_id, int producer_role)
 {
 	Vdbe *vdbe = parse->pVdbe;
 	if (vdbe == NULL || parse->explain != 4)
@@ -5660,11 +5660,13 @@ sql_select_component_register(Parse *parse, Select *select,
 		(uint32_t)parent_select_id + 1;
 	enum sql_plan_component_role role = SQL_PLAN_COMPONENT_ROOT;
 	if (parse->iSelectId != 0) {
-		/* Keep the producer relationship explicit when the parser/codegen
-		 * marked one. These flags distinguish nested-FROM wrappers and scalar
-		 * expression subqueries from otherwise generic subquery components.
+		/* The recursive call site is authoritative when it knows the
+		 * producer. SELECT flags fill in relationships recorded by codegen,
+		 * such as scalar expression subqueries.
 		 */
-		if ((select->selFlags & SF_NestedFrom) != 0)
+		if (producer_role != 0)
+			role = producer_role;
+		else if ((select->selFlags & SF_NestedFrom) != 0)
 			role = SQL_PLAN_COMPONENT_FROM_SUBQUERY;
 		else if ((select->selFlags & SF_SingleRow) != 0)
 			role = SQL_PLAN_COMPONENT_SCALAR_SUBQUERY;
@@ -6308,6 +6310,8 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	AggInfo sAggInfo;	/* Information used by aggregate queries */
 	int iEnd;		/* Address of the end of the query */
 	int iRestoreSelectId = pParse->iSelectId;
+	int producer_role = pParse->planner_component_role;
+	pParse->planner_component_role = 0;
 	/* This pure check runs before parser/VDBE mutation. Its positive
 	 * certification lets us skip the structural fallback walk below; both
 	 * outcomes still use the legacy code generator until M3.4 is complete. */
@@ -6336,7 +6340,8 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			pParse->iSelectId = iRestoreSelectId;
 			return 1;
 		}
-		sql_select_component_register(pParse, p, iRestoreSelectId);
+		sql_select_component_register(pParse, p, iRestoreSelectId,
+					      producer_role);
 		/*
 		 * Plain multi-row VALUES can use the compact row chain directly,
 		 * but ORDER BY / LIMIT / scalar-subquery handling still expects
@@ -6402,7 +6407,8 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	v = sqlGetVdbe(pParse);
 	if (v == NULL)
 		goto select_end;
-	sql_select_component_register(pParse, p, iRestoreSelectId);
+	sql_select_component_register(pParse, p, iRestoreSelectId,
+				      producer_role);
 	if (p->pPrior != NULL)
 		sql_select_component_route(pParse,
 				SQL_PLAN_COMPONENT_COMPOUND_DISPATCH,
@@ -6591,7 +6597,10 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			sqlSelectDestInit(&dest, SRT_Coroutine,
 					      pItem->regReturn, -1);
 			pItem->iSelectId = pParse->iNextSelectId;
+			pParse->planner_component_role =
+				SQL_PLAN_COMPONENT_FROM_SUBQUERY;
 			sqlSelect(pParse, pSub, &dest);
+			pParse->planner_component_role = 0;
 			pItem->fg.viaCoroutine = 1;
 			pItem->regResult = dest.iSdst;
 			sqlVdbeEndCoroutine(v, pItem->regReturn);
@@ -6633,7 +6642,10 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			sqlSelectDestInit(&dest, SRT_EphemTab,
 					      pItem->iCursor, ++pParse->nMem);
 			pItem->iSelectId = pParse->iNextSelectId;
+			pParse->planner_component_role =
+				SQL_PLAN_COMPONENT_FROM_SUBQUERY;
 			sqlSelect(pParse, pSub, &dest);
+			pParse->planner_component_role = 0;
 			if (onceAddr)
 				sqlVdbeJumpHere(v, onceAddr);
 			retAddr =
