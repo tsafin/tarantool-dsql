@@ -561,7 +561,7 @@ format approval is implied.
   direction; no system-space IDs or payload-format choices are approved.
   *parallel: no* (system-space allocation is a one-way door — needs human
   sign-off).
-- [ ] **S1.2** Re-enable `ANALYZE` grammar and execute the volatile collection
+- [x] **S1.2** Re-enable `ANALYZE` grammar and execute the volatile collection
   path without persistence. Remove the `unsupported ANALYZE` rejection only
   after S1.3a defines complete candidate-snapshot publication semantics.
   *parallel: yes, after S1.3a*.
@@ -588,14 +588,16 @@ format approval is implied.
   while allowing the NDV basis to identify the hash domain. Both focused
   collection unit and SQL runtime targets pass locally. The shared
   view and candidate API are volatile only.
-  **Remaining S1.2 gate:** production SQL still needs table/relation discovery,
-  the `ANALYZE` execution operation and grammar, and rollback/preservation
-  tests for bare and named forms. Bare `ANALYZE` must pass its complete target
-  set to the batch builder and publish once. Named `ANALYZE table` must build
-  one relation and use `sql_stats_snapshot_replace_relation()` to preserve
-  unrelated same-generation rows. A failure in either form must retain the
-  exact installed snapshot. Do not route either form through a sequence of
-  one-relation publications. This does not authorize persistence choices;
+  **S1.2 status (2026-09):** SQL discovery, grammar, and the VDBE execution
+  operation are now wired to the volatile batch builder. Bare `ANALYZE`
+  discovers all eligible targets and publishes one complete candidate;
+  named `ANALYZE table` builds one relation and replaces only that relation in
+  a same-generation snapshot. Both forms retain the exact installed snapshot
+  on failure. The focused TEST_BUILD runtime test covers bare memtx+Vinyl
+  collection, named relation replacement, system-space no-op, missing/view
+  errors, unsupported-index atomic failure, and row counts. The focused test
+  and `sql_replay_input.test` pass locally. No persistence has been added.
+  This does not authorize persistence choices;
   S1.1's schema remains DRAFT. The compatibility baseline from the historical
   `sqlAnalyze` implementation is now source-audited: bare form visits
   non-system, non-view spaces and all indexes; named missing-space and view
