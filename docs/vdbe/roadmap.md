@@ -1664,9 +1664,10 @@ DML, triggers, subprograms, non-deterministic functions.
   recursive code-generation call sites (coroutine and materialized) and scalar
   expression subqueries via `SF_SingleRow`. The component matrix asserts the
   FROM label on a DISTINCT FROM-subquery that cannot be flattened, and the
-  scalar label on a `count(*)` component. EXISTS/IN expression subqueries
-  still need call-site context; the M3.5 reviewed-corpus producer gate remains
-  open.
+  scalar label on a `count(*)` component. The rebuilt Debug binary and regular
+  test-runner pass `planner_final_paths_test.lua` with both role assertions.
+  EXISTS/IN expression subqueries still need call-site context; the M3.5
+  reviewed-corpus producer gate remains open.
   The capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.
