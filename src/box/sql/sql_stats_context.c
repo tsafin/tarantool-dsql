@@ -124,12 +124,12 @@ collection_context_new_summary(struct sql_stats_collection_context *context,
 			spec->extract_context);
 	struct index_read_view *index_view =
 		context_get_index(context, &spec->target);
-	struct space *space = space_by_id_slow(spec->target.space_id);
-	if (index_view == NULL || space == NULL || space->format == NULL ||
+	if (index_view == NULL || index_view->space == NULL ||
+	    index_view->space->format == NULL ||
 	    index_view->def == NULL || index_view->def->key_def == NULL ||
 	    index_view->def->key_def->part_count != spec->expected->part_count)
 		return NULL;
-	return sql_stats_index_summary_new_for_index(space->format,
+	return sql_stats_index_summary_new_for_index(index_view->space->format,
 		index_view->def, spec->hll_precision, spec->hll_seed,
 		spec->summary_max_bytes);
 }
