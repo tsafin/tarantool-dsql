@@ -711,7 +711,9 @@ review of IDs and formats.
   indexes. Direct server-runtime checks build and publish the candidate for
   each engine, then confirm relation/index populations of 8 and a width
   denominator of 4 from four delivered sample rows; snapshot cleanup follows
-  each case. This verifies local live candidate assembly and publication, but
+  each case. The runtime regression also asserts four canonical extractor
+  calls per index and zero extraction errors. This verifies local live
+  candidate assembly and publication, but
   not a common cross-engine visibility boundary or production ANALYZE wiring,
   so S1.3a stays open. Local READ_CONFIRMED and vclock/catalog/schema checks
   are not durable or cross-node snapshot claims.
