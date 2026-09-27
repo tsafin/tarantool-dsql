@@ -418,14 +418,14 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_equals(from_subquery_routes[2].role, 'from_subquery')
     t.assert_gt(snapshots.recursive_cte.count, 2)
     t.assert(snapshots.recursive_cte.roles.cte)
+    t.assert(snapshots.recursive_cte.roles.recursive_anchor)
     t.assert(snapshots.recursive_cte.roles.recursive_term)
-    t.assert(snapshots.recursive_cte.roles.values)
     local recursive_routes = snapshots.recursive_cte.component_routes
-    local has_values_anchor = false
+    local has_recursive_anchor = false
     local has_recursive_term_fallback = false
     for _, component in ipairs(recursive_routes) do
-        if component.role == 'values' then
-            has_values_anchor = true
+        if component.role == 'recursive_anchor' then
+            has_recursive_anchor = true
             t.assert_equals(component.route, 'direct_values')
         elseif component.role == 'recursive_term' then
             has_recursive_term_fallback = true
@@ -434,6 +434,6 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                             'UNSUPPORTED_COMPOUND')
         end
     end
-    t.assert(has_values_anchor)
+    t.assert(has_recursive_anchor)
     t.assert(has_recursive_term_fallback)
 end
