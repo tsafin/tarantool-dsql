@@ -267,6 +267,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
             nested_function = [[SELECT (SELECT abs(id)
                 FROM planner_component_matrix WHERE id = 1)
                 FROM planner_component_matrix]],
+            nested_from_wrapper = [[SELECT q.id FROM (
+                planner_component_matrix AS a JOIN
+                planner_component_matrix AS b ON a.id = b.id) AS q]],
             nested_destination = [[SELECT (SELECT id
                 FROM planner_component_matrix)
                 FROM planner_component_matrix]],
@@ -384,7 +387,7 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_equals(destination_routes[1].role, 'root')
     t.assert_equals(destination_routes[1].fallback_reason,
                     'UNSUPPORTED_SUBQUERY')
-    t.assert_equals(destination_routes[2].role, 'subquery')
+    t.assert_equals(destination_routes[2].role, 'scalar_subquery')
     t.assert_equals(destination_routes[2].route, 'fallback')
     t.assert_equals(destination_routes[2].fallback_reason,
                     'UNSUPPORTED_DESTINATION')
@@ -398,8 +401,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_equals(scalar_count[1].role, 'root')
     t.assert_equals(scalar_count[1].route, 'fallback')
     t.assert_equals(scalar_count[2].parent_id, scalar_count[1].id)
-    t.assert_equals(scalar_count[2].role, 'subquery')
+    t.assert_equals(scalar_count[2].role, 'scalar_subquery')
     t.assert_equals(scalar_count[2].route, 'direct_op_count')
+    t.assert(snapshots.nested_from_wrapper.roles.from_subquery)
     t.assert_gt(snapshots.recursive_cte.count, 2)
     t.assert(snapshots.recursive_cte.roles.recursive_term)
     t.assert(snapshots.recursive_cte.roles.values)

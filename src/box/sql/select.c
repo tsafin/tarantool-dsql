@@ -5660,7 +5660,15 @@ sql_select_component_register(Parse *parse, Select *select,
 		(uint32_t)parent_select_id + 1;
 	enum sql_plan_component_role role = SQL_PLAN_COMPONENT_ROOT;
 	if (parse->iSelectId != 0) {
-		if ((select->selFlags & SF_Values) != 0)
+		/* Keep the producer relationship explicit when the parser/codegen
+		 * marked one. These flags distinguish nested-FROM wrappers and scalar
+		 * expression subqueries from otherwise generic subquery components.
+		 */
+		if ((select->selFlags & SF_NestedFrom) != 0)
+			role = SQL_PLAN_COMPONENT_FROM_SUBQUERY;
+		else if ((select->selFlags & SF_SingleRow) != 0)
+			role = SQL_PLAN_COMPONENT_SCALAR_SUBQUERY;
+		else if ((select->selFlags & SF_Values) != 0)
 			role = SQL_PLAN_COMPONENT_VALUES;
 		else if (select->pPrior != NULL)
 			role = SQL_PLAN_COMPONENT_COMPOUND_BRANCH;
