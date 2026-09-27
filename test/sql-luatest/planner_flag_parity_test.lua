@@ -191,6 +191,14 @@ g.test_unordered_hash_primary_scan_off_on_off = function()
         box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
         local on_rows = run()
         t.assert_equals(on_rows, {{1, 'one'}, {2, 'two'}, {3, 'three'}})
+        for _, unsupported in ipairs({
+            [[SELECT id FROM planner_flag_hash_scan WHERE id = 2]],
+            [[SELECT id FROM planner_flag_hash_scan ORDER BY id]],
+        }) do
+            local _, unsupported_err = box.execute(unsupported)
+            t.assert_equals(unsupported_err.message, off_err.message,
+                            'HASH point/order route must remain unsupported')
+        end
         box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
         local _, off_again_err = box.execute(sql)
         t.assert_equals(off_again_err.message, off_err.message)
