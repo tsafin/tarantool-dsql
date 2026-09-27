@@ -443,9 +443,7 @@ assert(planner_stats_after_nondeterministic.sql_planner_fallback_UNSUPPORTED_NON
 ...
 assert(planner_stats_after_nondeterministic.sql_planner_fallback_UNSUPPORTED_FUNCTION_total == planner_stats_before_nondeterministic.sql_planner_fallback_UNSUPPORTED_FUNCTION_total + 1)
 ---
-- error: '[string "return assert(planner_stats_after_nondetermin..."]:1: attempt to
-    perform arithmetic on field ''sql_planner_fallback_UNSUPPORTED_FUNCTION_total''
-    (a nil value)'
+- true
 ...
 box.schema.func.create('planner_nondeterministic_udf', {language = 'Lua', is_deterministic = false, body = 'function() return math.random() end', returns = 'double', param_list = {}, exports = {'SQL'}})
 ---

@@ -5685,6 +5685,13 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 	if (v == NULL || v->planner_fallback_reason != NULL || src == NULL ||
 	    src->nSrc == 0)
 		return;
+	/* This first pass runs before SELECT codegen decides whether a simple
+	 * COUNT(*) can use the direct OP_Count path. Defer aggregate reasons until
+	 * the caller confirms it enters the WHERE-planner route.
+	 */
+	if (!is_aggregate &&
+	    (select->selFlags & (SF_Aggregate | SF_HasAgg)) != 0)
+		return;
 	/* Ordinary scalar calls are annotated with EP_ConstFunc during name
 	 * resolution when their registered function definition declares them
 	 * deterministic. Do this before the logical-plan prototype is built and
@@ -7057,6 +7064,7 @@ sqlSelect(Parse * pParse,		/* The parser context */
 				 * of output.
 				 */
 				resetAccumulator(pParse, &sAggInfo);
+				/* The simple COUNT(*) branch above bypasses sqlWhereBegin(). */
 				sql_select_record_fallback(pParse, p, true);
 				pWInfo =
 				    sqlWhereBegin(pParse, pTabList, pWhere,
