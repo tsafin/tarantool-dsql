@@ -107,10 +107,16 @@ create_unit_test(PREFIX sql_stats_spacesaving
                  LIBRARIES unit
 )
 create_unit_test(PREFIX sql_stats_index_summary
-                 SOURCES sql_stats_index_summary.c
+                 SOURCES sql_stats_index_summary.c core_test_utils.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_index_summary.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
                  LIBRARIES unit box core m
+)
+create_unit_test(PREFIX sql_stats_index_summary_native
+                 SOURCES sql_stats_index_summary_native.c box_test_utils.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_index_summary.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
+                 LIBRARIES unit box core
 )
 create_unit_test(PREFIX sql_stats_snapshot
                  SOURCES sql_stats_snapshot.c

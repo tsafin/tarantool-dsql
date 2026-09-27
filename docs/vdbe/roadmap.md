@@ -531,12 +531,22 @@ review of IDs and formats.
   accumulator memory, and suppresses output on extractor failure; it
   deliberately does not hash raw MessagePack or infer population-level NDV.
   Eight generic-summary checks pass. The native index-hash adapter supports
-  verified STRING, DOUBLE, and BOOLEAN parts for TREE/HASH definitions, and is
-  covered by 12 checks in the fully configured `key_def.test` target, which
-  builds and passes locally. A focused runtime luatest also exercises the
+  verified STRING, DOUBLE, BOOLEAN, and UNSIGNED parts for TREE/HASH
+  definitions; signed INTEGER remains rejected pending an explicit
+  equality/hash equivalence proof. A dedicated
+  `sql_stats_index_summary_native.test` target checks unsigned acceptance,
+  duplicate deduplication, distinct-value recognition, and continued signed
+  INTEGER rejection; all four checks pass locally. The native adapter
+  now deletes its unreferenced runtime tuple returned by `tuple_new()` rather
+  than decrementing a reference it does not own. The existing `key_def.test`
+  native-adapter checks now delete their locally owned fixture tuples
+  directly. A focused runtime luatest also exercises the
   owned READ_CONFIRMED context against real memtx and Vinyl primary and
   secondary indexes; `sql_stats_test` passes locally. Neither slice provides
-  a common cross-index visibility boundary or a complete candidate. The
+  a common cross-index visibility boundary or a complete candidate. In the
+  current Clang-19 CnP build, that luatest cannot load its helper modules due
+  to unresolved `space_cache_version` / `mp_type_hint` symbols, so this build
+  contributes no new runtime confirmation. The
   collection unit now sweeps the snapshot byte budget from immediate rejection
   through the first complete deep copy, releasing candidates and checking that
   every incomplete budget fails closed. Snapshot unit tests also inject a

@@ -1401,7 +1401,7 @@ test_key_def_find_by_fieldno(void)
 static void
 test_sql_stats_index_summary_native(void)
 {
-	plan(12);
+	plan(14);
 	header();
 	struct key_def *def = test_key_def_new(
 		"[{%s%u%s%s}{%s%u%s%s}]",
@@ -1438,15 +1438,46 @@ test_sql_stats_index_summary_native(void)
 	ok(sql_stats_index_summary_prefix_ndv(summary, 2, ndv, 2) == 0 &&
 	   ndv[0] > 1.5 && ndv[0] < 2.5 && ndv[1] > 2.5 && ndv[1] < 3.5,
 	   "prefix hashes preserve distinct key tuples");
-	struct key_def *unsupported = test_key_def_new(
+	struct key_def *unsigned_def = test_key_def_new(
 		"[{%s%u%s%s}]", "field", 0, "type", "unsigned");
+	struct index_def unsigned_index = {};
+	unsigned_index.type = TREE;
+	unsigned_index.key_def = unsigned_def;
+	struct sql_stats_index_summary *unsigned_summary =
+		sql_stats_index_summary_new_for_index(tuple_format_runtime,
+			&unsigned_index, 8, 42, sketch_bytes + sizeof(void *));
+	struct tuple *unsigned_one = test_tuple_new("[%u]", 1);
+	struct tuple *unsigned_one_again = test_tuple_new("[%u]", 1);
+	struct tuple *unsigned_two = test_tuple_new("[%u]", 2);
+	ok(unsigned_summary != NULL &&
+	   sql_stats_index_summary_consume(unsigned_summary,
+			tuple_data(unsigned_one), tuple_bsize(unsigned_one), NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(unsigned_summary,
+			tuple_data(unsigned_one_again), tuple_bsize(unsigned_one_again),
+			NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(unsigned_summary,
+			tuple_data(unsigned_two), tuple_bsize(unsigned_two), NULL, 0) == 0,
+	   "unsigned parts use value-semantic native hashing");
+	double unsigned_ndv[1];
+	ok(unsigned_summary != NULL &&
+	   sql_stats_index_summary_prefix_ndv(unsigned_summary, 1,
+			unsigned_ndv, 1) == 0 && unsigned_ndv[0] > 1.5 &&
+	   unsigned_ndv[0] < 2.5,
+	   "unsigned hash deduplicates equal values and separates distinct values");
+	sql_stats_index_summary_delete(unsigned_summary);
+	tuple_unref(unsigned_one);
+	tuple_unref(unsigned_one_again);
+	tuple_unref(unsigned_two);
+	key_def_delete(unsigned_def);
+	struct key_def *unsupported = test_key_def_new(
+		"[{%s%u%s%s}]", "field", 0, "type", "integer");
 	struct index_def unsupported_index = {};
 	unsupported_index.type = TREE;
 	unsupported_index.key_def = unsupported;
 	ok(sql_stats_index_summary_new_for_index(tuple_format_runtime,
 						   &unsupported_index, 8, 42,
 						   sketch_bytes + sizeof(void *)) == NULL,
-	   "unverified numeric key hash is rejected");
+	   "unverified signed-integer key hash remains rejected");
 	struct index_def rtree_index = {};
 	rtree_index.type = RTREE;
 	rtree_index.key_def = def;
@@ -1456,9 +1487,9 @@ test_sql_stats_index_summary_native(void)
 					   2 * sizeof(void *)) == NULL,
 	   "non-tree/hash index family is rejected");
 	key_def_delete(unsupported);
-	tuple_unref(a);
-	tuple_unref(b);
-	tuple_unref(c);
+	tuple_delete(a);
+	tuple_delete(b);
+	tuple_delete(c);
 	sql_stats_index_summary_delete(summary);
 	key_def_delete(def);
 	struct key_def *double_def = test_key_def_new(
@@ -1486,8 +1517,8 @@ test_sql_stats_index_summary_native(void)
 	} else {
 		ok(false, "double summary remains available");
 	}
-	tuple_unref(int_one);
-	tuple_unref(float_one);
+	tuple_delete(int_one);
+	tuple_delete(float_one);
 	key_def_delete(double_def);
 	struct coll_def coll_def = {};
 	strncpy(coll_def.locale, "en_US", sizeof(coll_def.locale) - 1);
@@ -1522,8 +1553,8 @@ test_sql_stats_index_summary_native(void)
 	} else {
 		ok(false, "collated summary remains available");
 	}
-	tuple_unref(upper);
-	tuple_unref(lower);
+	tuple_delete(upper);
+	tuple_delete(lower);
 	key_def_delete(coll_defn);
 	coll_unref(coll);
 	struct key_def *bool_def = test_key_def_new(
@@ -1555,9 +1586,9 @@ test_sql_stats_index_summary_native(void)
 	} else {
 		ok(false, "boolean summary remains available");
 	}
-	tuple_unref(false_a);
-	tuple_unref(true_tuple);
-	tuple_unref(false_b);
+	tuple_delete(false_a);
+	tuple_delete(true_tuple);
+	tuple_delete(false_b);
 	key_def_delete(bool_def);
 	footer();
 	check_plan();

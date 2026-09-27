@@ -252,8 +252,8 @@ caller; raw MessagePack encodings are not treated as SQL values. The native
 format and copies the index key definition, reconstructs native Tarantool
 tuples from delivered full-row bytes, then hashes each prefix using
 `tuple_hash_key_part()` and the key-part type/collation. It initially accepts
-only TREE/HASH indexes with STRING, DOUBLE, or BOOLEAN parts and rejects
-multikey and functional key definitions. BOOLEAN is supported because its
+only TREE/HASH indexes with STRING, DOUBLE, BOOLEAN, or UNSIGNED parts and
+rejects multikey and functional key definitions. BOOLEAN is supported because its
 accepted MessagePack domain has exactly two canonical boolean encodings and
 the comparator decodes those values before comparing. Native mode reports
 `hash_bits=32`: because HLL receives the engine's 32-bit index hash, distinct

@@ -87,12 +87,12 @@ sql_stats_index_summary_new_for_index(struct tuple_format *format,
 		return NULL;
 	/* Keep the contract narrow: STRING and DOUBLE hash paths normalize
 	 * SQL-equal representations; BOOLEAN has a one-to-one MessagePack value
-	 * encoding and a value-decoding comparator. Other types need a separately
-	 * verified equality/hash contract. */
+	 * encoding and a value-decoding comparator; UNSIGNED has a value-decoding
+	 * hash. Other types need a separately verified equality/hash contract. */
 	for (uint32_t i = 0; i < key_def->part_count; i++) {
 		enum field_type type = key_def->parts[i].type;
 		if (type != FIELD_TYPE_STRING && type != FIELD_TYPE_DOUBLE &&
-		    type != FIELD_TYPE_BOOLEAN)
+		    type != FIELD_TYPE_BOOLEAN && type != FIELD_TYPE_UNSIGNED)
 			return NULL;
 		if (type == FIELD_TYPE_STRING && key_def->parts[i].coll != NULL &&
 		    key_def->parts[i].coll->hash == NULL)
@@ -152,7 +152,8 @@ sql_stats_index_summary_consume(void *context, const char *tuple,
 		uint32_t *hashes = malloc(summary->part_count * sizeof(*hashes));
 		int rc = hashes == NULL ? -1 : tuple_hash_prefixes(native_tuple,
 			summary->key_def, hashes, (uint32_t)summary->part_count);
-		tuple_unref(native_tuple);
+		/* tuple_new() returns an unreferenced runtime tuple. */
+		tuple_delete(native_tuple);
 		if (rc == 0) {
 			for (size_t i = 0; i < summary->part_count; i++) {
 				if (sql_stats_hll_add_u32(summary->prefixes[i], hashes[i]) != 0) {

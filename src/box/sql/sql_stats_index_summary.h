@@ -41,8 +41,8 @@ sql_stats_index_summary_new(size_t part_count, uint8_t precision,
  * retains the tuple format, then uses Tarantool's per-part index hash
  * semantics (type and collation aware) to feed the prefix sketches. The
  * caller must pass the matching format and index definition from one captured
- * schema version. Only TREE/HASH indexes with string/double/boolean parts
- * are accepted.
+ * schema version. Only TREE/HASH indexes with string/double/boolean/unsigned
+ * parts are accepted.
  * Estimates inherit the engine index hash's 32-bit collision ceiling; they
  * are probabilistic and are not exact/canonical SQL values.
  */
