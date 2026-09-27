@@ -1025,7 +1025,7 @@ DML, triggers, subprograms, non-deterministic functions.
   an incremental integration, not complete fallback coverage. The focused
   `planner_fallback_*` SQL tests
   pass locally on both memtx and Vinyl (10 cases), as do
-  `sql_plan_fallback.test` (32 Lua assertions and 9 TAP checks); refreshed
+  `sql_plan_fallback.test` (34 Lua assertions and 9 TAP checks); refreshed
   result baselines no longer preserve earlier assertion-error output.
   Full-corpus
   capture/parity review is complete under M3.6; it does not imply the missing
