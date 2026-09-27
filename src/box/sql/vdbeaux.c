@@ -873,6 +873,7 @@ vdbe_codegen_checkpoint_init(struct vdbe_codegen_checkpoint *checkpoint,
 	checkpoint->vdbe_field_ref_reg = parse->vdbe_field_ref_reg;
 	checkpoint->col_names_set = parse->colNamesSet;
 	checkpoint->parse_is_aborted = parse->is_aborted;
+	checkpoint->parse_n_err = parse->nErr;
 	memcpy(checkpoint->col_cache, parse->aColCache,
 	       sizeof(parse->aColCache));
 	checkpoint->n_query_loop = parse->nQueryLoop;
@@ -933,9 +934,10 @@ vdbe_codegen_checkpoint_rollback(struct vdbe_codegen_checkpoint *checkpoint)
 	parse->vdbe_field_ref_reg = checkpoint->vdbe_field_ref_reg;
 	parse->colNamesSet = checkpoint->col_names_set;
 	/* A speculative reject may set is_aborted without an error; rollback can
-	 * clear that state. Never hide a parser/codegen error: a changed fiber
-	 * diagnostic belongs to the caller and must remain a hard failure. */
-	bool has_error = diag_last_error(diag_get()) != checkpoint->diag_error;
+	 * clear that state. Never hide parser or codegen errors: changed nErr or
+	 * fiber diagnostics belong to the caller and remain hard failures. */
+	bool has_error = parse->nErr != checkpoint->parse_n_err ||
+		diag_last_error(diag_get()) != checkpoint->diag_error;
 	parse->is_aborted = checkpoint->parse_is_aborted || has_error;
 	memcpy(parse->aColCache, checkpoint->col_cache,
 	       sizeof(parse->aColCache));

@@ -965,7 +965,7 @@ DML, triggers, subprograms, non-deterministic functions.
   This does not cover all descriptor operators, secondary/range access,
   all storage edge cases, or corpus-wide parity; checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
-  error-injection, parity, and capture coverage. Details:
+  injected-opcode-failure, parity, and capture coverage. Details:
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
   `SELECT`/VDBE integration).
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
