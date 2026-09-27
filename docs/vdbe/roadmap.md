@@ -598,10 +598,11 @@ review of IDs and formats.
   directly. A focused runtime luatest also exercises the
   owned READ_CONFIRMED context against real memtx and Vinyl primary and
   secondary indexes; `sql_stats_test` passes locally. Neither slice provides
-  a common cross-index visibility boundary or a complete candidate. In the
-  current Clang-19 CnP build, that luatest cannot load its helper modules due
-  to unresolved `space_cache_version` / `mp_type_hint` symbols, so this build
-  contributes no new runtime confirmation. The
+  a common cross-index visibility boundary or a complete candidate. An
+  earlier attempt to load these helpers as a separate DSO failed on private
+  engine symbols (`space_cache_version` / `mp_type_hint`); that attempt is
+  superseded by the TEST_BUILD in-process wrapper described below, which
+  provides live sampler confirmation without adding production exports. The
   collection unit now sweeps the snapshot byte budget from immediate rejection
   through the first complete deep copy, releasing candidates and checking that
   every incomplete budget fails closed. Snapshot unit tests also inject a
