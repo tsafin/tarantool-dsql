@@ -545,7 +545,8 @@ review of IDs and formats.
   only after every requested target succeeds; otherwise it rolls back. The
   focused `sql_stats_collection.test` target builds and passes locally,
   including all 21 transaction-context checks. The CMake target was rebuilt
-  from the root build; live memtx/Vinyl integration was not run.
+  from the root build, and the production `tarantool` target links with the
+  new API; live memtx/Vinyl integration was not run.
   READ_CONFIRMED excludes
   prepared/unconfirmed writes but does not freeze confirmed commits between
   index calls; the transaction ID is not a shared visibility token and must
