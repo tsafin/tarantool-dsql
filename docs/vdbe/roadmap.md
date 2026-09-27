@@ -598,10 +598,14 @@ format approval is implied.
   These choices and their limitations are recorded in
   `sql_stats_sampling.md`. Production SQL discovery/execution and rollback
   tests remain open. Bare `ANALYZE` with no eligible targets is a successful
-  no-op with no publication. Fixed compile-time sample/work/memory ceilings
-  and atomic failure on exhaustion are now approved and enumerated in
-  `sql_stats_analyze_budget.h` and `sql_stats_sampling.md`; runtime wiring
-  must consume those exact ceilings rather than introduce session settings.
+  no-op with no publication. Per the user decision (2026-09-27), the first
+  implementation uses fixed conservative compile-time sample/work/memory
+  ceilings and fails atomically on exhaustion; no session-configurable limits
+  are introduced. The exact ceilings are enumerated in
+  `sql_stats_analyze_budget.h` and `sql_stats_sampling.md`. The focused
+  `analyze_volatile_test.lua` runtime suite and `sql_stats_collection.test`
+  unit target pass against the current build. Runtime wiring must consume
+  those exact ceilings.
 
   ```mermaid
   flowchart TD
