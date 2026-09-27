@@ -258,8 +258,11 @@ Stable values for `l3_path_class.reason` when `taken` starts with `fallback_`:
 | `UNSUPPORTED_COMPOUND` | UNION / INTERSECT / EXCEPT. |
 | `UNSUPPORTED_DML` | INSERT / UPDATE / DELETE. |
 | `UNSUPPORTED_TRIGGER` | Statement invokes trigger subprogram. |
-| `UNSUPPORTED_NONDETERMINISTIC` | Non-deterministic or side-effecting function. |
+| `UNSUPPORTED_NONDETERMINISTIC` | Function is not declared deterministic. |
 | `UNSUPPORTED_ACCESS_HINT` | Explicit `INDEXED BY` / `NOT INDEXED` access requirement is not modeled. |
+| `UNSUPPORTED_FUNCTION` | Deterministic function call is outside the canonical expression contract. |
+| `UNSUPPORTED_COLLATION` | Explicit collation semantics are not represented by the expression contract. |
+| `UNSUPPORTED_EXPRESSION` | Resolved scalar expression is outside the canonical expression contract. |
 | `BUDGET_EXCEEDED` | New planner search budget exhausted. |
 | `LOW_CONFIDENCE_STATS` | Stats confidence below threshold (post-S1). |
 | `LOWERING_FAILED` | Internal bug; falls back rather than crashing. |
@@ -269,7 +272,9 @@ reason in the separate `reason` field. Its append-only reason codes are
 `UNRESOLVED_INPUT`, `UNSUPPORTED_RELATION_COUNT`, `UNSUPPORTED_SUBQUERY`,
 `UNSUPPORTED_AGGREGATE`, `UNSUPPORTED_COMPOUND`, `UNSUPPORTED_CTE`,
 `UNSUPPORTED_DISTINCT`, `INVALID_LOGICAL_PLAN`, `NO_ACCESS_PATH`,
-`INVALID_CANDIDATE`, and `UNSUPPORTED_ACCESS_HINT`. For both fallback
+`INVALID_CANDIDATE`, `UNSUPPORTED_ACCESS_HINT`,
+`UNSUPPORTED_NONDETERMINISTIC`, `UNSUPPORTED_FUNCTION`,
+`UNSUPPORTED_COLLATION`, and `UNSUPPORTED_EXPRESSION`. For both fallback
 encodings, `fallback_to` must be
 `current_where_c`; non-fallback paths must leave both `reason` and
 `fallback_to` null. The capture validator enforces these combinations.

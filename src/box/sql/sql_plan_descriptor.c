@@ -48,6 +48,8 @@ sql_plan_fallback_reason_name(uint32_t reason)
 		return "UNSUPPORTED_FUNCTION";
 	case SQL_PLAN_FALLBACK_UNSUPPORTED_COLLATION:
 		return "UNSUPPORTED_COLLATION";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_EXPRESSION:
+		return "UNSUPPORTED_EXPRESSION";
 	default:
 		return NULL;
 	}

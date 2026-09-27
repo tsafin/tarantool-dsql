@@ -4,7 +4,7 @@
 #include "box/sql/sql_expr_canonical.h"
 #include "unit.h"
 static void test_supported(void) {
-	plan(6); header();
+	plan(7); header();
 	const uint32_t cursor_map[] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, 0};
 	struct Expr col = {.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=3,.iColumn=1};
 	struct Expr a = {.op=TK_INTEGER,.flags=EP_Resolved|EP_IntValue}; a.u.iValue=7;
@@ -13,6 +13,11 @@ static void test_supported(void) {
 	char *s=sql_expr_canonicalize(&col,cursor_map,4,NULL);
 	char *s2=sql_expr_canonicalize(&col,cursor_map,4,NULL);
 	ok(s && s2 && strcmp(s,s2)==0 && strcmp(s,"col(r0,c1)")==0,"mapped column stable");
+	struct Expr lookup_col = {.op=TK_COLUMN_REF,
+		.flags=EP_Resolved|EP_Lookup2,.iTable=3,.iColumn=1};
+	char *lookup = sql_expr_canonicalize(&lookup_col, cursor_map, 4, NULL);
+	ok(lookup && strcmp(lookup, "col(r0,c1)") == 0,
+	   "resolved identifier lookup marker has no canonical meaning");
 	char *n=sql_expr_canonicalize(&a,NULL,0,NULL), *n2=sql_expr_canonicalize(&b,NULL,0,NULL);
 	ok(n && n2 && strcmp(n,n2)==0 && strcmp(n,"int(7)")==0,"integer normalized");
 	char *o=sql_expr_canonicalize(&plus,cursor_map,4,NULL);
@@ -26,7 +31,7 @@ static void test_supported(void) {
 	ok(ns && strcmp(ns,"null")==0,"NULL encoded");
 	ok(ss && strcmp(ss,"str(612262)")==0,"string bytes hex encoded");
 	ok(fs && fs2 && strcmp(fs,fs2)==0,"float spelling normalized");
-	free(s);free(s2);free(n);free(n2);free(o);free(ns);free(ss);free(fs);free(fs2);
+	free(s);free(s2);free(lookup);free(n);free(n2);free(o);free(ns);free(ss);free(fs);free(fs2);
 	footer(); check_plan();
 }
 static void test_rejects(void) {

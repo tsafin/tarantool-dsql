@@ -82,6 +82,12 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 		return SQL_EXPR_CANONICAL_MALFORMED;
 	/* Reduced nodes omit fields; allow only fully resolved plain nodes. */
 	uint32_t allowed = EP_Resolved | EP_IntValue | EP_Leaf;
+	/* EP_Lookup2 remembers whether an identifier was quoted. It has no
+	 * remaining effect on a canonical TK_COLUMN_REF once name resolution has
+	 * bound its cursor and field ordinal. Do not allow it on other operators.
+	 */
+	if (expr->op == TK_COLUMN_REF)
+		allowed |= EP_Lookup2;
 	if ((expr->flags & EP_Resolved) == 0 ||
 	    (expr->flags & (EP_Reduced | EP_TokenOnly)) != 0)
 		return SQL_EXPR_CANONICAL_UNSUPPORTED;

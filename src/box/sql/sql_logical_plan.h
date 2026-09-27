@@ -28,6 +28,7 @@ enum sql_logical_reject_reason {
 	SQL_LOGICAL_REJECT_ACCESS_HINT,
 	SQL_LOGICAL_REJECT_FUNCTION,
 	SQL_LOGICAL_REJECT_COLLATION,
+	SQL_LOGICAL_REJECT_EXPRESSION,
 };
 
 struct sql_logical_node {

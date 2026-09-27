@@ -867,7 +867,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_COLLATION`, since the canonical expression contract does not
   carry collation semantics; inherited/default column collations are not
   treated as explicit hints. A focused live summary/counter test covers the
-  reject path.
+  reject path. Otherwise-supported SELECTs now also consult the resolved
+  scalar expression canonicalizer and report `UNSUPPORTED_EXPRESSION` when
+  CAST/LIKE or another operator falls outside its grammar. Structural rejects
+  retain precedence; focused runtime and counter tests cover CAST and LIKE.
   Zero-source constant SELECTs also enter `sqlWhereBegin()` but are outside the
   single-relation logical-plan contract. They now report
   `UNSUPPORTED_RELATION_COUNT`; a focused

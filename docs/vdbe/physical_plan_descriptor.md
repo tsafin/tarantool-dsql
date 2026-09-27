@@ -342,6 +342,7 @@ when join algorithms can differ in those dimensions.
 | `UNSUPPORTED_ACCESS_HINT` | Explicit `INDEXED BY` / `NOT INDEXED` requirement is not modeled. |
 | `UNSUPPORTED_FUNCTION` | Deterministic function call is outside the canonical expression contract. |
 | `UNSUPPORTED_COLLATION` | Explicit collation semantics are not represented by the expression contract. |
+| `UNSUPPORTED_EXPRESSION` | Resolved scalar expression is outside the canonical expression contract. |
 | `BUDGET_EXCEEDED` | Planner search budget exhausted. |
 | `LOW_CONFIDENCE_STATS` | Stats confidence below threshold (configurable). |
 | `LOWERING_FAILED` | Internal bug in lowering; record and fall back. |

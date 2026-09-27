@@ -42,6 +42,7 @@
 #include "box/coll_id_cache.h"
 #include "box/schema.h"
 #include "sql_logical_plan.h"
+#include "sql_expr_canonical.h"
 #include "sql_plan_fallback.h"
 
 /*
@@ -5653,6 +5654,7 @@ sql_select_record_fallback_reason(Parse *parse,
 static bool sql_select_has_nondeterministic_func(Select *select);
 static bool sql_select_has_func(Select *select);
 static bool sql_select_has_collation(Select *select);
+static bool sql_select_has_unsupported_expr(Parse *parse, Select *select);
 
 static void
 sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
@@ -5693,6 +5695,9 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 		else if (sql_select_has_collation(select))
 			sql_select_record_fallback_reason(parse,
 					SQL_LOGICAL_REJECT_COLLATION);
+		else if (sql_select_has_unsupported_expr(parse, select))
+			sql_select_record_fallback_reason(parse,
+					SQL_LOGICAL_REJECT_EXPRESSION);
 		return;
 	}
 	enum sql_logical_reject_reason logical_reason =
@@ -5803,6 +5808,66 @@ sql_select_has_collation(Select *select)
 	walker.xSelectCallback = sql_select_walk_subquery;
 	(void)sqlWalkSelect(&walker, select);
 	return walker.eCode != 0;
+}
+
+static bool
+sql_expr_is_canonical(const Expr *expr, const uint32_t *cursor_to_relation,
+		      size_t cursor_count)
+{
+	if (expr == NULL)
+		return true;
+	enum sql_expr_canonical_reject reason;
+	char *canonical = sql_expr_canonicalize(expr, cursor_to_relation,
+						cursor_count, &reason);
+	free(canonical);
+	/* Allocation failure is not a shape classification. Leave it to the
+	 * ordinary compiler error path rather than inventing a fallback reason.
+	 */
+	return reason == SQL_EXPR_CANONICAL_OK ||
+	       reason == SQL_EXPR_CANONICAL_NOMEM;
+}
+
+static bool
+sql_select_has_unsupported_expr(Parse *parse, Select *select)
+{
+	/* Aggregate expressions have their own route/reason decision below;
+	 * simple COUNT(*) may bypass where.c entirely and must remain unclassified.
+	 */
+	if ((select->selFlags & (SF_Aggregate | SF_HasAgg)) != 0 ||
+	    parse->nTab <= 0 || select->pSrc == NULL ||
+	    select->pSrc->nSrc != 1)
+		return false;
+	size_t cursor_count = (size_t)parse->nTab;
+	uint32_t *cursor_to_relation = malloc(cursor_count *
+					      sizeof(*cursor_to_relation));
+	if (cursor_to_relation == NULL)
+		return false;
+	for (size_t i = 0; i < cursor_count; ++i)
+		cursor_to_relation[i] = UINT32_MAX;
+	int cursor = select->pSrc->a[0].iCursor;
+	if (cursor < 0 || (size_t)cursor >= cursor_count) {
+		free(cursor_to_relation);
+		return true;
+	}
+	cursor_to_relation[cursor] = 0;
+	bool supported = sql_expr_is_canonical(select->pWhere,
+						cursor_to_relation, cursor_count);
+	const ExprList *lists[] = {select->pEList, select->pOrderBy};
+	for (size_t i = 0; supported && i < sizeof(lists) / sizeof(lists[0]);
+	     ++i) {
+		const ExprList *list = lists[i];
+		for (int j = 0; list != NULL && supported && j < list->nExpr; ++j)
+			supported = sql_expr_is_canonical(list->a[j].pExpr,
+							  cursor_to_relation,
+							  cursor_count);
+	}
+	if (supported)
+		supported = sql_expr_is_canonical(select->pLimit,
+						  cursor_to_relation, cursor_count) &&
+			sql_expr_is_canonical(select->pOffset, cursor_to_relation,
+					       cursor_count);
+	free(cursor_to_relation);
+	return !supported;
 }
 
 static void
