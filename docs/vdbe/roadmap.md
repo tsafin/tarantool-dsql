@@ -568,7 +568,11 @@ review of IDs and formats.
   compaction, and exhaustion paths. The production `tarantool` target and
   test module compile locally; `sql_stats_sample.test`,
   `vy_iterator_budget.test`, `vy_point_lookup.test`, and the standalone Vinyl
-  runtime guard pass. The test module reads its optional failure argument
+  runtime guard pass. Both storage samplers accept a requested index ID;
+  runtime tests cover memtx secondary-index random draws and Vinyl secondary
+  iteration with visible-primary-tuple resolution under the shared work
+  budget, including fail-closed key-budget exhaustion. The test module reads
+  its optional failure argument
   before constructing the result table, and the runtime fixture uses the
   nested update-operation shape required by Vinyl. This does not yet integrate
   ANALYZE or a collection job, calibrate confidence, or establish workload-
