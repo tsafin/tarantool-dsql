@@ -43,6 +43,11 @@ g.test_non_primary_null_filters_off_on_off = function()
                            'id < 4 ORDER BY id DESC'):format(name),
                     expected = {{2}},
                 },
+                {
+                    sql = ('SELECT id FROM %s WHERE v IS NULL AND id > 0 ' ..
+                           'ORDER BY id ASC LIMIT 1 OFFSET 1'):format(name),
+                    expected = {{3}},
+                },
             }
             local function capture(enabled)
                 local results = {}
