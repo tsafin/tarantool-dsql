@@ -176,7 +176,8 @@ new_composite_point_descriptor(void)
 }
 
 static struct sql_plan_descriptor *
-new_composite_prefix_descriptor(void)
+new_composite_prefix_descriptor(bool with_limit, uint64_t limit,
+				uint64_t offset)
 {
 	static const uint32_t columns[] = {2};
 	static const struct sql_plan_bound bounds[] = {
@@ -190,6 +191,11 @@ new_composite_prefix_descriptor(void)
 	static const struct sql_plan_point_key_part parts[] = {
 		{.integer_value = 1, .column = 0},
 		{.unsigned_value = UINT64_MAX, .column = 1, .is_unsigned = true},
+	};
+	struct sql_plan_finalize finalize = {
+		.kind = SQL_PLAN_LIMIT,
+		.limit = limit,
+		.offset = offset,
 	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
@@ -205,6 +211,8 @@ new_composite_prefix_descriptor(void)
 			.prefix_key_part_count = 2,
 			.direction = SQL_PLAN_ASC,
 		},
+		.finalize = with_limit ? &finalize : NULL,
+		.finalize_count = with_limit ? 1 : 0,
 		.projection_columns = columns,
 		.projection_column_count = 1,
 		.expressions = expressions,
@@ -396,7 +404,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(35);
+	plan(38);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -443,7 +451,13 @@ main(void)
 	struct sql_plan_descriptor *composite_point_desc =
 		new_composite_point_descriptor();
 	struct sql_plan_descriptor *composite_prefix_desc =
-		new_composite_prefix_descriptor();
+		new_composite_prefix_descriptor(false, 0, 0);
+	struct sql_plan_descriptor *composite_prefix_limit_desc =
+		new_composite_prefix_descriptor(true, 1, 0);
+	struct sql_plan_descriptor *composite_prefix_offset_desc =
+		new_composite_prefix_descriptor(true, 1, 1);
+	struct sql_plan_descriptor *composite_prefix_zero_desc =
+		new_composite_prefix_descriptor(true, 0, 0);
 	struct sql_plan_descriptor *range_gt_desc =
 		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *range_le_desc =
@@ -480,6 +494,9 @@ main(void)
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
 	   composite_point_desc != NULL &&
 	   composite_prefix_desc != NULL &&
+	   composite_prefix_limit_desc != NULL &&
+	   composite_prefix_offset_desc != NULL &&
+	   composite_prefix_zero_desc != NULL &&
 	   range_gt_desc != NULL && range_le_desc != NULL &&
 	   unsigned_range_desc != NULL && bounded_range_desc != NULL &&
 	   wide_bounded_range_desc != NULL &&
@@ -681,6 +698,27 @@ main(void)
 	   vdbe.aOp[before_prefix_scan + 8].opcode == OP_ResultRow &&
 	   vdbe.aOp[before_prefix_scan + 9].opcode == OP_Next,
 	   "composite prefix scan seeks by two fields and stops on prefix mismatch");
+	int before_prefix_limit = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_prefix_scan(composite_prefix_limit_desc, &vdbe,
+						      4, 20) == 0 &&
+	   vdbe.aOp[before_prefix_limit + 2].opcode == OP_Integer &&
+	   vdbe.aOp[before_prefix_limit + 3].opcode == OP_SeekGE &&
+	   vdbe.aOp[before_prefix_limit + 10].opcode == OP_DecrJumpZero,
+	   "composite prefix scan applies LIMIT after each emitted row");
+	int before_prefix_offset = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_prefix_scan(composite_prefix_offset_desc, &vdbe,
+						      4, 20) == 0 &&
+	   vdbe.aOp[before_prefix_offset + 2].opcode == OP_Integer &&
+	   vdbe.aOp[before_prefix_offset + 3].opcode == OP_Integer &&
+	   vdbe.aOp[before_prefix_offset + 4].opcode == OP_SeekGE &&
+	   vdbe.aOp[before_prefix_offset + 9].opcode == OP_IfNotZero,
+	   "composite prefix scan skips offset rows before projection");
+	int before_prefix_zero = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_prefix_scan(composite_prefix_zero_desc, &vdbe,
+						      4, 20) == 0 &&
+	   vdbe.aOp[before_prefix_zero].opcode == OP_Goto &&
+	   vdbe.nOp == before_prefix_zero + 1,
+	   "zero LIMIT suppresses composite prefix key setup and seek");
 	int before_range_gt = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(range_gt_desc, &vdbe, 4, 20) == 0,
 	   "strict lower range descriptor lowers successfully");

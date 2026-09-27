@@ -460,7 +460,11 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
                 ('SELECT c, v FROM %s WHERE a = 1 AND ' ..
                  'b = 18446744073709551615'):format(name),
             }
-            local limited_prefix = queries[1] .. ' LIMIT 1'
+            local limited_queries = {
+                queries[1] .. ' LIMIT 1',
+                queries[1] .. ' LIMIT 0',
+                queries[1] .. ' LIMIT 1 OFFSET 1',
+            }
             local function capture(enabled)
                 local rows = {}
                 for i, sql in ipairs(queries) do
@@ -486,8 +490,12 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             end
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             local off = capture(false)
-            local off_limited, err = box.execute(limited_prefix)
-            t.assert(err == nil, err and err.message)
+            local off_limited = {}
+            for i, sql in ipairs(limited_queries) do
+                local result, err = box.execute(sql)
+                t.assert(err == nil, err and err.message)
+                off_limited[i] = result.rows
+            end
             box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
             local on = capture(true)
             t.assert_equals(on, off)
@@ -503,16 +511,17 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             t.assert_equals(explain.rows[1][3], 'fallback')
             t.assert(type(explain.rows[2][3]) == 'string' and
                      #explain.rows[2][3] > 0)
-            explain, err = box.execute(
-                [[EXPLAIN (planner = 'summary') ]] .. limited_prefix)
-            t.assert(err == nil, err and err.message)
-            t.assert_equals(explain.rows[1][3], 'fallback')
-            t.assert(type(explain.rows[2][3]) == 'string' and
-                     #explain.rows[2][3] > 0)
-            local limited_on
-            limited_on, err = box.execute(limited_prefix)
-            t.assert(err == nil, err and err.message)
-            t.assert_equals(limited_on.rows, off_limited.rows)
+            for i, sql in ipairs(limited_queries) do
+                explain, err = box.execute(
+                    [[EXPLAIN (planner = 'summary') ]] .. sql)
+                t.assert(err == nil, err and err.message)
+                t.assert_equals(explain.rows[1][3], 'new_planner')
+                local limited_on
+                limited_on, err = box.execute(sql)
+                t.assert(err == nil, err and err.message)
+                t.assert_equals(limited_on.rows, off_limited[i])
+                t.assert_equals(#limited_on.rows, i == 2 and 0 or 1)
+            end
 
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             t.assert_equals(capture(false), off)

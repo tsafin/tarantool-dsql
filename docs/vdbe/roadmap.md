@@ -1192,9 +1192,10 @@ DML, triggers, subprograms, non-deterministic functions.
   prefix of a longer composite key: it seeks with full prefix arity and
   terminates when any prefix column changes. Memtx/Vinyl off/on/off parity
   covers reversed two-part prefixes, misses, and UINT64_MAX in an UNSIGNED
-  prefix component; non-leading equalities and prefix ORDER BY or LIMIT/OFFSET
-  remain stable fallbacks. The VDBE unit pins the multi-part seek and mismatch
-  checks.
+  prefix component. Literal LIMIT/OFFSET (including zero LIMIT and positive
+  OFFSET) retain `new_planner` and off/on result parity; non-leading equalities
+  and prefix ORDER BY remain stable fallbacks. The VDBE unit pins the
+  multi-part seek, mismatch checks, and limit/offset placement.
   *parallel: no (extends the existing producer/descriptor/lowering chain)*.
   The route also lowers `primary_key_part IS NOT NULL` as a full
   scan, relying on the primary-key non-null invariant, and `primary_key_part

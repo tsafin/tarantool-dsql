@@ -225,10 +225,11 @@ evaluation remain unsupported.
 For a composite key with at least three parts, equality on a proper leading
 prefix of two or more INTEGER/UNSIGNED parts uses a dedicated prefix scan. It
 seeks with the entire prefix key and compares each prefix column on every row,
-exiting at the first mismatch. The current executable prefix path accepts no
-ORDER BY or LIMIT/OFFSET; those shapes retain legacy codegen with a stable
-fallback reason. Memtx/Vinyl tests cover reordered equalities, empty and
-non-empty prefixes, UINT64_MAX, and non-leading fallback.
+exiting at the first mismatch. Literal LIMIT/OFFSET are supported, including
+zero LIMIT (no seek) and positive OFFSET; prefix ORDER BY remains on legacy
+codegen with a stable fallback reason. Memtx/Vinyl tests cover reordered
+equalities, empty and non-empty prefixes, UINT64_MAX, LIMIT/OFFSET, and
+non-leading fallback.
 
 The production route also supports one-sided and two-sided INTEGER and
 UNSIGNED primary-key literal ranges (`>`, `>=`, `<`, `<=`), including reversed

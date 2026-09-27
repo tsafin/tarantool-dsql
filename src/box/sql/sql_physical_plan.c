@@ -508,9 +508,7 @@ predicate_parsed:
 	if (has_range_key)
 		direction = range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE ?
 			SQL_PLAN_DESC : SQL_PLAN_ASC;
-	if (has_prefix_scan &&
-	    (select->pOrderBy != NULL || select->pLimit != NULL ||
-	     select->pOffset != NULL))
+	if (has_prefix_scan && select->pOrderBy != NULL)
 		goto invalid_predicate;
 	struct sql_plan_order_term *order_terms = NULL;
 	size_t order_term_count = 0;

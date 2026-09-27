@@ -146,7 +146,13 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 	    in->access.prefix_key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
 	    in->access.prefix_key_part_count > INT_MAX || in->access.bounds == NULL ||
 	    in->filter_count != 0 ||
-	    in->finalize_count != 0 || in->access.produced_order_count != 0 ||
+	    in->finalize_count > 1 ||
+	    (in->finalize_count == 1 &&
+	     (in->finalize == NULL ||
+	      in->finalize[0].kind != SQL_PLAN_LIMIT ||
+	      in->finalize[0].limit > INT64_MAX ||
+	      in->finalize[0].offset > INT64_MAX)) ||
+	    in->access.produced_order_count != 0 ||
 	    in->projection_columns == NULL || in->projection_column_count == 0 ||
 	    in->projection_column_count > INT_MAX ||
 	    result_first_reg > INT_MAX - (int)in->projection_column_count + 1 ||
@@ -160,8 +166,26 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 		if (in->projection_columns[i] > INT_MAX)
 			return -1;
 	Parse *parse = vdbe->pParse;
+	bool has_limit = in->finalize_count == 1;
+	bool has_offset = has_limit && in->finalize[0].offset != 0;
+	if (has_limit && in->finalize[0].limit == 0) {
+		struct vdbe_codegen_checkpoint checkpoint;
+		if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
+			return -1;
+		int skip = sqlVdbeAddOp2(vdbe, OP_Goto, 0, 0);
+		if (skip != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error) {
+			vdbe_codegen_checkpoint_rollback(&checkpoint);
+			return -1;
+		}
+		sqlVdbeJumpHere(vdbe, skip);
+		vdbe_codegen_checkpoint_commit(&checkpoint);
+		return 0;
+	}
 	int key_count = (int)in->access.prefix_key_part_count;
-	if (parse->nMem > INT_MAX - key_count - 1)
+	int extra_regs = key_count + 1 + (has_limit ? 1 : 0) +
+		(has_offset ? 1 : 0);
+	if (parse->nMem > INT_MAX - extra_regs)
 		return -1;
 	struct vdbe_codegen_checkpoint checkpoint;
 	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
@@ -169,6 +193,8 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 	int key_reg = parse->nMem + 1;
 	parse->nMem += key_count;
 	int current_reg = ++parse->nMem;
+	int limit_reg = has_limit ? ++parse->nMem : 0;
+	int offset_reg = has_offset ? ++parse->nMem : 0;
 	for (int i = 0; i < key_count; ++i) {
 		const struct sql_plan_point_key_part *part =
 			&in->access.prefix_key_parts[i];
@@ -197,6 +223,26 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto prefix_error;
 	}
+	if (has_limit) {
+		uint64_t value = in->finalize[0].limit;
+		int addr = value <= INT_MAX ?
+			sqlVdbeAddOp2(vdbe, OP_Integer, (int)value, limit_reg) :
+			sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, limit_reg, 0,
+					  (const u8 *)&value, P4_UINT64);
+		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto prefix_error;
+	}
+	if (has_offset) {
+		uint64_t value = in->finalize[0].offset;
+		int addr = value <= INT_MAX ?
+			sqlVdbeAddOp2(vdbe, OP_Integer, (int)value, offset_reg) :
+			sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, offset_reg, 0,
+					  (const u8 *)&value, P4_UINT64);
+		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto prefix_error;
+	}
 	int seek = sqlVdbeAddOp4Int(vdbe, OP_SeekGE, cursor, 0, key_reg,
 				    key_count);
 	if (seek != vdbe->nOp - 1 || parse->is_aborted ||
@@ -217,6 +263,11 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto prefix_error;
 	}
+	int offset_skip = has_offset ?
+		sqlVdbeAddOp2(vdbe, OP_IfNotZero, offset_reg, 0) : -1;
+	if (has_offset && (offset_skip != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error))
+		goto prefix_error;
 	for (size_t i = 0; i < in->projection_column_count; ++i) {
 		int addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
 					 in->projection_columns[i],
@@ -230,6 +281,13 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 	if (result != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto prefix_error;
+	int limit_break = has_limit ?
+		sqlVdbeAddOp2(vdbe, OP_DecrJumpZero, limit_reg, 0) : -1;
+	if (has_limit && (limit_break != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error))
+		goto prefix_error;
+	if (offset_skip >= 0)
+		sqlVdbeJumpHere(vdbe, offset_skip);
 	int next = sqlVdbeAddOp2(vdbe, OP_Next, cursor, body);
 	if (next != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
@@ -237,6 +295,8 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 	sqlVdbeJumpHere(vdbe, seek);
 	for (int i = 0; i < key_count; ++i)
 		sqlVdbeJumpHere(vdbe, mismatch[i]);
+	if (limit_break >= 0)
+		sqlVdbeJumpHere(vdbe, limit_break);
 	vdbe_codegen_checkpoint_commit(&checkpoint);
 	return 0;
 prefix_error:
