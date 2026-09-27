@@ -406,17 +406,26 @@ look up rows by `(section, key)`, not by ordinal.
 ### Planner snapshot result contract
 
 `EXPLAIN (planner = 'snapshot') <statement>` returns one `varbinary` column,
-`snapshot`, containing one MsgPack map. Version 4 has these keys:
+`snapshot`, containing one MsgPack map. Version 5 has these keys:
 
 | Key | Type | Meaning |
 | --- | --- | --- |
 | `format` | string | `tarantool.sql.planner.snapshot` |
-| `version` | unsigned integer | Envelope version, currently `4`. |
-| `path_class` | string or nil | Path class recorded on the prepared statement. |
-| `fallback_reason` | string or nil | Stable structural reject reason when the legacy planner is the fallback route. |
+| `version` | unsigned integer | Envelope version, currently `5`. |
+| `path_class` | string or nil | Uniform component route, or `mixed` when component routes disagree. |
+| `fallback_reason` | string or nil | Root reason only for a uniform fallback route; NULL for `mixed`. |
 | `replayable` | boolean | True only when a complete selection-replay input is embedded. |
 | `replay_inputs` | binary, optional | Canonical internal v5 normalized query/schema/stats/config and final-path input; absent when capture is incomplete or unsupported. |
-| `planner` | map | Per-statement counters, final path status/list, and selected final-path fingerprint. |
+| `planner` | map | Per-statement counters, final path diagnostics, and the SELECT component ledger. |
+
+`planner.component_status` is `complete`, `incomplete`, or `unavailable`.
+Only `complete` exposes a non-empty `component_routes` array. Each record has a
+statement-local component ID, parent ID (`0` only for the root), producer
+role, route class, and an optional stable fallback reason. Direct `VALUES`,
+direct `OP_Count`, and compound dispatch are explicit routes, not fallback
+errors. The component list is authoritative; statement `path_class` is a
+compatibility summary and reports `mixed` with no fallback reason when the
+root route differs from any child route.
 
 Each `final_paths` entry contains an opaque stable fingerprint, exact signed
 LogEst path/unsorted/output-row costs, the captured ORDER BY satisfaction
@@ -432,12 +441,13 @@ identity, and algorithm/config versions; it embeds canonical v5 bytes as
 `replay_inputs` and sets `replayable=true`. This is selection replay only:
 enumeration, dominance, and beam pruning are not replayed.
 
-Version 4 may be diagnostic-only or selection-replayable. A non-replayable
+Version 5 may be diagnostic-only or selection-replayable. A non-replayable
 object must have `replayable: false` and no `replay_inputs` key, including an
 empty or partial value. A replayable object must have `replayable: true`, a
-valid v5 input, and a complete non-empty final-path capture with matching
-ordered fingerprints. Capturers reject violations rather than interpreting
-the flag as a promise. The M0 harness validates both forms.
+valid internal v5 input, a complete one-root component ledger, and a complete
+non-empty final-path capture with matching ordered fingerprints. Capturers
+reject violations rather than interpreting the flag as a promise. The M0
+harness validates both forms and checks component identity/parent links.
 Per-statement planner measurements are also copied into the harness run
 manifest (`planner_metrics_version: 2`, `planner_metrics`) for analysis; they
 are not part of the M0 result/parity gate. The path counters cover candidate
@@ -477,14 +487,13 @@ statement, it reports `mixed` and a NULL fallback reason. It must never select
 an arbitrary first nested reason. Counters count each component's actual
 planner attempt once; EXPLAIN serialization does not increment them. This
 scope is required by the roadmap's “every unsupported shape” contract and
-avoids silently excluding direct or recursive producers. The implementation
-can be incremental, but M3.5 stays open until the producer inventory is
-covered and mixed/direct/nested runtime cases verify these semantics. A
-bounded internal ledger model now encodes component identity, parent, role,
-route, and fallback reason; unit tests cover direct-route distinction,
-conflicting writes, mixed summaries, incomplete records, and overflow. It is
-not yet populated by `sqlSelect()` or exposed in EXPLAIN, so it does not close
-the integration gate.
+avoids silently excluding direct or recursive producers. A bounded ledger is
+now populated at the SQL producer boundaries and exposed in the v5 snapshot.
+Focused runtime coverage verifies ordinary, fallback, VALUES, OP_Count,
+compound, recursive CTE, FROM-subquery, and scalar-subquery routes. The M0
+harness rejects incomplete successful SELECT captures. M3.5 remains open until
+the reviewed corpus producer inventory is covered and broader mixed/direct/
+nested runtime evidence closes the route matrix.
 
 ```mermaid
 flowchart TD
@@ -497,13 +506,13 @@ flowchart TD
   D --> A
   A -- yes --> T[Summary mirrors root route]
   A -- no or root unavailable --> M[Summary mixed, reason NULL]
-  L --> X[Snapshot preserves all component records]
+  L --> X[v5 snapshot preserves all component records]
 ```
 
 #### Replay-input acceptance contract
 
 Do not set `replayable=true` on version 2 or add a replay command that reparses
-the original SQL against the current catalog. Version 4 marks only its
+the original SQL against the current catalog. Version 5 marks only its
 supported canonical single-relation subset replayable. General replay support
 must carry a self-contained, canonical `replay_inputs` object sufficient to
 call a planner entry point without SQL text, a live catalog, storage-engine
@@ -569,7 +578,7 @@ point leaves statistics absent. The snapshot-backed variant copies measured
 relation/index summaries and their semantics, provenance, confidence, and
 freshness from an immutable provider; stale or missing relation statistics
 remain explicitly absent, while fractional cardinalities not exactly
-representable by replay input v4 fail closed. Average row width is retained
+representable by replay input v5 fail closed. Average row width is retained
 as a finite double. Planner configuration remains caller-supplied. The
 extractor canonicalizes predicate, projection, and ordering
 expressions, captures sort direction and Tarantool's default NULL ordering,
@@ -625,7 +634,7 @@ flowchart TD
     C --> W[wherePathSolver captures effective width per pass]
     W --> I[Prepare-owned algorithm/config identity]
     I --> D[Detached capture context]
-    D -. external v4 diagnostics stay non-replayable .-> V[replayable=false]
+    D -. external v5 diagnostics stay non-replayable .-> V[replayable=false]
 ```
 
 This is a source-backed implementation boundary. The final `WherePath` list
@@ -637,7 +646,7 @@ semantics into the detached logical model, while ensuring the `WhereInfo` and
 catalog/statistics data remain valid through copying. Until a producer and
 completion tests cover ordinary enumeration, shortcut, unsupported loop,
 overflow/error, and known-empty cases, do not mark access-loop enumeration
-complete. The external v4 envelope is replayable only for a supported
+complete. The external v5 envelope is replayable only for a supported
 selection-only capture.
 
 #### M1.4 replay-scope contract gate
@@ -668,7 +677,7 @@ implements the final `wherePathSolver()` reducer under
 `SQL_REPLAY_SELECTOR_FINAL_PATH_V1`: strict minimum exact `LogEst` `rCost`,
 first retained candidate on ties. The acceptance test varies final-path order
 and content and verifies the selected-plan fingerprint. `replayable` means
-selection-replayable, not enumeration-replayable. The v4 envelope sets it only
+selection-replayable, not enumeration-replayable. The v5 envelope sets it only
 when normalized input, exact final candidates, and selector/config identity
 are complete; otherwise it remains diagnostic-only with no `replay_inputs`.
 The developer-only `sql_replay` module consumes the artifact without live SQL
@@ -714,7 +723,7 @@ The active SQL planner captures final retained paths and emits a complete v5
 selection input for supported ordinary root single-relation queries. A runtime
 test verifies candidate order matches the input, and the live selected
 fingerprint is the strict-min result. After dropping the source table, runtime
-coverage replays solely from the serialized v4 artifact; an inconsistent
+coverage replays solely from the serialized v5 artifact; an inconsistent
 embedded candidate list is rejected. Unsupported shapes remain non-replayable.
 M1.4 capture and the M1.5 selection-only artifact consumer are implemented;
 enumeration replay remains explicitly outside scope.

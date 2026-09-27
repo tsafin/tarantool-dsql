@@ -346,8 +346,9 @@ them.
   structured rows per the planner_vm_migration.md schema. *parallel: yes*.
 - [x] **M1.4** `EXPLAIN (planner = 'snapshot')` returns a versioned MsgPack
   selection-replay object for a supported canonical single-relation subset.
-  The v4 envelope carries statement `path_class`, fallback reason, planner
-  measurements, and ordered final-path diagnostics. When normalized
+  The v5 envelope carries component-ledger-derived `path_class`/reason,
+  per-statement measurements, ordered final-path diagnostics, and per-SELECT
+  route records. When normalized
   query/schema/statistics, actual beam width, selector identity, and final
   paths all validate, it embeds internal v5 input and sets `replayable=true`;
   otherwise it remains diagnostic-only with no `replay_inputs`. The migration
@@ -355,7 +356,8 @@ them.
   contract; it intentionally does not choose persistence IDs or formats.
   Focused SQL
   checks assert non-replayable legacy/fallback captures have no partial
-  `replay_inputs`, and the corpus capturer rejects malformed v4 objects. An
+  `replay_inputs`, and the corpus capturer rejects malformed v5 objects or
+  incomplete route ledgers. An
   audit of the narrow M3 single-
   relation IR found it is not yet a safe source for a new replay envelope:
   logical nodes borrow resolved `Expr` / `ExprList` trees from the live
@@ -413,7 +415,7 @@ them.
   Access-loop candidate lists remain caller/provider supplied. The active SQL
   planner captures final retained one-relation `WherePath` lists and combines
   them with detached normalized SQL/schema/stats input, selector identity, and
-  effective beam width. Supported snapshots are v4 selection-replayable with
+  effective beam width. Supported snapshots are v5 selection-replayable with
   embedded v5 input; unsupported shapes, joins, and malformed/stale stats
   remain diagnostic-only. The live `whereLoopInsert()`
   hook (`src/box/sql/where.c`) calls `sql_record_planner_candidate()`, whose
@@ -465,7 +467,7 @@ them.
   provenance. Replay scope is now fixed to **selection only**, conditional on
   a complete, ordered final-path set captured by the live planner; M1.4 does
   not claim to rerun or validate enumeration. Access-loop enumeration remains
-  outside scope. The v4 envelope embeds the canonical v5 selection input when
+  outside scope. The v5 envelope embeds the canonical v5 selection input when
   its captured selector identity/configuration and path list validate.
   `planner_vm_migration.md` records the scope boundary and Mermaid flow.
   *parallel: yes*.
@@ -485,7 +487,7 @@ them.
   `aFrom` paths after `wherePathSolver()` completes, including replacing the
   preliminary capture with the final ORDER BY cost pass. It preserves list
   order and emits all paths or none, with stable fingerprints, exact `LogEst`
-  values, ordering, and reverse-scan metadata. The v4 envelope exposes
+  values, ordering, and reverse-scan metadata. The v5 envelope exposes
   `final_path_status`, `final_paths`, and the live selected fingerprint; joins and any route
   without a successful supported solver capture remain unavailable, while
   overflow and ambiguous fingerprints fail closed. Supported single-relation
@@ -493,10 +495,11 @@ them.
   candidates, selector/config identity, and beam width. Runtime coverage
   verifies the embedded v5 input matches live candidates and the selected
   fingerprint equals strict-min selection. The M0 harness validates replayable
-  and diagnostic-only v4 forms. The detached selector plus live capture slice
+  and diagnostic-only v5 forms. The detached selector plus live capture slice
   is complete; the standalone selection replay consumer is tracked in M1.5.
   *parallel: yes; selector prototype is independent of live producer capture.*
-- [x] **M1.5** Developer-only `sql_replay` API consumes a v4 snapshot artifact,
+- [x] **M1.5** Developer-only `sql_replay` API consumes a v5 snapshot artifact
+  (and retains v4 read compatibility),
   validates its embedded v5 selector/version and final-path order against the
   external diagnostics, applies the strict-min / first-on-tie selector, and
   reports both the replayed fingerprint and whether it matches the captured
@@ -506,7 +509,7 @@ them.
   drops the source table, replays from the saved artifact, and verifies the
   captured winner; an internally inconsistent candidate list is rejected.
   Internal selector tests cover input-cost changes and tie behavior.
-  Diagnostic-only v4 envelopes remain non-replayable. This closes the M1.5
+  Diagnostic-only v5 envelopes remain non-replayable. This closes the M1.5
   selection-replay consumer slice, not full enumeration replay.
   *parallel: yes*.
 
@@ -1517,21 +1520,23 @@ DML, triggers, subprograms, non-deterministic functions.
   `mixed` with no fallback reason. Component records are authoritative. The
   current statement-level `path_class` / `fallback_reason` fields and
   first-reason-wins behavior do not satisfy this contract. Remaining work is
-  the producer inventory, route-ledger implementation, and mixed/direct/nested
-  runtime evidence. No route
-  enum alone resolves the scope ambiguity; keep current diagnostics and
-  execution behavior unchanged meanwhile.
+  the reviewed producer inventory and broad mixed/direct/nested runtime
+  evidence. The v5 snapshot ledger is authoritative when complete; legacy
+  statement fields remain a compatibility view. No additional route enum
+  alone closes the remaining producer-coverage gate.
 
-  **Component-ledger model foundation (2026-09-27).** A bounded internal
-  ledger model now records unique SELECT component IDs, parent identity,
-  producer role, and one immutable route/reason result per component. It has
-  explicit direct VALUES / OP_Count and compound-dispatch route classes,
-  computes a uniform root summary or `mixed` with no fallback reason, and
-  fails closed for missing parents, duplicate IDs, conflicting route writes,
-  pending records, or capacity overflow. Focused unit coverage passes. This
-  is the data-model contract only: `sqlSelect()`/`where.c` do not yet populate
-  the ledger, no snapshot exposes it, and M3.5 remains open for producer
-  integration and mixed/direct/nested runtime evidence.
+  **Component-ledger integration (2026-09-27).** The bounded internal model
+  now records unique SELECT component IDs, parents, producer roles, and route /
+  reason results, with explicit direct VALUES / OP_Count and compound-dispatch
+  classes. `sqlSelect()` and `where.c` populate it at root, nested, structural
+  fallback, legacy WHERE, new-planner, direct-values, direct-count, and
+  compound producer boundaries. Snapshot envelope v5 exposes complete records
+  and derives the statement summary as uniform root route or `mixed` with no
+  reason. The M0 harness rejects incomplete successful SELECT ledgers. Focused
+  runtime cases cover scan, join fallback, VALUES rows, OP_Count, compound,
+  recursive CTE, FROM-subquery, and scalar-subquery; these all pass locally.
+  M3.5 remains open pending reviewed-corpus producer coverage and wider route
+  matrix evidence.
 
   ```mermaid
   flowchart TD
@@ -1564,7 +1569,7 @@ DML, triggers, subprograms, non-deterministic functions.
   wrong fallback destinations, and fallback metadata attached to a
   `current_where_c` path. This closes a schema-validation hole, not the
   broader M3.6 capture/parity gate. The live harness now also fails capture if
-  planner-snapshot EXPLAIN fails, returns no MsgPack, or violates the v4
+  planner-snapshot EXPLAIN fails, returns no MsgPack, or violates the v5
   envelope's replayable/input consistency contract; it no longer silently
   records missing metadata as an ordinary path. It also preserves a nil path
   as `l3_path_class.taken: null` for statements that do not enter the WHERE
@@ -1776,7 +1781,8 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   by a new candidate; retain incomparable candidates for future loop
   extensions. The global beam cap and E1.2 diversity eviction still apply.
   The 112-test SQL suite passes (6 disabled). *parallel: no*.
-- [x] **E1.4** Snapshot v4 and the optional harness manifest now include
+- [x] **E1.4** Snapshot envelope v4 (superseded by v5 route-ledger fields)
+  and the optional harness manifest now include
   generated/dominated/truncated/retained bounded-path counts alongside legacy
   candidate, elapsed, and fallback counts. Matching process totals are
   available in `box.stat.sql()`. Metrics are diagnostic and non-gating.
