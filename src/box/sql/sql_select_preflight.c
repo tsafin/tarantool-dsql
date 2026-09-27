@@ -37,7 +37,13 @@ sql_select_preflight_table_scan(const struct Select *select,
 		return SQL_SELECT_PREFLIGHT_SHAPE;
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;
-		if (where->op == TK_AND) {
+		if (where->op == TK_NOTNULL && where->pLeft != NULL &&
+		    where->pRight == NULL &&
+		    where->pLeft->op == TK_COLUMN_REF &&
+		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL) {
+			/* The producer validates that this is the primary-key column.
+			 * Only that column is guaranteed non-null by the schema. */
+		} else if (where->op == TK_AND) {
 			if (!is_comparison_predicate(where->pLeft) ||
 			    !is_comparison_predicate(where->pRight))
 				return SQL_SELECT_PREFLIGHT_SHAPE;

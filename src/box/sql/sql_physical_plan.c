@@ -277,6 +277,7 @@ sql_physical_table_scan_from_select(
 	bool has_point_key = false;
 	bool has_range_key = false;
 	bool has_range_end_key = false;
+	bool primary_key_not_null = false;
 	int64_t point_key = 0;
 	int64_t range_key = 0;
 	int64_t range_end_key = 0;
@@ -292,6 +293,19 @@ sql_physical_table_scan_from_select(
 	unsigned_point = pk->part_count == 1 &&
 		pk->parts[0].type == FIELD_TYPE_UNSIGNED;
 	if (select->pWhere != NULL) {
+		const struct Expr *where = select->pWhere;
+		if (where->op == TK_NOTNULL && where->pLeft != NULL &&
+		    where->pRight == NULL && where->pLeft->op == TK_COLUMN_REF &&
+		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL &&
+		    where->pLeft->iTable == source->iCursor &&
+		    where->pLeft->iColumn >= 0 &&
+		    (uint32_t)where->pLeft->iColumn == primary_field) {
+			/* Tarantool primary-key fields are non-null. This predicate is an
+			 * identity and the existing full-scan access path preserves it. */
+			primary_key_not_null = true;
+		}
+		if (primary_key_not_null)
+			goto predicate_parsed;
 		const struct Expr *exprs[2] = {select->pWhere, NULL};
 		size_t expr_count = 1;
 		if (select->pWhere->op == TK_AND && select->pWhere->pLeft != NULL &&
