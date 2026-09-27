@@ -407,8 +407,10 @@ them.
   direction, projected logical columns, produced order, separate access-
   estimated and cost rows, and finite confidence/cost metrics. Rank order is
   preserved because planner tie-breaking may consume it; stable candidate keys
-  must be unique. Missing provider output differs from a known empty set. This
-  remains caller/provider supplied: the active SQL planner producer is not
+  must be unique. Missing provider output differs from a known empty set; a
+  snapshot-backed extraction regression now asserts it remains unavailable,
+  not present-empty, when no active planner producer supplied candidates.
+  This remains caller/provider supplied: the active SQL planner producer is not
   wired to it. Stats capture from the active planner provider, joins/aggregates,
   and a planner consumer remain absent. M1.4 remains open. The external
   diagnostic envelope remains v2 and `replayable=false`; the internal detached
