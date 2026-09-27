@@ -528,6 +528,43 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
                 [[EXPLAIN (planner = 'summary') ]] .. descending)
             t.assert(err == nil, err and err.message)
             t.assert_equals(explain.rows[1][3], 'fallback')
+
+            local suffix_name = 'planner_composite_suffix2_' .. engine
+            box.execute(('CREATE TABLE %s (a INTEGER, b UNSIGNED, ' ..
+                         'c INTEGER, d INTEGER, v STRING, ' ..
+                         'PRIMARY KEY (a, b, c, d)) WITH ENGINE = \'%s\'')
+                        :format(suffix_name, engine))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         '(1, 7, 2, 9, \'late\'), ' ..
+                         '(1, 7, 2, 1, \'early\'), ' ..
+                         '(1, 7, 3, 0, \'next\'), ' ..
+                         '(2, 7, 1, 0, \'other\')'):format(suffix_name))
+            local suffix_order = ('SELECT c, d, v FROM %s ' ..
+                'WHERE a = 1 AND b = 7 ORDER BY c ASC, d ASC')
+                :format(suffix_name)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local suffix_off, suffix_err = box.execute(suffix_order)
+            t.assert(suffix_err == nil, suffix_err and suffix_err.message)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            explain, err = box.execute(
+                [[EXPLAIN (planner = 'summary') ]] .. suffix_order)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(explain.rows[1][3], 'new_planner')
+            local suffix_on
+            suffix_on, err = box.execute(suffix_order)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(suffix_on.rows, suffix_off.rows)
+            t.assert_equals(suffix_on.rows,
+                {{2, 1, 'early'}, {2, 9, 'late'}, {3, 0, 'next'}})
+            local suffix_desc = suffix_order:gsub(
+                'ORDER BY c ASC, d ASC', 'ORDER BY c DESC, d DESC')
+            explain, err = box.execute(
+                [[EXPLAIN (planner = 'summary') ]] .. suffix_desc)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(explain.rows[1][3], 'fallback')
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            box.execute(('DROP TABLE %s'):format(suffix_name))
+
             for i, sql in ipairs(limited_queries) do
                 explain, err = box.execute(
                     [[EXPLAIN (planner = 'summary') ]] .. sql)
