@@ -62,12 +62,19 @@ struct sql_plan_access {
 	bool has_integer_point_key;
 	uint64_t unsigned_point_key;
 	bool has_unsigned_point_key;
-	/* Owned scalar key and strictness for executable integer PK ranges. */
+	/* One-sided bound key/operator, or lower bound for a two-sided range. */
 	int64_t integer_range_key;
 	bool has_integer_range_key;
 	uint64_t unsigned_range_key;
 	bool has_unsigned_range_key;
 	enum sql_plan_bound_op integer_range_op;
+	/* Upper endpoint for two-sided primary-key ranges. */
+	int64_t integer_range_end_key;
+	uint64_t unsigned_range_end_key;
+	bool has_integer_range_end_key;
+	bool has_unsigned_range_end_key;
+	enum sql_plan_bound_op integer_range_end_op;
+	uint32_t range_key_column;
 	const struct sql_plan_bound *bounds;
 	size_t bound_count;
 	enum sql_plan_direction direction;

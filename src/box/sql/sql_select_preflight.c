@@ -3,6 +3,14 @@
 #include "sqlInt.h"
 #include "box/space.h"
 
+static bool
+is_comparison_predicate(const struct Expr *expr)
+{
+	return expr != NULL && expr->pLeft != NULL && expr->pRight != NULL &&
+		(expr->op == TK_EQ || expr->op == TK_GT || expr->op == TK_GE ||
+		 expr->op == TK_LT || expr->op == TK_LE);
+}
+
 enum sql_select_preflight_reject
 sql_select_preflight_table_scan(const struct Select *select,
 				const struct SelectDest *dest)
@@ -27,12 +35,16 @@ sql_select_preflight_table_scan(const struct Select *select,
 	    source->pUsing != NULL || source->fg.isIndexedBy ||
 	    source->fg.notIndexed)
 		return SQL_SELECT_PREFLIGHT_SHAPE;
-	if (select->pWhere != NULL &&
-	    ((select->pWhere->op != TK_EQ && select->pWhere->op != TK_GT &&
-	      select->pWhere->op != TK_GE && select->pWhere->op != TK_LT &&
-	      select->pWhere->op != TK_LE) || select->pWhere->pLeft == NULL ||
-	     select->pWhere->pRight == NULL))
-		return SQL_SELECT_PREFLIGHT_SHAPE;
+	if (select->pWhere != NULL) {
+		const struct Expr *where = select->pWhere;
+		if (where->op == TK_AND) {
+			if (!is_comparison_predicate(where->pLeft) ||
+			    !is_comparison_predicate(where->pRight))
+				return SQL_SELECT_PREFLIGHT_SHAPE;
+		} else if (!is_comparison_predicate(where)) {
+			return SQL_SELECT_PREFLIGHT_SHAPE;
+		}
+	}
 	if (source->iCursor < 0 || select->pEList == NULL ||
 	    select->pEList->nExpr <= 0)
 		return SQL_SELECT_PREFLIGHT_PROJECTION;

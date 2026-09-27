@@ -176,6 +176,45 @@ new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
 }
 
 static struct sql_plan_descriptor *
+new_bounded_range_descriptor(enum sql_plan_bound_op upper_op)
+{
+	static const uint32_t columns[] = {0};
+	static const struct sql_plan_bound bounds[] = {
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_GE, .expr_ref = 1},
+		{.side = SQL_PLAN_UPPER, .op = SQL_PLAN_LT, .expr_ref = 2},
+	};
+	static const struct sql_plan_expression expressions[] = {
+		{.id = 1, .canonical = "integer-range-lower"},
+		{.id = 2, .canonical = "integer-range-upper"},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_INDEX_RANGE_SCAN,
+			.bounds = bounds,
+			.bound_count = 2,
+			.has_integer_range_key = true,
+			.integer_range_key = 1,
+			.integer_range_op = SQL_PLAN_GE,
+			.has_integer_range_end_key = true,
+			.integer_range_end_key = 3,
+			.integer_range_end_op = upper_op,
+			.range_key_column = 0,
+			.direction = SQL_PLAN_ASC,
+		},
+		.projection_columns = columns,
+		.projection_column_count = 1,
+		.expressions = expressions,
+		.expression_count = 2,
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_invalid_point_descriptor(void)
 {
 	static const uint32_t columns[] = {2};
@@ -278,7 +317,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(29);
+	plan(31);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -332,6 +371,10 @@ main(void)
 		new_range_descriptor(SQL_PLAN_LT, 7, false);
 	struct sql_plan_descriptor *unsigned_range_desc =
 		new_range_descriptor(SQL_PLAN_GT, (int64_t)UINT64_MAX, true);
+	struct sql_plan_descriptor *bounded_range_desc =
+		new_bounded_range_descriptor(SQL_PLAN_LT);
+	struct sql_plan_descriptor *invalid_bounded_range_desc =
+		new_bounded_range_descriptor(SQL_PLAN_EQ);
 	struct sql_plan_descriptor *invalid_point_desc =
 		new_invalid_point_descriptor();
 	struct sql_plan_descriptor *late_invalid_point_desc =
@@ -348,11 +391,13 @@ main(void)
 	   invalid_offset_desc != NULL && point_desc != NULL &&
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
 	   range_gt_desc != NULL && range_le_desc != NULL &&
-	   unsigned_range_desc != NULL &&
+	   unsigned_range_desc != NULL && bounded_range_desc != NULL &&
 	   invalid_point_desc != NULL && late_invalid_point_desc != NULL &&
 	   point_limit_desc != NULL && point_zero_limit_desc != NULL &&
 	   point_offset_desc != NULL,
 	   "scan and literal-limit descriptors are constructed");
+	ok(invalid_bounded_range_desc == NULL,
+	   "bounded range rejects an invalid upper-bound operator");
 	struct Parse parse = {};
 	struct Vdbe vdbe = {};
 	vdbe.magic = VDBE_MAGIC_INIT;
@@ -508,6 +553,18 @@ main(void)
 	   (uint64_t)*vdbe.aOp[before_unsigned_range].p4.pI64 == UINT64_MAX &&
 	   vdbe.aOp[before_unsigned_range + 1].opcode == OP_SeekGT,
 	   "unsigned range seek retains UINT64_MAX in P4_UINT64");
+	int before_bounded_range = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(bounded_range_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_bounded_range].opcode == OP_Integer &&
+	   vdbe.aOp[before_bounded_range].p1 == 3 &&
+	   vdbe.aOp[before_bounded_range + 1].opcode == OP_Integer &&
+	   vdbe.aOp[before_bounded_range + 1].p1 == 1 &&
+	   vdbe.aOp[before_bounded_range + 2].opcode == OP_SeekGE &&
+	   vdbe.aOp[before_bounded_range + 3].opcode == OP_Column &&
+	   vdbe.aOp[before_bounded_range + 4].opcode == OP_Le &&
+	   vdbe.aOp[before_bounded_range + 4].p2 == before_bounded_range + 8 &&
+	   vdbe.aOp[before_bounded_range + 7].opcode == OP_Next,
+	   "bounded range seeks at lower bound and exits at exclusive upper bound");
 	int before_point_limit = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_limit_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.nOp == before_point_limit + 5 &&
@@ -540,6 +597,8 @@ main(void)
 	sql_plan_descriptor_delete(range_ge_desc);
 	sql_plan_descriptor_delete(range_lt_desc);
 	sql_plan_descriptor_delete(unsigned_range_desc);
+	sql_plan_descriptor_delete(bounded_range_desc);
+	sql_plan_descriptor_delete(invalid_bounded_range_desc);
 	sql_plan_descriptor_delete(invalid_point_desc);
 	sql_plan_descriptor_delete(late_invalid_point_desc);
 	sql_plan_descriptor_delete(point_limit_desc);

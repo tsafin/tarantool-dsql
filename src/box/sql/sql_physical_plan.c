@@ -43,6 +43,105 @@ extract_literal_limit(const struct Expr *expr, uint64_t *value)
 	return true;
 }
 
+struct parsed_pk_bound {
+	enum sql_plan_bound_op op;
+	bool is_unsigned;
+	int64_t signed_key;
+	uint64_t unsigned_key;
+};
+
+static bool
+parse_pk_bound(const struct Expr *expr, int cursor, uint32_t fieldno,
+	       bool is_unsigned, struct parsed_pk_bound *out)
+{
+	if (expr == NULL || out == NULL)
+		return false;
+	const struct Expr *column = expr->pLeft;
+	const struct Expr *value = expr->pRight;
+	if (column != NULL && value != NULL && column->op != TK_COLUMN_REF &&
+	    value->op == TK_COLUMN_REF) {
+		const struct Expr *tmp = column;
+		column = value;
+		value = tmp;
+	}
+	enum sql_plan_bound_op op;
+	switch (expr->op) {
+	case TK_EQ: op = SQL_PLAN_EQ; break;
+	case TK_GT: op = SQL_PLAN_GT; break;
+	case TK_GE: op = SQL_PLAN_GE; break;
+	case TK_LT: op = SQL_PLAN_LT; break;
+	case TK_LE: op = SQL_PLAN_LE; break;
+	default: return false;
+	}
+	if (column == NULL || value == NULL ||
+	    ExprHasProperty(column, EP_TokenOnly | EP_Reduced) ||
+	    column->op != TK_COLUMN_REF || column->pLeft != NULL ||
+	    column->pRight != NULL || column->iTable != cursor ||
+	    column->iColumn < 0 || (uint32_t)column->iColumn != fieldno ||
+	    ExprHasProperty(value, EP_TokenOnly | EP_Reduced))
+		return false;
+	bool negated = value->op == TK_UMINUS;
+	const struct Expr *literal = negated ? value->pLeft : value;
+	if ((negated && value->pRight != NULL) || literal == NULL ||
+	    ExprHasProperty(literal, EP_TokenOnly | EP_Reduced) ||
+	    literal->op != TK_INTEGER || (literal->flags & EP_Resolved) == 0 ||
+	    literal->pLeft != NULL || literal->pRight != NULL)
+		return false;
+	struct parsed_pk_bound result = {.op = op, .is_unsigned = is_unsigned};
+	if (is_unsigned) {
+		if (negated)
+			return false;
+		if ((literal->flags & EP_IntValue) != 0) {
+			if (literal->u.iValue < 0)
+				return false;
+			result.unsigned_key = (uint64_t)literal->u.iValue;
+		} else {
+			const char *token = literal->u.zToken;
+			if (token == NULL || token[0] == '-')
+				return false;
+			errno = 0;
+			char *end;
+			unsigned long long parsed = strtoull(token, &end, 10);
+			if (errno == ERANGE || end == token || *end != '\0')
+				return false;
+			result.unsigned_key = (uint64_t)parsed;
+		}
+	} else {
+		bool negative = false;
+		bool parsed = false;
+		if ((literal->flags & EP_IntValue) != 0) {
+			result.signed_key = literal->u.iValue;
+			parsed = true;
+		} else if (literal->u.zToken != NULL &&
+			   sql_atoi64(literal->u.zToken, &result.signed_key,
+				      &negative, strlen(literal->u.zToken)) == 0) {
+			parsed = true;
+		} else if (negated && literal->u.zToken != NULL &&
+			   strcmp(literal->u.zToken, "9223372036854775808") == 0) {
+			result.signed_key = INT64_MIN;
+			parsed = true;
+		}
+		if (!parsed || (negated && negative))
+			return false;
+		if (negated && result.signed_key != INT64_MIN) {
+			if (result.signed_key < 0)
+				return false;
+			result.signed_key = -result.signed_key;
+		}
+	}
+	if (column != expr->pLeft) {
+		switch (op) {
+		case SQL_PLAN_GT: result.op = SQL_PLAN_LT; break;
+		case SQL_PLAN_GE: result.op = SQL_PLAN_LE; break;
+		case SQL_PLAN_LT: result.op = SQL_PLAN_GT; break;
+		case SQL_PLAN_LE: result.op = SQL_PLAN_GE; break;
+		default: break;
+		}
+	}
+	*out = result;
+	return true;
+}
+
 static bool
 candidate_is_better(const struct sql_physical_candidate *a,
 		    const struct sql_physical_candidate *b)
@@ -177,137 +276,82 @@ sql_physical_table_scan_from_select(
 	}
 	bool has_point_key = false;
 	bool has_range_key = false;
+	bool has_range_end_key = false;
 	int64_t point_key = 0;
 	int64_t range_key = 0;
+	int64_t range_end_key = 0;
 	enum sql_plan_bound_op range_op = SQL_PLAN_EQ;
+	enum sql_plan_bound_op range_end_op = SQL_PLAN_EQ;
 	uint64_t unsigned_point_key = 0;
 	uint64_t unsigned_range_key = 0;
+	uint64_t unsigned_range_end_key = 0;
 	bool unsigned_point = false;
+	uint32_t primary_field = source->space->index_map[0]->def->key_def->
+		parts[0].fieldno;
+	const struct key_def *pk = source->space->index_map[0]->def->key_def;
+	unsigned_point = pk->part_count == 1 &&
+		pk->parts[0].type == FIELD_TYPE_UNSIGNED;
 	if (select->pWhere != NULL) {
-		const struct Expr *column = select->pWhere->pLeft;
-		const struct Expr *value = select->pWhere->pRight;
-		if (column != NULL && value != NULL &&
-		    column->op != TK_COLUMN_REF && value->op == TK_COLUMN_REF) {
-			const struct Expr *tmp = column;
-			column = value;
-			value = tmp;
+		const struct Expr *exprs[2] = {select->pWhere, NULL};
+		size_t expr_count = 1;
+		if (select->pWhere->op == TK_AND && select->pWhere->pLeft != NULL &&
+		    select->pWhere->pRight != NULL) {
+			exprs[0] = select->pWhere->pLeft;
+			exprs[1] = select->pWhere->pRight;
+			expr_count = 2;
 		}
-		const struct key_def *pk = source->space->index_map[0]->def->key_def;
-		unsigned_point = pk->part_count == 1 &&
-			pk->parts[0].type == FIELD_TYPE_UNSIGNED;
-		enum sql_plan_bound_op op;
-		switch (select->pWhere->op) {
-		case TK_EQ: op = SQL_PLAN_EQ; break;
-		case TK_GT: op = SQL_PLAN_GT; break;
-		case TK_GE: op = SQL_PLAN_GE; break;
-		case TK_LT: op = SQL_PLAN_LT; break;
-		case TK_LE: op = SQL_PLAN_LE; break;
-		default: op = SQL_PLAN_EQ; break;
-		}
-		if ((op == SQL_PLAN_EQ && select->pWhere->op != TK_EQ) ||
-		    column == NULL || value == NULL ||
-		    pk->part_count != 1 ||
+		if (pk->part_count != 1 ||
 		    (pk->parts[0].type != FIELD_TYPE_INTEGER &&
-		     pk->parts[0].type != FIELD_TYPE_UNSIGNED) ||
-		    ExprHasProperty(column, EP_TokenOnly | EP_Reduced) ||
-		    column->op != TK_COLUMN_REF || column->pLeft != NULL ||
-		    column->pRight != NULL || column->iTable != source->iCursor ||
-		    column->iColumn != (int)pk->parts[0].fieldno ||
-		    ExprHasProperty(value, EP_TokenOnly | EP_Reduced)) {
-			if (reason != NULL)
-				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-			return NULL;
-		}
-		bool negated = value->op == TK_UMINUS;
-		const struct Expr *literal = negated ? value->pLeft : value;
-		if ((negated && value->pRight != NULL) || literal == NULL ||
-		    ExprHasProperty(literal, EP_TokenOnly | EP_Reduced) ||
-		    literal->op != TK_INTEGER ||
-		    (literal->flags & EP_Resolved) == 0 ||
-		    literal->pLeft != NULL || literal->pRight != NULL) {
-			if (reason != NULL)
-				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-			return NULL;
-		}
-		if (unsigned_point) {
-			if (negated) {
-				if (reason != NULL)
-					*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-				return NULL;
-			}
-			if ((literal->flags & EP_IntValue) != 0) {
-				if (literal->u.iValue < 0) {
-					if (reason != NULL)
-						*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-					return NULL;
-				}
-				unsigned_point_key = (uint64_t)literal->u.iValue;
-			} else {
-				const char *token = literal->u.zToken;
-				if (token == NULL || token[0] == '-') {
-					if (reason != NULL)
-						*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-					return NULL;
-				}
-				errno = 0;
-				char *end;
-				unsigned long long parsed = strtoull(token, &end, 10);
-				if (errno == ERANGE || end == token || *end != '\0') {
-					if (reason != NULL)
-						*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-					return NULL;
-				}
-				unsigned_point_key = (uint64_t)parsed;
-			}
-			unsigned_range_key = unsigned_point_key;
-		} else {
-			bool is_negative = false;
-			bool parsed = false;
-			if ((literal->flags & EP_IntValue) != 0) {
-				point_key = literal->u.iValue;
-				parsed = true;
-			} else if (literal->u.zToken != NULL &&
-				   sql_atoi64(literal->u.zToken, &point_key,
-					      &is_negative,
-					      strlen(literal->u.zToken)) == 0) {
-				parsed = true;
-			} else if (negated && literal->u.zToken != NULL &&
-				   strcmp(literal->u.zToken,
-					  "9223372036854775808") == 0) {
-				point_key = INT64_MIN;
-				parsed = true;
-			}
-			if (!parsed || (negated && is_negative)) {
-				if (reason != NULL)
-					*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-				return NULL;
-			}
-			if (negated && point_key != INT64_MIN) {
-				if (point_key < 0) {
-					if (reason != NULL)
-						*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-					return NULL;
-				}
-				point_key = -point_key;
-			}
-		}
-		if (column != select->pWhere->pLeft) {
-			switch (op) {
-			case SQL_PLAN_GT: op = SQL_PLAN_LT; break;
-			case SQL_PLAN_GE: op = SQL_PLAN_LE; break;
-			case SQL_PLAN_LT: op = SQL_PLAN_GT; break;
-			case SQL_PLAN_LE: op = SQL_PLAN_GE; break;
-			default: break;
-			}
-		}
-		if (op == SQL_PLAN_EQ) {
+		     pk->parts[0].type != FIELD_TYPE_UNSIGNED))
+			goto invalid_predicate;
+		struct parsed_pk_bound parsed[2];
+		for (size_t i = 0; i < expr_count; ++i)
+			if (!parse_pk_bound(exprs[i], source->iCursor, primary_field,
+					    unsigned_point, &parsed[i]))
+				goto invalid_predicate;
+		if (expr_count == 1 && parsed[0].op == SQL_PLAN_EQ) {
 			has_point_key = true;
-		} else {
+			if (unsigned_point)
+				unsigned_point_key = parsed[0].unsigned_key;
+			else
+				point_key = parsed[0].signed_key;
+		} else if (expr_count == 1) {
 			has_range_key = true;
-			range_key = point_key;
-			range_op = op;
+			range_op = parsed[0].op;
+			if (unsigned_point)
+				unsigned_range_key = parsed[0].unsigned_key;
+			else
+				range_key = parsed[0].signed_key;
+		} else {
+			if (parsed[0].op == SQL_PLAN_EQ || parsed[1].op == SQL_PLAN_EQ)
+				goto invalid_predicate;
+			int lower = (parsed[0].op == SQL_PLAN_GT ||
+				     parsed[0].op == SQL_PLAN_GE) ? 0 : 1;
+			int upper = 1 - lower;
+			if ((parsed[lower].op != SQL_PLAN_GT &&
+			     parsed[lower].op != SQL_PLAN_GE) ||
+			    (parsed[upper].op != SQL_PLAN_LT &&
+			     parsed[upper].op != SQL_PLAN_LE))
+				goto invalid_predicate;
+			has_range_key = has_range_end_key = true;
+			range_op = parsed[lower].op;
+			range_end_op = parsed[upper].op;
+			if (unsigned_point) {
+				unsigned_range_key = parsed[lower].unsigned_key;
+				unsigned_range_end_key = parsed[upper].unsigned_key;
+			} else {
+				range_key = parsed[lower].signed_key;
+				range_end_key = parsed[upper].signed_key;
+			}
 		}
 	}
+	goto predicate_parsed;
+invalid_predicate:
+	if (reason != NULL)
+		*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+	return NULL;
+predicate_parsed:
+	;
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	if (has_range_key)
 		direction = range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE ?
@@ -339,9 +383,10 @@ sql_physical_table_scan_from_select(
 		}
 		direction = order_by->a[0].sort_order == SORT_ORDER_DESC ?
 			SQL_PLAN_DESC : SQL_PLAN_ASC;
-		if (has_range_key && direction != (range_op == SQL_PLAN_LT ||
-							 range_op == SQL_PLAN_LE ?
-							 SQL_PLAN_DESC : SQL_PLAN_ASC)) {
+		if (has_range_key && !has_range_end_key &&
+		    direction != (range_op == SQL_PLAN_LT ||
+				  range_op == SQL_PLAN_LE ? SQL_PLAN_DESC :
+				  SQL_PLAN_ASC)) {
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
@@ -371,17 +416,41 @@ sql_physical_table_scan_from_select(
 		}
 		columns[i] = (uint32_t)expr->iColumn;
 	}
+	struct sql_plan_expression point_expressions[2] = {
+		{
+			.id = 1,
+			.canonical = has_range_key ? (unsigned_point ?
+				"unsigned-range-key" : "integer-range-key") :
+				"integer-point-key",
+		},
+		{
+			.id = 2,
+			.canonical = unsigned_point ? "unsigned-range-end-key" :
+				"integer-range-end-key",
+		},
+	};
+	struct sql_plan_bound point_bounds[2] = {
+		{
+			.side = has_range_key && (range_op == SQL_PLAN_LT ||
+				range_op == SQL_PLAN_LE) ? SQL_PLAN_UPPER : SQL_PLAN_LOWER,
+			.op = has_range_key ? range_op : SQL_PLAN_EQ,
+			.expr_ref = 1,
+		},
+		{
+			.side = SQL_PLAN_UPPER,
+			.op = range_end_op,
+			.expr_ref = 2,
+		},
+	};
+	/*
+	 * Keep the original single-bound encoding for point and one-sided routes;
+	 * bounded ranges add one independently-owned expression/bound.
+	 */
 	struct sql_plan_expression point_expression = {
 		.id = 1,
 		.canonical = has_range_key ? (unsigned_point ? "unsigned-range-key" :
 			"integer-range-key") :
 			"integer-point-key",
-	};
-	struct sql_plan_bound point_bound = {
-		.side = has_range_key && (range_op == SQL_PLAN_LT ||
-			range_op == SQL_PLAN_LE) ? SQL_PLAN_UPPER : SQL_PLAN_LOWER,
-		.op = has_range_key ? range_op : SQL_PLAN_EQ,
-		.expr_ref = 1,
 	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
@@ -397,8 +466,9 @@ sql_physical_table_scan_from_select(
 			.kind = has_point_key ? SQL_PLAN_PK_POINT_LOOKUP :
 				has_range_key ? SQL_PLAN_INDEX_RANGE_SCAN :
 				SQL_PLAN_TABLE_FULL_SCAN,
-			.bounds = has_point_key || has_range_key ? &point_bound : NULL,
-			.bound_count = has_point_key || has_range_key ? 1 : 0,
+			.bounds = has_point_key || has_range_key ? point_bounds : NULL,
+			.bound_count = has_range_key ? (has_range_end_key ? 2 : 1) :
+				has_point_key ? 1 : 0,
 			.has_integer_point_key = has_point_key && !unsigned_point,
 			.integer_point_key = point_key,
 			.has_unsigned_point_key = has_point_key && unsigned_point,
@@ -408,6 +478,14 @@ sql_physical_table_scan_from_select(
 			.has_unsigned_range_key = has_range_key && unsigned_point,
 			.unsigned_range_key = unsigned_range_key,
 			.integer_range_op = range_op,
+			.has_integer_range_end_key = has_range_end_key &&
+				!unsigned_point,
+			.integer_range_end_key = range_end_key,
+			.has_unsigned_range_end_key = has_range_end_key &&
+				unsigned_point,
+			.unsigned_range_end_key = unsigned_range_end_key,
+			.integer_range_end_op = range_end_op,
+			.range_key_column = primary_field,
 			.direction = direction,
 			.produced_order = select->pOrderBy == NULL ? NULL : &order_term,
 			.produced_order_count = select->pOrderBy == NULL ? 0 : 1,
@@ -419,8 +497,10 @@ sql_physical_table_scan_from_select(
 		},
 		.projection_columns = columns,
 		.projection_column_count = select->pEList->nExpr,
-		.expressions = has_point_key || has_range_key ? &point_expression : NULL,
-		.expression_count = has_point_key || has_range_key ? 1 : 0,
+		.expressions = has_point_key || has_range_key ?
+			(has_range_end_key ? point_expressions : &point_expression) : NULL,
+		.expression_count = has_range_end_key ? 2 :
+			(has_point_key || has_range_key ? 1 : 0),
 		.cost_startup = estimate->startup_cost,
 		.cost_total = has_point_key ? 1 : has_range_key ?
 			estimate->total_cost / 2 : estimate->total_cost,

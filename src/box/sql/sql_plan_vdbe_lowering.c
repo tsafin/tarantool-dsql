@@ -121,7 +121,25 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		       (input->access.integer_range_op != SQL_PLAN_GT &&
 			input->access.integer_range_op != SQL_PLAN_GE &&
 			input->access.integer_range_op != SQL_PLAN_LT &&
-			input->access.integer_range_op != SQL_PLAN_LE))) ||
+			input->access.integer_range_op != SQL_PLAN_LE) ||
+		      (input->access.has_integer_range_end_key &&
+	       input->access.has_unsigned_range_end_key) ||
+		      ((input->access.has_integer_range_end_key ||
+			input->access.has_unsigned_range_end_key) &&
+		       (input->access.has_integer_range_key !=
+			input->access.has_integer_range_end_key ||
+			input->access.has_unsigned_range_key !=
+			input->access.has_unsigned_range_end_key ||
+			(input->access.integer_range_end_op != SQL_PLAN_LT &&
+			 input->access.integer_range_end_op != SQL_PLAN_LE))) ||
+		      ((input->access.has_integer_range_end_key ||
+			input->access.has_unsigned_range_end_key) &&
+		       input->access.range_key_column > INT_MAX) ||
+		      (!input->access.has_integer_range_end_key &&
+		       !input->access.has_unsigned_range_end_key &&
+		       (input->access.integer_range_op == SQL_PLAN_LT ||
+			input->access.integer_range_op == SQL_PLAN_LE) &&
+		       input->access.direction != SQL_PLAN_DESC))) ||
 	    input->filter_count != 0 || input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
@@ -144,6 +162,11 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		if (input->finalize[0].offset != 0)
 			++registers_needed;
 	}
+	bool bounded_range = range &&
+		(input->access.has_integer_range_end_key ||
+		 input->access.has_unsigned_range_end_key);
+	if (bounded_range)
+		registers_needed += 2;
 	if (parse->nMem > INT_MAX - registers_needed)
 		return -1;
 	struct vdbe_codegen_checkpoint checkpoint;
@@ -193,6 +216,39 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 				goto error;
 		}
 	}
+	int end_reg = 0;
+	int current_reg = 0;
+	if (bounded_range) {
+		if (parse->nMem > INT_MAX - 2)
+			goto error;
+		end_reg = ++parse->nMem;
+		current_reg = ++parse->nMem;
+		int end_op;
+		bool use_lower_bound = input->access.direction == SQL_PLAN_DESC;
+		bool use_unsigned = use_lower_bound ?
+			input->access.has_unsigned_range_key :
+			input->access.has_unsigned_range_end_key;
+		if (use_unsigned) {
+			uint64_t key = use_lower_bound ?
+				input->access.unsigned_range_key :
+				input->access.unsigned_range_end_key;
+			end_op = key <= INT_MAX ?
+				sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, end_reg) :
+				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, end_reg, 0,
+						  (const u8 *)&key, P4_UINT64);
+		} else {
+			int64_t key = use_lower_bound ?
+				input->access.integer_range_key :
+				input->access.integer_range_end_key;
+			end_op = key >= INT_MIN && key <= INT_MAX ?
+				sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, end_reg) :
+				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, end_reg, 0,
+						  (const u8 *)&key, P4_INT64);
+		}
+		if (end_op != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+	}
 	int rewind_op = input->access.direction == SQL_PLAN_DESC ? OP_Last :
 		OP_Rewind;
 	int step_op = input->access.direction == SQL_PLAN_DESC ? OP_Prev :
@@ -205,14 +261,23 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 			goto error;
 		int key_reg = ++parse->nMem;
 		int key_op;
-		if (input->access.has_unsigned_range_key) {
-			uint64_t key = input->access.unsigned_range_key;
+		bool start_at_end = bounded_range &&
+			input->access.direction == SQL_PLAN_DESC;
+		bool use_unsigned = start_at_end ?
+			input->access.has_unsigned_range_end_key :
+			input->access.has_unsigned_range_key;
+		if (use_unsigned) {
+			uint64_t key = start_at_end ?
+				input->access.unsigned_range_end_key :
+				input->access.unsigned_range_key;
 			key_op = key <= INT_MAX ?
 				sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg) :
 				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
 						  (const u8 *)&key, P4_UINT64);
 		} else {
-			int64_t key = input->access.integer_range_key;
+			int64_t key = start_at_end ?
+				input->access.integer_range_end_key :
+				input->access.integer_range_key;
 			key_op = key >= INT_MIN && key <= INT_MAX ?
 				sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg) :
 				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
@@ -222,7 +287,10 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
 		int seek_op;
-		switch (input->access.integer_range_op) {
+		enum sql_plan_bound_op start_bound = start_at_end ?
+			input->access.integer_range_end_op :
+			input->access.integer_range_op;
+		switch (start_bound) {
 		case SQL_PLAN_GT: seek_op = OP_SeekGT; break;
 		case SQL_PLAN_GE: seek_op = OP_SeekGE; break;
 		case SQL_PLAN_LT: seek_op = OP_SeekLT; break;
@@ -235,6 +303,27 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	int body = sqlVdbeCurrentAddr(vdbe);
+	int range_break = -1;
+	if (bounded_range) {
+		int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
+					   input->access.range_key_column,
+					   current_reg);
+		if (column != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+		int check_op;
+		if (input->access.direction == SQL_PLAN_ASC)
+			check_op = input->access.integer_range_end_op == SQL_PLAN_LT ?
+				OP_Le : OP_Lt;
+		else
+			check_op = input->access.integer_range_op == SQL_PLAN_GT ?
+				OP_Ge : OP_Gt;
+		range_break = sqlVdbeAddOp3(vdbe, check_op, current_reg, 0,
+					    end_reg);
+		if (range_break != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+	}
 	int offset_skip = -1;
 	if (offset_reg != 0) {
 		offset_skip = sqlVdbeAddOp2(vdbe, OP_IfNotZero, offset_reg, 0);
@@ -269,6 +358,8 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	sqlVdbeJumpHere(vdbe, rewind);
+	if (range_break >= 0)
+		sqlVdbeJumpHere(vdbe, range_break);
 	if (limit_break >= 0)
 		sqlVdbeJumpHere(vdbe, limit_break);
 	vdbe_codegen_checkpoint_commit(&checkpoint);

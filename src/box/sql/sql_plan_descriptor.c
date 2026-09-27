@@ -153,6 +153,40 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	if (in->access.kind == SQL_PLAN_INDEX_RANGE_SCAN &&
 	    (in->access.bound_count == 0 || in->access.bound_count > 2))
 		return NULL;
+	bool has_range_end = in->access.has_integer_range_end_key ||
+		in->access.has_unsigned_range_end_key;
+	if (has_range_end) {
+		if (in->access.kind != SQL_PLAN_INDEX_RANGE_SCAN ||
+		    in->access.has_integer_range_key ==
+		    in->access.has_unsigned_range_key ||
+		    in->access.has_integer_range_end_key ==
+		    in->access.has_unsigned_range_end_key ||
+		    in->access.has_integer_range_key !=
+		    in->access.has_integer_range_end_key ||
+		    in->access.bound_count != 2 ||
+		    (in->access.integer_range_op != SQL_PLAN_GT &&
+		     in->access.integer_range_op != SQL_PLAN_GE) ||
+		    (in->access.integer_range_end_op != SQL_PLAN_LT &&
+		     in->access.integer_range_end_op != SQL_PLAN_LE))
+			return NULL;
+		bool has_lower = false;
+		bool has_upper = false;
+		for (size_t i = 0; i < in->access.bound_count; ++i) {
+			const struct sql_plan_bound *bound = &in->access.bounds[i];
+			if (bound->side == SQL_PLAN_LOWER &&
+			    (bound->op == SQL_PLAN_GT || bound->op == SQL_PLAN_GE) &&
+			    bound->op == in->access.integer_range_op)
+				has_lower = true;
+			else if (bound->side == SQL_PLAN_UPPER &&
+				 (bound->op == SQL_PLAN_LT || bound->op == SQL_PLAN_LE) &&
+				 bound->op == in->access.integer_range_end_op)
+				has_upper = true;
+			else
+				return NULL;
+		}
+		if (!has_lower || !has_upper)
+			return NULL;
+	}
 	for (size_t i = 0; i < in->filter_count; ++i)
 		if (!has_expr(in, in->filters[i].expr_ref) ||
 		    !isfinite(in->filters[i].selectivity) ||

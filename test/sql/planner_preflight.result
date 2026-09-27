@@ -342,6 +342,34 @@ assert(#range_limited.rows == 1 and range_limited.rows[1][1] == 3)
  | ---
  | - true
  | ...
+bounded_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_preflight_t WHERE id >= 1 AND id < 3]])
+ | ---
+ | ...
+assert(err == nil and bounded_summary.rows[1][3] == 'new_planner')
+ | ---
+ | - true
+ | ...
+bounded_asc = box.execute([[SELECT id FROM planner_preflight_t WHERE id >= 1 AND id < 3 ORDER BY id ASC]])
+ | ---
+ | ...
+assert(#bounded_asc.rows == 2 and bounded_asc.rows[1][1] == 1 and bounded_asc.rows[2][1] == 2)
+ | ---
+ | - true
+ | ...
+bounded_reversed = box.execute([[SELECT id FROM planner_preflight_t WHERE id < 3 AND 1 < id]])
+ | ---
+ | ...
+assert(#bounded_reversed.rows == 1 and bounded_reversed.rows[1][1] == 2)
+ | ---
+ | - true
+ | ...
+bounded_desc = box.execute([[SELECT id FROM planner_preflight_t WHERE id >= 1 AND id <= 2 ORDER BY id DESC]])
+ | ---
+ | ...
+assert(#bounded_desc.rows == 2 and bounded_desc.rows[1][1] == 2 and bounded_desc.rows[2][1] == 1)
+ | ---
+ | - true
+ | ...
 unsupported_filter_before = box.stat.sql()
  | ---
  | ...
@@ -364,6 +392,20 @@ assert(unsupported_filter_after.sql_planner_fallback_total == unsupported_filter
  | - true
  | ...
 assert(unsupported_filter_after.sql_planner_fallback_UNSUPPORTED_FILTER_total == unsupported_filter_before.sql_planner_fallback_UNSUPPORTED_FILTER_total + 1)
+ | ---
+ | - true
+ | ...
+unsupported_bounded, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_preflight_t WHERE id >= 1 AND v < 30]])
+ | ---
+ | ...
+assert(err == nil and unsupported_bounded.rows[1][3] == 'fallback')
+ | ---
+ | - true
+ | ...
+unsupported_bounded_result = box.execute([[SELECT id FROM planner_preflight_t WHERE id >= 1 AND v < 30 ORDER BY id]])
+ | ---
+ | ...
+assert(#unsupported_bounded_result.rows == 2 and unsupported_bounded_result.rows[1][1] == 1 and unsupported_bounded_result.rows[2][1] == 2)
  | ---
  | - true
  | ...
@@ -591,6 +633,20 @@ unsigned_lt = box.execute([[SELECT v FROM planner_preflight_unsigned_t WHERE id 
  | ---
  | ...
 assert(#unsigned_lt.rows == 1 and unsigned_lt.rows[1][1] == 9)
+ | ---
+ | - true
+ | ...
+unsigned_bounded = box.execute([[SELECT v FROM planner_preflight_unsigned_t WHERE id > 9223372036854775807 AND id <= 18446744073709551615]])
+ | ---
+ | ...
+assert(#unsigned_bounded.rows == 1 and unsigned_bounded.rows[1][1] == 10)
+ | ---
+ | - true
+ | ...
+unsigned_bounded_desc = box.execute([[SELECT v FROM planner_preflight_unsigned_t WHERE id <= 18446744073709551615 AND id >= 9223372036854775807 ORDER BY id DESC]])
+ | ---
+ | ...
+assert(#unsigned_bounded_desc.rows == 2 and unsigned_bounded_desc.rows[1][1] == 10 and unsigned_bounded_desc.rows[2][1] == 9)
  | ---
  | - true
  | ...
