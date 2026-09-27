@@ -1452,7 +1452,13 @@ DML, triggers, subprograms, non-deterministic functions.
   prefix and full-key routes report `new_planner`, preserves ASC/DESC row order
   on both engines, and leaves mixed-direction or non-prefix ordering on the
   legacy route with stable fallback reasons and exact flag-off/on result
-  parity.
+  parity. The SQL-luatest off/on/off matrix now covers composite-key prefix,
+  full ascending/descending order, and mixed-direction rejection on memtx and
+  Vinyl. It asserts enabled output order, row parity, stable disabled
+  `UNSUPPORTED_EXPRESSION` classification for ordering outside the resolved
+  expression contract, and exact total/per-reason fallback deltas (eight for
+  four disabled EXPLAIN+execution pairs, two for the single rejected enabled
+  pair). The focused luatest passes locally.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
