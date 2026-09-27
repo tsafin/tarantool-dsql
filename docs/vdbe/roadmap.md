@@ -1219,8 +1219,9 @@ DML, triggers, subprograms, non-deterministic functions.
   setting does not yet govern general physical candidate selection or other
   supported query classes. Default-off behavior and off/on/off summary route
   checks for scan and point routes pass in the focused memtx/Vinyl
-  regression. The newly added two-sided range shape has result/emitter tests;
-  explicit flag on/off route coverage for that exact shape is not yet recorded.
+  regression. A two-sided INTEGER primary-key range now also has explicit
+  flag-on `new_planner` and flag-off `fallback` route assertions plus result
+  parity on both memtx and Vinyl.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
