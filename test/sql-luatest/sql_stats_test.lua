@@ -98,12 +98,16 @@ g.test_shared_view_multi_relation_candidate = function()
     if res.test_wrapper_unavailable then
         t.skip('SQL stats live wrapper requires a TEST_BUILD server')
     end
-    t.assert_equals(res.published_two_relations, true,
-        ('publish=%s rows=%s/%s native=%s late=%s preserved=%s'):format(
-            tostring(res.publish_rc), tostring(res.first_relation_rows),
-            tostring(res.second_relation_rows), tostring(res.native_hash_provenance),
-            tostring(res.later_relation_failed_closed),
-            tostring(res.installed_snapshot_preserved)))
+    t.assert(res.published_two_relations, string.format(
+         'publish=%s rc=%s rows=%s/%s native=%s probe(view=%s format=%s summary=%s tuple=%s index_type=%s part_type=%s func=%s multi=%s functional=%s)',
+        tostring(res.published_two_relations), tostring(res.publish_rc),
+        tostring(res.first_relation_rows), tostring(res.second_relation_rows),
+        tostring(res.native_hash_provenance), tostring(res.probe_view_opened),
+        tostring(res.probe_format_data_present),
+        tostring(res.probe_summary_constructed),
+         tostring(res.probe_tuple_consumed), tostring(res.probe_index_type),
+         tostring(res.probe_part_type), tostring(res.probe_func_id),
+         tostring(res.probe_is_multikey), tostring(res.probe_for_func_index)))
     t.assert_equals(res.native_hash_provenance, true)
     t.assert_equals(res.publish_rc, 0)
     t.assert_equals(res.first_relation_rows, 8)
