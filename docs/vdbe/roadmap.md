@@ -571,7 +571,8 @@ review of IDs and formats.
   runtime guard pass. Both storage samplers accept a requested index ID;
   runtime tests cover memtx secondary-index random draws and Vinyl secondary
   iteration with visible-primary-tuple resolution under the shared work
-  budget, including fail-closed key-budget exhaustion. The test module reads
+  budget, including fail-closed key-, source-, and page-budget exhaustion.
+  The test module reads
   its optional failure argument
   before constructing the result table, and the runtime fixture uses the
   nested update-operation shape required by Vinyl. This does not yet integrate
