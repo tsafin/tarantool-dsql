@@ -60,6 +60,10 @@ put_uint(struct replay_writer *w, uint64_t value)
 static bool
 put_int(struct replay_writer *w, int64_t value)
 {
+	/* msgpuck's signed-size helper accepts negative values only. Positive
+	 * values use the canonical unsigned MessagePack integer representation. */
+	if (value >= 0)
+		return put_uint(w, (uint64_t)value);
 	if (!writer_reserve(w, mp_sizeof_int(value)))
 		return false;
 	w->size = mp_encode_int(w->data + w->size, value) - w->data;
@@ -427,13 +431,14 @@ sql_replay_input_select_final_path(const struct sql_replay_input *input,
 	if (selected == NULL)
 		return SQL_REPLAY_INPUT_INVALID;
 	*selected = NULL;
-	if (input == NULL || input->selector_version !=
-				     SQL_REPLAY_SELECTOR_FINAL_PATH_V1 ||
+	if (input == NULL ||
 	    (input->final_path_count != 0 && input->final_paths == NULL) ||
 	    (!input->final_paths_present && input->final_path_count != 0))
 		return SQL_REPLAY_INPUT_INVALID;
 	if (!input->final_paths_present)
 		return SQL_REPLAY_INPUT_INCOMPLETE;
+	if (input->selector_version != SQL_REPLAY_SELECTOR_FINAL_PATH_V1)
+		return SQL_REPLAY_INPUT_INVALID;
 	if (input->final_path_count == 0)
 		return SQL_REPLAY_INPUT_NO_PLAN;
 	const struct sql_replay_final_path *best = &input->final_paths[0];

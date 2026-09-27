@@ -889,8 +889,8 @@ test_access_candidates(void)
 		   provided != NULL && provided->access_candidates_present &&
 		   provided->access_candidate_count == 0 &&
 		   sql_replay_input_check_replay_ready(provided) ==
-			   SQL_REPLAY_INPUT_OK,
-		   "complete empty access provider is distinct but not final-path ready");
+			   SQL_REPLAY_INPUT_INCOMPLETE,
+		   "complete empty access provider remains distinct from final paths");
 	sql_replay_input_delete(provided);
 	provided = NULL;
 	provider.state = SQL_REPLAY_CANDIDATES_INCOMPLETE;
