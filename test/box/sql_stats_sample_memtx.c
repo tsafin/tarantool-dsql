@@ -48,6 +48,7 @@ lbox_sample(lua_State *L)
 	struct space *space = space_by_id(luaL_checkinteger(L, 1));
 	uint32_t fields[] = {0, 1};
 	struct sql_stats_sample_request request = {
+		.index_id = luaL_optinteger(L, 6, 0),
 		.max_rows = luaL_checkinteger(L, 2),
 		.max_bytes = luaL_checkinteger(L, 3),
 		.seed = luaL_checkinteger(L, 4),

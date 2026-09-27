@@ -1396,15 +1396,15 @@ memtx_engine_sql_stats_sample(struct space *space,
 			 "memtx SQL statistics sampling requires an active transaction");
 		return -1;
 	}
-	struct index *primary = space_index(space, 0);
-	if (primary == NULL) {
-		diag_set(ClientError, ER_UNSUPPORTED,
-			 "memtx SQL statistics sampling requires a primary index");
-		return -1;
-	}
 	if (request == NULL || sink == NULL || result == NULL) {
 		diag_set(ClientError, ER_ILLEGAL_PARAMS,
 			 "Invalid SQL statistics sampling arguments");
+		return -1;
+	}
+	struct index *index = space_index(space, request->index_id);
+	if (index == NULL) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "memtx SQL statistics sampling requires the requested index");
 		return -1;
 	}
 	if (request->max_rows == 0 || request->max_bytes == 0 ||
@@ -1416,14 +1416,14 @@ memtx_engine_sql_stats_sample(struct space *space,
 	}
 	/* memtx index_size() subtracts tuples invisible to the current
 	 * transaction, including replaced/deleted tuples, so it describes the
-	 * same transaction-visible primary-index population sampled below.
+	 * same transaction-visible requested-index population sampled below.
 	 */
-	ssize_t population = index_size(primary);
+	ssize_t population = index_size(index);
 	if (population < 0)
 		return -1;
 	/* Preserve diagnostics raised by index_random() or the consumer. */
 	int rc = sql_stats_sample_run(request, sink, result,
-				      memtx_sql_stats_random_tuple, primary);
+				      memtx_sql_stats_random_tuple, index);
 	if (rc == 0) {
 		result->population_known = true;
 		result->visible_population = (uint64_t)population;

@@ -1288,7 +1288,8 @@ vy_is_committed(struct vy_env *env, struct vy_lsm *lsm)
 static int
 vy_get_by_secondary_tuple(struct vy_lsm *lsm, struct vy_tx *tx,
 			  const struct vy_read_view **rv,
-			  struct vy_entry entry, struct vy_entry *result)
+			  struct vy_entry entry, struct vy_entry *result,
+			  struct vy_iterator_work_budget *work_budget)
 {
 	int rc = 0;
 	assert(lsm->index_id > 0);
@@ -1318,7 +1319,8 @@ vy_get_by_secondary_tuple(struct vy_lsm *lsm, struct vy_tx *tx,
 	lsm->pk->stat.lookup++;
 
 	struct vy_entry pk_entry;
-	if (vy_point_lookup(lsm->pk, tx, rv, key, &pk_entry) != 0) {
+	if (vy_point_lookup(lsm->pk, tx, rv, key, &pk_entry,
+			    work_budget) != 0) {
 		rc = -1;
 		goto out;
 	}
@@ -1423,11 +1425,11 @@ vy_get(struct vy_lsm *lsm, struct vy_tx *tx,
 		 */
 		if (tx != NULL && vy_tx_track_point(tx, lsm, key) != 0)
 			return -1;
-		if (vy_point_lookup(lsm, tx, rv, key, &partial) != 0)
+		if (vy_point_lookup(lsm, tx, rv, key, &partial, NULL) != 0)
 			return -1;
 		if (lsm->index_id > 0 && partial.stmt != NULL) {
 			rc = vy_get_by_secondary_tuple(lsm, tx, rv,
-						       partial, &entry);
+						       partial, &entry, NULL);
 			tuple_unref(partial.stmt);
 			if (rc != 0)
 				return -1;
@@ -1448,7 +1450,8 @@ vy_get(struct vy_lsm *lsm, struct vy_tx *tx,
 				tuple_ref(entry.stmt);
 			break;
 		}
-		rc = vy_get_by_secondary_tuple(lsm, tx, rv, partial, &entry);
+		rc = vy_get_by_secondary_tuple(lsm, tx, rv, partial, &entry,
+					       NULL);
 		if (rc != 0 || entry.stmt != NULL)
 			break;
 	}
@@ -2445,11 +2448,11 @@ vinyl_engine_sql_stats_sample(struct space *space,
 			 "Invalid Vinyl SQL statistics sampling request");
 		return -1;
 	}
-	struct index *primary = space_index(space, 0);
-	if (primary == NULL) {
+	struct index *index = space_index(space, request->index_id);
+	if (index == NULL) {
 		diag_set(ClientError, ER_UNSUPPORTED,
 			 "Vinyl SQL statistics sampling",
-			 "a primary index is required");
+			 "the requested index is not available");
 		return -1;
 	}
 	uint64_t metadata_bytes;
@@ -2461,7 +2464,7 @@ vinyl_engine_sql_stats_sample(struct space *space,
 			 "configured reservoir buffer budget is too small");
 		return -1;
 	}
-	struct vy_lsm *lsm = vy_lsm(primary);
+	struct vy_lsm *lsm = vy_lsm(index);
 	struct vy_env *env = vy_env(space->engine);
 	struct sql_stats_sample_reservoir *reservoir =
 		sql_stats_sample_reservoir_new(request->max_rows,
@@ -2516,9 +2519,27 @@ vinyl_engine_sql_stats_sample(struct space *space,
 			rc = 0;
 			break;
 		}
+		struct vy_entry full_entry = entry;
+		bool unref_full_entry = false;
+		if (lsm->index_id != 0) {
+			/* Secondary-index statements may contain only index key fields.
+			 * Resolve the visible primary tuple so every engine delivers the
+			 * same relation-tuple format to the collector. The shared work
+			 * budget also covers this lookup's key/source/page work.
+			 */
+			if (vy_get_by_secondary_tuple(lsm, tx, vy_tx_read_view(tx),
+						       entry, &full_entry,
+						       &work_budget) != 0)
+				goto out;
+			if (full_entry.stmt == NULL)
+				continue;
+			unref_full_entry = true;
+		}
 		int add_rc = sql_stats_sample_reservoir_add(reservoir,
-							     tuple_data(entry.stmt),
-							     tuple_bsize(entry.stmt));
+							     tuple_data(full_entry.stmt),
+							     tuple_bsize(full_entry.stmt));
+		if (unref_full_entry)
+			tuple_unref(full_entry.stmt);
 		if (add_rc == -2) {
 			diag_set(OutOfMemory, tuple_bsize(entry.stmt), "malloc",
 				 "SQL statistics sample tuple");
@@ -3533,7 +3554,7 @@ vy_squash_process(struct vy_squash *squash)
 	 */
 	struct vy_entry result;
 	if (vy_point_lookup(lsm, NULL, &env->xm->p_committed_read_view,
-			    squash->entry, &result) != 0)
+			    squash->entry, &result, NULL) != 0)
 		return -1;
 	if (result.stmt == NULL)
 		return 0;
@@ -3865,7 +3886,7 @@ next:
 	ERROR_INJECT_YIELD(ERRINJ_VY_DELAY_PK_LOOKUP);
 	/* Get the full tuple from the primary index. */
 	if (vy_get_by_secondary_tuple(lsm, it->tx, vy_tx_read_view(it->tx),
-				      partial, &entry) != 0)
+				      partial, &entry, NULL) != 0)
 		goto fail;
 	if (entry.stmt == NULL)
 		goto next;
@@ -4261,7 +4282,7 @@ vy_build_recover_stmt(struct vy_lsm *lsm, struct vy_lsm *pk,
 	const struct vy_read_view rv = { .vlsn = lsn - 1 };
 	const struct vy_read_view *p_rv = &rv;
 	struct vy_entry old;
-	if (vy_point_lookup(pk, NULL, &p_rv, mem_entry, &old) != 0)
+	if (vy_point_lookup(pk, NULL, &p_rv, mem_entry, &old, NULL) != 0)
 		return -1;
 	/*
 	 * Create DELETE + INSERT statements corresponding to

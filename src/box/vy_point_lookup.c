@@ -46,6 +46,7 @@
 #include "vy_run.h"
 #include "vy_cache.h"
 #include "vy_history.h"
+#include "vy_iterator_budget.h"
 
 /**
  * Scan TX write set for given key.
@@ -152,8 +153,16 @@ vy_point_lookup_scan_mems(struct vy_lsm *lsm, struct vy_tx *tx,
 static int
 vy_point_lookup_scan_slice(struct vy_lsm *lsm, struct vy_slice *slice,
 			   const struct vy_read_view **rv, struct vy_entry key,
-			   struct vy_history *history)
+			   struct vy_history *history,
+			   struct vy_iterator_work_budget *work_budget)
 {
+	if (work_budget != NULL &&
+	    !vy_iterator_work_budget_try_source(work_budget)) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "Vinyl SQL statistics sampling",
+			 "configured disk-source work budget");
+		return -1;
+	}
 	/*
 	 * The format of the statement must be exactly the space
 	 * format with the same identifier to fully match the
@@ -163,6 +172,7 @@ vy_point_lookup_scan_slice(struct vy_lsm *lsm, struct vy_slice *slice,
 	vy_run_iterator_open(&run_itr, &lsm->stat.disk.iterator, slice,
 			     ITER_EQ, key, rv, lsm->cmp_def, lsm->key_def,
 			     lsm->disk_format);
+	run_itr.work_budget = work_budget;
 	struct vy_history slice_history;
 	vy_history_create(&slice_history, &lsm->env->history_node_pool);
 	int rc = vy_run_iterator_next(&run_itr, &slice_history);
@@ -179,7 +189,8 @@ vy_point_lookup_scan_slice(struct vy_lsm *lsm, struct vy_slice *slice,
  */
 static int
 vy_point_lookup_scan_slices(struct vy_lsm *lsm, const struct vy_read_view **rv,
-			    struct vy_entry key, struct vy_history *history)
+			    struct vy_entry key, struct vy_history *history,
+			    struct vy_iterator_work_budget *work_budget)
 {
 	struct vy_range *range = vy_range_tree_find_by_key(&lsm->range_tree,
 							   ITER_EQ, key);
@@ -202,7 +213,8 @@ vy_point_lookup_scan_slices(struct vy_lsm *lsm, const struct vy_read_view **rv,
 	for (i = 0; i < slice_count; i++) {
 		if (rc == 0 && !vy_history_is_terminal(history))
 			rc = vy_point_lookup_scan_slice(lsm, slices[i],
-							rv, key, history);
+							rv, key, history,
+							work_budget);
 		vy_slice_unpin(slices[i]);
 	}
 	region_truncate(&fiber()->gc, region_svp);
@@ -212,7 +224,8 @@ vy_point_lookup_scan_slices(struct vy_lsm *lsm, const struct vy_read_view **rv,
 int
 vy_point_lookup(struct vy_lsm *lsm, struct vy_tx *tx,
 		const struct vy_read_view **rv,
-		struct vy_entry key, struct vy_entry *ret)
+		struct vy_entry key, struct vy_entry *ret,
+		struct vy_iterator_work_budget *work_budget)
 {
 	/* All key parts must be set for a point lookup. */
 	assert(vy_stmt_is_full_key(key.stmt, lsm->cmp_def));
@@ -220,6 +233,16 @@ vy_point_lookup(struct vy_lsm *lsm, struct vy_tx *tx,
 
 	*ret = vy_entry_none();
 	int rc = 0;
+	if (work_budget != NULL && fiber_is_cancelled()) {
+		diag_set(FiberIsCancelled);
+		return -1;
+	}
+	if (!vy_iterator_work_budget_try_key(work_budget)) {
+		diag_set(ClientError, ER_UNSUPPORTED,
+			 "Vinyl SQL statistics sampling",
+			 "configured iterator-key work budget");
+		return -1;
+	}
 
 	/* History list */
 	struct vy_history history, mem_history, disk_history;
@@ -246,7 +269,8 @@ restart:
 	uint32_t mem_version = lsm->mem->version;
 	uint32_t mem_list_version = lsm->mem_list_version;
 
-	rc = vy_point_lookup_scan_slices(lsm, rv, key, &disk_history);
+	rc = vy_point_lookup_scan_slices(lsm, rv, key, &disk_history,
+					 work_budget);
 	if (rc != 0)
 		goto done;
 

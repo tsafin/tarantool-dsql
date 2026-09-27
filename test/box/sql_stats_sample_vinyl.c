@@ -52,6 +52,7 @@ lbox_sql_stats_sample_vinyl(lua_State *L)
 	uint32_t space_id = (uint32_t)luaL_checkinteger(L, 1);
 	struct space *space = space_by_id(space_id);
 	struct sql_stats_sample_request request = {
+		.index_id = luaL_optinteger(L, 11, 0),
 		.max_rows = luaL_optinteger(L, 2, 4),
 		.max_bytes = luaL_optinteger(L, 3, 1024),
 		.seed = luaL_optinteger(L, 4, 1),
@@ -81,6 +82,8 @@ lbox_sql_stats_sample_vinyl(lua_State *L)
 	lua_setfield(L, -2, "rc");
 	lua_pushinteger(L, err != NULL ? box_error_code((box_error_t *)err) : 0);
 	lua_setfield(L, -2, "code");
+	lua_pushstring(L, err != NULL ? box_error_message((box_error_t *)err) : "");
+	lua_setfield(L, -2, "message");
 	set_integer(L, "rows", result.rows);
 	set_integer(L, "bytes", result.bytes);
 	set_integer(L, "delivered", capture.calls);

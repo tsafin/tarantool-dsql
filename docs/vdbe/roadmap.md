@@ -542,18 +542,18 @@ review of IDs and formats.
   remains part of S1.7. *parallel: yes*.
 - [x] **S1.5 prototype** `engine_sql_stats_sample` dispatch and a bounded,
   seeded memtx sampler exist in `src/box/sql/sql_stats_sample.{h,c}`. It uses
-  primary-index random access with replacement in the caller's active
+  requested-index random access with replacement in the caller's active
   transaction and reports delivered rows/bytes; focused unit tests validate
   the bounded loop, and the production target compiles. A runtime engine-
   dispatch test now covers memtx transaction visibility, deterministic draws,
   row/byte limits, sink accounting, and unsupported/invalid inputs. The result
-  also reports the transaction-visible primary-index population from memtx
+  also reports the transaction-visible requested-index population from memtx
   `index_size()`, including uncommitted writes; runtime checks cover nonempty
   and empty transaction states. It is not
   wired to ANALYZE/collection and does not create an independent read view;
   these gates remain open.
   *parallel: yes*.
-- [x] **S1.6 prototype** Vinyl now has a bounded exhaustive primary-index
+- [x] **S1.6 prototype** Vinyl now has a bounded exhaustive requested-index
   sampler using the caller's transaction/read view when active (including
   own writes), or a short-lived autocommit view otherwise, and seeded
   Algorithm R reservoir selection without replacement. Standard Vinyl

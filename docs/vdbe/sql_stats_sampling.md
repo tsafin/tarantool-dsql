@@ -8,6 +8,7 @@ statistics format; those remain subject to the separate human approval gate.
 
 ```c
 struct sql_stats_sample_request {
+	uint32_t index_id;                /* 0 is the primary index */
 	uint64_t max_rows;
 	uint64_t max_bytes;
 	uint64_t seed;
@@ -47,10 +48,17 @@ fields the common SQL layer should decode; engines return the raw tuple so no
 MsgPack parsing policy leaks into the storage layer. A zero field count is a
 valid cardinality-only request.
 
+The request's `index_id` selects the SQL index whose visible population is
+sampled; index id zero denotes the primary index. Both adapters pass complete
+relation tuples to the sink. Vinyl secondary-index entries can be key-only, so
+the sampler resolves each selected entry through the primary index using the
+same read view before retaining it. Those lookups consume the same key, source,
+and page budgets as the secondary scan.
+
 For memtx, `max_rows` and `max_bytes` cap delivered draws and tuple payload
 bytes. A draw that would exceed the remaining byte budget is not delivered.
 The result counts repeated draws and reports `with_replacement=true`. Memtx
-also reports `population_known=true` and the primary-index size as the
+also reports `population_known=true` and the requested index size as the
 transaction-visible population; its `size()` implementation subtracts tuples
 invisible to the active transaction. This is the count observed during the
 synchronous sample operation, not a separately pinned read view. For Vinyl,
@@ -67,13 +75,13 @@ every exit path.
 
 The result reports delivered callback count and tuple payload bytes. The seed
 makes draws reproducible for an unchanged relation and request. The memtx
-prototype uses primary-index random access with replacement inside the caller's
+prototype uses requested-index random access with replacement inside the caller's
 active transaction, includes that transaction's uncommitted writes, and holds
 no tuple copies; callbacks consume each borrowed tuple synchronously. A byte
 limit can end memtx sampling successfully with a partial sample, so consumers
 must use returned counts and confidence.
 
-Vinyl performs an exhaustive `ITER_ALL` scan of the primary index in key
+Vinyl performs an exhaustive `ITER_ALL` scan of the requested index in key
 order. In an active transaction the iterator uses that transaction's `vy_tx`
 and read view, so it sees its own writes and preserves snapshot visibility;
 as with any normal Vinyl iterator, it adds read tracking to that transaction.
@@ -122,7 +130,7 @@ described below.
 ## Vinyl feasibility status (S1.6)
 
 The Vinyl callback now has a bounded exhaustive-scan prototype. It uses the
-existing primary-index read iterator and a no-replacement reservoir, but is
+requested index's read iterator and a no-replacement reservoir, but is
 not wired to ANALYZE or a statistics collection job. Its bounded-work design
 is:
 
@@ -133,6 +141,7 @@ is:
 * `max_disk_sources`, `max_page_reads`, `max_iterator_keys`, and
   `max_tuples_examined` are caller supplied per-operation caps. Work-budget
   exhaustion is sticky and returns an error; no buffered rows are delivered.
+  Secondary-to-primary point lookups share the source/page/key budget.
 * The sampler allocates its maximum slot array only if it fits under
   `max_buffer_bytes`; tuple copies must fit both `max_bytes` and the remaining
   total buffer budget. A copy/allocation failure discards the reservoir.

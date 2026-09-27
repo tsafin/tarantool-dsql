@@ -25,7 +25,7 @@ box.cfg{{log_level = 0}}
 package.cpath = '{MODULE_DIR}/?.so;' .. package.cpath
 local sample = require('sql_stats_sample_memtx').sample
 local space = box.schema.space.create('sample_memtx', {{engine = 'memtx'}})
-space:create_index('pk', {{type = 'hash'}})
+local primary = space:create_index('pk', {{type = 'hash'}})
 local function rejected(result, code)
     assert(result.rc == -1 and result.code == code)
     assert(result.rows == 0 and result.bytes == 0)
@@ -62,6 +62,9 @@ box.begin()
 accepted(sample(space.id, 3, 1024, 7), 0, 0)
 box.rollback()
 for i = 1, 3 do space:insert{{i, 'payload'}} end
+local secondary = space:create_index('by_payload', {{
+    parts = {{{{field = 2, type = 'string'}}}}, unique = false,
+}})
 box.begin()
 local first = sample(space.id, 12, 1024, 41)
 local repeat_draw = sample(space.id, 12, 1024, 41)
@@ -70,12 +73,16 @@ accepted(repeat_draw, 12, 3)
 for i, id in ipairs(first.ids) do
     assert(id >= 1 and id <= 3 and repeat_draw.ids[i] == id)
 end
+local secondary_draw = sample(space.id, 12, 1024, 41, nil, secondary.id)
+accepted(secondary_draw, 12, 3)
+for _, id in ipairs(secondary_draw.ids) do assert(id >= 1 and id <= 3) end
 box.rollback()
 local no_pk = box.schema.space.create('sample_no_pk', {{engine = 'memtx'}})
 box.begin()
 rejected(sample(no_pk.id, 3, 1024, 1), box.error.UNSUPPORTED)
 box.rollback()
 no_pk:drop()
+assert(primary.id == 0)
 space:drop()
 os.exit(0)
 """

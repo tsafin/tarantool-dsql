@@ -12,6 +12,8 @@ extern "C" {
 struct space;
 
 struct sql_stats_sample_request {
+	/* Storage index ID whose tuple population is sampled. Zero is primary. */
+	uint32_t index_id;
 	uint64_t max_rows;
 	uint64_t max_bytes;
 	uint64_t seed;

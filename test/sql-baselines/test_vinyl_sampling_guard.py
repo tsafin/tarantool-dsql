@@ -31,6 +31,9 @@ local space = box.schema.space.create('sql_stats_sample_vinyl', {{
 }})
 space:create_index('pk')
 for id = 1, 64 do space:insert{{id, 'initial'}} end
+local secondary = space:create_index('by_payload', {{
+    parts = {{{{field = 2, type = 'string'}}}}, unique = false,
+}})
 box.snapshot()
 space.index.pk:compact()
 local function take(rows, bytes, seed, tuples, sources, pages, keys, buffer)
@@ -76,6 +79,14 @@ for _, id in ipairs(result.ids) do
 end
 local same = take(8, 1024 * 1024, 42)
 for i, id in ipairs(result.ids) do assert(same.ids[i] == id) end
+local secondary_result = sample.sample(space.id, 8, 1024 * 1024, 42,
+    1024, 1024, 1024, 1024, 1024 * 1024, false, secondary.id)
+assert(secondary_result.rc == 0 and secondary_result.population == 64)
+assert(secondary_result.rows == 8 and secondary_result.delivered == 8)
+for _, id in ipairs(secondary_result.ids) do assert(id >= 1 and id <= 64) end
+local secondary_key_budget = sample.sample(space.id, 8, 1024 * 1024, 42,
+    1024, 1024, 1024, 1, 1024 * 1024, false, secondary.id)
+rejected(secondary_key_budget)
 -- A deterministic seed sweep should not collapse to the first keys. The
 -- loose bounds make this a quality smoke test, not a statistical proof.
 local frequency = {{}}

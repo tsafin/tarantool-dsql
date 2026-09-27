@@ -54,6 +54,7 @@ extern "C" {
 struct vy_lsm;
 struct vy_tx;
 struct vy_read_view;
+struct vy_iterator_work_budget;
 
 /**
  * Given a key that has all index parts (including primary index
@@ -68,7 +69,8 @@ struct vy_read_view;
 int
 vy_point_lookup(struct vy_lsm *lsm, struct vy_tx *tx,
 		const struct vy_read_view **rv,
-		struct vy_entry key, struct vy_entry *ret);
+		struct vy_entry key, struct vy_entry *ret,
+		struct vy_iterator_work_budget *work_budget);
 
 /**
  * Look up a tuple by key in memory.
