@@ -448,7 +448,24 @@ them.
   actually enumerated every viable access candidate, and no active planner
   producer calls it. `WhereLoop` capture therefore remains open; M1.4 stays
   non-replayable, and neither the external v2 envelope nor its `replayable`
-  field changes.
+  field changes. A bounded staging API now lets a future producer provide
+  fixed candidate storage, explicitly mark enumeration start/normal completion,
+  append ordered values, or poison the capture on an unsupported shape.
+  Capacity overflow and premature completion publish only `INCOMPLETE`; an
+  unstarted producer remains `UNAVAILABLE`, distinct from a started,
+  completed empty enumeration. Tests verify that no partial prefix escapes.
+  This is transport-side all-or-nothing enforcement, not a `WhereLoop`
+  producer: source audit finds `whereLoopInsert()` (where.c:1500) called before
+  dominance replacement and for OR-subclause loops as well as ordinary
+  candidates; it receives no relation-completion signal. Although the final
+  `WhereInfo.pLoops` list is pruned, converting it requires per-loop
+  `aLTerm`/`index_def` normalization, stable logical index mapping, projected
+  columns and produced order, plus the exact statistics/configuration used by
+  planning. The existing resolved-SELECT canonicalizer is not a `WhereLoop`
+  constraint adapter, and preparation does not retain authoritative planner
+  config or immutable statistics provenance alongside that list. Until those
+  inputs and a post-enumeration completion boundary exist, the active planner
+  cannot safely label a candidate list complete.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2

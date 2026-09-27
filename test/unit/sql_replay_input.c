@@ -945,6 +945,60 @@ test_access_candidates(void)
 }
 
 static void
+test_bounded_candidate_capture(void)
+{
+	plan(9);
+	header();
+	struct sql_replay_access_candidate_spec storage[1];
+	struct sql_replay_candidate_capture capture;
+	struct sql_replay_candidate_provider provider;
+	struct sql_replay_access_candidate_spec candidate = {
+		.logical_key = "rank-0",
+		.kind = SQL_REPLAY_ACCESS_TABLE_FULL,
+	};
+	sql_replay_candidate_capture_init(&capture, storage, 1);
+	sql_replay_candidate_capture_finish(&capture, true, &provider);
+	ok(provider.state == SQL_REPLAY_CANDIDATES_UNAVAILABLE,
+	   "unstarted capture remains unavailable rather than empty");
+	sql_replay_candidate_capture_begin(&capture);
+	sql_replay_candidate_capture_finish(&capture, true, &provider);
+	ok(provider.state == SQL_REPLAY_CANDIDATES_COMPLETE &&
+	   provider.count == 0,
+	   "completed enumeration can authoritatively report no candidates");
+	sql_replay_candidate_capture_init(&capture, storage, 1);
+	sql_replay_candidate_capture_begin(&capture);
+	sql_replay_candidate_capture_finish(&capture, false, &provider);
+	ok(provider.state == SQL_REPLAY_CANDIDATES_INCOMPLETE,
+	   "enumeration without its normal completion stays incomplete");
+	sql_replay_candidate_capture_init(&capture, storage, 1);
+	sql_replay_candidate_capture_begin(&capture);
+	ok(sql_replay_candidate_capture_add(&capture, &candidate),
+	   "bounded capture accepts a representable candidate");
+	sql_replay_candidate_capture_finish(&capture, true, &provider);
+	ok(provider.state == SQL_REPLAY_CANDIDATES_COMPLETE &&
+	   provider.items == storage && provider.count == 1,
+	   "complete capture publishes its ordered staging prefix");
+	sql_replay_candidate_capture_init(&capture, storage, 1);
+	sql_replay_candidate_capture_begin(&capture);
+	ok(sql_replay_candidate_capture_add(&capture, &candidate),
+	   "bounded capture fills its available slot");
+	ok(!sql_replay_candidate_capture_add(&capture, &candidate),
+	   "capacity overflow rejects additional candidate");
+	sql_replay_candidate_capture_finish(&capture, true, &provider);
+	ok(provider.state == SQL_REPLAY_CANDIDATES_INCOMPLETE &&
+	   provider.items == NULL && provider.count == 0,
+	   "overflowed prefix is never exposed as complete");
+	sql_replay_candidate_capture_init(&capture, storage, 1);
+	sql_replay_candidate_capture_begin(&capture);
+	sql_replay_candidate_capture_reject(&capture);
+	sql_replay_candidate_capture_finish(&capture, true, &provider);
+	ok(provider.state == SQL_REPLAY_CANDIDATES_INCOMPLETE,
+	   "unrepresentable planner shape poisons the whole capture");
+	footer();
+	check_plan();
+}
+
+static void
 test_canonical_msgpack(void)
 {
 	plan(5);
@@ -1041,6 +1095,7 @@ main(void)
 	test_canonical_expression_grammar();
 	test_rejects_incomplete_or_invalid_inputs();
 	test_access_candidates();
+	test_bounded_candidate_capture();
 	test_canonical_msgpack();
 	return 0;
 }
