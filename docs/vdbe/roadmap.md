@@ -1540,7 +1540,12 @@ DML, triggers, subprograms, non-deterministic functions.
   runtime cases cover scan, join fallback, VALUES rows, OP_Count, compound,
   recursive CTE, FROM-subquery, and scalar-subquery; these all pass locally.
   M3.5 remains open pending reviewed-corpus producer coverage and wider route
-  matrix evidence.
+  matrix evidence. A second focused producer matrix now also covers constant
+  SELECT, DISTINCT, grouped aggregation, MIN/MAX, EXISTS, UNION, INTERSECT,
+  and SELECT without FROM. Every successful snapshot is required to have a
+  complete non-empty component ledger with no pending routes and valid parent
+  references; the expanded luatest passes against the v5 build. This strengthens
+  focused branch coverage but is not a reviewed-corpus inventory.
 
   ```mermaid
   flowchart TD
