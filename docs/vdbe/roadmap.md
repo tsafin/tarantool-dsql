@@ -440,7 +440,9 @@ them.
   deep-copies only a complete provider list into the owned input, and returns
   `INCOMPLETE` with no result object when a provider reports a partial prefix.
   Unit tests cover all three outcomes and reject payload attached to an
-  unavailable state. This validates transport/completeness-state handling
+  unavailable state. The configured `sql_replay_input.test` target rebuilds
+  and passes, including all 19 candidate-provider checks. This validates
+  transport/completeness-state handling
   only: the bridge cannot prove that a caller labeling its list `COMPLETE`
   actually enumerated every viable access candidate, and no active planner
   producer calls it. `WhereLoop` capture therefore remains open; M1.4 stays
