@@ -483,6 +483,27 @@ them.
   v2 diagnostic envelope remains `replayable=false` with no replay inputs.
   `planner_vm_migration.md` records the scope boundary and Mermaid flow.
   *parallel: yes*.
+- [ ] **M1.4/M1.5 selection-consumer contract audit.** The newly chosen
+  selection-only scope is not yet an executable selector specification, so no
+  scoring or tie-break implementation is safe. The only active selector found
+  is `wherePathSolver()` (`src/box/sql/where.c`): it combines loops into
+  multi-relation paths, gates by prerequisite/relation masks, maintains
+  order/reverse-scan state, prunes by dominance within partitions, applies a
+  configured global beam, and may include ORDER BY sorting cost (with a second
+  solver pass). The v4 candidate record instead exposes per-candidate estimated
+  rows and floating-point startup/total costs, without defining their mapping
+  to the solver's `LogEst` values, path state, sorting behavior, or equal-cost
+  tie-break. Its preserved input rank is a provider ordering, not a selector
+  result. A standalone `min(total_cost)` consumer would therefore invent
+  behavior and cannot claim to reproduce the live selector. The smallest
+  prerequisite is a versioned selection contract: explicitly define the
+  supported candidate domain (including one-relation restrictions), canonical
+  cost representation/conversion, ordering and tie-break semantics, and
+  whether ORDER BY/path properties participate. Then expose a detached
+  consumer for that contract and test reordered/equal-cost candidates plus
+  unavailable-state rejection. Keep external diagnostic v2 unchanged and
+  `replayable=false`; this audit changes no live planning behavior.
+  *parallel: no, this contract must precede the consumer.*
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2
   diagnostic envelope still has no normalized predicates, relation/access-path

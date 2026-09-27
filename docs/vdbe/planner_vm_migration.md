@@ -618,6 +618,42 @@ flowchart LR
     E[Enumeration replay] -. explicitly out of M1.4 scope .-> C
 ```
 
+#### M1.4/M1.5 offline selector contract audit
+
+The selection-only decision narrows what replay should prove, but the source
+does not currently define a detached selector that can consume v4
+`access_candidates`. The only active path selector is `wherePathSolver()` in
+`src/box/sql/where.c`. It is a path-combination search, not a ranked-list
+consumer: for each level it checks prerequisite and relation masks, computes
+path run/setup and output-row estimates in `LogEst`, tracks ORDER BY coverage
+and reverse-scan state, applies same-partition dominance, and retains a bounded
+beam. When relevant it adds sort cost, and WHERE planning may invoke it twice
+to account for ORDER BY. Final equal-cost behavior follows retained-path
+iteration order. These are observable selection semantics that a replay
+consumer would need to preserve if it claimed selector parity.
+
+The v4 `sql_replay_access_candidate` instead stores a candidate kind, logical
+index and constraints, scan direction, projected columns and produced order,
+estimated rows, and floating-point startup/total/width/confidence values.
+That is enough detached material to describe candidates, but there is no
+contract translating those fields into the live solver's `WhereLoop`/`WherePath`
+state or `LogEst` units. In particular, `beam_width` alone does not specify
+how candidates with different order properties or constraints interact, and
+the provider's retained list rank is explicitly not a chosen-plan ranking.
+Picking minimum `total_cost`, using first-on-tie, or converting costs to
+`LogEst` would each create new semantics rather than reproduce a defined
+contract.
+
+The smallest missing item is a versioned selector contract before a consumer
+API: supported candidate domain (initially, if desired, a single-relation
+subset), canonical cost units/conversion and row estimates, whether order and
+sort costs participate, and deterministic tie-breaking. The consumer can then
+be a detached function over a complete v4 candidate set and its selector
+identity/configuration; tests should vary candidate order/content and exercise
+equal-cost ties, empty versus unavailable candidates, and source-state removal.
+Until then M1.4/M1.5 remain open, v2 remains diagnostic-only with
+`replayable=false`, and live v2 capture/planning must not change.
+
 ## Testing Strategy
 
 The roadmap's M0 milestone establishes the **parity corpus** that all
