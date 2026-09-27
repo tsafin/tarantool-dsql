@@ -1388,7 +1388,7 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_Permutation:
 		return (uintptr_t)vdbe_op_permutation_inline;
 	case OP_Compare:
-		return (uintptr_t)vdbe_op_compare;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_FetchByName:
 		return (uintptr_t)vdbe_op_fetchbyname_inline;
 	case OP_Fetch:
