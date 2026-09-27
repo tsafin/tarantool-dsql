@@ -1214,9 +1214,9 @@ DML, triggers, subprograms, non-deterministic functions.
   preflight, and VDBE unit tests pin filter validation and branch ordering.
   Literal LIMIT/OFFSET counts only rows surviving both the key range and NULL
   filter. The isolated fixture has exact generated/CnP parity on both engines
-  (85/85 snapshots each, zero capture errors or diffs); a duplicate residual
-  NULL-filter conjunction is explicitly retained as
-  `fallback / UNSUPPORTED_FILTER`.
+  (85/85 snapshots each, zero capture errors or diffs); generated-repeat also
+  matches both engines exactly. A duplicate residual NULL-filter conjunction
+  is explicitly retained as `fallback / UNSUPPORTED_FILTER`.
   Compound/general boolean predicates, filtered composite-prefix ranges, and
   other scalar operators remain outside this route. Direct-column full
   scans and primary-key ordering also pass
@@ -1655,8 +1655,9 @@ DML, triggers, subprograms, non-deterministic functions.
   focused producer matrix now additionally covers direct non-primary NULL
   filters both on full scans and conjoined with primary-key bounds; both emit
   complete single-component `new_planner` ledgers when enabled. The expanded
-  planner-final-path luatest passes locally; its memtx generated/CnP capture
-  also matches exactly (43/43 snapshots, zero errors or diffs). This extends
+  planner-final-path luatest passes locally; generated/CnP and generated-repeat
+  captures match exactly (43/43 snapshots each, zero errors or diffs on both
+  engines). This extends
   component-level route evidence to both accepted new-planner and rejected
   filter candidates without changing the reviewed-corpus gate.
   capture extension now preserves component records in manifest
@@ -1932,7 +1933,7 @@ DML, triggers, subprograms, non-deterministic functions.
   unit coverage pins accepted/rejected metadata and seek/termination opcodes.
   The scalar non-primary `IS NULL` / `IS NOT NULL` scan route also has exact
   off/on/off result assertions, plus exact generated/CnP parity on memtx and
-  Vinyl (37/37 snapshots per engine).
+  Vinyl (85/85 snapshots per engine); generated-repeat also matches exactly.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
