@@ -57,6 +57,15 @@ for _, id in ipairs(transactional.ids) do
     if id == 65 then found_own_write = true end
 end
 assert(found_own_write)
+local transactional_secondary = sample.sample(space.id, 128, 1024 * 1024,
+    43, 1024, 1024, 1024, 1024, 1024 * 1024, false, secondary.id)
+assert(transactional_secondary.rc == 0 and
+       transactional_secondary.population == 65)
+local found_secondary_own_write = false
+for _, id in ipairs(transactional_secondary.ids) do
+    if id == 65 then found_secondary_own_write = true end
+end
+assert(found_secondary_own_write)
 box.rollback()
 -- Each source/page/key/visible-tuple/buffer/payload limit is fail-closed.
 rejected(take(8, 1024 * 1024, 1, 1024, 0, 1024, 1024, 1024 * 1024))
