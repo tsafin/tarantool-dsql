@@ -223,5 +223,16 @@ assert(err == nil and bounded_disabled_summary.rows[1][3] == 'current_where_c')
 bounded_disabled_result = box.execute([[SELECT id FROM planner_preflight_t WHERE id >= 1 AND id < 3 ORDER BY id]])
 assert(#bounded_disabled_result.rows == 2 and bounded_disabled_result.rows[1][1] == 1 and bounded_disabled_result.rows[2][1] == 2)
 
+-- Compare row semantics through the feature flag for representative shapes
+-- handled by executable single-table lowering.
+parity_queries = {[[SELECT id, v FROM planner_preflight_t]], [[SELECT v FROM planner_preflight_t LIMIT 1 OFFSET 1]], [[SELECT v FROM planner_preflight_t ORDER BY id DESC LIMIT 1]], [[SELECT v FROM planner_preflight_t WHERE id = 2]], [[SELECT id, v FROM planner_preflight_t WHERE id >= 2 ORDER BY id ASC LIMIT 1]], [[SELECT v FROM planner_preflight_t WHERE id < 3 ORDER BY id DESC LIMIT 1]], [[SELECT id, v FROM planner_preflight_t WHERE id >= 1 AND id < 3 ORDER BY id DESC]]}
+function planner_preflight_rows_equal(left, right) if #left ~= #right then return false end; for i = 1, #left do if #left[i] ~= #right[i] then return false end; for j = 1, #left[i] do if left[i][j] ~= right[i][j] then return false end end end; return true end
+parity_disabled_first = {}
+for i, sql in ipairs(parity_queries) do parity_disabled_first[i] = box.execute(sql).rows end
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+for i, sql in ipairs(parity_queries) do planner_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]]..sql); assert(err == nil and planner_summary.rows[1][3] == 'new_planner'); enabled_rows = box.execute(sql).rows; assert(planner_preflight_rows_equal(parity_disabled_first[i], enabled_rows)) end
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+for i, sql in ipairs(parity_queries) do planner_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]]..sql); assert(err == nil and planner_summary.rows[1][3] == 'current_where_c'); disabled_again_rows = box.execute(sql).rows; assert(planner_preflight_rows_equal(parity_disabled_first[i], disabled_again_rows)) end
+
 box.execute([[DROP TABLE planner_preflight_t]])
 test_run = require('test_run').new()
