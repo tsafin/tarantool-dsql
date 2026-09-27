@@ -1207,8 +1207,9 @@ DML, triggers, subprograms, non-deterministic functions.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
   A default-off session setting now gates the narrow direct-column table scan,
-  sole INTEGER/UNSIGNED primary-key point lookups, and one-sided primary-key
-  literal ranges in `sqlSelect()`. When enabled, only the supported
+  sole INTEGER/UNSIGNED primary-key point lookups, one-sided primary-key
+  literal ranges, and a single lower-plus-upper bound on the same primary key
+  in `sqlSelect()`. When enabled, only the supported
   single-table shape with a TREE primary index can report `new_planner`: direct
   projections, primary-key ordering compatible with the range direction, and
   literal LIMIT/OFFSET. This happens only after
@@ -1218,7 +1219,9 @@ DML, triggers, subprograms, non-deterministic functions.
   setting does not yet govern general physical candidate selection or other
   supported query classes. Default-off behavior and off/on/off summary route
   checks for scan and point routes pass in the focused memtx/Vinyl
-  regression. Complete fallback
+  regression. The newly added two-sided range shape has result/emitter tests;
+  explicit flag on/off route coverage for that exact shape is not yet recorded.
+  Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
   prototype, not an unresolved instance/session decision. *parallel: no*.
