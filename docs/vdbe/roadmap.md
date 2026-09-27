@@ -539,15 +539,26 @@ review of IDs and formats.
   into exact relation cardinality without mistaking delivered draws for the
   population; a second bridge exposes fractional sample-average serialized
   tuple width with its row denominator, without truncating the mean or
-  inventing width for an empty sample. It
-  does not derive complete population-level index/prefix summaries or
-  confidence, or publish globally; therefore this subtask remains open and
+  inventing width for an empty sample. It does not yet derive a complete
+  collection or publish globally; therefore this subtask remains open and
   `ANALYZE` stays disabled. A new `sql_stats_index_summary` unit API now
   computes sampled prefix-NDV values through HLL from a caller-provided
   canonical SQL-value extractor. It counts delivered rows/bytes, bounds
   accumulator memory, and suppresses output on extractor failure; it
-  deliberately does not hash raw MessagePack or infer population-level NDV.
-  Eight generic-summary checks pass. The native index-hash adapter supports
+  deliberately does not hash raw MessagePack. A separate bounded helper now
+  inverts the uniform-occupancy model for both memtx independent draws and
+  Vinyl reservoir samples, returning rounded population-prefix NDVs plus a
+  confidence evidence score that accounts for sample coverage, HLL precision,
+  and native 32-bit hash collision risk. Unknown/inconsistent populations fail
+  closed without partial outputs; empty populations produce zero NDVs and a
+  census returns observed HLL NDV without extrapolation. The estimator's
+  equal-frequency assumption and confidence semantics are documented in
+  `sql_stats_sampling.md`; nine focused tests exercise both sampling designs,
+  a complete census, a low-coverage skew probe, provenance rejection, and the
+  temporary-memory bound. It is not wired into
+  complete relation collection or global publication, and has no agreed
+  corpus validation for the distributional assumption. The native index-hash
+  adapter supports
   verified STRING, DOUBLE, BOOLEAN, UNSIGNED, and signed INTEGER parts for
   TREE/HASH definitions. INTEGER uses canonical MessagePack values (negative
   values as MP_INT, nonnegative as MP_UINT), matching its numeric comparator;

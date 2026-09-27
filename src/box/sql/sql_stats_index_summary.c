@@ -1,6 +1,8 @@
 #include "sql_stats_index_summary.h"
 
+#include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "field_def.h"
 #include "index_def.h"
@@ -230,5 +232,138 @@ sql_stats_index_summary_prefix_ndv(
 		return -1;
 	for (size_t i = 0; i < prefix_count; i++)
 		estimates[i] = sql_stats_hll_estimate(summary->prefixes[i]);
+	return 0;
+}
+
+/*
+ * Expected observed species for K equally likely values in a population of
+ * N after n draws. The no-replacement branch is the probability of missing a
+ * group of size N/K in a uniform reservoir sample. Fractional group sizes
+ * are a continuous approximation, useful when N is not divisible by K.
+ */
+static double
+expected_sample_ndv(double k, uint64_t population, uint64_t sample_rows,
+		    bool with_replacement)
+{
+	if (sample_rows == 0 || k <= 1)
+		return sample_rows == 0 ? 0 : 1;
+	if (with_replacement) {
+		double log_miss = (double)sample_rows * log1p(-1.0 / k);
+		return k * -expm1(log_miss);
+	}
+	if (sample_rows == population)
+		return k;
+	double log_miss = 0;
+	double group_size = (double)population / k;
+	for (uint64_t i = 0; i < sample_rows; i++) {
+		double remaining = (double)(population - i);
+		if (group_size >= remaining)
+			return k;
+		log_miss += log1p(-group_size / remaining);
+	}
+	return k * -expm1(log_miss);
+}
+
+int
+sql_stats_index_summary_population_prefix_ndv(
+	const struct sql_stats_index_summary *summary,
+	const struct sql_stats_sample_result *sample, size_t prefix_count,
+	uint64_t *estimates, size_t estimate_count, double *confidence,
+	size_t max_temp_bytes)
+{
+	if (summary == NULL || summary->failed || sample == NULL ||
+	    !sample->population_known || sample->rows != summary->rows ||
+	    prefix_count == 0 || prefix_count > summary->part_count ||
+	    estimate_count != prefix_count || estimates == NULL ||
+	    confidence == NULL ||
+	    (sample->with_replacement && sample->visible_population == 0 &&
+	     sample->rows != 0) ||
+	    (!sample->with_replacement &&
+	     sample->rows > sample->visible_population))
+		return -1;
+	uint64_t population = sample->visible_population;
+	if (population == 0) {
+		if (sample->rows != 0)
+			return -1;
+		for (size_t i = 0; i < prefix_count; i++)
+			estimates[i] = 0;
+		*confidence = 1;
+		return 0;
+	}
+	if (sample->rows == 0)
+		return -1;
+	if (prefix_count > SIZE_MAX / (sizeof(double) + sizeof(uint64_t)) ||
+	    prefix_count * (sizeof(double) + sizeof(uint64_t)) > max_temp_bytes)
+		return -1;
+	double *sample_ndv = malloc(prefix_count * sizeof(*sample_ndv));
+	uint64_t *population_ndv = malloc(prefix_count * sizeof(*population_ndv));
+	if (sample_ndv == NULL || population_ndv == NULL) {
+		free(sample_ndv);
+		free(population_ndv);
+		return -1;
+	}
+	if (sql_stats_index_summary_prefix_ndv(summary, prefix_count,
+					       sample_ndv, prefix_count) != 0) {
+		free(sample_ndv);
+		free(population_ndv);
+		return -1;
+	}
+	uint8_t precision = sql_stats_hll_precision(summary->prefixes[0]);
+	if (precision == 0) {
+		free(sample_ndv);
+		free(population_ndv);
+		return -1;
+	}
+	/* HLL RSE with a two-sigma allowance; confidence is a conservative
+	 * evidence score combined with sample coverage, not a calibrated
+	 * posterior probability. */
+	double hll_uncertainty = 2.0 * 1.04 /
+		 sqrt((double)(UINT64_C(1) << precision));
+	double coverage = sample->with_replacement ?
+		-expm1(-(double)sample->rows / (double)population) :
+		(double)sample->rows / (double)population;
+	double result_confidence = fmax(0, 1.0 - hll_uncertainty) * coverage;
+	uint8_t hash_bits = summary->hash_bits;
+	for (size_t i = 0; i < prefix_count; i++) {
+		double observed = fmin(sample_ndv[i], (double)sample->rows);
+		if (!isfinite(observed) || observed <= 0) {
+			free(sample_ndv);
+			free(population_ndv);
+			return -1;
+		}
+		double lo = fmax(1.0, observed);
+		double hi = (double)population;
+		if (lo > hi) {
+			free(sample_ndv);
+			free(population_ndv);
+			return -1;
+		}
+		for (int step = 0; step < 64; step++) {
+			double mid = lo + (hi - lo) / 2;
+			if (expected_sample_ndv(mid, population, sample->rows,
+						sample->with_replacement) < observed)
+				lo = mid;
+			else
+				hi = mid;
+		}
+		double estimate = lo + (hi - lo) / 2;
+		if (estimate >= (double)population) {
+			population_ndv[i] = population;
+		} else {
+			population_ndv[i] = (uint64_t)floor(estimate + 0.5);
+			if (population_ndv[i] < 1)
+				population_ndv[i] = 1;
+		}
+		if (hash_bits != 0 && observed > 1) {
+			double collision_risk = observed * (observed - 1) /
+				(2.0 * exp2(hash_bits));
+			result_confidence *= fmax(0, 1.0 - collision_risk);
+		}
+	}
+	memcpy(estimates, population_ndv,
+	       prefix_count * sizeof(*population_ndv));
+	*confidence = result_confidence;
+	free(sample_ndv);
+	free(population_ndv);
 	return 0;
 }

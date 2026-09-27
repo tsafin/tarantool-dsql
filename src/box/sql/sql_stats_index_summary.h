@@ -79,6 +79,23 @@ sql_stats_index_summary_prefix_ndv(
 	const struct sql_stats_index_summary *summary, size_t prefix_count,
 	double *estimates, size_t estimate_count);
 
+/*
+ * Estimate population prefix NDVs by inverting the uniform-occupancy model
+ * over a known sampled population. This is a model-based estimate, not an
+ * exact count: the caller must retain the returned confidence and provenance.
+ * For sampling with replacement the model uses independent uniform draws; for
+ * a reservoir sample it uses the finite-population no-observation product.
+ * Returns -1 without modifying outputs when sample/population metadata or the
+ * summary is incomplete/inconsistent or the temporary arrays would exceed
+ * max_temp_bytes.
+ */
+int
+sql_stats_index_summary_population_prefix_ndv(
+	const struct sql_stats_index_summary *summary,
+	const struct sql_stats_sample_result *sample, size_t prefix_count,
+	uint64_t *estimates, size_t estimate_count, double *confidence,
+	size_t max_temp_bytes);
+
 #ifdef __cplusplus
 }
 #endif

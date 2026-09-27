@@ -109,6 +109,34 @@ versions merged within one key/source; those remain covered only by the
 iterator's surrounding key/source/page behavior, not by a separate history-
 statement counter.
 
+## Sampled index NDV to population estimate
+
+`sql_stats_index_summary_population_prefix_ndv()` converts each HLL estimate
+over delivered sample rows into an explicitly model-based population NDV. It
+requires `population_known`, exact agreement between the summary's consumed
+rows and the sampler's delivered-row count, a nonempty sample for a nonempty
+population, and a caller-supplied temporary-memory cap. It leaves outputs
+untouched on incomplete or inconsistent input. An empty known population
+produces zero prefix NDVs.
+
+For independent draws with replacement, the implementation solves for `K` in
+`D = K * (1 - (1 - 1/K)^n)`, where `D` is HLL's observed sample NDV and `n` is
+the delivered draw count. For reservoir samples without replacement it solves
+the corresponding finite-population no-observation product, using an equal-
+frequency model with continuous group size `N/K`; a complete reservoir census
+uses the observed HLL estimate directly. Estimates are rounded to the nearest
+integer and clamped to `[1, N]` for nonempty populations. This is not a
+distribution-free estimator: skew can invalidate the equal-frequency model.
+
+The returned confidence is an evidence score, not a calibrated probability:
+sample coverage is multiplied by a two-standard-error HLL term; summaries
+based on the native 32-bit index hash are additionally discounted by estimated
+birthday-collision risk. A consumer must preserve the `uniform-occupancy-hll-v1`
+NDV provenance and confidence, and should not treat confidence as a proof that
+the distributional assumption holds. This helper does not establish a common
+visibility boundary across indexes, construct/publish a whole relation
+candidate, or enable `ANALYZE`.
+
 Because Vinyl must discover EOF before publishing an exhaustive sample, it
 does not return a successful partial sample. A successful sample whose
 population is smaller than `max_rows` returns the whole population. Taking
