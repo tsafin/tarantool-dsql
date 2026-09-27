@@ -1672,7 +1672,8 @@ DML, triggers, subprograms, non-deterministic functions.
   expression subqueries via `SF_SingleRow`. The component matrix asserts the
   FROM label on a DISTINCT FROM-subquery that cannot be flattened, and the
   scalar label on a `count(*)` component. The rebuilt Debug binary and regular
-  test-runner pass `planner_final_paths_test.lua` with both role assertions.
+  test-runner pass `planner_final_paths_test.lua` with both role assertions
+  under generated and CnP dispatch.
   `sqlCodeSubselect()` now assigns the shared `expression_subquery` role to
   EXISTS and IN-with-SELECT producers; AST/codegen does not justify separate
   role claims for these paths. Runtime matrix assertions pin both roles while
@@ -2012,7 +2013,8 @@ DML, triggers, subprograms, non-deterministic functions.
   target. Multiple residuals remain rejected on range, scan-only, and composite
   point shapes; the descriptor rejects filter lists above the fixed bound of
   eight. The integrated Debug build passed; the VDBE unit passes all 46
-  assertions and the focused memtx/Vinyl luatest passes. The earlier
+  assertions and the focused memtx/Vinyl luatest passes under generated and
+  CnP dispatch. The earlier
   single-filter route's incremental Debug build and 45-assertion VDBE unit plus
   memtx/Vinyl luatest also passed. The broader M3.4 operator
   and producer coverage remains open.
