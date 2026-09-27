@@ -226,3 +226,68 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
     t.assert_equals(result.scalar_component_status, 'complete')
     t.assert_gt(result.scalar_component_count, 0)
 end
+
+g.test_snapshot_component_ledger_covers_producer_matrix = function()
+    local snapshots = g.server:exec(function()
+        local msgpack = require('msgpack')
+        box.execute([[CREATE TABLE planner_component_matrix (
+            id INTEGER PRIMARY KEY, v INTEGER)]])
+        box.execute([[INSERT INTO planner_component_matrix VALUES
+            (1, 10), (2, 10), (3, 30)]])
+        local queries = {
+            constant = [[SELECT 1]],
+            distinct = [[SELECT DISTINCT v FROM planner_component_matrix]],
+            grouped = [[SELECT v, count(*) FROM planner_component_matrix
+                        GROUP BY v]],
+            aggregate = [[SELECT min(v), max(v)
+                          FROM planner_component_matrix]],
+            scalar_exists = [[SELECT EXISTS(
+                SELECT 1 FROM planner_component_matrix WHERE id = 1)]],
+            union = [[SELECT id FROM planner_component_matrix WHERE id = 1
+                      UNION ALL
+                      SELECT id FROM planner_component_matrix WHERE id = 3]],
+            intersect = [[SELECT id FROM planner_component_matrix
+                          INTERSECT
+                          SELECT id FROM planner_component_matrix WHERE id > 1]],
+            single_values = [[EXPLAIN (planner = 'snapshot') SELECT 1]],
+        }
+        local result = {}
+        for name, sql in pairs(queries) do
+            local explain_sql = sql
+            if name ~= 'single_values' then
+                explain_sql = [[EXPLAIN (planner = 'snapshot') ]] .. sql
+            end
+            local explain, err = box.execute(explain_sql)
+            assert(err == nil, err and err.message)
+            local snapshot = msgpack.decode(tostring(explain.rows[1][1]))
+            local components = snapshot.planner.component_routes
+            local item = {
+                status = snapshot.planner.component_status,
+                count = #components,
+                path_class = snapshot.path_class,
+                routes = {},
+            }
+            local ids = {}
+            for _, component in ipairs(components) do
+                ids[component.id] = true
+                table.insert(item.routes, component.route)
+                assert(component.route ~= 'pending', name .. ' has pending route')
+            end
+            for _, component in ipairs(components) do
+                assert(component.parent_id == 0 or ids[component.parent_id],
+                       name .. ' has missing component parent')
+            end
+            result[name] = item
+        end
+        box.execute([[DROP TABLE planner_component_matrix]])
+        return result
+    end)
+    for name, snapshot in pairs(snapshots) do
+        t.assert_equals(snapshot.status, 'complete', name)
+        t.assert_gt(snapshot.count, 0, name)
+    end
+    t.assert_equals(snapshots.constant.routes[1], 'fallback')
+    t.assert_gt(snapshots.union.count, 1)
+    t.assert_gt(snapshots.intersect.count, 1)
+    t.assert_gt(snapshots.scalar_exists.count, 1)
+end
