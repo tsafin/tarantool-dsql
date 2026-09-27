@@ -892,12 +892,19 @@ the `where.c` selectivity adapter wait for that interface.
 equivalent (in result and diagnostic) to current `where.c` for a controlled
 single-table query class.
 
-**State:** `PROTOTYPE` (M3.1 descriptor, structural M3.2 logical-plan
-builder, M3.3 supplied-candidate selector, and M3.4 lowering callback
-contract). No executable VDBE generation, production planner routing, parity,
-or snapshot integration exists yet. Depends on the M1 path-class/replay
-contract and M0-A seed parity gate, not on S2. Use fixed or current estimates
-while statistics are under construction; integrate the real snapshot later.
+**State:** `PROTOTYPE`. A default-off, session-gated executable route now
+lowers direct-column scans, INTEGER/UNSIGNED primary-key point lookups, and
+one-sided primary-key literal ranges through the physical descriptor and VDBE
+emitter. Focused memtx/Vinyl parity and fallback tests cover this narrow slice;
+emitter unit checks pin all four range seek opcodes and signed/unsigned key
+encoding. M3.5 has broad structural fallback classification but remains open
+for route/reason closure; M3.6 capture/parity tooling is prototyped and M3.7's
+feature flag gates only the current narrow route. Secondary indexes,
+two-sided ranges, broader expression parity, corpus-wide new-planner coverage,
+and acceptance latency evidence remain open. M3 consumes M1 diagnostic
+path-class/fallback reporting and the M0-A seed parity gate, but does not wait
+for replay or S2; use fixed/current estimates until real statistics are
+integrated.
 
 **Scope (exact):**
 
