@@ -603,10 +603,14 @@ failures must preserve the exact installed snapshot. This gate does not depend
 on, or authorize, any persistent schema ID or format choice; the persistence
 schema remains DRAFT.
 
-The immutable snapshot now supports ordered read-only enumeration of borrowed
-relation and index views while the caller retains its reference. This is a
-foundation for the later merge/replace API, not permission to mutate installed
-snapshots or publish relation-by-relation.
+The immutable snapshot supports ordered read-only enumeration of borrowed
+relation and index views while the caller retains its reference. It can also
+combine disjoint snapshots or replace exactly one relation from a snapshot
+with the same catalog/schema generation. Both operations deep-copy into a new
+detached snapshot; they do not mutate either input. Duplicate ownership,
+generation mismatch, and allocation-budget failures reject the whole result.
+These primitives do not yet assemble all relations from one shared view or
+authorize relation-by-relation publication.
 
 ```mermaid
 flowchart LR
