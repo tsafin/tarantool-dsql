@@ -216,8 +216,11 @@ sql_stats_collection_build_candidate(
 			    !valid_tag(collected_index->ndv_basis) ||
 			    !valid_cardinality_semantics(
 				collected_index->tuple_count_semantics) ||
+			    /* The index tuple population must match the relation's
+			     * population; NDV provenance is independent and may describe
+			     * an estimator/hash domain rather than the population source. */
 			    strcmp(collected_index->population_basis,
-				   collected_index->ndv_basis) != 0) {
+				   have->population_basis) != 0) {
 				valid = false;
 				break;
 			}

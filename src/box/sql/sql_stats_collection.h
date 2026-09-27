@@ -34,7 +34,9 @@ struct sql_stats_collected_index {
 	uint64_t visibility_id;
 	uint64_t tuple_count;
 	enum sql_stats_cardinality_semantics tuple_count_semantics;
+	/* Must use the relation row-population basis. */
 	const char *population_basis;
+	/* May independently name the NDV estimator/hash domain. */
 	const char *ndv_basis;
 	const uint64_t *distinct_prefixes;
 	size_t prefix_count;
