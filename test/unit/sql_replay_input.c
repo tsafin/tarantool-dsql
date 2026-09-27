@@ -360,7 +360,7 @@ test_extract_select_from_catalog(void)
 			   &select, cursor_map, 2, 1, 2, 4, snapshot, 5,
 			   &input) == SQL_REPLAY_INPUT_INVALID &&
 		   input == NULL,
-	   "fractional cardinality not representable in v2 fails closed");
+	   "fractional cardinality not representable in v3 fails closed");
 	if (snapshot != NULL)
 		sql_stats_snapshot_release(snapshot);
 	free(key);

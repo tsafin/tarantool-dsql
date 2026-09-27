@@ -218,7 +218,7 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 void
 sql_replay_input_delete(struct sql_replay_input *input);
 
-/* Return owned deterministic MsgPack bytes for input format version 2. */
+/* Return owned deterministic MsgPack bytes for input format version 3. */
 enum sql_replay_input_status
 sql_replay_input_serialize(const struct sql_replay_input *input, char **data,
 			   size_t *size);
