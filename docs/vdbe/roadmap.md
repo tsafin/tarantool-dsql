@@ -1206,14 +1206,16 @@ DML, triggers, subprograms, non-deterministic functions.
   IS NULL` as an empty result using the same invariant, including secondary
   parts of a composite primary key. A typed scalar-filter descriptor and the
   table-scan lowerer now support direct non-primary-column `IS NULL` and
-  `IS NOT NULL` predicates on full scans; rejected rows branch to the cursor's
-  next-row opcode. A dedicated SQL regression checks exact rows and off/on/off
-  parity on memtx and Vinyl, and descriptor/VDBE unit tests pin filter
-  validation and both branch targets. The isolated fixture also has exact
-  generated/CnP parity on both engines (37/37 snapshots each, zero capture
-  errors or diffs).
-  Compound predicates, filtered ranges, and other scalar operators remain
-  outside this route. Direct-column full
+  `IS NOT NULL` predicates on full scans and primary-key ranges; rejected rows
+  branch to the cursor's next-row opcode, after any range-end check. The
+  conjunction scope is one direct non-primary NULL test plus one or two bounds
+  on a single-part INTEGER/UNSIGNED primary key. A dedicated SQL regression
+  checks exact rows and off/on/off parity on memtx and Vinyl, and descriptor,
+  preflight, and VDBE unit tests pin filter validation and branch ordering.
+  The isolated fixture has exact generated/CnP parity on both engines (61/61
+  snapshots each, zero capture errors or diffs).
+  Compound/general boolean predicates, filtered composite-prefix ranges, and
+  other scalar operators remain outside this route. Direct-column full
   scans and primary-key ordering also pass
   off/on/off parity for a TEXT primary key on both engines; the enabled route
   preserves descending order and LIMIT. A second

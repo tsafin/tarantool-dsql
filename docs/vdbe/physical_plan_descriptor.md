@@ -191,10 +191,15 @@ scan, while `primary_key_part IS NULL` lowers as a zero-row `Limit` finalizer;
 both invariants apply to non-leading parts of composite primary keys. Direct
 non-primary `IS NULL` and `IS NOT NULL` predicates are also supported on full
 scans; descriptor filter operations distinguish expression, null, and
-non-null tests, and the VDBE branch skips to the next cursor row. SQL tests
-pin exact flag-off/on/off parity on memtx and Vinyl, with exact generated/CnP
-snapshot parity (37 snapshots per engine). Compound predicates, filtered
-index ranges, and other scalar expressions remain on legacy codegen. A TEXT
+non-null tests, and the VDBE branch skips to the next cursor row. A single
+direct non-primary NULL test may also be conjoined with one or two bounds on a
+single-part INTEGER/UNSIGNED primary key. For bounded ranges, the range-end
+check precedes residual filtering so rows outside the access interval always
+terminate the walk; rejected in-range rows skip to `Next`. SQL tests pin exact
+flag-off/on/off parity on memtx and Vinyl, with exact generated/CnP snapshot
+parity (61 snapshots per engine). Compound/general boolean predicates,
+filtered composite-prefix ranges, and other scalar expressions remain on
+legacy codegen. A TEXT
 primary key also uses the ordered
 new-planner scan path and preserves descending order with LIMIT on memtx and
 Vinyl. The disabled route currently classifies this ordered scan as
