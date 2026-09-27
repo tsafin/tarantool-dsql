@@ -518,6 +518,63 @@ measured statistics. Multi-relation expressions, joins, aggregates, and
 other planner semantics remain absent. It is not a `replay_inputs` payload
 and does not change the external diagnostic envelope version.
 
+#### M1.4 live capture boundary audit
+
+The current `WhereLoop` producer cannot safely publish candidates from
+`whereLoopInsert()`: insertion may later replace dominated entries, and the
+same hook is used while expanding OR subclauses. The first ordinary completion
+boundary is the successful return from `whereLoopAddAll()` in
+`src/box/sql/where.c`; at that point `WhereInfo.pLoops` is the retained,
+planner-visible loop list, before `wherePathSolver()` chooses a path. A capture
+attached to that boundary must be all-or-nothing: normalize each retained loop
+in list order, reject the entire list if any loop shape is unsupported, and
+publish an empty list only after a successful complete enumeration. The
+one-table `where_loop_builder_shortcut()` is a separate planner route and must
+either produce an equivalent detached candidate or leave capture unavailable;
+it cannot be mistaken for successful empty enumeration. Planner errors likewise
+must not publish a prefix.
+
+The values required to identify the algorithm and its configuration are not
+currently collected into that context. `sql_replay_input_extract_select_from_*`
+accepts caller-provided algorithm/configuration version integers and beam width.
+The active `wherePathSolver()` obtains its width from
+`sql_path_solver_width(nLoop)`, whose three widths can be environment-configured
+and cached; recomputing a default at a later serialization point would not be
+authoritative. There is no active planner algorithm-version constant or
+prepare-owned detached context carrying those values together with statistics
+provenance and candidates. `where.c` may invoke `wherePathSolver()` twice (the
+second pass accounts for ORDER BY cost), so a future producer should capture
+the effective width for each pass, or the full effective width configuration
+plus the relevant loop count. It must use an explicit version maintained with
+the planner algorithm, rather than infer identity or width from SQL text,
+build metadata, or defaults.
+
+```mermaid
+flowchart TD
+    P[Prepare resolves SQL and catalog] --> E{Planner route}
+    E -->|ordinary WHERE| A[whereLoopAddAll]
+    A -->|error| X[Capture unavailable / discard]
+    A -->|success| N[Normalize retained pLoops in order]
+    E -->|one-table shortcut| H[Normalize shortcut loop]
+    N -->|unsupported loop| X
+    H -->|unsupported shape| X
+    N -->|complete| C[Detached candidates plus stats provenance]
+    H -->|complete| C
+    C --> W[wherePathSolver captures effective width per pass]
+    W --> I[Prepare-owned algorithm/config identity]
+    I --> D[Detached capture context]
+    D -. external v2 stays diagnostic-only .-> V[replayable=false]
+```
+
+This is a source-backed implementation boundary, not a claim that a safe
+producer exists. In particular, normalized loop conversion still needs to map
+`WhereTerm` constraints, index definitions, projections, ordering and cost
+semantics into the detached logical model, while ensuring the `WhereInfo` and
+catalog/statistics data remain valid through copying. Until a producer and
+completion tests cover ordinary enumeration, shortcut, unsupported loop,
+overflow/error, and known-empty cases, do not mark candidate capture complete
+or change the external v2 diagnostic envelope.
+
 ## Testing Strategy
 
 The roadmap's M0 milestone establishes the **parity corpus** that all

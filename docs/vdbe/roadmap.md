@@ -465,7 +465,16 @@ them.
   constraint adapter, and preparation does not retain authoritative planner
   config or immutable statistics provenance alongside that list. Until those
   inputs and a post-enumeration completion boundary exist, the active planner
-  cannot safely label a candidate list complete.
+  cannot safely label a candidate list complete. The follow-up boundary audit
+  in `planner_vm_migration.md` identifies successful `whereLoopAddAll()` return
+  as the ordinary enumeration boundary (the retained `WhereInfo.pLoops`, before
+  path selection); the one-table shortcut is a separate route and planner
+  errors must discard capture. It also confirms that `wherePathSolver()` reads
+  the actual, environment-configurable width at runtime, while replay
+  extractors still accept algorithm/config versions as caller arguments. A
+  future prepare-owned capture must record that actual width and a maintained
+  algorithm identity alongside detached candidates and immutable stats
+  provenance. This audit does not wire a producer or change v2.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2
