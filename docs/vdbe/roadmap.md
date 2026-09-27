@@ -85,10 +85,12 @@ flowchart TD
     D["S0: audit complete"] --> E["S1.4: in-memory snapshot API"]
     A --> E
     E --> F["S2.2-2.7: algorithm prototypes"]
-    C --> G["M3.1-3.4: IR / lowering prototypes"]
+    C --> G["M3.1-3.3: IR prototypes"]
     A --> G
-    G --> H["M3.5-3.7: route, fallback, flag"]
+    G --> G2["M3.4: executable producer + lowering"]
+    G2 --> H["M3.5: production fallback gate"]
     C --> H
+    H --> H2["M3.7: feature flag"]
     P["Human gate: approve persistent IDs / formats"] --> Q["S1.1 + S2.1: persistent spaces"]
     E --> R["S1.5: memtx sampling"]
     R --> R2["S1.6: Vinyl bounded-work strategy"]
@@ -104,7 +106,7 @@ flowchart TD
     F --> U
     U --> V["S2 integrated"]
     T --> W["S1 integrated"]
-    H --> X["E1: bounded-DP evaluation"]
+    H2 --> X["E1: bounded-DP evaluation"]
     V --> X
     X --> X1["E1.1: configurable widths"]
     X1 --> X2["E1.2: subset/property partitions"]
