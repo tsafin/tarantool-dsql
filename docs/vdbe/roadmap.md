@@ -1621,10 +1621,13 @@ DML, triggers, subprograms, non-deterministic functions.
   tests (`defaults_test.lua`, `seq_scan_test.lua`,
   `gh_6773_arithmetic_operands_test.lua`, and
   `gh_8460_wrong_int_to_dec_test.lua`) pass under CnP, and the rerun full
-  adapter audit has no CnP capture failures: 34 memtx and 32 Vinyl files pass
-  native-vs-generated parity, with 7 files per engine not observed and 12
-  explicitly not run. Generated-repeat comparisons pass except the known
-  datetime current-time query (one result differs by timestamp) and
+  adapter audit has no CnP capture failures: 33 memtx and 32 Vinyl files pass
+  exact native-vs-generated parity. One additional memtx datetime capture
+  differs only at the nondeterministic current-time query. Seven files per
+  engine have CnP not observed; 12 are explicitly not run for unsupported
+  topology/long-run reasons, and two additional Vinyl CnP runs are gated by
+  forced-Vinyl generated-capture failures. Generated-repeat comparisons pass
+  except the datetime current-time query (one result differs by timestamp) and
   `explain_modifiers` disassembly (unstable address-dependent bytes); datetime's
   Vinyl forced-engine capture and `show_create_table`'s forced-Vinyl capture
   remain engine-specific failures. LLVM remains not observed because this
