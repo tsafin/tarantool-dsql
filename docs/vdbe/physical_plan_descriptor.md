@@ -181,10 +181,12 @@ the immutable access descriptor (alongside its equality bound), and the VDBE
 lowering emits the key constant, NotFound, direct projected-column reads, and
 ResultRow. Literal LIMIT/OFFSET are supported: positive LIMIT with no offset
 returns the matching row, while LIMIT 0 or positive OFFSET skips the seek and
-result. ORDER BY and all other filter shapes remain on legacy codegen (with the
-stable UNSUPPORTED_FILTER reason for unsupported filters). The SQL regression
-exercises hit, miss, wide key, LIMIT/OFFSET, negative-literal fallback, and
-unsupported range cases on both memtx and Vinyl. This is a first primary point path, not general
+result. ORDER BY is accepted only on the primary-key column and is redundant
+for the single-row result. Other filter shapes remain on legacy codegen (with
+the stable UNSUPPORTED_FILTER reason for unsupported filters). The SQL
+regression exercises hit, miss, wide key, LIMIT/OFFSET, primary-key ordering,
+negative-literal fallback, and unsupported range cases on both memtx and
+Vinyl. This is a first primary point path, not general
 point-lookup support: parameters, secondary indexes, composite keys, ranges,
 and expression evaluation are not included.
 

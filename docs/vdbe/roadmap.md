@@ -932,7 +932,8 @@ DML, triggers, subprograms, non-deterministic functions.
   requested direction. A second route supports equality between the sole
   integer primary-key part and a nonnegative signed-64-bit integer literal; it emits a
   primary cursor NotFound seek and returns at most one row. The equality
-  route currently excludes ORDER BY; literal LIMIT/OFFSET are accepted because
+  route supports ORDER BY only on that one primary-key column; ordering is
+  redundant for a point result. Literal LIMIT/OFFSET are accepted because
   equality can return at most one row (zero limit and positive offset emit no
   result). Nonnegative signed-64-bit integer-literal
   `LIMIT` and optional `OFFSET` are retained in the descriptor; counters
