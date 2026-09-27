@@ -1244,6 +1244,16 @@ DML, triggers, subprograms, non-deterministic functions.
   bounded-end and seek-key registers now encode nonnegative wide values as
   `P4_UINT64`, matching the existing point-key path; negative wide bounds
   remain `P4_INT64`. The VDBE lowering unit and focused SQL regression pass.
+  Leading INTEGER/UNSIGNED parts of composite TREE primary keys now support
+  equality-prefix scans (returning every row with that prefix), one-sided and
+  two-sided literal ranges, and compatible ASC/DESC key-prefix ordering. The
+  producer represents prefix equality as a bounded range rather than an
+  incorrect one-row point lookup. Memtx/Vinyl off/on/off coverage checks row
+  parity for equality, both one-sided directions, a two-sided range, and
+  descending equality-prefix order; all enabled cases report `new_planner`,
+  and generated plus CnP focused runs pass. Equality over all composite parts,
+  non-leading-only predicates, and mixed/non-prefix ordering remain outside
+  this route.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
   Rollback coverage is specifically post-emission validation rejection, not
@@ -1775,6 +1785,13 @@ DML, triggers, subprograms, non-deterministic functions.
   flag-off preserves the existing non-TREE rejection, while flag-on reports
   `new_planner` and returns all rows; generated and CnP dispatch pass. This
   does not change the default-off session contract.
+  Composite-primary-key prefix predicates now also participate in the same
+  off/on/off feature gate: equality scans, one-sided bounds, a two-sided bound,
+  and descending equality-prefix order return identical rows on memtx and
+  Vinyl. Every enabled case reports `new_planner`; disabled cases preserve
+  legacy execution with either `current_where_c` or a stable fallback reason.
+  Generated and CnP focused runs pass. This remains targeted route evidence,
+  not corpus-wide feature acceptance.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

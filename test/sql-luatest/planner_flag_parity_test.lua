@@ -210,6 +210,103 @@ g.test_unordered_hash_primary_scan_off_on_off = function()
     end)
 end
 
+g.test_composite_primary_key_prefix_ranges_off_on_off = function()
+    g.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        local function rows_equal(left, right)
+            if #left ~= #right then
+                return false
+            end
+            for i = 1, #left do
+                if #left[i] ~= #right[i] then
+                    return false
+                end
+                for j = 1, #left[i] do
+                    if left[i][j] ~= right[i][j] then
+                        return false
+                    end
+                end
+            end
+            return true
+        end
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_composite_prefix_' .. engine
+            box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, v STRING, ' ..
+                         'PRIMARY KEY (a, b)) WITH ENGINE = \'%s\'')
+                        :format(name, engine))
+            box.execute(('INSERT INTO %s VALUES (2, 20, \'d\'), ' ..
+                         '(1, 30, \'c\'), (2, 10, \'e\'), (1, 10, \'a\'), ' ..
+                         '(1, 20, \'b\')'):format(name))
+            local queries = {
+                ('SELECT a, b, v FROM %s WHERE a = 1'):format(name),
+                ('SELECT a, b FROM %s WHERE a >= 2 ' ..
+                 'ORDER BY a ASC, b ASC'):format(name),
+                ('SELECT a, b FROM %s WHERE a < 2 ' ..
+                 'ORDER BY a DESC, b DESC'):format(name),
+                ('SELECT a, b FROM %s WHERE a >= 1 AND a < 2 ' ..
+                 'ORDER BY a ASC, b ASC'):format(name),
+                ('SELECT a, b FROM %s WHERE a = 1 ' ..
+                 'ORDER BY a DESC, b DESC'):format(name),
+            }
+            local function capture(route)
+                local results = {}
+                for i, sql in ipairs(queries) do
+                    local explain, err = box.execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. sql)
+                    t.assert(err == nil, err and err.message)
+                    local actual_route = explain.rows[1][3]
+                    if route == 'current_where_c' then
+                        t.assert(actual_route == 'current_where_c' or
+                                 actual_route == 'fallback',
+                                 ('query %d on %s has unsafe disabled route %s')
+                                 :format(i, engine, tostring(actual_route)))
+                        if actual_route == 'fallback' then
+                            t.assert(type(explain.rows[2][3]) == 'string' and
+                                     #explain.rows[2][3] > 0,
+                                     ('query %d on %s lacks fallback reason')
+                                     :format(i, engine))
+                        end
+                    else
+                        t.assert_equals(actual_route, route,
+                                        ('query %d on %s')
+                                        :format(i, engine))
+                    end
+                    local result
+                    result, err = box.execute(sql)
+                    t.assert(err == nil and result ~= nil,
+                             ('query %d on %s: %s')
+                             :format(i, engine, tostring(err)))
+                    results[i] = result.rows
+                end
+                return results
+            end
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local off = capture('current_where_c')
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            local on = capture('new_planner')
+            for i = 1, #queries do
+                t.assert(rows_equal(off[i], on[i]),
+                         ('composite prefix query %d changed on %s')
+                         :format(i, engine))
+            end
+            t.assert_equals(#on[1], 3)
+            t.assert_equals(on[1][1], {1, 10, 'a'})
+            t.assert_equals(on[1][2], {1, 20, 'b'})
+            t.assert_equals(on[1][3], {1, 30, 'c'})
+            t.assert_equals(on[5][1], {1, 30})
+            t.assert_equals(on[5][3], {1, 10})
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local off_again = capture('current_where_c')
+            for i = 1, #queries do
+                t.assert(rows_equal(off[i], off_again[i]),
+                         ('second disabled query %d changed on %s')
+                         :format(i, engine))
+            end
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
+
 g.test_one_sided_range_wrong_order_falls_back = function()
     g.server:exec(function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do

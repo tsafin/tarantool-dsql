@@ -292,8 +292,7 @@ sql_physical_table_scan_from_select(
 	uint32_t primary_field = source->space->index_map[0]->def->key_def->
 		parts[0].fieldno;
 	const struct key_def *pk = source->space->index_map[0]->def->key_def;
-	unsigned_point = pk->part_count == 1 &&
-		pk->parts[0].type == FIELD_TYPE_UNSIGNED;
+	unsigned_point = pk->parts[0].type == FIELD_TYPE_UNSIGNED;
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;
 		bool is_primary_key_part = false;
@@ -339,9 +338,8 @@ sql_physical_table_scan_from_select(
 			exprs[1] = select->pWhere->pRight;
 			expr_count = 2;
 		}
-		if (pk->part_count != 1 ||
-		    (pk->parts[0].type != FIELD_TYPE_INTEGER &&
-		     pk->parts[0].type != FIELD_TYPE_UNSIGNED))
+		if (pk->parts[0].type != FIELD_TYPE_INTEGER &&
+		    pk->parts[0].type != FIELD_TYPE_UNSIGNED)
 			goto invalid_predicate;
 		struct parsed_pk_bound parsed[2];
 		for (size_t i = 0; i < expr_count; ++i)
@@ -349,11 +347,27 @@ sql_physical_table_scan_from_select(
 					    unsigned_point, &parsed[i]))
 				goto invalid_predicate;
 		if (expr_count == 1 && parsed[0].op == SQL_PLAN_EQ) {
-			has_point_key = true;
-			if (unsigned_point)
-				unsigned_point_key = parsed[0].unsigned_key;
-			else
-				point_key = parsed[0].signed_key;
+			if (pk->part_count == 1) {
+				has_point_key = true;
+				if (unsigned_point)
+					unsigned_point_key = parsed[0].unsigned_key;
+				else
+					point_key = parsed[0].signed_key;
+			} else {
+				/* Equality on the leading part of a composite key selects a
+				 * contiguous prefix range, not a one-row point lookup.
+				 */
+				has_range_key = has_range_end_key = true;
+				range_op = SQL_PLAN_GE;
+				range_end_op = SQL_PLAN_LE;
+				if (unsigned_point) {
+					unsigned_range_key = parsed[0].unsigned_key;
+					unsigned_range_end_key = parsed[0].unsigned_key;
+				} else {
+					range_key = parsed[0].signed_key;
+					range_end_key = parsed[0].signed_key;
+				}
+			}
 		} else if (expr_count == 1) {
 			has_range_key = true;
 			range_op = parsed[0].op;
