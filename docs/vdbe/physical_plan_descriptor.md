@@ -338,8 +338,9 @@ when join algorithms can differ in those dimensions.
 | `UNSUPPORTED_COMPOUND` | UNION / INTERSECT / EXCEPT. |
 | `UNSUPPORTED_DML` | INSERT / UPDATE / DELETE. |
 | `UNSUPPORTED_TRIGGER` | Statement involves trigger subprogram. |
-| `UNSUPPORTED_NONDETERMINISTIC` | Non-deterministic or side-effecting function. |
+| `UNSUPPORTED_NONDETERMINISTIC` | Function is not declared deterministic. This does not detect deterministic UDF side effects. |
 | `UNSUPPORTED_ACCESS_HINT` | Explicit `INDEXED BY` / `NOT INDEXED` requirement is not modeled. |
+| `UNSUPPORTED_FUNCTION` | Deterministic function call is outside the canonical expression contract. |
 | `BUDGET_EXCEEDED` | Planner search budget exhausted. |
 | `LOW_CONFIDENCE_STATS` | Stats confidence below threshold (configurable). |
 | `LOWERING_FAILED` | Internal bug in lowering; record and fall back. |

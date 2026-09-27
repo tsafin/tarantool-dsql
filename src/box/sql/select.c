@@ -5651,6 +5651,7 @@ sql_select_record_fallback_reason(Parse *parse,
 }
 
 static bool sql_select_has_nondeterministic_func(Select *select);
+static bool sql_select_has_func(Select *select);
 
 static void
 sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
@@ -5669,6 +5670,15 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 	    sql_select_has_nondeterministic_func(select)) {
 		sql_select_record_fallback_reason(parse,
 				SQL_LOGICAL_REJECT_NONDETERMINISTIC);
+		return;
+	}
+	/* Function calls are not yet in the canonical expression contract, even
+	 * when deterministic. Keep them on the legacy route until their identity
+	 * and evaluation semantics can be represented by the new planner.
+	 */
+	if (sql_select_has_func(select)) {
+		sql_select_record_fallback_reason(parse,
+				SQL_LOGICAL_REJECT_FUNCTION);
 		return;
 	}
 	bool structurally_unsupported = is_aggregate || select->pPrior != NULL ||
@@ -5740,6 +5750,27 @@ sql_select_has_nondeterministic_func(Select *select)
 	Walker walker;
 	memset(&walker, 0, sizeof(walker));
 	walker.xExprCallback = sql_select_has_nondeterministic_func_expr;
+	walker.xSelectCallback = sql_select_walk_subquery;
+	(void)sqlWalkSelect(&walker, select);
+	return walker.eCode != 0;
+}
+
+static int
+sql_select_has_func_expr(Walker *walker, Expr *expr)
+{
+	if (expr->op == TK_FUNCTION) {
+		walker->eCode = 1;
+		return WRC_Abort;
+	}
+	return WRC_Continue;
+}
+
+static bool
+sql_select_has_func(Select *select)
+{
+	Walker walker;
+	memset(&walker, 0, sizeof(walker));
+	walker.xExprCallback = sql_select_has_func_expr;
 	walker.xSelectCallback = sql_select_walk_subquery;
 	(void)sqlWalkSelect(&walker, select);
 	return walker.eCode != 0;

@@ -855,6 +855,11 @@ DML, triggers, subprograms, non-deterministic functions.
   and per-reason counter deltas. This property detects declared volatility,
   but Tarantool has no separate function side-effect property, so deterministic
   UDF side effects and argument-dependent volatility are not proven excluded.
+  Deterministic scalar calls are now also classified as
+  `UNSUPPORTED_FUNCTION`: the canonical expression contract does not yet
+  carry function identity/evaluation semantics, so they remain on `where.c`.
+  A runtime `abs(v)` summary/counter regression and stable reason mapping test
+  cover this separate reason. No executor routing has changed.
   Zero-source constant SELECTs also enter `sqlWhereBegin()` but are outside the
   single-relation logical-plan contract. They now report
   `UNSUPPORTED_RELATION_COUNT`; a focused
