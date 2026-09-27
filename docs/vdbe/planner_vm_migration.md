@@ -447,9 +447,9 @@ each join-depth round. Thus generated need not equal the other counters: a
 path may be retained at one depth and later dominated or truncated. The legacy planner does not expose
 normalized predicates, relation/access-path inputs, or statistics needed to
 reconstruct planning without live SQL state. The explicit `replayable` marker
-prevents consumers from treating the current diagnostic capture as executable
-replay data. M1.5 owns replay tooling; a later envelope version can add the
-normalized inputs when they are produced.
+prevents consumers from treating incomplete captures as executable replay
+data. M1.5 selection replay is implemented for the supported canonical
+single-relation subset; broader normalized inputs remain future work.
 
 #### M3.5 route-ledger scope decision
 
@@ -479,7 +479,12 @@ planner attempt once; EXPLAIN serialization does not increment them. This
 scope is required by the roadmap's “every unsupported shape” contract and
 avoids silently excluding direct or recursive producers. The implementation
 can be incremental, but M3.5 stays open until the producer inventory is
-covered and mixed/direct/nested runtime cases verify these semantics.
+covered and mixed/direct/nested runtime cases verify these semantics. A
+bounded internal ledger model now encodes component identity, parent, role,
+route, and fallback reason; unit tests cover direct-route distinction,
+conflicting writes, mixed summaries, incomplete records, and overflow. It is
+not yet populated by `sqlSelect()` or exposed in EXPLAIN, so it does not close
+the integration gate.
 
 ```mermaid
 flowchart TD

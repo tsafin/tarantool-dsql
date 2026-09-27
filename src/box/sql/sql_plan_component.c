@@ -94,8 +94,14 @@ sql_plan_component_finalize(const struct sql_plan_component_ledger *ledger,
 		if (record->role == SQL_PLAN_COMPONENT_ROOT)
 			root = record;
 	}
-	if (root == NULL)
-		return SQL_PLAN_COMPONENT_INCOMPLETE;
+	if (root == NULL) {
+		*summary = (struct sql_plan_component_summary) {
+			.route = SQL_PLAN_COMPONENT_MIXED,
+			.fallback_reason = SQL_PLAN_FALLBACK_NONE,
+			.component_count = ledger->count,
+		};
+		return SQL_PLAN_COMPONENT_OK;
+	}
 	enum sql_plan_component_route route = root->route;
 	enum sql_plan_fallback_reason reason = root->fallback_reason;
 	for (size_t i = 0; i < ledger->count; i++) {
