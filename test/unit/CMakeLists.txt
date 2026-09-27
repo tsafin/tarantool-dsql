@@ -237,6 +237,23 @@ create_unit_test(PREFIX sql_vdbe_codegen_checkpoint
 )
 target_include_directories(sql_vdbe_codegen_checkpoint.test PRIVATE
                            ${PROJECT_BINARY_DIR}/src/box/sql)
+
+# These tests construct Vdbe/Parse objects directly while linking box. Keep
+# their internal SQL struct layout in sync with the box compilation options.
+foreach(target sql_plan_vdbe_lowering.test sql_vdbe_codegen_checkpoint.test)
+    target_compile_definitions(${target} PRIVATE SQL_TEST=1)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_definitions(${target} PRIVATE SQL_DEBUG=1
+                                   SQL_VDBE_OP_PROFILE=1)
+    endif()
+    if(ENABLE_SQL_CNP)
+        target_compile_definitions(${target} PRIVATE ENABLE_SQL_CNP=1)
+    endif()
+    if(ENABLE_SQL_JIT)
+        target_compile_definitions(${target} PRIVATE ENABLE_SQL_JIT=1)
+    endif()
+endforeach()
+
 create_unit_test(PREFIX sql_plan_fallback
                  SOURCES sql_plan_fallback.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_plan_descriptor.c
