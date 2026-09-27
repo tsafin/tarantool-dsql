@@ -94,7 +94,8 @@ struct sql_stats_collection_context;
 /*
  * Open a shared engine read view for exactly the requested indexes. The
  * context owns the view until close. Unsupported engine/index read views fail
- * closed. The current core read-view API does not support Vinyl indexes.
+ * closed. Vinyl is opt-in through the context and supports bounded full scans;
+ * point reads and iterator pagination are unsupported.
  */
 struct sql_stats_collection_context *
 sql_stats_collection_context_new(

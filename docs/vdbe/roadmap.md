@@ -617,8 +617,10 @@ format approval is implied.
   stats from canonical sampled values and capture/revalidate catalog, data,
   and index-definition generations under one common cross-engine visibility
   boundary before atomically installing the candidate; failure must preserve
-  the prior snapshot. Neither core `read_view` nor READ_CONFIRMED currently
-  supplies that common boundary across the supported engines. The engine
+  the prior snapshot. The new opt-in core `read_view` supplies a volatile
+  memtx/Vinyl visibility cut for selected indexes, but detached candidate
+  assembly/publication still uses the separate READ_CONFIRMED transaction
+  context and has not been routed through this view. The engine
   samplers can now be called
   over multiple requested indexes using the same caller transaction/read view;
   Vinyl runtime coverage verifies an uncommitted tuple appears in both primary
@@ -627,14 +629,13 @@ format approval is implied.
   indexes, and scans pinned indexes into a bounded reservoir. Its unit tests
   cover ownership and fail-closed open cases; `sql_stats_collection.test`
   passed locally, including pinned scan, tuple-budget, and schema-drift
-  rejection cases. This context is not yet wired to
-  candidate construction; core read-view allocation has no resource budget,
-  and Vinyl's generic index read view rejects consistent reads. It therefore
-  cannot replace the tested transaction sampler across both engines. Where
-  supported it pins data to the core view, but does not supply per-relation
-  modification epochs or catalog/index-definition versions needed for
-  complete candidate validation/publication. Current nonzero visibility
-  tokens outside the context remain caller-supplied claims. A separate
+  rejection cases. The core context pins data through memtx and Vinyl
+  primary/secondary full-scan views, but is not yet wired to candidate
+  construction; core read-view allocation has no explicit resource budget and
+  does not itself supply per-relation modification epochs or
+  catalog/index-definition versions needed for complete candidate
+  validation/publication. Current nonzero visibility tokens outside the
+  context remain caller-supplied claims. A separate
   `sql_stats_tx_context` now owns a box transaction, sets READ_CONFIRMED before
   sampling, validates transaction ID/isolation/schema/index definitions, and
   bounds/stages each requested index sample before delivery. Its finish commits
