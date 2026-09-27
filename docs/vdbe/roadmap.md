@@ -1707,6 +1707,14 @@ DML, triggers, subprograms, non-deterministic functions.
   does not disposition normal-runner parity or the persistence-dependent
   ANALYZE rejections.
 
+  **Normal-runner spot check (2026-09-28).** Using the project Debug build and
+  the regular test-run harness, `in2`, `select2`, `select9`, and `autoindex1`
+  passed on all configured engine variants (7 runs: `in2` memtx; the other
+  three on memtx and Vinyl). This resolves the previously missing ordinary
+  runner evidence for these four timeout-triage files only. It does not cover
+  the two still-uncollected files, the full SQL-TAP corpus, SQL/SQL-luatest
+  reviewed corpus, or the remaining M3.5 route/reason dispositions.
+
   **SQL-luatest capture extension (2026-09-27).** The child capture adapter
   now records planner metrics and component routes for successful
   SELECT/WITH-SELECT/VALUES executions, alongside each SQL snapshot's
