@@ -40,24 +40,34 @@ sql_select_preflight_table_scan(const struct Select *select,
 		return SQL_SELECT_PREFLIGHT_SHAPE;
 	if (select->pOrderBy != NULL) {
 		const struct ExprList *order = select->pOrderBy;
-		if (order->nExpr != 1 || source->space->index_map == NULL ||
+		if (order->nExpr <= 0 || source->space->index_map == NULL ||
 		    source->space->index_map[0] == NULL ||
 		    source->space->index_map[0]->def == NULL ||
 		    source->space->index_map[0]->def->type != TREE ||
 		    source->space->index_map[0]->def->key_def == NULL ||
-		    source->space->index_map[0]->def->key_def->part_count != 1)
+		    (uint32_t)order->nExpr >
+			source->space->index_map[0]->def->key_def->part_count)
 			return SQL_SELECT_PREFLIGHT_SHAPE;
-		const struct Expr *expr = order->a[0].pExpr;
-		uint32_t primary_field = source->space->index_map[0]->def->key_def->
-			parts[0].fieldno;
-		if (expr == NULL || ExprHasProperty(expr, EP_TokenOnly | EP_Reduced) ||
-		    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
-		    expr->pRight != NULL || expr->iTable != source->iCursor ||
-		    expr->iColumn < 0 || (uint32_t)expr->iColumn != primary_field ||
-		    (order->a[0].sort_order != SORT_ORDER_UNDEF &&
-		     order->a[0].sort_order != SORT_ORDER_ASC &&
-		     order->a[0].sort_order != SORT_ORDER_DESC))
-			return SQL_SELECT_PREFLIGHT_SHAPE;
+		const struct key_def *key_def =
+			source->space->index_map[0]->def->key_def;
+		enum sort_order order_direction = SORT_ORDER_UNDEF;
+		for (int i = 0; i < order->nExpr; ++i) {
+			const struct Expr *expr = order->a[i].pExpr;
+			enum sort_order direction = order->a[i].sort_order;
+			if (direction == SORT_ORDER_UNDEF)
+				direction = SORT_ORDER_ASC;
+			if (expr == NULL || ExprHasProperty(expr,
+							EP_TokenOnly | EP_Reduced) ||
+			    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
+			    expr->pRight != NULL || expr->iTable != source->iCursor ||
+			    expr->iColumn < 0 ||
+			    (uint32_t)expr->iColumn != key_def->parts[i].fieldno ||
+			    (direction != SORT_ORDER_ASC && direction != SORT_ORDER_DESC) ||
+			    (order_direction != SORT_ORDER_UNDEF &&
+			     direction != order_direction))
+				return SQL_SELECT_PREFLIGHT_SHAPE;
+			order_direction = direction;
+		}
 	}
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;

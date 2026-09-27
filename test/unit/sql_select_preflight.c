@@ -12,16 +12,17 @@
 static void
 test_preflight(void)
 {
-	plan(16);
+	plan(19);
 	header();
 	struct space_def *def = calloc(1, sizeof(*def) + sizeof("preflight_t"));
 	strcpy(def->name, "preflight_t");
 	def->id = 512;
 	def->field_count = 3;
 	struct key_def *key_def = calloc(1, sizeof(*key_def) +
-					 sizeof(key_def->parts[0]));
-	key_def->part_count = 1;
+					 2 * sizeof(key_def->parts[0]));
+	key_def->part_count = 2;
 	key_def->parts[0].fieldno = 0;
+	key_def->parts[1].fieldno = 2;
 	struct index_def index_def = {.type = TREE, .key_def = key_def};
 	struct index index = {.def = &index_def};
 	struct index *indexes[] = {&index};
@@ -90,7 +91,32 @@ test_preflight(void)
 	select.pOrderBy = &order_list;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
 	   SQL_SELECT_PREFLIGHT_OK,
-	   "primary-key ordering reaches producer validation");
+	   "primary-key prefix ordering reaches producer validation");
+	struct Expr order_expr2 = {
+		.op = TK_COLUMN_REF, .iTable = 4, .iColumn = 2,
+	};
+	struct ExprList_item order_items[] = {
+		{.pExpr = &order_expr}, {.pExpr = &order_expr2},
+	};
+	order_list.nExpr = 2;
+	order_list.a = order_items;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_OK,
+	   "complete composite primary-key ordering reaches producer validation");
+	order_items[1].sort_order = SORT_ORDER_DESC;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_SHAPE,
+	   "mixed-direction composite primary-key ordering is rejected");
+	order_items[1].sort_order = SORT_ORDER_UNDEF;
+	order_expr.iColumn = 2;
+	order_expr2.iColumn = 0;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_SHAPE,
+	   "non-prefix composite primary-key ordering is rejected");
+	order_expr.iColumn = 0;
+	order_expr2.iColumn = 2;
+	order_list.nExpr = 1;
+	order_list.a = &order_item;
 	order_expr.iColumn = 1;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
 	   SQL_SELECT_PREFLIGHT_SHAPE,

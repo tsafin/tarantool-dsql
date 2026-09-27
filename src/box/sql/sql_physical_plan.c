@@ -402,45 +402,68 @@ predicate_parsed:
 	if (has_range_key)
 		direction = range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE ?
 			SQL_PLAN_DESC : SQL_PLAN_ASC;
-	struct sql_plan_order_term order_term;
+	struct sql_plan_order_term *order_terms = NULL;
+	size_t order_term_count = 0;
 	if (select->pOrderBy != NULL) {
 		const struct ExprList *order_by = select->pOrderBy;
-		const struct Expr *order_expr = order_by->nExpr == 1 ?
-			order_by->a[0].pExpr : NULL;
-		if (source->space->index_map[0]->def->key_def->part_count != 1) {
+		const struct key_def *key_def =
+			source->space->index_map[0]->def->key_def;
+		if (order_by->nExpr <= 0 ||
+		    (uint32_t)order_by->nExpr > key_def->part_count) {
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
-		uint32_t primary_field = source->space->index_map[0]->def->key_def->
-			parts[0].fieldno;
-		if (order_expr == NULL ||
-		    ExprHasProperty(order_expr, EP_TokenOnly | EP_Reduced) ||
-		    order_expr->op != TK_COLUMN_REF || order_expr->pLeft != NULL ||
-		    order_expr->pRight != NULL || order_expr->iTable != source->iCursor ||
-		    order_expr->iColumn < 0 ||
-		    (uint32_t)order_expr->iColumn != primary_field ||
-		    (order_by->a[0].sort_order != SORT_ORDER_UNDEF &&
-		     order_by->a[0].sort_order != SORT_ORDER_ASC &&
-		     order_by->a[0].sort_order != SORT_ORDER_DESC)) {
+		order_terms = calloc((size_t)order_by->nExpr,
+				     sizeof(*order_terms));
+		if (order_terms == NULL) {
 			if (reason != NULL)
-				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+				*reason = SQL_PHYSICAL_REJECT_INVALID_CANDIDATE;
 			return NULL;
 		}
-		direction = order_by->a[0].sort_order == SORT_ORDER_DESC ?
-			SQL_PLAN_DESC : SQL_PLAN_ASC;
+		enum sql_plan_direction order_direction = SQL_PLAN_ASC;
+		for (int i = 0; i < order_by->nExpr; ++i) {
+			const struct Expr *order_expr = order_by->a[i].pExpr;
+			enum sort_order term_direction = order_by->a[i].sort_order;
+			if (term_direction == SORT_ORDER_UNDEF)
+				term_direction = SORT_ORDER_ASC;
+			if (order_expr == NULL ||
+			    ExprHasProperty(order_expr, EP_TokenOnly | EP_Reduced) ||
+			    order_expr->op != TK_COLUMN_REF ||
+			    order_expr->pLeft != NULL || order_expr->pRight != NULL ||
+			    order_expr->iTable != source->iCursor ||
+			    order_expr->iColumn < 0 ||
+			    (uint32_t)order_expr->iColumn !=
+					key_def->parts[i].fieldno ||
+			    (term_direction != SORT_ORDER_ASC &&
+			     term_direction != SORT_ORDER_DESC) ||
+			    (i > 0 && term_direction !=
+				(order_direction == SQL_PLAN_DESC ? SORT_ORDER_DESC :
+				 SORT_ORDER_ASC))) {
+				free(order_terms);
+				if (reason != NULL)
+					*reason =
+						SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+				return NULL;
+			}
+			order_direction = term_direction == SORT_ORDER_DESC ?
+				SQL_PLAN_DESC : SQL_PLAN_ASC;
+			order_terms[i] = (struct sql_plan_order_term) {
+				.column = key_def->parts[i].fieldno,
+				.direction = order_direction,
+			};
+		}
+		direction = order_direction;
 		if (has_range_key && !has_range_end_key &&
 		    direction != (range_op == SQL_PLAN_LT ||
 				  range_op == SQL_PLAN_LE ? SQL_PLAN_DESC :
 				  SQL_PLAN_ASC)) {
+			free(order_terms);
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
-		order_term = (struct sql_plan_order_term) {
-			.column = primary_field,
-			.direction = direction,
-		};
+		order_term_count = (size_t)order_by->nExpr;
 	}
 	uint32_t *columns = calloc(select->pEList->nExpr, sizeof(*columns));
 	if (columns == NULL) {
@@ -456,6 +479,7 @@ predicate_parsed:
 		    expr->iTable != source->iCursor || expr->iColumn < 0 ||
 		    (uint32_t)expr->iColumn >= source->space->def->field_count) {
 			free(columns);
+			free(order_terms);
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
@@ -534,8 +558,8 @@ predicate_parsed:
 			.integer_range_end_op = range_end_op,
 			.range_key_column = primary_field,
 			.direction = direction,
-			.produced_order = select->pOrderBy == NULL ? NULL : &order_term,
-			.produced_order_count = select->pOrderBy == NULL ? 0 : 1,
+			.produced_order = order_terms,
+			.produced_order_count = order_term_count,
 			.projected_columns = columns,
 			.projected_column_count = select->pEList->nExpr,
 			.est_rows = has_point_key ? 1 : has_range_key ?
@@ -558,6 +582,7 @@ predicate_parsed:
 	};
 	struct sql_plan_descriptor *plan = sql_plan_descriptor_new(&input);
 	free(columns);
+	free(order_terms);
 	if (plan == NULL && reason != NULL)
 		*reason = SQL_PHYSICAL_REJECT_INVALID_CANDIDATE;
 	return plan;
