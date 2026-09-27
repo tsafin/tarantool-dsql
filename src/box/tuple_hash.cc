@@ -398,6 +398,25 @@ tuple_hash_key_part(uint32_t *ph1, uint32_t *pcarry, struct tuple *tuple,
 	return tuple_hash_field(ph1, pcarry, &field, part->type, part->coll);
 }
 
+int
+tuple_hash_prefixes(struct tuple *tuple, struct key_def *key_def,
+		    uint32_t *hashes, uint32_t prefix_count)
+{
+	if (tuple == NULL || key_def == NULL || hashes == NULL ||
+	    prefix_count == 0 || prefix_count > key_def->part_count ||
+	    key_def->is_multikey || key_def->for_func_index)
+		return -1;
+	uint32_t hash = HASH_SEED;
+	uint32_t carry = 0;
+	uint32_t total_size = 0;
+	for (uint32_t i = 0; i < prefix_count; i++) {
+		total_size += tuple_hash_key_part(&hash, &carry, tuple,
+						 &key_def->parts[i], MULTIKEY_NONE);
+		hashes[i] = PMurHash32_Result(hash, carry, total_size);
+	}
+	return 0;
+}
+
 template <bool has_optional_parts, bool has_json_paths>
 uint32_t
 tuple_hash_slowpath(struct tuple *tuple, struct key_def *key_def)

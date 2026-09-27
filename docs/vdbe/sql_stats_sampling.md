@@ -246,20 +246,41 @@ derive per-index populations or prefix NDVs, calibrate confidence, or build a
 complete candidate.
 
 `sql_stats_index_summary` is a separate sampled-tuple consumer for one index.
-It computes HLL estimates for each leading prefix, but requires a caller
-callback to produce typed, SQL-canonical values for each tuple. The callback
-must apply the appropriate type, NULL, and collation/equality semantics; raw
-MessagePack encodings are not treated as SQL values. Its counters and NDVs
-describe only tuples delivered by the sampler, not the index population, and
-it does not extrapolate a sample estimate to total-population NDV. Its output
-is therefore intentionally not a `sql_stats_collected_index` and cannot be
-passed to the candidate builder as population-matched index statistics. The
-bounded sketch memory covers HLL registers and the sketch pointer vector;
-producer-owned temporary canonical-value storage is outside that bound. This
-is an aggregation building block, not a complete S1.3a producer. Its focused
-`sql_stats_index_summary.test` unit target passes all eight checks locally;
-the production `tarantool` target also links after including the HLL source in
-the box library.
+Its generic callback path requires typed, SQL-canonical values from the
+caller; raw MessagePack encodings are not treated as SQL values. The native
+`sql_stats_index_summary_new_for_key_def()` adapter instead retains a tuple
+format and copies the key definition, reconstructs native Tarantool tuples
+from delivered full-row bytes, then hashes each prefix using
+`tuple_hash_key_part()` and the key-part type/collation. It initially accepts
+only TREE/HASH indexes with STRING or DOUBLE parts and rejects multikey and
+functional key definitions. Native mode reports `hash_bits=32`: because HLL receives the
+engine's 32-bit index hash, distinct SQL keys can collide before sketching,
+so estimates can be biased for high cardinalities. It does not claim exact or
+canonical NDV. Both modes count and sketch only delivered sample tuples, do
+not extrapolate to population, and cannot produce a
+`sql_stats_collected_index` accepted as population-matched candidate data.
+Memory limits cover HLL registers and sketch-pointer storage but not
+producer-owned temporary canonical-value storage, native tuple reconstruction,
+or the temporary prefix-hash vector. The caller must supply a format and key
+definition from the same captured schema version. This is an aggregation
+building block, not a complete S1.3a producer. Native-adapter checks were added
+to `key_def.test` for leading prefixes, unsupported type rejection, and the
+DOUBLE hash normalization of integer/floating encodings; a manually linked
+local `key_def.test` run passed. The full configured CMake target was not run.
+
+No common cross-engine visibility mechanism has been established. A viable
+collector boundary must atomically capture catalog/schema/index definitions
+and a data watermark that every included engine can honor, then pin reads (or
+validate monotonic per-space modification generations) against that exact
+boundary. The core `read_view` has an assigned ID and filtered index ownership,
+but Vinyl index read-view creation currently fails. The transaction sampler
+uses Vinyl's transaction read view when present, but `READ_CONFIRMED` does not
+freeze confirmed writes between calls. Neither identifier can currently be
+combined across indexes or engines into the candidate generation token. A
+future box-level collector snapshot API must coordinate memtx visibility and
+Vinyl's VLSN read view; before/after schema and index-definition checks are
+necessary additional guards, not substitutes for a pinned data-time boundary.
+Until then, the producer must not mint a shared visibility ID.
 
 ### Publication is a separate, currently blocked slice
 

@@ -100,6 +100,17 @@ sql_stats_hll_add(struct sql_stats_hll *hll, const void *data, size_t size)
 	return 0;
 }
 
+int
+sql_stats_hll_add_u32(struct sql_stats_hll *hll, uint32_t value)
+{
+	unsigned char encoded[4];
+	for (size_t i = 0; i < sizeof(encoded); i++) {
+		encoded[i] = (unsigned char)value;
+		value >>= 8;
+	}
+	return sql_stats_hll_add(hll, encoded, sizeof(encoded));
+}
+
 static void
 sql_stats_hll_encode_u64(unsigned char out[8], uint64_t value)
 {

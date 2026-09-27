@@ -22,6 +22,8 @@ sql_stats_index_value_extract_f(void *context, const char *tuple,
 				 size_t part_count);
 
 struct sql_stats_index_summary;
+struct index_def;
+struct tuple_format;
 
 /*
  * Allocate per-prefix HLL sketches for one index. Memory is bounded by
@@ -33,6 +35,26 @@ sql_stats_index_summary_new(size_t part_count, uint8_t precision,
 			    uint64_t seed, size_t max_bytes,
 			    sql_stats_index_value_extract_f *extract,
 			    void *extract_context);
+
+/*
+ * Native tuple/key-definition adapter. It copies the key definition and
+ * retains the tuple format, then uses Tarantool's per-part index hash
+ * semantics (type and collation aware) to feed the prefix sketches. The
+ * caller must pass the matching format and index definition from one captured
+ * schema version. Only TREE/HASH indexes with string/double parts are accepted.
+ * Estimates inherit the engine index hash's 32-bit collision ceiling; they
+ * are probabilistic and are not exact/canonical SQL values.
+ */
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_for_index(struct tuple_format *format,
+				      const struct index_def *index_def,
+				      uint8_t precision, uint64_t seed,
+				      size_t max_bytes);
+
+/* 0 for callback values, 32 for native index-hash summaries. */
+uint8_t
+sql_stats_index_summary_hash_bits(
+	const struct sql_stats_index_summary *summary);
 
 void
 sql_stats_index_summary_delete(struct sql_stats_index_summary *summary);

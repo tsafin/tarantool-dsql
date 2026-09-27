@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * In-memory HyperLogLog sketch for approximate SQL column NDV.
  *
@@ -45,6 +49,10 @@ sql_stats_hll_delete(struct sql_stats_hll *hll);
 int
 sql_stats_hll_add(struct sql_stats_hll *hll, const void *data, size_t size);
 
+/* Add a fixed-width integer value using an endian-independent encoding. */
+int
+sql_stats_hll_add_u32(struct sql_stats_hll *hll, uint32_t value);
+
 /**
  * Add one composite value. The encoding includes tuple arity and, for every
  * field, its type tag and an endian-independent 64-bit byte length, so field
@@ -68,5 +76,9 @@ sql_stats_hll_estimate(const struct sql_stats_hll *hll);
 /** Configured precision, or 0 for NULL. */
 uint8_t
 sql_stats_hll_precision(const struct sql_stats_hll *hll);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TARANTOOL_SQL_STATS_HLL_H */

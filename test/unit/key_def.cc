@@ -6,6 +6,9 @@
 
 #include "fiber.h"
 #include "key_def.h"
+#include "box/sql/sql_stats_index_summary.h"
+#include "coll/coll.h"
+#include "coll/coll_def.h"
 #include "memory.h"
 #include "msgpuck.h"
 #include "small/region.h"
@@ -1395,10 +1398,142 @@ test_key_def_find_by_fieldno(void)
 	check_plan();
 }
 
+static void
+test_sql_stats_index_summary_native(void)
+{
+	plan(10);
+	header();
+	struct key_def *def = test_key_def_new(
+		"[{%s%u%s%s}{%s%u%s%s}]",
+		"field", 0, "type", "string",
+		"field", 1, "type", "string");
+	struct index_def index_def = {};
+	index_def.type = TREE;
+	index_def.key_def = def;
+	size_t sketch_bytes;
+	fail_if(!sql_stats_hll_storage_bytes(8, &sketch_bytes));
+	struct sql_stats_index_summary *summary =
+		sql_stats_index_summary_new_for_index(tuple_format_runtime, &index_def, 8,
+			42, 2 * sketch_bytes + 2 * sizeof(void *));
+	isnt(summary, NULL, "native key-def summary is constructed");
+	if (summary == NULL) {
+		key_def_delete(def);
+		footer();
+		check_plan();
+		return;
+	}
+	is(sql_stats_index_summary_hash_bits(summary), 32,
+	   "native summary reports the index hash width");
+	struct tuple *a = test_tuple_new("[%s%s]", "a", "x");
+	struct tuple *b = test_tuple_new("[%s%s]", "a", "y");
+	struct tuple *c = test_tuple_new("[%s%s]", "b", "x");
+	ok(sql_stats_index_summary_consume(summary, tuple_data(a), tuple_bsize(a),
+					   NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(summary, tuple_data(b), tuple_bsize(b),
+					   NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(summary, tuple_data(c), tuple_bsize(c),
+					   NULL, 0) == 0,
+	   "native tuple fields feed prefix sketches");
+	double ndv[2];
+	ok(sql_stats_index_summary_prefix_ndv(summary, 2, ndv, 2) == 0 &&
+	   ndv[0] > 1.5 && ndv[0] < 2.5 && ndv[1] > 2.5 && ndv[1] < 3.5,
+	   "prefix hashes preserve distinct key tuples");
+	struct key_def *unsupported = test_key_def_new(
+		"[{%s%u%s%s}]", "field", 0, "type", "unsigned");
+	struct index_def unsupported_index = {};
+	unsupported_index.type = TREE;
+	unsupported_index.key_def = unsupported;
+	ok(sql_stats_index_summary_new_for_index(tuple_format_runtime,
+						   &unsupported_index, 8, 42,
+						   sketch_bytes + sizeof(void *)) == NULL,
+	   "unverified numeric key hash is rejected");
+	struct index_def rtree_index = {};
+	rtree_index.type = RTREE;
+	rtree_index.key_def = def;
+	ok(sql_stats_index_summary_new_for_index(tuple_format_runtime,
+						   &rtree_index, 8, 42,
+						   2 * sketch_bytes +
+					   2 * sizeof(void *)) == NULL,
+	   "non-tree/hash index family is rejected");
+	key_def_delete(unsupported);
+	tuple_unref(a);
+	tuple_unref(b);
+	tuple_unref(c);
+	sql_stats_index_summary_delete(summary);
+	key_def_delete(def);
+	struct key_def *double_def = test_key_def_new(
+		"[{%s%u%s%s}]", "field", 0, "type", "double");
+	struct index_def double_index = {};
+	double_index.type = TREE;
+	double_index.key_def = double_def;
+	struct sql_stats_index_summary *double_summary =
+		sql_stats_index_summary_new_for_index(tuple_format_runtime,
+			&double_index, 8, 9, sketch_bytes + sizeof(void *));
+	struct tuple *int_one = test_tuple_new("[%u]", 1);
+	struct tuple *float_one = test_tuple_new("[%f]", 1.0);
+	ok(double_summary != NULL &&
+	   sql_stats_index_summary_consume(double_summary, tuple_data(int_one),
+			tuple_bsize(int_one), NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(double_summary, tuple_data(float_one),
+			tuple_bsize(float_one), NULL, 0) == 0,
+	   "double hash adapter accepts SQL numeric representations");
+	if (double_summary != NULL) {
+		double one_ndv[1];
+		ok(sql_stats_index_summary_prefix_ndv(double_summary, 1,
+				one_ndv, 1) == 0 && one_ndv[0] < 1.5,
+		   "double-equivalent values share index-semantic hash");
+		sql_stats_index_summary_delete(double_summary);
+	} else {
+		ok(false, "double summary remains available");
+	}
+	tuple_unref(int_one);
+	tuple_unref(float_one);
+	key_def_delete(double_def);
+	struct coll_def coll_def = {};
+	strncpy(coll_def.locale, "en_US", sizeof(coll_def.locale) - 1);
+	coll_def.type = COLL_TYPE_ICU;
+	coll_def.icu.strength = COLL_ICU_STRENGTH_PRIMARY;
+	struct coll *coll = coll_new(&coll_def);
+	fail_if(coll == NULL);
+	struct key_def *coll_defn = test_key_def_new(
+		"[{%s%u%s%s}]", "field", 0, "type", "string");
+	coll_defn->parts[0].coll = coll;
+	coll_ref(coll);
+	struct index_def coll_index = {};
+	coll_index.type = TREE;
+	coll_index.key_def = coll_defn;
+	struct sql_stats_index_summary *coll_summary =
+		sql_stats_index_summary_new_for_index(tuple_format_runtime,
+			&coll_index, 8, 11, sketch_bytes + sizeof(void *));
+	struct tuple *upper = test_tuple_new("[%s]", "A");
+	struct tuple *lower = test_tuple_new("[%s]", "a");
+	ok(coll_summary != NULL &&
+	   sql_stats_index_summary_consume(coll_summary, tuple_data(upper),
+			tuple_bsize(upper), NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(coll_summary, tuple_data(lower),
+			tuple_bsize(lower), NULL, 0) == 0,
+	   "collated tuples enter the native index hash path");
+	if (coll_summary != NULL) {
+		double coll_ndv[1];
+		ok(sql_stats_index_summary_prefix_ndv(coll_summary, 1,
+				coll_ndv, 1) == 0 && coll_ndv[0] < 1.5,
+		   "case-insensitive collation hashes equal values alike");
+		sql_stats_index_summary_delete(coll_summary);
+	} else {
+		ok(false, "collated summary remains available");
+	}
+	tuple_unref(upper);
+	tuple_unref(lower);
+	key_def_delete(coll_defn);
+	coll_unref(coll);
+	footer();
+	check_plan();
+}
+
 static int
 test_main(void)
 {
-	plan(51);
+	plan(52);
 	header();
 
 	test_func_compare();
@@ -1452,6 +1587,7 @@ test_main(void)
 	test_key_compare_singlepart(false, true);
 	test_key_compare_singlepart(false, false);
 	test_key_def_find_by_fieldno();
+	test_sql_stats_index_summary_native();
 
 	footer();
 	return check_plan();
@@ -1468,11 +1604,13 @@ main(void)
 {
 	memory_init();
 	fiber_init(fiber_c_invoke);
+	coll_init();
 	tuple_init(test_field_name_hash);
 
 	int rc = test_main();
 
 	tuple_free();
+	coll_free();
 	fiber_free();
 	memory_free();
 	return rc;

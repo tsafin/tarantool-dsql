@@ -2,24 +2,34 @@
 
 #include <stdlib.h>
 
+#include "field_def.h"
+#include "index_def.h"
+#include "key_def.h"
+#include "coll/coll.h"
+#include "tuple.h"
+#include "tuple_format.h"
+#include "tuple_hash.h"
+
 struct sql_stats_index_summary {
 	size_t part_count;
 	struct sql_stats_hll **prefixes;
 	sql_stats_index_value_extract_f *extract;
 	void *extract_context;
+	struct tuple_format *format;
+	struct key_def *key_def;
+	uint8_t hash_bits;
 	uint64_t rows;
 	uint64_t bytes;
 	bool failed;
 };
 
-struct sql_stats_index_summary *
-sql_stats_index_summary_new(size_t part_count, uint8_t precision,
-			    uint64_t seed, size_t max_bytes,
-			    sql_stats_index_value_extract_f *extract,
-			    void *extract_context)
+static struct sql_stats_index_summary *
+summary_new_base(size_t part_count, uint8_t precision, uint64_t seed,
+		 size_t max_bytes, sql_stats_index_value_extract_f *extract,
+		 void *extract_context)
 {
 	if (part_count == 0 || part_count > SIZE_MAX / sizeof(struct sql_stats_hll *) ||
-	    extract == NULL || precision < 4 || precision > 18)
+	    precision < 4 || precision > 18)
 		return NULL;
 	size_t pointer_bytes = part_count * sizeof(struct sql_stats_hll *);
 	size_t sketch_bytes;
@@ -47,6 +57,60 @@ fail:
 	return NULL;
 }
 
+struct sql_stats_index_summary *
+sql_stats_index_summary_new(size_t part_count, uint8_t precision,
+			    uint64_t seed, size_t max_bytes,
+			    sql_stats_index_value_extract_f *extract,
+			    void *extract_context)
+{
+	if (extract == NULL)
+		return NULL;
+	return summary_new_base(part_count, precision, seed, max_bytes, extract,
+				extract_context);
+}
+
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_for_index(struct tuple_format *format,
+				      const struct index_def *index_def,
+				      uint8_t precision, uint64_t seed,
+				      size_t max_bytes)
+{
+	if (format == NULL || index_def == NULL ||
+	    (index_def->type != HASH && index_def->type != TREE) ||
+	    index_def->opts.func_id != 0 ||
+	    index_def->key_def == NULL)
+		return NULL;
+	const struct key_def *key_def = index_def->key_def;
+	if (key_def->part_count == 0 ||
+	    key_def->part_count > UINT32_MAX || key_def->is_multikey ||
+	    key_def->for_func_index)
+		return NULL;
+	/* Keep the initial contract narrow: these hash paths explicitly
+	 * normalize SQL-equal representations and support collations. Other
+	 * field types need a separately verified equality/hash contract. */
+	for (uint32_t i = 0; i < key_def->part_count; i++) {
+		enum field_type type = key_def->parts[i].type;
+		if (type != FIELD_TYPE_STRING && type != FIELD_TYPE_DOUBLE)
+			return NULL;
+		if (type == FIELD_TYPE_STRING && key_def->parts[i].coll != NULL &&
+		    key_def->parts[i].coll->hash == NULL)
+			return NULL;
+	}
+	struct sql_stats_index_summary *summary = summary_new_base(
+		key_def->part_count, precision, seed, max_bytes, NULL, NULL);
+	if (summary == NULL)
+		return NULL;
+	summary->key_def = key_def_dup(key_def);
+	if (summary->key_def == NULL) {
+		sql_stats_index_summary_delete(summary);
+		return NULL;
+	}
+	summary->format = format;
+	tuple_format_ref(format);
+	summary->hash_bits = 32;
+	return summary;
+}
+
 void
 sql_stats_index_summary_delete(struct sql_stats_index_summary *summary)
 {
@@ -56,6 +120,10 @@ sql_stats_index_summary_delete(struct sql_stats_index_summary *summary)
 		sql_stats_hll_delete(summary->prefixes == NULL ? NULL :
 				     summary->prefixes[i]);
 	free(summary->prefixes);
+	if (summary->key_def != NULL)
+		key_def_delete(summary->key_def);
+	if (summary->format != NULL)
+		tuple_format_unref(summary->format);
 	free(summary);
 }
 
@@ -71,6 +139,34 @@ sql_stats_index_summary_consume(void *context, const char *tuple,
 		if (summary != NULL)
 			summary->failed = true;
 		return -1;
+	}
+	if (summary->key_def != NULL) {
+		struct tuple *native_tuple = tuple_new(summary->format, tuple,
+							 tuple + tuple_size);
+		if (native_tuple == NULL) {
+			summary->failed = true;
+			return -1;
+		}
+		uint32_t *hashes = malloc(summary->part_count * sizeof(*hashes));
+		int rc = hashes == NULL ? -1 : tuple_hash_prefixes(native_tuple,
+			summary->key_def, hashes, (uint32_t)summary->part_count);
+		tuple_unref(native_tuple);
+		if (rc == 0) {
+			for (size_t i = 0; i < summary->part_count; i++) {
+				if (sql_stats_hll_add_u32(summary->prefixes[i], hashes[i]) != 0) {
+					rc = -1;
+					break;
+				}
+			}
+		}
+		free(hashes);
+		if (rc != 0) {
+			summary->failed = true;
+			return -1;
+		}
+		summary->rows++;
+		summary->bytes += tuple_size;
+		return 0;
 	}
 	struct sql_stats_hll_value *parts = calloc(summary->part_count,
 							 sizeof(*parts));
@@ -96,6 +192,13 @@ sql_stats_index_summary_consume(void *context, const char *tuple,
 	summary->rows++;
 	summary->bytes += tuple_size;
 	return 0;
+}
+
+uint8_t
+sql_stats_index_summary_hash_bits(
+	const struct sql_stats_index_summary *summary)
+{
+	return summary == NULL || summary->failed ? 0 : summary->hash_bits;
 }
 
 uint64_t

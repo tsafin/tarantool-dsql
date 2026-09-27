@@ -110,7 +110,7 @@ create_unit_test(PREFIX sql_stats_index_summary
                  SOURCES sql_stats_index_summary.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_index_summary.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
-                 LIBRARIES unit m
+                 LIBRARIES unit box core m
 )
 create_unit_test(PREFIX sql_stats_snapshot
                  SOURCES sql_stats_snapshot.c
@@ -698,6 +698,8 @@ create_unit_test(PREFIX iterator_position
 
 create_unit_test(PREFIX key_def
                  SOURCES key_def.cc box_test_utils.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_index_summary.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
                  LIBRARIES unit box core
 )
 

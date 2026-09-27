@@ -1,5 +1,7 @@
 #ifndef TARANTOOL_BOX_TUPLE_HASH_H_INCLUDED
 #define TARANTOOL_BOX_TUPLE_HASH_H_INCLUDED
+
+#include <stdint.h>
 /*
  * Copyright 2010-2016, Tarantool AUTHORS, please see AUTHORS file.
  *
@@ -35,6 +37,7 @@ extern "C" {
 #endif /* defined(__cplusplus) */
 
 struct key_def;
+struct tuple;
 
 /**
  * Initialize tuple_hash() and key_hash() function for the key_def
@@ -42,6 +45,11 @@ struct key_def;
  */
 void
 key_def_set_hash_func(struct key_def *def);
+
+/* Compute Tarantool's index-semantic hash for each leading tuple prefix. */
+int
+tuple_hash_prefixes(struct tuple *tuple, struct key_def *def,
+		    uint32_t *hashes, uint32_t prefix_count);
 
 #if defined(__cplusplus)
 } /* extern "C" */
