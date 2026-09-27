@@ -2006,10 +2006,10 @@ DML, triggers, subprograms, non-deterministic functions.
   key on memtx and Vinyl; the VDBE unit pins both opcodes and the shared branch
   target. Multiple residuals remain rejected on range, scan-only, and composite
   point shapes; the descriptor rejects filter lists above the fixed bound of
-  eight. Implementation and focused tests are committed, but executable
-  validation of this multi-filter extension is pending integration. The earlier
+  eight. The integrated Debug build passed; the VDBE unit passes all 46
+  assertions and the focused memtx/Vinyl luatest passes. The earlier
   single-filter route's incremental Debug build and 45-assertion VDBE unit plus
-  memtx/Vinyl luatest passed. The broader M3.4 operator
+  memtx/Vinyl luatest also passed. The broader M3.4 operator
   and producer coverage remains open.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
