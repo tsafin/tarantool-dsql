@@ -735,8 +735,11 @@ format approval is implied.
   and insert changes, and confirms all four scans remain `{1..8}` until that
   view closes; reopening yields `{3..10}`. The Clang-19 TEST_BUILD target and
   direct runtime invocation pass. The integrated focused `sql_stats_test.lua`
-  test-run also passes in the root Clang-19 build; an earlier isolated-worktree
-  startup failure with a Fiber GC leak report and no backtrace frames did not
+  and `read_view_test.lua` luatests plus the `sql_stats_collection.test` and
+  `sql_stats_collection_samples.test` unit binaries pass in the root build.
+  These passed via focused test-run or direct unit-binary invocation in the
+  root Clang-19 build; an earlier isolated-worktree startup failure with a
+  Fiber GC leak report and no backtrace frames did not
   reproduce here. This closes the shared volatile visibility-boundary
   slice only; candidate construction/publication is not yet routed through
   this view and production ANALYZE remains open. The persistence schema remains
