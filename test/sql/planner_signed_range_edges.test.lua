@@ -27,11 +27,23 @@ full_domain_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t 
 assert(#full_domain_disabled == 5, 'legacy full signed domain row count: '..#full_domain_disabled)
 assert(#full_domain_enabled == 5, 'new-planner full signed domain row count: '..#full_domain_enabled)
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+min_inclusive_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id <= -9223372036854775808]]).rows
+max_inclusive_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= 9223372036854775807]]).rows
 max_exclusive_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]).rows
 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+min_inclusive_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id <= -9223372036854775808]])
+assert(err == nil and min_inclusive_summary.rows[1][3] == 'new_planner')
+min_inclusive_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id <= -9223372036854775808]]).rows
+max_inclusive_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id >= 9223372036854775807]])
+assert(err == nil and max_inclusive_summary.rows[1][3] == 'new_planner')
+max_inclusive_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= 9223372036854775807]]).rows
 max_exclusive_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]])
 assert(err == nil and max_exclusive_summary.rows[1][3] == 'new_planner')
 max_exclusive_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]).rows
+assert(#min_inclusive_disabled == 1 and min_inclusive_disabled[1][1] == -9223372036854775808)
+assert(#min_inclusive_enabled == 1 and min_inclusive_enabled[1][1] == min_inclusive_disabled[1][1])
+assert(#max_inclusive_disabled == 1 and max_inclusive_disabled[1][1] == 9223372036854775807)
+assert(#max_inclusive_enabled == 1 and max_inclusive_enabled[1][1] == max_inclusive_disabled[1][1])
 assert(#max_exclusive_disabled == 0 and #max_exclusive_enabled == 0)
 
 box.execute([[DROP TABLE planner_signed_range_edges_t]])
