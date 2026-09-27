@@ -82,7 +82,7 @@ main(void)
 	   parse.iRangeReg == 0 && parse.nTempReg == 0 &&
 	   parse.nColCache == 0 && parse.iCacheLevel == 0 &&
 	   parse.iCacheCnt == 0 && parse.nQueryLoop == 0 &&
-	   !parse.is_aborted && parse.nErr == 0 &&
+	   !parse.is_aborted &&
 	   diag_is_empty(diag_get()),
 	   "rollback restores codegen counters and speculative abort state");
 	ok(parse.nLabel == 1 && parse.aLabel[0] == -1,
@@ -100,14 +100,13 @@ main(void)
 	ok(vdbe.nOp == 2 && vdbe.aOp[1].p4type == P4_DYNAMIC,
 	   "commit keeps emitted instructions and their owned P4");
 
-	vdbe_codegen_checkpoint_init(&checkpoint, &vdbe);
 	parse.is_aborted = true;
-	parse.nErr++;
-	vdbe_codegen_checkpoint_rollback(&checkpoint);
-	ok(parse.is_aborted && parse.nErr == 1 && diag_is_empty(diag_get()),
-	   "rollback preserves parse errors instead of enabling fallback");
+	vdbe_codegen_checkpoint_init(&checkpoint, &vdbe);
 	parse.is_aborted = false;
-	parse.nErr = 0;
+	vdbe_codegen_checkpoint_rollback(&checkpoint);
+	ok(parse.is_aborted && diag_is_empty(diag_get()),
+	   "rollback preserves abort state that predates speculation");
+	parse.is_aborted = false;
 
 	diag_set(ClientError, ER_SQL_EXECUTE, "pre-existing diagnostic");
 	struct error *baseline_error = diag_last_error(diag_get());

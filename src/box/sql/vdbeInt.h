@@ -401,7 +401,6 @@ struct vdbe_codegen_checkpoint {
 	int vdbe_field_ref_reg;
 	int col_names_set;
 	bool parse_is_aborted;
-	int parse_n_err;
 	struct error *diag_error;
 	unsigned char col_cache[sizeof(((Parse *)0)->aColCache)];
 	u32 n_query_loop;

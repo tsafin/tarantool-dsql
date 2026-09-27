@@ -907,10 +907,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `SELECT c FROM t`, but its scan/projection/result opcodes currently belong
   to `sqlWhereBegin()`/`wherecode.c`/`selectInnerLoop()`. A limited
   `vdbe_codegen_checkpoint` now rolls back speculative opcode ownership and
-  selected `Parse` codegen state, including a speculative abort when no
-  parser error count or diagnostic was raised; it preserves abort when
-  `Parse.nErr` changes or the diagnostic differs from the checkpoint
-  boundary, so codegen errors cannot be converted into fallback. The boundary
+  selected `Parse` codegen state, including a speculative abort when the fiber
+  diagnostic is unchanged; it preserves abort when the diagnostic differs
+  from the checkpoint boundary, so codegen errors cannot be converted into
+  fallback. The boundary
   diagnostic is retained during the checkpoint lifetime, avoiding false
   failure from pre-existing diagnostics. It does not cover arbitrary
   parser/AST or schema mutations, and
