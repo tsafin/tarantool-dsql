@@ -858,8 +858,10 @@ DML, triggers, subprograms, non-deterministic functions.
   Deterministic scalar calls are now also classified as
   `UNSUPPORTED_FUNCTION`: the canonical expression contract does not yet
   carry function identity/evaluation semantics, so they remain on `where.c`.
-  A runtime `abs(v)` summary/counter regression and stable reason mapping test
-  cover this separate reason. No executor routing has changed.
+  Runtime `abs(v)` coverage asserts this reason in projection, predicate, and
+  ordering expressions; `SUM(abs(v))` retains the higher-priority aggregate
+  reason. Stable reason mapping is unit tested. No executor routing has
+  changed.
   Zero-source constant SELECTs also enter `sqlWhereBegin()` but are outside the
   single-relation logical-plan contract. They now report
   `UNSUPPORTED_RELATION_COUNT`; a focused
