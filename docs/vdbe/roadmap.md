@@ -572,6 +572,9 @@ review of IDs and formats.
   runtime tests cover memtx secondary-index random draws and Vinyl secondary
   iteration with visible-primary-tuple resolution under the shared work
   budget, including fail-closed key-, source-, and page-budget exhaustion.
+  Vinyl runtime coverage also samples a secondary index in the caller's
+  active transaction and observes its uncommitted insert, matching the primary
+  index sample's visible population.
   The test module reads
   its optional failure argument
   before constructing the result table, and the runtime fixture uses the
