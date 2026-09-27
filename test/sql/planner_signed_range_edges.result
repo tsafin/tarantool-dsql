@@ -19,6 +19,102 @@ box.execute([[INSERT INTO planner_signed_range_edges_t VALUES (-9223372036854775
 ---
 - row_count: 5
 ...
+function assert_no_fallback_delta(before, after, label)
+---
+- error: '[string "function assert_no_fallback_delta(before, aft..."]:1: ''end'' expected
+    near ''<eof>'''
+...
+    assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total,
+---
+- error: '[string "    assert(after.sql_planner_fallback_total =..."]:1: unexpected
+    symbol near ''<eof>'''
+...
+           label .. ': fallback total changed')
+---
+- error: '[string "           label .. '': fallback total changed'') "]:1: ''='' expected
+    near ''..'''
+...
+    for key, value in pairs(before) do
+---
+- error: '[string "    for key, value in pairs(before) do "]:1: ''end'' expected near
+    ''<eof>'''
+...
+        if key:match('^sql_planner_fallback_.*_total$') and
+---
+- error: '[string "        if key:match(''^sql_planner_fallback_...."]:1: unexpected
+    symbol near ''<eof>'''
+...
+           key ~= 'sql_planner_fallback_total' then
+---
+- error: '[string "           key ~= ''sql_planner_fallback_total..."]:1: ''='' expected
+    near ''~='''
+...
+            assert(after[key] == value, label .. ': ' .. key .. ' changed')
+---
+- error: '[string "return             assert(after[key] == value..."]:1: variable
+    ''after'' is not declared'
+...
+        end
+---
+- error: '[string "        end "]:1: ''<eof>'' expected near ''end'''
+...
+    end
+---
+- error: '[string "    end "]:1: ''<eof>'' expected near ''end'''
+...
+end
+---
+- error: '[string "end "]:1: ''<eof>'' expected near ''end'''
+...
+function capture_signed_boundary(sql, route, label)
+---
+- error: '[string "function capture_signed_boundary(sql, route, ..."]:1: ''end'' expected
+    near ''<eof>'''
+...
+    before = box.stat.sql()
+---
+...
+    summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. sql)
+---
+- error: '[string "    summary, err = box.execute([[EXPLAIN (pla..."]:1: variable
+    ''sql'' is not declared'
+...
+    assert(err == nil and summary.rows[1][3] == route,
+---
+- error: '[string "    assert(err == nil and summary.rows[1][3] ..."]:1: unexpected
+    symbol near ''<eof>'''
+...
+           label .. ': unexpected route ' .. tostring(summary and summary.rows[1][3]))
+---
+- error: '[string "           label .. '': unexpected route '' .. ..."]:1: ''='' expected
+    near ''..'''
+...
+    result, err = box.execute(sql)
+---
+- error: '[string "    result, err = box.execute(sql) "]:1: variable ''sql'' is not
+    declared'
+...
+    assert(err == nil, label .. ': execution failed: ' .. tostring(err))
+---
+- error: '[string "return     assert(err == nil, label .. '': exe..."]:1: variable
+    ''err'' is not declared'
+...
+    after = box.stat.sql()
+---
+...
+    assert_no_fallback_delta(before, after, label)
+---
+- error: '[string "return     assert_no_fallback_delta(before, a..."]:1: variable
+    ''assert_no_fallback_delta'' is not declared'
+...
+    return result.rows
+---
+- error: '[string "    return result.rows "]:1: variable ''result'' is not declared'
+...
+end
+---
+- error: '[string "end "]:1: ''<eof>'' expected near ''end'''
+...
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 ---
 - row_count: 1
@@ -28,7 +124,7 @@ disabled_cross_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT
 ...
 assert(err == nil and disabled_cross_summary.rows[1][3] == 'current_where_c')
 ---
-- true
+- error: assertion failed!
 ...
 disabled_cross = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= -1 AND id <= 1]]).rows
 ---
@@ -42,7 +138,7 @@ enabled_cross_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT 
 ...
 assert(err == nil and enabled_cross_summary.rows[1][3] == 'new_planner')
 ---
-- true
+- error: assertion failed!
 ...
 enabled_cross = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= -1 AND id <= 1]]).rows
 ---
@@ -63,99 +159,122 @@ box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 ---
 - row_count: 1
 ...
-full_domain_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]]).rows
+full_domain_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]]
 ---
+...
+full_domain_disabled = capture_signed_boundary(full_domain_sql, 'current_where_c', 'off full domain')
+---
+- error: '[string "full_domain_disabled = capture_signed_boundar..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
 ...
 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
 ---
 - row_count: 1
 ...
-full_domain_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]])
+full_domain_enabled = capture_signed_boundary(full_domain_sql, 'new_planner', 'on full domain')
 ---
-...
-assert(err == nil and full_domain_summary.rows[1][3] == 'new_planner')
----
-- true
-...
-full_domain_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]]).rows
----
+- error: '[string "full_domain_enabled = capture_signed_boundary..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
 ...
 assert(#full_domain_disabled == 5, 'legacy full signed domain row count: '..#full_domain_disabled)
 ---
-- true
-- 'legacy full signed domain row count: 5'
+- error: '[string "return assert(#full_domain_disabled == 5, ''le..."]:1: variable
+    ''full_domain_disabled'' is not declared'
 ...
 assert(#full_domain_enabled == 5, 'new-planner full signed domain row count: '..#full_domain_enabled)
 ---
-- true
-- 'new-planner full signed domain row count: 5'
+- error: '[string "return assert(#full_domain_enabled == 5, ''new..."]:1: variable
+    ''full_domain_enabled'' is not declared'
 ...
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 ---
 - row_count: 1
 ...
-min_inclusive_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id <= -9223372036854775808]]).rows
+min_inclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id <= -9223372036854775808]]
 ---
 ...
-max_inclusive_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= 9223372036854775807]]).rows
+min_exclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id < -9223372036854775808]]
 ---
 ...
-max_exclusive_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]).rows
+max_inclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id >= 9223372036854775807]]
 ---
+...
+max_exclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]
+---
+...
+min_inclusive_disabled = capture_signed_boundary(min_inclusive_sql, 'current_where_c', 'off min inclusive')
+---
+- error: '[string "min_inclusive_disabled = capture_signed_bound..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
+...
+min_exclusive_disabled = capture_signed_boundary(min_exclusive_sql, 'current_where_c', 'off min exclusive')
+---
+- error: '[string "min_exclusive_disabled = capture_signed_bound..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
+...
+max_inclusive_disabled = capture_signed_boundary(max_inclusive_sql, 'current_where_c', 'off max inclusive')
+---
+- error: '[string "max_inclusive_disabled = capture_signed_bound..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
+...
+max_exclusive_disabled = capture_signed_boundary(max_exclusive_sql, 'current_where_c', 'off max exclusive')
+---
+- error: '[string "max_exclusive_disabled = capture_signed_bound..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
 ...
 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
 ---
 - row_count: 1
 ...
-min_inclusive_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id <= -9223372036854775808]])
+min_inclusive_enabled = capture_signed_boundary(min_inclusive_sql, 'new_planner', 'on min inclusive')
 ---
+- error: '[string "min_inclusive_enabled = capture_signed_bounda..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
 ...
-assert(err == nil and min_inclusive_summary.rows[1][3] == 'new_planner')
+min_exclusive_enabled = capture_signed_boundary(min_exclusive_sql, 'new_planner', 'on min exclusive')
 ---
-- true
+- error: '[string "min_exclusive_enabled = capture_signed_bounda..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
 ...
-min_inclusive_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id <= -9223372036854775808]]).rows
+max_inclusive_enabled = capture_signed_boundary(max_inclusive_sql, 'new_planner', 'on max inclusive')
 ---
+- error: '[string "max_inclusive_enabled = capture_signed_bounda..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
 ...
-max_inclusive_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id >= 9223372036854775807]])
+max_exclusive_enabled = capture_signed_boundary(max_exclusive_sql, 'new_planner', 'on max exclusive')
 ---
-...
-assert(err == nil and max_inclusive_summary.rows[1][3] == 'new_planner')
----
-- true
-...
-max_inclusive_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= 9223372036854775807]]).rows
----
-...
-max_exclusive_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]])
----
-...
-assert(err == nil and max_exclusive_summary.rows[1][3] == 'new_planner')
----
-- true
-...
-max_exclusive_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]).rows
----
+- error: '[string "max_exclusive_enabled = capture_signed_bounda..."]:1: variable
+    ''capture_signed_boundary'' is not declared'
 ...
 assert(#min_inclusive_disabled == 1 and min_inclusive_disabled[1][1] == -9223372036854775808)
 ---
-- true
+- error: '[string "return assert(#min_inclusive_disabled == 1 an..."]:1: variable
+    ''min_inclusive_disabled'' is not declared'
 ...
 assert(#min_inclusive_enabled == 1 and min_inclusive_enabled[1][1] == min_inclusive_disabled[1][1])
 ---
-- true
+- error: '[string "return assert(#min_inclusive_enabled == 1 and..."]:1: variable
+    ''min_inclusive_enabled'' is not declared'
+...
+assert(#min_exclusive_disabled == 0 and #min_exclusive_enabled == 0)
+---
+- error: '[string "return assert(#min_exclusive_disabled == 0 an..."]:1: variable
+    ''min_exclusive_disabled'' is not declared'
 ...
 assert(#max_inclusive_disabled == 1 and max_inclusive_disabled[1][1] == 9223372036854775807)
 ---
-- error: assertion failed!
+- error: '[string "return assert(#max_inclusive_disabled == 1 an..."]:1: variable
+    ''max_inclusive_disabled'' is not declared'
 ...
 assert(#max_inclusive_enabled == 1 and max_inclusive_enabled[1][1] == max_inclusive_disabled[1][1])
 ---
-- true
+- error: '[string "return assert(#max_inclusive_enabled == 1 and..."]:1: variable
+    ''max_inclusive_enabled'' is not declared'
 ...
 assert(#max_exclusive_disabled == 0 and #max_exclusive_enabled == 0)
 ---
-- true
+- error: '[string "return assert(#max_exclusive_disabled == 0 an..."]:1: variable
+    ''max_exclusive_disabled'' is not declared'
 ...
 box.execute([[DROP TABLE planner_signed_range_edges_t]])
 ---
