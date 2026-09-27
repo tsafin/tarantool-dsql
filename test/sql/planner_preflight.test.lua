@@ -213,6 +213,10 @@ summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner
 assert(err == nil and summary.rows[1][3] == 'fallback')
 point_disabled_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t WHERE id = 2]])
 assert(err == nil and point_disabled_summary.rows[1][3] == 'fallback')
+bounded_disabled_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_preflight_t WHERE id >= 1 AND id < 3]])
+assert(err == nil and bounded_disabled_summary.rows[1][3] == 'fallback')
+bounded_disabled_result = box.execute([[SELECT id FROM planner_preflight_t WHERE id >= 1 AND id < 3 ORDER BY id]])
+assert(#bounded_disabled_result.rows == 2 and bounded_disabled_result.rows[1][1] == 1 and bounded_disabled_result.rows[2][1] == 2)
 
 box.execute([[DROP TABLE planner_preflight_t]])
 test_run = require('test_run').new()
