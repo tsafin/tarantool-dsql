@@ -1214,7 +1214,9 @@ DML, triggers, subprograms, non-deterministic functions.
   preflight, and VDBE unit tests pin filter validation and branch ordering.
   Literal LIMIT/OFFSET counts only rows surviving both the key range and NULL
   filter. The isolated fixture has exact generated/CnP parity on both engines
-  (73/73 snapshots each, zero capture errors or diffs).
+  (85/85 snapshots each, zero capture errors or diffs); a duplicate residual
+  NULL-filter conjunction is explicitly retained as
+  `fallback / UNSUPPORTED_FILTER`.
   Compound/general boolean predicates, filtered composite-prefix ranges, and
   other scalar operators remain outside this route. Direct-column full
   scans and primary-key ordering also pass
@@ -1664,6 +1666,11 @@ DML, triggers, subprograms, non-deterministic functions.
   direct-VALUES, and direct-OP_Count paths; corruption probes verify rejection
   of missing parents and mismatched summaries. The end-to-end typed capture,
   M0 corpus/policy tests, and focused component runtime matrix all pass. A
+  validator registry mismatch for the producer's `UNSUPPORTED_FILTER` and
+  `UNSUPPORTED_DESTINATION` reasons was corrected in the M0 schema/validator;
+  the scalar-filter generated/CnP captures now validate rather than being
+  rejected as an inconsistent run outcome.
+  A
   generated-mode standalone SQL-TAP audit then covered all 275 files on each
   engine (reports under `/dev/shm/m35-sqltap-{memtx,vinyl}.json`): memtx
   captured 66,055 statements / 53,592 component records; Vinyl captured
