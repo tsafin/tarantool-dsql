@@ -135,6 +135,47 @@ new_unsigned_point_descriptor(uint64_t key)
 }
 
 static struct sql_plan_descriptor *
+new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
+		    bool unsigned_key)
+{
+	static const uint32_t columns[] = {2, 0};
+	struct sql_plan_bound bound = {
+		.side = op == SQL_PLAN_LT || op == SQL_PLAN_LE ?
+			SQL_PLAN_UPPER : SQL_PLAN_LOWER,
+		.op = op,
+		.expr_ref = 1,
+	};
+	static const struct sql_plan_expression expression = {
+		.id = 1,
+		.canonical = "integer-range-key",
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_INDEX_RANGE_SCAN,
+			.bounds = &bound,
+			.bound_count = 1,
+			.has_integer_range_key = !unsigned_key,
+			.integer_range_key = key,
+			.has_unsigned_range_key = unsigned_key,
+			.unsigned_range_key = (uint64_t)key,
+			.integer_range_op = op,
+			.direction = op == SQL_PLAN_LT || op == SQL_PLAN_LE ?
+				SQL_PLAN_DESC : SQL_PLAN_ASC,
+		},
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+		.expressions = &expression,
+		.expression_count = 1,
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_invalid_point_descriptor(void)
 {
 	static const uint32_t columns[] = {2};
@@ -237,7 +278,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(23);
+	plan(27);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -281,6 +322,12 @@ main(void)
 		new_point_descriptor(INT64_MIN);
 	struct sql_plan_descriptor *unsigned_point_desc =
 		new_unsigned_point_descriptor(UINT64_MAX);
+	struct sql_plan_descriptor *range_gt_desc =
+		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false);
+	struct sql_plan_descriptor *range_le_desc =
+		new_range_descriptor(SQL_PLAN_LE, 7, false);
+	struct sql_plan_descriptor *unsigned_range_desc =
+		new_range_descriptor(SQL_PLAN_GT, (int64_t)UINT64_MAX, true);
 	struct sql_plan_descriptor *invalid_point_desc =
 		new_invalid_point_descriptor();
 	struct sql_plan_descriptor *late_invalid_point_desc =
@@ -296,6 +343,8 @@ main(void)
 	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
 	   invalid_offset_desc != NULL && point_desc != NULL &&
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
+	   range_gt_desc != NULL && range_le_desc != NULL &&
+	   unsigned_range_desc != NULL &&
 	   invalid_point_desc != NULL && late_invalid_point_desc != NULL &&
 	   point_limit_desc != NULL && point_zero_limit_desc != NULL &&
 	   point_offset_desc != NULL,
@@ -420,6 +469,29 @@ main(void)
 	   vdbe.aOp[before_unsigned_point].p4type == P4_UINT64 &&
 	   (uint64_t)*vdbe.aOp[before_unsigned_point].p4.pI64 == UINT64_MAX,
 	   "unsigned primary-key lookup preserves full uint64 key range");
+	int before_range_gt = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(range_gt_desc, &vdbe, 4, 20) == 0,
+	   "strict lower range descriptor lowers successfully");
+	ok(vdbe.aOp[before_range_gt].opcode == OP_Int64 &&
+	   vdbe.aOp[before_range_gt].p4type == P4_INT64 &&
+	   *vdbe.aOp[before_range_gt].p4.pI64 == INT64_MAX &&
+	   vdbe.aOp[before_range_gt + 1].opcode == OP_SeekGT &&
+	   vdbe.aOp[before_range_gt + 1].p2 == before_range_gt + 6 &&
+	   vdbe.aOp[before_range_gt + 5].opcode == OP_Next,
+	   "strict lower range emits SeekGT and scans ascending");
+	int before_range_le = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(range_le_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_range_le].opcode == OP_Integer &&
+	   vdbe.aOp[before_range_le + 1].opcode == OP_SeekLE &&
+	   vdbe.aOp[before_range_le + 5].opcode == OP_Prev,
+	   "inclusive upper range emits SeekLE and scans descending");
+	int before_unsigned_range = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(unsigned_range_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_unsigned_range].opcode == OP_Int64 &&
+	   vdbe.aOp[before_unsigned_range].p4type == P4_UINT64 &&
+	   (uint64_t)*vdbe.aOp[before_unsigned_range].p4.pI64 == UINT64_MAX &&
+	   vdbe.aOp[before_unsigned_range + 1].opcode == OP_SeekGT,
+	   "unsigned range seek retains UINT64_MAX in P4_UINT64");
 	int before_point_limit = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_limit_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.nOp == before_point_limit + 5 &&
@@ -447,6 +519,9 @@ main(void)
 	sql_plan_descriptor_delete(point_desc);
 	sql_plan_descriptor_delete(negative_point_desc);
 	sql_plan_descriptor_delete(unsigned_point_desc);
+	sql_plan_descriptor_delete(range_gt_desc);
+	sql_plan_descriptor_delete(range_le_desc);
+	sql_plan_descriptor_delete(unsigned_range_desc);
 	sql_plan_descriptor_delete(invalid_point_desc);
 	sql_plan_descriptor_delete(late_invalid_point_desc);
 	sql_plan_descriptor_delete(point_limit_desc);
