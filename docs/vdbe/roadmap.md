@@ -1049,9 +1049,11 @@ DML, triggers, subprograms, non-deterministic functions.
   projection from one base table and requires a TREE primary index. The
   no-filter route supports optional primary-key ordering by scanning in the
   requested direction. It also lowers `primary_key IS NOT NULL` as a full
-  scan, relying on the primary-key non-null invariant; other columns' IS NOT
-  NULL predicates remain on legacy codegen; a dedicated SQL regression checks
-  off/on row parity and non-primary rejection on memtx and Vinyl. A second
+  scan, relying on the primary-key non-null invariant, and `primary_key IS
+  NULL` as an empty result using the same invariant. Other columns' IS NULL
+  and IS NOT NULL predicates remain on legacy codegen; dedicated SQL
+  regressions check empty-result/on-off parity and non-primary rejection on
+  memtx and Vinyl. A second
   route supports equality between the sole INTEGER/UNSIGNED primary-key part
   and a matching signed-64-bit/unsigned-64-bit
   integer literal; it emits a
@@ -1190,7 +1192,10 @@ DML, triggers, subprograms, non-deterministic functions.
   were indistinguishable from ordinary `current_where_c` execution. The new
   primary-key `IS NOT NULL` scan route has a paired non-primary-key regression
   that asserts `fallback / UNSUPPORTED_FILTER` and identical flag-on/off rows
-  on memtx and Vinyl. The point
+  on memtx and Vinyl. The complementary primary-key `IS NULL` predicate
+  lowers to a zero-row result and reports `new_planner`; non-primary `IS NULL`
+  remains `fallback / UNSUPPORTED_FILTER`, with row parity covered on both
+  engines. The point
   lookup boundary now has focused fallback coverage for a bind parameter,
   equality on a non-primary column, NULL/computed values, unsupported ranges
   (including non-primary-key ranges), OR, and negative literals against
