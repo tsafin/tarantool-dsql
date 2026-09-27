@@ -238,11 +238,12 @@ upper bound, or both on the next INTEGER/UNSIGNED primary-key part. The
 descriptor retains prefix equalities separately from suffix bounds. Lower
 bounds extend the composite `SeekGT` / `SeekGE` key; an upper bound stops the
 ascending walk after the equality-prefix guard. Compatible ordering remains
-ascending only. Off/on/off SQL regressions cover each bound form on memtx and
-Vinyl, including unsigned values above `INT64_MAX`, a three-part suffix range,
-and a literal-left comparison whose resolved expression is commuted by the
-parser. Gaps in the equality prefix, duplicate same-side bounds, and descending
-suffix ranges remain unsupported.
+ascending only. The isolated `planner_composite_prefix_range_test.lua` covers
+each bound form off/on/off on memtx and Vinyl, including unsigned values above
+`INT64_MAX`, a three-part suffix range, and a literal-left comparison whose
+resolved expression is commuted by the parser. Generated, CnP, and repeated-
+generated capture pass on both engines. Gaps in the equality prefix, duplicate
+same-side bounds, and descending suffix ranges remain unsupported.
 
 The production route also supports one-sided and two-sided INTEGER and
 UNSIGNED primary-key literal ranges (`>`, `>=`, `<`, `<=`), including reversed
