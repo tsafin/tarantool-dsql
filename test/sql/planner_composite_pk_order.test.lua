@@ -1,0 +1,44 @@
+test_run = require('test_run').new()
+engine = test_run:get_cfg('engine')
+_ = box.space._session_settings:update('sql_default_engine', {{'=', 2, engine}})
+box.execute([[SET SESSION "sql_seq_scan" = true]])
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+box.execute([[CREATE TABLE planner_composite_pk_order_t (a INTEGER, b INTEGER, v STRING, PRIMARY KEY (a, b))]])
+box.execute([[INSERT INTO planner_composite_pk_order_t VALUES (2, 20, 'd'), (1, 30, 'c'), (2, 10, 'e'), (1, 10, 'a'), (1, 20, 'b')]])
+asc_prefix_sql = [[SELECT a, b FROM planner_composite_pk_order_t ORDER BY a ASC]]
+asc_full_sql = [[SELECT a, b FROM planner_composite_pk_order_t ORDER BY a ASC, b ASC]]
+desc_full_sql = [[SELECT a, b FROM planner_composite_pk_order_t ORDER BY a DESC, b DESC]]
+mixed_sql = [[SELECT a, b FROM planner_composite_pk_order_t ORDER BY a ASC, b DESC]]
+nonprefix_sql = [[SELECT a, b FROM planner_composite_pk_order_t ORDER BY b ASC]]
+asc_prefix_off = box.execute(asc_prefix_sql).rows
+asc_full_off = box.execute(asc_full_sql).rows
+desc_full_off = box.execute(desc_full_sql).rows
+mixed_off = box.execute(mixed_sql).rows
+nonprefix_off = box.execute(nonprefix_sql).rows
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+asc_prefix_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. asc_prefix_sql)
+assert(err == nil and asc_prefix_summary.rows[1][3] == 'new_planner')
+asc_full_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. asc_full_sql)
+assert(err == nil and asc_full_summary.rows[1][3] == 'new_planner')
+desc_full_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. desc_full_sql)
+assert(err == nil and desc_full_summary.rows[1][3] == 'new_planner')
+mixed_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. mixed_sql)
+assert(err == nil and mixed_summary.rows[1][3] ~= 'new_planner')
+nonprefix_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. nonprefix_sql)
+assert(err == nil and nonprefix_summary.rows[1][3] ~= 'new_planner')
+asc_prefix_on = box.execute(asc_prefix_sql).rows
+asc_full_on = box.execute(asc_full_sql).rows
+desc_full_on = box.execute(desc_full_sql).rows
+mixed_on = box.execute(mixed_sql).rows
+nonprefix_on = box.execute(nonprefix_sql).rows
+assert(#asc_prefix_off == 5 and #asc_prefix_on == 5)
+assert(#asc_full_off == 5 and #asc_full_on == 5)
+assert(#desc_full_off == 5 and #desc_full_on == 5)
+assert(#mixed_off == 5 and #mixed_on == 5)
+assert(#nonprefix_off == 5 and #nonprefix_on == 5)
+assert(asc_prefix_on[1][1] == 1 and asc_prefix_on[2][1] == 1 and asc_prefix_on[3][1] == 1 and asc_prefix_on[4][1] == 2 and asc_prefix_on[5][1] == 2)
+assert(asc_full_on[1][2] == 10 and asc_full_on[2][2] == 20 and asc_full_on[3][2] == 30 and asc_full_on[4][2] == 10 and asc_full_on[5][2] == 20)
+assert(desc_full_on[1][1] == 2 and desc_full_on[1][2] == 20 and desc_full_on[2][2] == 10 and desc_full_on[3][1] == 1 and desc_full_on[3][2] == 30 and desc_full_on[4][2] == 20 and desc_full_on[5][2] == 10)
+for i = 1, 5 do assert(asc_full_off[i][1] == asc_full_on[i][1] and asc_full_off[i][2] == asc_full_on[i][2] and desc_full_off[i][1] == desc_full_on[i][1] and desc_full_off[i][2] == desc_full_on[i][2] and mixed_off[i][1] == mixed_on[i][1] and mixed_off[i][2] == mixed_on[i][2] and nonprefix_off[i][1] == nonprefix_on[i][1] and nonprefix_off[i][2] == nonprefix_on[i][2]) end
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+box.execute([[DROP TABLE planner_composite_pk_order_t]])
