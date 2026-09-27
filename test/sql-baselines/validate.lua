@@ -143,6 +143,11 @@ local function valid_path_class(path)
     if path.taken == 'current_where_c' or path.taken == 'new_planner' then
         return reason == nil and fallback_to == nil
     end
+    if path.taken == 'mixed' or path.taken == 'direct_values' or
+       path.taken == 'direct_op_count' or
+       path.taken == 'compound_dispatch' then
+        return reason == nil and fallback_to == nil
+    end
     if path.taken == 'fallback' then
         return type(reason) == 'string' and
                stable_fallback_reasons[reason] == true and
@@ -152,6 +157,87 @@ local function valid_path_class(path)
     return suffix ~= nil and stable_fallback_reasons[suffix] == true and
            reason == suffix and
            fallback_to == 'current_where_c'
+end
+
+local valid_component_roles = {
+    root = true,
+    compound_branch = true,
+    recursive_anchor = true,
+    recursive_term = true,
+    from_subquery = true,
+    scalar_subquery = true,
+    subquery = true,
+    values = true,
+    count = true,
+    cte = true,
+}
+
+local valid_component_routes = {
+    current_where_c = true,
+    new_planner = true,
+    fallback = true,
+    direct_values = true,
+    direct_op_count = true,
+    compound_dispatch = true,
+}
+
+local function valid_component_ledger(metric)
+    local components = metric.component_routes
+    if metric.component_status ~= 'complete' or type(components) ~= 'table' or
+       #components == 0 then
+        return false
+    end
+    local by_id = {}
+    local root = nil
+    local first_route = nil
+    local uniform = true
+    for _, component in ipairs(components) do
+        if type(component) ~= 'table' or
+           type(component.id) ~= 'number' or component.id % 1 ~= 0 or
+           component.id <= 0 or by_id[component.id] ~= nil or
+           type(component.parent_id) ~= 'number' or
+           component.parent_id % 1 ~= 0 or component.parent_id < 0 or
+           (component.parent_id ~= 0 and
+            component.parent_id >= component.id) or
+           not valid_component_roles[component.role] or
+           not valid_component_routes[component.route] or
+           ((component.route == 'fallback') ~=
+            (type(component.fallback_reason) == 'string')) or
+           (component.route ~= 'fallback' and
+            not is_null(component.fallback_reason)) or
+           (component.route == 'fallback' and
+            not stable_fallback_reasons[component.fallback_reason]) then
+            return false
+        end
+        by_id[component.id] = component
+        if component.parent_id == 0 then
+            if root ~= nil or component.role ~= 'root' then
+                return false
+            end
+            root = component
+        end
+        if first_route == nil then
+            first_route = component.route
+        elseif component.route ~= first_route then
+            uniform = false
+        end
+    end
+    if root == nil then
+        return false
+    end
+    for _, component in ipairs(components) do
+        if component.parent_id ~= 0 and by_id[component.parent_id] == nil then
+            return false
+        end
+    end
+    local summary_route = uniform and root.route or 'mixed'
+    local summary_reason = root.route == 'fallback' and
+                           root.fallback_reason or nil
+    local reason_matches = summary_reason == nil and
+                           is_null(metric.fallback_reason) or
+                           metric.fallback_reason == summary_reason
+    return metric.path_class == summary_route and
+           reason_matches
 end
 
 local function valid_planner_metrics(manifest)
@@ -165,6 +251,10 @@ local function valid_planner_metrics(manifest)
 	end
 	local by_index = {}
 	local previous = 0
+	if manifest.component_ledger_version ~= nil and
+	   manifest.component_ledger_version ~= 1 then
+		return nil
+	end
 	for _, metric in ipairs(manifest.planner_metrics) do
 		local taken = nil
 		if type(metric) == 'table' then taken = metric.path_class end
@@ -183,7 +273,9 @@ local function valid_planner_metrics(manifest)
 			taken = metric.path_class,
 			reason = metric.fallback_reason,
 			fallback_to = fallback_to,
-		   }) then
+		   }) or
+		   (manifest.component_ledger_version == 1 and
+		    not valid_component_ledger(metric)) then
 			return nil
 		end
 		previous = metric.query_index
@@ -201,7 +293,8 @@ local function statement_requires_planner_metrics(query_sql)
 	sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
 	local first_word = sql:match('^%s*(%a+)')
 	return first_word ~= nil and
-		(first_word:upper() == 'SELECT' or first_word:upper() == 'WITH')
+		(first_word:upper() == 'SELECT' or first_word:upper() == 'WITH' or
+		 first_word:upper() == 'VALUES')
 end
 
 for _, path in ipairs(manifests) do

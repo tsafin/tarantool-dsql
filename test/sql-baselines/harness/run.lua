@@ -192,7 +192,8 @@ local function intercepted_execute(sql, bindings)
     local normalized_sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
     local first_word = normalized_sql:match('^%s*(%a+)')
     local is_select = first_word ~= nil and
-        (first_word:upper() == 'SELECT' or first_word:upper() == 'WITH')
+        (first_word:upper() == 'SELECT' or first_word:upper() == 'WITH' or
+         first_word:upper() == 'VALUES')
     if cfg.forensic then
         if is_select then
             local explain_ok, explain_res, explain_err
@@ -355,6 +356,7 @@ local function intercepted_execute(sql, bindings)
         planner_path_class = planner_snapshot.path_class
         planner_fallback_reason = planner_snapshot.fallback_reason
         planner_metrics = planner_snapshot.planner
+        planner_metrics.component_routes = components
     end
 
     -- Record every SQL statement (including DDL / DML setup)
@@ -629,6 +631,8 @@ for query_index, q in ipairs(captured_queries) do
             query_index = query_index,
             path_class = q.planner_path_class,
             fallback_reason = q.planner_fallback_reason,
+            component_status = q.planner_metrics.component_status,
+            component_routes = q.planner_metrics.component_routes,
             candidate_count = q.planner_metrics.candidate_count,
             elapsed_us = q.planner_metrics.elapsed_us,
             fallback_count = q.planner_metrics.fallback_count,
@@ -673,6 +677,7 @@ local manifest = {
     skipped_queries = skipped,
     snapshot_errors = errors_seen,
     planner_metrics_version = 2,
+    component_ledger_version = 1,
     planner_metrics = planner_measurements,
     accepted = rc == 0,
 }

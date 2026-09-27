@@ -78,23 +78,44 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertIn("fallback_to: current_where_c", snapshot)
             manifest = json.loads((out / "manifests/sql-tap/fallback_sql.memtx.json").read_text())
             self.assertEqual(manifest["planner_metrics_version"], 2)
+            self.assertEqual(manifest["component_ledger_version"], 1)
             self.assertEqual(manifest["planner_metrics"][0]["path_class"], "fallback")
             self.assertEqual(manifest["planner_metrics"][0]["fallback_count"], 1)
             self.assertGreater(manifest["planner_metrics"][0]["generated"], 0)
             self.assertGreater(manifest["planner_metrics"][0]["retained"], 0)
             for metric in ("generated", "dominated", "truncated", "retained"):
                 self.assertIn(metric, manifest["planner_metrics"][0])
-            for seq, reason in enumerate((
-                    "UNSUPPORTED_AGGREGATE", "UNSUPPORTED_COMPOUND",
-                    "UNSUPPORTED_DISTINCT", "UNSUPPORTED_SUBQUERY",
-                    "UNSUPPORTED_CTE", "UNSUPPORTED_AGGREGATE"), start=2):
+            expected_routes = (
+                ("fallback", "UNSUPPORTED_AGGREGATE"),
+                ("mixed", None),
+                ("fallback", "UNSUPPORTED_DISTINCT"),
+                ("fallback", "UNSUPPORTED_SUBQUERY"),
+                ("fallback", "UNSUPPORTED_CTE"),
+                ("fallback", "UNSUPPORTED_AGGREGATE"),
+                ("current_where_c", None),
+                ("direct_values", None),
+                ("direct_op_count", None),
+            )
+            for seq, (route, reason) in enumerate(expected_routes, start=2):
                 snapshot = (out / f"snapshots/sql-tap/fallback_sql/q{seq:02d}.memtx.yaml").read_text()
-                self.assertIn("taken: fallback", snapshot)
-                self.assertIn(f"reason: {reason}", snapshot)
-                self.assertIn("fallback_to: current_where_c", snapshot)
                 metrics = manifest["planner_metrics"][seq - 1]
-                self.assertEqual(metrics["path_class"], "fallback")
-                self.assertEqual(metrics["fallback_count"], 1)
+                self.assertEqual(metrics["path_class"], route)
+                self.assertEqual(metrics["fallback_reason"], reason)
+                self.assertEqual(metrics["component_status"], "complete")
+                self.assertGreater(len(metrics["component_routes"]), 0)
+                self.assertIn(f"taken: {route}", snapshot)
+                if reason is not None:
+                    self.assertIn(f"reason: {reason}", snapshot)
+                    self.assertIn("fallback_to: current_where_c", snapshot)
+                else:
+                    self.assertNotIn("reason:", snapshot)
+                    self.assertNotIn("fallback_to:", snapshot)
+            enabled_route = manifest["planner_metrics"][-1]
+            self.assertEqual(enabled_route["path_class"], "new_planner")
+            self.assertEqual(enabled_route["fallback_reason"], None)
+            self.assertEqual(enabled_route["component_status"], "complete")
+            self.assertEqual(enabled_route["component_routes"][0]["route"],
+                             "new_planner")
 
             path = out / "snapshots/sql-tap/fallback_sql/q01.memtx.yaml"
             valid_snapshot = path.read_text()
@@ -138,6 +159,26 @@ class TypedCaptureTest(unittest.TestCase):
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             self.assertNotEqual(result.returncode, 0,
                                 "validator accepted planner metrics that disagree with snapshot")
+
+            invalid_component_manifest = json.loads(valid_manifest)
+            invalid_component_manifest["planner_metrics"][2]["component_routes"][1]["parent_id"] = 999
+            manifest_path.write_text(json.dumps(invalid_component_manifest))
+            result = subprocess.run(
+                [str(BINARY), str(VALIDATE), str(out)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                text=True)
+            self.assertNotEqual(result.returncode, 0,
+                                "validator accepted a missing component parent")
+
+            mismatched_summary_manifest = json.loads(valid_manifest)
+            mismatched_summary_manifest["planner_metrics"][2]["path_class"] = "fallback"
+            manifest_path.write_text(json.dumps(mismatched_summary_manifest))
+            result = subprocess.run(
+                [str(BINARY), str(VALIDATE), str(out)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                text=True)
+            self.assertNotEqual(result.returncode, 0,
+                                "validator accepted summary/ledger route disagreement")
 
             incomplete_manifest = json.loads(valid_manifest)
             incomplete_manifest["planner_metrics"].pop(0)
