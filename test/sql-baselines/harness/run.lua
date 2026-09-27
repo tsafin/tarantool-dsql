@@ -44,6 +44,7 @@ local snapshot_mod = require('snapshot')
 local forensic_mod = require('forensic')
 local canonicalize = require('canonicalize')
 local msgpack = require('msgpack')
+local sql_statement = require('sql_statement')
 
 -- ── Argument parsing ──────────────────────────────────────────────────────────
 
@@ -189,11 +190,7 @@ local function intercepted_execute(sql, bindings)
     local explain_rows, explain_error = nil, nil
     local planner_path_class, planner_fallback_reason = nil, nil
     local planner_metrics = nil
-    local normalized_sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
-    local first_word = normalized_sql:match('^%s*(%a+)')
-    local is_select = first_word ~= nil and
-        (first_word:upper() == 'SELECT' or first_word:upper() == 'WITH' or
-         first_word:upper() == 'VALUES')
+    local is_select = sql_statement.has_select_plan(sql)
     if cfg.forensic then
         if is_select then
             local explain_ok, explain_res, explain_err

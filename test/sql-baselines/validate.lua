@@ -6,6 +6,10 @@ local fio = require('fio')
 local json = require('json')
 local yaml = require('yaml')
 local varbinary = require('varbinary')
+local script_path = debug.getinfo(1, 'S').source:sub(2)
+local script_dir = script_path:match('^(.+)/[^/]+$')
+package.path = script_dir .. '/lib/?.lua;' .. package.path
+local sql_statement = require('sql_statement')
 
 local root = arg[1]
 if not root or not fio.stat(root) or not fio.stat(root):is_dir() then
@@ -231,7 +235,7 @@ local function valid_component_ledger(metric)
         end
     end
     local summary_route = uniform and root.route or 'mixed'
-    local summary_reason = root.route == 'fallback' and
+    local summary_reason = uniform and root.route == 'fallback' and
                            root.fallback_reason or nil
     local reason_matches = summary_reason == nil and
                            is_null(metric.fallback_reason) or
@@ -289,12 +293,7 @@ local function same_nullable(a, b)
 end
 
 local function statement_requires_planner_metrics(query_sql)
-	local sql = tostring(query_sql)
-	sql = sql:gsub('/%*.-%*/', ' '):gsub('%-%-[^\n]*', ' ')
-	local first_word = sql:match('^%s*(%a+)')
-	return first_word ~= nil and
-		(first_word:upper() == 'SELECT' or first_word:upper() == 'WITH' or
-		 first_word:upper() == 'VALUES')
+	return sql_statement.has_select_plan(tostring(query_sql))
 end
 
 for _, path in ipairs(manifests) do

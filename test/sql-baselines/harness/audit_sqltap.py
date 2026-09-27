@@ -5,6 +5,7 @@ This is an audit, not an inclusion decision or runner-equivalence proof.
 """
 
 import argparse
+from collections import Counter
 import json
 import os
 from pathlib import Path
@@ -33,6 +34,7 @@ def main():
     args = parser.parse_args()
     repo, binary = args.repo.resolve(), args.binary.resolve()
     harness = repo / "test/sql-baselines/harness/run.lua"
+    validator = repo / "test/sql-baselines/validate.lua"
     tests = sorted((repo / "test/sql-tap").glob("*.test.lua"))
     if args.test:
         unknown = set(args.test) - {test.name for test in tests}
@@ -83,12 +85,38 @@ def main():
                 (test.name[:-9] + f".{args.engine}.json")
             manifest = json.loads(manifest_path.read_text()) if \
                 manifest_path.exists() else {}
+            validation = subprocess.run(
+                [str(binary), str(validator), str(out)], env=env,
+                cwd=work, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, text=True, timeout=args.timeout)
+            metrics = manifest.get("planner_metrics", [])
+            route_counts = Counter()
+            role_counts = Counter()
+            component_count = 0
+            incomplete_ledgers = 0
+            for metric in metrics:
+                if metric.get("component_status") != "complete":
+                    incomplete_ledgers += 1
+                for component in metric.get("component_routes", []):
+                    component_count += 1
+                    route_counts[component.get("route", "<missing>")] += 1
+                    role_counts[component.get("role", "<missing>")] += 1
             failed_tap = [line for line in output.splitlines()
                           if line.startswith("not ok") or "Miscompare" in line]
             result = {
                 "status": "timeout" if timed_out else
-                          ("accepted" if rc == 0 else "rejected"),
+                          ("accepted" if rc == 0 and
+                           validation.returncode == 0 else "rejected"),
                 "returncode": rc,
+                "validation_returncode": validation.returncode,
+                "validation_output_head": validation.stdout[:1500],
+                "validation_output_tail": validation.stdout[-4000:],
+                "component_ledger_version":
+                    manifest.get("component_ledger_version"),
+                "component_count": component_count,
+                "component_route_counts": dict(sorted(route_counts.items())),
+                "component_role_counts": dict(sorted(role_counts.items())),
+                "incomplete_component_ledgers": incomplete_ledgers,
                 "duration_seconds": round(time.monotonic() - started, 3),
                 "captured_queries": manifest.get("captured_queries", 0),
                 "written_snapshots": manifest.get("written_snapshots", 0),

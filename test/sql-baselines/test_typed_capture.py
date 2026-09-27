@@ -79,6 +79,8 @@ class TypedCaptureTest(unittest.TestCase):
             manifest = json.loads((out / "manifests/sql-tap/fallback_sql.memtx.json").read_text())
             self.assertEqual(manifest["planner_metrics_version"], 2)
             self.assertEqual(manifest["component_ledger_version"], 1)
+            self.assertEqual(manifest["captured_queries"], 14)
+            self.assertEqual(len(manifest["planner_metrics"]), 11)
             self.assertEqual(manifest["planner_metrics"][0]["path_class"], "fallback")
             self.assertEqual(manifest["planner_metrics"][0]["fallback_count"], 1)
             self.assertGreater(manifest["planner_metrics"][0]["generated"], 0)

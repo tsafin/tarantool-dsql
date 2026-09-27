@@ -1,6 +1,6 @@
 local tap = require('tap')
 local test = tap.test('SQL planner fallback capture')
-test:plan(11)
+test:plan(12)
 
 local format = {{name = 'id', type = 'unsigned'}}
 local a = box.schema.space.create('sql_fallback_a', {
@@ -43,6 +43,9 @@ box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
 result, err = box.execute([[SELECT id FROM sql_fallback_a WHERE id = 1]])
 test:ok(result ~= nil, tostring(err))
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+result, err = box.execute([[WITH unused(x) AS (SELECT 1)
+    UPDATE sql_fallback_a SET id = id WHERE id = 0]])
+test:ok(result ~= nil, tostring(err))
 
 b:drop()
 a:drop()
