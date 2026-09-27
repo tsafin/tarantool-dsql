@@ -1418,6 +1418,21 @@ DML, triggers, subprograms, non-deterministic functions.
   it does not supply per-component route evidence or close the shared-VDBE
   ownership gap in the inventory above.
 
+  **Plain multi-row VALUES classification audit (2026-09-27).** The direct
+  `VALUES (1),(2)` producer is not truthfully testable as a fallback using the
+  current summary/counter contract. Source inspection shows `sqlSelect()`
+  dispatches a plain multi-row VALUES statement to `multiSelectValues()` before
+  the outer VDBE/preflight fallback gate; the helper invokes `sqlSelect()` for
+  each single-row value. A runtime probe with
+  `sql_new_planner_single_table` both disabled and enabled nevertheless reports
+  `fallback` / `UNSUPPORTED_RELATION_COUNT` and increments the total and
+  relation-count counters once in each case. Those statement-global values do
+  not describe the direct emitter's route, so a regression asserting them
+  would codify a misleading classification. Accurate coverage requires an
+  explicit decision about direct-route classification and its scope (whole
+  statement versus per SELECT component); until then, do not add fallback
+  assertions or infer a route class for VALUES.
+
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
