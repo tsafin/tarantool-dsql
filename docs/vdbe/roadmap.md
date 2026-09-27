@@ -692,8 +692,11 @@ review of IDs and formats.
   fixture now checks q-error at all 20 histogram bucket edges (<= 1.05), while
   the separate skewed workload fixture checks each distinct CDF boundary
   (<= 1.06). Both remain algorithm-only probes. Closing S1.9 still requires a
-  reviewed estimate/actual evidence shape, corpus workload integration through
-  a real stats provider, and an accepted q-error gate. The S1.7 test now also
+  corpus workload integration through a real stats provider and an accepted
+  q-error gate. The stage-matched estimate/actual JSONL sidecar and analyzer
+  contract are now specified in `test/sql-baselines/E1_WORKLOAD.md`; they
+  remain separate from M0 snapshot v1 and await an integrated producer. The
+  S1.7 test now also
   supplies a narrow live SQL estimate/actual probe against a test-only stats
   provider; it is not an M0 capture, workload corpus, or skewed MCV planner
   integration. *parallel: yes*.
