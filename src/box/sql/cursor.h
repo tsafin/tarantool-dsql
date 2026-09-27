@@ -52,6 +52,10 @@ struct BtCursor {
 	char *key;		/* Saved key that was cursor last known position */
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void sqlCursorZero(BtCursor *);
 
 /**
@@ -79,6 +83,10 @@ sql_cursor_cleanup(struct BtCursor *cursor);
 int sqlCursorIsValid(BtCursor *);
 #endif
 int sqlCursorIsValidNN(BtCursor *);
+
+#ifdef __cplusplus
+}
+#endif
 
 /*
  * Legal values for BtCursor.curFlags

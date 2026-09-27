@@ -10,7 +10,11 @@ include_directories(${LUAJIT_INCLUDE_DIRS})
 include_directories(${READLINE_INCLUDE_DIRS})
 include_directories(${LIBYAML_INCLUDE_DIRS})
 include_directories(${MSGPUCK_INCLUDE_DIRS})
-include_directories(BEFORE ${CURL_INCLUDE_DIRS})
+if (ENABLE_BUNDLED_LIBCURL)
+    include_directories(BEFORE ${PROJECT_BINARY_DIR}/build/curl/dest/include)
+else()
+    include_directories(BEFORE ${CURL_INCLUDE_DIRS})
+endif()
 include_directories(${ICU_INCLUDE_DIRS})
 include_directories(${ICONV_INCLUDE_DIRS})
 include_directories(${DECNUMBER_INCLUDE_DIR})
@@ -304,10 +308,17 @@ endif()
 
 # Rule of thumb: if exporting a symbol from a static library, list the
 # library here.
+if (ENABLE_BUNDLED_LIBCURL)
+    # FindCURL may overwrite CURL_LIBRARIES on older CMake versions.
+    # Keep the bundled headers paired with the bundled API implementation.
+    set(CURL_LIBRARIES bundled-libcurl ${ZLIB_LIBRARIES}
+        ${ARES_LIBRARIES} ${NGHTTP2_LIBRARIES} rt)
+endif()
 set (reexport_libraries server core misc bitset csv swim swim_udp swim_ev
      shutdown tzcode ${LUAJIT_LIBRARIES} ${MSGPUCK_LIBRARIES} ${ICU_LIBRARIES}
      ${CURL_LIBRARIES} ${XXHASH_LIBRARIES} ${LIBCDT_LIBRARIES}
      ${EXTRA_REEXPORT_LIBRARIES})
+
 
 set (common_libraries
     ${reexport_libraries}
