@@ -58,6 +58,15 @@ put_uint(struct replay_writer *w, uint64_t value)
 }
 
 static bool
+put_int(struct replay_writer *w, int64_t value)
+{
+	if (!writer_reserve(w, mp_sizeof_int(value)))
+		return false;
+	w->size = mp_encode_int(w->data + w->size, value) - w->data;
+	return true;
+}
+
+static bool
 put_bool(struct replay_writer *w, bool value)
 {
 	if (!writer_reserve(w, mp_sizeof_bool(value)))
@@ -400,13 +409,43 @@ sql_replay_input_check_replay_ready(const struct sql_replay_input *input)
 {
 	if (input == NULL || input->planner_algorithm_version == 0 ||
 	    input->planner_config_version == 0 || input->beam_width == 0 ||
-	    (input->access_candidate_count != 0 &&
-	     input->access_candidates == NULL) ||
-	    (!input->access_candidates_present &&
-	     input->access_candidate_count != 0))
+	    (input->final_path_count != 0 && input->final_paths == NULL) ||
+	    (!input->final_paths_present &&
+	     (input->final_path_count != 0 || input->selector_version != 0)) ||
+	    (input->final_paths_present && input->selector_version !=
+					      SQL_REPLAY_SELECTOR_FINAL_PATH_V1))
 		return SQL_REPLAY_INPUT_INVALID;
-	if (!input->access_candidates_present)
+	if (!input->final_paths_present)
 		return SQL_REPLAY_INPUT_INCOMPLETE;
+	return SQL_REPLAY_INPUT_OK;
+}
+
+enum sql_replay_input_status
+sql_replay_input_select_final_path(const struct sql_replay_input *input,
+				   const struct sql_replay_final_path **selected)
+{
+	if (selected == NULL)
+		return SQL_REPLAY_INPUT_INVALID;
+	*selected = NULL;
+	if (input == NULL || input->selector_version !=
+				     SQL_REPLAY_SELECTOR_FINAL_PATH_V1 ||
+	    (input->final_path_count != 0 && input->final_paths == NULL) ||
+	    (!input->final_paths_present && input->final_path_count != 0))
+		return SQL_REPLAY_INPUT_INVALID;
+	if (!input->final_paths_present)
+		return SQL_REPLAY_INPUT_INCOMPLETE;
+	if (input->final_path_count == 0)
+		return SQL_REPLAY_INPUT_NO_PLAN;
+	const struct sql_replay_final_path *best = &input->final_paths[0];
+	for (size_t i = 1; i < input->final_path_count; i++) {
+		const struct sql_replay_final_path *candidate =
+			&input->final_paths[i];
+		/* wherePathSolver's final scan uses strict >, so ties retain the
+		 * first path in the final beam array. */
+		if (candidate->path_cost_logest < best->path_cost_logest)
+			best = candidate;
+	}
+	*selected = best;
 	return SQL_REPLAY_INPUT_OK;
 }
 
@@ -437,6 +476,13 @@ sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 	    (in->access_candidate_count != 0 &&
 	     in->access_candidates == NULL) ||
 	    (!in->access_candidates_present && in->access_candidate_count != 0))
+		return SQL_REPLAY_INPUT_INVALID;
+	if ((in->final_path_count != 0 && in->final_paths == NULL) ||
+	    (!in->final_paths_present &&
+	     (in->final_path_count != 0 || in->selector_version != 0)) ||
+	    (in->final_paths_present && in->selector_version !=
+					      SQL_REPLAY_SELECTOR_FINAL_PATH_V1) ||
+	    in->final_path_count > UINT32_MAX)
 		return SQL_REPLAY_INPUT_INVALID;
 	if (in->statistics_present) {
 		if (in->cardinality_semantics <
@@ -590,6 +636,20 @@ sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 				    in->column_count))
 				return SQL_REPLAY_INPUT_INVALID;
 	}
+	for (size_t i = 0; i < in->final_path_count; i++) {
+		const struct sql_replay_final_path *path = &in->final_paths[i];
+		if (path->plan_fingerprint == NULL ||
+		    path->plan_fingerprint[0] == '\0' || path->is_ordered < -1 ||
+		    (path->is_ordered >= 0 &&
+	     (uint32_t)path->is_ordered > in->order_by_count) ||
+		    path->reverse_mask > 1)
+			return SQL_REPLAY_INPUT_INVALID;
+		for (size_t j = i + 1; j < in->final_path_count; j++)
+			if (in->final_paths[j].plan_fingerprint == NULL ||
+			    strcmp(path->plan_fingerprint,
+				   in->final_paths[j].plan_fingerprint) == 0)
+				return SQL_REPLAY_INPUT_INVALID;
+	}
 	if (!canonical_expression_valid(in->predicate, in->column_count))
 		return SQL_REPLAY_INPUT_INVALID;
 	if (in->statistics_present &&
@@ -616,7 +676,7 @@ sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 	struct replay_writer w = { 0 };
 	/* Top-level keys are lexicographically ordered; candidate array order
 	 * preserves provider rank because planners may consume tie-break order. */
-	PUT(put_map(&w, 9));
+	PUT(put_map(&w, 10));
 	PUT(put_string(&w, "access_candidates"));
 	if (!in->access_candidates_present) {
 		PUT(put_nil(&w));
@@ -682,6 +742,29 @@ sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 			PUT(put_double(&w, c->total_cost));
 		}
 	}
+	PUT(put_string(&w, "final_path_candidates"));
+	if (!in->final_paths_present) {
+		PUT(put_nil(&w));
+	} else {
+		PUT(put_array(&w, in->final_path_count));
+		for (size_t i = 0; i < in->final_path_count; i++) {
+			const struct sql_replay_final_path *path =
+				&in->final_paths[i];
+			PUT(put_map(&w, 6));
+			PUT(put_string(&w, "is_ordered"));
+			PUT(put_int(&w, path->is_ordered));
+			PUT(put_string(&w, "output_rows_logest"));
+			PUT(put_int(&w, path->output_rows_logest));
+			PUT(put_string(&w, "path_cost_logest"));
+			PUT(put_int(&w, path->path_cost_logest));
+			PUT(put_string(&w, "plan_fingerprint"));
+			PUT(put_string(&w, path->plan_fingerprint));
+			PUT(put_string(&w, "reverse_mask"));
+			PUT(put_uint(&w, path->reverse_mask));
+			PUT(put_string(&w, "unsorted_cost_logest"));
+			PUT(put_int(&w, path->unsorted_cost_logest));
+		}
+	}
 	PUT(put_string(&w, "limit"));
 	PUT(in->limit_present ? put_uint(&w, in->limit) : put_nil(&w));
 	PUT(put_string(&w, "offset"));
@@ -698,13 +781,15 @@ sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 		PUT(put_bool(&w, in->order_by[i].nulls_first));
 	}
 	PUT(put_string(&w, "planner"));
-	PUT(put_map(&w, 3));
+	PUT(put_map(&w, 4));
 	PUT(put_string(&w, "algorithm_version"));
 	PUT(put_uint(&w, in->planner_algorithm_version));
 	PUT(put_string(&w, "beam_width"));
 	PUT(put_uint(&w, in->beam_width));
 	PUT(put_string(&w, "config_version"));
 	PUT(put_uint(&w, in->planner_config_version));
+	PUT(put_string(&w, "final_path_selector_version"));
+	PUT(put_uint(&w, in->selector_version));
 	PUT(put_string(&w, "predicate"));
 	PUT(put_string(&w, in->predicate));
 	PUT(put_string(&w, "projections"));
@@ -714,7 +799,7 @@ sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 	PUT(put_string(&w, "relation"));
 	PUT(put_relation(&w, in, indexes));
 	PUT(put_string(&w, "version"));
-	PUT(put_uint(&w, 4));
+	PUT(put_uint(&w, 5));
 	free(indexes);
 	*data = w.data;
 	*size = w.size;
@@ -823,6 +908,10 @@ sql_replay_input_delete(struct sql_replay_input *input)
 		free(c->produced_order);
 	}
 	free(input->access_candidates);
+	for (size_t i = 0; input->final_paths != NULL &&
+				   i < input->final_path_count; i++)
+		free(input->final_paths[i].plan_fingerprint);
+	free(input->final_paths);
 	free(input);
 }
 
@@ -907,6 +996,13 @@ valid_spec(const struct sql_replay_input_spec *spec)
 	     spec->access_candidates == NULL) ||
 	    (!spec->access_candidates_present &&
 	     spec->access_candidate_count != 0) ||
+	    (spec->final_path_count != 0 && spec->final_paths == NULL) ||
+	    (!spec->final_paths_present &&
+	     (spec->final_path_count != 0 || spec->selector_version != 0)) ||
+	    (spec->final_paths_present &&
+	     spec->selector_version != SQL_REPLAY_SELECTOR_FINAL_PATH_V1) ||
+	    spec->final_path_count >
+		    SIZE_MAX / sizeof(struct sql_replay_final_path) ||
 	    spec->access_candidate_count >
 		    SIZE_MAX / sizeof(struct sql_replay_access_candidate) ||
 	    spec->order_by_count > SIZE_MAX / sizeof(struct sql_replay_order) ||
@@ -996,6 +1092,21 @@ valid_spec(const struct sql_replay_input_spec *spec)
 				    spec->relation.column_count))
 				return false;
 	}
+	for (size_t i = 0; i < spec->final_path_count; i++) {
+		const struct sql_replay_final_path_spec *path =
+			&spec->final_paths[i];
+		if (path->plan_fingerprint == NULL ||
+		    path->plan_fingerprint[0] == '\0' || path->is_ordered < -1 ||
+		    (path->is_ordered >= 0 &&
+		     (uint32_t)path->is_ordered > spec->order_by_count) ||
+		    path->reverse_mask > 1)
+			return false;
+		for (size_t j = i + 1; j < spec->final_path_count; j++)
+			if (spec->final_paths[j].plan_fingerprint == NULL ||
+			    strcmp(path->plan_fingerprint,
+				   spec->final_paths[j].plan_fingerprint) == 0)
+				return false;
+	}
 	return true;
 }
 
@@ -1018,6 +1129,9 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 	input->order_by_count = spec->order_by_count;
 	input->access_candidate_count = spec->access_candidate_count;
 	input->access_candidates_present = spec->access_candidates_present;
+	input->final_path_count = spec->final_path_count;
+	input->final_paths_present = spec->final_paths_present;
+	input->selector_version = spec->selector_version;
 	input->relation_key = copy_nonempty(r->logical_key);
 	input->relation_definition = copy_nonempty(r->canonical_definition);
 	input->columns = calloc(r->column_count, sizeof(*input->columns));
@@ -1044,6 +1158,10 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 			NULL :
 			calloc(spec->access_candidate_count,
 			       sizeof(*input->access_candidates));
+	input->final_paths = spec->final_path_count == 0 ?
+				     NULL :
+				     calloc(spec->final_path_count,
+					    sizeof(*input->final_paths));
 	if (input->relation_key == NULL || input->relation_definition == NULL ||
 	    input->columns == NULL ||
 	    (r->index_count != 0 && input->indexes == NULL) ||
@@ -1053,7 +1171,8 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 	    input->predicate == NULL || input->projections == NULL ||
 	    (spec->order_by_count != 0 && input->order_by == NULL) ||
 	    (spec->access_candidate_count != 0 &&
-	     input->access_candidates == NULL))
+	     input->access_candidates == NULL) ||
+	    (spec->final_path_count != 0 && input->final_paths == NULL))
 		goto nomem;
 	for (size_t i = 0; i < r->column_count; i++) {
 		input->columns[i].type = copy_nonempty(r->columns[i].type);
@@ -1183,6 +1302,19 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 				goto nomem;
 		}
 	}
+	for (size_t i = 0; i < spec->final_path_count; i++) {
+		const struct sql_replay_final_path_spec *src =
+			&spec->final_paths[i];
+		struct sql_replay_final_path *dst = &input->final_paths[i];
+		dst->plan_fingerprint = copy_nonempty(src->plan_fingerprint);
+		dst->path_cost_logest = src->path_cost_logest;
+		dst->unsorted_cost_logest = src->unsorted_cost_logest;
+		dst->output_rows_logest = src->output_rows_logest;
+		dst->is_ordered = src->is_ordered;
+		dst->reverse_mask = src->reverse_mask;
+		if (dst->plan_fingerprint == NULL)
+			goto nomem;
+	}
 	input->statistics_present = r->statistics_present;
 	input->row_count = r->row_count;
 	input->cardinality_semantics = r->cardinality_semantics;
@@ -1198,6 +1330,7 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 	input->planner_algorithm_version = spec->planner_algorithm_version;
 	input->planner_config_version = spec->planner_config_version;
 	input->beam_width = spec->beam_width;
+	input->selector_version = spec->selector_version;
 	*result = input;
 	return SQL_REPLAY_INPUT_OK;
 nomem:

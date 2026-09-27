@@ -97,6 +97,25 @@ struct sql_replay_access_candidate_spec {
 	double cost_rows;
 };
 
+/* A final WherePath retained after the live path solver has completed all
+ * rounds. Costs use the solver's exact signed LogEst representation. The
+ * array order is the retained-path order consumed by the final reducer. */
+struct sql_replay_final_path_spec {
+	/* Stable fingerprint for the complete logical path, including scan order. */
+	const char *plan_fingerprint;
+	int16_t path_cost_logest;
+	int16_t unsorted_cost_logest;
+	int16_t output_rows_logest;
+	/* wherePathSolver's final isOrdered value: -1 unknown, else terms satisfied. */
+	int32_t is_ordered;
+	/* Detached reverse-scan bitmask; v1 supports one relation only. */
+	uint64_t reverse_mask;
+};
+
+enum sql_replay_selector_version {
+	SQL_REPLAY_SELECTOR_FINAL_PATH_V1 = 1,
+};
+
 /* Detached normalized single-relation SELECT subset. All strings are copied
  * by create(); identifiers are logical ordinals/labels, never storage IDs.
  * Expression strings are expected to come from the validated M3 normalizer.
@@ -111,6 +130,10 @@ struct sql_replay_input_spec {
 	const struct sql_replay_access_candidate_spec *access_candidates;
 	size_t access_candidate_count;
 	bool access_candidates_present;
+	const struct sql_replay_final_path_spec *final_paths;
+	size_t final_path_count;
+	bool final_paths_present;
+	uint32_t selector_version;
 	bool limit_present;
 	uint64_t limit;
 	bool offset_present;
@@ -171,6 +194,15 @@ struct sql_replay_access_candidate {
 	double cost_rows;
 };
 
+struct sql_replay_final_path {
+	char *plan_fingerprint;
+	int16_t path_cost_logest;
+	int16_t unsorted_cost_logest;
+	int16_t output_rows_logest;
+	int32_t is_ordered;
+	uint64_t reverse_mask;
+};
+
 struct sql_replay_input {
 	char *relation_key;
 	char *relation_definition;
@@ -197,6 +229,10 @@ struct sql_replay_input {
 	struct sql_replay_access_candidate *access_candidates;
 	size_t access_candidate_count;
 	bool access_candidates_present;
+	struct sql_replay_final_path *final_paths;
+	size_t final_path_count;
+	bool final_paths_present;
+	uint32_t selector_version;
 	bool limit_present;
 	uint64_t limit;
 	bool offset_present;
@@ -211,21 +247,26 @@ enum sql_replay_input_status {
 	SQL_REPLAY_INPUT_INVALID,
 	SQL_REPLAY_INPUT_NOMEM,
 	SQL_REPLAY_INPUT_INCOMPLETE,
+	SQL_REPLAY_INPUT_NO_PLAN,
 };
 
 enum sql_replay_input_status
 sql_replay_input_create(const struct sql_replay_input_spec *spec,
 			struct sql_replay_input **result);
 
-/*
- * Check the minimum capture-completeness prerequisite for a future replay
- * tool. A missing candidate provider is incomplete; a known empty candidate
- * set is complete (and lets the replay planner report no access path). This
- * does not assert that an algorithm/config version is supported or that an
- * external EXPLAIN envelope is replayable.
- */
+/* Check final-path selection replay readiness. Missing final paths are
+ * incomplete; a known empty post-beam set is complete and means no plan.
+ * Access-loop candidates alone are insufficient. */
 enum sql_replay_input_status
 sql_replay_input_check_replay_ready(const struct sql_replay_input *input);
+
+/* Select the final WherePath exactly as wherePathSolver does: minimum
+ * path_cost_logest, with the first retained path winning equal-cost ties.
+ * This consumes only the captured post-beam final-path list; it does not
+ * enumerate access paths or rerun path generation/pruning. */
+enum sql_replay_input_status
+sql_replay_input_select_final_path(const struct sql_replay_input *input,
+				   const struct sql_replay_final_path **selected);
 
 void
 sql_replay_input_delete(struct sql_replay_input *input);

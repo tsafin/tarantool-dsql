@@ -632,7 +632,7 @@ test_canonical_expression_grammar(void)
 static void
 test_rejects_incomplete_or_invalid_inputs(void)
 {
-	plan(12);
+	plan(13);
 	header();
 	struct sql_replay_column_spec column = { "integer", "binary" };
 	const char *projection[] = { "col(r0,c0)" };
@@ -807,8 +807,9 @@ test_access_candidates(void)
 		   input->access_candidates[0].projected_columns[0] == 0 &&
 		   input->access_candidates[0].cost_rows == 1.75,
 	   "candidate fields and logical ordinals are detached");
-	ok(sql_replay_input_check_replay_ready(input) == SQL_REPLAY_INPUT_OK,
-	   "known candidate provider output satisfies the replay-input gate");
+	ok(sql_replay_input_check_replay_ready(input) ==
+		   SQL_REPLAY_INPUT_INCOMPLETE,
+	   "access-loop candidates alone do not satisfy final-path replay gate");
 	const char *cursor = NULL;
 	ok(input != NULL &&
 		   sql_replay_input_serialize(input, &bytes, &size) ==
@@ -848,8 +849,9 @@ test_access_candidates(void)
 		   (absent_size != empty_size ||
 		    memcmp(absent_bytes, empty_bytes, absent_size) != 0),
 	   "known empty candidate set differs from unavailable provider");
-	ok(sql_replay_input_check_replay_ready(empty) == SQL_REPLAY_INPUT_OK,
-	   "known empty candidate set passes capture completeness");
+	ok(sql_replay_input_check_replay_ready(empty) ==
+		   SQL_REPLAY_INPUT_INCOMPLETE,
+	   "known empty access-loop set is not a final-path result");
 	ok(sql_replay_input_check_replay_ready(NULL) ==
 		   SQL_REPLAY_INPUT_INVALID,
 	   "null replay input cannot pass the completeness gate");
@@ -864,8 +866,8 @@ test_access_candidates(void)
 		   provided != NULL && provided->access_candidates_present &&
 		   provided->access_candidate_count == 1 &&
 		   sql_replay_input_check_replay_ready(provided) ==
-			   SQL_REPLAY_INPUT_OK,
-	   "complete provider result is copied into a ready detached input");
+			   SQL_REPLAY_INPUT_INCOMPLETE,
+	   "complete access provider is still missing final-path capture");
 	sql_replay_input_delete(provided);
 	provided = NULL;
 	provider.state = SQL_REPLAY_CANDIDATES_UNAVAILABLE;
@@ -888,7 +890,7 @@ test_access_candidates(void)
 		   provided->access_candidate_count == 0 &&
 		   sql_replay_input_check_replay_ready(provided) ==
 			   SQL_REPLAY_INPUT_OK,
-	   "complete empty provider is distinct and capture-ready");
+		   "complete empty access provider is distinct but not final-path ready");
 	sql_replay_input_delete(provided);
 	provided = NULL;
 	provider.state = SQL_REPLAY_CANDIDATES_INCOMPLETE;
@@ -940,6 +942,157 @@ test_access_candidates(void)
 	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID &&
 		   input == NULL,
 	   "non-finite cost rejected");
+	footer();
+	check_plan();
+}
+
+static void
+test_final_path_selector(void)
+{
+	plan(13);
+	header();
+	struct sql_replay_column_spec column = { "integer", "binary" };
+	struct sql_replay_relation_spec relation = {
+		.logical_key = "r0",
+		.canonical_definition = "table(c0:int)",
+		.columns = &column,
+		.column_count = 1,
+	};
+	const char *projection[] = { "col(r0,c0)" };
+	struct sql_replay_order_spec order = {
+		.canonical_expression = "col(r0,c0)",
+	};
+	struct sql_replay_final_path_spec paths[] = {
+		{ .plan_fingerprint = "unsorted-expensive",
+		  .path_cost_logest = 70,
+		  .unsorted_cost_logest = 20,
+		  .output_rows_logest = 30,
+		  .is_ordered = 0 },
+		{ .plan_fingerprint = "ordered-best",
+		  .path_cost_logest = 40,
+		  .unsorted_cost_logest = 40,
+		  .output_rows_logest = 30,
+		  .is_ordered = 1,
+		  .reverse_mask = 1 },
+		{ .plan_fingerprint = "same-cost-later",
+		  .path_cost_logest = 40,
+		  .unsorted_cost_logest = 10,
+		  .output_rows_logest = 2,
+		  .is_ordered = 0 },
+	};
+	struct sql_replay_input_spec spec = {
+		.relation = relation,
+		.predicate = "eq(col(r0,c0),int(1))",
+		.projections = projection,
+		.projection_count = 1,
+		.order_by = &order,
+		.order_by_count = 1,
+		.final_paths = paths,
+		.final_path_count = 3,
+		.final_paths_present = true,
+		.selector_version = SQL_REPLAY_SELECTOR_FINAL_PATH_V1,
+		.planner_algorithm_version = 1,
+		.planner_config_version = 1,
+		.beam_width = 1,
+	};
+	struct sql_replay_input *input = NULL;
+	const struct sql_replay_final_path *selected = NULL;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_OK &&
+		   input != NULL,
+	   "post-beam final path candidates copied into detached input");
+	ok(sql_replay_input_check_replay_ready(input) == SQL_REPLAY_INPUT_OK,
+	   "complete final-path set satisfies selection replay readiness");
+	ok(input != NULL &&
+		   sql_replay_input_select_final_path(input, &selected) ==
+			   SQL_REPLAY_INPUT_OK &&
+		   selected != NULL &&
+		   strcmp(selected->plan_fingerprint, "ordered-best") == 0,
+	   "exact final path cost selects lowest retained path, not min access loop");
+	ok(selected != NULL && selected->is_ordered == 1 &&
+		   selected->reverse_mask == 1,
+	   "selected path retains captured ORDER BY and reverse-scan properties");
+	struct sql_replay_final_path_spec reordered[] = {
+		paths[2], paths[0], paths[1],
+	};
+	spec.final_paths = reordered;
+	struct sql_replay_input *reordered_input = NULL;
+	selected = NULL;
+	ok(sql_replay_input_create(&spec, &reordered_input) ==
+		   SQL_REPLAY_INPUT_OK &&
+		   sql_replay_input_select_final_path(reordered_input, &selected) ==
+			   SQL_REPLAY_INPUT_OK &&
+		   strcmp(selected->plan_fingerprint, "same-cost-later") == 0,
+	   "reordering equal-cost retained paths changes first-on-tie winner");
+	struct sql_replay_final_path_spec distinct_reordered[] = {
+		paths[1], paths[0],
+	};
+	spec.final_paths = distinct_reordered;
+	spec.final_path_count = 2;
+	struct sql_replay_input *distinct_input = NULL;
+	selected = NULL;
+	ok(sql_replay_input_create(&spec, &distinct_input) ==
+		   SQL_REPLAY_INPUT_OK &&
+	   sql_replay_input_select_final_path(distinct_input, &selected) ==
+		   SQL_REPLAY_INPUT_OK &&
+	   strcmp(selected->plan_fingerprint, "ordered-best") == 0,
+	   "input reorder does not change a unique lowest final path");
+	spec.final_paths = NULL;
+	spec.final_path_count = 0;
+	spec.final_paths_present = false;
+	spec.selector_version = 0;
+	struct sql_replay_input *unavailable = NULL;
+	ok(sql_replay_input_create(&spec, &unavailable) == SQL_REPLAY_INPUT_OK &&
+		   sql_replay_input_select_final_path(unavailable, &selected) ==
+			   SQL_REPLAY_INPUT_INCOMPLETE && selected == NULL,
+	   "unavailable final-path provider fails closed");
+	spec.final_paths_present = true;
+	spec.selector_version = SQL_REPLAY_SELECTOR_FINAL_PATH_V1;
+	struct sql_replay_input *empty = NULL;
+	ok(sql_replay_input_create(&spec, &empty) == SQL_REPLAY_INPUT_OK &&
+		   sql_replay_input_select_final_path(empty, &selected) ==
+			   SQL_REPLAY_INPUT_NO_PLAN && selected == NULL,
+	   "known empty final-path set reports no plan, not unavailable");
+	spec.selector_version = 99;
+	struct sql_replay_input *unknown = NULL;
+	ok(sql_replay_input_create(&spec, &unknown) == SQL_REPLAY_INPUT_INVALID &&
+		   unknown == NULL,
+	   "unsupported final selector version rejected");
+	spec.selector_version = SQL_REPLAY_SELECTOR_FINAL_PATH_V1;
+	struct sql_replay_final_path_spec duplicate[] = { paths[0], paths[0] };
+	spec.final_paths = duplicate;
+	spec.final_path_count = 2;
+	struct sql_replay_input *invalid = NULL;
+	ok(sql_replay_input_create(&spec, &invalid) == SQL_REPLAY_INPUT_INVALID &&
+		   invalid == NULL,
+	   "duplicate final plan fingerprints rejected");
+	spec.final_paths = paths;
+	spec.final_path_count = 3;
+	struct sql_replay_input *serialized = NULL;
+	char *bytes = NULL;
+	size_t size = 0;
+	ok(sql_replay_input_create(&spec, &serialized) == SQL_REPLAY_INPUT_OK &&
+		   sql_replay_input_serialize(serialized, &bytes, &size) ==
+			   SQL_REPLAY_INPUT_OK && bytes != NULL,
+	   "ordered final paths serialize in the versioned internal input");
+	const char *cursor = bytes;
+	ok(bytes != NULL && mp_check(&cursor, bytes + size) == 0 &&
+		   cursor == bytes + size && byte_sequence_present(
+			   bytes, size, "final_path_selector_version"),
+	   "serialized input carries selector identity and valid MsgPack");
+	ok(serialized != NULL &&
+		   sql_replay_input_select_final_path(serialized, &selected) ==
+			   SQL_REPLAY_INPUT_OK &&
+		   strcmp(selected->plan_fingerprint, "ordered-best") == 0,
+	   "selection output is stable after detached input creation");
+	free(bytes);
+	sql_replay_input_delete(input);
+	sql_replay_input_delete(reordered_input);
+	sql_replay_input_delete(distinct_input);
+	sql_replay_input_delete(unavailable);
+	sql_replay_input_delete(empty);
+	sql_replay_input_delete(unknown);
+	sql_replay_input_delete(invalid);
+	sql_replay_input_delete(serialized);
 	footer();
 	check_plan();
 }
@@ -1060,13 +1213,13 @@ test_canonical_msgpack(void)
 			uint32_t key_size;
 			const char *key = mp_decode_str(&version_cursor, &key_size);
 			if (key_size == 7 && memcmp(key, "version", 7) == 0) {
-				version_four = mp_decode_uint(&version_cursor) == 4;
+				version_four = mp_decode_uint(&version_cursor) == 5;
 				break;
 			}
 			mp_next(&version_cursor);
 		}
 	}
-	ok(version_four, "replay input advertises internal format version 4");
+	ok(version_four, "replay input advertises internal format version 5");
 	if (a != NULL)
 		a->indexes[0].tuple_count = 1;
 	char *invalid_bytes = NULL;
@@ -1095,6 +1248,7 @@ main(void)
 	test_canonical_expression_grammar();
 	test_rejects_incomplete_or_invalid_inputs();
 	test_access_candidates();
+	test_final_path_selector();
 	test_bounded_candidate_capture();
 	test_canonical_msgpack();
 	return 0;
