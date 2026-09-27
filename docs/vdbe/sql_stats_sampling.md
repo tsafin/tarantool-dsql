@@ -337,6 +337,53 @@ Vinyl's VLSN read view; before/after schema and index-definition checks are
 necessary additional guards, not substitutes for a pinned data-time boundary.
 Until then, the producer must not mint a shared visibility ID.
 
+#### Engine boundary audit (2026-09)
+
+The source-level capability gap is concrete, not just missing documentation:
+`read_view_open()` in `src/box/read_view.c` copies `box_vclock` and then asks
+only engines with `ENGINE_SUPPORTS_READ_VIEW` to create engine state. Memtx
+sets that flag in `src/box/memtx_engine.cc`; Vinyl's engine vtab in
+`src/box/vinyl.c` uses `generic_engine_create_read_view()` and does not set the
+flag. Per-index views are then created independently by
+`index_create_read_view()`. Memtx TREE/HASH implementations retain their
+index and create a memtx transaction snapshot cleaner. Vinyl's index vtab
+uses `generic_index_create_read_view()`, which explicitly reports
+`UnsupportedIndexFeature("consistent read view")`. Thus opening the existing
+core view cannot pin Vinyl data, and its ID/vclock are not proof that a Vinyl
+index was scanned at that point.
+
+The transaction route has a different, also insufficient boundary. The SQL
+collector sets `TXN_ISOLATION_READ_CONFIRMED`. The contract in `txn.h` is that
+reads see only confirmed changes; it does not freeze later confirmed commits
+or promise repeatable reads. A Vinyl transaction starts on
+`vy_tx_manager::global_read_view` (whose
+VLSN is `INT64_MAX`) and may be moved to a historical `vy_read_view` when a
+read conflict requires it (`vy_tx_send_to_read_view()` in `src/box/vy_tx.c`).
+That transaction-owned Vinyl history point is an engine-local value and is not
+paired with memtx's transaction stories/prepare-sequence visibility. The
+collector's `box_vclock` equality checks can conservatively reject a run if a
+WAL commit advances the local clock; they neither freeze reads at the captured
+clock nor translate it to a memtx snapshot and a Vinyl VLSN. They therefore
+remain fail-closed generation guards, not a cross-engine snapshot.
+
+No bounded implementation is safe to add at the SQL collector layer alone.
+The minimal next implementation slice is a box-owned collector-view contract:
+capture catalog/schema/index definitions and one commit cut in the TX thread;
+acquire and retain engine views for all requested indexes at that same cut;
+and fail open if any engine/index cannot honor it. Vinyl needs a pinned VLSN
+read-view lifetime and raw iterator adapter, while the API must pass the
+captured Vinyl engine view into per-index view creation rather than recapturing
+an index-local current point. The cut acquisition must be atomic with respect
+to transaction completion across engines (or use a shared monotonic commit
+epoch that both engines can map exactly); a vclock comparison after sampling
+is not a substitute. Bound retained history/resources and define cancellation
+and schema-change behavior before wiring the collector. The proving runtime
+test must hold an insert/delete race at barriers while sampling memtx and
+Vinyl primary plus secondary indexes, and show that every accepted candidate
+matches one common before-or-after population; inability to pin or retain that
+view must leave the installed snapshot unchanged. Until that API and test
+exist, S1.3a and production `ANALYZE` wiring remain open.
+
 ### Publication is a separate, currently blocked slice
 
 Do not implement a global pointer swap as a substitute for this contract.
