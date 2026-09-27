@@ -2,6 +2,7 @@
 #define TARANTOOL_SQL_PLAN_DESCRIPTOR_H
 
 #include <stddef.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 /* Internal, immutable descriptor for the M3.1 single-relation contract. */
@@ -56,6 +57,9 @@ struct sql_plan_order_term {
 struct sql_plan_access {
 	enum sql_plan_access_kind kind;
 	uint32_t index_id;
+	/* Owned scalar key for the executable integer primary-key point path. */
+	int64_t integer_point_key;
+	bool has_integer_point_key;
 	const struct sql_plan_bound *bounds;
 	size_t bound_count;
 	enum sql_plan_direction direction;

@@ -20,12 +20,16 @@ sql_select_preflight_table_scan(const struct Select *select,
 	const struct SrcList_item *source = &select->pSrc->a[0];
 	if (select->pPrior != NULL || select->pValuesTail != NULL ||
 	    select->pWith != NULL || select->pGroupBy != NULL ||
-	    select->pHaving != NULL || select->pWhere != NULL ||
+	    select->pHaving != NULL ||
 	    (select->selFlags & (SF_Values | SF_NestedFrom | SF_Compound |
 			 SF_Aggregate | SF_HasAgg | SF_Distinct)) != 0 ||
 	    source->pSelect != NULL || source->fg.isTabFunc || source->pOn != NULL ||
 	    source->pUsing != NULL || source->fg.isIndexedBy ||
 	    source->fg.notIndexed)
+		return SQL_SELECT_PREFLIGHT_SHAPE;
+	if (select->pWhere != NULL &&
+	    (select->pWhere->op != TK_EQ || select->pWhere->pLeft == NULL ||
+	     select->pWhere->pRight == NULL))
 		return SQL_SELECT_PREFLIGHT_SHAPE;
 	if (source->iCursor < 0 || select->pEList == NULL ||
 	    select->pEList->nExpr <= 0)

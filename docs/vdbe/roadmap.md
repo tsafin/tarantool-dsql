@@ -927,9 +927,12 @@ DML, triggers, subprograms, non-deterministic functions.
 - [ ] **M3.4 executable lowering** — partial: a narrow production route now
   connects the producer, physical descriptor, VDBE loop emitter, and
   `SelectDest` result registers. It accepts only a resolved direct-column
-  projection from one base table, with no filter, and requires a TREE primary
-  index. Ordering is supported only on its single primary-key part, by scanning
-  in the requested direction. Nonnegative signed-64-bit integer-literal
+  projection from one base table and requires a TREE primary index. The
+  no-filter route supports optional primary-key ordering by scanning in the
+  requested direction. A second route supports equality between the sole
+  integer primary-key part and a nonnegative signed-64-bit integer literal; it emits a
+  primary cursor NotFound seek and returns at most one row. The equality
+  route currently excludes ORDER BY and LIMIT/OFFSET. Nonnegative signed-64-bit integer-literal
   `LIMIT` and optional `OFFSET` are retained in the descriptor; counters
   above `INT_MAX` use unsigned `OP_Int64` constants, and offset rows are
   skipped before projection and a result counter handles the limit. `LIMIT 0`
@@ -942,13 +945,14 @@ DML, triggers, subprograms, non-deterministic functions.
   legacy codegen; hard diagnostics propagate. The session flag is default-off.
   Focused SQL parity passes on memtx and Vinyl for one-/two-column projection,
   NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
-  descending primary-key order with LIMIT, and filtered/computed controls.
-  Thirteen emitter checks cover unbounded, limited, offset, zero-limit,
+  descending primary-key order with LIMIT, primary-key point hit/miss, and
+  negative-literal/range-filter fallback. Fourteen emitter checks cover
+  unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, and out-of-range opcode
   shapes. SQL regressions verify `LIMIT 2147483648` and paired wide LIMIT / OFFSET
   execute on the new route with unchanged row semantics. Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
-  This does not cover all descriptor operators, secondary/range/point access,
+  This does not cover all descriptor operators, secondary/range access,
   all storage edge cases, or corpus-wide parity; checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
   error-injection, parity, and capture coverage. Details:

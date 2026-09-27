@@ -131,7 +131,7 @@ sql_physical_table_scan_from_select(
 	if (reason != NULL)
 		*reason = SQL_PHYSICAL_REJECT_NONE;
 	if (select == NULL || estimate == NULL || select->pSrc == NULL ||
-	    select->pSrc->nSrc != 1 || select->pWhere != NULL ||
+	    select->pSrc->nSrc != 1 ||
 	    select->pEList == NULL ||
 	    select->pEList->nExpr <= 0) {
 		if (reason != NULL)
@@ -173,6 +173,45 @@ sql_physical_table_scan_from_select(
 		if (reason != NULL)
 			*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 		return NULL;
+	}
+	bool has_point_key = false;
+	int64_t point_key = 0;
+	if (select->pWhere != NULL) {
+		const struct Expr *left = select->pWhere->pLeft;
+		const struct Expr *right = select->pWhere->pRight;
+		const struct key_def *pk = source->space->index_map[0]->def->key_def;
+		if (select->pOrderBy != NULL || select->pLimit != NULL ||
+		    select->pOffset != NULL || select->pWhere->op != TK_EQ ||
+		    left == NULL || right == NULL ||
+		    pk->part_count != 1 ||
+		    pk->parts[0].type != FIELD_TYPE_INTEGER ||
+		    ExprHasProperty(left, EP_TokenOnly | EP_Reduced) ||
+		    left->op != TK_COLUMN_REF || left->pLeft != NULL ||
+		    left->pRight != NULL || left->iTable != source->iCursor ||
+		    left->iColumn != (int)pk->parts[0].fieldno ||
+		    ExprHasProperty(right, EP_TokenOnly | EP_Reduced) ||
+		    right->op != TK_INTEGER || (right->flags & EP_Resolved) == 0 ||
+		    right->pLeft != NULL || right->pRight != NULL) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		bool is_negative = false;
+		if ((right->flags & EP_IntValue) != 0) {
+			point_key = right->u.iValue;
+		} else if (right->u.zToken == NULL ||
+			   sql_atoi64(right->u.zToken, &point_key, &is_negative,
+				      strlen(right->u.zToken)) != 0 || is_negative) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		if (point_key < 0) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		has_point_key = true;
 	}
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	struct sql_plan_order_term order_term;
@@ -227,6 +266,15 @@ sql_physical_table_scan_from_select(
 		}
 		columns[i] = (uint32_t)expr->iColumn;
 	}
+	struct sql_plan_expression point_expression = {
+		.id = 1,
+		.canonical = "integer-point-key",
+	};
+	struct sql_plan_bound point_bound = {
+		.side = SQL_PLAN_LOWER,
+		.op = SQL_PLAN_EQ,
+		.expr_ref = 1,
+	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
 		.planner_version = 1,
@@ -238,20 +286,27 @@ sql_physical_table_scan_from_select(
 		.space_id = source->space->def->id,
 		.space_name = source->space->def->name,
 		.access = {
-			.kind = SQL_PLAN_TABLE_FULL_SCAN,
+			.kind = has_point_key ? SQL_PLAN_PK_POINT_LOOKUP :
+				SQL_PLAN_TABLE_FULL_SCAN,
+			.bounds = has_point_key ? &point_bound : NULL,
+			.bound_count = has_point_key ? 1 : 0,
+			.has_integer_point_key = has_point_key,
+			.integer_point_key = point_key,
 			.direction = direction,
 			.produced_order = select->pOrderBy == NULL ? NULL : &order_term,
 			.produced_order_count = select->pOrderBy == NULL ? 0 : 1,
 			.projected_columns = columns,
 			.projected_column_count = select->pEList->nExpr,
-			.est_rows = estimate->rows,
+			.est_rows = has_point_key ? 1 : estimate->rows,
 			.est_rows_confidence = estimate->confidence,
 		},
 		.projection_columns = columns,
 		.projection_column_count = select->pEList->nExpr,
+		.expressions = has_point_key ? &point_expression : NULL,
+		.expression_count = has_point_key ? 1 : 0,
 		.cost_startup = estimate->startup_cost,
-		.cost_total = estimate->total_cost,
-		.cost_rows = estimate->rows,
+		.cost_total = has_point_key ? 1 : estimate->total_cost,
+		.cost_rows = has_point_key ? 1 : estimate->rows,
 		.cost_row_width = estimate->row_width,
 		.cost_confidence = estimate->confidence,
 	};

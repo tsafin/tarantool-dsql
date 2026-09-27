@@ -66,6 +66,40 @@ new_scan_descriptor(const struct sql_plan_filter *filters, size_t filter_count,
 	return sql_plan_descriptor_new(&input);
 }
 
+static struct sql_plan_descriptor *
+new_point_descriptor(int64_t key)
+{
+	static const uint32_t columns[] = {2, 0};
+	static const struct sql_plan_bound bound = {
+		.side = SQL_PLAN_LOWER,
+		.op = SQL_PLAN_EQ,
+		.expr_ref = 1,
+	};
+	static const struct sql_plan_expression expression = {
+		.id = 1,
+		.canonical = "integer-point-key",
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_PK_POINT_LOOKUP,
+			.bounds = &bound,
+			.bound_count = 1,
+			.has_integer_point_key = true,
+			.integer_point_key = key,
+		},
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+		.expressions = &expression,
+		.expression_count = 1,
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
 int
 main(void)
 {
@@ -75,7 +109,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(13);
+	plan(14);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -114,10 +148,11 @@ main(void)
 		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &wide_offset_limit, 1);
 	struct sql_plan_descriptor *invalid_offset_desc =
 		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &invalid_offset, 1);
+	struct sql_plan_descriptor *point_desc = new_point_descriptor(INT64_MAX);
 	ok(plan_desc != NULL && filtered_desc != NULL && descending_desc != NULL &&
 	   limit_one_desc != NULL && limit_zero_desc != NULL &&
 	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
-	   invalid_offset_desc != NULL,
+	   invalid_offset_desc != NULL && point_desc != NULL,
 	   "scan and literal-limit descriptors are constructed");
 	struct Parse parse = {};
 	struct Vdbe vdbe = {};
@@ -193,6 +228,16 @@ main(void)
 	ok(sql_plan_lower_vdbe_table_scan(invalid_offset_desc, &vdbe, 4, 20) == -1 &&
 	   vdbe.nOp == before_invalid_offset,
 	   "out-of-range offset descriptor is rejected before VDBE mutation");
+	int before_point = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_point(point_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_point].opcode == OP_Int64 &&
+	   vdbe.aOp[before_point].p4type == P4_INT64 &&
+	   vdbe.aOp[before_point + 1].opcode == OP_NotFound &&
+	   vdbe.aOp[before_point + 1].p1 == 4 &&
+	   vdbe.aOp[before_point + 2].opcode == OP_Column &&
+	   vdbe.aOp[before_point + 4].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_point + 1].p2 == before_point + 5,
+	   "integer primary-key point path seeks, projects, and returns at most one row");
 
 	sql_plan_descriptor_delete(plan_desc);
 	sql_plan_descriptor_delete(filtered_desc);
@@ -202,6 +247,7 @@ main(void)
 	sql_plan_descriptor_delete(offset_limit_desc);
 	sql_plan_descriptor_delete(wide_offset_limit_desc);
 	sql_plan_descriptor_delete(invalid_offset_desc);
+	sql_plan_descriptor_delete(point_desc);
 	for (int i = 0; i < vdbe.nOp; ++i) {
 		if (vdbe.aOp[i].p4type == P4_INT64 ||
 		    vdbe.aOp[i].p4type == P4_UINT64)

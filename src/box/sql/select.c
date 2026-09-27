@@ -5994,6 +5994,9 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	struct sql_plan_descriptor *plan =
 		sql_physical_table_scan_from_select(select, &estimate, &reason);
 	if (plan == NULL) {
+		if (select->pWhere != NULL && reason ==
+		    SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN)
+			reason = SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER;
 		sql_select_record_physical_fallback(parse, reason);
 		return 0;
 	}
@@ -6011,8 +6014,13 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	vdbe_emit_open_cursor(parse, source->iCursor, 0, space);
 	if (parse->is_aborted)
 		goto emission_error;
-	if (sql_plan_lower_vdbe_table_scan(plan, vdbe, source->iCursor,
-					   result_first_reg) != 0)
+	int lower_rc = sql_plan_descriptor_access_kind(plan) ==
+		SQL_PLAN_PK_POINT_LOOKUP ?
+		sql_plan_lower_vdbe_pk_point(plan, vdbe, source->iCursor,
+					      result_first_reg) :
+		sql_plan_lower_vdbe_table_scan(plan, vdbe, source->iCursor,
+					       result_first_reg);
+	if (lower_rc != 0)
 		goto emission_error;
 	int close_op = sqlVdbeAddOp1(vdbe, OP_Close, source->iCursor);
 	if (close_op != vdbe->nOp - 1 || parse->is_aborted ||

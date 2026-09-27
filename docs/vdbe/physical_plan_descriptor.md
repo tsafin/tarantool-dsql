@@ -172,6 +172,20 @@ parity/capture coverage remain, and the checkpoint does not restore arbitrary
 AST/schema mutations. M1.4 remains non-replayable; this producer does not
 change the diagnostic envelope or claim replay completeness.
 
+#### Integer primary-key point lookup
+
+The executable producer also accepts a narrowly constrained equality filter:
+the left operand must be the one-part INTEGER primary-key column and the right
+operand a resolved nonnegative signed-64-bit integer literal. It copies the scalar key into
+the immutable access descriptor (alongside its equality bound), and the VDBE
+lowering emits the key constant, NotFound, direct projected-column reads, and
+ResultRow. This form has no ORDER BY or LIMIT/OFFSET; all other filter shapes
+remain on legacy codegen with the stable UNSUPPORTED_FILTER reason. The SQL
+regression exercises hit, miss, negative-literal fallback, and unsupported
+range cases on both memtx and Vinyl. This is a first primary point path, not general
+point-lookup support: parameters, secondary indexes, composite keys, ranges,
+and expression evaluation are not included.
+
 M3.5 now has a producer-contract prototype in `sql_plan_fallback.{h,c}`.
 It maps the existing logical and physical reject enums to append-only numeric
 `sql_plan_fallback_reason` values and stable names, and returns an observable
