@@ -1,6 +1,9 @@
 #include "sql_select_preflight.h"
 
 #include "sqlInt.h"
+#include "box/index.h"
+#include "box/index_def.h"
+#include "box/key_def.h"
 #include "box/space.h"
 
 static bool
@@ -35,6 +38,27 @@ sql_select_preflight_table_scan(const struct Select *select,
 	    source->pUsing != NULL || source->fg.isIndexedBy ||
 	    source->fg.notIndexed)
 		return SQL_SELECT_PREFLIGHT_SHAPE;
+	if (select->pOrderBy != NULL) {
+		const struct ExprList *order = select->pOrderBy;
+		if (order->nExpr != 1 || source->space->index_map == NULL ||
+		    source->space->index_map[0] == NULL ||
+		    source->space->index_map[0]->def == NULL ||
+		    source->space->index_map[0]->def->type != TREE ||
+		    source->space->index_map[0]->def->key_def == NULL ||
+		    source->space->index_map[0]->def->key_def->part_count != 1)
+			return SQL_SELECT_PREFLIGHT_SHAPE;
+		const struct Expr *expr = order->a[0].pExpr;
+		uint32_t primary_field = source->space->index_map[0]->def->key_def->
+			parts[0].fieldno;
+		if (expr == NULL || ExprHasProperty(expr, EP_TokenOnly | EP_Reduced) ||
+		    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
+		    expr->pRight != NULL || expr->iTable != source->iCursor ||
+		    expr->iColumn < 0 || (uint32_t)expr->iColumn != primary_field ||
+		    (order->a[0].sort_order != SORT_ORDER_UNDEF &&
+		     order->a[0].sort_order != SORT_ORDER_ASC &&
+		     order->a[0].sort_order != SORT_ORDER_DESC))
+			return SQL_SELECT_PREFLIGHT_SHAPE;
+	}
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;
 		if ((where->op == TK_NOTNULL || where->op == TK_ISNULL) &&
