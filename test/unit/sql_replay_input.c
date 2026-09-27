@@ -194,7 +194,7 @@ contains_bytes(const char *data, size_t size, const char *needle,
 static void
 test_extract_select_from_catalog(void)
 {
-	plan(7);
+	plan(8);
 	header();
 	struct field_def fields[] = { {
 		.type = FIELD_TYPE_INTEGER,
@@ -204,7 +204,7 @@ test_extract_select_from_catalog(void)
 	struct space_def *definition =
 		calloc(1, sizeof(*definition) + sizeof("catalog_relation"));
 	if (definition == NULL) {
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 8; i++)
 			ok(false, "catalog SELECT fixture allocation succeeds");
 		footer();
 		check_plan();
@@ -217,7 +217,7 @@ test_extract_select_from_catalog(void)
 	struct key_def *key = calloc(1, sizeof(*key) + sizeof(key->parts[0]));
 	if (key == NULL) {
 		ok(false, "catalog index fixture allocation succeeds");
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 7; i++)
 			ok(false,
 			   "catalog snapshot assertions require index fixture");
 		free(definition);
@@ -311,6 +311,9 @@ test_extract_select_from_catalog(void)
 			   SQL_REPLAY_CARDINALITY_PHYSICAL_TUPLES &&
 		   input->indexes[0].distinct_prefixes[0] == 12,
 	   "catalog SELECT extraction captures detached schema, stats, and config");
+	ok(input != NULL && !input->access_candidates_present &&
+	   input->access_candidate_count == 0,
+	   "snapshot extraction leaves planner candidates unavailable, not empty");
 	char *bytes = NULL;
 	size_t size = 0;
 	bool serialized = input != NULL &&
