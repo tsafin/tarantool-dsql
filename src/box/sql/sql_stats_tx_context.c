@@ -22,6 +22,7 @@ struct sql_stats_tx_target {
 
 struct sql_stats_tx_context {
 	struct sql_stats_tx_target *targets;
+	struct sql_stats_snapshot *assembled_candidate;
 	size_t target_count;
 	int64_t txn_id;
 	uint64_t catalog_version;
@@ -110,6 +111,8 @@ free_context(struct sql_stats_tx_context *context)
 {
 	if (context == NULL)
 		return;
+	if (context->assembled_candidate != NULL)
+		sql_stats_snapshot_release(context->assembled_candidate);
 	free(context->targets);
 	free(context);
 }
@@ -412,6 +415,10 @@ sql_stats_tx_context_finish_and_publish(
 	if (context_ptr == NULL || *context_ptr == NULL)
 		return -1;
 	struct sql_stats_tx_context *context = *context_ptr;
+	if (context->assembled_candidate != NULL) {
+		(void)sql_stats_tx_context_abort(context_ptr);
+		return -1;
+	}
 	struct sql_stats_collection_generation generation = {
 		.catalog_version = context->catalog_version,
 		.schema_version = context->schema_version,
@@ -500,6 +507,7 @@ sql_stats_tx_context_build_sample_candidate(
 	double *confidences = NULL;
 	struct sql_stats_snapshot *candidate = NULL;
 	bool valid = owns_current_txn(context) && !context->failed &&
+		context->assembled_candidate == NULL &&
 		expected != NULL && expected->index_count != 0 &&
 		expected->indexes != NULL && specs != NULL &&
 		spec_count == expected->index_count &&
@@ -600,6 +608,8 @@ sql_stats_tx_context_build_sample_candidate(
 		max_temp_bytes, max_work);
 	if (candidate == NULL)
 		goto fail;
+	sql_stats_snapshot_retain(candidate);
+	context->assembled_candidate = candidate;
 	tx_staged_indexes_destroy(staged, spec_count);
 	free(sampled_indexes);
 	free(confidences);
@@ -612,4 +622,45 @@ fail:
 	free(sampled_indexes);
 	free(confidences);
 	return NULL;
+}
+
+int
+sql_stats_tx_context_finish_sample_candidate_and_publish(
+	struct sql_stats_tx_context **context_ptr,
+	struct sql_stats_snapshot *candidate)
+{
+	if (context_ptr == NULL || *context_ptr == NULL)
+		return -1;
+	struct sql_stats_tx_context *context = *context_ptr;
+	if (candidate == NULL || context->assembled_candidate != candidate ||
+	    context->failed || !owns_current_txn(context) ||
+	    !tx_context_valid(context) || sql_get() == NULL ||
+	    sql_stats_snapshot_catalog_version(candidate) !=
+		    context->catalog_version ||
+	    sql_stats_snapshot_schema_version(candidate) != context->schema_version) {
+		(void)sql_stats_tx_context_abort(context_ptr);
+		return -1;
+	}
+	struct sql_stats_collection_generation generation = {
+		.catalog_version = context->catalog_version,
+		.schema_version = context->schema_version,
+		.visibility_id = context->visibility_id,
+	};
+	/* Keep the exact immutable candidate alive while finish frees its context. */
+	sql_stats_snapshot_retain(candidate);
+	int rc = sql_stats_tx_context_finish(context_ptr);
+	if (rc != 0 || *context_ptr != NULL || sql_get() == NULL ||
+	    box_schema_version() != generation.schema_version ||
+	    box_catalog_version() != generation.catalog_version || box_vclock == NULL ||
+	    vclock_sum(box_vclock) < 0 ||
+	    (uint64_t)vclock_sum(box_vclock) != generation.visibility_id ||
+	    sql_stats_snapshot_catalog_version(candidate) != generation.catalog_version ||
+	    sql_stats_snapshot_schema_version(candidate) != generation.schema_version) {
+		sql_stats_snapshot_release(candidate);
+		return -1;
+	}
+	/* No yield is allowed between the final generation check and this swap. */
+	sql_set_stats_snapshot(candidate);
+	sql_stats_snapshot_release(candidate);
+	return 0;
 }

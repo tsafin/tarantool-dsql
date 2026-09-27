@@ -1121,7 +1121,7 @@ test_tx_extract(void *arg, const char *tuple, size_t tuple_size,
 static void
 test_transaction_owned_assembler(void)
 {
-	plan(7);
+	plan(10);
 	header();
 	reset_test_txn();
 	advance_test_vclock();
@@ -1188,12 +1188,11 @@ test_transaction_owned_assembler(void)
 		sql_stats_relation_width_denominator_count(relation) == 2 &&
 		sql_stats_index_tuple_count(index8) == 2 &&
 		sql_stats_index_tuple_count(index9) == 2;
-	ok(complete && test_installed_snapshot == baseline,
-	   "reordered owned samples build detached candidate without installation");
-	ok(sql_stats_tx_context_abort(&context) == 0 && context == NULL,
-	   "successful detached assembly remains under caller transaction ownership");
-	if (candidate != NULL)
-		sql_stats_snapshot_release(candidate);
+	ok(complete && sql_stats_tx_context_finish_sample_candidate_and_publish(
+		&context, candidate) == 0 && context == NULL &&
+		test_installed_snapshot == candidate,
+	   "reordered owned candidate publishes only after successful commit");
+	struct sql_stats_snapshot *installed_candidate = candidate;
 
 	struct sql_stats_tx_index_spec missing[] = {reordered[0]};
 	ok(sql_stats_tx_context_begin(targets, 2, &context) == 0 &&
@@ -1207,19 +1206,78 @@ test_transaction_owned_assembler(void)
 		duplicate, 2, 9, 0.5, "test-confidence", 4096, 8192,
 		1024, 1000000) == NULL && sql_stats_tx_context_abort(&context) == 0,
 	   "duplicate target rejects before any partial candidate is exposed");
+	struct sql_stats_snapshot *candidate2 = NULL;
+	ok(sql_stats_tx_context_begin(targets, 2, &context) == 0 &&
+	   (candidate2 = sql_stats_tx_context_build_sample_candidate(context,
+		&expected, reordered, 2, 8, 0.5, "test-confidence", 4096,
+		8192, 1024, 1000000)) != NULL &&
+	   sql_stats_tx_context_finish_sample_candidate_and_publish(&context,
+		baseline) != 0 && context == NULL &&
+	   test_installed_snapshot == installed_candidate,
+	   "unrelated candidate is rejected and previous installation survives");
+	if (candidate2 != NULL)
+		sql_stats_snapshot_release(candidate2);
+	candidate2 = NULL;
+	bool commit_failed = false;
+	if (sql_stats_tx_context_begin(targets, 2, &context) == 0)
+		candidate2 = sql_stats_tx_context_build_sample_candidate(context,
+			&expected, reordered, 2, 8, 0.5, "test-confidence", 4096,
+			8192, 1024, 1000000);
+	if (candidate2 != NULL) {
+		test_txn_commit_result = -1;
+		commit_failed = sql_stats_tx_context_finish_sample_candidate_and_publish(
+			&context, candidate2) != 0 && context == NULL;
+		test_txn_commit_result = 0;
+	}
+	ok(commit_failed && test_installed_snapshot == installed_candidate,
+	   "commit failure consumes context without replacing installed snapshot");
+	if (candidate2 != NULL)
+		sql_stats_snapshot_release(candidate2);
+	candidate2 = NULL;
+	bool visibility_drift = false;
+	if (sql_stats_tx_context_begin(targets, 2, &context) == 0)
+		candidate2 = sql_stats_tx_context_build_sample_candidate(context,
+			&expected, reordered, 2, 8, 0.5, "test-confidence", 4096,
+			8192, 1024, 1000000);
+	if (candidate2 != NULL) {
+		test_advance_vclock_on_commit = true;
+		visibility_drift =
+			sql_stats_tx_context_finish_sample_candidate_and_publish(
+				&context, candidate2) != 0 && context == NULL;
+	}
+	ok(visibility_drift && test_installed_snapshot == installed_candidate,
+	   "post-commit visibility drift prevents candidate installation");
+	if (candidate2 != NULL)
+		sql_stats_snapshot_release(candidate2);
+	candidate2 = NULL;
+	ok(sql_stats_tx_context_begin(targets, 2, &context) == 0 &&
+	   (candidate2 = sql_stats_tx_context_build_sample_candidate(context,
+		&expected, reordered, 2, 8, 0.5, "test-confidence", 4096,
+		8192, 1024, 1000000)) != NULL &&
+	   sql_stats_tx_context_build_sample_candidate(context, &expected,
+		reordered, 2, 8, 0.5, "test-confidence", 4096, 8192,
+		1024, 1000000) == NULL &&
+	   sql_stats_tx_context_finish_sample_candidate_and_publish(&context,
+		candidate2) != 0 && context == NULL &&
+	   test_installed_snapshot == installed_candidate,
+	   "repeated assembly is rejected and cannot publish an earlier candidate");
+	if (candidate2 != NULL)
+		sql_stats_snapshot_release(candidate2);
 	struct sql_stats_tx_index_spec ordered[] = {reordered[1], reordered[0]};
 	extract_states[1].fail = true;
 	ok(sql_stats_tx_context_begin(targets, 2, &context) == 0,
 	   "failure case opens a fresh owned context");
-	candidate = sql_stats_tx_context_build_sample_candidate(context,
+	candidate2 = sql_stats_tx_context_build_sample_candidate(context,
 		&expected, ordered, 2, 8, 0.5, "test-confidence", 4096,
 		8192, 1024, 1000000);
-	ok(candidate == NULL && test_installed_snapshot == baseline &&
+	ok(candidate2 == NULL &&
+	   test_installed_snapshot == installed_candidate &&
 	   sql_stats_tx_context_finish(&context) != 0 && context == NULL,
 	   "later extractor failure discards staging and preserves installed snapshot");
-	if (candidate != NULL)
-		sql_stats_snapshot_release(candidate);
+	if (candidate2 != NULL)
+		sql_stats_snapshot_release(candidate2);
 	sql_set_stats_snapshot(NULL);
+	sql_stats_snapshot_release(installed_candidate);
 	sql_stats_snapshot_release(baseline);
 	footer();
 	check_plan();

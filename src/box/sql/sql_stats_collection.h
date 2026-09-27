@@ -189,6 +189,17 @@ sql_stats_tx_context_build_sample_candidate(
 	const char *confidence_source, size_t max_candidate_bytes,
 	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work);
 
+/*
+ * Commit and publish only the exact candidate returned by this context's
+ * assembler. The caller retains ownership of its candidate reference; the
+ * context holds a separate reference until finish/abort. Failure preserves
+ * the installed snapshot and consumes the owned transaction when possible.
+ */
+int
+sql_stats_tx_context_finish_sample_candidate_and_publish(
+	struct sql_stats_tx_context **context,
+	struct sql_stats_snapshot *candidate);
+
 /* Finish commits only after every requested index sample succeeds. */
 int
 sql_stats_tx_context_finish(struct sql_stats_tx_context **context);
