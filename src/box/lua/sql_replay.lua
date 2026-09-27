@@ -3,7 +3,7 @@ local msgpack = require('msgpack')
 local M = {}
 
 local SNAPSHOT_FORMAT = 'tarantool.sql.planner.snapshot'
-local SNAPSHOT_VERSION = 4
+local SNAPSHOT_VERSIONS = {[4] = true, [5] = true}
 local INPUT_VERSION = 5
 local SELECTOR_VERSION = 1
 
@@ -77,7 +77,8 @@ end
 function M.replay_snapshot(snapshot_bytes)
     local snapshot = decode(snapshot_bytes, 'SQL planner snapshot')
     if snapshot.format ~= SNAPSHOT_FORMAT or
-       snapshot.version ~= SNAPSHOT_VERSION or snapshot.replayable ~= true or
+       not SNAPSHOT_VERSIONS[snapshot.version] or
+       snapshot.replayable ~= true or
        snapshot.replay_inputs == nil then
         error('SQL planner snapshot is not selection-replayable', 2)
     end
@@ -86,6 +87,19 @@ function M.replay_snapshot(snapshot_bytes)
        captured.final_path_status ~= 'complete' or
        type(captured.final_paths) ~= 'table' then
         error('SQL planner snapshot has no complete final-path capture', 2)
+    end
+    if snapshot.version == 5 then
+        local components = captured.component_routes
+        if captured.component_status ~= 'complete' or
+           type(components) ~= 'table' or #components ~= 1 or
+           components[1].parent_id ~= 0 or
+           components[1].role ~= 'root' or
+           (components[1].route ~= 'current_where_c' and
+            components[1].route ~= 'new_planner') or
+           snapshot.path_class ~= components[1].route or
+           snapshot.fallback_reason ~= nil then
+            error('SQL replay snapshot has an unsupported component route', 2)
+        end
     end
     local input_bytes = tostring(snapshot.replay_inputs)
     local result = M.replay_input(input_bytes)

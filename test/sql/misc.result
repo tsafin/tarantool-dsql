@@ -618,7 +618,7 @@ assert(snapshot_object.format == 'tarantool.sql.planner.snapshot')
 ---
 - true
 ...
-assert(snapshot_object.version == 4)
+assert(snapshot_object.version == 5)
 ---
 - true
 ...
@@ -647,6 +647,14 @@ assert(snapshot_object.planner.final_path_status == 'unavailable')
 - true
 ...
 assert(#snapshot_object.planner.final_paths == 0)
+---
+- true
+...
+assert(snapshot_object.planner.component_status == 'complete')
+---
+- true
+...
+assert(#snapshot_object.planner.component_routes > 0)
 ---
 - true
 ...
@@ -688,7 +696,7 @@ assert(simple_snapshot_object.path_class == 'current_where_c')
 ---
 - true
 ...
-assert(simple_snapshot_object.version == 4)
+assert(simple_snapshot_object.version == 5)
 ---
 - true
 ...
@@ -697,6 +705,18 @@ assert(simple_snapshot_object.planner.final_path_status == 'complete')
 - true
 ...
 assert(#simple_snapshot_object.planner.final_paths > 0)
+---
+- true
+...
+assert(simple_snapshot_object.planner.component_status == 'complete')
+---
+- true
+...
+assert(#simple_snapshot_object.planner.component_routes == 1)
+---
+- true
+...
+assert(simple_snapshot_object.planner.component_routes[1].route == 'current_where_c')
 ---
 - true
 ...

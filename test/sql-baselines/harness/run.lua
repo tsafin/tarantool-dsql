@@ -288,14 +288,36 @@ local function intercepted_execute(sql, bindings)
         assert(decode_ok and type(planner_snapshot) == 'table',
                'planner snapshot EXPLAIN returned malformed MsgPack')
         assert(planner_snapshot.format == 'tarantool.sql.planner.snapshot' and
-               planner_snapshot.version == 4 and
+               planner_snapshot.version == 5 and
                type(planner_snapshot.replayable) == 'boolean' and
                type(planner_snapshot.planner) == 'table' and
                (planner_snapshot.planner.final_path_status == 'complete' or
                 planner_snapshot.planner.final_path_status == 'incomplete' or
                 planner_snapshot.planner.final_path_status == 'unavailable') and
-               type(planner_snapshot.planner.final_paths) == 'table',
-               'planner snapshot EXPLAIN returned an invalid v4 envelope')
+               type(planner_snapshot.planner.final_paths) == 'table' and
+               planner_snapshot.planner.component_status == 'complete' and
+               type(planner_snapshot.planner.component_routes) == 'table' and
+               #planner_snapshot.planner.component_routes > 0,
+               'planner snapshot EXPLAIN returned an invalid v5 envelope')
+        local components = planner_snapshot.planner.component_routes
+        local component_ids = {}
+        for _, component in ipairs(components) do
+            assert(type(component.id) == 'number' and component.id > 0 and
+                   component_ids[component.id] == nil and
+                   type(component.parent_id) == 'number' and
+                   type(component.role) == 'string' and
+                   type(component.route) == 'string' and
+                   component.route ~= 'pending' and
+                   ((component.route == 'fallback') ==
+                    (type(component.fallback_reason) == 'string')),
+                   'planner component route record is malformed')
+            component_ids[component.id] = true
+        end
+        for _, component in ipairs(components) do
+            assert(component.parent_id == 0 or
+                   component_ids[component.parent_id],
+                   'planner component route has a missing parent')
+        end
         local final_paths = planner_snapshot.planner.final_paths
         if planner_snapshot.planner.final_path_status == 'complete' then
             assert(#final_paths > 0,

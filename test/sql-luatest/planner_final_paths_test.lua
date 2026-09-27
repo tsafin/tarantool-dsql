@@ -47,8 +47,36 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
               SELECT a.id FROM planner_final_paths_t AS a
               JOIN planner_final_paths_t AS b ON a.id = b.id]])
         local join = msgpack.decode(tostring(join_explain.rows[1][1]))
+        local values_explain = box.execute(
+            [[EXPLAIN (planner = 'snapshot') VALUES (1), (2)]])
+        local values = msgpack.decode(tostring(values_explain.rows[1][1]))
+        local count_explain = box.execute([[EXPLAIN (planner = 'snapshot')
+            SELECT count(*) FROM planner_final_paths_t]])
+        local count = msgpack.decode(tostring(count_explain.rows[1][1]))
+        local compound_explain = box.execute([[EXPLAIN (planner = 'snapshot')
+            SELECT id FROM planner_final_paths_t WHERE id < 3
+            UNION ALL
+            SELECT id FROM planner_final_paths_t WHERE id > 6]])
+        local compound = msgpack.decode(
+            tostring(compound_explain.rows[1][1]))
+        local cte_explain = box.execute([[EXPLAIN (planner = 'snapshot')
+            WITH RECURSIVE r(x) AS (
+                VALUES (1) UNION ALL SELECT x + 1 FROM r WHERE x < 3
+            ) SELECT x FROM r]])
+        local cte = msgpack.decode(tostring(cte_explain.rows[1][1]))
+        local from_subquery_explain = box.execute(
+            [[EXPLAIN (planner = 'snapshot') SELECT id FROM
+              (SELECT id FROM planner_final_paths_t) AS q]])
+        local from_subquery = msgpack.decode(
+            tostring(from_subquery_explain.rows[1][1]))
+        local scalar_explain = box.execute([[EXPLAIN (planner = 'snapshot')
+            SELECT (SELECT max(id) FROM planner_final_paths_t)]])
+        local scalar = msgpack.decode(tostring(scalar_explain.rows[1][1]))
         local result = {
             version = snapshot.version,
+            component_status = snapshot.planner.component_status,
+            component_count = #snapshot.planner.component_routes,
+            root_component_route = snapshot.planner.component_routes[1].route,
             replayable = snapshot.replayable,
             replay_inputs = snapshot.replay_inputs,
             status = snapshot.planner.final_path_status,
@@ -57,6 +85,29 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
             point_count = #point.planner.final_paths,
             join_status = join.planner.final_path_status,
             join_count = #join.planner.final_paths,
+            join_component_status = join.planner.component_status,
+            join_component_count = #join.planner.component_routes,
+            join_component_route = join.planner.component_routes[1].route,
+            values_component_status = values.planner.component_status,
+            values_component_count = #values.planner.component_routes,
+            values_component_route = values.planner.component_routes[1].route,
+            count_component_status = count.planner.component_status,
+            count_component_route = count.planner.component_routes[1].route,
+            compound_component_status = compound.planner.component_status,
+            compound_component_count =
+                #compound.planner.component_routes,
+            compound_component_root_route =
+                compound.planner.component_routes[1].route,
+            compound_path_class = compound.path_class,
+            cte_component_status = cte.planner.component_status,
+            cte_component_count = #cte.planner.component_routes,
+            cte_root_route = cte.planner.component_routes[1].route,
+            from_subquery_component_status =
+                from_subquery.planner.component_status,
+            from_subquery_component_count =
+                #from_subquery.planner.component_routes,
+            scalar_component_status = scalar.planner.component_status,
+            scalar_component_count = #scalar.planner.component_routes,
             selected_fingerprint =
                 snapshot.planner.selected_final_path_fingerprint,
             snapshot_bytes = snapshot_bytes,
@@ -132,7 +183,10 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
         return result
     end)
 
-    t.assert_equals(result.version, 4)
+    t.assert_equals(result.version, 5)
+    t.assert_equals(result.component_status, 'complete')
+    t.assert_equals(result.component_count, 1)
+    t.assert_equals(result.root_component_route, 'current_where_c')
     t.assert_equals(result.replayable, true)
     t.assert_equals(result.input_version, 5)
     t.assert_equals(result.input_selector_version, 1)
@@ -151,4 +205,24 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
     t.assert_gt(result.point_count, 0)
     t.assert_equals(result.join_status, 'unavailable')
     t.assert_equals(result.join_count, 0)
+    t.assert_equals(result.join_component_status, 'complete')
+    t.assert_equals(result.join_component_count, 1)
+    t.assert_equals(result.join_component_route, 'fallback')
+    t.assert_equals(result.values_component_status, 'complete')
+    t.assert_equals(result.values_component_count, 3)
+    t.assert_equals(result.values_component_route, 'direct_values')
+    t.assert_equals(result.count_component_status, 'complete')
+    t.assert_equals(result.count_component_route, 'direct_op_count')
+    t.assert_equals(result.compound_component_status, 'complete')
+    t.assert_gt(result.compound_component_count, 1)
+    t.assert_equals(result.compound_component_root_route,
+                    'compound_dispatch')
+    t.assert_equals(result.compound_path_class, 'mixed')
+    t.assert_equals(result.cte_component_status, 'complete')
+    t.assert_gt(result.cte_component_count, 1)
+    t.assert_equals(result.cte_root_route, 'fallback')
+    t.assert_equals(result.from_subquery_component_status, 'complete')
+    t.assert_gt(result.from_subquery_component_count, 0)
+    t.assert_equals(result.scalar_component_status, 'complete')
+    t.assert_gt(result.scalar_component_count, 0)
 end

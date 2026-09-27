@@ -79,6 +79,19 @@ sql_plan_component_set_route(struct sql_plan_component_ledger *ledger,
 	return SQL_PLAN_COMPONENT_OK;
 }
 
+bool
+sql_plan_component_route_is_pending(
+	const struct sql_plan_component_ledger *ledger, uint32_t id)
+{
+	if (ledger == NULL)
+		return false;
+	for (size_t i = 0; i < ledger->count; i++) {
+		if (ledger->records[i].id == id)
+			return ledger->records[i].route == SQL_PLAN_COMPONENT_PENDING;
+	}
+	return false;
+}
+
 enum sql_plan_component_status
 sql_plan_component_finalize(const struct sql_plan_component_ledger *ledger,
 			    struct sql_plan_component_summary *summary)
@@ -106,7 +119,7 @@ sql_plan_component_finalize(const struct sql_plan_component_ledger *ledger,
 	enum sql_plan_fallback_reason reason = root->fallback_reason;
 	for (size_t i = 0; i < ledger->count; i++) {
 		const struct sql_plan_component_record *record = &ledger->records[i];
-		if (record->route != route || record->fallback_reason != reason) {
+		if (record->route != route) {
 			route = SQL_PLAN_COMPONENT_MIXED;
 			reason = SQL_PLAN_FALLBACK_NONE;
 			break;
@@ -118,4 +131,27 @@ sql_plan_component_finalize(const struct sql_plan_component_ledger *ledger,
 		.component_count = ledger->count,
 	};
 	return SQL_PLAN_COMPONENT_OK;
+}
+
+const char *
+sql_plan_component_role_name(enum sql_plan_component_role role)
+{
+	static const char *const names[] = {
+		"root", "compound_branch", "recursive_anchor",
+		"recursive_term", "from_subquery", "scalar_subquery",
+		"subquery", "values", "count", "cte",
+	};
+	return role >= SQL_PLAN_COMPONENT_ROOT &&
+		role < SQL_PLAN_COMPONENT_ROLE_COUNT ? names[role] : NULL;
+}
+
+const char *
+sql_plan_component_route_name(enum sql_plan_component_route route)
+{
+	static const char *const names[] = {
+		"pending", "current_where_c", "new_planner", "fallback",
+		"direct_values", "direct_op_count", "compound_dispatch", "mixed",
+	};
+	return route >= SQL_PLAN_COMPONENT_PENDING &&
+		route < SQL_PLAN_COMPONENT_ROUTE_COUNT ? names[route] : NULL;
 }

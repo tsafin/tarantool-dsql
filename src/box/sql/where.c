@@ -3788,6 +3788,10 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		enum sql_plan_fallback_reason reason =
 			sql_plan_fallback_from_logical(
 				SQL_LOGICAL_REJECT_RELATION_COUNT);
+		if (v->planner_components != NULL)
+			(void)sql_plan_component_set_route(v->planner_components,
+				(uint32_t)pParse->iSelectId + 1,
+				SQL_PLAN_COMPONENT_FALLBACK, reason);
 		v->planner_path_class = "fallback";
 		v->planner_fallback_reason =
 			sql_plan_fallback_reason_name(reason);
@@ -3954,6 +3958,11 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 	 */
 	if (v->planner_path_class == NULL)
 		v->planner_path_class = "current_where_c";
+	if (v->planner_components != NULL)
+		(void)sql_plan_component_set_route(v->planner_components,
+			(uint32_t)pParse->iSelectId + 1,
+			SQL_PLAN_COMPONENT_CURRENT_WHERE_C,
+			SQL_PLAN_FALLBACK_NONE);
 	if (pWInfo->pOrderBy == 0 &&
 	    (pParse->sql_flags & SQL_ReverseOrder) != 0) {
 		pWInfo->revMask = ALLBITS;

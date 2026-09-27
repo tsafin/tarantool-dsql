@@ -5644,21 +5644,85 @@ vdbe_code_raise_on_multiple_rows(struct Parse *parser, int limit_reg, int end_ma
 }
 
 static void
+sql_select_component_register(Parse *parse, Select *select,
+			      int parent_select_id)
+{
+	Vdbe *vdbe = parse->pVdbe;
+	if (vdbe == NULL || parse->explain != 4)
+		return;
+	if (vdbe->planner_components == NULL) {
+		vdbe->planner_components = sql_xmalloc(
+			sizeof(*vdbe->planner_components));
+		sql_plan_component_ledger_create(vdbe->planner_components);
+	}
+	uint32_t id = (uint32_t)parse->iSelectId + 1;
+	uint32_t parent_id = parse->iSelectId == 0 ? 0 :
+		(uint32_t)parent_select_id + 1;
+	enum sql_plan_component_role role = SQL_PLAN_COMPONENT_ROOT;
+	if (parse->iSelectId != 0) {
+		if ((select->selFlags & SF_Values) != 0)
+			role = SQL_PLAN_COMPONENT_VALUES;
+		else if (select->pPrior != NULL)
+			role = SQL_PLAN_COMPONENT_COMPOUND_BRANCH;
+		else if ((select->selFlags & SF_Recursive) != 0)
+			role = SQL_PLAN_COMPONENT_RECURSIVE_TERM;
+		else if (select->pWith != NULL)
+			role = SQL_PLAN_COMPONENT_CTE;
+		else
+			role = SQL_PLAN_COMPONENT_SUBQUERY;
+	}
+	enum sql_plan_component_status status = sql_plan_component_add(
+		vdbe->planner_components, id, parent_id, role);
+	if (status != SQL_PLAN_COMPONENT_OK)
+		vdbe->planner_components->overflowed = 1;
+}
+
+static bool
+sql_select_component_route(Parse *parse,
+			   enum sql_plan_component_route route,
+			   enum sql_plan_fallback_reason fallback_reason)
+{
+	Vdbe *vdbe = parse->pVdbe;
+	if (vdbe == NULL || vdbe->planner_components == NULL)
+		return false;
+	uint32_t id = (uint32_t)parse->iSelectId + 1;
+	bool was_pending = sql_plan_component_route_is_pending(
+		vdbe->planner_components, id);
+	enum sql_plan_component_status status = sql_plan_component_set_route(
+		vdbe->planner_components, id,
+		route, fallback_reason);
+	/* A prior structural reject is authoritative over a later legacy-WHERE
+	 * route observation for the same component. Other ledger errors poison the
+	 * bounded evidence rather than exposing a misleading complete prefix.
+	 */
+	if (status != SQL_PLAN_COMPONENT_OK &&
+	    status != SQL_PLAN_COMPONENT_CONFLICT)
+		vdbe->planner_components->overflowed = 1;
+	return was_pending && status == SQL_PLAN_COMPONENT_OK;
+}
+
+static void
 sql_select_record_fallback_reason(Parse *parse,
 				 enum sql_logical_reject_reason logical_reason)
 {
 	Vdbe *v = parse->pVdbe;
-	if (v == NULL || v->planner_fallback_reason != NULL ||
-	    logical_reason == SQL_LOGICAL_REJECT_NONE)
+	if (v == NULL || logical_reason == SQL_LOGICAL_REJECT_NONE)
 		return;
 	enum sql_plan_fallback_reason fallback_reason =
 		sql_plan_fallback_from_logical(logical_reason);
 	const char *reason = sql_plan_fallback_reason_name(fallback_reason);
 	if (reason == NULL)
 		return;
-	v->planner_path_class = "fallback";
-	v->planner_fallback_reason = reason;
-	sql_record_planner_fallback(v, fallback_reason);
+	bool first_component_fallback = v->planner_components != NULL ?
+		sql_select_component_route(parse, SQL_PLAN_COMPONENT_FALLBACK,
+					   fallback_reason) :
+		v->planner_fallback_reason == NULL;
+	if (v->planner_fallback_reason == NULL) {
+		v->planner_path_class = "fallback";
+		v->planner_fallback_reason = reason;
+	}
+	if (first_component_fallback)
+		sql_record_planner_fallback(v, fallback_reason);
 }
 
 static void
@@ -5666,16 +5730,23 @@ sql_select_record_physical_fallback(Parse *parse,
 				    enum sql_physical_reject_reason reason)
 {
 	Vdbe *vdbe = parse->pVdbe;
-	if (vdbe == NULL || vdbe->planner_fallback_reason != NULL)
+	if (vdbe == NULL)
 		return;
 	enum sql_plan_fallback_reason fallback_reason =
 		sql_plan_fallback_from_physical(reason);
 	const char *name = sql_plan_fallback_reason_name(fallback_reason);
 	if (name == NULL)
 		return;
-	vdbe->planner_path_class = "fallback";
-	vdbe->planner_fallback_reason = name;
-	sql_record_planner_fallback(vdbe, fallback_reason);
+	bool first_component_fallback = vdbe->planner_components != NULL ?
+		sql_select_component_route(parse, SQL_PLAN_COMPONENT_FALLBACK,
+					   fallback_reason) :
+		vdbe->planner_fallback_reason == NULL;
+	if (vdbe->planner_fallback_reason == NULL) {
+		vdbe->planner_path_class = "fallback";
+		vdbe->planner_fallback_reason = name;
+	}
+	if (first_component_fallback)
+		sql_record_planner_fallback(vdbe, fallback_reason);
 }
 
 static bool sql_select_has_nondeterministic_func(Select *select);
@@ -6057,6 +6128,8 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	dest->iSdst = result_first_reg;
 	dest->nSdst = select->pEList->nExpr;
 	vdbe->planner_path_class = "new_planner";
+	sql_select_component_route(parse, SQL_PLAN_COMPONENT_NEW_PLANNER,
+				   SQL_PLAN_FALLBACK_NONE);
 	vdbe_codegen_checkpoint_commit(&checkpoint);
 	sql_plan_descriptor_delete(plan);
 	return 1;
@@ -6195,6 +6268,12 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	assert(p->pOrderBy == 0 || pDest->eDest != SRT_DistQueue);
 	assert(p->pOrderBy == 0 || pDest->eDest != SRT_Queue);
 	if (select_has_multi_value_rows(p) && p->pPrior == 0) {
+		v = sqlGetVdbe(pParse);
+		if (v == NULL) {
+			pParse->iSelectId = iRestoreSelectId;
+			return 1;
+		}
+		sql_select_component_register(pParse, p, iRestoreSelectId);
 		/*
 		 * Plain multi-row VALUES can use the compact row chain directly,
 		 * but ORDER BY / LIMIT / scalar-subquery handling still expects
@@ -6202,6 +6281,9 @@ sqlSelect(Parse * pParse,		/* The parser context */
 		 */
 		if (p->pOrderBy != NULL || p->pLimit != NULL || p->pOffset != NULL ||
 		    (p->selFlags & SF_SingleRow) != 0) {
+			sql_select_component_route(pParse,
+				SQL_PLAN_COMPONENT_COMPOUND_DISPATCH,
+				SQL_PLAN_FALLBACK_NONE);
 			struct Select *legacy_values =
 				select_dup_as_legacy_values_chain(pParse, p);
 			if (legacy_values == NULL) {
@@ -6221,6 +6303,9 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			pParse->iSelectId = iRestoreSelectId;
 			return rc;
 		}
+		sql_select_component_route(pParse,
+				SQL_PLAN_COMPONENT_DIRECT_VALUES,
+				SQL_PLAN_FALLBACK_NONE);
 		iEnd = 0;
 		if (p->pLimit != NULL) {
 			v = sqlGetVdbe(pParse);
@@ -6254,6 +6339,15 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	v = sqlGetVdbe(pParse);
 	if (v == NULL)
 		goto select_end;
+	sql_select_component_register(pParse, p, iRestoreSelectId);
+	if (p->pPrior != NULL)
+		sql_select_component_route(pParse,
+				SQL_PLAN_COMPONENT_COMPOUND_DISPATCH,
+				SQL_PLAN_FALLBACK_NONE);
+	if ((p->selFlags & SF_Values) != 0)
+		sql_select_component_route(pParse,
+				SQL_PLAN_COMPONENT_DIRECT_VALUES,
+				SQL_PLAN_FALLBACK_NONE);
 	if (scan_preflight != SQL_SELECT_PREFLIGHT_OK)
 		sql_select_record_preopt_fallback(pParse, p);
 	if (IgnorableOrderby(pDest)) {
@@ -6336,6 +6430,9 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	 * procedure.
 	 */
 	if (p->pPrior) {
+		sql_select_component_route(pParse,
+				SQL_PLAN_COMPONENT_COMPOUND_DISPATCH,
+				SQL_PLAN_FALLBACK_NONE);
 		rc = multiSelect(pParse, p, pDest);
 		pParse->iSelectId = iRestoreSelectId;
 
@@ -7087,6 +7184,9 @@ sqlSelect(Parse * pParse,		/* The parser context */
 						      space);
 				sqlVdbeAddOp2(v, OP_Count, cursor,
 						  sAggInfo.aFunc[0].iMem);
+				sql_select_component_route(pParse,
+					SQL_PLAN_COMPONENT_DIRECT_OP_COUNT,
+					SQL_PLAN_FALLBACK_NONE);
 				sqlVdbeAddOp1(v, OP_Close, cursor);
 				explain_simple_count(pParse, space->def->name);
 			} else

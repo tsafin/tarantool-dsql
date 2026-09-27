@@ -2,6 +2,7 @@
 #define TARANTOOL_SQL_PLAN_COMPONENT_H
 
 #include <stddef.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "sql_plan_descriptor.h"
@@ -15,8 +16,10 @@ enum sql_plan_component_role {
 	SQL_PLAN_COMPONENT_RECURSIVE_TERM,
 	SQL_PLAN_COMPONENT_FROM_SUBQUERY,
 	SQL_PLAN_COMPONENT_SCALAR_SUBQUERY,
+	SQL_PLAN_COMPONENT_SUBQUERY,
 	SQL_PLAN_COMPONENT_VALUES,
 	SQL_PLAN_COMPONENT_COUNT,
+	SQL_PLAN_COMPONENT_CTE,
 	SQL_PLAN_COMPONENT_ROLE_COUNT,
 };
 
@@ -75,8 +78,18 @@ sql_plan_component_set_route(struct sql_plan_component_ledger *ledger,
 			     enum sql_plan_component_route route,
 			     enum sql_plan_fallback_reason fallback_reason);
 
+bool
+sql_plan_component_route_is_pending(
+	const struct sql_plan_component_ledger *ledger, uint32_t id);
+
 enum sql_plan_component_status
 sql_plan_component_finalize(const struct sql_plan_component_ledger *ledger,
 			    struct sql_plan_component_summary *summary);
+
+const char *
+sql_plan_component_role_name(enum sql_plan_component_role role);
+
+const char *
+sql_plan_component_route_name(enum sql_plan_component_route route);
 
 #endif /* TARANTOOL_SQL_PLAN_COMPONENT_H */

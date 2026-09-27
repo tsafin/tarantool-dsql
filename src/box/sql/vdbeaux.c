@@ -1470,9 +1470,44 @@ sqlVdbeList(Vdbe * p)
 		p->pResultSet = NULL;
 		if (p->pc >= 1)
 			return SQL_DONE;
-		/* Version 4 can embed a complete selection-replay input. */
+		/* Version 5 exposes the per-SELECT route ledger. */
+		struct sql_plan_component_summary component_summary;
+		struct sql_plan_component_ledger *components =
+			p->planner_components;
+		bool component_complete = components != NULL &&
+			sql_plan_component_finalize(components,
+					    &component_summary) ==
+			SQL_PLAN_COMPONENT_OK;
+		if (component_complete) {
+			for (size_t i = 0; i < components->count; i++) {
+				const struct sql_plan_component_record *component =
+					&components->records[i];
+				if (sql_plan_component_role_name(component->role) == NULL ||
+				    sql_plan_component_route_name(component->route) == NULL ||
+				    (component->fallback_reason !=
+				     SQL_PLAN_FALLBACK_NONE &&
+				     sql_plan_fallback_reason_name(
+					component->fallback_reason) == NULL)) {
+					component_complete = false;
+					break;
+				}
+			}
+		}
+		const char *component_status =
+			components == NULL || components->count == 0 ?
+			"unavailable" :
+			component_complete ? "complete" : "incomplete";
+		bool components_present = component_complete;
 		const char *path_class = p->planner_path_class;
 		const char *fallback_reason = p->planner_fallback_reason;
+		if (component_complete) {
+			path_class = sql_plan_component_route_name(
+				component_summary.route);
+			fallback_reason = component_summary.route ==
+				SQL_PLAN_COMPONENT_FALLBACK ?
+				sql_plan_fallback_reason_name(
+					component_summary.fallback_reason) : NULL;
+		}
 		const char *path_status =
 			p->planner_final_path_status ==
 			SQL_PLANNER_FINAL_PATH_COMPLETE ? "complete" :
@@ -1481,7 +1516,11 @@ sqlVdbeList(Vdbe * p)
 			"unavailable";
 		bool replayable = p->planner_replay_inputs != NULL &&
 			p->planner_replay_inputs_size != 0 &&
-			p->planner_replay_inputs_size <= UINT32_MAX;
+			p->planner_replay_inputs_size <= UINT32_MAX &&
+			component_complete &&
+			component_summary.component_count == 1 &&
+			(component_summary.route == SQL_PLAN_COMPONENT_CURRENT_WHERE_C ||
+			 component_summary.route == SQL_PLAN_COMPONENT_NEW_PLANNER);
 		size_t path_class_size = path_class != NULL ?
 			mp_sizeof_str(strlen(path_class)) : mp_sizeof_nil();
 		size_t fallback_reason_size = fallback_reason != NULL ?
@@ -1489,12 +1528,12 @@ sqlVdbeList(Vdbe * p)
 		size_t size = mp_sizeof_map(replayable ? 7 : 6) +
 			mp_sizeof_str(strlen("format")) +
 			mp_sizeof_str(strlen("tarantool.sql.planner.snapshot")) +
-			mp_sizeof_str(strlen("version")) + mp_sizeof_uint(4) +
+			mp_sizeof_str(strlen("version")) + mp_sizeof_uint(5) +
 			mp_sizeof_str(strlen("path_class")) + path_class_size +
 			mp_sizeof_str(strlen("fallback_reason")) + fallback_reason_size +
 			mp_sizeof_str(strlen("replayable")) +
 			mp_sizeof_bool(replayable) +
-			mp_sizeof_str(strlen("planner")) + mp_sizeof_map(10) +
+			mp_sizeof_str(strlen("planner")) + mp_sizeof_map(12) +
 			mp_sizeof_str(strlen("candidate_count")) +
 			mp_sizeof_uint(p->planner_candidate_count) +
 			mp_sizeof_str(strlen("elapsed_us")) +
@@ -1524,7 +1563,38 @@ sqlVdbeList(Vdbe * p)
 			 SQL_PLANNER_FINAL_PATH_COMPLETE ?
 			 mp_sizeof_str(strlen(
 				p->planner_selected_final_path_fingerprint)) :
-			 mp_sizeof_nil());
+			 mp_sizeof_nil()) +
+			mp_sizeof_str(strlen("component_status")) +
+			mp_sizeof_str(strlen(component_status)) +
+			mp_sizeof_str(strlen("component_routes")) +
+			mp_sizeof_array(components_present ?
+			components->count : 0);
+		if (components_present) {
+			for (size_t i = 0; i < components->count; i++) {
+				const struct sql_plan_component_record *component =
+					&components->records[i];
+				const char *role = sql_plan_component_role_name(
+					component->role);
+				const char *route = sql_plan_component_route_name(
+					component->route);
+				const char *reason = component->fallback_reason !=
+					SQL_PLAN_FALLBACK_NONE ?
+					sql_plan_fallback_reason_name(
+						component->fallback_reason) : NULL;
+				size += mp_sizeof_map(5) +
+					mp_sizeof_str(strlen("id")) +
+					mp_sizeof_uint(component->id) +
+					mp_sizeof_str(strlen("parent_id")) +
+					mp_sizeof_uint(component->parent_id) +
+					mp_sizeof_str(strlen("role")) +
+					mp_sizeof_str(strlen(role)) +
+					mp_sizeof_str(strlen("route")) +
+					mp_sizeof_str(strlen(route)) +
+					mp_sizeof_str(strlen("fallback_reason")) +
+					(reason != NULL ? mp_sizeof_str(strlen(reason)) :
+					 mp_sizeof_nil());
+			}
+		}
 		if (p->planner_final_path_status ==
 		    SQL_PLANNER_FINAL_PATH_COMPLETE) {
 			for (uint32_t i = 0; i < p->planner_final_path_count; i++) {
@@ -1554,7 +1624,7 @@ sqlVdbeList(Vdbe * p)
 		pos = mp_encode_str(pos, "tarantool.sql.planner.snapshot",
 				    strlen("tarantool.sql.planner.snapshot"));
 		pos = mp_encode_str(pos, "version", strlen("version"));
-		pos = mp_encode_uint(pos, 4);
+		pos = mp_encode_uint(pos, 5);
 		pos = mp_encode_str(pos, "path_class", strlen("path_class"));
 		if (path_class != NULL) {
 			pos = mp_encode_str(pos, path_class, strlen(path_class));
@@ -1578,7 +1648,7 @@ sqlVdbeList(Vdbe * p)
 					    p->planner_replay_inputs_size);
 		}
 		pos = mp_encode_str(pos, "planner", strlen("planner"));
-		pos = mp_encode_map(pos, 10);
+		pos = mp_encode_map(pos, 12);
 		pos = mp_encode_str(pos, "candidate_count",
 				    strlen("candidate_count"));
 		pos = mp_encode_uint(pos, p->planner_candidate_count);
@@ -1640,6 +1710,44 @@ sqlVdbeList(Vdbe * p)
 					    strlen(p->planner_selected_final_path_fingerprint));
 		} else {
 			pos = mp_encode_nil(pos);
+		}
+		pos = mp_encode_str(pos, "component_status",
+				    strlen("component_status"));
+		pos = mp_encode_str(pos, component_status,
+				    strlen(component_status));
+		pos = mp_encode_str(pos, "component_routes",
+				    strlen("component_routes"));
+		pos = mp_encode_array(pos, components_present ?
+				      components->count : 0);
+		if (components_present) {
+			for (size_t i = 0; i < components->count; i++) {
+				const struct sql_plan_component_record *component =
+					&components->records[i];
+				const char *role = sql_plan_component_role_name(
+					component->role);
+				const char *route = sql_plan_component_route_name(
+					component->route);
+				const char *reason = component->fallback_reason !=
+					SQL_PLAN_FALLBACK_NONE ?
+					sql_plan_fallback_reason_name(
+						component->fallback_reason) : NULL;
+				pos = mp_encode_map(pos, 5);
+				pos = mp_encode_str(pos, "id", strlen("id"));
+				pos = mp_encode_uint(pos, component->id);
+				pos = mp_encode_str(pos, "parent_id", strlen("parent_id"));
+				pos = mp_encode_uint(pos, component->parent_id);
+				pos = mp_encode_str(pos, "role", strlen("role"));
+				pos = mp_encode_str(pos, role, strlen(role));
+				pos = mp_encode_str(pos, "route", strlen("route"));
+				pos = mp_encode_str(pos, route, strlen(route));
+				pos = mp_encode_str(pos, "fallback_reason",
+						    strlen("fallback_reason"));
+				if (reason != NULL) {
+					pos = mp_encode_str(pos, reason, strlen(reason));
+				} else {
+					pos = mp_encode_nil(pos);
+				}
+			}
 		}
 		mem_set_bin_allocated(&pMem[0], buf, pos - buf);
 		p->pc++;
@@ -2706,6 +2814,7 @@ sqlVdbeClearObject(struct Vdbe *p)
 	sql_xfree(p->explain_text);
 	sql_xfree(p->zSql);
 	sql_xfree(p->planner_replay_inputs);
+	sql_xfree(p->planner_components);
 }
 
 /*

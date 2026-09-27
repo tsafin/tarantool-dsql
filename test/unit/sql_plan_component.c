@@ -4,6 +4,36 @@
 #include "box/sql/sql_plan_component.h"
 
 static void
+test_uniform_fallback_uses_root_reason(void)
+{
+	plan(5);
+	header();
+	struct sql_plan_component_ledger ledger;
+	sql_plan_component_ledger_create(&ledger);
+	ok(sql_plan_component_add(&ledger, 1, 0, SQL_PLAN_COMPONENT_ROOT) ==
+	   SQL_PLAN_COMPONENT_OK, "fallback root accepted");
+	ok(sql_plan_component_add(&ledger, 2, 1,
+			  SQL_PLAN_COMPONENT_SCALAR_SUBQUERY) ==
+	   SQL_PLAN_COMPONENT_OK, "fallback child accepted");
+	ok(sql_plan_component_set_route(&ledger, 1,
+				 SQL_PLAN_COMPONENT_FALLBACK,
+				 SQL_PLAN_FALLBACK_UNSUPPORTED_CTE) ==
+	   SQL_PLAN_COMPONENT_OK, "root fallback reason recorded");
+	ok(sql_plan_component_set_route(&ledger, 2,
+				 SQL_PLAN_COMPONENT_FALLBACK,
+				 SQL_PLAN_FALLBACK_UNSUPPORTED_SUBQUERY) ==
+	   SQL_PLAN_COMPONENT_OK, "child fallback reason recorded");
+	struct sql_plan_component_summary summary;
+	ok(sql_plan_component_finalize(&ledger, &summary) ==
+	   SQL_PLAN_COMPONENT_OK &&
+	   summary.route == SQL_PLAN_COMPONENT_FALLBACK &&
+	   summary.fallback_reason == SQL_PLAN_FALLBACK_UNSUPPORTED_CTE,
+	   "uniform route summary keeps root reason");
+	footer();
+	check_plan();
+}
+
+static void
 test_component_routes_and_mixed_summary(void)
 {
 	plan(12);
@@ -89,6 +119,7 @@ test_incomplete_and_bounded_ledger(void)
 int
 main(void)
 {
+	test_uniform_fallback_uses_root_reason();
 	test_component_routes_and_mixed_summary();
 	test_incomplete_and_bounded_ledger();
 	return 0;

@@ -39,6 +39,8 @@
 #ifndef SQL_VDBEINT_H
 #define SQL_VDBEINT_H
 
+#include "sql_plan_component.h"
+
 /*
  * SQL is translated into a sequence of instructions to be
  * executed by a virtual machine.  Each instruction is an instance
@@ -353,6 +355,8 @@ struct Vdbe {
 	uint32_t planner_algorithm_version;
 	uint32_t planner_config_version;
 	uint32_t planner_beam_width;
+	/* Per-SELECT-component route evidence; incomplete on bounded overflow. */
+	struct sql_plan_component_ledger *planner_components;
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
 	char *explain_text;	/* Cached row-oriented EXPLAIN text */
