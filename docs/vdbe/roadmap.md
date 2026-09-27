@@ -1033,8 +1033,12 @@ DML, triggers, subprograms, non-deterministic functions.
   `SelectDest` result registers. It accepts only a resolved direct-column
   projection from one base table and requires a TREE primary index. The
   no-filter route supports optional primary-key ordering by scanning in the
-  requested direction. A second route supports equality between the sole
-  INTEGER/UNSIGNED primary-key part and a matching signed-64-bit/unsigned-64-bit
+  requested direction. It also lowers `primary_key IS NOT NULL` as a full
+  scan, relying on the primary-key non-null invariant; other columns' IS NOT
+  NULL predicates remain on legacy codegen; a dedicated SQL regression checks
+  off/on row parity and non-primary rejection on memtx and Vinyl. A second
+  route supports equality between the sole INTEGER/UNSIGNED primary-key part
+  and a matching signed-64-bit/unsigned-64-bit
   integer literal; it emits a
   primary cursor NotFound seek and returns at most one row. The equality
   route supports ORDER BY only on that one primary-key column; ordering is
