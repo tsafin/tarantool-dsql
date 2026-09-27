@@ -141,6 +141,10 @@ unsigned_max_point_summary, err = box.execute([[EXPLAIN (planner = 'summary') SE
 assert(err == nil and unsigned_max_point_summary.rows[1][3] == 'new_planner')
 unsigned_max_point = box.execute([[SELECT v FROM planner_preflight_unsigned_t WHERE id = 18446744073709551615]])
 assert(#unsigned_max_point.rows == 1 and unsigned_max_point.rows[1][1] == 10)
+unsigned_negative_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_unsigned_t WHERE id = -1]])
+assert(err == nil and unsigned_negative_summary.rows[1][3] == 'fallback')
+unsigned_negative_point = box.execute([[SELECT v FROM planner_preflight_unsigned_t WHERE id = -1]])
+assert(#unsigned_negative_point.rows == 0)
 box.execute([[DROP TABLE planner_preflight_unsigned_t]])
 
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
