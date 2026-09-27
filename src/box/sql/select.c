@@ -2626,7 +2626,11 @@ generateWithRecursiveQuery(Parse * pParse,	/* Parsing context */
 
 	/* Store the results of the setup-query in Queue. */
 	pSetup->pNext = 0;
+	int old_component_role = pParse->planner_component_role;
+	pParse->planner_component_role =
+		SQL_PLAN_COMPONENT_RECURSIVE_ANCHOR;
 	rc = sqlSelect(pParse, pSetup, &destQueue);
+	pParse->planner_component_role = old_component_role;
 	pSetup->pNext = p;
 	if (rc)
 		goto end_of_recursive_query;
