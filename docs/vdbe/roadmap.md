@@ -1994,11 +1994,12 @@ DML, triggers, subprograms, non-deterministic functions.
   both miss and rejected-filter branches joining after `ResultRow`. SQL
   parity cases cover a matching row, a matched key rejected by the residual,
   and positive OFFSET on memtx and Vinyl; the VDBE unit pins filter-column
-  evaluation and branch placement. Composite point filters and multiple
-  residual filters remain rejected. Local executable validation is pending:
-  the isolated worktree cannot configure because its submodule checkouts are
-  absent and the root filesystem has only 56 MB free; configuration in
-  `/dev/shm` also requires project submodules to be present.
+  evaluation and branch placement. The incremental Debug build succeeds;
+  `sql_plan_vdbe_lowering.test` passes all 45 assertions, and the regular
+  luatest runner passes `planner_scalar_filter_test.lua` against the rebuilt
+  binary (its fixture covers both memtx and Vinyl). Composite point filters
+  and multiple residual filters remain rejected. The broader M3.4 operator
+  and producer coverage remains open.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
