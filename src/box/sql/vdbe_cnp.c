@@ -1052,6 +1052,7 @@ cnp_frag_terminal_row(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
 static int64_t __attribute__((preserve_none))
 cnp_frag_terminal_done(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
 {
+	(void)p;
 	(void)aOp;
 	(void)pOp;
 	(void)aMem;
