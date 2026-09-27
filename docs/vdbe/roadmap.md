@@ -1217,6 +1217,13 @@ DML, triggers, subprograms, non-deterministic functions.
   (85/85 snapshots each, zero capture errors or diffs); generated-repeat also
   matches both engines exactly. A duplicate residual NULL-filter conjunction
   is explicitly retained as `fallback / UNSUPPORTED_FILTER`.
+  Point-lookup residual lowering now accepts up to eight direct non-primary
+  `IS NULL`/`IS NOT NULL` checks on a single-part INTEGER/UNSIGNED primary-key
+  equality. All checks execute before projection and share the reject/result
+  exit; overflow and other access shapes remain fail-closed. The unit target
+  passes all 46 assertions, and the rebuilt Debug runtime passes
+  `planner_scalar_filter_test.lua` across its memtx/Vinyl matrix. This remains
+  a bounded M3.4 extension, not general predicate lowering.
   Compound/general boolean predicates, filtered composite-prefix ranges, and
   other scalar operators remain outside this route. Direct-column full
   scans and primary-key ordering also pass
