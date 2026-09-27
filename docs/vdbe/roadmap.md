@@ -582,14 +582,16 @@ review of IDs and formats.
   bounds/stages each requested index sample before delivery. Its finish commits
   only after every requested target succeeds; otherwise it rolls back. The
   focused `sql_stats_collection.test` target builds and passes locally,
-  including all 27 transaction-context checks. The production `tarantool`
-  target links with the API, and the `sql_stats_test` luatest passes live
-  memtx/Vinyl primary- and secondary-index samples. The unit test still uses
-  engine stubs for lifecycle/error injection.
+  including all 32 transaction-context checks. The production `tarantool`
+  target links with the API. A prior runtime luatest exercised live memtx/Vinyl
+  primary- and secondary-index samples, but the current configured CnP run
+  cannot load its helper modules because of unresolved `space_cache_version`
+  and `mp_type_hint`; it provides no new runtime confirmation. The unit test
+  still uses engine stubs for lifecycle/error injection.
   The context now captures the local commit-vclock signature and rejects
   sampling/finish if it changes, with unit coverage for drift during engine
   sampling and again at finish. It now also captures and revalidates the local
-  `space_cache_version` catalog generation alongside schema version and
+  catalog generation (`box_catalog_version()`) alongside schema version and
   per-index unique IDs; tests inject catalog-cache drift both during sampling
   and at finish, and the catalog token is exposed to the volatile collector.
   These are local volatile generation guards, not durable/cross-node snapshot
