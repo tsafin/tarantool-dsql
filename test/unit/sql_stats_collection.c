@@ -35,6 +35,82 @@ static bool test_advance_vclock_on_commit;
 static int test_engine_sample_mode;
 static bool test_schema_change_on_isolation;
 
+/* The transaction-context suite tests owned orchestration, not HLL quality.
+ * Use a tiny summary double here; population estimator behavior is covered by
+ * sql_stats_collection_samples.test and sql_stats_index_summary.test. */
+struct sql_stats_index_summary {
+	size_t part_count;
+	uint64_t sample_rows;
+	sql_stats_index_value_extract_f *extract;
+	void *extract_context;
+};
+
+struct sql_stats_index_summary *
+sql_stats_index_summary_new(size_t part_count, uint8_t precision,
+			    uint64_t seed, size_t max_bytes,
+			    sql_stats_index_value_extract_f *extract,
+			    void *extract_context)
+{
+	(void)precision;
+	(void)seed;
+	if (part_count == 0 || max_bytes == 0 || extract == NULL)
+		return NULL;
+	struct sql_stats_index_summary *summary = calloc(1, sizeof(*summary));
+	if (summary != NULL) {
+		summary->part_count = part_count;
+		summary->extract = extract;
+		summary->extract_context = extract_context;
+	}
+	return summary;
+}
+
+void
+sql_stats_index_summary_delete(struct sql_stats_index_summary *summary)
+{
+	free(summary);
+}
+
+int
+sql_stats_index_summary_consume(void *arg, const char *tuple,
+				size_t tuple_size, const uint32_t *field_ids,
+				size_t field_count)
+{
+	struct sql_stats_index_summary *summary = arg;
+	if (summary == NULL || tuple == NULL || tuple_size == 0)
+		return -1;
+	struct sql_stats_hll_value *parts = calloc(summary->part_count,
+							  sizeof(*parts));
+	if (parts == NULL)
+		return -1;
+	int rc = summary->extract(summary->extract_context, tuple, tuple_size,
+				  field_ids, field_count, parts,
+				  summary->part_count);
+	free(parts);
+	if (rc == 0)
+		summary->sample_rows++;
+	return rc;
+}
+
+int
+sql_stats_index_summary_population_prefix_ndv(
+	const struct sql_stats_index_summary *summary,
+	const struct sql_stats_sample_result *sample, size_t prefix_count,
+	uint64_t *estimates, size_t estimate_count, double *confidence,
+	size_t max_temp_bytes, uint64_t max_work)
+{
+	(void)max_temp_bytes;
+	(void)max_work;
+	if (summary == NULL || sample == NULL || estimates == NULL ||
+	    confidence == NULL || prefix_count == 0 ||
+	    prefix_count > summary->part_count || estimate_count < prefix_count ||
+	    summary->sample_rows != sample->rows || !sample->population_known)
+		return -1;
+	for (size_t i = 0; i < prefix_count; i++)
+		estimates[i] = sample->visible_population;
+	*confidence = sample->visible_population == 0 ? 0 : 0.5;
+	return 0;
+}
+
 static void
 advance_test_vclock(void)
 {
