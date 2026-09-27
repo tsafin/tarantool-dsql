@@ -1372,7 +1372,8 @@ DML, triggers, subprograms, non-deterministic functions.
   table-scan producer boundary: the structural rejection must survive rather
   than be replaced by a later lowering result. It does not address nested
   producer ownership, direct emitters, or the missing statement/component
-  route ledger; M3.5 remains open.
+  route ledger; M3.5 remains open. The focused `planner_fallback_access_hint`
+  test-run passed on both memtx and Vinyl in the root Clang-19 build.
 
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
