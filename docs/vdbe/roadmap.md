@@ -911,8 +911,9 @@ DML, triggers, subprograms, non-deterministic functions.
   bindings, and `SRT_Output` destination before `sqlSelect()` mutates its
   select ID or emits preamble bytecode. It explicitly rejects other shapes;
   unit tests pin accept/reject reasons and input immutability, while a focused
-  SQL regression proves eligible and rejected queries still return legacy
-  results and `current_where_c`. Positive certification skips the
+  SQL regression passes with both memtx and Vinyl, proving eligible and
+  rejected queries still return legacy results and `current_where_c`.
+  Positive certification skips the
   pre-optimization structural fallback walk, which cannot reject this exact
   shape; it does not alter the legacy codegen route. *parallel: no* (shares
   SELECT/VDBE integration boundary).
