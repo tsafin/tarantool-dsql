@@ -98,7 +98,12 @@ g.test_shared_view_multi_relation_candidate = function()
     if res.test_wrapper_unavailable then
         t.skip('SQL stats live wrapper requires a TEST_BUILD server')
     end
-    t.assert_equals(res.published_two_relations, true)
+    t.assert_equals(res.published_two_relations, true,
+        ('publish=%s rows=%s/%s native=%s late=%s preserved=%s'):format(
+            tostring(res.publish_rc), tostring(res.first_relation_rows),
+            tostring(res.second_relation_rows), tostring(res.native_hash_provenance),
+            tostring(res.later_relation_failed_closed),
+            tostring(res.installed_snapshot_preserved)))
     t.assert_equals(res.native_hash_provenance, true)
     t.assert_equals(res.publish_rc, 0)
     t.assert_equals(res.first_relation_rows, 8)
