@@ -278,7 +278,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(27);
+	plan(29);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -326,6 +326,10 @@ main(void)
 		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false);
 	struct sql_plan_descriptor *range_le_desc =
 		new_range_descriptor(SQL_PLAN_LE, 7, false);
+	struct sql_plan_descriptor *range_ge_desc =
+		new_range_descriptor(SQL_PLAN_GE, INT64_MIN, false);
+	struct sql_plan_descriptor *range_lt_desc =
+		new_range_descriptor(SQL_PLAN_LT, 7, false);
 	struct sql_plan_descriptor *unsigned_range_desc =
 		new_range_descriptor(SQL_PLAN_GT, (int64_t)UINT64_MAX, true);
 	struct sql_plan_descriptor *invalid_point_desc =
@@ -485,6 +489,18 @@ main(void)
 	   vdbe.aOp[before_range_le + 1].opcode == OP_SeekLE &&
 	   vdbe.aOp[before_range_le + 5].opcode == OP_Prev,
 	   "inclusive upper range emits SeekLE and scans descending");
+	int before_range_ge = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(range_ge_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_range_ge + 1].opcode == OP_SeekGE &&
+	   vdbe.aOp[before_range_ge + 1].p2 == before_range_ge + 6 &&
+	   vdbe.aOp[before_range_ge + 5].opcode == OP_Next,
+	   "inclusive lower range emits SeekGE and scans ascending");
+	int before_range_lt = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(range_lt_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_range_lt + 1].opcode == OP_SeekLT &&
+	   vdbe.aOp[before_range_lt + 1].p2 == before_range_lt + 6 &&
+	   vdbe.aOp[before_range_lt + 5].opcode == OP_Prev,
+	   "strict upper range emits SeekLT and scans descending");
 	int before_unsigned_range = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(unsigned_range_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_unsigned_range].opcode == OP_Int64 &&
@@ -521,6 +537,8 @@ main(void)
 	sql_plan_descriptor_delete(unsigned_point_desc);
 	sql_plan_descriptor_delete(range_gt_desc);
 	sql_plan_descriptor_delete(range_le_desc);
+	sql_plan_descriptor_delete(range_ge_desc);
+	sql_plan_descriptor_delete(range_lt_desc);
 	sql_plan_descriptor_delete(unsigned_range_desc);
 	sql_plan_descriptor_delete(invalid_point_desc);
 	sql_plan_descriptor_delete(late_invalid_point_desc);
