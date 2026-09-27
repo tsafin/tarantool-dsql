@@ -6,28 +6,9 @@ box.execute([[SET SESSION "sql_seq_scan" = true]])
 box.execute([[CREATE TABLE planner_signed_range_edges_t (id INTEGER PRIMARY KEY, v INTEGER)]])
 box.execute([[INSERT INTO planner_signed_range_edges_t VALUES (-9223372036854775808, 10), (-1, 20), (0, 30), (1, 40), (9223372036854775807, 50)]])
 
-function assert_no_fallback_delta(before, after, label)
-    assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total,
-           label .. ': fallback total changed')
-    for key, value in pairs(before) do
-        if key:match('^sql_planner_fallback_.*_total$') and
-           key ~= 'sql_planner_fallback_total' then
-            assert(after[key] == value, label .. ': ' .. key .. ' changed')
-        end
-    end
-end
+function assert_no_fallback_delta(before, after, label) assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total, label .. ': fallback total changed'); for key, value in pairs(before) do if key:match('^sql_planner_fallback_.*_total$') and key ~= 'sql_planner_fallback_total' then assert(after[key] == value, label .. ': ' .. key .. ' changed') end end end
 
-function capture_signed_boundary(sql, route, label)
-    before = box.stat.sql()
-    summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. sql)
-    assert(err == nil and summary.rows[1][3] == route,
-           label .. ': unexpected route ' .. tostring(summary and summary.rows[1][3]))
-    result, err = box.execute(sql)
-    assert(err == nil, label .. ': execution failed: ' .. tostring(err))
-    after = box.stat.sql()
-    assert_no_fallback_delta(before, after, label)
-    return result.rows
-end
+function capture_signed_boundary(sql, route, label) before = box.stat.sql(); summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. sql); assert(err == nil and summary.rows[1][3] == route, label .. ': unexpected route ' .. tostring(summary and summary.rows[1][3])); result, err = box.execute(sql); assert(err == nil, label .. ': execution failed: ' .. tostring(err)); after = box.stat.sql(); assert_no_fallback_delta(before, after, label); return result.rows end
 
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 disabled_cross_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id >= -1 AND id <= 1]])
