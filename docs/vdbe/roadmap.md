@@ -906,7 +906,16 @@ DML, triggers, subprograms, non-deterministic functions.
   `vdbe_codegen_checkpoint` now rolls back speculative opcode ownership and
   selected `Parse` codegen state; it does not cover arbitrary parser/AST or
   schema mutations, and production expression/cursor/result bindings are
-  still absent. *parallel: no* (shares SELECT/VDBE integration boundary).
+  still absent. The pure `sql_select_preflight_table_scan()` contract now
+  checks resolved base-source identity, direct projection column/cursor
+  bindings, and `SRT_Output` destination before `sqlSelect()` mutates its
+  select ID or emits preamble bytecode. It explicitly rejects other shapes;
+  unit tests pin accept/reject reasons and input immutability, while a focused
+  SQL regression proves eligible and rejected queries still return legacy
+  results and `current_where_c`. Positive certification skips the
+  pre-optimization structural fallback walk, which cannot reject this exact
+  shape; it does not alter the legacy codegen route. *parallel: no* (shares
+  SELECT/VDBE integration boundary).
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
   `fallback_reason` and routes to current `where.c`. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and

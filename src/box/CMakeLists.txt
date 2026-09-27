@@ -106,6 +106,7 @@ set(sql_sources
     sql/sql_replay_extract.c
     sql/sql_replay_schema.c
     sql/sql_logical_plan.c
+    sql/sql_select_preflight.c
     sql/sql_plan_descriptor.c
     sql/sql_plan_fallback.c
     sql/alter.c

@@ -165,6 +165,13 @@ create_unit_test(PREFIX sql_logical_plan
 )
 target_include_directories(sql_logical_plan.test PRIVATE
                            ${PROJECT_BINARY_DIR}/src/box/sql)
+create_unit_test(PREFIX sql_select_preflight
+                 SOURCES sql_select_preflight.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_select_preflight.c
+                 LIBRARIES unit
+)
+target_include_directories(sql_select_preflight.test PRIVATE
+                           ${PROJECT_BINARY_DIR}/src/box/sql)
 create_unit_test(PREFIX sql_expr_canonical
                  SOURCES sql_expr_canonical.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_expr_canonical.c

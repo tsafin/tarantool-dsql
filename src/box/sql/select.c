@@ -44,6 +44,7 @@
 #include "sql_logical_plan.h"
 #include "sql_expr_canonical.h"
 #include "sql_plan_fallback.h"
+#include "sql_select_preflight.h"
 
 /*
  * Trace output macros
@@ -5957,6 +5958,11 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	AggInfo sAggInfo;	/* Information used by aggregate queries */
 	int iEnd;		/* Address of the end of the query */
 	int iRestoreSelectId = pParse->iSelectId;
+	/* This pure check runs before parser/VDBE mutation. Its positive
+	 * certification lets us skip the structural fallback walk below; both
+	 * outcomes still use the legacy code generator until M3.4 is complete. */
+	enum sql_select_preflight_reject scan_preflight =
+		sql_select_preflight_table_scan(p, pDest);
 	pParse->iSelectId = pParse->iNextSelectId++;
 
 	if (p == NULL || pParse->is_aborted)
@@ -6034,7 +6040,8 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	v = sqlGetVdbe(pParse);
 	if (v == NULL)
 		goto select_end;
-	sql_select_record_preopt_fallback(pParse, p);
+	if (scan_preflight != SQL_SELECT_PREFLIGHT_OK)
+		sql_select_record_preopt_fallback(pParse, p);
 	if (IgnorableOrderby(pDest)) {
 		assert(pDest->eDest == SRT_Exists || pDest->eDest == SRT_Union
 		       || pDest->eDest == SRT_Except

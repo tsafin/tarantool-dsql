@@ -103,6 +103,23 @@ bindings and an auditable boundary around every other mutable state remain
 the narrow blockers. This is not a claim that existing VDBE opcodes cannot
 express the scan.
 
+#### `sqlSelect()` preflight prerequisite
+
+`sql_select_preflight_table_scan()` is a side-effect-free predicate for the
+narrow producer class: a resolved one-base-table SELECT, direct column
+references bound to that source cursor, and `SRT_Output` destination, with no
+filter/order/limit/offset or other unsupported shape. It runs at `sqlSelect()`
+entry before the select ID is advanced or that function emits preamble VDBE.
+Explicit reject values distinguish unresolved input, destination, relation,
+shape, projection, and column-binding failures. The unit test asserts accepted
+and rejected classes and byte-for-byte input immutability. A SQL regression
+exercises an eligible query and rejected filtered/computed forms; all still
+execute through legacy codegen and report `current_where_c` where applicable.
+Positive certification skips the pre-optimization structural fallback walk,
+which cannot reject this exact query shape; it does not select alternate
+codegen. It does not establish rollback completeness, VDBE parity, or M3.4
+completion.
+
 #### Producer-side full-scan slice
 
 `sql_physical_table_scan_from_select()` now derives a table-full-scan
