@@ -907,9 +907,15 @@ DML, triggers, subprograms, non-deterministic functions.
   `SELECT c FROM t`, but its scan/projection/result opcodes currently belong
   to `sqlWhereBegin()`/`wherecode.c`/`selectInnerLoop()`. A limited
   `vdbe_codegen_checkpoint` now rolls back speculative opcode ownership and
-  selected `Parse` codegen state; it does not cover arbitrary parser/AST or
-  schema mutations, and production expression/cursor/result bindings are
-  still absent. The pure `sql_select_preflight_table_scan()` contract now
+  selected `Parse` codegen state, including a speculative abort when no
+  parser error count or diagnostic was raised; it preserves abort when
+  `Parse.nErr` changes or the diagnostic differs from the checkpoint
+  boundary, so codegen errors cannot be converted into fallback. The boundary
+  diagnostic is retained during the checkpoint lifetime, avoiding false
+  failure from pre-existing diagnostics. It does not cover arbitrary
+  parser/AST or schema mutations, and
+  production expression/cursor/result bindings are still absent. The pure
+  `sql_select_preflight_table_scan()` contract now
   checks resolved base-source identity, direct projection column/cursor
   bindings, and `SRT_Output` destination before `sqlSelect()` mutates its
   select ID or emits preamble bytecode. It explicitly rejects other shapes;

@@ -8,6 +8,7 @@
 
 #include "coll/coll.h"
 
+#include "core/diag.h"
 #include "core/event.h"
 #include "core/fiber.h"
 #include "core/memory.h"
@@ -36,7 +37,7 @@ main(void)
 	box_init();
 	sql_init();
 
-	plan(7);
+	plan(10);
 	header();
 	struct Parse parse = {};
 	struct Vdbe vdbe = {};
@@ -72,6 +73,7 @@ main(void)
 #ifdef SQL_ENABLE_EXPLAIN_COMMENTS
 	sqlVdbeComment(&vdbe, "owned comment");
 #endif
+	parse.is_aborted = true;
 
 	vdbe_codegen_checkpoint_rollback(&checkpoint);
 	ok(vdbe.nOp == 1 && vdbe.aOp[0].opcode == OP_Noop,
@@ -79,8 +81,10 @@ main(void)
 	ok(parse.nMem == 0 && parse.nTab == 0 && parse.nRangeReg == 0 &&
 	   parse.iRangeReg == 0 && parse.nTempReg == 0 &&
 	   parse.nColCache == 0 && parse.iCacheLevel == 0 &&
-	   parse.iCacheCnt == 0 && parse.nQueryLoop == 0,
-	   "rollback restores parse register, cursor, and cache counters");
+	   parse.iCacheCnt == 0 && parse.nQueryLoop == 0 &&
+	   !parse.is_aborted && parse.nErr == 0 &&
+	   diag_is_empty(diag_get()),
+	   "rollback restores codegen counters and speculative abort state");
 	ok(parse.nLabel == 1 && parse.aLabel[0] == -1,
 	   "rollback restores prior label values and count");
 	ok(vdbe.aOp[1].p4type == P4_NOTUSED &&
@@ -97,7 +101,31 @@ main(void)
 	   "commit keeps emitted instructions and their owned P4");
 
 	vdbe_codegen_checkpoint_init(&checkpoint, &vdbe);
+	parse.is_aborted = true;
+	parse.nErr++;
 	vdbe_codegen_checkpoint_rollback(&checkpoint);
+	ok(parse.is_aborted && parse.nErr == 1 && diag_is_empty(diag_get()),
+	   "rollback preserves parse errors instead of enabling fallback");
+	parse.is_aborted = false;
+	parse.nErr = 0;
+
+	diag_set(ClientError, ER_SQL_EXECUTE, "pre-existing diagnostic");
+	struct error *baseline_error = diag_last_error(diag_get());
+	vdbe_codegen_checkpoint_init(&checkpoint, &vdbe);
+	parse.is_aborted = true;
+	vdbe_codegen_checkpoint_rollback(&checkpoint);
+	ok(!parse.is_aborted && diag_last_error(diag_get()) == baseline_error,
+	   "unchanged pre-existing diagnostic is not mistaken for a new failure");
+	diag_clear(diag_get());
+
+	vdbe_codegen_checkpoint_init(&checkpoint, &vdbe);
+	parse.is_aborted = true;
+	diag_set(ClientError, ER_SQL_EXECUTE, "speculative codegen failure");
+	vdbe_codegen_checkpoint_rollback(&checkpoint);
+	ok(parse.is_aborted && !diag_is_empty(diag_get()),
+	   "rollback preserves a speculative diagnostic as a hard failure");
+	diag_clear(diag_get());
+	parse.is_aborted = false;
 	/* The test owns this synthetic VDBE; release its retained opcode payloads. */
 	for (int i = 0; i < vdbe.nOp; ++i) {
 		if (vdbe.aOp[i].p4type == P4_DYNAMIC)

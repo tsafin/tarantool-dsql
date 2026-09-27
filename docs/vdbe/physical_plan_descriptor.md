@@ -93,9 +93,14 @@ be compiled from descriptor contents.
 
 The failure-safety primitive now exists as `vdbe_codegen_checkpoint`: it
 captures the opcode boundary and the relevant `Parse` register/cursor,
-label, expression-cache, and temporary-register state. Rollback frees owned
-P4/comment payloads, clears the speculative opcode suffix, and restores the
-captured parse state; a focused unit test exercises rollback and commit.
+label, expression-cache, temporary-register, and abort state. Rollback frees
+owned P4/comment payloads and clears the speculative opcode suffix. It restores
+a speculative `Parse.is_aborted` when no diagnostic/error count was raised, but
+preserves hard failure state when `Parse.nErr` changes or the fiber diagnostic
+differs from the checkpoint boundary. The boundary error is retained while
+the checkpoint is live, so an unchanged pre-existing diagnostic is not
+mistaken for a new failure. Rollback cannot silently turn a codegen error into
+legacy fallback. Focused unit tests cover these cases and commit.
 This checkpoint intentionally does not cover arbitrary parser/AST mutations,
 schema side effects, or VDBE metadata, so it is not yet sufficient to wrap
 the complete SELECT integration path. The producer/expression/cursor/result

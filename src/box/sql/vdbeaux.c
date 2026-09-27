@@ -34,6 +34,7 @@
  * a VDBE (or an "sql_stmt" as it is known to the outside world.)
  */
 #include "fiber.h"
+#include "core/diag.h"
 #include "coll/coll.h"
 #include "box/session.h"
 #include "box/schema.h"
@@ -871,9 +872,14 @@ vdbe_codegen_checkpoint_init(struct vdbe_codegen_checkpoint *checkpoint,
 	checkpoint->i_self_tab = parse->iSelfTab;
 	checkpoint->vdbe_field_ref_reg = parse->vdbe_field_ref_reg;
 	checkpoint->col_names_set = parse->colNamesSet;
+	checkpoint->parse_is_aborted = parse->is_aborted;
+	checkpoint->parse_n_err = parse->nErr;
 	memcpy(checkpoint->col_cache, parse->aColCache,
 	       sizeof(parse->aColCache));
 	checkpoint->n_query_loop = parse->nQueryLoop;
+	checkpoint->diag_error = diag_last_error(diag_get());
+	if (checkpoint->diag_error != NULL)
+		error_ref(checkpoint->diag_error);
 	return 0;
 }
 
@@ -883,6 +889,8 @@ vdbe_codegen_checkpoint_commit(struct vdbe_codegen_checkpoint *checkpoint)
 	if (checkpoint == NULL)
 		return;
 	sql_xfree(checkpoint->labels);
+	if (checkpoint->diag_error != NULL)
+		error_unref(checkpoint->diag_error);
 	memset(checkpoint, 0, sizeof(*checkpoint));
 }
 
@@ -925,6 +933,12 @@ vdbe_codegen_checkpoint_rollback(struct vdbe_codegen_checkpoint *checkpoint)
 	parse->iSelfTab = checkpoint->i_self_tab;
 	parse->vdbe_field_ref_reg = checkpoint->vdbe_field_ref_reg;
 	parse->colNamesSet = checkpoint->col_names_set;
+	/* A speculative reject may set is_aborted without an error; rollback can
+	 * clear that state. Never hide parser/codegen errors, however: nErr is
+	 * monotonic and the fiber diagnostic area belongs to the caller. */
+	bool has_error = parse->nErr != checkpoint->parse_n_err ||
+		diag_last_error(diag_get()) != checkpoint->diag_error;
+	parse->is_aborted = checkpoint->parse_is_aborted || has_error;
 	memcpy(parse->aColCache, checkpoint->col_cache,
 	       sizeof(parse->aColCache));
 	parse->nQueryLoop = checkpoint->n_query_loop;

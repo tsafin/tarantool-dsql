@@ -376,9 +376,11 @@ struct Vdbe {
 
 /*
  * Rollback point for speculative bytecode generation. This snapshots only
- * VDBE instruction ownership and Parse's codegen allocator, label, and
- * expression-cache state. It does not cover arbitrary parser mutations, AST
- * allocations, schema side effects, or VDBE metadata.
+ * VDBE instruction ownership and Parse's codegen allocator, label,
+ * expression-cache, abort, and diagnostic-boundary state. A diagnostic raised
+ * speculatively stays a hard failure; rollback must not turn it into fallback.
+ * It does not cover arbitrary parser mutations, AST allocations, schema side
+ * effects, or VDBE metadata.
  */
 struct vdbe_codegen_checkpoint {
 	Vdbe *vdbe;
@@ -398,6 +400,9 @@ struct vdbe_codegen_checkpoint {
 	int i_self_tab;
 	int vdbe_field_ref_reg;
 	int col_names_set;
+	bool parse_is_aborted;
+	int parse_n_err;
+	struct error *diag_error;
 	unsigned char col_cache[sizeof(((Parse *)0)->aColCache)];
 	u32 n_query_loop;
 };
