@@ -188,12 +188,11 @@ new-planner scan path and preserves descending order with LIMIT on memtx and
 Vinyl. The disabled route currently classifies this ordered scan as
 `fallback / UNSUPPORTED_EXPRESSION`; a successful enabled route has no
 fallback reason.
-M3.4 remains
-open: estimates are coarse, only direct
-projection/table-full-scan is routed, error-injection and broader
-parity/capture coverage remain, and the checkpoint does not restore arbitrary
-AST/schema mutations. M1.4 remains non-replayable; this producer does not
-change the diagnostic envelope or claim replay completeness.
+M3.4 remains open: estimates are coarse, only direct projections over primary
+table scans and integer primary-key point/range paths are routed, broader
+storage/parity/capture coverage remains, and the checkpoint does not restore
+arbitrary AST/schema mutations. This producer does not alter replay-envelope
+completeness.
 
 #### Integer primary-key point lookup
 
@@ -233,6 +232,16 @@ unrelated orderings remain on legacy codegen with a stable fallback reason.
 Memtx/Vinyl tests cover reordered
 equalities, empty and non-empty prefixes, UINT64_MAX, LIMIT/OFFSET, and
 non-leading fallback.
+
+A contiguous equality prefix may also be followed by one lower bound, one
+upper bound, or both on the next INTEGER/UNSIGNED primary-key part. The
+descriptor retains prefix equalities separately from suffix bounds. Lower
+bounds extend the composite `SeekGT` / `SeekGE` key; an upper bound stops the
+ascending walk after the equality-prefix guard. Compatible ordering remains
+ascending only. Off/on/off SQL regressions cover each bound form on memtx and
+Vinyl, including unsigned values above `INT64_MAX` and a three-part suffix
+range. Gaps in the equality prefix, duplicate same-side bounds, and descending
+suffix ranges remain unsupported.
 
 The production route also supports one-sided and two-sided INTEGER and
 UNSIGNED primary-key literal ranges (`>`, `>=`, `<`, `<=`), including reversed

@@ -1278,13 +1278,18 @@ DML, triggers, subprograms, non-deterministic functions.
   and generated plus CnP focused runs pass. Equality over all composite parts,
   non-leading-only predicates, and mixed/non-prefix ordering remain outside
   this route.
-  A separate SQL-luatest pins the next composite shape: equality on the first
-  key part plus lower-only, upper-only, and bounded ranges on the second,
-  ordered ascending across the complete three-part key. It checks exact rows
-  and off/on/off parity on memtx and Vinyl. Until the executable producer emits
-  this prefix-equality-plus-next-part-range descriptor, the test accepts the
-  stable current legacy/fallback route; successful `new_planner` routing remains
-  the M3.4 acceptance condition.
+  The executable producer and prefix-scan lowerer now also support a contiguous
+  equality prefix followed by lower-only, upper-only, or bounded integer-range
+  predicates on the next primary-key part. The lower bound participates in a
+  composite `SeekGT`/`SeekGE`; upper bounds terminate the ascending walk after
+  the prefix guard. The route preserves signed/unsigned key encodings and only
+  accepts ascending compatible key order. SQL-luatest checks exact rows and
+  off/on/off parity for all three range shapes on memtx and Vinyl, including
+  an UNSIGNED suffix above `INT64_MAX`. The earlier three-part point fixture
+  now confirms equality on the first two parts plus a range on the third uses
+  `new_planner`. Descriptor and VDBE lowering unit targets pass. Other range
+  predicates, gaps in the equality prefix, duplicate bounds, and descending
+  suffix ranges remain fail-closed.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
   Rollback coverage is specifically post-emission validation rejection, not

@@ -1,5 +1,6 @@
 #include "sql_plan_descriptor.h"
 
+#include <limits.h>
 #include <stdbool.h>
 #include <math.h>
 #include <stdlib.h>
@@ -179,21 +180,60 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	    in->access.point_key_part_count != 0)
 		return NULL;
 	if (in->access.kind == SQL_PLAN_PK_PREFIX_SCAN) {
+		bool has_prefix_range = in->access.has_integer_range_key ||
+			in->access.has_unsigned_range_key;
+		bool has_prefix_range_end =
+			in->access.has_integer_range_end_key ||
+			in->access.has_unsigned_range_end_key;
+		size_t expected_bounds = in->access.prefix_key_part_count +
+			(has_prefix_range ? (has_prefix_range_end ? 2 : 1) : 0);
 		if (in->access.prefix_key_part_count == 0 ||
 		    in->access.has_integer_point_key ||
 		    in->access.has_unsigned_point_key ||
-		    in->access.has_integer_range_key ||
-		    in->access.has_unsigned_range_key ||
-		    in->access.has_integer_range_end_key ||
-		    in->access.has_unsigned_range_end_key ||
+		    ((in->access.has_integer_range_key ==
+		      in->access.has_unsigned_range_key) && has_prefix_range) ||
 		    in->access.point_key_part_count != 0 ||
 		    in->access.direction != SQL_PLAN_ASC ||
-		    in->access.bound_count != in->access.prefix_key_part_count)
+		    in->access.bound_count != expected_bounds ||
+		    (has_prefix_range && in->access.range_key_column > INT_MAX))
 			return NULL;
-		for (size_t i = 0; i < in->access.bound_count; ++i)
+		for (size_t i = 0; i < in->access.prefix_key_part_count; ++i)
 			if (in->access.bounds[i].op != SQL_PLAN_EQ ||
 			    in->access.bounds[i].side != SQL_PLAN_LOWER)
 				return NULL;
+		if (has_prefix_range) {
+			size_t range_bound = in->access.prefix_key_part_count;
+			if (has_prefix_range_end) {
+				if ((in->access.has_integer_range_key !=
+				     in->access.has_integer_range_end_key) ||
+				    (in->access.has_unsigned_range_key !=
+				     in->access.has_unsigned_range_end_key) ||
+				    (in->access.integer_range_op != SQL_PLAN_GT &&
+				     in->access.integer_range_op != SQL_PLAN_GE) ||
+				    (in->access.integer_range_end_op != SQL_PLAN_LT &&
+				     in->access.integer_range_end_op != SQL_PLAN_LE) ||
+				    in->access.bounds[range_bound].side != SQL_PLAN_LOWER ||
+				    in->access.bounds[range_bound].op !=
+					in->access.integer_range_op ||
+				    in->access.bounds[range_bound + 1].side != SQL_PLAN_UPPER ||
+				    in->access.bounds[range_bound + 1].op !=
+					in->access.integer_range_end_op)
+					return NULL;
+			} else {
+				enum sql_plan_bound_op op =
+					in->access.integer_range_op;
+				if ((op != SQL_PLAN_GT && op != SQL_PLAN_GE &&
+				     op != SQL_PLAN_LT && op != SQL_PLAN_LE) ||
+				    in->access.bounds[range_bound].op != op ||
+				    in->access.bounds[range_bound].side !=
+					((op == SQL_PLAN_GT || op == SQL_PLAN_GE) ?
+					 SQL_PLAN_LOWER : SQL_PLAN_UPPER))
+					return NULL;
+			}
+		} else if (in->access.has_integer_range_end_key ||
+			   in->access.has_unsigned_range_end_key) {
+			return NULL;
+		}
 	} else if (in->access.prefix_key_part_count != 0) {
 		return NULL;
 	}
@@ -207,14 +247,17 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	bool has_range_end = in->access.has_integer_range_end_key ||
 		in->access.has_unsigned_range_end_key;
 	if (has_range_end) {
-		if (in->access.kind != SQL_PLAN_INDEX_RANGE_SCAN ||
+		size_t prefix_bounds = in->access.kind == SQL_PLAN_PK_PREFIX_SCAN ?
+			in->access.prefix_key_part_count : 0;
+		if ((in->access.kind != SQL_PLAN_INDEX_RANGE_SCAN &&
+		     in->access.kind != SQL_PLAN_PK_PREFIX_SCAN) ||
 		    in->access.has_integer_range_key ==
 		    in->access.has_unsigned_range_key ||
 		    in->access.has_integer_range_end_key ==
 		    in->access.has_unsigned_range_end_key ||
 		    in->access.has_integer_range_key !=
 		    in->access.has_integer_range_end_key ||
-		    in->access.bound_count != 2 ||
+		    in->access.bound_count != prefix_bounds + 2 ||
 		    (in->access.integer_range_op != SQL_PLAN_GT &&
 		     in->access.integer_range_op != SQL_PLAN_GE) ||
 		    (in->access.integer_range_end_op != SQL_PLAN_LT &&
@@ -222,7 +265,7 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 			return NULL;
 		bool has_lower = false;
 		bool has_upper = false;
-		for (size_t i = 0; i < in->access.bound_count; ++i) {
+		for (size_t i = prefix_bounds; i < in->access.bound_count; ++i) {
 			const struct sql_plan_bound *bound = &in->access.bounds[i];
 			if (bound->side == SQL_PLAN_LOWER &&
 			    (bound->op == SQL_PLAN_GT || bound->op == SQL_PLAN_GE) &&
