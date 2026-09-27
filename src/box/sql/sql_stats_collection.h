@@ -4,6 +4,9 @@
 #include "sql_stats_snapshot.h"
 #include "sql_stats_sample.h"
 
+/* Provenance for confidence scores produced by the sample NDV bridge. */
+#define SQL_STATS_INDEX_NDV_CONFIDENCE_SOURCE "uniform-occupancy-hll-v1"
+
 /* Opaque producer-defined tokens: this API assigns no estimator policy. */
 struct sql_stats_collection_generation {
 	uint64_t catalog_version;
@@ -35,6 +38,24 @@ struct sql_stats_collected_index {
 	const uint64_t *distinct_prefixes;
 	size_t prefix_count;
 };
+
+struct sql_stats_index_summary;
+
+/*
+ * Convert one complete sampled index summary into a detached collection
+ * record. Index identity and visibility are caller-supplied and are copied,
+ * not independently verified against the summary. Prefix values are written
+ * to caller-owned storage; confidence is the model/evidence score returned by
+ * the population NDV estimator.
+ */
+int
+sql_stats_collection_index_from_sample(
+	const struct sql_stats_expected_index *expected,
+	const struct sql_stats_sample_result *sample,
+	const struct sql_stats_index_summary *summary, uint64_t visibility_id,
+	uint64_t *distinct_prefixes, size_t prefix_capacity,
+	struct sql_stats_collected_index *index, double *confidence,
+	size_t max_temp_bytes, uint64_t max_work);
 
 struct sql_stats_collected_relation {
 	uint32_t space_id;

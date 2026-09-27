@@ -136,6 +136,15 @@ create_unit_test(PREFIX sql_stats_collection
 )
 target_compile_definitions(sql_stats_collection.test PRIVATE
                            SQL_STATS_COLLECTION_TESTING)
+create_unit_test(PREFIX sql_stats_collection_samples
+                 SOURCES sql_stats_collection_samples.c core_test_utils.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_collection.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_collection_summary.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_snapshot.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_index_summary.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
+                 LIBRARIES unit m box core
+)
 create_unit_test(PREFIX sql_stats_sample
                  SOURCES sql_stats_sample.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_sample.c

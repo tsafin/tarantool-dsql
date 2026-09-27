@@ -613,6 +613,7 @@ set(box_sources
     sql/sql_stats_sample.c
     sql/sql_stats_snapshot.c
     sql/sql_stats_collection.c
+    sql/sql_stats_collection_summary.c
     sql/sql_stats_context.c
     sql/sql_stats_tx_context.c
     sql/sql_stats_hll.c

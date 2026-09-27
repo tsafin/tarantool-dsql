@@ -555,9 +555,16 @@ review of IDs and formats.
   equal-frequency assumption and confidence semantics are documented in
   `sql_stats_sampling.md`; ten focused tests exercise both sampling designs,
   a complete census, a low-coverage skew probe, provenance rejection, and the
-  temporary-memory and work bounds. It is not wired into
-  complete relation collection or global publication, and has no agreed
-  corpus validation for the distributional assumption. The native index-hash
+  temporary-memory and work bounds. `sql_stats_collection_index_from_sample()`
+  now converts one bounded index summary plus its engine sample into a detached
+  collection record with caller-supplied visibility and definition tokens;
+  `sql_stats_collection_samples.test` carries that record together with the
+  exact population/width bridges through candidate-snapshot construction;
+  all four assertions pass locally.
+  The helper does not independently verify the sample/summary-to-index
+  association, and multi-index orchestration remains caller-owned. It is not
+  wired to ANALYZE or global publication. There is no agreed corpus validation for
+  the distributional assumption. The native index-hash
   adapter supports
   verified STRING, DOUBLE, BOOLEAN, UNSIGNED, and signed INTEGER parts for
   TREE/HASH definitions. INTEGER uses canonical MessagePack values (negative

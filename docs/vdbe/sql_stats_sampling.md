@@ -134,10 +134,27 @@ The returned confidence is an evidence score, not a calibrated probability:
 sample coverage is multiplied by a two-standard-error HLL term; summaries
 based on the native 32-bit index hash are additionally discounted by estimated
 birthday-collision risk. A consumer must preserve the `uniform-occupancy-hll-v1`
-NDV provenance and confidence, and should not treat confidence as a proof that
-the distributional assumption holds. This helper does not establish a common
+confidence-source tag and confidence value, while the index's NDV basis remains
+the same visible-index population basis as its tuple count. Consumers should
+not treat confidence as a proof that the distributional assumption holds. This
+helper does not establish a common
 visibility boundary across indexes, construct/publish a whole relation
 candidate, or enable `ANALYZE`.
+
+`sql_stats_collection_index_from_sample()` is the next staging step: it copies
+the expected index-definition version and caller-supplied common visibility
+token alongside the estimate and exact index population into a detached
+`sql_stats_collected_index`, and returns the confidence score. It does not
+independently verify that the supplied summary came from that index; the
+caller must preserve this association and use the owned collection context for
+definition/generation checks. Its output uses
+the same population-basis tag for tuple count and NDV domain, while the
+relation-level `confidence_source` uses
+`SQL_STATS_INDEX_NDV_CONFIDENCE_SOURCE`. A focused unit target composes this
+record with the exact relation-row and sample-width bridges and validates a
+detached snapshot candidate. The helper does not open or validate a
+transaction; callers must use the owned collection context and supply a
+visibility token that remains valid through `finish_and_publish`.
 
 Because Vinyl must discover EOF before publishing an exhaustive sample, it
 does not return a successful partial sample. A successful sample whose
