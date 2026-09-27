@@ -1604,6 +1604,24 @@ DML, triggers, subprograms, non-deterministic functions.
   broad but adapter-limited SQL-luatest results; the remaining unsupported
   topologies and SQL-suite audit keep M3.5 open.
 
+  **CnP arithmetic fallback follow-up (2026-09-27).** The first full audit
+  exposed an additional calling-convention hole: arithmetic selectors that
+  rejected integer specialization resolved to raw preserve-none handlers
+  instead of the SysV bridges. `cnp_resolve_handler_by_opcode()` now returns
+  the bridge for Add/Subtract/Multiply/Divide/Remainder. The four reproducing
+  tests (`defaults_test.lua`, `seq_scan_test.lua`,
+  `gh_6773_arithmetic_operands_test.lua`, and
+  `gh_8460_wrong_int_to_dec_test.lua`) pass under CnP, and the rerun full
+  adapter audit has no CnP capture failures: 34 memtx and 32 Vinyl files pass
+  native-vs-generated parity, with 7 files per engine not observed and 12
+  explicitly not run. Generated-repeat comparisons pass except the known
+  datetime current-time query (one result differs by timestamp) and
+  `explain_modifiers` disassembly (unstable address-dependent bytes); datetime's
+  Vinyl forced-engine capture and `show_create_table`'s forced-Vinyl capture
+  remain engine-specific failures. LLVM remains not observed because this
+  build has JIT disabled. This improves CnP coverage but does not close M3.5's
+  unsupported-topology or SQL-suite gates.
+
   ```mermaid
   flowchart TD
     R[Root SELECT component] --> C[Child SELECT components]
