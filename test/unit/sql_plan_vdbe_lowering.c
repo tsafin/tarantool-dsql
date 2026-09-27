@@ -178,6 +178,49 @@ new_point_null_filter_descriptor(enum sql_plan_filter_op op)
 }
 
 static struct sql_plan_descriptor *
+new_point_multi_filter_descriptor(void)
+{
+	static const uint32_t columns[] = {2, 0};
+	static const struct sql_plan_bound bound = {
+		.side = SQL_PLAN_LOWER,
+		.op = SQL_PLAN_EQ,
+		.expr_ref = 1,
+	};
+	static const struct sql_plan_filter filters[] = {
+		{.expr_ref = 2, .selectivity = 0.5, .column = 3,
+		 .op = SQL_PLAN_FILTER_IS_NULL},
+		{.expr_ref = 3, .selectivity = 0.5, .column = 4,
+		 .op = SQL_PLAN_FILTER_IS_NOT_NULL},
+	};
+	static const struct sql_plan_expression expressions[] = {
+		{.id = 1, .canonical = "integer-point-key"},
+		{.id = 2, .canonical = "direct-column-null-filter"},
+		{.id = 3, .canonical = "direct-column-not-null-filter"},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_PK_POINT_LOOKUP,
+			.bounds = &bound,
+			.bound_count = 1,
+			.has_integer_point_key = true,
+			.integer_point_key = 42,
+		},
+		.filters = filters,
+		.filter_count = sizeof(filters) / sizeof(filters[0]),
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+		.expressions = expressions,
+		.expression_count = sizeof(expressions) / sizeof(expressions[0]),
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_composite_point_descriptor(void)
 {
 	static const uint32_t columns[] = {2, 0};
@@ -563,6 +606,8 @@ main(void)
 		new_point_null_filter_descriptor(SQL_PLAN_FILTER_IS_NULL);
 	struct sql_plan_descriptor *point_not_null_filter_desc =
 		new_point_null_filter_descriptor(SQL_PLAN_FILTER_IS_NOT_NULL);
+	struct sql_plan_descriptor *point_multi_filter_desc =
+		new_point_multi_filter_descriptor();
 	struct sql_plan_descriptor *composite_point_desc =
 		new_composite_point_descriptor();
 	struct sql_plan_descriptor *composite_prefix_desc =
@@ -620,6 +665,7 @@ main(void)
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
 	   point_null_filter_desc != NULL &&
 	   point_not_null_filter_desc != NULL &&
+	   point_multi_filter_desc != NULL &&
 	   composite_point_desc != NULL &&
 	   composite_prefix_desc != NULL &&
 	   composite_prefix_limit_desc != NULL &&
@@ -828,6 +874,24 @@ main(void)
 	   vdbe.aOp[before_point_not_null_filter + 3].p2 ==
 		before_point_not_null_filter + 7,
 	   "point lookup rejects NULL residuals before projection");
+	int before_point_multi_filter = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_point(point_multi_filter_desc, &vdbe, 4,
+					       20) == 0 &&
+	   vdbe.aOp[before_point_multi_filter + 2].opcode == OP_Column &&
+	   vdbe.aOp[before_point_multi_filter + 2].p2 == 3 &&
+	   vdbe.aOp[before_point_multi_filter + 3].opcode == OP_NotNull &&
+	   vdbe.aOp[before_point_multi_filter + 4].opcode == OP_Column &&
+	   vdbe.aOp[before_point_multi_filter + 4].p2 == 4 &&
+	   vdbe.aOp[before_point_multi_filter + 5].opcode == OP_IsNull &&
+	   vdbe.aOp[before_point_multi_filter + 6].opcode == OP_Column &&
+	   vdbe.aOp[before_point_multi_filter + 8].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_point_multi_filter + 1].p2 ==
+		before_point_multi_filter + 9 &&
+	   vdbe.aOp[before_point_multi_filter + 3].p2 ==
+		before_point_multi_filter + 9 &&
+	   vdbe.aOp[before_point_multi_filter + 5].p2 ==
+		before_point_multi_filter + 9,
+	   "all point residual checks precede projection and share the result exit");
 	int before_composite_point = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(composite_point_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_composite_point].opcode == OP_Integer &&
@@ -995,6 +1059,7 @@ main(void)
 	sql_plan_descriptor_delete(unsigned_point_desc);
 	sql_plan_descriptor_delete(point_null_filter_desc);
 	sql_plan_descriptor_delete(point_not_null_filter_desc);
+	sql_plan_descriptor_delete(point_multi_filter_desc);
 	sql_plan_descriptor_delete(composite_point_desc);
 	sql_plan_descriptor_delete(composite_prefix_desc);
 	sql_plan_descriptor_delete(composite_prefix_limit_desc);

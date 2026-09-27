@@ -17,10 +17,12 @@ g.test_non_primary_null_filters_off_on_off = function()
         box.execute([[SET SESSION "sql_seq_scan" = true]])
         for _, engine in ipairs({'memtx', 'vinyl'}) do
             local name = 'planner_null_filter_' .. engine
-            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, v STRING) ' ..
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, v STRING, ' ..
+                         'w STRING) ' ..
                          "WITH ENGINE = '%s'"):format(name, engine))
             box.execute(('INSERT INTO %s VALUES ' ..
-                         "(1, NULL), (2, 'x'), (3, NULL), (4, 'y')")
+                         "(1, NULL, 'a'), (2, 'x', NULL), " ..
+                         "(3, NULL, NULL), (4, 'y', 'z')")
                         :format(name))
             local queries = {
                 {
@@ -57,6 +59,28 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT id FROM %s WHERE id = 2 AND ' ..
                            'v IS NOT NULL LIMIT 1 OFFSET 1'):format(name),
                     expected = {},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id = 1 AND ' ..
+                           'v IS NULL AND w IS NOT NULL'):format(name),
+                    expected = {{1}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE w IS NOT NULL AND ' ..
+                           'id = 2 AND v IS NOT NULL'):format(name),
+                    expected = {},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id = 99 AND ' ..
+                           'v IS NULL AND w IS NOT NULL'):format(name),
+                    expected = {},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id > 0 AND ' ..
+                           'v IS NULL AND w IS NOT NULL'):format(name),
+                    expected = {{1}},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FILTER',
                 },
                 {
                     sql = ('SELECT id FROM %s WHERE v IS NOT NULL AND ' ..

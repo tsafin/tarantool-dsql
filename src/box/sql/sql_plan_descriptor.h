@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 #define SQL_PLAN_POINT_KEY_PART_MAX 255
+#define SQL_PLAN_FILTER_MAX 8
 
 /* Internal, immutable descriptor for the M3.1 single-relation contract. */
 enum sql_plan_access_kind {

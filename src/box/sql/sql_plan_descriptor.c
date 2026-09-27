@@ -129,6 +129,7 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 			 in->access.prefix_key_part_count,
 			 sizeof(*in->access.prefix_key_parts)) ||
 	    in->access.prefix_key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
+	    in->filter_count > SQL_PLAN_FILTER_MAX ||
 	    !valid_array(in->access.projected_columns,
 			 in->access.projected_column_count, sizeof(uint32_t)) ||
 	    !valid_terms(in->access.produced_order,

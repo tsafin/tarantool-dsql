@@ -297,9 +297,8 @@ sql_physical_table_scan_from_select(
 	bool has_range_end_key = false;
 	bool primary_key_not_null = false;
 	bool primary_key_is_null = false;
-	bool has_null_filter = false;
-	uint32_t null_filter_column = 0;
-	enum sql_plan_filter_op null_filter_op = SQL_PLAN_FILTER_EXPRESSION;
+	struct sql_plan_filter null_filters[SQL_PLAN_FILTER_MAX] = {{0}};
+	size_t null_filter_count = 0;
 	int64_t point_key = 0;
 	int64_t range_key = 0;
 	int64_t range_end_key = 0;
@@ -369,11 +368,12 @@ sql_physical_table_scan_from_select(
 		    where->pLeft->iColumn >= 0 &&
 		    (uint32_t)where->pLeft->iColumn <
 			source->space->def->field_count) {
-			has_null_filter = true;
-			null_filter_column = (uint32_t)where->pLeft->iColumn;
-			null_filter_op = where->op == TK_ISNULL ?
-				SQL_PLAN_FILTER_IS_NULL :
-				SQL_PLAN_FILTER_IS_NOT_NULL;
+			null_filters[null_filter_count++] = (struct sql_plan_filter) {
+				.column = (uint32_t)where->pLeft->iColumn,
+				.op = where->op == TK_ISNULL ? SQL_PLAN_FILTER_IS_NULL :
+					SQL_PLAN_FILTER_IS_NOT_NULL,
+				.selectivity = 0.5,
+			};
 			goto predicate_parsed;
 		}
 		const struct Expr *exprs[SQL_PLAN_POINT_KEY_PART_MAX];
@@ -385,7 +385,8 @@ sql_physical_table_scan_from_select(
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
 			if (term->op == TK_ISNULL || term->op == TK_NOTNULL) {
-				if (has_null_filter || term->pLeft == NULL ||
+				if (null_filter_count == SQL_PLAN_FILTER_MAX ||
+				    term->pLeft == NULL ||
 				    term->pRight != NULL ||
 				    term->pLeft->op != TK_COLUMN_REF ||
 				    term->pLeft->pLeft != NULL ||
@@ -401,11 +402,14 @@ sql_physical_table_scan_from_select(
 						pk->parts[part].fieldno;
 				if (is_pk_column)
 					goto invalid_predicate;
-				has_null_filter = true;
-				null_filter_column = (uint32_t)term->pLeft->iColumn;
-				null_filter_op = term->op == TK_ISNULL ?
-					SQL_PLAN_FILTER_IS_NULL :
-					SQL_PLAN_FILTER_IS_NOT_NULL;
+				null_filters[null_filter_count++] =
+					(struct sql_plan_filter) {
+						.column = (uint32_t)term->pLeft->iColumn,
+						.op = term->op == TK_ISNULL ?
+							SQL_PLAN_FILTER_IS_NULL :
+							SQL_PLAN_FILTER_IS_NOT_NULL,
+						.selectivity = 0.5,
+					};
 				continue;
 			}
 			exprs[bound_count++] = term;
@@ -667,11 +671,12 @@ sql_physical_table_scan_from_select(
 		} else {
 			goto invalid_predicate;
 		}
-		if (has_null_filter && ((!has_range_key && !has_point_key) ||
-					(has_point_key &&
-					 (has_composite_point || pk->part_count != 1)) ||
-					composite_point_count != 0 ||
-					has_prefix_scan))
+		if (null_filter_count != 0 &&
+		    ((!has_range_key && !has_point_key) ||
+		     (has_point_key &&
+		      (has_composite_point || pk->part_count != 1)) ||
+		     (null_filter_count > 1 && !has_point_key) ||
+		     composite_point_count != 0 || has_prefix_scan))
 			goto invalid_predicate;
 	}
 	goto predicate_parsed;
@@ -908,20 +913,15 @@ predicate_parsed:
 		base_expression_count = has_range_end_key ? 2 : 1;
 	}
 	struct sql_plan_expression filter_expressions[
-		SQL_PLAN_POINT_KEY_PART_MAX + 3];
+		SQL_PLAN_POINT_KEY_PART_MAX + SQL_PLAN_FILTER_MAX + 3];
 	for (size_t i = 0; i < base_expression_count; ++i)
 		filter_expressions[i] = base_expressions[i];
-	struct sql_plan_filter null_filter = {
-		.expr_ref = (uint32_t)base_expression_count + 1,
-		.selectivity = 0.5,
-		.confidence = 0,
-		.column = null_filter_column,
-		.op = null_filter_op,
-	};
-	if (has_null_filter) {
+	for (size_t i = 0; i < null_filter_count; ++i) {
+		null_filters[i].expr_ref = (uint32_t)base_expression_count + 1;
+		null_filters[i].confidence = 0;
 		filter_expressions[base_expression_count++] =
 			(struct sql_plan_expression) {
-				.id = null_filter.expr_ref,
+				.id = null_filters[i].expr_ref,
 				.canonical = "direct-column-null-filter",
 			};
 	}
@@ -983,8 +983,8 @@ predicate_parsed:
 				estimate->rows / 2 : estimate->rows,
 			.est_rows_confidence = estimate->confidence,
 		},
-		.filters = has_null_filter ? &null_filter : NULL,
-		.filter_count = has_null_filter ? 1 : 0,
+		.filters = null_filter_count == 0 ? NULL : null_filters,
+		.filter_count = null_filter_count,
 		.projection_columns = columns,
 		.projection_column_count = select->pEList->nExpr,
 		.expressions = base_expression_count == 0 ? NULL :

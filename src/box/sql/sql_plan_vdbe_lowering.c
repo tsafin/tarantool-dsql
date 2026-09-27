@@ -32,11 +32,8 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	      input->access.bound_count != input->access.point_key_part_count) :
 	     (input->access.has_integer_point_key ==
 	      input->access.has_unsigned_point_key)) ||
-	    (input->filter_count != 0 &&
-	     (input->filter_count != 1 || input->filters == NULL ||
-	      (input->filters[0].op != SQL_PLAN_FILTER_IS_NULL &&
-	       input->filters[0].op != SQL_PLAN_FILTER_IS_NOT_NULL) ||
-	      input->filters[0].column > INT_MAX)) ||
+	    input->filter_count > SQL_PLAN_FILTER_MAX ||
+	    (input->filter_count != 0 && input->filters == NULL) ||
 	    input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
@@ -48,6 +45,12 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	    input->projection_column_count > INT_MAX ||
 	    result_first_reg > INT_MAX - (int)input->projection_column_count + 1)
 		return -1;
+	for (size_t i = 0; i < input->filter_count; ++i) {
+		if ((input->filters[i].op != SQL_PLAN_FILTER_IS_NULL &&
+		     input->filters[i].op != SQL_PLAN_FILTER_IS_NOT_NULL) ||
+		    input->filters[i].column > INT_MAX)
+			return -1;
+	}
 	Parse *parse = vdbe->pParse;
 	struct vdbe_codegen_checkpoint checkpoint;
 	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
@@ -109,23 +112,26 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	if (miss != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
-	int filter_break = -1;
+	int filter_breaks[SQL_PLAN_FILTER_MAX];
 	if (input->filter_count != 0) {
 		if (parse->nMem == INT_MAX)
 			goto error;
 		int filter_reg = ++parse->nMem;
-		const struct sql_plan_filter *filter = &input->filters[0];
-		int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
-					   (int)filter->column, filter_reg);
-		if (column != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
-			goto error;
-		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
-			OP_IsNull;
-		filter_break = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
-		if (filter_break != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
-			goto error;
+		for (size_t i = 0; i < input->filter_count; ++i) {
+			const struct sql_plan_filter *filter = &input->filters[i];
+			int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
+						   (int)filter->column, filter_reg);
+			if (column != vdbe->nOp - 1 || parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+			int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
+				OP_IsNull;
+			filter_breaks[i] = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
+			if (filter_breaks[i] != vdbe->nOp - 1 ||
+			    parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+		}
 	}
 	for (size_t i = 0; i < input->projection_column_count; ++i) {
 		if (input->projection_columns[i] > INT_MAX)
@@ -143,8 +149,8 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	sqlVdbeJumpHere(vdbe, miss);
-	if (filter_break >= 0)
-		sqlVdbeJumpHere(vdbe, filter_break);
+	for (size_t i = 0; i < input->filter_count; ++i)
+		sqlVdbeJumpHere(vdbe, filter_breaks[i]);
 	vdbe_codegen_checkpoint_commit(&checkpoint);
 	return 0;
 error:
