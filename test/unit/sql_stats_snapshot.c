@@ -7,7 +7,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(30);
+	plan(32);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
@@ -162,6 +162,42 @@ test_deep_copy_lookup_and_lifetime(void)
 	   "combine rejects duplicate relation ownership");
 	ok(sql_stats_snapshot_combine(parts, 2, 1) == NULL,
 	   "combined candidate allocation obeys caller budget");
+	unsigned int combine_failures = 0;
+	bool combine_complete = false;
+	for (long fail_after = 0; fail_after < 64; fail_after++) {
+		sql_stats_snapshot_test_fail_allocation_after(fail_after);
+		struct sql_stats_snapshot *candidate =
+			sql_stats_snapshot_combine(parts, 2, 8192);
+		if (candidate == NULL) {
+			combine_failures++;
+			continue;
+		}
+		sql_stats_snapshot_test_fail_allocation_after(-1);
+		sql_stats_snapshot_release(candidate);
+		combine_complete = true;
+		break;
+	}
+	ok(combine_failures > 0 && combine_complete,
+	   "combine allocation failures roll back before complete success");
+	unsigned int replace_failures = 0;
+	bool replace_complete = false;
+	for (long fail_after = 0; fail_after < 64; fail_after++) {
+		sql_stats_snapshot_test_fail_allocation_after(fail_after);
+		struct sql_stats_snapshot *candidate =
+			sql_stats_snapshot_replace_relation(combined, replacement, 42,
+							    8192);
+		if (candidate == NULL) {
+			replace_failures++;
+			continue;
+		}
+		sql_stats_snapshot_test_fail_allocation_after(-1);
+		sql_stats_snapshot_release(candidate);
+		replace_complete = true;
+		break;
+	}
+	ok(replace_failures > 0 && replace_complete,
+	   "replacement allocation failures roll back before complete success");
+	sql_stats_snapshot_test_fail_allocation_after(-1);
 	sql_stats_snapshot_release(wrong_generation);
 	sql_stats_snapshot_release(replaced);
 	sql_stats_snapshot_release(replacement);
