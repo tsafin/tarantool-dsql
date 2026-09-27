@@ -870,7 +870,9 @@ DML, triggers, subprograms, non-deterministic functions.
   reject path. Otherwise-supported SELECTs now also consult the resolved
   scalar expression canonicalizer and report `UNSUPPORTED_EXPRESSION` when
   CAST/LIKE or another operator falls outside its grammar. Structural rejects
-  retain precedence; focused runtime and counter tests cover CAST and LIKE.
+  retain precedence; LIMIT/OFFSET are restricted to nonnegative integer
+  literals as required by the replay/descriptor model. Focused runtime and
+  counter tests cover CAST, LIKE, arithmetic LIMIT, and negative LIMIT.
   Zero-source constant SELECTs also enter `sqlWhereBegin()` but are outside the
   single-relation logical-plan contract. They now report
   `UNSUPPORTED_RELATION_COUNT`; a focused

@@ -5828,6 +5828,27 @@ sql_expr_is_canonical(const Expr *expr, const uint32_t *cursor_to_relation,
 }
 
 static bool
+sql_limit_is_canonical(const Expr *expr)
+{
+	if (expr == NULL)
+		return true;
+	if (expr->op != TK_INTEGER || (expr->flags & EP_Resolved) == 0 ||
+	    (expr->flags & (EP_Reduced | EP_TokenOnly)) != 0)
+		return false;
+	int64_t value;
+	bool is_negative = false;
+	if ((expr->flags & EP_IntValue) != 0) {
+		value = expr->u.iValue;
+		is_negative = value < 0;
+	} else if (expr->u.zToken == NULL ||
+		   sql_atoi64(expr->u.zToken, &value, &is_negative,
+			      strlen(expr->u.zToken)) != 0) {
+		return false;
+	}
+	return !is_negative && value >= 0;
+}
+
+static bool
 sql_select_has_unsupported_expr(Parse *parse, Select *select)
 {
 	/* Aggregate expressions have their own route/reason decision below;
@@ -5862,10 +5883,8 @@ sql_select_has_unsupported_expr(Parse *parse, Select *select)
 							  cursor_count);
 	}
 	if (supported)
-		supported = sql_expr_is_canonical(select->pLimit,
-						  cursor_to_relation, cursor_count) &&
-			sql_expr_is_canonical(select->pOffset, cursor_to_relation,
-					       cursor_count);
+		supported = sql_limit_is_canonical(select->pLimit) &&
+			sql_limit_is_canonical(select->pOffset);
 	free(cursor_to_relation);
 	return !supported;
 }
