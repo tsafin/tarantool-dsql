@@ -198,10 +198,37 @@ struct sql_stats_collected_width {
 	uint64_t denominator_rows;
 };
 
+/* One engine-produced index summary. */
+struct sql_stats_sampled_index {
+	const struct sql_stats_expected_index *expected;
+	const struct sql_stats_sample_result *sample;
+	const struct sql_stats_index_summary *summary;
+};
+
 bool
 sql_stats_collection_width_from_sample(
 	const struct sql_stats_sample_result *sample,
 	struct sql_stats_collected_width *width);
+
+/*
+ * Convert all index summaries for one relation into a detached immutable
+ * candidate. Every index and the relation sample must report the same exact
+ * visible population. The caller must ensure that every summary was produced
+ * for the supplied shared generation/visibility; this helper does not verify
+ * summary association or create a visibility boundary. Relation confidence
+ * and its provenance are caller-supplied policy. Per-index model confidence
+ * values are returned in input order only after the full candidate succeeds.
+ * Any error returns NULL without modifying the output array or installed state.
+ */
+struct sql_stats_snapshot *
+sql_stats_collection_build_sample_candidate(
+	const struct sql_stats_collection_generation *generation,
+	const struct sql_stats_expected_relation *expected,
+	const struct sql_stats_sampled_index *indexes, size_t index_count,
+	const struct sql_stats_sample_result *relation_sample,
+	double relation_confidence, const char *confidence_source,
+	double *index_confidences,
+	size_t max_bytes, size_t max_temp_bytes, uint64_t max_work);
 
 /*
  * Validate exact relation/index/prefix completeness and common generation,

@@ -24,7 +24,7 @@ extract_index_value(void *context, const char *tuple, size_t tuple_size,
 static void
 test_sample_to_candidate(void)
 {
-	plan(4);
+	plan(5);
 	header();
 	struct sql_stats_index_summary *summary = sql_stats_index_summary_new(
 		1, 12, 23, 8192, extract_index_value, NULL);
@@ -46,6 +46,10 @@ test_sample_to_candidate(void)
 	};
 	struct sql_stats_expected_index expected_index = {
 		.index_id = 8, .definition_version = 3, .part_count = 1,
+	};
+	struct sql_stats_expected_index expected_indexes[] = {
+		expected_index,
+		{.index_id = 9, .definition_version = 4, .part_count = 1},
 	};
 	uint64_t prefixes[1] = {0};
 	struct sql_stats_collected_index index = {0};
@@ -72,41 +76,69 @@ test_sample_to_candidate(void)
 	   "same sampled primary population derives exact rows and sampled width");
 	struct sql_stats_expected_relation expected_relation = {
 		.space_id = 42, .modification_epoch = 11,
-		.indexes = &expected_index, .index_count = 1,
+		.indexes = expected_indexes, .index_count = 2,
 	};
 	struct sql_stats_collection_generation generation = {
 		.catalog_version = 4, .schema_version = 7, .visibility_id = 9,
 	};
-	struct sql_stats_collected_relation relation = {
-		.space_id = 42, .catalog_version = 4, .schema_version = 7,
-		.visibility_id = 9, .modification_epoch = 11,
-		.row_count = (double)population.row_count,
-		.cardinality_semantics = population.semantics,
-		.population_basis = index.population_basis,
-		.average_row_width = width.average_bytes,
-		.width_basis = "sampled-serialized-tuple-bytes-v1",
-		.width_denominator_count = width.denominator_rows,
-		.confidence = index_confidence,
-		.confidence_source = SQL_STATS_INDEX_NDV_CONFIDENCE_SOURCE,
-		.collected_at = 12, .indexes = &index, .index_count = 1,
+	struct sql_stats_index_summary *second_summary = sql_stats_index_summary_new(
+		2, 14, 23, 8192, extract_index_value, NULL);
+	bool second_consumed = second_summary != NULL;
+	for (int i = 0; second_consumed && i < 100; i++) {
+		const char *value = values[i < 63 ? i : i - 63];
+		second_consumed = sql_stats_index_summary_consume(second_summary,
+								 value, strlen(value),
+								 NULL, 0) == 0;
+	}
+	struct sql_stats_sampled_index sampled_indexes[] = {
+		{&expected_indexes[0], &sample, summary},
+		{&expected_indexes[1], &sample, second_summary},
 	};
-	struct sql_stats_collection_result result = {
-		.generation = generation, .relations = &relation, .relation_count = 1,
-	};
-	struct sql_stats_snapshot *candidate =
-		sql_stats_collection_build_candidate(&generation, &expected_relation, 1,
-						     &result, 4096);
+	double per_index_confidences[] = {-1.0, -1.0};
+	struct sql_stats_snapshot *candidate = second_consumed ?
+		sql_stats_collection_build_sample_candidate(&generation,
+			&expected_relation, sampled_indexes, 2, &sample,
+			index_confidence, SQL_STATS_INDEX_NDV_CONFIDENCE_SOURCE,
+			per_index_confidences, 4096, 64, 1000000) : NULL;
 	const struct sql_stats_relation *saved_relation = NULL;
 	const struct sql_stats_index *saved_index = NULL;
+	const struct sql_stats_index *saved_index2 = NULL;
 	bool built = candidate != NULL && sql_stats_snapshot_get_relation(
 		candidate, 7, 42, &saved_relation) == SQL_STATS_LOOKUP_AVAILABLE &&
 		sql_stats_relation_get_index(saved_relation, 8, &saved_index) ==
 		SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_get_index(saved_relation, 9, &saved_index2) ==
+		SQL_STATS_LOOKUP_AVAILABLE &&
 		sql_stats_index_distinct_prefix(saved_index, 0) == prefixes[0] &&
-		sql_stats_relation_confidence(saved_relation) == index_confidence;
-	ok(built, "sample-derived summaries build one immutable candidate snapshot");
+		sql_stats_index_distinct_prefix(saved_index2, 0) >= 90 &&
+		sql_stats_index_distinct_prefix(saved_index2, 0) <= 110 &&
+		sql_stats_relation_confidence(saved_relation) == index_confidence &&
+		per_index_confidences[0] == index_confidence &&
+		per_index_confidences[1] > 0;
+	ok(built,
+	   "multiple sampled indexes become one complete detached candidate");
+	struct sql_stats_sample_result inconsistent_sample = sample;
+	inconsistent_sample.visible_population++;
+	struct sql_stats_sampled_index inconsistent_indexes[] = {
+		{&expected_indexes[0], &sample, summary},
+		{&expected_indexes[1], &inconsistent_sample, second_summary},
+	};
+	per_index_confidences[0] = -1.0;
+	per_index_confidences[1] = -1.0;
+	struct sql_stats_snapshot *failed =
+		sql_stats_collection_build_sample_candidate(&generation,
+			&expected_relation, inconsistent_indexes, 2, &sample,
+			index_confidence, SQL_STATS_INDEX_NDV_CONFIDENCE_SOURCE,
+			per_index_confidences, 4096, 64, 1000000);
+	ok(failed == NULL && candidate != NULL &&
+	   per_index_confidences[0] == -1.0 &&
+	   per_index_confidences[1] == -1.0,
+	   "population mismatch preserves prior candidate and confidence outputs");
+	if (failed != NULL)
+		sql_stats_snapshot_release(failed);
 	if (candidate != NULL)
 		sql_stats_snapshot_release(candidate);
+	sql_stats_index_summary_delete(second_summary);
 	sql_stats_index_summary_delete(summary);
 	footer();
 	check_plan();
