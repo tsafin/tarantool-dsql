@@ -5964,7 +5964,28 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		return 0;
 	if (sql_select_preflight_table_scan(select, dest) !=
 	    SQL_SELECT_PREFLIGHT_OK) {
-		if (select->pOrderBy != NULL)
+		/* EXPLAIN and nested SELECTs may use a non-output destination, so
+		 * preflight can reject before the normal lowering attempt. Still
+		 * classify the finite unsupported sort shape when the order key is
+		 * not the one-part primary key supported by this route.
+		 */
+		struct SrcList_item *source = select->pSrc != NULL &&
+			select->pSrc->nSrc == 1 ? &select->pSrc->a[0] : NULL;
+		const struct ExprList *order_by = select->pOrderBy;
+		const struct Expr *order_expr = order_by != NULL &&
+			order_by->nExpr == 1 ? order_by->a[0].pExpr : NULL;
+		bool order_is_primary_key = source != NULL &&
+			source->space != NULL && source->space->index_map != NULL &&
+			source->space->index_map[0] != NULL && order_expr != NULL &&
+			source->space->index_map[0]->def->key_def->part_count == 1 &&
+			!ExprHasProperty(order_expr, EP_TokenOnly | EP_Reduced) &&
+			order_expr->op == TK_COLUMN_REF &&
+			order_expr->pLeft == NULL && order_expr->pRight == NULL &&
+			order_expr->iTable == source->iCursor &&
+			order_expr->iColumn >= 0 &&
+			(uint32_t)order_expr->iColumn == source->space->index_map[0]->
+				def->key_def->parts[0].fieldno;
+		if (select->pOrderBy != NULL && !order_is_primary_key)
 			sql_select_record_physical_fallback(parse,
 				SQL_PHYSICAL_REJECT_UNSUPPORTED_ORDER);
 		else if (select->pWhere != NULL)
