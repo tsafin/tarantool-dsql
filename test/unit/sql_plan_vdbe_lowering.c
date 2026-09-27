@@ -487,6 +487,58 @@ new_bounded_range_descriptor(enum sql_plan_bound_op upper_op,
 }
 
 static struct sql_plan_descriptor *
+new_multi_filter_descriptor(bool bounded_range)
+{
+	static const uint32_t columns[] = {0};
+	static const struct sql_plan_filter filters[] = {
+		{.expr_ref = 3, .selectivity = 0.5, .column = 1,
+		 .op = SQL_PLAN_FILTER_IS_NULL},
+		{.expr_ref = 4, .selectivity = 0.5, .column = 2,
+		 .op = SQL_PLAN_FILTER_IS_NOT_NULL},
+	};
+	static const struct sql_plan_expression expressions[] = {
+		{.id = 1, .canonical = "integer-range-lower"},
+		{.id = 2, .canonical = "integer-range-upper"},
+		{.id = 3, .canonical = "direct-column-null-filter"},
+		{.id = 4, .canonical = "direct-column-not-null-filter"},
+	};
+	static const struct sql_plan_bound bounds[] = {
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_GE, .expr_ref = 1},
+		{.side = SQL_PLAN_UPPER, .op = SQL_PLAN_LT, .expr_ref = 2},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = bounded_range ? SQL_PLAN_INDEX_RANGE_SCAN :
+				SQL_PLAN_TABLE_FULL_SCAN,
+			.bounds = bounded_range ? bounds : NULL,
+			.bound_count = bounded_range ? 2 : 0,
+			.has_integer_range_key = bounded_range,
+			.integer_range_key = 1,
+			.integer_range_op = SQL_PLAN_GE,
+			.has_integer_range_end_key = bounded_range,
+			.integer_range_end_key = 3,
+			.integer_range_end_op = SQL_PLAN_LT,
+			.range_key_column = 0,
+			.direction = SQL_PLAN_ASC,
+			.est_rows = 4,
+			.est_rows_confidence = 1,
+		},
+		.filters = filters,
+		.filter_count = sizeof(filters) / sizeof(filters[0]),
+		.projection_columns = columns,
+		.projection_column_count = 1,
+		.expressions = expressions,
+		.expression_count = sizeof(expressions) / sizeof(expressions[0]),
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_invalid_point_descriptor(void)
 {
 	static const uint32_t columns[] = {2};
@@ -589,7 +641,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(47);
+	plan(49);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -696,6 +748,10 @@ main(void)
 	struct sql_plan_descriptor *filtered_bounded_range_desc =
 		new_bounded_range_descriptor(SQL_PLAN_LT, 1, 3,
 					     &range_null_filter);
+	struct sql_plan_descriptor *multi_scan_filter_desc =
+		new_multi_filter_descriptor(false);
+	struct sql_plan_descriptor *multi_bounded_range_filter_desc =
+		new_multi_filter_descriptor(true);
 	struct sql_plan_descriptor *invalid_point_desc =
 		new_invalid_point_descriptor();
 	struct sql_plan_descriptor *late_invalid_point_desc =
@@ -715,6 +771,8 @@ main(void)
 	   point_null_filter_desc != NULL &&
 	   point_not_null_filter_desc != NULL &&
 	   point_multi_filter_desc != NULL &&
+	   multi_scan_filter_desc != NULL &&
+	   multi_bounded_range_filter_desc != NULL &&
 	   composite_point_desc != NULL &&
 	   composite_point_filter_desc != NULL &&
 	   composite_prefix_desc != NULL &&
@@ -787,6 +845,18 @@ main(void)
 	   vdbe.aOp[before_is_not_null + 2].p2 == before_is_not_null + 6 &&
 	   vdbe.aOp[before_is_not_null + 6].opcode == OP_Next,
 	   "IS NOT NULL filter skips rejected rows to the cursor next opcode");
+	int before_multi_scan = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan(multi_scan_filter_desc, &vdbe, 4,
+					  20) == 0 &&
+	   vdbe.aOp[before_multi_scan + 1].opcode == OP_Column &&
+	   vdbe.aOp[before_multi_scan + 2].opcode == OP_NotNull &&
+	   vdbe.aOp[before_multi_scan + 2].p2 == before_multi_scan + 8 &&
+	   vdbe.aOp[before_multi_scan + 3].opcode == OP_Column &&
+	   vdbe.aOp[before_multi_scan + 4].opcode == OP_IsNull &&
+	   vdbe.aOp[before_multi_scan + 4].p2 == before_multi_scan + 8 &&
+	   vdbe.aOp[before_multi_scan + 7].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_multi_scan + 8].opcode == OP_Next,
+	   "full scan evaluates all null filters before projection and continues on rejection");
 	int before_bad_call = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_table_scan(plan_desc, &vdbe, -1, 20) == -1 &&
 	   vdbe.nOp == before_bad_call,
@@ -1090,6 +1160,19 @@ main(void)
 		before_filtered_bounded_range + 9 &&
 	   vdbe.aOp[before_filtered_bounded_range + 9].opcode == OP_Next,
 	   "bounded range ends before residual null filtering skips to Next");
+	int before_multi_bounded = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(multi_bounded_range_filter_desc, &vdbe,
+					4, 20) == 0 &&
+	   vdbe.aOp[before_multi_bounded + 3].opcode == OP_Column &&
+	   vdbe.aOp[before_multi_bounded + 4].opcode == OP_Le &&
+	   vdbe.aOp[before_multi_bounded + 5].opcode == OP_Column &&
+	   vdbe.aOp[before_multi_bounded + 6].opcode == OP_NotNull &&
+	   vdbe.aOp[before_multi_bounded + 6].p2 == before_multi_bounded + 11 &&
+	   vdbe.aOp[before_multi_bounded + 7].opcode == OP_Column &&
+	   vdbe.aOp[before_multi_bounded + 8].opcode == OP_IsNull &&
+	   vdbe.aOp[before_multi_bounded + 8].p2 == before_multi_bounded + 11 &&
+	   vdbe.aOp[before_multi_bounded + 11].opcode == OP_Next,
+	   "bounded range end check precedes every residual filter and both reject to Next");
 	int before_wide_bounded_range = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(wide_bounded_range_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_wide_bounded_range].opcode == OP_Int64 &&
@@ -1129,6 +1212,7 @@ main(void)
 	sql_plan_descriptor_delete(unsigned_point_desc);
 	sql_plan_descriptor_delete(point_null_filter_desc);
 	sql_plan_descriptor_delete(point_not_null_filter_desc);
+	sql_plan_descriptor_delete(multi_scan_filter_desc);
 	sql_plan_descriptor_delete(point_multi_filter_desc);
 	sql_plan_descriptor_delete(composite_point_desc);
 	sql_plan_descriptor_delete(composite_point_filter_desc);
@@ -1147,6 +1231,7 @@ main(void)
 	sql_plan_descriptor_delete(bounded_range_desc);
 	sql_plan_descriptor_delete(wide_bounded_range_desc);
 	sql_plan_descriptor_delete(filtered_bounded_range_desc);
+	sql_plan_descriptor_delete(multi_bounded_range_filter_desc);
 	sql_plan_descriptor_delete(invalid_bounded_range_desc);
 	sql_plan_descriptor_delete(invalid_point_desc);
 	sql_plan_descriptor_delete(late_invalid_point_desc);
