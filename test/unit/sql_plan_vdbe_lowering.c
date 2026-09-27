@@ -269,7 +269,8 @@ new_composite_prefix_range_descriptor(bool bounded)
 
 static struct sql_plan_descriptor *
 new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
-		    bool unsigned_key, enum sql_plan_direction direction)
+		    bool unsigned_key, enum sql_plan_direction direction,
+		    const struct sql_plan_filter *filter)
 {
 	static const uint32_t columns[] = {2, 0};
 	struct sql_plan_bound bound = {
@@ -278,9 +279,9 @@ new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
 		.op = op,
 		.expr_ref = 1,
 	};
-	static const struct sql_plan_expression expression = {
-		.id = 1,
-		.canonical = "integer-range-key",
+	static const struct sql_plan_expression expressions[] = {
+		{.id = 1, .canonical = "integer-range-key"},
+		{.id = 2, .canonical = "direct-column-null-filter"},
 	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
@@ -299,17 +300,20 @@ new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
 			.integer_range_op = op,
 			.direction = direction,
 		},
+		.filters = filter,
+		.filter_count = filter == NULL ? 0 : 1,
 		.projection_columns = columns,
 		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
-		.expressions = &expression,
-		.expression_count = 1,
+		.expressions = expressions,
+		.expression_count = filter == NULL ? 1 : 2,
 	};
 	return sql_plan_descriptor_new(&input);
 }
 
 static struct sql_plan_descriptor *
 new_bounded_range_descriptor(enum sql_plan_bound_op upper_op,
-			     int64_t lower_key, int64_t upper_key)
+			     int64_t lower_key, int64_t upper_key,
+			     const struct sql_plan_filter *filter)
 {
 	static const uint32_t columns[] = {0};
 	struct sql_plan_bound bounds[] = {
@@ -319,6 +323,7 @@ new_bounded_range_descriptor(enum sql_plan_bound_op upper_op,
 	static const struct sql_plan_expression expressions[] = {
 		{.id = 1, .canonical = "integer-range-lower"},
 		{.id = 2, .canonical = "integer-range-upper"},
+		{.id = 3, .canonical = "direct-column-null-filter"},
 	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
@@ -339,10 +344,12 @@ new_bounded_range_descriptor(enum sql_plan_bound_op upper_op,
 			.range_key_column = 0,
 			.direction = SQL_PLAN_ASC,
 		},
+		.filters = filter,
+		.filter_count = filter == NULL ? 0 : 1,
 		.projection_columns = columns,
 		.projection_column_count = 1,
 		.expressions = expressions,
-		.expression_count = 2,
+		.expression_count = filter == NULL ? 2 : 3,
 	};
 	return sql_plan_descriptor_new(&input);
 }
@@ -450,7 +457,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(42);
+	plan(43);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -462,6 +469,10 @@ main(void)
 	static const struct sql_plan_filter is_not_null_filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
 		.column = 1, .op = SQL_PLAN_FILTER_IS_NOT_NULL,
+	};
+	static const struct sql_plan_filter range_null_filter = {
+		.expr_ref = 3, .selectivity = 0.5, .confidence = 0,
+		.column = 1, .op = SQL_PLAN_FILTER_IS_NULL,
 	};
 	static const struct sql_plan_finalize limit_one = {
 		.kind = SQL_PLAN_LIMIT, .limit = 1,
@@ -521,24 +532,30 @@ main(void)
 	struct sql_plan_descriptor *composite_prefix_bounded_range_desc =
 		new_composite_prefix_range_descriptor(true);
 	struct sql_plan_descriptor *range_gt_desc =
-		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false, SQL_PLAN_ASC);
+		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false, SQL_PLAN_ASC,
+				     NULL);
 	struct sql_plan_descriptor *range_le_desc =
-		new_range_descriptor(SQL_PLAN_LE, 7, false, SQL_PLAN_DESC);
+		new_range_descriptor(SQL_PLAN_LE, 7, false, SQL_PLAN_DESC, NULL);
 	struct sql_plan_descriptor *range_ge_desc =
-		new_range_descriptor(SQL_PLAN_GE, INT64_MIN, false, SQL_PLAN_ASC);
+		new_range_descriptor(SQL_PLAN_GE, INT64_MIN, false, SQL_PLAN_ASC,
+				     NULL);
 	struct sql_plan_descriptor *range_lt_desc =
-		new_range_descriptor(SQL_PLAN_LT, 7, false, SQL_PLAN_DESC);
+		new_range_descriptor(SQL_PLAN_LT, 7, false, SQL_PLAN_DESC, NULL);
 	struct sql_plan_descriptor *unsigned_range_desc =
 		new_range_descriptor(SQL_PLAN_GT, (int64_t)UINT64_MAX, true,
-				     SQL_PLAN_ASC);
+				     SQL_PLAN_ASC, NULL);
 	struct sql_plan_descriptor *invalid_direction_range_desc =
-		new_range_descriptor(SQL_PLAN_GT, 7, false, SQL_PLAN_DESC);
+		new_range_descriptor(SQL_PLAN_GT, 7, false, SQL_PLAN_DESC, NULL);
 	struct sql_plan_descriptor *bounded_range_desc =
-		new_bounded_range_descriptor(SQL_PLAN_LT, 1, 3);
+		new_bounded_range_descriptor(SQL_PLAN_LT, 1, 3, NULL);
 	struct sql_plan_descriptor *wide_bounded_range_desc =
-		new_bounded_range_descriptor(SQL_PLAN_LE, INT64_MIN, INT64_MAX);
+		new_bounded_range_descriptor(SQL_PLAN_LE, INT64_MIN, INT64_MAX,
+					     NULL);
 	struct sql_plan_descriptor *invalid_bounded_range_desc =
-		new_bounded_range_descriptor(SQL_PLAN_EQ, 1, 3);
+		new_bounded_range_descriptor(SQL_PLAN_EQ, 1, 3, NULL);
+	struct sql_plan_descriptor *filtered_bounded_range_desc =
+		new_bounded_range_descriptor(SQL_PLAN_LT, 1, 3,
+					     &range_null_filter);
 	struct sql_plan_descriptor *invalid_point_desc =
 		new_invalid_point_descriptor();
 	struct sql_plan_descriptor *late_invalid_point_desc =
@@ -562,7 +579,7 @@ main(void)
 	   composite_prefix_zero_desc != NULL &&
 	   range_gt_desc != NULL && range_le_desc != NULL &&
 	   unsigned_range_desc != NULL && bounded_range_desc != NULL &&
-	   wide_bounded_range_desc != NULL &&
+	   wide_bounded_range_desc != NULL && filtered_bounded_range_desc != NULL &&
 	   invalid_direction_range_desc != NULL &&
 	   invalid_point_desc != NULL && late_invalid_point_desc != NULL &&
 	   point_limit_desc != NULL && point_zero_limit_desc != NULL &&
@@ -861,6 +878,16 @@ main(void)
 	   vdbe.aOp[before_bounded_range + 4].p2 == before_bounded_range + 8 &&
 	   vdbe.aOp[before_bounded_range + 7].opcode == OP_Next,
 	   "bounded range seeks at lower bound and exits at exclusive upper bound");
+	int before_filtered_bounded_range = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(filtered_bounded_range_desc, &vdbe, 4,
+					20) == 0 &&
+	   vdbe.aOp[before_filtered_bounded_range + 4].opcode == OP_Le &&
+	   vdbe.aOp[before_filtered_bounded_range + 5].opcode == OP_Column &&
+	   vdbe.aOp[before_filtered_bounded_range + 6].opcode == OP_NotNull &&
+	   vdbe.aOp[before_filtered_bounded_range + 6].p2 ==
+		before_filtered_bounded_range + 9 &&
+	   vdbe.aOp[before_filtered_bounded_range + 9].opcode == OP_Next,
+	   "bounded range ends before residual null filtering skips to Next");
 	int before_wide_bounded_range = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(wide_bounded_range_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_wide_bounded_range].opcode == OP_Int64 &&
@@ -913,6 +940,7 @@ main(void)
 	sql_plan_descriptor_delete(invalid_direction_range_desc);
 	sql_plan_descriptor_delete(bounded_range_desc);
 	sql_plan_descriptor_delete(wide_bounded_range_desc);
+	sql_plan_descriptor_delete(filtered_bounded_range_desc);
 	sql_plan_descriptor_delete(invalid_bounded_range_desc);
 	sql_plan_descriptor_delete(invalid_point_desc);
 	sql_plan_descriptor_delete(late_invalid_point_desc);

@@ -381,6 +381,38 @@ sql_physical_table_scan_from_select(
 		if (!collect_and_terms(select->pWhere, exprs,
 				       SQL_PLAN_POINT_KEY_PART_MAX, &expr_count, 0))
 			goto invalid_predicate;
+		size_t bound_count = 0;
+		for (size_t i = 0; i < expr_count; ++i) {
+			const struct Expr *term = exprs[i];
+			if (term->op == TK_ISNULL || term->op == TK_NOTNULL) {
+				if (has_null_filter || term->pLeft == NULL ||
+				    term->pRight != NULL ||
+				    term->pLeft->op != TK_COLUMN_REF ||
+				    term->pLeft->pLeft != NULL ||
+				    term->pLeft->pRight != NULL ||
+				    term->pLeft->iTable != source->iCursor ||
+				    term->pLeft->iColumn < 0 ||
+				    (uint32_t)term->pLeft->iColumn >=
+					source->space->def->field_count)
+					goto invalid_predicate;
+				bool is_pk_column = false;
+				for (uint32_t part = 0; part < pk->part_count; ++part)
+					is_pk_column |= (uint32_t)term->pLeft->iColumn ==
+						pk->parts[part].fieldno;
+				if (is_pk_column)
+					goto invalid_predicate;
+				has_null_filter = true;
+				null_filter_column = (uint32_t)term->pLeft->iColumn;
+				null_filter_op = term->op == TK_ISNULL ?
+					SQL_PLAN_FILTER_IS_NULL :
+					SQL_PLAN_FILTER_IS_NOT_NULL;
+				continue;
+			}
+			exprs[bound_count++] = term;
+		}
+		expr_count = bound_count;
+		if (expr_count == 0)
+			goto invalid_predicate;
 		if (pk->parts[0].type != FIELD_TYPE_INTEGER &&
 		    pk->parts[0].type != FIELD_TYPE_UNSIGNED)
 			goto invalid_predicate;
@@ -635,6 +667,10 @@ sql_physical_table_scan_from_select(
 		} else {
 			goto invalid_predicate;
 		}
+		if (has_null_filter && (!has_range_key || has_point_key ||
+					composite_point_count != 0 ||
+					has_prefix_scan))
+			goto invalid_predicate;
 	}
 	goto predicate_parsed;
 invalid_predicate:
@@ -859,17 +895,34 @@ predicate_parsed:
 			"integer-range-key") :
 			"integer-point-key",
 	};
-	struct sql_plan_expression null_filter_expression = {
-		.id = 1,
-		.canonical = "direct-column-null-filter",
-	};
+	const struct sql_plan_expression *base_expressions = NULL;
+	size_t base_expression_count = 0;
+	if (has_composite_point || has_prefix_scan) {
+		base_expressions = composite_point_expressions;
+		base_expression_count = composite_expression_count;
+	} else if (has_point_key || has_range_key) {
+		base_expressions = has_range_end_key ? point_expressions :
+			&point_expression;
+		base_expression_count = has_range_end_key ? 2 : 1;
+	}
+	struct sql_plan_expression filter_expressions[
+		SQL_PLAN_POINT_KEY_PART_MAX + 3];
+	for (size_t i = 0; i < base_expression_count; ++i)
+		filter_expressions[i] = base_expressions[i];
 	struct sql_plan_filter null_filter = {
-		.expr_ref = 1,
+		.expr_ref = (uint32_t)base_expression_count + 1,
 		.selectivity = 0.5,
 		.confidence = 0,
 		.column = null_filter_column,
 		.op = null_filter_op,
 	};
+	if (has_null_filter) {
+		filter_expressions[base_expression_count++] =
+			(struct sql_plan_expression) {
+				.id = null_filter.expr_ref,
+				.canonical = "direct-column-null-filter",
+			};
+	}
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
 		.planner_version = 1,
@@ -932,16 +985,9 @@ predicate_parsed:
 		.filter_count = has_null_filter ? 1 : 0,
 		.projection_columns = columns,
 		.projection_column_count = select->pEList->nExpr,
-		.expressions = has_composite_point || has_prefix_scan ?
-			composite_point_expressions :
-		has_null_filter ? &null_filter_expression :
-		has_point_key || has_range_key ?
-			(has_range_end_key ? point_expressions : &point_expression) : NULL,
-		.expression_count = has_composite_point || has_prefix_scan ?
-			composite_expression_count :
-		has_null_filter ? 1 :
-			has_range_end_key ? 2 :
-			(has_point_key || has_range_key ? 1 : 0),
+		.expressions = base_expression_count == 0 ? NULL :
+			filter_expressions,
+		.expression_count = base_expression_count,
 		.cost_startup = estimate->startup_cost,
 		.cost_total = has_point_key ? 1 : has_range_key ?
 			estimate->total_cost / 2 : estimate->total_cost,

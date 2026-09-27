@@ -16,19 +16,34 @@ is_comparison_predicate(const struct Expr *expr)
 }
 
 static bool
-is_comparison_conjunction(const struct Expr *expr, size_t *term_count,
+is_direct_null_predicate(const struct Expr *expr, int cursor,
+			 uint32_t field_count)
+{
+	return expr != NULL && (expr->op == TK_ISNULL || expr->op == TK_NOTNULL) &&
+		expr->pLeft != NULL && expr->pRight == NULL &&
+		expr->pLeft->op == TK_COLUMN_REF &&
+		expr->pLeft->pLeft == NULL && expr->pLeft->pRight == NULL &&
+		expr->pLeft->iTable == cursor && expr->pLeft->iColumn >= 0 &&
+		(uint32_t)expr->pLeft->iColumn < field_count;
+}
+
+static bool
+is_comparison_conjunction(const struct Expr *expr, int cursor,
+			  uint32_t field_count, size_t *term_count,
 			  size_t depth)
 {
 	if (expr == NULL || term_count == NULL ||
 	    depth >= SQL_PLAN_POINT_KEY_PART_MAX)
 		return false;
 	if (expr->op == TK_AND && expr->pLeft != NULL && expr->pRight != NULL)
-		return is_comparison_conjunction(expr->pLeft, term_count,
-						 depth + 1) &&
-			is_comparison_conjunction(expr->pRight, term_count,
-						   depth + 1);
-	if (!is_comparison_predicate(expr) ||
-	    *term_count == SQL_PLAN_POINT_KEY_PART_MAX)
+		return is_comparison_conjunction(expr->pLeft, cursor, field_count,
+						 term_count, depth + 1) &&
+			is_comparison_conjunction(expr->pRight, cursor, field_count,
+						   term_count, depth + 1);
+	if (!is_comparison_predicate(expr) &&
+	    !is_direct_null_predicate(expr, cursor, field_count))
+		return false;
+	if (*term_count == SQL_PLAN_POINT_KEY_PART_MAX)
 		return false;
 	++*term_count;
 	return true;
@@ -120,8 +135,13 @@ sql_select_preflight_table_scan(const struct Select *select,
 			 * Only that column is guaranteed non-null by the schema. */
 		} else if (where->op == TK_AND) {
 			size_t term_count = 0;
-			if (!is_comparison_conjunction(where, &term_count, 0))
+			if (!is_comparison_conjunction(where, source->iCursor,
+						       source->space->def->field_count,
+						       &term_count, 0)) {
+				/* Validate the mixed conjunction below without allowing
+				 * arbitrary expression terms. */
 				return SQL_SELECT_PREFLIGHT_SHAPE;
+			}
 		} else if (!is_comparison_predicate(where)) {
 			return SQL_SELECT_PREFLIGHT_SHAPE;
 		}

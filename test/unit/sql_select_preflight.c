@@ -12,7 +12,7 @@
 static void
 test_preflight(void)
 {
-	plan(19);
+	plan(20);
 	header();
 	struct space_def *def = calloc(1, sizeof(*def) + sizeof("preflight_t"));
 	strcpy(def->name, "preflight_t");
@@ -82,6 +82,20 @@ test_preflight(void)
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
 	   SQL_SELECT_PREFLIGHT_OK,
 	   "unary IS NOT NULL test reaches producer validation");
+	struct Expr range_column = {
+		.op = TK_COLUMN_REF, .iTable = 4, .iColumn = 0,
+	};
+	struct Expr range_value = {.op = TK_INTEGER};
+	struct Expr range_test = {
+		.op = TK_GT, .pLeft = &range_column, .pRight = &range_value,
+	};
+	struct Expr combined_filter = {
+		.op = TK_AND, .pLeft = &null_test, .pRight = &range_test,
+	};
+	select.pWhere = &combined_filter;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_OK,
+	   "null residual plus primary-key bound conjunction reaches producer");
 	select.pWhere = NULL;
 	struct Expr order_expr = {
 		.op = TK_COLUMN_REF, .iTable = 4, .iColumn = 0,

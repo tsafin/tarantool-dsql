@@ -33,6 +33,16 @@ g.test_non_primary_null_filters_off_on_off = function()
                            'ORDER BY id ASC'):format(name),
                     expected = {{2}, {4}},
                 },
+                {
+                    sql = ('SELECT id FROM %s WHERE v IS NULL AND id > 1 ' ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{3}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE v IS NOT NULL AND ' ..
+                           'id < 4 ORDER BY id DESC'):format(name),
+                    expected = {{2}},
+                },
             }
             local function capture(enabled)
                 local results = {}
@@ -44,7 +54,10 @@ g.test_non_primary_null_filters_off_on_off = function()
                     t.assert(err == nil, err and err.message)
                     local route = explain.rows[1][3]
                     if enabled then
-                        t.assert_equals(route, 'new_planner')
+                        t.assert_equals(route, 'new_planner',
+                                        ('query %d route on %s: %s / %s')
+                                        :format(i, engine, route,
+                                                tostring(explain.rows[1][4])))
                     else
                         t.assert(route == 'current_where_c' or
                                  route == 'fallback')

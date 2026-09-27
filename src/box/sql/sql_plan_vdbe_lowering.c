@@ -451,7 +451,7 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	    input->access.kind != (range ? SQL_PLAN_INDEX_RANGE_SCAN :
 				   SQL_PLAN_TABLE_FULL_SCAN) ||
 	    invalid_range ||
-	    (input->filter_count != 0 && (!has_null_filter || range)) ||
+	    (input->filter_count != 0 && !has_null_filter) ||
 	    input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
@@ -635,21 +635,6 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	int body = sqlVdbeCurrentAddr(vdbe);
-	int filter_break = -1;
-	if (has_null_filter) {
-		const struct sql_plan_filter *filter = &input->filters[0];
-		int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
-					   filter->column, filter_reg);
-		if (column != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
-			goto error;
-		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
-			OP_IsNull;
-		filter_break = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
-		if (filter_break != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
-			goto error;
-	}
 	int range_break = -1;
 	if (bounded_range) {
 		int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
@@ -668,6 +653,21 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		range_break = sqlVdbeAddOp3(vdbe, check_op, current_reg, 0,
 					    end_reg);
 		if (range_break != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+	}
+	int filter_break = -1;
+	if (has_null_filter) {
+		const struct sql_plan_filter *filter = &input->filters[0];
+		int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
+					   filter->column, filter_reg);
+		if (column != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
+			OP_IsNull;
+		filter_break = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
+		if (filter_break != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
 	}
