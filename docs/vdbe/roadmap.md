@@ -1362,7 +1362,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `fallback / UNSUPPORTED_EXPRESSION` while retaining result parity. The local
   focused luatest passes against a binary rebuilt from current HEAD. This
   broadens typed/boundary coverage, but remains a focused sample rather than
-  corpus-wide feature acceptance.
+  corpus-wide feature acceptance. The same matrix now also checks a fresh
+  session before any explicit setting change, pinning default-off route and
+  result behavior against explicit-off on both engines; the focused luatest
+  passes locally.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

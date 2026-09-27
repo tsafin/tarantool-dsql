@@ -90,8 +90,16 @@ g.test_unsigned_primary_key_off_on_off_parity = function()
                 return result
             end
 
+            -- The feature is default-off for a fresh session; pin that
+            -- contract separately from the explicit off/on/off transitions.
+            local default_disabled = capture(nil)
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             local disabled_first = capture(nil)
+            for i = 1, #engine_queries do
+                t.assert(rows_equal(default_disabled[i], disabled_first[i]),
+                         ('default route result differs for query %d on %s')
+                         :format(i, engine))
+            end
             box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
             local enabled = capture('new_planner')
             for i = 1, #engine_queries do
