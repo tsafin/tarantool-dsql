@@ -601,23 +601,27 @@ review of IDs and formats.
   not itself freeze confirmed commits. A completed earlier sample
   can reach the caller's off-side staging sink if a later target fails, so the
   caller must discard all staging unless the full collection validates. This
-  helper neither builds nor publishes a candidate and does not enable
-  `ANALYZE`; S1.3a remains open for remaining candidate provenance, candidate
-  production, and failure-safe publication.
-  `sql_set_stats_snapshot()` already retains/releases the installed immutable
-  snapshot and expires prepared statements, but collection does not call it.
-  There is no collector-owned install transaction that revalidates the
-  captured generation at the boundary and preserves the previous snapshot on
-  every failure. Reusing the setter as a raw pointer swap would therefore not
-  establish common visibility or complete publication. Global
-  publication/visibility rollback remains unimplemented. The immutable
+  owned transaction context now exposes
+  `sql_stats_tx_context_finish_and_publish()`: it requires the expected
+  relation/index set to match every sampled target and captured runtime index
+  identity, builds the complete detached candidate, commits only a complete
+  sample set, revalidates schema/catalog/vclock generation after commit, then
+  synchronously installs through `sql_set_stats_snapshot()`. Any build,
+  validation, commit, or generation failure leaves the previously installed
+  snapshot untouched. Focused unit tests cover target-definition mismatch,
+  commit failure, commit-time generation drift, stale-generation preservation,
+  and successful publication. This closes the local publication step, not
+  complete summary derivation or live reader/engine integration. The immutable
   snapshot validator now accepts zero distinct-prefix counts only for an
   index with zero tuples, matching the schema draft's empty-index encoding;
   nonempty indexes still reject zero NDV. Focused snapshot tests cover both
   sides, and collection now builds a complete empty-relation candidate with
   exact zero rows and prefixes while leaving average width explicitly absent.
   The collection unit test verifies that no width denominator is fabricated.
-  The production target plus replay-input unit target pass. See
+  The collection unit target passes the new publication/old-snapshot-preserve
+  checks. The production target plus replay-input unit target pass. Full
+  relation/index summary derivation from sampled values and live collection
+  wiring remain open; `ANALYZE` stays disabled. See
   `sql_stats_sampling.md` for the exact contract and local unit evidence.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval

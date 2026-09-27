@@ -303,20 +303,20 @@ before and after all reads, including catalog, schema, relation modification,
 and index-definition generations. If that mechanism cannot guarantee a
 consistent view, collection must fail closed rather than mint a token.
 
-Publication additionally needs a collector-owned install transaction with
-explicit snapshot retain/release rules for concurrent readers. It must expose
-only a complete detached candidate, atomically replace the installed snapshot,
-and leave the previous snapshot installed on every allocation, validation, or
-generation-check failure. Tests must cover concurrent readers across a swap,
-candidate-build failure, stale generation at the install boundary, and
-rollback preserving both the old pointer and its lifetime. `sql_set_stats_snapshot()`
-already retains/releases an immutable snapshot and expires prepared
-statements, but `sql_stats_collection_build_candidate()` returns an
-uninstalled snapshot and the collection path does not call the setter or
-revalidate its generation at the install boundary. The read-view token source
-is also not complete across engines. The existing setter alone therefore does
-not establish a safe collection publication transaction and does not enable
-`ANALYZE`.
+The transaction context now provides
+`sql_stats_tx_context_finish_and_publish()`. It matches the expected
+relation/index set and definition identities to the owned transaction's
+sampled targets, builds a complete detached candidate, commits only after all
+targets succeeded, then revalidates catalog/schema/vclock generation before
+calling `sql_set_stats_snapshot()`. The previous snapshot is untouched on
+candidate, validation, commit, or generation failure. Focused unit coverage
+checks mismatched generations and index identities, commit failure, and drift
+at commit all preserve the old snapshot; a complete stable candidate is
+installed. The final check-to-swap path is synchronous and
+must not yield; this is a local volatile-generation guarantee, not a
+cross-node identity or a concurrent-reader runtime test. The publisher accepts
+caller-derived summaries, so it does not prove their statistical provenance
+or wire an active collection job. It does not enable `ANALYZE`.
 
 The first reusable runtime slice now exists as
 `sql_stats_collection_context`: it owns one filtered core `read_view`, records
@@ -333,8 +333,8 @@ read-view resource cost. Moreover, Vinyl indexes
 currently use `generic_index_create_read_view()`, which rejects consistent
 read views; a requested Vinyl index consequently fails context creation.
 Until a bounded Vinyl read-view path and a complete stats producer exist,
-collection remains disabled. The context does not install snapshots, so the
-previously specified publication/rollback tests are still required.
+this read-view context remains separate from publication and collection stays
+disabled.
 
 The separate `sql_stats_tx_context` runtime slice can begin an owned box
 transaction, set `READ_CONFIRMED` before any read, validate the target indexes
@@ -361,9 +361,10 @@ fails closed, but is not an MVCC snapshot handle or a durable/cross-node
 identity. A successful earlier index can already have delivered to
 the caller's sink if a later index fails, so sinks must target disposable
 off-side staging and callers must discard it unless all requested work and
-candidate validation succeed. The context neither builds nor publishes a
-candidate; `READ_CONFIRMED` is not authorization for global publication and
-does not enable `ANALYZE`.
+candidate validation succeed. The new finish-and-publish entry point couples
+complete detached candidate validation to this context's generation checks;
+`READ_CONFIRMED` alone is not authorization for publication, and this does not
+enable `ANALYZE`.
 
 The in-memory snapshot API version is now 2 so the new provenance and width
 denominator metadata are explicit. Existing designated/zero-initialized
@@ -378,10 +379,9 @@ values for relations and indices, and snapshot allocation-budget rejection.
 Unit coverage verifies the engine-population-to-relation-count bridge,
 including replacement draws, no-replacement bounds, empty populations, and
 unknown/inconsistent results. Allocation failures are injected at snapshot
-deep-copy and collection staging points. There is still no publication in
-this slice, so publication rollback is not covered. S1.3a remains incomplete
-until a producer consumes sampled tuples to populate the remaining
-relation/index summaries, a shared candidate-generation contract is defined,
-and an independent publication step proves that failed construction preserves
-the installed snapshot. Nothing here enables `ANALYZE` or persistent
-statistics.
+deep-copy and collection staging points. Publication rollback is covered at
+the owned transaction/candidate boundary; engine-level concurrent-reader and
+real collection-job integration are not. S1.3a remains incomplete until a
+producer consumes sampled tuples to populate all relation/index summaries and
+live engine tests prove a shared candidate-generation boundary. Nothing here
+enables `ANALYZE` or persistent statistics.

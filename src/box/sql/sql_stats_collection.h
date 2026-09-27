@@ -137,6 +137,18 @@ sql_stats_tx_context_catalog_version(
 int
 sql_stats_tx_context_finish(struct sql_stats_tx_context **context);
 
+/*
+ * Validate and deep-copy one complete collection candidate, commit the
+ * owned sampling transaction, revalidate its captured generations, then
+ * publish the immutable snapshot. Any failure leaves the installed snapshot
+ * unchanged and consumes/aborts the owned context when possible.
+ */
+int
+sql_stats_tx_context_finish_and_publish(
+	struct sql_stats_tx_context **context,
+	const struct sql_stats_expected_relation *expected, size_t expected_count,
+	const struct sql_stats_collection_result *result, size_t max_bytes);
+
 /* Abort rolls back only the transaction owned by this context. */
 int
 sql_stats_tx_context_abort(struct sql_stats_tx_context **context);

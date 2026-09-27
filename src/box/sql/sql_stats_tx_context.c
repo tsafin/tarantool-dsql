@@ -9,6 +9,7 @@
 #include "space.h"
 #include "space_cache.h"
 #include "txn.h"
+#include "sql.h"
 #include "vclock/vclock.h"
 
 struct sql_stats_tx_target {
@@ -354,6 +355,86 @@ sql_stats_tx_context_finish(struct sql_stats_tx_context **context_ptr)
 		*context_ptr = NULL;
 	}
 	return rc;
+}
+
+static bool
+tx_context_matches_expected(
+	const struct sql_stats_tx_context *context,
+	const struct sql_stats_expected_relation *expected,
+	size_t expected_count)
+{
+	if (expected == NULL || expected_count == 0 ||
+	    context->target_count == 0)
+		return false;
+	size_t index_count = 0;
+	for (size_t i = 0; i < expected_count; i++) {
+		if (expected[i].index_count == 0 || expected[i].indexes == NULL ||
+		    expected[i].index_count > SIZE_MAX - index_count)
+			return false;
+		index_count += expected[i].index_count;
+		for (size_t j = 0; j < expected[i].index_count; j++) {
+			bool found = false;
+			for (size_t k = 0; k < context->target_count; k++) {
+				const struct sql_stats_tx_target *target =
+					&context->targets[k];
+				if (target->key.space_id == expected[i].space_id &&
+				    target->key.index_id ==
+				    expected[i].indexes[j].index_id &&
+				    expected[i].indexes[j].definition_version != 0 &&
+				    expected[i].indexes[j].definition_version ==
+				    target->index_unique_id) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				return false;
+		}
+	}
+	return index_count == context->target_count;
+}
+
+int
+sql_stats_tx_context_finish_and_publish(
+	struct sql_stats_tx_context **context_ptr,
+	const struct sql_stats_expected_relation *expected, size_t expected_count,
+	const struct sql_stats_collection_result *result, size_t max_bytes)
+{
+	if (context_ptr == NULL || *context_ptr == NULL)
+		return -1;
+	struct sql_stats_tx_context *context = *context_ptr;
+	struct sql_stats_collection_generation generation = {
+		.catalog_version = context->catalog_version,
+		.schema_version = context->schema_version,
+		.visibility_id = context->visibility_id,
+	};
+	struct sql_stats_snapshot *candidate = NULL;
+	if (owns_current_txn(context) && !context->failed &&
+	    tx_context_valid(context) &&
+	    tx_context_matches_expected(context, expected, expected_count)) {
+		candidate = sql_stats_collection_build_candidate(&generation,
+			expected, expected_count, result, max_bytes);
+	}
+	if (candidate == NULL) {
+		(void)sql_stats_tx_context_abort(context_ptr);
+		return -1;
+	}
+	int rc = sql_stats_tx_context_finish(context_ptr);
+	if (rc != 0 || *context_ptr != NULL || sql_get() == NULL ||
+	    box_schema_version() != generation.schema_version ||
+	    box_catalog_version() != generation.catalog_version || box_vclock == NULL ||
+	    vclock_sum(box_vclock) < 0 ||
+	    (uint64_t)vclock_sum(box_vclock) != generation.visibility_id ||
+	    sql_stats_snapshot_catalog_version(candidate) !=
+	    generation.catalog_version ||
+	    sql_stats_snapshot_schema_version(candidate) != generation.schema_version) {
+		sql_stats_snapshot_release(candidate);
+		return -1;
+	}
+	/* No yield is allowed between the final generation check and this swap. */
+	sql_set_stats_snapshot(candidate);
+	sql_stats_snapshot_release(candidate);
+	return 0;
 }
 
 int

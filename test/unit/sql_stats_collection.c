@@ -1,4 +1,5 @@
 #include "box/sql/sql_stats_collection.h"
+#include "box/sql.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -30,6 +31,7 @@ static int test_txn_begin_result;
 static int test_txn_set_isolation_result;
 static int test_txn_commit_result;
 static int test_txn_rollback_result;
+static bool test_advance_vclock_on_commit;
 static int test_engine_sample_mode;
 static bool test_schema_change_on_isolation;
 
@@ -56,6 +58,26 @@ struct test_index_iterator {
 };
 
 static bool test_schema_change_on_eof;
+static struct sql_stats_snapshot *test_installed_snapshot;
+
+struct sql *
+sql_get(void)
+{
+	return (struct sql *)1;
+}
+
+void
+sql_set_stats_snapshot(struct sql_stats_snapshot *snapshot)
+{
+	if (snapshot == test_installed_snapshot)
+		return;
+	if (snapshot != NULL)
+		sql_stats_snapshot_retain(snapshot);
+	struct sql_stats_snapshot *old = test_installed_snapshot;
+	test_installed_snapshot = snapshot;
+	if (old != NULL)
+		sql_stats_snapshot_release(old);
+}
 
 static int
 test_index_iterator_next(struct index_read_view_iterator *iterator,
@@ -193,6 +215,10 @@ box_txn_commit(void)
 	if (!test_txn_active)
 		return -1;
 	test_txn_active = false;
+	if (test_advance_vclock_on_commit) {
+		test_advance_vclock_on_commit = false;
+		advance_test_vclock();
+	}
 	return test_txn_commit_result;
 }
 
@@ -379,6 +405,7 @@ reset_test_txn(void)
 	test_txn_set_isolation_result = 0;
 	test_txn_commit_result = 0;
 	test_txn_rollback_result = 0;
+	test_advance_vclock_on_commit = false;
 	test_schema_change_on_isolation = false;
 	test_engine_sample_mode = 0;
 	test_schema_version = 12;
@@ -543,6 +570,136 @@ test_transaction_sample_context(void)
 	ok(sql_stats_tx_context_finish(&context) == 0 && context == NULL &&
 	   !test_txn_active,
 	   "finish commits only after all requested index samples succeed");
+	footer();
+	check_plan();
+}
+
+static void
+test_transaction_candidate_publication(void)
+{
+	plan(9);
+	header();
+	reset_test_txn();
+	advance_test_vclock();
+	struct sql_stats_relation_input baseline_relation = {
+		.space_id = 7, .row_count = 1, .population_basis = "baseline",
+		.average_row_width = 1, .width_basis = "baseline_width",
+		.width_denominator_count = 1, .confidence = 1,
+		.confidence_source = "baseline", .visibility_id = 1,
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+	};
+	struct sql_stats_snapshot *baseline = sql_stats_snapshot_new(1, 12,
+		&baseline_relation, 1, 4096);
+	assert(baseline != NULL);
+	sql_set_stats_snapshot(baseline);
+	ok(test_installed_snapshot == baseline,
+	   "baseline snapshot is installed before collection publication");
+	struct sql_stats_collection_target target = {.space_id = 42, .index_id = 8};
+	struct sql_stats_expected_index expected_index = {
+		.index_id = 8, .definition_version = 808, .part_count = 1,
+	};
+	struct sql_stats_expected_relation expected_relation = {
+		.space_id = 42, .modification_epoch = 11,
+		.indexes = &expected_index, .index_count = 1,
+	};
+	uint64_t prefixes[] = {1};
+	struct sql_stats_collected_index index = {
+		.index_id = 8, .definition_version = 808, .visibility_id = 1,
+		.tuple_count = 2,
+		.tuple_count_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.population_basis = "visible@1", .ndv_basis = "visible@1",
+		.distinct_prefixes = prefixes, .prefix_count = 1,
+	};
+	struct sql_stats_collected_relation relation = {
+		.space_id = 42, .catalog_version = 4, .schema_version = 12,
+		.visibility_id = 1, .modification_epoch = 11, .row_count = 2,
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.population_basis = "visible@1", .average_row_width = 4,
+		.width_basis = "sample_bytes/sample_rows",
+		.width_denominator_count = 2, .confidence = 0.5,
+		.confidence_source = "test_sample", .collected_at = 1,
+		.indexes = &index, .index_count = 1,
+	};
+	struct sql_stats_collection_result result = {
+		.generation = {.catalog_version = 4, .schema_version = 12,
+			       .visibility_id = 2},
+		.relations = &relation, .relation_count = 1,
+	};
+	struct sql_stats_tx_context *context = NULL;
+	struct sql_stats_sample_sink sink = {
+		.consume = test_sink_consume,
+	};
+	struct sql_stats_sample_request request = {
+		.max_rows = 2, .max_bytes = 16, .max_buffer_bytes = 256,
+	};
+	struct sql_stats_sample_result sample_result;
+	struct test_sink_state sink_state = {};
+	sink.context = &sink_state;
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_sample_index(context, &target, &request, &sink,
+					     &sample_result) == 0 &&
+	   sql_stats_tx_context_finish_and_publish(&context, &expected_relation, 1,
+						   &result, 4096) != 0 &&
+	   context == NULL && !test_txn_active &&
+	   test_installed_snapshot == baseline,
+	   "invalid generation rolls back and preserves the installed snapshot");
+	result.generation.visibility_id = 1;
+	expected_index.definition_version++;
+	reset_test_txn();
+	advance_test_vclock();
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_sample_index(context, &target, &request, &sink,
+					     &sample_result) == 0 &&
+	   sql_stats_tx_context_finish_and_publish(&context, &expected_relation, 1,
+						   &result, 4096) != 0 &&
+	   context == NULL && test_installed_snapshot == baseline,
+	   "candidate index definition must match the owned sampling target");
+	expected_index.definition_version--;
+	reset_test_txn();
+	advance_test_vclock();
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_sample_index(context, &target, &request, &sink,
+					     &sample_result) == 0,
+	   "complete sample stages before a commit failure");
+	test_txn_commit_result = -1;
+	ok(sql_stats_tx_context_finish_and_publish(&context, &expected_relation, 1,
+						   &result, 4096) != 0 &&
+	   context == NULL && test_installed_snapshot == baseline,
+	   "failed collection commit leaves the previous snapshot installed");
+	reset_test_txn();
+	advance_test_vclock();
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_sample_index(context, &target, &request, &sink,
+					     &sample_result) == 0,
+	   "complete sample stages before final generation revalidation");
+	test_advance_vclock_on_commit = true;
+	ok(sql_stats_tx_context_finish_and_publish(&context, &expected_relation, 1,
+						   &result, 4096) != 0 &&
+	   context == NULL && test_installed_snapshot == baseline,
+	   "generation drift at commit leaves the previous snapshot installed");
+	reset_test_txn();
+	advance_test_vclock();
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_sample_index(context, &target, &request, &sink,
+					     &sample_result) == 0 &&
+	   sql_stats_tx_context_finish_and_publish(&context, &expected_relation, 1,
+						   &result, 4096) == 0 &&
+	   context == NULL && !test_txn_active &&
+	   test_installed_snapshot != baseline,
+	   "complete stable-generation candidate publishes after transaction finish");
+	const struct sql_stats_relation *published_relation = NULL;
+	ok(sql_stats_snapshot_get_relation(test_installed_snapshot, 12, 42,
+						   &published_relation) ==
+	   SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_relation_row_count(published_relation) == 2 &&
+	   sql_stats_relation_visibility_id(published_relation) == 1,
+	   "published snapshot contains the validated collection generation");
+	sql_set_stats_snapshot(NULL);
+	sql_stats_snapshot_release(baseline);
 	footer();
 	check_plan();
 }
@@ -867,6 +1024,7 @@ main(void)
 	test_collection_context();
 	test_context_sample_index();
 	test_transaction_sample_context();
+	test_transaction_candidate_publication();
 	test_population_from_engine_sample();
 	test_complete_result_and_rejections();
 	test_empty_relation_candidate();
