@@ -90,6 +90,26 @@ struct sql_stats_collection_target {
 };
 
 struct sql_stats_collection_context;
+struct sql_stats_tx_index_spec;
+
+/* Independent aggregate limits for one shared-view multi-relation build. */
+struct sql_stats_collection_build_budget {
+	size_t max_index_requests;
+	size_t max_staging_bytes;
+	size_t max_candidate_bytes;
+	size_t max_temp_bytes;
+	uint64_t max_work;
+};
+
+/* Complete producer input for one relation in a shared-view build. */
+struct sql_stats_collection_relation_spec {
+	const struct sql_stats_expected_relation *expected;
+	const struct sql_stats_tx_index_spec *indexes;
+	size_t index_count;
+	uint32_t relation_index_id;
+	double relation_confidence;
+	const char *confidence_source;
+};
 
 /*
  * Open a shared engine read view for exactly the requested indexes. The
@@ -161,6 +181,25 @@ sql_stats_collection_context_build_sample_candidate(
 	uint32_t relation_index_id, double relation_confidence,
 	const char *confidence_source, size_t max_candidate_bytes,
 	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work);
+
+/*
+ * Build one detached candidate for a set of relations from the exact target
+ * set pinned by context, then publish it with one existing publish call.
+ * Relation/index targets must cover the context exactly once. Aggregate
+ * staging includes all per-index summaries plus the largest reservoir: scans
+ * are sequential and each reservoir/summary is destroyed before the next
+ * relation begins. Temporary NDV inversion uses its maximum per-index
+ * footprint; max_work bounds the sum of scan and inversion work across all
+ * requested indexes. On failure the context is poisoned, no candidate
+ * escapes, and the installed snapshot is unchanged. Parts remain private to
+ * this call and can never be individually published through context.
+ */
+struct sql_stats_snapshot *
+sql_stats_collection_context_build_sample_candidates(
+	struct sql_stats_collection_context *context,
+	const struct sql_stats_collection_relation_spec *relations,
+	size_t relation_count,
+	const struct sql_stats_collection_build_budget *budget);
 
 /*
  * Install only the exact candidate assembled by this context. On success the

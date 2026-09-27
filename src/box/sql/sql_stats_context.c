@@ -217,14 +217,15 @@ collection_context_target_index(
 	return context->target_count;
 }
 
-struct sql_stats_snapshot *
-sql_stats_collection_context_build_sample_candidate(
+static struct sql_stats_snapshot *
+collection_context_build_relation_candidate(
 	struct sql_stats_collection_context *context,
 	const struct sql_stats_expected_relation *expected,
 	const struct sql_stats_tx_index_spec *specs, size_t spec_count,
 	uint32_t relation_index_id, double relation_confidence,
 	const char *confidence_source, size_t max_candidate_bytes,
-	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work)
+	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work,
+	bool require_all_context_targets)
 {
 	struct sql_stats_collection_staged_index *staged = NULL;
 	struct sql_stats_sampled_index *sampled_indexes = NULL;
@@ -234,7 +235,8 @@ sql_stats_collection_context_build_sample_candidate(
 		context->assembled_candidate == NULL && expected != NULL &&
 		expected->index_count != 0 && expected->indexes != NULL &&
 		specs != NULL && spec_count == expected->index_count &&
-		spec_count == context->target_count &&
+		(!require_all_context_targets ||
+		 spec_count == context->target_count) &&
 		spec_count <= SIZE_MAX / (sizeof(*staged) +
 			sizeof(*sampled_indexes) + sizeof(*confidences)) &&
 		isfinite(relation_confidence) && relation_confidence >= 0 &&
@@ -340,8 +342,6 @@ sql_stats_collection_context_build_sample_candidate(
 		max_temp_bytes, max_work);
 	if (candidate == NULL)
 		goto fail;
-	sql_stats_snapshot_retain(candidate);
-	context->assembled_candidate = candidate;
 	for (size_t i = 0; i < spec_count; i++)
 		sql_stats_index_summary_delete(staged[i].summary);
 	free(staged);
@@ -360,6 +360,302 @@ fail:
 	free(staged);
 	free(sampled_indexes);
 	free(confidences);
+	return NULL;
+}
+
+struct sql_stats_snapshot *
+sql_stats_collection_context_build_sample_candidate(
+	struct sql_stats_collection_context *context,
+	const struct sql_stats_expected_relation *expected,
+	const struct sql_stats_tx_index_spec *specs, size_t spec_count,
+	uint32_t relation_index_id, double relation_confidence,
+	const char *confidence_source, size_t max_candidate_bytes,
+	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work)
+{
+	if (context == NULL)
+		return NULL;
+	if (context->assembled_candidate != NULL) {
+		context->failed = true;
+		return NULL;
+	}
+	struct sql_stats_snapshot *candidate =
+		collection_context_build_relation_candidate(context, expected, specs,
+			spec_count, relation_index_id, relation_confidence,
+			confidence_source, max_candidate_bytes, max_staging_bytes,
+			max_temp_bytes, max_work, true);
+	if (candidate != NULL) {
+		sql_stats_snapshot_retain(candidate);
+		context->assembled_candidate = candidate;
+	}
+	return candidate;
+}
+
+static bool
+add_size_checked(size_t *total, size_t value)
+{
+	if (*total > SIZE_MAX - value)
+		return false;
+	*total += value;
+	return true;
+}
+
+static bool
+add_work_checked(uint64_t *total, uint64_t value)
+{
+	if (*total > UINT64_MAX - value)
+		return false;
+	*total += value;
+	return true;
+}
+
+static bool
+collection_context_validate_relation_spec(
+	struct sql_stats_collection_context *context,
+	const struct sql_stats_collection_relation_spec *relation,
+	size_t *spec_count, size_t *summary_bytes, size_t *max_reservoir_bytes,
+	size_t *max_temp_bytes, size_t *max_candidate_staging_bytes,
+	uint64_t *work)
+{
+	const struct sql_stats_expected_relation *expected = relation->expected;
+	if (expected == NULL || expected->space_id == 0 ||
+	    expected->index_count == 0 || expected->indexes == NULL ||
+	    relation->indexes == NULL || relation->index_count !=
+	    expected->index_count || relation->index_count == 0 ||
+	    !isfinite(relation->relation_confidence) ||
+	    relation->relation_confidence < 0 || relation->relation_confidence > 1 ||
+	    relation->confidence_source == NULL ||
+	    relation->confidence_source[0] == '\0' ||
+	    relation->index_count > SIZE_MAX - *spec_count)
+		return false;
+	for (size_t i = 0; i < expected->index_count; i++) {
+		for (size_t j = 0; j < i; j++) {
+			if (expected->indexes[j].index_id ==
+			    expected->indexes[i].index_id)
+				return false;
+		}
+	}
+	size_t relation_sample_index = relation->index_count;
+	size_t prefix_count = 0;
+	for (size_t i = 0; i < relation->index_count; i++) {
+		const struct sql_stats_tx_index_spec *spec = &relation->indexes[i];
+		const struct sql_stats_expected_index *index = spec->expected;
+		if (index == NULL || index->definition_version == 0 ||
+		    index->part_count == 0 || spec->extract == NULL ||
+		    spec->target.space_id != expected->space_id ||
+		    spec->target.index_id != index->index_id ||
+		    spec->request.index_id != spec->target.index_id ||
+		    spec->request.max_rows == 0 || spec->request.max_bytes == 0 ||
+		    spec->request.max_buffer_bytes == 0 ||
+		    spec->request.max_tuples_examined == 0 ||
+		    (spec->request.field_count != 0 &&
+		     spec->request.field_ids == NULL) ||
+		    spec->summary_max_bytes == 0)
+			return false;
+		bool expected_match = false;
+		for (size_t j = 0; j < expected->index_count; j++) {
+			if (expected->indexes[j].index_id == index->index_id &&
+			    expected->indexes[j].definition_version ==
+				    index->definition_version &&
+			    expected->indexes[j].part_count == index->part_count)
+				expected_match = true;
+		}
+		if (!expected_match)
+			return false;
+		if (index->part_count > SIZE_MAX - prefix_count)
+			return false;
+		prefix_count += index->part_count;
+		for (size_t j = 0; j < i; j++) {
+			if (relation->indexes[j].target.index_id ==
+			    spec->target.index_id)
+				return false;
+		}
+		size_t target_index = collection_context_target_index(context,
+										 &spec->target);
+		struct index_read_view *index_view =
+			context_get_index(context, &spec->target);
+		if (target_index == context->target_count || index_view == NULL ||
+		    context->index_unique_ids[target_index] !=
+			    index->definition_version || index_view->def->key_def->part_count !=
+			    index->part_count)
+			return false;
+		if (!add_size_checked(summary_bytes, spec->summary_max_bytes))
+			return false;
+		if (spec->request.max_buffer_bytes > *max_reservoir_bytes)
+			*max_reservoir_bytes = spec->request.max_buffer_bytes;
+		size_t temp = index->part_count;
+		if (temp > SIZE_MAX / (sizeof(double) + sizeof(uint64_t)))
+			return false;
+		temp *= sizeof(double) + sizeof(uint64_t);
+		if (temp > *max_temp_bytes)
+			*max_temp_bytes = temp;
+		/* Tuple inspection plus each prefix hash, then worst-case NDV
+		 * inversion for every retained draw. */
+		uint64_t scan_factor = (uint64_t)index->part_count + 1;
+		if (scan_factor == 0 || spec->request.max_tuples_examined >
+		    UINT64_MAX / scan_factor)
+			return false;
+		uint64_t scan_work = spec->request.max_tuples_examined * scan_factor;
+		uint64_t draws = spec->request.max_rows;
+		if (draws > spec->request.max_tuples_examined)
+			draws = spec->request.max_tuples_examined;
+		if (draws > UINT64_MAX / 64)
+			return false;
+		uint64_t ndv_per_part = 64 * draws;
+		if (ndv_per_part != 0 && index->part_count >
+		    UINT64_MAX / ndv_per_part)
+			return false;
+		uint64_t ndv_work = ndv_per_part * index->part_count;
+		if (!add_work_checked(work, scan_work) ||
+		    !add_work_checked(work, ndv_work))
+			return false;
+		if (spec->target.index_id == relation->relation_index_id)
+			relation_sample_index = i;
+	}
+	if (relation_sample_index == relation->index_count)
+		return false;
+	if (relation->index_count > SIZE_MAX /
+	    (sizeof(struct sql_stats_collected_index) + sizeof(double)) ||
+	    prefix_count > SIZE_MAX / sizeof(uint64_t))
+		return false;
+	size_t candidate_staging = relation->index_count *
+		(sizeof(struct sql_stats_collected_index) + sizeof(double));
+	if (!add_size_checked(&candidate_staging,
+			      prefix_count * sizeof(uint64_t)))
+		return false;
+	if (candidate_staging > *max_candidate_staging_bytes)
+		*max_candidate_staging_bytes = candidate_staging;
+	*spec_count += relation->index_count;
+	return true;
+}
+
+struct sql_stats_snapshot *
+sql_stats_collection_context_build_sample_candidates(
+	struct sql_stats_collection_context *context,
+	const struct sql_stats_collection_relation_spec *relations,
+	size_t relation_count,
+	const struct sql_stats_collection_build_budget *budget)
+{
+	struct sql_stats_snapshot **parts = NULL;
+	struct sql_stats_snapshot *candidate = NULL;
+	if (context == NULL)
+		return NULL;
+	if (context->assembled_candidate != NULL) {
+		context->failed = true;
+		return NULL;
+	}
+	if (!collection_context_is_valid(context) || relations == NULL ||
+	    relation_count == 0 || budget == NULL ||
+	    budget->max_index_requests == 0 || budget->max_staging_bytes == 0 ||
+	    budget->max_candidate_bytes == 0 || budget->max_temp_bytes == 0 ||
+	    budget->max_work == 0 || context->target_count == 0 ||
+	    context->target_count > budget->max_index_requests ||
+	    relation_count > context->target_count ||
+	    relation_count > SIZE_MAX / sizeof(*parts))
+		goto fail;
+	size_t total_specs = 0;
+	size_t summary_bytes = 0, max_reservoir_bytes = 0, max_temp_bytes = 0;
+	size_t max_candidate_staging_bytes = 0;
+	uint64_t total_work = 0;
+	for (size_t i = 0; i < relation_count; i++) {
+		if (!collection_context_validate_relation_spec(context, &relations[i],
+				&total_specs, &summary_bytes, &max_reservoir_bytes,
+				&max_temp_bytes, &max_candidate_staging_bytes,
+				&total_work))
+			goto fail;
+		for (size_t j = 0; j < i; j++) {
+			if (relations[j].expected->space_id ==
+			    relations[i].expected->space_id)
+				goto fail;
+		}
+	}
+	if (total_specs != context->target_count ||
+	    total_work > budget->max_work || max_temp_bytes > budget->max_temp_bytes)
+		goto fail;
+	/* Every target must be owned exactly once by the flattened spec set. */
+	for (size_t i = 0; i < context->target_count; i++) {
+		size_t matches = 0;
+		for (size_t r = 0; r < relation_count; r++) {
+			for (size_t s = 0; s < relations[r].index_count; s++) {
+				if (relations[r].indexes[s].target.space_id ==
+					    context->targets[i].space_id &&
+				    relations[r].indexes[s].target.index_id ==
+					    context->targets[i].index_id)
+					matches++;
+			}
+		}
+		if (matches != 1)
+			goto fail;
+	}
+	size_t spec_metadata;
+	if (total_specs > SIZE_MAX / (sizeof(struct sql_stats_collection_staged_index) +
+				       sizeof(struct sql_stats_sampled_index) + sizeof(double)))
+		goto fail;
+	spec_metadata = total_specs * (sizeof(struct sql_stats_collection_staged_index) +
+				       sizeof(struct sql_stats_sampled_index) + sizeof(double));
+	if (relation_count > SIZE_MAX / sizeof(*parts) ||
+	    !add_size_checked(&spec_metadata, relation_count * sizeof(*parts)) ||
+	    !add_size_checked(&spec_metadata, summary_bytes) ||
+	    !add_size_checked(&spec_metadata, max_reservoir_bytes) ||
+	    !add_size_checked(&spec_metadata, max_candidate_staging_bytes) ||
+	    spec_metadata > budget->max_staging_bytes)
+		goto fail;
+	parts = calloc(relation_count, sizeof(*parts));
+	if (parts == NULL)
+		goto fail;
+	size_t held_candidate_bytes = 0;
+	for (size_t i = 0; i < relation_count; i++) {
+		const struct sql_stats_collection_relation_spec *relation =
+			&relations[i];
+		if (held_candidate_bytes >= budget->max_candidate_bytes)
+			goto fail;
+		size_t remaining_candidate_bytes = budget->max_candidate_bytes -
+			held_candidate_bytes;
+		parts[i] = collection_context_build_relation_candidate(context,
+			relation->expected, relation->indexes, relation->index_count,
+			relation->relation_index_id, relation->relation_confidence,
+			relation->confidence_source, remaining_candidate_bytes,
+			budget->max_staging_bytes, budget->max_temp_bytes,
+			budget->max_work, false);
+		if (parts[i] == NULL ||
+		    !add_size_checked(&held_candidate_bytes,
+				      sql_stats_snapshot_bytes(parts[i])) ||
+		    held_candidate_bytes > budget->max_candidate_bytes)
+			goto fail;
+	}
+	if (relation_count == 1) {
+		candidate = parts[0];
+		parts[0] = NULL;
+	} else {
+		if (held_candidate_bytes >= budget->max_candidate_bytes)
+			goto fail;
+		size_t combine_allowance = (budget->max_candidate_bytes -
+			held_candidate_bytes) / 2;
+		if (combine_allowance == 0)
+			goto fail;
+		candidate = sql_stats_snapshot_combine(
+			(const struct sql_stats_snapshot *const *)parts,
+			relation_count, combine_allowance);
+		if (candidate == NULL)
+			goto fail;
+	}
+	if (!collection_context_is_valid(context))
+		goto fail;
+	sql_stats_snapshot_retain(candidate);
+	context->assembled_candidate = candidate;
+	for (size_t i = 0; i < relation_count; i++)
+		sql_stats_snapshot_release(parts[i]);
+	free(parts);
+	return candidate;
+fail:
+	if (context != NULL)
+		context->failed = true;
+	if (parts != NULL) {
+		for (size_t i = 0; i < relation_count; i++)
+			sql_stats_snapshot_release(parts[i]);
+	}
+	free(parts);
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
 	return NULL;
 }
 
