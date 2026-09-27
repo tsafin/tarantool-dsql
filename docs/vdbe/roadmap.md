@@ -804,6 +804,18 @@ DML, triggers, subprograms, non-deterministic functions.
   expression bytecode, cursor/engine setup, sort semantics, result delivery,
   parity, and production routing remain open. See
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: yes*.
+- [ ] **M3.4 executable lowering** — blocked on a production producer and
+  statement-lifetime expression/register bindings. Code-path audit: the
+  SELECT classifier in `select.c` builds then deletes the logical plan;
+  physical candidate selection has unit-test-only callers and requires caller-
+  supplied candidates/expressions. The live route still emits through
+  `sqlWhereBegin()` / `selectInnerLoop()` / `sqlWhereEnd()`, and the callback
+  lowerer has no VDBE/`Parse`/result context or rollback boundary. A safe
+  table-full-scan-only implementation is therefore not isolated or all-or-
+  nothing yet. Keep runtime routing and M3.7 off until producer, preflight,
+  backend bindings, and parity coverage exist. Detailed audit:
+  `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
+  SELECT/VDBE integration boundary).
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
   `fallback_reason` and routes to current `where.c`. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and

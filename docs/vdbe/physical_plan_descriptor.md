@@ -43,6 +43,38 @@ delivery are not implemented. It is a boundary prototype only; parity and
 production `where.c` routing remain mandatory before M3 can be considered
 integrated.
 
+#### M3.4 executable-lowering feasibility audit (2026-09-27)
+
+No safe executable-lowering slice can currently be added as an isolated
+consumer of the descriptor. The code-path boundary is concrete:
+
+- `sql_select_record_fallback()` in `select.c` builds a logical plan only for
+  classification and immediately deletes it; it does not build or retain a
+  physical descriptor. `sql_plan_producer_result_init()` is only a result
+  wrapper and has unit-test callers, not a production SELECT caller.
+- `sql_physical_plan_from_logical()` requires its caller to supply a candidate
+  array and candidate-owned expressions. Its repository callers are tests;
+  there is no production access-candidate provider or mapping from resolved
+  `Expr` trees to descriptor expression references.
+- The actual SELECT bytecode path in `select.c` calls `sqlWhereBegin()`
+  (ordinary SELECT loop), `selectInnerLoop()` (row/filter/projection/result
+  work), and `sqlWhereEnd()`. `sqlWhereBegin()` in `where.c` owns legacy
+  cursor/loop selection and emits code while preparing that path. The current
+  callback lowerer has no VDBE, `Parse`, cursor, or result-destination
+  context, and a callback failure after emission cannot be rolled back into
+  `where.c` safely.
+
+Therefore even a table-full-scan-only route needs a production producer that
+constructs and validates a descriptor before any bytecode is emitted, a
+statement-lifetime expression/register mapping, explicit engine cursor/open/
+iteration semantics, and a transactional dispatch boundary that guarantees
+fallback only before emission. Without these, claiming all-or-nothing
+lowering or parity would be false. Keep the contract prototype, but keep
+executable M3.4, successful new-planner routing, and the M3.7 feature flag
+open. The next independently testable step is a VDBE builder contract with
+preflight validation and explicit emission-failure semantics; live routing
+must wait until the producer and expression bindings exist.
+
 M3.5 now has a producer-contract prototype in `sql_plan_fallback.{h,c}`.
 It maps the existing logical and physical reject enums to append-only numeric
 `sql_plan_fallback_reason` values and stable names, and returns an observable
