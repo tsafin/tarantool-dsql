@@ -953,8 +953,8 @@ DML, triggers, subprograms, non-deterministic functions.
   NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
   descending primary-key order with LIMIT, primary-key point hit/miss with
   LIMIT 1 / LIMIT 0 / OFFSET 1 semantics, signed-64-bit point keys through
-  INT64_MIN/MAX, an UNSIGNED point key, and range-filter fallback. Nineteen
-  Twenty emitter checks cover
+  INT64_MIN/MAX, UNSIGNED point keys through UINT64_MAX, and range-filter
+  fallback. Twenty emitter checks cover
   unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, and out-of-range opcode
   shapes. SQL regressions verify `LIMIT 2147483648` and paired wide LIMIT / OFFSET
