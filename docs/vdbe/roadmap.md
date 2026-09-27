@@ -471,9 +471,9 @@ review of IDs and formats.
   pure completeness validator now build a detached, deep-copied snapshot
   candidate. Caller-defined width/population/confidence provenance tokens
   plus the width denominator count are retained without selecting estimator
-  policy; relation/index/prefix
-  completeness and catalog/schema/visibility/index-definition generations
-  are checked. A narrow bridge now converts a known engine-sampler population
+  policy; relation/index/prefix completeness (including duplicate result-ID
+  rejection) and catalog/schema/visibility/index-definition generations are
+  checked. A narrow bridge now converts a known engine-sampler population
   into exact relation cardinality without mistaking delivered draws for the
   population; a second bridge exposes fractional sample-average serialized
   tuple width with its row denominator, without truncating the mean or

@@ -58,7 +58,7 @@ test_population_from_engine_sample(void)
 static void
 test_complete_result_and_rejections(void)
 {
-	plan(22);
+	plan(24);
 	header();
 	uint64_t prefixes[] = {2, 4};
 	struct sql_stats_expected_index expected_index = {
@@ -216,6 +216,48 @@ test_complete_result_and_rejections(void)
 	relation.row_count = -1;
 	ok(sql_stats_collection_build_candidate(&generation, &expected_relation, 1,
 		&result, 4096) == NULL, "negative relation count rejected");
+	relation.row_count = 10;
+	struct sql_stats_expected_relation expected_relations[] = {
+		expected_relation,
+		{ .space_id = 43, .modification_epoch = 11,
+		  .indexes = &expected_index, .index_count = 1 },
+	};
+	struct sql_stats_collected_relation duplicate_relations[] = {
+		relation,
+		relation,
+	};
+	struct sql_stats_collection_result duplicate_relation_result = {
+		.generation = generation,
+		.relations = duplicate_relations,
+		.relation_count = 2,
+	};
+	ok(sql_stats_collection_build_candidate(&generation,
+		&expected_relations[0], 2, &duplicate_relation_result, 4096) == NULL,
+	   "duplicate collected relation IDs are rejected");
+	struct sql_stats_expected_index expected_indexes[] = {
+		expected_index,
+		{ .index_id = 9, .definition_version = 3, .part_count = 2 },
+	};
+	struct sql_stats_collected_index duplicate_indexes[] = {
+		index,
+		index,
+	};
+	relation.indexes = duplicate_indexes;
+	relation.index_count = 2;
+	struct sql_stats_expected_relation two_indexes = {
+		.space_id = 42,
+		.modification_epoch = 11,
+		.indexes = expected_indexes,
+		.index_count = 2,
+	};
+	struct sql_stats_collection_result duplicate_index_result = {
+		.generation = generation,
+		.relations = &relation,
+		.relation_count = 1,
+	};
+	ok(sql_stats_collection_build_candidate(&generation, &two_indexes, 1,
+		&duplicate_index_result, 4096) == NULL,
+	   "duplicate collected index IDs are rejected");
 	footer();
 	check_plan();
 }

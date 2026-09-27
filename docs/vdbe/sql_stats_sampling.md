@@ -197,7 +197,9 @@ catalog/schema/visibility generation. The builder rejects missing or extra
 relations and indexes, missing leading-prefix NDVs, definition-version,
 modification-epoch, catalog/schema/visibility mismatches, zero/unknown
 visibility or index-definition tokens, and an index whose NDV basis differs
-from its tuple-population basis. It builds a detached candidate through the
+from its tuple-population basis. Duplicate relation or index IDs are rejected
+before lookup, so duplicate result entries cannot conceal a missing expected
+definition. It builds a detached candidate through the
 snapshot constructor; it does not install or globally publish it.
 
 The result carries per-relation row-count semantics, opaque caller-defined

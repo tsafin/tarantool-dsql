@@ -103,6 +103,30 @@ find_index(const struct sql_stats_collected_relation *relation, uint32_t id)
 }
 
 static bool
+collected_is_unique(const struct sql_stats_collection_result *result)
+{
+	for (size_t i = 0; i < result->relation_count; i++) {
+		for (size_t j = i + 1; j < result->relation_count; j++) {
+			if (result->relations[i].space_id ==
+			    result->relations[j].space_id)
+				return false;
+		}
+		const struct sql_stats_collected_relation *relation =
+			&result->relations[i];
+		if (relation->index_count != 0 && relation->indexes == NULL)
+			return false;
+		for (size_t j = 0; j < relation->index_count; j++) {
+			for (size_t k = j + 1; k < relation->index_count; k++) {
+				if (relation->indexes[j].index_id ==
+				    relation->indexes[k].index_id)
+					return false;
+			}
+		}
+	}
+	return true;
+}
+
+static bool
 expected_is_unique(const struct sql_stats_expected_relation *expected,
 		   size_t count)
 {
@@ -139,7 +163,8 @@ sql_stats_collection_build_candidate(
 	    result->generation.visibility_id != expected_generation->visibility_id ||
 	    result->generation.visibility_id == 0 ||
 	    expected_generation->visibility_id == 0 ||
-	    !expected_is_unique(expected, expected_count))
+	    !expected_is_unique(expected, expected_count) ||
+	    !collected_is_unique(result))
 		return NULL;
 	struct sql_stats_relation_input *inputs = expected_count == 0 ? NULL :
 		collection_calloc(expected_count, sizeof(*inputs));
