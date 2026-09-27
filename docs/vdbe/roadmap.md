@@ -1064,7 +1064,10 @@ DML, triggers, subprograms, non-deterministic functions.
   constants retain uint64 values through UINT64_MAX; negative UNSIGNED values
   fail closed to legacy codegen, while literals above UINT64_MAX are rejected
   by SQL parsing before planner dispatch. Unsupported predicates still fall
-  back. Thirty-one emitter checks now pin all four range opcodes (`SeekGT`,
+  back. One-sided bounds now also reject a scan direction that cannot
+  terminate correctly (lower-bound scans must ascend; upper-bound scans must
+  descend) before VDBE mutation; the focused unit target passes all 31 checks.
+  Those emitter checks pin all four range opcodes (`SeekGT`,
   `SeekGE`, `SeekLT`, `SeekLE`), ascending/descending step opcodes, signed
   range key encoding, and full-width unsigned `P4_UINT64` preservation, alongside
   unbounded, limited, offset, zero-limit, descending, signed-64-bit counter
