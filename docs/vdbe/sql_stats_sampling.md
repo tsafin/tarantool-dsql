@@ -191,7 +191,7 @@ publication.
 
 Before implementing ANALYZE, define a non-persistent candidate-snapshot
 builder that consumes one collection result and validates row count, average
-width, confidence, index tuple populations, and prefix NDVs as a complete
+width where observable, confidence, index tuple populations, and prefix NDVs as a complete
 unit. It must build off to the side and publish only after all relation/index
 summaries are valid; a failure must leave the currently installed snapshot
 unchanged. This contract does not choose system-space IDs, tuple layouts, or
@@ -224,9 +224,12 @@ persistence encoding. It requires each index's tuple count and NDV vector to
 declare the same population basis, while retaining relation and per-index
 population tags separately; it does not assume a sparse index has the same
 population as its relation. A common visibility token and schema/catalog
-generation are validated, and the width denominator count must be present and
-nonzero. The engine mechanism that establishes that boundary remains
-undefined.
+generation are validated. Nonempty relations require a measured width basis
+and nonzero denominator; an exact zero-row relation may retain width as
+explicitly unavailable (zero average, NULL basis, zero denominator) rather
+than inventing a sample width. Empty indexes use zero distinct-prefix counts;
+nonempty indexes still require positive prefix NDVs. The engine mechanism
+that establishes the common boundary remains undefined.
 
 `sql_stats_collection_population_from_sample()` is a narrow producer bridge:
 when the engine reports a known population, it yields that visible population

@@ -804,6 +804,63 @@ test_complete_result_and_rejections(void)
 	check_plan();
 }
 
+static void
+test_empty_relation_candidate(void)
+{
+	plan(2);
+	header();
+	uint64_t empty_prefixes[] = {0, 0};
+	struct sql_stats_expected_index expected_index = {
+		.index_id = 8, .definition_version = 3, .part_count = 2,
+	};
+	struct sql_stats_expected_relation expected_relation = {
+		.space_id = 42, .modification_epoch = 11,
+		.indexes = &expected_index, .index_count = 1,
+	};
+	struct sql_stats_collection_generation generation = {
+		.catalog_version = 4, .schema_version = 7, .visibility_id = 9,
+	};
+	struct sql_stats_collected_index index = {
+		.index_id = 8, .definition_version = 3, .visibility_id = 9,
+		.tuple_count = 0,
+		.tuple_count_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.population_basis = "visible_rows@view-9",
+		.ndv_basis = "visible_rows@view-9",
+		.distinct_prefixes = empty_prefixes, .prefix_count = 2,
+	};
+	struct sql_stats_collected_relation relation = {
+		.space_id = 42, .catalog_version = 4, .schema_version = 7,
+		.visibility_id = 9, .modification_epoch = 11, .row_count = 0,
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.population_basis = "visible_rows@view-9",
+		.average_row_width = 0, .width_basis = NULL,
+		.width_denominator_count = 0, .confidence = 1,
+		.confidence_source = "exact_empty_population", .collected_at = 12,
+		.indexes = &index, .index_count = 1,
+	};
+	struct sql_stats_collection_result result = {
+		.generation = generation, .relations = &relation, .relation_count = 1,
+	};
+	struct sql_stats_snapshot *snapshot = sql_stats_collection_build_candidate(
+		&generation, &expected_relation, 1, &result, 4096);
+	ok(snapshot != NULL,
+	   "complete empty relation and zero-prefix index build a candidate");
+	const struct sql_stats_relation *collected = NULL;
+	bool width_absent = snapshot != NULL &&
+		sql_stats_snapshot_get_relation(snapshot, 7, 42, &collected) ==
+		SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_row_count(collected) == 0 &&
+		sql_stats_relation_average_row_width(collected) == 0 &&
+		sql_stats_relation_width_basis(collected) == NULL &&
+		sql_stats_relation_width_denominator_count(collected) == 0;
+	ok(width_absent,
+	   "empty population retains exact zero rows without inventing width");
+	if (snapshot != NULL)
+		sql_stats_snapshot_release(snapshot);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
@@ -812,5 +869,6 @@ main(void)
 	test_transaction_sample_context();
 	test_population_from_engine_sample();
 	test_complete_result_and_rejections();
+	test_empty_relation_candidate();
 	return 0;
 }

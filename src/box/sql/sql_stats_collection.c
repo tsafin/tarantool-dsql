@@ -175,14 +175,19 @@ sql_stats_collection_build_candidate(
 		const struct sql_stats_expected_relation *want = &expected[i];
 		const struct sql_stats_collected_relation *have =
 			find_relation(result, want->space_id);
+		bool has_width = have != NULL && have->width_denominator_count != 0 &&
+			valid_tag(have->width_basis);
+		bool empty_without_width = have != NULL && have->row_count == 0 &&
+			have->width_denominator_count == 0 &&
+			have->average_row_width == 0 && have->width_basis == NULL;
 		if (have == NULL || have->catalog_version !=
 		    result->generation.catalog_version || have->schema_version !=
 		    result->generation.schema_version || have->visibility_id !=
 		    result->generation.visibility_id || have->visibility_id == 0 ||
-		    have->width_denominator_count == 0 || have->modification_epoch !=
+		    (!has_width && !empty_without_width) || have->modification_epoch !=
 		    want->modification_epoch || have->index_count != want->index_count ||
 		    (have->index_count != 0 && have->indexes == NULL) ||
-		    !valid_tag(have->population_basis) || !valid_tag(have->width_basis) ||
+		    !valid_tag(have->population_basis) ||
 		    !valid_tag(have->confidence_source)) {
 			valid = false;
 			break;

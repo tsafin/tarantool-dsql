@@ -612,7 +612,10 @@ review of IDs and formats.
   snapshot validator now accepts zero distinct-prefix counts only for an
   index with zero tuples, matching the schema draft's empty-index encoding;
   nonempty indexes still reject zero NDV. Focused snapshot tests cover both
-  sides, and the production target plus replay-input unit target pass. See
+  sides, and collection now builds a complete empty-relation candidate with
+  exact zero rows and prefixes while leaving average width explicitly absent.
+  The collection unit test verifies that no width denominator is fabricated.
+  The production target plus replay-input unit target pass. See
   `sql_stats_sampling.md` for the exact contract and local unit evidence.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval

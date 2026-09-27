@@ -174,7 +174,9 @@ sql_stats_collection_width_from_sample(
  * Validate exact relation/index/prefix completeness and common generation,
  * then deep-copy a candidate through sql_stats_snapshot_new(). No global
  * state is changed. All semantic/provenance strings are caller-defined and
- * copied verbatim; no value is inferred or normalized here.
+ * copied verbatim; no value is inferred or normalized here. A zero-row
+ * relation may omit width (zero average, NULL basis, zero denominator), since
+ * an empty sample provides no measured width.
  */
 struct sql_stats_snapshot *
 sql_stats_collection_build_candidate(
