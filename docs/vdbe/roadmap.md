@@ -1656,8 +1656,9 @@ DML, triggers, subprograms, non-deterministic functions.
   filters both on full scans and conjoined with primary-key bounds; both emit
   complete single-component `new_planner` ledgers when enabled. The expanded
   planner-final-path luatest passes locally; its memtx generated/CnP capture
-  also matches exactly (40/40 snapshots, zero errors or diffs). This extends
-  component-level route evidence without changing the reviewed-corpus gate.
+  also matches exactly (43/43 snapshots, zero errors or diffs). This extends
+  component-level route evidence to both accepted new-planner and rejected
+  filter candidates without changing the reviewed-corpus gate.
   capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.
