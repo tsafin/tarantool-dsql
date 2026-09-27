@@ -331,12 +331,15 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                 ('SELECT v FROM %s WHERE a = 1 AND ' ..
                  'b > 9223372036854775807 ORDER BY a ASC, b ASC, c ASC')
                     :format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND ' ..
+                 '20 < b ORDER BY a ASC, b ASC, c ASC'):format(name),
             }
             local expected = {
                 {{'c'}, {'b'}, {'d'}, {'e'}, {'g'}, {'max'}},
                 {{1, 10, 2, 'a'}, {1, 20, 1, 'c'}, {1, 20, 3, 'b'}},
                 {{1, 20, 1, 'c'}, {1, 20, 3, 'b'}, {1, 30, 2, 'd'}},
                 {{'g'}, {'max'}},
+                {{'d'}, {'e'}, {'g'}, {'max'}},
             }
             local function capture(enabled)
                 local rows = {}

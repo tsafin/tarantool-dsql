@@ -239,8 +239,9 @@ descriptor retains prefix equalities separately from suffix bounds. Lower
 bounds extend the composite `SeekGT` / `SeekGE` key; an upper bound stops the
 ascending walk after the equality-prefix guard. Compatible ordering remains
 ascending only. Off/on/off SQL regressions cover each bound form on memtx and
-Vinyl, including unsigned values above `INT64_MAX` and a three-part suffix
-range. Gaps in the equality prefix, duplicate same-side bounds, and descending
+Vinyl, including unsigned values above `INT64_MAX`, a three-part suffix range,
+and a literal-left comparison whose resolved expression is commuted by the
+parser. Gaps in the equality prefix, duplicate same-side bounds, and descending
 suffix ranges remain unsupported.
 
 The production route also supports one-sided and two-sided INTEGER and

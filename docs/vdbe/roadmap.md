@@ -1285,7 +1285,8 @@ DML, triggers, subprograms, non-deterministic functions.
   the prefix guard. The route preserves signed/unsigned key encodings and only
   accepts ascending compatible key order. SQL-luatest checks exact rows and
   off/on/off parity for all three range shapes on memtx and Vinyl, including
-  an UNSIGNED suffix above `INT64_MAX`. The earlier three-part point fixture
+  an UNSIGNED suffix above `INT64_MAX` and a literal-left bound whose resolved
+  comparison expression is commuted by the parser. The earlier three-part point fixture
   now confirms equality on the first two parts plus a range on the third uses
   `new_planner`. Descriptor and VDBE lowering unit targets pass. Other range
   predicates, gaps in the equality prefix, duplicate bounds, and descending
