@@ -220,7 +220,7 @@ vdbe_op_sortercompare_raw(Vdbe *p, Op *pOp, Mem *aMem,
 static inline int
 vdbe_sortercompare_eq_signed_field(const char **field1, const char **field2)
 {
-	if (mp_typeof(*field1) != MP_INT || mp_typeof(*field2) != MP_INT)
+	if (mp_typeof(**field1) != MP_INT || mp_typeof(**field2) != MP_INT)
 		return -2;
 	return mp_decode_int(field1) == mp_decode_int(field2) ? 0 : 1;
 }
@@ -228,9 +228,42 @@ vdbe_sortercompare_eq_signed_field(const char **field1, const char **field2)
 static inline int
 vdbe_sortercompare_eq_unsigned_field(const char **field1, const char **field2)
 {
-	if (mp_typeof(*field1) != MP_UINT || mp_typeof(*field2) != MP_UINT)
+	if (mp_typeof(**field1) != MP_UINT || mp_typeof(**field2) != MP_UINT)
 		return -2;
 	return mp_decode_uint(field1) == mp_decode_uint(field2) ? 0 : 1;
+}
+
+static int
+vdbe_sortercompare_raw_intlike2(const VdbeSorter *sorter, uint32_t part_count,
+			       const void *key1, const void *key2,
+			       bool right_null_is_less)
+{
+	assert(part_count == 2);
+	(void)part_count;
+	return sqlVdbeSorterCompareRawKeyIntLike2(sorter, key1, key2,
+						 right_null_is_less);
+}
+
+static int
+vdbe_sortercompare_raw_intlike3(const VdbeSorter *sorter, uint32_t part_count,
+			       const void *key1, const void *key2,
+			       bool right_null_is_less)
+{
+	assert(part_count == 3);
+	(void)part_count;
+	return sqlVdbeSorterCompareRawKeyIntLike3(sorter, key1, key2,
+						 right_null_is_less);
+}
+
+static int
+vdbe_sortercompare_raw_intlike4(const VdbeSorter *sorter, uint32_t part_count,
+			       const void *key1, const void *key2,
+			       bool right_null_is_less)
+{
+	assert(part_count == 4);
+	(void)part_count;
+	return sqlVdbeSorterCompareRawKeyIntLike4(sorter, key1, key2,
+						 right_null_is_less);
 }
 
 static inline int
@@ -360,21 +393,21 @@ int
 vdbe_op_sortercompare_intlike2(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_sortercompare_raw(p, pOp, aMem,
-					 sqlVdbeSorterCompareRawKeyIntLike2, 2);
+					 vdbe_sortercompare_raw_intlike2, 2);
 }
 
 int
 vdbe_op_sortercompare_intlike3(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_sortercompare_raw(p, pOp, aMem,
-					 sqlVdbeSorterCompareRawKeyIntLike3, 3);
+					 vdbe_sortercompare_raw_intlike3, 3);
 }
 
 int
 vdbe_op_sortercompare_intlike4(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_sortercompare_raw(p, pOp, aMem,
-					 sqlVdbeSorterCompareRawKeyIntLike4, 4);
+					 vdbe_sortercompare_raw_intlike4, 4);
 }
 
 int
