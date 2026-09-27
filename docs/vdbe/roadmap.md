@@ -519,10 +519,17 @@ review of IDs and formats.
   leaves the prior snapshot visible. The engine samplers can now be called
   over multiple requested indexes using the same caller transaction/read view;
   Vinyl runtime coverage verifies an uncommitted tuple appears in both primary
-  and secondary samples. No collection context owns that view or validates it
-  against catalog/data/index-definition generations. Current nonzero
-  visibility tokens are caller-supplied claims: no engine capture/validation
-  API assigns them.
+  and secondary samples. A new reusable context now owns a core `read_view`,
+  records its engine-assigned ID and schema version, validates requested
+  indexes, and scans pinned indexes into a bounded reservoir. Its unit tests
+  cover ownership and fail-closed open cases. This context is not yet wired to
+  candidate construction; core read-view allocation has no resource budget,
+  and Vinyl's generic index read view rejects consistent reads. It therefore
+  cannot replace the tested transaction sampler across both engines. Where
+  supported it pins data to the core view, but does not supply per-relation
+  modification epochs or catalog/index-definition versions needed for
+  complete candidate validation/publication. Current nonzero visibility
+  tokens outside the context remain caller-supplied claims.
   `sql_stats_snapshot` is only an opaque field in `sql` today; there is no
   install/exchange consumer path to validate ownership, reader lifetime, or
   rollback. Implementing a pointer swap alone would therefore not establish

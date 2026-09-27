@@ -1,9 +1,245 @@
 #include "box/sql/sql_stats_collection.h"
 
 #include <math.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "box/index.h"
+#include "box/index_def.h"
+#include "box/read_view.h"
+#include "box/schema.h"
+#include "box/space.h"
+#include "box/space_def.h"
 #include "unit.h"
+
+static uint64_t test_schema_version = 12;
+static int test_read_view_mode;
+static unsigned test_read_view_close_count;
+
+static struct space_def test_space_def = {.id = 42};
+static struct space test_space = {.def = &test_space_def};
+static struct index_def test_index_def = {.space_id = 42, .iid = 8};
+static struct index test_index = {.def = &test_index_def};
+static struct index_read_view test_index_view = {.def = &test_index_def};
+static struct index_read_view *test_index_map[9];
+static struct space_read_view test_space_view = {
+	.id = 42, .index_id_max = 8, .index_map = test_index_map,
+};
+
+struct test_index_iterator {
+	struct index_read_view_iterator_base base;
+	unsigned next;
+};
+
+static bool test_schema_change_on_eof;
+
+static int
+test_index_iterator_next(struct index_read_view_iterator *iterator,
+			 struct read_view_tuple *tuple)
+{
+	static const char *const values[] = {"a", "bb"};
+	struct test_index_iterator *it =
+		(struct test_index_iterator *)iterator;
+	if (it->next == sizeof(values) / sizeof(values[0])) {
+		*tuple = read_view_tuple_none();
+		if (test_schema_change_on_eof)
+			test_schema_version++;
+		return 0;
+	}
+	const char *value = values[it->next++];
+	*tuple = (struct read_view_tuple){
+		.data = value, .size = strlen(value),
+	};
+	return 0;
+}
+
+static void
+test_index_iterator_destroy(struct index_read_view_iterator *iterator)
+{
+	(void)iterator;
+}
+
+static int
+test_index_iterator_position(struct index_read_view_iterator *iterator,
+			    const char **pos, uint32_t *size)
+{
+	(void)iterator;
+	*pos = NULL;
+	*size = 0;
+	return 0;
+}
+
+static int
+test_index_create_iterator(struct index_read_view *view,
+			   enum iterator_type type, const char *key,
+			   uint32_t part_count, const char *pos,
+			   struct index_read_view_iterator *iterator)
+{
+	(void)type;
+	(void)key;
+	(void)part_count;
+	(void)pos;
+	struct test_index_iterator *it =
+		(struct test_index_iterator *)iterator;
+	it->base.index = view;
+	it->base.next_raw = test_index_iterator_next;
+	it->base.destroy = test_index_iterator_destroy;
+	it->base.position = test_index_iterator_position;
+	it->next = 0;
+	return 0;
+}
+
+static const struct index_read_view_vtab test_index_view_vtab = {
+	.create_iterator = test_index_create_iterator,
+};
+
+struct test_sink_state {
+	unsigned rows;
+	size_t bytes;
+};
+
+static int
+test_sink_consume(void *context, const char *tuple, size_t tuple_size,
+		  const uint32_t *field_ids, size_t field_count)
+{
+	(void)tuple;
+	(void)field_ids;
+	(void)field_count;
+	struct test_sink_state *state = context;
+	state->rows++;
+	state->bytes += tuple_size;
+	return 0;
+}
+
+uint64_t
+box_schema_version(void)
+{
+	return test_schema_version;
+}
+
+void
+read_view_opts_create(struct read_view_opts *opts)
+{
+	memset(opts, 0, sizeof(*opts));
+}
+
+int
+read_view_open(struct read_view *view, const struct read_view_opts *opts)
+{
+	if (test_read_view_mode == 0)
+		return -1;
+	view->id = 99;
+	rlist_create(&view->spaces);
+	rlist_create(&test_space_view.link);
+	memset(test_index_map, 0, sizeof(test_index_map));
+	if (test_read_view_mode != 3 &&
+	    opts->filter_space(&test_space, opts->filter_arg) &&
+	    opts->filter_index(&test_space, &test_index, opts->filter_arg)) {
+		test_index_map[8] = &test_index_view;
+		rlist_add_tail_entry(&view->spaces, &test_space_view, link);
+	}
+	if (test_read_view_mode == 2)
+		test_schema_version++;
+	return 0;
+}
+
+void
+read_view_close(struct read_view *view)
+{
+	test_read_view_close_count++;
+	if (!rlist_empty(&test_space_view.link))
+		rlist_del(&test_space_view.link);
+	rlist_create(&view->spaces);
+}
+
+static void
+test_collection_context(void)
+{
+	plan(6);
+	header();
+	struct sql_stats_collection_target target = {.space_id = 42, .index_id = 8};
+	struct sql_stats_collection_target duplicate[] = {target, target};
+	test_read_view_mode = 1;
+	unsigned close_count = test_read_view_close_count;
+	ok(sql_stats_collection_context_new(duplicate, 2) == NULL &&
+	   test_read_view_close_count == close_count,
+	   "duplicate collection targets fail before opening a read view");
+	struct sql_stats_collection_context *context =
+		sql_stats_collection_context_new(&target, 1);
+	ok(context != NULL &&
+	   sql_stats_collection_context_visibility_id(context) == 99 &&
+	   sql_stats_collection_context_schema_version(context) == 12,
+	   "collector owns the pinned engine read-view ID and schema generation");
+	sql_stats_collection_context_delete(context);
+	ok(test_read_view_close_count == close_count + 1,
+	   "deleting collection context closes its owned read view");
+	test_read_view_mode = 3;
+	close_count = test_read_view_close_count;
+	ok(sql_stats_collection_context_new(&target, 1) == NULL &&
+	   test_read_view_close_count == close_count + 1,
+	   "missing requested index closes view and fails collection closed");
+	test_schema_version = 12;
+	test_read_view_mode = 2;
+	close_count = test_read_view_close_count;
+	ok(sql_stats_collection_context_new(&target, 1) == NULL &&
+	   test_read_view_close_count == close_count + 1,
+	   "schema drift during view capture closes and rejects context");
+	test_schema_version = 12;
+	test_read_view_mode = 0;
+	ok(sql_stats_collection_context_new(&target, 1) == NULL,
+	   "engine read-view open failure does not produce a context");
+	footer();
+	check_plan();
+}
+
+static void
+test_context_sample_index(void)
+{
+	plan(4);
+	header();
+	test_read_view_mode = 1;
+	test_schema_version = 12;
+	test_schema_change_on_eof = false;
+	test_index_view.vtab = &test_index_view_vtab;
+	struct sql_stats_collection_target target = {.space_id = 42, .index_id = 8};
+	struct sql_stats_collection_context *context =
+		sql_stats_collection_context_new(&target, 1);
+	struct test_sink_state sink_state = {};
+	struct sql_stats_sample_sink sink = {
+		.context = &sink_state, .consume = test_sink_consume,
+	};
+	struct sql_stats_sample_request request = {
+		.max_rows = 2, .max_bytes = 16, .max_buffer_bytes = 256,
+		.max_tuples_examined = 3, .seed = 7,
+	};
+	struct sql_stats_sample_result result;
+	int rc = sql_stats_collection_context_sample_index(context, &target,
+		&request, &sink, &result);
+	ok(rc == 0 && result.rows == 2 && result.visible_population == 2 &&
+	   !result.with_replacement && sink_state.rows == 2 &&
+	   sink_state.bytes == 3,
+	   "pinned secondary-index scan delivers a bounded exhaustive sample");
+	sink_state = (struct test_sink_state){};
+	request.max_tuples_examined = 2;
+	rc = sql_stats_collection_context_sample_index(context, &target,
+		&request, &sink, &result);
+	ok(rc != 0 && result.rows == 0 && sink_state.rows == 0,
+	   "tuple-budget exhaustion fails before sink delivery");
+	request.max_tuples_examined = 3;
+	test_schema_change_on_eof = true;
+	rc = sql_stats_collection_context_sample_index(context, &target,
+		&request, &sink, &result);
+	ok(rc != 0 && result.rows == 0 && sink_state.rows == 0,
+	   "schema drift after pinned scan fails before sink delivery");
+	test_schema_change_on_eof = false;
+	test_schema_version = 12;
+	unsigned close_count = test_read_view_close_count;
+	sql_stats_collection_context_delete(context);
+	ok(test_read_view_close_count == close_count + 1,
+	   "sample context closes its read view after scanning");
+	footer();
+	check_plan();
+}
 
 static void
 test_population_from_engine_sample(void)
@@ -265,6 +501,8 @@ test_complete_result_and_rejections(void)
 int
 main(void)
 {
+	test_collection_context();
+	test_context_sample_index();
 	test_population_from_engine_sample();
 	test_complete_result_and_rejections();
 	return 0;

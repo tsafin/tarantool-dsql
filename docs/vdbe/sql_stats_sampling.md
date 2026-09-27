@@ -267,9 +267,27 @@ candidate-build failure, stale generation at the install boundary, and
 rollback preserving both the old pointer and its lifetime. Repository state
 does not yet provide the engine read-view token source or an installation
 consumer: `sql_stats_collection_build_candidate()` returns an uninstalled
-snapshot, while `sql.stats_snapshot` has no publication path. Therefore this
-slice is specified but not safely implementable as a local API-only change;
-it does not enable `ANALYZE`.
+snapshot, while `sql.stats_snapshot` has no publication path. Therefore the
+atomic install/publication slice is not safely implementable as a local API-
+only change; it does not enable `ANALYZE`.
+
+The first reusable runtime slice now exists as
+`sql_stats_collection_context`: it owns one filtered core `read_view`, records
+that view's engine-assigned ID and the schema version captured around open,
+rejects missing requested indexes/schema drift, and can exhaustively scan a
+pinned index into the existing bounded reservoir. Unit tests cover context
+ownership, fail-closed open cases, exhaustive population reporting, budget
+failure, and withholding sink delivery on stale/incomplete scans. This is only
+a building block, not a complete collector or publisher. Core
+`read_view_open()` does not expose a
+memory/work-budget argument and creates engine-wide read-view state, so
+filtering bounds the requested space/index views but does not cap the engine's
+read-view resource cost. Moreover, Vinyl indexes
+currently use `generic_index_create_read_view()`, which rejects consistent
+read views; a requested Vinyl index consequently fails context creation.
+Until a bounded Vinyl read-view path and a complete stats producer exist,
+collection remains disabled. The context does not install snapshots, so the
+previously specified publication/rollback tests are still required.
 
 The in-memory snapshot API version is now 2 so the new provenance and width
 denominator metadata are explicit. Existing designated/zero-initialized

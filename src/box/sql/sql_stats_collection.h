@@ -61,6 +61,48 @@ struct sql_stats_collection_result {
 	size_t relation_count;
 };
 
+/* One data source to pin inside a collector-owned engine read view. */
+struct sql_stats_collection_target {
+	uint32_t space_id;
+	uint32_t index_id;
+};
+
+struct sql_stats_collection_context;
+
+/*
+ * Open a shared engine read view for exactly the requested indexes. The
+ * context owns the view until close. Unsupported engine/index read views fail
+ * closed. The current core read-view API does not support Vinyl indexes.
+ */
+struct sql_stats_collection_context *
+sql_stats_collection_context_new(
+	const struct sql_stats_collection_target *targets, size_t target_count);
+
+void
+sql_stats_collection_context_delete(
+	struct sql_stats_collection_context *context);
+
+uint64_t
+sql_stats_collection_context_visibility_id(
+	const struct sql_stats_collection_context *context);
+
+uint64_t
+sql_stats_collection_context_schema_version(
+	const struct sql_stats_collection_context *context);
+
+/*
+ * Exhaustively scan one pinned index into a bounded reservoir. Succeeds only
+ * if EOF is reached before max_tuples_examined and all tuple/buffer limits
+ * hold. Secondary indexes are supported when their engine read view is.
+ */
+int
+sql_stats_collection_context_sample_index(
+	struct sql_stats_collection_context *context,
+	const struct sql_stats_collection_target *target,
+	const struct sql_stats_sample_request *request,
+	struct sql_stats_sample_sink *sink,
+	struct sql_stats_sample_result *result);
+
 /* Exact relation population fact produced by an engine sampler. */
 struct sql_stats_collected_population {
 	uint64_t row_count;

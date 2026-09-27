@@ -609,6 +609,7 @@ set(box_sources
     sql/sql_stats_sample.c
     sql/sql_stats_snapshot.c
     sql/sql_stats_collection.c
+    sql/sql_stats_context.c
     allocator.cc
     memtx_allocator.cc
     msgpack.c
