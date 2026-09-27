@@ -141,10 +141,12 @@ metadata are outside that rollback contract.
 narrow producer class: a resolved one-base-table SELECT, direct column
 references bound to that source cursor, and `SRT_Output` destination, with no
 unsupported shape. Its bounded filter grammar admits primary-key bounds and
-unary `IS NULL` / `IS NOT NULL` column tests for producer validation; only the
-primary-key NULL tests are lowerable by schema invariant, while other-column
-NULL tests fail closed. Literal nonnegative LIMIT and optional OFFSET are
-passed to the producer for range validation. It runs at
+unary `IS NULL` / `IS NOT NULL` column tests. The primary-key NULL tests use
+the schema invariant (identity or empty result); direct non-primary column
+tests on a full scan are represented as typed residual filters and lowered
+with `Column` plus a null-branch opcode. Compound predicates and NULL filters
+combined with an index range remain unsupported. Literal nonnegative LIMIT
+and optional OFFSET are passed to the producer for range validation. It runs at
 `sqlSelect()` entry before the select ID is advanced or that function emits
 preamble VDBE.
 Explicit reject values distinguish unresolved input, destination, relation,
@@ -181,9 +183,14 @@ Focused SQL execution passes for memtx and Vinyl, including NULL,
 empty-table, `LIMIT 0`, `LIMIT 1`, `LIMIT 1 OFFSET 1`, and descending primary-
 key order with LIMIT cases. `primary_key_part IS NOT NULL` retains the full
 scan, while `primary_key_part IS NULL` lowers as a zero-row `Limit` finalizer;
-both invariants apply to non-leading parts of composite primary keys. SQL tests
-pin flag-off/on parity for both on memtx and Vinyl. Non-primary-key NULL
-predicates remain on legacy codegen. A TEXT primary key also uses the ordered
+both invariants apply to non-leading parts of composite primary keys. Direct
+non-primary `IS NULL` and `IS NOT NULL` predicates are also supported on full
+scans; descriptor filter operations distinguish expression, null, and
+non-null tests, and the VDBE branch skips to the next cursor row. SQL tests
+pin exact flag-off/on/off parity on memtx and Vinyl, with exact generated/CnP
+snapshot parity (37 snapshots per engine). Compound predicates, filtered
+index ranges, and other scalar expressions remain on legacy codegen. A TEXT
+primary key also uses the ordered
 new-planner scan path and preserves descending order with LIMIT on memtx and
 Vinyl. The disabled route currently classifies this ordered scan as
 `fallback / UNSUPPORTED_EXPRESSION`; a successful enabled route has no
@@ -443,6 +450,8 @@ relations:
 filters:
   - target_rel: r0
     expr_ref: e2
+    op: expression               # expression | is_null | is_not_null
+    column: null                 # used by typed direct-column null filters
     est_selectivity: 0.5
     est_selectivity_confidence: 0.5
 
