@@ -4837,6 +4837,7 @@ withExpand(Walker * pWalker, struct SrcList_item *pFrom)
 		assert(pFrom->space == NULL);
 		pFrom->space = sql_template_space_new(pParse, pCte->zName);
 		pFrom->pSelect = sqlSelectDup(pCte->pSelect, 0);
+		pFrom->fg.isCte = 1;
 		assert(pFrom->pSelect);
 
 		/* Check if this is a recursive CTE. */
@@ -6597,7 +6598,8 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			sqlSelectDestInit(&dest, SRT_Coroutine,
 					      pItem->regReturn, -1);
 			pItem->iSelectId = pParse->iNextSelectId;
-			pParse->planner_component_role =
+			pParse->planner_component_role = pItem->fg.isCte ?
+				SQL_PLAN_COMPONENT_CTE :
 				SQL_PLAN_COMPONENT_FROM_SUBQUERY;
 			sqlSelect(pParse, pSub, &dest);
 			pParse->planner_component_role = 0;
@@ -6642,7 +6644,8 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			sqlSelectDestInit(&dest, SRT_EphemTab,
 					      pItem->iCursor, ++pParse->nMem);
 			pItem->iSelectId = pParse->iNextSelectId;
-			pParse->planner_component_role =
+			pParse->planner_component_role = pItem->fg.isCte ?
+				SQL_PLAN_COMPONENT_CTE :
 				SQL_PLAN_COMPONENT_FROM_SUBQUERY;
 			sqlSelect(pParse, pSub, &dest);
 			pParse->planner_component_role = 0;
