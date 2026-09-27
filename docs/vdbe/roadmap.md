@@ -605,16 +605,19 @@ format approval is implied.
   for unsupported engine/index targets rather than silently omitting them.
   These choices and their limitations are recorded in
   `sql_stats_sampling.md`. Production SQL discovery/execution and rollback
-  tests remain open. Bare `ANALYZE` with no eligible targets still needs an
-  explicit no-op/error decision. Numeric sample/work/memory defaults also
-  remain open; do not invent these policies while implementing
-  grammar/dispatch.
+  tests remain open. Bare `ANALYZE` with no eligible targets is a successful
+  no-op with no publication. Fixed compile-time sample/work/memory ceilings
+  and atomic failure on exhaustion are now approved and enumerated in
+  `sql_stats_analyze_budget.h` and `sql_stats_sampling.md`; runtime wiring
+  must consume those exact ceilings rather than introduce session settings.
 
   ```mermaid
   flowchart TD
     A[ANALYZE statement] --> B{Bare or named?}
     B -- Bare --> C[Enumerate persistent non-system, non-view spaces]
-    C --> D[Include all indexes]
+    C --> Z{Any eligible targets?}
+    Z -- No --> Z1[Successful no-op / no publication]
+    Z -- Yes --> D[Include all indexes]
     B -- Named --> E[Resolve space name]
     E --> F{Missing or view?}
     F -- Yes --> X[Return SQL error]
@@ -838,7 +841,8 @@ format approval is implied.
   Fiber GC leak report and no backtrace frames did not
   reproduce here. The shared-view candidate builder now runs against memtx and
   Vinyl and stale-after-commit publication fails closed; production ANALYZE
-  wiring, multi-relation orchestration, and resource-budget policy remain open.
+  wiring and target discovery remain open. Fixed budget policy is decided;
+  runtime wiring must still enforce it atomically.
   The persistence schema remains
   DRAFT; no IDs or formats changed. See `sql_stats_sampling.md` for runtime
   details.

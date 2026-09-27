@@ -714,36 +714,48 @@ case is still needed in the SQL producer integration suite; it should assert
 no candidate/publication and exact installed-snapshot preservation for both
 the named and bare request paths.
 
-One production policy is still unchosen and must be explicit before
-implementing that operation:
+The production policy is now fixed by user direction: use compile-time bounded
+defaults (not session-configurable settings), and fail the whole command on
+any limit exhaustion without publishing partial or lower-quality results.
+Initial ceilings are declared in `sql_stats_analyze_budget.h`:
 
-1. **Production budget defaults:** the API requires aggregate maxima for
-   index requests, staging bytes, candidate bytes, temporary bytes, and scan /
-   inversion work; sampler requests also require row, byte, tuple-examination,
-   and reservoir-buffer limits. The implementation plan says these are
-   configurable but does not define defaults, whether a bare job has a
-   database-wide aggregate cap in addition to per-relation caps, or whether
-   budget exhaustion aborts the whole command versus publishes a documented
-   lower-quality result. Since the current shared-view sampler fails closed on
-   incomplete scans, the safe initial contract is whole-command failure and
-   unchanged installed state; numeric limits and their configuration surface
-   still need a decision.
+| Bound | Initial ceiling |
+| --- | ---: |
+| Requested indexes per command | 256 |
+| Retained sample rows per index | 1,024 |
+| Retained sample tuple bytes per index | 4 MiB |
+| Vinyl reservoir memory per active index | 8 MiB |
+| Visible tuples examined per index | 1,000,000 |
+| Disk sources probed per index | 65,536 |
+| Uncached page reads per index | 262,144 |
+| Iterator keys advanced per index | 1,000,000 |
+| Aggregate staging memory | 64 MiB |
+| Candidate snapshot bytes | 64 MiB |
+| NDV estimator temporary memory | 16 MiB |
+| Aggregate scan and estimator work | 100,000,000 |
+| Per-index HLL summary allocation | 1 MiB |
+| HLL precision | 10 (1,024 registers per prefix) |
+
+The batch cap is command-wide for both bare and named forms; no target may be
+silently omitted to fit the bound. These are conservative first defaults, not
+a claim of adequate analytical coverage for every database. A later increase
+requires workload evidence and remains a code-level policy change, not an
+implicit public setting.
 
 Minimum SQL integration test matrix after these policies are chosen:
 
 | Form | Success assertion | Failure/preservation assertion |
 |------|-------------------|--------------------------------|
 | `ANALYZE name` | Exactly one relation is refreshed; unrelated prior relation rows survive same-generation replacement; exactly one publication occurs. | Force target scan/validation failure and verify installed snapshot identity and contents are unchanged. |
-| bare `ANALYZE` | The discovered eligible set is complete and unique; all relations appear together after exactly one publication. | Fail a later relation or exceed aggregate budget before publish; verify the exact prior snapshot remains installed. |
+| bare `ANALYZE` | The discovered eligible set is complete and unique; all relations appear together after exactly one publication. | Fail a later relation or exceed any aggregate budget before publish; verify the exact prior snapshot remains installed. |
 | either form | Run on memtx and Vinyl; verify pinned visibility/catalog/schema and index-definition metadata are accepted. | Mutate catalog/schema or data visibility between discovery and publish; candidate is rejected and prior snapshot is preserved. |
 | named system target | Preserve effective legacy no-collection semantics; no candidate or publication. | Verify the prior snapshot remains unchanged. |
 | named view/missing/data-temporary target | Preserve view and missing-name diagnostics; data-temporary is a fail-closed unsupported target. | Verify no publication and unchanged prior snapshot. |
 | bare set with unsupported engine/index | Fail the complete all-index batch rather than omit one target. | Verify no candidate/publication and exact prior snapshot identity/content. |
 
-Target semantics are now recorded; numeric/default budget limits and their
-configuration surface remain the S1.2 policy gate. SQL grammar and execution
-remain disabled until that caller policy is approved. Keep S1.1's persistence
-schema DRAFT.
+Target semantics and fixed bounded defaults are now recorded. SQL grammar and
+execution can proceed against these volatile contracts; persistence remains
+separate and unapproved. Keep S1.1's persistence schema DRAFT.
 
 ```mermaid
 flowchart LR
