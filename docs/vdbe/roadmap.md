@@ -635,7 +635,9 @@ format approval is implied.
   catalog/schema/index generations, and publishes only the exact assembled
   candidate while the commit-vclock signature remains unchanged. A held
   candidate is rejected after a committed write without replacing the
-  installed snapshot. This closes the shared-view-to-candidate prototype
+  installed snapshot; an undersized aggregate staging budget also returns no
+  candidate and preserves installed state. This closes the
+  shared-view-to-candidate prototype
   slice, not production ANALYZE. Core read-view allocation has no explicit
   resource budget, and modification epoch/confidence/extractor policy remain
   caller supplied. A separate

@@ -448,7 +448,9 @@ any commit-vclock drift since the view opened before swapping the installed
 snapshot. A failed publish preserves the previous snapshot. The focused
 TEST_BUILD regression passes this build-and-publish path on memtx and Vinyl;
 it also verifies that a committed write after candidate construction makes
-publication fail while preserving the prior installation.
+publication fail while preserving the prior installation. An intentionally
+undersized aggregate staging budget also rejects candidate construction and
+leaves the installed snapshot untouched.
 
 Vinyl supports full scans only; point reads and pagination fail closed. Core
 `read_view_open()` does not expose a memory/work-budget argument and creates
