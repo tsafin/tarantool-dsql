@@ -59,6 +59,10 @@ assert(filter_fallback_after.sql_planner_fallback_total == filter_fallback_befor
 
 filtered = box.execute([[SELECT v FROM planner_preflight_t WHERE id = 2]])
 assert(#filtered.rows == 1 and filtered.rows[1][1] == 20)
+reversed_point, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t WHERE 2 = id]])
+assert(err == nil and reversed_point.rows[1][3] == 'new_planner')
+reversed_point_result = box.execute([[SELECT v FROM planner_preflight_t WHERE 2 = id]])
+assert(#reversed_point_result.rows == 1 and reversed_point_result.rows[1][1] == 20)
 point_miss = box.execute([[SELECT v FROM planner_preflight_t WHERE id = 99]])
 assert(#point_miss.rows == 0)
 negative_point = box.execute([[SELECT v FROM planner_preflight_t WHERE id = -1]])

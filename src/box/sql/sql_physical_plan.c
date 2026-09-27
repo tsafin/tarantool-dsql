@@ -177,31 +177,37 @@ sql_physical_table_scan_from_select(
 	bool has_point_key = false;
 	int64_t point_key = 0;
 	if (select->pWhere != NULL) {
-		const struct Expr *left = select->pWhere->pLeft;
-		const struct Expr *right = select->pWhere->pRight;
+		const struct Expr *column = select->pWhere->pLeft;
+		const struct Expr *value = select->pWhere->pRight;
+		if (column != NULL && value != NULL &&
+		    column->op != TK_COLUMN_REF && value->op == TK_COLUMN_REF) {
+			const struct Expr *tmp = column;
+			column = value;
+			value = tmp;
+		}
 		const struct key_def *pk = source->space->index_map[0]->def->key_def;
 		if (select->pOrderBy != NULL || select->pLimit != NULL ||
 		    select->pOffset != NULL || select->pWhere->op != TK_EQ ||
-		    left == NULL || right == NULL ||
+		    column == NULL || value == NULL ||
 		    pk->part_count != 1 ||
 		    pk->parts[0].type != FIELD_TYPE_INTEGER ||
-		    ExprHasProperty(left, EP_TokenOnly | EP_Reduced) ||
-		    left->op != TK_COLUMN_REF || left->pLeft != NULL ||
-		    left->pRight != NULL || left->iTable != source->iCursor ||
-		    left->iColumn != (int)pk->parts[0].fieldno ||
-		    ExprHasProperty(right, EP_TokenOnly | EP_Reduced) ||
-		    right->op != TK_INTEGER || (right->flags & EP_Resolved) == 0 ||
-		    right->pLeft != NULL || right->pRight != NULL) {
+		    ExprHasProperty(column, EP_TokenOnly | EP_Reduced) ||
+		    column->op != TK_COLUMN_REF || column->pLeft != NULL ||
+		    column->pRight != NULL || column->iTable != source->iCursor ||
+		    column->iColumn != (int)pk->parts[0].fieldno ||
+		    ExprHasProperty(value, EP_TokenOnly | EP_Reduced) ||
+		    value->op != TK_INTEGER || (value->flags & EP_Resolved) == 0 ||
+		    value->pLeft != NULL || value->pRight != NULL) {
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
 		bool is_negative = false;
-		if ((right->flags & EP_IntValue) != 0) {
-			point_key = right->u.iValue;
-		} else if (right->u.zToken == NULL ||
-			   sql_atoi64(right->u.zToken, &point_key, &is_negative,
-				      strlen(right->u.zToken)) != 0 || is_negative) {
+		if ((value->flags & EP_IntValue) != 0) {
+			point_key = value->u.iValue;
+		} else if (value->u.zToken == NULL ||
+			   sql_atoi64(value->u.zToken, &point_key, &is_negative,
+				      strlen(value->u.zToken)) != 0 || is_negative) {
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;

@@ -175,8 +175,8 @@ change the diagnostic envelope or claim replay completeness.
 #### Integer primary-key point lookup
 
 The executable producer also accepts a narrowly constrained equality filter:
-the left operand must be the one-part INTEGER primary-key column and the right
-operand a resolved nonnegative signed-64-bit integer literal. It copies the scalar key into
+one operand must be the one-part INTEGER primary-key column and the other a
+resolved nonnegative signed-64-bit integer literal. It copies the scalar key into
 the immutable access descriptor (alongside its equality bound), and the VDBE
 lowering emits the key constant, NotFound, direct projected-column reads, and
 ResultRow. This form has no ORDER BY or LIMIT/OFFSET; all other filter shapes
