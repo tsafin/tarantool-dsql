@@ -706,10 +706,15 @@ review of IDs and formats.
   on memtx and Vinyl. `TEST_BUILD=OFF` also passes the suite while explicitly
   skipping its two wrapper-dependent live cases, and symbol inspection confirms
   that the production-configured server has no linked wrapper entry points.
-  This verifies live sampling, not complete summary construction or atomic
-  publication across engines; common cross-engine visibility and live candidate
-  publication remain unverified, so S1.3a stays open. Local READ_CONFIRMED and
-  vclock/catalog/schema checks are not durable or cross-node snapshot claims.
+  A TEST_BUILD-only live assembler now drives the complete candidate path with
+  canonical UNSIGNED extraction and both memtx and Vinyl primary/secondary
+  indexes. Direct server-runtime checks build and publish the candidate for
+  each engine, then confirm relation/index populations of 8 and a width
+  denominator of 4 from four delivered sample rows; snapshot cleanup follows
+  each case. This verifies local live candidate assembly and publication, but
+  not a common cross-engine visibility boundary or production ANALYZE wiring,
+  so S1.3a stays open. Local READ_CONFIRMED and vclock/catalog/schema checks
+  are not durable or cross-node snapshot claims.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
   of system-space IDs and tuple/payload formats. *parallel: no*.

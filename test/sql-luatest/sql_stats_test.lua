@@ -262,7 +262,9 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
             output[engine] = {
                 primary = sampler.sample(space.id, space.index.primary.id),
                 secondary = sampler.sample(space.id, secondary_id),
+                candidate = sampler.collect_candidate(space.id),
             }
+            package.loaded.sql_stats_snapshot_test.clear()
             space:drop()
         end
         return output
@@ -273,6 +275,16 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
     end
 
     for _, engine in ipairs({'memtx', 'vinyl'}) do
+        t.assert_equals(res[engine].candidate.begin_rc, 0)
+        t.assert_equals(res[engine].candidate.candidate_built, 1,
+                        'candidate assembly failed for '..engine..': '..
+                        res[engine].candidate.extract_0_errors..'/'..
+                        res[engine].candidate.extract_1_errors)
+        t.assert_equals(res[engine].candidate.finish_rc, 0)
+        t.assert_equals(res[engine].candidate.relation_rows, 8)
+        t.assert_equals(res[engine].candidate.width_rows, 4)
+        t.assert_equals(res[engine].candidate.primary_rows, 8)
+        t.assert_equals(res[engine].candidate.secondary_rows, 8)
         for _, index in ipairs({'primary', 'secondary'}) do
             local sample = res[engine][index]
             t.assert_equals(sample.begin_rc, 0)
