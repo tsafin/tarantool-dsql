@@ -9,6 +9,7 @@ struct sql_plan_descriptor {
 	struct sql_plan_descriptor_input value;
 	char *space_name;
 	struct sql_plan_bound *bounds;
+	struct sql_plan_point_key_part *point_key_parts;
 	uint32_t *access_columns, *projection_columns;
 	struct sql_plan_order_term *order;
 	struct sql_plan_filter *filters;
@@ -96,7 +97,7 @@ free_descriptor(struct sql_plan_descriptor *d)
 		free((void *)d->expressions[i].canonical);
 	free(d->expressions); free(d->finalize); free(d->filters);
 	free(d->order); free(d->projection_columns); free(d->access_columns);
-	free(d->bounds); free(d->space_name); free(d);
+	free(d->point_key_parts); free(d->bounds); free(d->space_name); free(d);
 }
 
 struct sql_plan_descriptor *
@@ -115,6 +116,10 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	    in->access.direction > SQL_PLAN_DESC ||
 	    !valid_array(in->access.bounds, in->access.bound_count,
 			 sizeof(*in->access.bounds)) ||
+	    !valid_array(in->access.point_key_parts,
+			 in->access.point_key_part_count,
+			 sizeof(*in->access.point_key_parts)) ||
+	    in->access.point_key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
 	    !valid_array(in->access.projected_columns,
 			 in->access.projected_column_count, sizeof(uint32_t)) ||
 	    !valid_terms(in->access.produced_order,
@@ -141,10 +146,29 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		    b->op < SQL_PLAN_EQ || b->op > SQL_PLAN_LE ||
 		    !has_expr(in, b->expr_ref)) return NULL;
 	}
-	if ((in->access.kind == SQL_PLAN_PK_POINT_LOOKUP ||
-	     in->access.kind == SQL_PLAN_INDEX_POINT_LOOKUP) &&
-	    (in->access.bound_count != 1 ||
-	     in->access.bounds[0].op != SQL_PLAN_EQ))
+	if (in->access.kind == SQL_PLAN_PK_POINT_LOOKUP) {
+		bool has_composite_key = in->access.point_key_part_count != 0;
+		if ((has_composite_key &&
+		     (in->access.has_integer_point_key ||
+		      in->access.has_unsigned_point_key ||
+		      in->access.bound_count !=
+			in->access.point_key_part_count)) ||
+		    (!has_composite_key &&
+		     (in->access.has_integer_point_key ==
+		      in->access.has_unsigned_point_key ||
+		      in->access.bound_count != 1)))
+			return NULL;
+		for (size_t i = 0; i < in->access.bound_count; ++i)
+			if (in->access.bounds[i].op != SQL_PLAN_EQ)
+				return NULL;
+	} else if (in->access.kind == SQL_PLAN_INDEX_POINT_LOOKUP &&
+		   (in->access.bound_count != 1 ||
+		    in->access.bounds[0].op != SQL_PLAN_EQ ||
+		    in->access.point_key_part_count != 0)) {
+		return NULL;
+	}
+	if (in->access.kind != SQL_PLAN_PK_POINT_LOOKUP &&
+	    in->access.point_key_part_count != 0)
 		return NULL;
 	if ((in->access.kind == SQL_PLAN_INDEX_FULL_SCAN ||
 	     in->access.kind == SQL_PLAN_TABLE_FULL_SCAN) &&
@@ -222,6 +246,9 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	}
 	COPY_FIELD(d->bounds, in->access.bounds, in->access.bound_count);
 	d->value.access.bounds = d->bounds;
+	COPY_FIELD(d->point_key_parts, in->access.point_key_parts,
+		   in->access.point_key_part_count);
+	d->value.access.point_key_parts = d->point_key_parts;
 	COPY_FIELD(d->access_columns, in->access.projected_columns,
 		   in->access.projected_column_count);
 	d->value.access.projected_columns = d->access_columns;

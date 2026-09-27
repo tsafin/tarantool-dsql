@@ -1175,7 +1175,16 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_EXPRESSION` fallback metadata. Memtx/Vinyl off/on result parity
   covers ascending prefix order and complete ascending/descending composite
   key order, while preflight unit tests reject mixed and non-prefix shapes. It
-  also lowers `primary_key_part IS NOT NULL` as a full
+  now also recognizes equality predicates covering both parts of a two-part
+  INTEGER/UNSIGNED composite primary key (independent of predicate order) as a
+  true point lookup; the lowering emits one key register per part and a
+  two-part `NotFound` seek. Memtx/Vinyl off/on/off parity includes a
+  `UINT64_MAX` key component and a miss, with unit coverage for key register
+  ordering and composite seek arity. Equality on only the leading part remains
+  a range, not a point. This implementation remains intentionally limited to
+  two-part integer/unsigned keys; wider composite points are unsupported.
+  *parallel: no (extends the existing producer/descriptor/lowering chain)*.
+  The route also lowers `primary_key_part IS NOT NULL` as a full
   scan, relying on the primary-key non-null invariant, and `primary_key_part
   IS NULL` as an empty result using the same invariant, including secondary
   parts of a composite primary key. Other columns' IS NULL and IS NOT NULL

@@ -307,6 +307,53 @@ g.test_composite_primary_key_prefix_ranges_off_on_off = function()
     end)
 end
 
+g.test_composite_primary_key_point_lookup_off_on_off = function()
+    g.server:exec(function()
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_composite_point_' .. engine
+            box.execute(('CREATE TABLE %s (a INTEGER, b UNSIGNED, v STRING, ' ..
+                         'PRIMARY KEY (a, b)) WITH ENGINE = \'%s\'')
+                        :format(name, engine))
+            box.execute(('INSERT INTO %s VALUES (1, 18446744073709551615, \'max\'), ' ..
+                         '(1, 7, \'seven\'), (2, 9, \'other\')'):format(name))
+            local queries = {
+                ('SELECT v FROM %s WHERE a = 1 AND b = 18446744073709551615'):format(name),
+                ('SELECT v FROM %s WHERE 7 = b AND 1 = a'):format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND b = 8'):format(name),
+            }
+            local function capture(expected_route)
+                local rows = {}
+                for i, sql in ipairs(queries) do
+                    local explain, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. sql)
+                    t.assert(err == nil, err and err.message)
+                    local route = explain.rows[1][3]
+                    if expected_route == 'current_where_c' then
+                        t.assert(route == 'current_where_c' or route == 'fallback')
+                    else
+                        t.assert_equals(route, expected_route)
+                    end
+                    local result
+                    result, err = box.execute(sql)
+                    t.assert(err == nil, err and err.message)
+                    rows[i] = result.rows
+                end
+                return rows
+            end
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local off = capture('current_where_c')
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            local on = capture('new_planner')
+            t.assert_equals(on, off)
+            t.assert_equals(on[1], {{'max'}})
+            t.assert_equals(on[2], {{'seven'}})
+            t.assert_equals(on[3], {})
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            t.assert_equals(capture('current_where_c'), off)
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
+
 g.test_one_sided_range_wrong_order_falls_back = function()
     g.server:exec(function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do

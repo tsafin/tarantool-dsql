@@ -136,6 +136,43 @@ new_unsigned_point_descriptor(uint64_t key)
 }
 
 static struct sql_plan_descriptor *
+new_composite_point_descriptor(void)
+{
+	static const uint32_t columns[] = {2, 0};
+	static const struct sql_plan_bound bounds[] = {
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1},
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 2},
+	};
+	static const struct sql_plan_expression expressions[] = {
+		{.id = 1, .canonical = "composite-key-part-0"},
+		{.id = 2, .canonical = "composite-key-part-1"},
+	};
+	static const struct sql_plan_point_key_part parts[] = {
+		{.integer_value = -7},
+		{.unsigned_value = UINT64_MAX, .is_unsigned = true},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_PK_POINT_LOOKUP,
+			.bounds = bounds,
+			.bound_count = 2,
+			.point_key_parts = parts,
+			.point_key_part_count = 2,
+		},
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+		.expressions = expressions,
+		.expression_count = sizeof(expressions) / sizeof(expressions[0]),
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
 		    bool unsigned_key, enum sql_plan_direction direction)
 {
@@ -318,7 +355,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(33);
+	plan(34);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -362,6 +399,8 @@ main(void)
 		new_point_descriptor(INT64_MIN);
 	struct sql_plan_descriptor *unsigned_point_desc =
 		new_unsigned_point_descriptor(UINT64_MAX);
+	struct sql_plan_descriptor *composite_point_desc =
+		new_composite_point_descriptor();
 	struct sql_plan_descriptor *range_gt_desc =
 		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *range_le_desc =
@@ -396,6 +435,7 @@ main(void)
 	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
 	   invalid_offset_desc != NULL && point_desc != NULL &&
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
+	   composite_point_desc != NULL &&
 	   range_gt_desc != NULL && range_le_desc != NULL &&
 	   unsigned_range_desc != NULL && bounded_range_desc != NULL &&
 	   wide_bounded_range_desc != NULL &&
@@ -565,6 +605,17 @@ main(void)
 	   vdbe.aOp[before_unsigned_point].p4type == P4_UINT64 &&
 	   (uint64_t)*vdbe.aOp[before_unsigned_point].p4.pI64 == UINT64_MAX,
 	   "unsigned primary-key lookup preserves full uint64 key range");
+	int before_composite_point = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_point(composite_point_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_composite_point].opcode == OP_Integer &&
+	   vdbe.aOp[before_composite_point].p1 == -7 &&
+	   vdbe.aOp[before_composite_point + 1].opcode == OP_Int64 &&
+	   vdbe.aOp[before_composite_point + 1].p4type == P4_UINT64 &&
+	   (uint64_t)*vdbe.aOp[before_composite_point + 1].p4.pI64 == UINT64_MAX &&
+	   vdbe.aOp[before_composite_point + 2].opcode == OP_NotFound &&
+	   vdbe.aOp[before_composite_point + 2].p4type == P4_INT32 &&
+	   vdbe.aOp[before_composite_point + 2].p4.i == 2,
+	   "composite point lookup emits ordered key registers and a two-part seek");
 	int before_range_gt = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(range_gt_desc, &vdbe, 4, 20) == 0,
 	   "strict lower range descriptor lowers successfully");

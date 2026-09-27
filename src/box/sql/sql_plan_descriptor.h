@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define SQL_PLAN_POINT_KEY_PART_MAX 255
+
 /* Internal, immutable descriptor for the M3.1 single-relation contract. */
 enum sql_plan_access_kind {
 	SQL_PLAN_PK_POINT_LOOKUP,
@@ -54,6 +56,11 @@ struct sql_plan_order_term {
 	enum sql_plan_direction direction;
 	int nulls_first;
 };
+struct sql_plan_point_key_part {
+	int64_t integer_value;
+	uint64_t unsigned_value;
+	bool is_unsigned;
+};
 struct sql_plan_access {
 	enum sql_plan_access_kind kind;
 	uint32_t index_id;
@@ -62,6 +69,9 @@ struct sql_plan_access {
 	bool has_integer_point_key;
 	uint64_t unsigned_point_key;
 	bool has_unsigned_point_key;
+	/* Multi-part integer/unsigned primary-key point lookup key. */
+	const struct sql_plan_point_key_part *point_key_parts;
+	size_t point_key_part_count;
 	/* One-sided bound key/operator, or lower bound for a two-sided range. */
 	int64_t integer_range_key;
 	bool has_integer_range_key;

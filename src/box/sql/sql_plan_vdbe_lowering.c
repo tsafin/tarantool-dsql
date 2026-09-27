@@ -19,10 +19,20 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 		return -1;
 	const struct sql_plan_descriptor_input *input =
 		sql_plan_descriptor_get_input(plan);
-	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
+	if (input == NULL)
+		return -1;
+	bool composite_point = input->access.point_key_part_count != 0;
+	if (input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != SQL_PLAN_PK_POINT_LOOKUP ||
-	    (input->access.has_integer_point_key ==
-	     input->access.has_unsigned_point_key) || input->filter_count != 0 ||
+	    (composite_point ?
+	     (input->access.has_integer_point_key ||
+	      input->access.has_unsigned_point_key ||
+	      input->access.point_key_parts == NULL ||
+	      input->access.point_key_part_count > INT_MAX ||
+	      input->access.bound_count != input->access.point_key_part_count) :
+	     (input->access.has_integer_point_key ==
+	      input->access.has_unsigned_point_key)) ||
+	    input->filter_count != 0 ||
 	    input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
@@ -48,35 +58,50 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 		vdbe_codegen_checkpoint_commit(&checkpoint);
 		return 0;
 	}
-	if (parse->nMem == INT_MAX)
+	size_t point_key_count = composite_point ?
+		input->access.point_key_part_count : 1;
+	if (point_key_count > INT_MAX ||
+	    parse->nMem > INT_MAX - (int)point_key_count)
 		goto error;
-	int key_reg = ++parse->nMem;
-	int key_op;
-	if (input->access.has_unsigned_point_key) {
-		uint64_t key = input->access.unsigned_point_key;
-		if (key <= INT_MAX) {
-			key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg);
+	int key_reg = parse->nMem + 1;
+	parse->nMem += (int)point_key_count;
+	for (size_t i = 0; i < point_key_count; ++i) {
+		struct sql_plan_point_key_part scalar_part = {
+			.integer_value = input->access.integer_point_key,
+			.unsigned_value = input->access.unsigned_point_key,
+			.is_unsigned = input->access.has_unsigned_point_key,
+		};
+		const struct sql_plan_point_key_part *part = composite_point ?
+			&input->access.point_key_parts[i] : &scalar_part;
+		int reg = key_reg + (int)i;
+		int key_op;
+		if (part->is_unsigned) {
+			uint64_t key = part->unsigned_value;
+			if (key <= INT_MAX) {
+				key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, reg);
+			} else {
+				key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, reg, 0,
+						   (const u8 *)&key, P4_UINT64);
+			}
 		} else {
-			key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
-					   (const u8 *)&key, P4_UINT64);
+			int64_t key = part->integer_value;
+			if (key >= INT_MIN && key <= INT_MAX) {
+				key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, reg);
+			} else if (key < 0) {
+				key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, reg, 0,
+						   (const u8 *)&key, P4_INT64);
+			} else {
+				uint64_t value = (uint64_t)key;
+				key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, reg, 0,
+						   (const u8 *)&value, P4_UINT64);
+			}
 		}
-	} else {
-		int64_t key = input->access.integer_point_key;
-		if (key >= INT_MIN && key <= INT_MAX) {
-			key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg);
-		} else if (key < 0) {
-			key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
-					   (const u8 *)&key, P4_INT64);
-		} else {
-			uint64_t value = (uint64_t)key;
-			key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
-					   (const u8 *)&value, P4_UINT64);
-		}
+		if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
 	}
-	if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
-	    diag_last_error(diag_get()) != checkpoint.diag_error)
-		goto error;
-	int miss = sqlVdbeAddOp4Int(vdbe, OP_NotFound, cursor, 0, key_reg, 1);
+	int miss = sqlVdbeAddOp4Int(vdbe, OP_NotFound, cursor, 0, key_reg,
+				     (int)point_key_count);
 	if (miss != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
