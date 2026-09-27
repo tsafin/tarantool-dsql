@@ -11,9 +11,7 @@
 #include "box/space.h"
 #include "box/space_cache.h"
 #include "box/sql/sql_stats_collection.h"
-#include "box/sql/sql_stats_index_summary.h"
 #include "box/sql/sql_stats_sample.h"
-#include "box/tuple.h"
 #include "box/sql/sqlInt.h"
 #include "box/sql.h"
 #include "diag.h"
@@ -536,15 +534,6 @@ lbox_collect_multirelation(lua_State *L)
 	uint32_t field_ids[4] = {0, 1, 0, 1};
 	bool setup_ok = space_ids[0] != 0 && space_ids[1] != 0 &&
 		space_ids[0] != space_ids[1];
-	bool probe_view_opened = false;
-	bool probe_format_data_present = false;
-	bool probe_summary_constructed = false;
-	bool probe_tuple_consumed = false;
-	int probe_index_type = -1;
-	int probe_part_type = -1;
-	int probe_func_id = -1;
-	bool probe_is_multikey = false;
-	bool probe_for_func_index = false;
 	for (size_t r = 0; setup_ok && r < 2; r++) {
 		struct space *space = space_by_id_slow(space_ids[r]);
 		if (space == NULL) {
@@ -610,68 +599,6 @@ lbox_collect_multirelation(lua_State *L)
 	struct sql_stats_snapshot *candidate = context != NULL ?
 		sql_stats_collection_context_build_sample_candidates(context,
 			relations, 2, &budget) : NULL;
-	/* Diagnostic probe kept inside TEST_BUILD: independently check that the
-	 * pinned read-view metadata can construct and consume a native summary. */
-	struct read_view probe_view;
-	struct read_view_opts probe_opts;
-	read_view_opts_create(&probe_opts);
-	probe_opts.name = "sql-stats-native-probe";
-	probe_opts.enable_vinyl = true;
-	probe_opts.enable_field_names = true;
-	struct live_read_view_filter probe_filter = {
-		.space_ids = {space_ids[0]}, .space_count = 1,
-	};
-	probe_opts.filter_space = live_filter_space;
-	probe_opts.filter_index = live_filter_index;
-	probe_opts.filter_arg = &probe_filter;
-	if (read_view_open(&probe_view, &probe_opts) == 0) {
-		probe_view_opened = true;
-		struct space_read_view *space_view;
-		read_view_foreach_space(space_view, &probe_view) {
-			if (space_view->id != space_ids[0])
-				continue;
-			probe_format_data_present = space_view->format_data != NULL;
-			struct index_read_view *index_view =
-				space_read_view_index(space_view, 0);
-			if (index_view == NULL || index_view->def == NULL ||
-			    index_view->def->key_def == NULL ||
-			    index_view->def->key_def->part_count == 0)
-				break;
-			probe_index_type = index_view->def->type;
-			probe_part_type = index_view->def->key_def->parts[0].type;
-			probe_func_id = index_view->def->opts.func_id;
-			probe_is_multikey = index_view->def->key_def->is_multikey;
-			probe_for_func_index = index_view->def->key_def->for_func_index;
-			struct tuple_format *format = runtime_tuple_format_new(
-				space_view->format_data, space_view->format_data_len,
-				true);
-			if (format == NULL)
-				break;
-			tuple_format_ref(format);
-			struct sql_stats_index_summary *summary =
-				sql_stats_index_summary_new_for_index(format,
-					index_view->def, 8, 41, 4096);
-			tuple_format_unref(format);
-			if (summary == NULL)
-				break;
-			probe_summary_constructed = true;
-			struct index_read_view_iterator iterator;
-			if (index_read_view_create_iterator(index_view, ITER_ALL, NULL, 0,
-							    &iterator) == 0) {
-				struct read_view_tuple tuple;
-				if (index_read_view_iterator_next_raw(&iterator, &tuple) == 0 &&
-				    tuple.data != NULL && tuple.size != 0)
-					probe_tuple_consumed =
-						sql_stats_index_summary_consume(summary,
-							 tuple.data, tuple.size, NULL, 0) == 0;
-				index_read_view_iterator_destroy(&iterator);
-			}
-			sql_stats_index_summary_delete(summary);
-			break;
-		}
-		read_view_close(&probe_view);
-	}
-	diag_clear(diag_get());
 	int candidate_built = candidate != NULL;
 	struct sql_stats_snapshot *old_snapshot = sql_get()->stats_snapshot;
 	if (old_snapshot != NULL)
@@ -729,24 +656,6 @@ lbox_collect_multirelation(lua_State *L)
 	lua_setfield(L, -2, "published_two_relations");
 	lua_pushboolean(L, native_hash_provenance);
 	lua_setfield(L, -2, "native_hash_provenance");
-	lua_pushboolean(L, probe_view_opened);
-	lua_setfield(L, -2, "probe_view_opened");
-	lua_pushboolean(L, probe_format_data_present);
-	lua_setfield(L, -2, "probe_format_data_present");
-	lua_pushboolean(L, probe_summary_constructed);
-	lua_setfield(L, -2, "probe_summary_constructed");
-	lua_pushboolean(L, probe_tuple_consumed);
-	lua_setfield(L, -2, "probe_tuple_consumed");
-	lua_pushinteger(L, probe_index_type);
-	lua_setfield(L, -2, "probe_index_type");
-	lua_pushinteger(L, probe_part_type);
-	lua_setfield(L, -2, "probe_part_type");
-	lua_pushinteger(L, probe_func_id);
-	lua_setfield(L, -2, "probe_func_id");
-	lua_pushboolean(L, probe_is_multikey);
-	lua_setfield(L, -2, "probe_is_multikey");
-	lua_pushboolean(L, probe_for_func_index);
-	lua_setfield(L, -2, "probe_for_func_index");
 	lua_pushinteger(L, publish_rc);
 	lua_setfield(L, -2, "publish_rc");
 	lua_pushnumber(L, success_rows[0]);

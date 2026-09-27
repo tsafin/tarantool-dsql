@@ -13,6 +13,7 @@
 #include "box/space.h"
 #include "box/space_cache.h"
 #include "box/space_def.h"
+#include "box/tuple.h"
 #include "box/txn.h"
 #include "vclock/vclock.h"
 #include "unit.h"
@@ -20,6 +21,23 @@
 static struct vclock test_vclock;
 const struct vclock *box_vclock = &test_vclock;
 uint32_t space_cache_version;
+
+/* The collection unit double never opts into native index summaries. */
+struct tuple_format *
+runtime_tuple_format_new(const char *format_data, size_t format_data_len,
+			 bool names_only)
+{
+	(void)format_data;
+	(void)format_data_len;
+	(void)names_only;
+	return NULL;
+}
+
+void
+tuple_format_delete(struct tuple_format *format)
+{
+	(void)format;
+}
 
 static uint64_t test_schema_version = 12;
 static int test_read_view_mode;
@@ -874,7 +892,7 @@ test_population_from_engine_sample(void)
 static void
 test_complete_result_and_rejections(void)
 {
-	plan(24);
+	plan(25);
 	header();
 	uint64_t prefixes[] = {2, 4};
 	struct sql_stats_expected_index expected_index = {
@@ -941,6 +959,26 @@ test_complete_result_and_rejections(void)
 		ok(false, "index population and NDV provenance deep-copied");
 		ok(false, "candidate owns copied prefix values");
 	}
+	prefixes[0] = 2;
+	index.ndv_basis = "visible-engine-index-hash32-equivalence-classes-v1";
+	snapshot = sql_stats_collection_build_candidate(&generation,
+		&expected_relation, 1, &result, 4096);
+	const struct sql_stats_relation *candidate_relation = NULL;
+	const struct sql_stats_index *candidate_index = NULL;
+	ok(snapshot != NULL &&
+	   sql_stats_snapshot_get_relation(snapshot, 7, 42,
+					   &candidate_relation) ==
+			SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_relation_get_index(candidate_relation, 8, &candidate_index) ==
+			SQL_STATS_LOOKUP_AVAILABLE &&
+	   strcmp(sql_stats_index_population_basis(candidate_index),
+		  "visible_rows@view-9") == 0 &&
+	   strcmp(sql_stats_index_ndv_basis(candidate_index),
+		  "visible-engine-index-hash32-equivalence-classes-v1") == 0,
+	   "NDV provenance can distinguish hash estimates from row population");
+	if (snapshot != NULL)
+		sql_stats_snapshot_release(snapshot);
+	index.ndv_basis = "visible_rows@view-9";
 	prefixes[0] = 2;
 	unsigned int staging_failures = 0;
 	bool complete_candidate = false;
