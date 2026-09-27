@@ -1053,7 +1053,9 @@ DML, triggers, subprograms, non-deterministic functions.
   NULL` as an empty result using the same invariant. Other columns' IS NULL
   and IS NOT NULL predicates remain on legacy codegen; dedicated SQL
   regressions check empty-result/on-off parity and non-primary rejection on
-  memtx and Vinyl. A second
+  memtx and Vinyl. Direct-column full scans and primary-key ordering also pass
+  off/on/off parity for a TEXT primary key on both engines; the enabled route
+  preserves descending order and LIMIT. A second
   route supports equality between the sole INTEGER/UNSIGNED primary-key part
   and a matching signed-64-bit/unsigned-64-bit
   integer literal; it emits a
@@ -1165,6 +1167,12 @@ DML, triggers, subprograms, non-deterministic functions.
   unsupported function because the parser represents it through the function
   operator. Bind parameters remain on the legacy route
   because their value is not part of the immutable descriptor at prepare time.
+  For shapes that pass the feature-gated table-scan preflight, this expression
+  classification is deferred until the physical attempt: a successful TEXT
+  primary-key ordered scan reports `new_planner` without a stale fallback
+  reason or counter, while the disabled legacy route retains the stable
+  `UNSUPPORTED_EXPRESSION` diagnostic. Focused memtx/Vinyl route and result
+  parity passes.
   The per-reason SQL counter array and exported stat fields now use an
   exclusive reason-count sentinel, so appended function/collation/expression
   codes are counted instead of silently disappearing after access-hint code
@@ -1195,7 +1203,11 @@ DML, triggers, subprograms, non-deterministic functions.
   on memtx and Vinyl. The complementary primary-key `IS NULL` predicate
   lowers to a zero-row result and reports `new_planner`; non-primary `IS NULL`
   remains `fallback / UNSUPPORTED_FILTER`, with row parity covered on both
-  engines. The point
+  engines. A text-primary-key descending scan is accepted by the new planner;
+  when disabled, it reports `fallback / UNSUPPORTED_EXPRESSION`. The enabled
+  route carries no fallback reason, and its attempt adds no total or
+  per-reason fallback count; the disabled EXPLAIN and execution each increment
+  the fallback counters once. The point
   lookup boundary now has focused fallback coverage for a bind parameter,
   equality on a non-primary column, NULL/computed values, unsupported ranges
   (including non-primary-key ranges), OR, and negative literals against
@@ -1370,7 +1382,10 @@ DML, triggers, subprograms, non-deterministic functions.
   corpus-wide feature acceptance. The same matrix now also checks a fresh
   session before any explicit setting change, pinning default-off route and
   result behavior against explicit-off on both engines; the focused luatest
-  passes locally.
+  passes locally. The same test now covers unordered and ordered TEXT primary-
+  key scans in off/on/off phases, verifies descending LIMIT results, and checks
+  fallback-reason absence plus exact counter deltas; it passes on memtx and
+  Vinyl.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

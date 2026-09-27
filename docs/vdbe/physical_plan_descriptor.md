@@ -182,7 +182,11 @@ empty-table, `LIMIT 0`, `LIMIT 1`, `LIMIT 1 OFFSET 1`, and descending primary-
 key order with LIMIT cases. `primary_key IS NOT NULL` retains the full scan,
 while `primary_key IS NULL` lowers as a zero-row `Limit` finalizer; SQL tests
 pin flag-off/on parity for both on memtx and Vinyl. Non-primary-key NULL
-predicates and ordering remain on legacy codegen.
+predicates remain on legacy codegen. A TEXT primary key also uses the ordered
+new-planner scan path and preserves descending order with LIMIT on memtx and
+Vinyl. The disabled route currently classifies this ordered scan as
+`fallback / UNSUPPORTED_EXPRESSION`; a successful enabled route has no
+fallback reason.
 M3.4 remains
 open: estimates are coarse, only direct
 projection/table-full-scan is routed, error-injection and broader
