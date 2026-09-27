@@ -15,6 +15,11 @@ end)
 g.test_unsupported_routes_preserve_rows_and_reasons = function()
     g.server:exec(function()
         box.execute([[SET SESSION "sql_seq_scan" = true]])
+        -- The capture adapter executes one internal snapshot EXPLAIN after
+        -- each successful SELECT. Its fallback counter increment is global,
+        -- so include that observer-only increment in captured runs.
+        local capture_counter_adjustment =
+            os.getenv('SQL_BASELINE_OUT') ~= nil and 1 or 0
         local queries = {
             {
                 sql = [[SELECT abs(v) FROM planner_fallback_parity
@@ -58,13 +63,15 @@ g.test_unsupported_routes_preserve_rows_and_reasons = function()
                 local before = box.stat.sql()[counter]
                 local disabled = run(false)
                 local after_disabled = box.stat.sql()[counter]
-                t.assert_equals(after_disabled, before + 2,
+                t.assert_equals(after_disabled,
+                                before + 2 + capture_counter_adjustment,
                                 'off EXPLAIN and execution each count fallback')
 
                 local enabled_before = box.stat.sql()[counter]
                 local enabled = run(true)
                 local enabled_after = box.stat.sql()[counter]
-                t.assert_equals(enabled_after, enabled_before + 2,
+                t.assert_equals(enabled_after,
+                                enabled_before + 2 + capture_counter_adjustment,
                                 'on EXPLAIN and execution each count fallback')
                 t.assert_equals(enabled, disabled,
                                 ('enabled rows differ on %s'):format(engine))
