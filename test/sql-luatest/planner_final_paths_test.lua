@@ -417,6 +417,7 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                     from_subquery_routes[1].id)
     t.assert_equals(from_subquery_routes[2].role, 'from_subquery')
     t.assert_gt(snapshots.recursive_cte.count, 2)
+    t.assert(snapshots.recursive_cte.roles.cte)
     t.assert(snapshots.recursive_cte.roles.recursive_term)
     t.assert(snapshots.recursive_cte.roles.values)
     local recursive_routes = snapshots.recursive_cte.component_routes
