@@ -1666,7 +1666,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `sql_new_planner_single_table` changes only that net.box session's route,
   while another connection retains its prior/default route. This focused
   runtime check passes; broad parity/corpus validation and feature acceptance
-  remain open.
+  remain open. After the v5 per-component snapshot integration, the complete
+  `planner_flag_parity_test.lua` SQL-luatest was rerun against the rebuilt
+  binary and still passes on memtx and Vinyl, confirming the new ledger does
+  not disturb default-off, off/on/off, or session-isolation behavior.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
