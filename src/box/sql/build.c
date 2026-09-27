@@ -908,9 +908,10 @@ sql_column_collation(struct space_def *def, uint32_t column, uint32_t *coll_id)
 	return field->coll;
 }
 
-void
-vdbe_emit_open_cursor(struct Parse *parse_context, int cursor,
-		      uint32_t index_id, const struct space *space)
+static void
+vdbe_emit_open_cursor_impl(struct Parse *parse_context, int cursor,
+			   uint32_t index_id, const struct space *space,
+			   bool allow_hash_all)
 {
 	assert(space != NULL);
 	const struct index *idx = NULL;
@@ -922,7 +923,8 @@ vdbe_emit_open_cursor(struct Parse *parse_context, int cursor,
 		parse_context->is_aborted = true;
 		return;
 	}
-	if (idx->def->type != TREE) {
+	if (idx->def->type != TREE &&
+	    !(allow_hash_all && idx->def->type == HASH)) {
 		diag_set(ClientError, ER_UNSUPPORTED, "SQL",
 			 "using non-TREE index type. Please, use " \
 			 "INDEXED BY clause to force using proper index.");
@@ -933,6 +935,20 @@ vdbe_emit_open_cursor(struct Parse *parse_context, int cursor,
 	int reg = ++parse_context->nMem;
 	sqlVdbeAddOp2(vdbe, OP_OpenSpace, reg, space->def->id);
 	sqlVdbeAddOp3(vdbe, OP_IteratorOpen, cursor, index_id, reg);
+}
+
+void
+vdbe_emit_open_cursor(struct Parse *parse_context, int cursor,
+		      uint32_t index_id, const struct space *space)
+{
+	vdbe_emit_open_cursor_impl(parse_context, cursor, index_id, space, false);
+}
+
+void
+vdbe_emit_open_hash_cursor_for_all(struct Parse *parse_context, int cursor,
+				  uint32_t index_id, const struct space *space)
+{
+	vdbe_emit_open_cursor_impl(parse_context, cursor, index_id, space, true);
 }
 
 /*

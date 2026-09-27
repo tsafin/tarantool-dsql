@@ -2864,6 +2864,14 @@ vdbe_emit_open_cursor(struct Parse *parse, int cursor, uint32_t index_id,
 		      const struct space *space);
 
 /**
+ * Open a cursor on a HASH index for the planner's unordered ITER_ALL
+ * scan only. Callers must not emit ordered or keyed seeks on this cursor.
+ */
+void
+vdbe_emit_open_hash_cursor_for_all(struct Parse *parse, int cursor,
+				  uint32_t index_id, const struct space *space);
+
+/**
  * The parser calls this routine in order to create a new VIEW.
  *
  * @param parse_context Current parsing context.

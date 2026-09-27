@@ -6036,8 +6036,9 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 
 /*
  * Route the first executable physical-plan slice: a resolved, direct-column
- * projection over one TREE primary index, with no predicates, and an optional
- * order over that one-part primary key plus an integer-literal LIMIT/OFFSET.
+ * projection over one primary index with primary-key predicates, and an
+ * optional order over a TREE primary key plus an integer-literal LIMIT/OFFSET.
+ * Unordered full scans may use HASH's ITER_ALL iterator.
  * Everything needed for the producer and emitter is validated before VDBE
  * mutation. A recoverable emission rejection rolls back to the legacy path;
  * a hard diagnostic remains an error.
@@ -6064,8 +6065,18 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	}
 	struct SrcList_item *source = &select->pSrc->a[0];
 	struct space *space = source->space;
-	if (space->index_map == NULL || space->index_map[0] == NULL ||
-	    space->index_map[0]->def->type != TREE) {
+	if (space->index_map == NULL || space->index_map[0] == NULL) {
+		sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
+		return 0;
+	}
+	const struct index *primary = space->index_map[0];
+	/* HASH supports ITER_ALL but not the ordered or keyed operations emitted
+	 * by the other physical routes. Keep it to an unordered, unfiltered scan.
+	 */
+	if (primary->def->type != TREE &&
+	    (primary->def->type != HASH || select->pWhere != NULL ||
+	     select->pOrderBy != NULL)) {
 		sql_select_record_physical_fallback(parse,
 				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
 		return 0;
@@ -6104,7 +6115,10 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	}
 	int result_first_reg = parse->nMem + 1;
 	parse->nMem += select->pEList->nExpr;
-	vdbe_emit_open_cursor(parse, source->iCursor, 0, space);
+	if (primary->def->type == TREE)
+		vdbe_emit_open_cursor(parse, source->iCursor, 0, space);
+	else
+		vdbe_emit_open_hash_cursor_for_all(parse, source->iCursor, 0, space);
 	if (parse->is_aborted)
 		goto emission_error;
 	enum sql_plan_access_kind access_kind =

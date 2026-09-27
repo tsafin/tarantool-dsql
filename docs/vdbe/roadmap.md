@@ -1256,6 +1256,15 @@ DML, triggers, subprograms, non-deterministic functions.
   `sql_vdbe_codegen_checkpoint.test` checks checkpoint cleanup with manually
   emitted P4/comment state. A broad production failure hook to force allocator
   failure inside `sqlVdbeAddOp*()` would distort the API and is not planned.
+  An additional storage route now supports unordered `ITER_ALL` scans over a
+  HASH primary index when the experimental flag is on. The regular cursor
+  opener still rejects non-TREE indexes; the planner-specific opener is
+  limited to the unfiltered/unordered full scan, and `Rewind` selects HASH's
+  supported `ITER_ALL` rather than TREE's ordered `ITER_GE`. A memtx SQL
+  regression checks the existing flag-off rejection and flag-on result/path;
+  it passes under generated and CnP dispatch. HASH point/range/order routes
+  remain unsupported. This is a narrow extension, not general secondary-index
+  support.
   Do not infer rollback of AST, parser, or schema state.
   This does not cover all descriptor operators, secondary-index access,
   additional/multibound ranges, all storage edge cases, or corpus-wide parity;
@@ -1754,6 +1763,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `planner_flag_parity_test.lua` SQL-luatest was rerun against the rebuilt
   binary and still passes on memtx and Vinyl, confirming the new ledger does
   not disturb default-off, off/on/off, or session-isolation behavior.
+  The matrix also covers opt-in unordered HASH-primary full scan on memtx:
+  flag-off preserves the existing non-TREE rejection, while flag-on reports
+  `new_planner` and returns all rows; generated and CnP dispatch pass. This
+  does not change the default-off session contract.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

@@ -311,7 +311,10 @@ int tarantoolsqlFirst(BtCursor *pCur, int *pRes)
 	if (key_alloc(pCur, sizeof(nil_key)) != 0)
 		return -1;
 	memcpy(pCur->key, nil_key, sizeof(nil_key));
-	pCur->iter_type = ITER_GE;
+	/* HASH has no ordered GE traversal; an unordered SQL full scan uses the
+	 * index's supported ITER_ALL iterator instead.
+	 */
+	pCur->iter_type = pCur->index->def->type == HASH ? ITER_ALL : ITER_GE;
 	return cursor_seek(pCur, pRes);
 }
 

@@ -151,6 +151,53 @@ g.test_feature_flag_is_session_local = function()
     second:close()
 end
 
+g.test_unordered_hash_primary_scan_off_on_off = function()
+    g.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        local space = box.schema.space.create('planner_flag_hash_scan', {
+            engine = 'memtx',
+            format = {
+                {name = 'id', type = 'unsigned'},
+                {name = 'value', type = 'string'},
+            },
+        })
+        space:create_index('pk', {
+            type = 'hash',
+            parts = {{field = 'id', type = 'unsigned'}},
+        })
+        space:insert({1, 'one'})
+        space:insert({2, 'two'})
+        space:insert({3, 'three'})
+
+        local sql = [[SELECT id, value FROM planner_flag_hash_scan]]
+        local explain = [[EXPLAIN (planner = 'summary') ]] .. sql
+        local function run()
+            local explain_result, explain_err = box.execute(explain)
+            t.assert(explain_err == nil and explain_result ~= nil,
+                     ('hash primary EXPLAIN failed: %s')
+                     :format(tostring(explain_err)))
+            t.assert_equals(explain_result.rows[1][3], 'new_planner')
+            local result, err = box.execute(sql)
+            t.assert(err == nil and result ~= nil,
+                     ('hash primary scan failed: %s'):format(tostring(err)))
+            return result.rows
+        end
+
+        box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+        local _, off_err = box.execute(sql)
+        t.assert_equals(off_err.message,
+                        'SQL does not support using non-TREE index type. ' ..
+                        'Please, use INDEXED BY clause to force using proper index.')
+        box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+        local on_rows = run()
+        t.assert_equals(on_rows, {{1, 'one'}, {2, 'two'}, {3, 'three'}})
+        box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+        local _, off_again_err = box.execute(sql)
+        t.assert_equals(off_again_err.message, off_err.message)
+        space:drop()
+    end)
+end
+
 g.test_one_sided_range_wrong_order_falls_back = function()
     g.server:exec(function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do
