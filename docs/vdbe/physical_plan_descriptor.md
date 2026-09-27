@@ -183,8 +183,9 @@ result. ORDER BY is accepted only on the primary-key column and is redundant
 for the single-row result. Other filter shapes remain on legacy codegen (with
 the stable UNSUPPORTED_FILTER reason for unsupported filters). The SQL
 regression exercises hit, miss, positive and negative wide signed keys,
-UNSIGNED keys above `INT64_MAX` through `UINT64_MAX`, negative and overflowing
-UNSIGNED fallback, LIMIT/OFFSET, primary-key ordering, and unsupported-filter
+UNSIGNED keys above `INT64_MAX` through `UINT64_MAX`, negative UNSIGNED
+fallback, and SQL rejection of literals above `UINT64_MAX`, LIMIT/OFFSET,
+primary-key ordering, and unsupported-filter
 fallback cases on both memtx and Vinyl. This is a first primary point path,
 not general point-lookup support: parameters, secondary indexes, composite
 keys, and expression evaluation are not included.
@@ -194,8 +195,9 @@ literal ranges (`>`, `>=`, `<`, `<=`), including reversed operand order. It
 emits `OP_SeekGT`/`OP_SeekGE`/`OP_SeekLT`/`OP_SeekLE` followed by `Next` or
 `Prev`; an explicit primary-key order must agree with the natural direction.
 UNSIGNED keys retain their full uint64 representation in the seek register,
-including values above `INT64_MAX`. Negative and out-of-range UNSIGNED
-literals fail closed to legacy codegen. LIMIT and OFFSET share the scan-loop
+including values above `INT64_MAX`. Negative UNSIGNED values fail closed to
+legacy codegen; a literal above `UINT64_MAX` is rejected by SQL parsing before
+planning. LIMIT and OFFSET share the scan-loop
 implementation. Parameters, expressions, composite predicates, and
 non-primary columns remain fallback cases. Focused memtx/Vinyl SQL regressions
 cover strict/inclusive bounds, reversed operands, ordered output, and

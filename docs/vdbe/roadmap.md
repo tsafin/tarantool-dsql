@@ -960,8 +960,9 @@ DML, triggers, subprograms, non-deterministic functions.
   INT64_MIN/MAX, UNSIGNED point keys through UINT64_MAX, and INTEGER/UNSIGNED
   one-sided primary-key literal ranges (`>`, `>=`, `<`, `<=`) with reversed
   operands, direction-matched ordering, and LIMIT/OFFSET. UNSIGNED range seek
-  constants retain uint64 values through UINT64_MAX; negative and out-of-range
-  literals fail closed to legacy codegen. Unsupported predicates still fall
+  constants retain uint64 values through UINT64_MAX; negative UNSIGNED values
+  fail closed to legacy codegen, while literals above UINT64_MAX are rejected
+  by SQL parsing before planner dispatch. Unsupported predicates still fall
   back. Twenty-three emitter checks cover
   unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, register overflow, and
