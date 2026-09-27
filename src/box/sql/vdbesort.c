@@ -1144,10 +1144,11 @@ vdbeSorterCompareRawField(const struct VdbeSorter *sorter, uint32_t part_no,
 	 */
 	switch ((enum vdbe_sorter_fast_cmp_kind)sorter->fastCmpPartKind[part_no]) {
 	case VDBE_SORTER_FAST_CMP_INTLIKE:
-		return vdbeSorterCompareIntLikeValues(mp_typeof(*field1), field1,
-						      mp_typeof(*field2), field2);
+		return vdbeSorterCompareIntLikeValues(mp_typeof(**field1), field1,
+						      mp_typeof(**field2), field2);
 	case VDBE_SORTER_FAST_CMP_STRING: {
-		if (mp_typeof(*field1) != MP_STR || mp_typeof(*field2) != MP_STR)
+		if (mp_typeof(**field1) != MP_STR ||
+		    mp_typeof(**field2) != MP_STR)
 			return -2;
 		uint32_t len1 = mp_decode_strl(field1);
 		uint32_t len2 = mp_decode_strl(field2);
@@ -1160,7 +1161,8 @@ vdbeSorterCompareRawField(const struct VdbeSorter *sorter, uint32_t part_no,
 		return rc;
 	}
 	case VDBE_SORTER_FAST_CMP_VARBINARY: {
-		if (mp_typeof(*field1) != MP_BIN || mp_typeof(*field2) != MP_BIN)
+		if (mp_typeof(**field1) != MP_BIN ||
+		    mp_typeof(**field2) != MP_BIN)
 			return -2;
 		uint32_t len1 = mp_decode_binl(field1);
 		uint32_t len2 = mp_decode_binl(field2);
@@ -1173,7 +1175,8 @@ vdbeSorterCompareRawField(const struct VdbeSorter *sorter, uint32_t part_no,
 		return rc;
 	}
 	case VDBE_SORTER_FAST_CMP_BOOL: {
-		if (mp_typeof(*field1) != MP_BOOL || mp_typeof(*field2) != MP_BOOL)
+		if (mp_typeof(**field1) != MP_BOOL ||
+		    mp_typeof(**field2) != MP_BOOL)
 			return -2;
 		bool v1 = mp_decode_bool(field1);
 		bool v2 = mp_decode_bool(field2);
@@ -1181,8 +1184,8 @@ vdbeSorterCompareRawField(const struct VdbeSorter *sorter, uint32_t part_no,
 	}
 	case VDBE_SORTER_FAST_CMP_DOUBLE: {
 		double v1, v2;
-		enum mp_type t1 = mp_typeof(*field1);
-		enum mp_type t2 = mp_typeof(*field2);
+		enum mp_type t1 = mp_typeof(**field1);
+		enum mp_type t2 = mp_typeof(**field2);
 		if (t1 == MP_FLOAT)
 			v1 = mp_decode_float(field1);
 		else if (t1 == MP_DOUBLE)
