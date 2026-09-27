@@ -1096,13 +1096,21 @@ DML, triggers, subprograms, non-deterministic functions.
   descend) before VDBE mutation; the focused unit target passes all 32 checks.
   Those emitter checks pin all four range opcodes (`SeekGT`,
   `SeekGE`, `SeekLT`, `SeekLE`), ascending/descending step opcodes, signed
-  range key encoding, and full-width unsigned `P4_UINT64` preservation, alongside
+  negative range key encoding, and full-width unsigned `P4_UINT64` preservation, alongside
   unbounded, limited, offset, zero-limit, descending, signed-64-bit counter
   initialization, register overflow, and checkpoint rollback after late
   point-projection rejection. SQL regressions
   verify `LIMIT 2147483648` and paired wide LIMIT / OFFSET
   execute on the new route with unchanged row semantics; a point lookup at
   `INT64_MAX` also exercises wide key-register encoding on both engines.
+  Boundary regressions now cover the full signed INTEGER domain, inclusive
+  `INT64_MIN` and `INT64_MAX` singleton ranges, and the empty `id > INT64_MAX`
+  range on memtx and Vinyl. They exposed a lowering defect: positive wide
+  signed range bounds were emitted as `P4_INT64`, causing invalid signed
+  MsgPack key encoding (and an assertion for the max-exclusive seek). Both
+  bounded-end and seek-key registers now encode nonnegative wide values as
+  `P4_UINT64`, matching the existing point-key path; negative wide bounds
+  remain `P4_INT64`. The VDBE lowering unit and focused SQL regression pass.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
   Rollback coverage is specifically post-emission validation rejection, not
