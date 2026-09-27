@@ -28,6 +28,16 @@ assert(err == nil and summary.rows[1][3] == 'new_planner')
 enabled_null_rows = box.execute([[SELECT id, v FROM pk_not_null_t WHERE id IS NULL]]).rows
 assert(#enabled_null_rows == 0)
 
+-- A non-primary column may be NULL; preserve the unsupported-filter fallback.
+summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM pk_not_null_t WHERE v IS NULL]])
+assert(err == nil and summary.rows[1][3] == 'fallback')
+assert(summary.rows[2][3] == 'UNSUPPORTED_FILTER')
+enabled_non_primary_null_rows = box.execute([[SELECT id FROM pk_not_null_t WHERE v IS NULL]]).rows
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+disabled_non_primary_null_rows = box.execute([[SELECT id FROM pk_not_null_t WHERE v IS NULL]]).rows
+assert(#enabled_non_primary_null_rows == 1 and #disabled_non_primary_null_rows == 1)
+assert(enabled_non_primary_null_rows[1][1] == 1 and disabled_non_primary_null_rows[1][1] == 1)
+
 -- A non-primary column has no non-null guarantee; it must remain legacy.
 summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM pk_not_null_t WHERE v IS NOT NULL]])
 assert(err == nil and summary.rows[1][3] == 'fallback')
