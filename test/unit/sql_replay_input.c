@@ -740,7 +740,7 @@ byte_sequence_present(const char *data, size_t size, const char *needle)
 static void
 test_access_candidates(void)
 {
-	plan(14);
+	plan(19);
 	header();
 	struct sql_replay_column_spec column = { "integer", "binary" };
 	uint32_t part = 0;
