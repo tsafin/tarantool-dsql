@@ -575,6 +575,52 @@ completion tests cover ordinary enumeration, shortcut, unsupported loop,
 overflow/error, and known-empty cases, do not mark candidate capture complete
 or change the external v2 diagnostic envelope.
 
+#### M1.4 replay-scope contract gate
+
+The current acceptance text requires replay from embedded inputs through a
+planner API, then verification of the selected-plan fingerprint. The v4
+prototype can also carry an already-enumerated, ordered `access_candidates`
+list. These are different replay claims: replaying a chooser from captured
+candidates verifies selection/tie-breaking, but cannot verify that live
+candidate enumeration found the same paths; replaying enumeration must treat
+candidate lists as outputs (at most an expected-result oracle), not as its
+input. The prototype's passing provider-completeness tests establish only
+that a supplied list is detached and all-or-nothing, not which claim it
+supports.
+The configured Clang-19 `sql_replay_input.test` target was rebuilt and passed
+locally (including 19 access-candidate checks); those tests validate detached
+encoding, absent-vs-empty provider state, and incomplete-prefix rejection, not
+the enumeration-versus-selection scope decision.
+
+Before wiring a producer or adding replay fields to the SQL result, the M1.4
+contract must select and name one of these scopes:
+
+| Scope | Replay input | What a passing replay proves |
+| --- | --- | --- |
+| Enumeration + selection | Normalized expression, logical schema, exact stats, and planner configuration/algorithm identity; no precomputed candidate list | Candidate discovery and selected-plan behavior for the supported planner subset |
+| Selection only | The complete ordered candidate set plus selector configuration/identity | Selection and deterministic tie-breaking conditional on that candidate set |
+
+The selected scope determines whether v4 `access_candidates` are input or
+expected output, what the offline planner API must implement, and what the
+acceptance test must vary. It also determines the meaning of `replayable`; a
+boolean without a scope could overstate what was reproduced. This decision
+does not affect the diagnostic-only v2 contract: v2 remains
+`replayable=false`, with no `replay_inputs`. No outer envelope version, new
+scope field, or replay schema is chosen here. Until the scope is resolved,
+the safe implementation boundary is the existing detached-input/provenance
+prototype and its fail-closed completeness tests; no active capture producer
+or claim of end-to-end planner replay is justified.
+
+```mermaid
+flowchart LR
+    I[Detached logical input + exact stats/config] --> E[Planner enumeration]
+    E --> C[Ordered candidate set]
+    C --> S[Plan selection]
+    S --> F[Selected-plan fingerprint]
+    C -. captured input means selection-only replay .-> S
+    I -. captured input means enumeration + selection replay .-> E
+```
+
 ## Testing Strategy
 
 The roadmap's M0 milestone establishes the **parity corpus** that all

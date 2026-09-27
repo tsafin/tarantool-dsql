@@ -474,7 +474,12 @@ them.
   extractors still accept algorithm/config versions as caller arguments. A
   future prepare-owned capture must record that actual width and a maintained
   algorithm identity alongside detached candidates and immutable stats
-  provenance. This audit does not wire a producer or change v2.
+  provenance. This audit does not wire a producer or change v2. A further
+  contract gate is recorded in `planner_vm_migration.md`: decide whether M1.4
+  replays enumeration plus selection, or selection conditional on captured
+  candidates. The current v4 model can encode the latter input, but that does
+  not validate candidate discovery. No capture producer or replay-scope field
+  should be added until this distinction is resolved.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2
