@@ -134,10 +134,10 @@ The returned confidence is an evidence score, not a calibrated probability:
 sample coverage is multiplied by a two-standard-error HLL term; summaries
 based on the native 32-bit index hash are additionally discounted by estimated
 birthday-collision risk. A consumer must preserve the `uniform-occupancy-hll-v1`
-confidence-source tag and confidence value, while the index's NDV basis remains
-the same visible-index population basis as its tuple count. Consumers should
-not treat confidence as a proof that the distributional assumption holds. This
-helper does not establish a common
+confidence-source tag and confidence value. The index's tuple-population basis
+must match the relation population basis, while its NDV basis may separately
+identify the estimator or hash domain. Consumers should not treat confidence
+as a proof that the distributional assumption holds. This helper does not establish a common
 visibility boundary across indexes, construct/publish a whole relation
 candidate, or enable `ANALYZE`.
 
@@ -252,8 +252,9 @@ caller supplies the expected relation/index definitions and expected
 catalog/schema/visibility generation. The builder rejects missing or extra
 relations and indexes, missing leading-prefix NDVs, definition-version,
 modification-epoch, catalog/schema/visibility mismatches, zero/unknown
-visibility or index-definition tokens, and an index whose NDV basis differs
-from its tuple-population basis. Duplicate relation or index IDs are rejected
+visibility or index-definition tokens, and an index whose tuple-population
+basis differs from its relation's population basis. NDV provenance may differ
+from both. Duplicate relation or index IDs are rejected
 before lookup, so duplicate result entries cannot conceal a missing expected
 definition. It builds a detached candidate through the
 snapshot constructor; it does not install or globally publish it.
@@ -267,10 +268,9 @@ into the immutable in-memory snapshot (including the visibility token and
 width denominator count); their
 meaning, estimation, and confidence calibration remain producer-owned. The
 builder chooses no width denominator, sampler, confidence calibration, or
-persistence encoding. It requires each index's tuple count and NDV vector to
-declare the same population basis, while retaining relation and per-index
-population tags separately; it does not assume a sparse index has the same
-population as its relation. A common visibility token and schema/catalog
+persistence encoding. It requires the index tuple population to use the same
+basis as the relation row population, while retaining the NDV estimator/hash
+basis separately. A common visibility token and schema/catalog
 generation are validated. Nonempty relations require a measured width basis
 and nonzero denominator; an exact zero-row relation may retain width as
 explicitly unavailable (zero average, NULL basis, zero denominator) rather
