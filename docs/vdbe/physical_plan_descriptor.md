@@ -120,6 +120,18 @@ This backend has no active SQL caller and has not been validated by executing
 the generated loop against storage, so it does not establish SQL result
 parity or close M3.4.
 
+The point-lookup lowerer also has a deterministic recoverable rejection after
+emission: a descriptor with a `UINT32_MAX` projection column emits its key
+constant and `OP_NotFound`, then rejects the column before emitting it. The
+unit regression uses the wide-key P4 form and checks that rollback restores
+the relevant `Parse` register/cursor/label/cache counters and column-cache
+bytes, preserves the preexisting final opcode, and clears both speculative
+opcode slots (including P4 ownership). This exercises the real rejection path;
+there is no test-only production hook and no simulated `sqlVdbeAddOp*`
+allocation failure. It checks only the state covered by
+`vdbe_codegen_checkpoint`; arbitrary parser/AST/schema mutations and VDBE
+metadata are outside that rollback contract.
+
 #### `sqlSelect()` preflight prerequisite
 
 `sql_select_preflight_table_scan()` is a side-effect-free predicate for the
