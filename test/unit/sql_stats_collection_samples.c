@@ -24,7 +24,7 @@ extract_index_value(void *context, const char *tuple, size_t tuple_size,
 static void
 test_sample_to_candidate(void)
 {
-	plan(5);
+	plan(6);
 	header();
 	struct sql_stats_index_summary *summary = sql_stats_index_summary_new(
 		1, 12, 23, 8192, extract_index_value, NULL);
@@ -117,6 +117,47 @@ test_sample_to_candidate(void)
 		per_index_confidences[1] > 0;
 	ok(built,
 	   "multiple sampled indexes become one complete detached candidate");
+	struct sql_stats_sample_result empty_sample = {
+		.population_known = true, .visible_population = 0,
+		.with_replacement = true,
+	};
+	struct sql_stats_index_summary *empty_summary1 =
+		sql_stats_index_summary_new(1, 12, 23, 8192,
+					    extract_index_value, NULL);
+	struct sql_stats_index_summary *empty_summary2 =
+		sql_stats_index_summary_new(1, 12, 24, 8192,
+					    extract_index_value, NULL);
+	struct sql_stats_sampled_index empty_indexes[] = {
+		{&expected_indexes[0], &empty_sample, empty_summary1},
+		{&expected_indexes[1], &empty_sample, empty_summary2},
+	};
+	double empty_confidences[] = {-1.0, -1.0};
+	struct sql_stats_snapshot *empty_candidate = empty_summary1 != NULL &&
+		empty_summary2 != NULL ? sql_stats_collection_build_sample_candidate(
+			&generation, &expected_relation, empty_indexes, 2,
+			&empty_sample, 0.0, "empty-census-v1", empty_confidences,
+			4096, 64, 1000000) : NULL;
+	const struct sql_stats_relation *empty_relation = NULL;
+	const struct sql_stats_index *empty_index1 = NULL;
+	const struct sql_stats_index *empty_index2 = NULL;
+	bool empty_built = empty_candidate != NULL &&
+		sql_stats_snapshot_get_relation(empty_candidate, 7, 42,
+						&empty_relation) ==
+		SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_row_count(empty_relation) == 0 &&
+		sql_stats_relation_average_row_width(empty_relation) == 0 &&
+		sql_stats_relation_get_index(empty_relation, 8, &empty_index1) ==
+		SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_get_index(empty_relation, 9, &empty_index2) ==
+		SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_index_distinct_prefix(empty_index1, 0) == 0 &&
+		sql_stats_index_distinct_prefix(empty_index2, 0) == 0;
+	ok(empty_built,
+	   "empty sampled population builds exact zero summaries without width");
+	if (empty_candidate != NULL)
+		sql_stats_snapshot_release(empty_candidate);
+	sql_stats_index_summary_delete(empty_summary1);
+	sql_stats_index_summary_delete(empty_summary2);
 	struct sql_stats_sample_result inconsistent_sample = sample;
 	inconsistent_sample.visible_population++;
 	struct sql_stats_sampled_index inconsistent_indexes[] = {

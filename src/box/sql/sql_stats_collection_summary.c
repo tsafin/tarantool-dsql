@@ -72,8 +72,12 @@ sql_stats_collection_build_sample_candidate(
 	struct sql_stats_collected_population population;
 	struct sql_stats_collected_width width;
 	if (!sql_stats_collection_population_from_sample(relation_sample,
-							 &population) ||
-	    !sql_stats_collection_width_from_sample(relation_sample, &width))
+								 &population))
+		return NULL;
+	bool has_width = sql_stats_collection_width_from_sample(relation_sample,
+									 &width);
+	if ((!has_width && population.row_count != 0) ||
+	    (population.row_count != 0 && relation_sample->rows == 0))
 		return NULL;
 	size_t prefix_count = 0;
 	for (size_t i = 0; i < index_count; i++) {
@@ -139,9 +143,9 @@ sql_stats_collection_build_sample_candidate(
 			.row_count = (double)population.row_count,
 			.cardinality_semantics = population.semantics,
 			.population_basis = population_basis,
-			.average_row_width = width.average_bytes,
-			.width_basis = width_basis,
-			.width_denominator_count = width.denominator_rows,
+			.average_row_width = has_width ? width.average_bytes : 0,
+			.width_basis = has_width ? width_basis : NULL,
+			.width_denominator_count = has_width ? width.denominator_rows : 0,
 			.confidence = relation_confidence,
 			.confidence_source = confidence_source,
 			.indexes = collected,
