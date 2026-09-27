@@ -1277,15 +1277,15 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_IdxDelete:
 		return (uintptr_t)vdbe_op_idxdelete;
 	case OP_Add:
-		return (uintptr_t)vdbe_op_add;
+		return (uintptr_t)vdbe_op_add_sysv_bridge;
 	case OP_Subtract:
-		return (uintptr_t)vdbe_op_sub;
+		return (uintptr_t)vdbe_op_sub_sysv_bridge;
 	case OP_Multiply:
-		return (uintptr_t)vdbe_op_multiply;
+		return (uintptr_t)vdbe_op_multiply_sysv_bridge;
 	case OP_Divide:
-		return (uintptr_t)vdbe_op_divide;
+		return (uintptr_t)vdbe_op_divide_sysv_bridge;
 	case OP_Remainder:
-		return (uintptr_t)vdbe_op_remainder;
+		return (uintptr_t)vdbe_op_remainder_sysv_bridge;
 	case OP_Eq:
 		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Ne:
