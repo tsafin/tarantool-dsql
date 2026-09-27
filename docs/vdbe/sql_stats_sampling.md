@@ -620,6 +620,9 @@ assembler is complete at the volatile API level; SQL grammar/execution remains
 closed. Bare `ANALYZE` must discover and pass its complete relation set to the
 batch assembler; named `ANALYZE table` must select and replace that target in
 the same-generation snapshot while preserving unrelated relations.
+Unit failure-injection now exercises partial-allocation rollback in both
+detached combine and named-relation replacement, alongside generation,
+ownership, and byte-budget rejection; `sql_stats_snapshot.test` passes.
 This does not depend on, or authorize, persistent schema IDs or payload
 formats; the schema remains DRAFT.
 
