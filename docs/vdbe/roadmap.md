@@ -1500,9 +1500,11 @@ DML, triggers, subprograms, non-deterministic functions.
 
   The component-route regression now includes an actual recursive CTE in its
   producer matrix and asserts complete ancestry plus the `values` anchor and
-  `recursive_term` component roles. This pins both generated recursive
-  branches individually; the outer statement remains a structural fallback,
-  so this improves route evidence without claiming a unified producer gate.
+  `recursive_term` component roles. It also pins the anchor as `direct_values`
+  and the recursive branch as `fallback / UNSUPPORTED_COMPOUND`. This records
+  each generated branch individually; the outer statement remains a structural
+  fallback, so this improves route evidence without claiming a unified
+  producer gate.
 
   | Producer / branch | Current boundary | M3.5 implication |
   | --- | --- | --- |

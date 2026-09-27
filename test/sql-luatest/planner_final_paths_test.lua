@@ -339,4 +339,20 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_gt(snapshots.recursive_cte.count, 2)
     t.assert(snapshots.recursive_cte.roles.recursive_term)
     t.assert(snapshots.recursive_cte.roles.values)
+    local recursive_routes = snapshots.recursive_cte.component_routes
+    local has_values_anchor = false
+    local has_recursive_term_fallback = false
+    for _, component in ipairs(recursive_routes) do
+        if component.role == 'values' then
+            has_values_anchor = true
+            t.assert_equals(component.route, 'direct_values')
+        elseif component.role == 'recursive_term' then
+            has_recursive_term_fallback = true
+            t.assert_equals(component.route, 'fallback')
+            t.assert_equals(component.fallback_reason,
+                            'UNSUPPORTED_COMPOUND')
+        end
+    end
+    t.assert(has_values_anchor)
+    t.assert(has_recursive_term_fallback)
 end
