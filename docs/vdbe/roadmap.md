@@ -1117,7 +1117,8 @@ DML, triggers, subprograms, non-deterministic functions.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
   A default-off session setting now gates the narrow direct-column table scan
-  route in `sqlSelect()`. When enabled, only the supported single-table shape
+  and sole INTEGER/UNSIGNED primary-key point routes in `sqlSelect()`. When
+  enabled, only the supported single-table shape
   with a TREE primary index can report `new_planner`: direct projections,
   primary-key ordering, and literal LIMIT/OFFSET. This happens only after
   physical descriptor creation and VDBE lowering succeed; tested physical
@@ -1125,7 +1126,8 @@ DML, triggers, subprograms, non-deterministic functions.
   retain legacy codegen with a reason. The
   setting does not yet govern general physical candidate selection or other
   supported query classes. Default-off behavior and off/on/off summary route
-  checks pass in the focused memtx/Vinyl regression. Complete fallback
+  checks for both scan and point routes pass in the focused memtx/Vinyl
+  regression. Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
   prototype, not an unresolved instance/session decision. *parallel: no*.
