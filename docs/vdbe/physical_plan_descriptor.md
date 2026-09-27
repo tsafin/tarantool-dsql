@@ -70,6 +70,21 @@ volatility/structural fallback metadata and reason counters; M0 snapshot
 capture and broader route coverage are tracked separately under M3.6. The
 missing new-planner success path and complete fallback coverage keep M3.5 open.
 
+The physical-reject mapping is not runtime fallback accounting. A repository
+caller audit shows `sql_physical_plan_from_logical()` is called only by its
+unit tests. `sql_plan_fallback_from_physical()` is called by the producer
+contract helper, but that helper itself has only unit-test callers. Production
+SQL does not currently construct the candidate array or call the selector.
+Consequently there is no observed
+physical reject to attach to the existing VDBE fallback counters, and adding
+`NO_ACCESS_PATH` (or another physical reason) at the current legacy route
+would mislabel a route that never attempted the new physical selector.
+Close this only with the future SQL producer integration: build the logical
+input and candidates, invoke the selector, and, on a rejected result, record
+the mapped reason at the code path that actually dispatches to `where.c`.
+Until then, unit coverage proves mapping semantics only; it does not prove
+SQL routing or runtime counter coverage.
+
 ### M3.7 feature-flag readiness
 
 `sql_new_planner_single_table=on/off` is not implementable as a meaningful

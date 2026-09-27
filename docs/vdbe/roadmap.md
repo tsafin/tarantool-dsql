@@ -816,7 +816,14 @@ DML, triggers, subprograms, non-deterministic functions.
   classification with an `EXPLAIN` opcode assertion for `OP_Count`, proving
   this query bypasses `sqlWhereBegin()` rather than falling back through it.
   M3.5 remains partial: physical rejection reasons are not
-  routed/accounted and no new-planner success path exists. Full-corpus
+  routed/accounted and no new-planner success path exists. Repository caller
+  audit confirms `sql_physical_plan_from_logical()` and
+  `sql_plan_fallback_from_physical()` have unit-test-only callers: production
+  SQL does not yet build physical candidates or invoke that selector. Thus
+  physical-reject reason counters cannot truthfully be incremented at the
+  current `where.c` route; the new selector must first run and reject before
+  its reason can describe a legacy dispatch. This is an integration gate, not
+  a missing reason-code mapping. Full-corpus
   capture/parity review is complete under M3.6; it does not imply the missing
   physical-reject accounting or new-planner route is implemented.
   *parallel: no*.
