@@ -452,6 +452,16 @@ publication fail while preserving the prior installation. An intentionally
 undersized aggregate staging budget also rejects candidate construction and
 leaves the installed snapshot untouched.
 
+```mermaid
+flowchart LR
+    A[Filtered memtx + Vinyl read view] --> B[Bounded exhaustive index scans]
+    B --> C[Canonical summaries + population/width]
+    C --> D[Complete detached relation candidate]
+    D --> E{Catalog, schema, index IDs, vclock unchanged?}
+    E -->|yes| F[Atomic snapshot pointer swap]
+    E -->|no| G[Reject; retain installed snapshot]
+```
+
 Vinyl supports full scans only; point reads and pagination fail closed. Core
 `read_view_open()` does not expose a memory/work-budget argument and creates
 engine-wide read-view state, so filtering bounds the requested space/index
