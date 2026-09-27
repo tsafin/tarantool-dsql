@@ -406,24 +406,38 @@ look up rows by `(section, key)`, not by ordinal.
 ### Planner snapshot result contract
 
 `EXPLAIN (planner = 'snapshot') <statement>` returns one `varbinary` column,
-`snapshot`, containing one MsgPack map. Version 2 has these keys:
+`snapshot`, containing one MsgPack map. Version 4 has these keys:
 
 | Key | Type | Meaning |
 | --- | --- | --- |
 | `format` | string | `tarantool.sql.planner.snapshot` |
-| `version` | unsigned integer | Envelope version, currently `2`. |
+| `version` | unsigned integer | Envelope version, currently `4`. |
 | `path_class` | string or nil | Path class recorded on the prepared statement. |
 | `fallback_reason` | string or nil | Stable structural reject reason when the legacy planner is the fallback route. |
-| `replayable` | boolean | `false` until the object includes normalized planner inputs. |
-| `planner` | map | Per-statement `candidate_count`, `elapsed_us`, `fallback_count`, and bounded-path `generated`, `dominated`, `truncated`, and `retained` counters. |
+| `replayable` | boolean | True only when a complete selection-replay input is embedded. |
+| `replay_inputs` | binary, optional | Canonical internal v5 normalized query/schema/stats/config and final-path input; absent when capture is incomplete or unsupported. |
+| `planner` | map | Per-statement counters, final path status/list, and selected final-path fingerprint. |
 
-This is a versioned diagnostic envelope, not yet a standalone replay input.
-Version 2 is diagnostic-only: it must have `replayable: false` and must not
-contain a `replay_inputs` key, including an empty or partial value. Capturers
-must reject a v2 object that violates either invariant rather than interpreting
-the flag as a promise. Adding normalized input fields requires a new envelope
-version. The producer omits the field, the M0 harness checks the false flag,
-and focused SQL coverage checks both invariants.
+Each `final_paths` entry contains an opaque stable fingerprint, exact signed
+LogEst path/unsorted/output-row costs, the captured ORDER BY satisfaction
+count, and reverse-scan mask. `final_path_status` is `complete`, `incomplete`,
+or `unavailable`; only `complete` carries a non-empty candidate list. The
+producer currently supports ordinary one-relation `wherePathSolver()` calls,
+including the final ORDER BY cost pass. Joins and routes without a successful
+supported solver capture stay unavailable; overflow, ambiguous fingerprints,
+or unsupported capture shapes fail closed as incomplete. For supported
+canonical single-relation root SELECTs, the producer combines the path list
+with detached SQL/schema/statistics input, actual beam width, selector
+identity, and algorithm/config versions; it embeds canonical v5 bytes as
+`replay_inputs` and sets `replayable=true`. This is selection replay only:
+enumeration, dominance, and beam pruning are not replayed.
+
+Version 4 may be diagnostic-only or selection-replayable. A non-replayable
+object must have `replayable: false` and no `replay_inputs` key, including an
+empty or partial value. A replayable object must have `replayable: true`, a
+valid v5 input, and a complete non-empty final-path capture with matching
+ordered fingerprints. Capturers reject violations rather than interpreting
+the flag as a promise. The M0 harness validates both forms.
 Per-statement planner measurements are also copied into the harness run
 manifest (`planner_metrics_version: 2`, `planner_metrics`) for analysis; they
 are not part of the M0 result/parity gate. The path counters cover candidate
@@ -481,14 +495,14 @@ flowchart TD
   L --> X[Snapshot preserves all component records]
 ```
 
-#### Replay-input acceptance contract (future envelope)
+#### Replay-input acceptance contract
 
 Do not set `replayable=true` on version 2 or add a replay command that reparses
-the original SQL against the current catalog. A replay-capable envelope must
-carry a self-contained, canonical `replay_inputs` object (in a new envelope
-version) sufficient to call a planner entry point without SQL text, a live
-catalog, storage-engine reads, or session-local statistics. At minimum it
-must encode:
+the original SQL against the current catalog. Version 4 marks only its
+supported canonical single-relation subset replayable. General replay support
+must carry a self-contained, canonical `replay_inputs` object sufficient to
+call a planner entry point without SQL text, a live catalog, storage-engine
+reads, or session-local statistics. At minimum it must encode:
 
 - a normalized relational expression, including relation instances and
   bindings, predicates/operators/constants, projections, grouping, ordering,
@@ -516,8 +530,8 @@ selected-plan fingerprint and fallback reason. It must also show that changing
 an embedded planner input changes the replay result (or a documented reject
 outcome). Replanning the original SQL against live state, or comparing only
 the captured diagnostic fields to themselves, is not replay. Until this
-entry point and test exist, M1.4/M1.5 remain open and version 2 must continue to
-report `replayable=false`.
+entry point and test exist, M1.5 remains open. M1.4 capture is limited to the
+supported selection-only subset; it does not re-enumerate access paths.
 
 The `sql_replay_input` unit prototype is intentionally narrower than this
 acceptance contract. It owns a single-relation SELECT subset: normalized
@@ -607,17 +621,20 @@ flowchart TD
     C --> W[wherePathSolver captures effective width per pass]
     W --> I[Prepare-owned algorithm/config identity]
     I --> D[Detached capture context]
-    D -. external v2 stays diagnostic-only .-> V[replayable=false]
+    D -. external v4 diagnostics stay non-replayable .-> V[replayable=false]
 ```
 
-This is a source-backed implementation boundary, not a claim that a safe
-producer exists. In particular, normalized loop conversion still needs to map
+This is a source-backed implementation boundary. The final `WherePath` list
+is captured for ordinary root single-relation solver runs and combined with a
+detached query input; this does not claim that an access-loop producer exists.
+In particular, normalized loop conversion still needs to map
 `WhereTerm` constraints, index definitions, projections, ordering and cost
 semantics into the detached logical model, while ensuring the `WhereInfo` and
 catalog/statistics data remain valid through copying. Until a producer and
 completion tests cover ordinary enumeration, shortcut, unsupported loop,
-overflow/error, and known-empty cases, do not mark candidate capture complete
-or change the external v2 diagnostic envelope.
+overflow/error, and known-empty cases, do not mark access-loop enumeration
+complete. The external v4 envelope is replayable only for a supported
+selection-only capture.
 
 #### M1.4 replay-scope contract gate
 
@@ -630,8 +647,10 @@ and deterministic tie-breaking for that captured post-beam list; it does not
 verify that live enumeration discovered every viable path. Candidate
 enumeration, dominance, and beam pruning are inputs to replay, not rerun by it.
 The producer must capture final cost after relevant ORDER BY costing and
-publish the complete retained list or none. The current SQL planner has no
-such capture caller.
+publish the complete retained list or none. The SQL planner captures this
+final-path subset for ordinary root single-relation solver runs; access-loop
+enumeration and routes that bypass this solver remain uncaptured. The input
+records the effective beam width and selector identity used for this capture.
 
 The selected scope has these boundaries:
 
@@ -644,13 +663,11 @@ For M1.4, v5 `final_path_candidates` are replay input and the detached API
 implements the final `wherePathSolver()` reducer under
 `SQL_REPLAY_SELECTOR_FINAL_PATH_V1`: strict minimum exact `LogEst` `rCost`,
 first retained candidate on ties. The acceptance test varies final-path order
-and content and verifies the selected-plan fingerprint. `replayable` will mean selection-replayable, not
-enumeration-replayable. This decision does not affect the diagnostic-only v2
-contract: v2 remains
-`replayable=false`, with no `replay_inputs`. No outer envelope version, new
-scope field, or replay schema is chosen here. An active producer or any claim
-of end-to-end planner replay still requires a complete live candidate capture
-boundary and the standalone selection consumer.
+and content and verifies the selected-plan fingerprint. `replayable` means
+selection-replayable, not enumeration-replayable. The v4 envelope sets it only
+when normalized input, exact final candidates, and selector/config identity
+are complete; otherwise it remains diagnostic-only with no `replay_inputs`.
+The standalone selection consumer remains M1.5.
 
 ```mermaid
 flowchart LR
@@ -687,14 +704,12 @@ Focused unit coverage asserts unique-min selection is invariant to candidate
 reordering, equal-cost selection follows first-retained order, captured
 ORDER BY/reverse metadata stays attached to the selected fingerprint, absent
 and known-empty states differ, and unsupported selector versions fail closed.
-This validates the detached final reducer only. The active SQL planner does
-not yet capture the final retained path array, exact post-costing `rCost`, and
-stable full-plan fingerprints. The live producer must publish all final paths
-or none after the final relevant `wherePathSolver()` pass, preserving array
-order and distinguishing unavailable, error/incomplete, and known-empty
-results. No active producer calls the new fields/API. Therefore M1.4/M1.5
-remain open, external v2 stays `replayable=false`, and no live EXPLAIN,
-counters, or execution route changes.
+The active SQL planner captures final retained paths and emits a complete v5
+selection input for supported ordinary root single-relation queries. A runtime
+test verifies candidate order matches the input, and the live selected
+fingerprint is the strict-min result. Unsupported shapes remain
+non-replayable. M1.4 snapshot capture is implemented; M1.5 remains open for
+the standalone tool that consumes this artifact without live SQL state.
 
 ## Testing Strategy
 

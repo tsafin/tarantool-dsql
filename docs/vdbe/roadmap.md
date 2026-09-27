@@ -344,30 +344,29 @@ them.
   `where.c` files M3 will modify; coordinate).
 - [x] **M1.3** `EXPLAIN (planner = 'summary')` grammar + executor returning
   structured rows per the planner_vm_migration.md schema. *parallel: yes*.
-- [ ] **M1.4** `EXPLAIN (planner = 'snapshot')` returns a versioned MsgPack
-  replay object. The v2 capture envelope contains statement `path_class`,
-  fallback reason, and per-statement planner measurements, but explicitly
-  reports `replayable=false` until normalized planner inputs (predicates,
-  relation/access-path data, and statistics) are captured; this subtask
-  remains open. The migration spec now defines the minimum canonical,
-  self-contained input and validation contract for a future replay envelope;
-  it intentionally does not choose persistence IDs or formats. Focused SQL
-  checks assert v2 remains non-replayable and has no partial `replay_inputs`
-  on both legacy and fallback paths, and the corpus capturer rejects a v2
-  object that violates either invariant. An audit of the narrow M3 single-
+- [x] **M1.4** `EXPLAIN (planner = 'snapshot')` returns a versioned MsgPack
+  selection-replay object for a supported canonical single-relation subset.
+  The v4 envelope carries statement `path_class`, fallback reason, planner
+  measurements, and ordered final-path diagnostics. When normalized
+  query/schema/statistics, actual beam width, selector identity, and final
+  paths all validate, it embeds internal v5 input and sets `replayable=true`;
+  otherwise it remains diagnostic-only with no `replay_inputs`. The migration
+  spec defines the minimum canonical, self-contained input and validation
+  contract; it intentionally does not choose persistence IDs or formats.
+  Focused SQL
+  checks assert non-replayable legacy/fallback captures have no partial
+  `replay_inputs`, and the corpus capturer rejects malformed v4 objects. An
+  audit of the narrow M3 single-
   relation IR found it is not yet a safe source for a new replay envelope:
   logical nodes borrow resolved `Expr` / `ExprList` trees from the live
   statement and carry the catalog `space_id`; the physical planner receives
   access candidates from a caller-supplied provider, while the IR does not
   capture relation/index definitions or the exact statistics/configuration
   used to form those candidates. Serializing that object would therefore
-  retain live compiler/catalog dependencies and omit planner inputs. This
-  validates the diagnostic-only boundary, not replay support. The smallest
-  prerequisite is a detached canonical normalized-input model plus an
-  extraction/validation API that rejects unsupported expressions and records
-  logical relation/index metadata, statistics semantics, and planner config;
-  only then can a new envelope version be evaluated. Replay execution stays
-  in M1.5. The M1.4 owned-value prototype now models a normalized
+  retain live compiler/catalog dependencies and omit planner inputs. The
+  detached canonical model and extraction API now provide the supported
+  single-relation subset; unsupported shapes still fail closed. Replay
+  execution stays in M1.5. The M1.4 owned-value prototype models a normalized
   single-relation SELECT subset (predicate, projections, ordering, limit and
   offset), logical columns and index parts, and relation/index statistics
   with population, width, NDV, confidence, and freshness semantics, including
@@ -411,31 +410,18 @@ them.
   must be unique. Missing provider output differs from a known empty set; a
   snapshot-backed extraction regression now asserts it remains unavailable,
   not present-empty, when no active planner producer supplied candidates.
-  This remains caller/provider supplied: the active SQL planner producer is not
-  wired to it. Stats capture from the active planner provider, joins/aggregates,
-  and a planner consumer remain absent. M1.4 remains open. The external
-  diagnostic envelope remains v2 and `replayable=false`; the internal detached
-  input prototype is v5 and is not embedded in that envelope.
-  A follow-up live-path audit confirms there is no safe capture-only splice
-  yet. `sqlVdbeList()` in `src/box/sql/vdbeaux.c` writes the diagnostic
-  envelope directly and has no retained `Select`, cursor map, stats snapshot,
-  or candidate-provider result. `sql_replay_input_extract_select_from_snapshot()`
-  in `src/box/sql/sql_replay_extract.c` can extract a resolved one-relation
-  SELECT and stats, but planner algorithm/config versions and beam width are
-  caller arguments; the active prepare/planner path has no corresponding
-  replay-input caller or authoritative values to pass. Its access-candidate
-  list is not derived from the WHERE planner. The live `whereLoopInsert()`
+  Access-loop candidate lists remain caller/provider supplied. The active SQL
+  planner captures final retained one-relation `WherePath` lists and combines
+  them with detached normalized SQL/schema/stats input, selector identity, and
+  effective beam width. Supported snapshots are v4 selection-replayable with
+  embedded v5 input; unsupported shapes, joins, and malformed/stale stats
+  remain diagnostic-only. The live `whereLoopInsert()`
   hook (`src/box/sql/where.c`) calls `sql_record_planner_candidate()`, whose
   VDBE-facing data is aggregate candidate/path counters, not normalized
   candidate identities, constraints, estimates, ordering, or costs. Therefore
-  neither a complete candidate list nor a known-empty list can be asserted
-  from that hook. The snapshot extractor initializes candidate metadata as
-  missing, not present-empty. The bounded implementation step is to establish
-  a planner-owned capture context at preparation with explicit algorithm/config
-  identity, immutable stats provenance, and an all-or-nothing ordered candidate
-  result; only after that context is complete should the v3 diagnostic envelope
-  gain `replay_inputs` and `replayable=true`. Until then, no partial embedding
-  or diagnostic behavior change is justified. A focused internal bridge now
+  neither a complete access-loop candidate list nor a known-empty list can be
+  asserted from that hook. This does not limit the separate selection-only
+  final-path capture. A focused internal bridge now
   models provider outcomes explicitly as `UNAVAILABLE`, `COMPLETE`, or
   `INCOMPLETE`. It preserves the existing unavailable-vs-known-empty encoding,
   deep-copies only a complete provider list into the owned input, and returns
@@ -446,9 +432,11 @@ them.
   transport/completeness-state handling
   only: the bridge cannot prove that a caller labeling its list `COMPLETE`
   actually enumerated every viable access candidate, and no active planner
-  producer calls it. `WhereLoop` capture therefore remains open; M1.4 stays
-  non-replayable, and neither the external v2 envelope nor its `replayable`
-  field changes. A bounded staging API now lets a future producer provide
+  producer calls that access-loop bridge. A separate live final-path producer
+  now captures ordinary one-relation post-beam `WherePath` alternatives, but
+  does not claim the access-loop list is complete. Selection replayability is
+  determined by the final-path/input capture, not that out-of-scope list. A
+  bounded staging API remains available for a future enumeration experiment.
   fixed candidate storage, explicitly mark enumeration start/normal completion,
   append ordered values, or poison the capture on an unsupported shape.
   Capacity overflow and premature completion publish only `INCOMPLETE`; an
@@ -474,16 +462,14 @@ them.
   extractors still accept algorithm/config versions as caller arguments. A
   future prepare-owned capture must record that actual width and a maintained
   algorithm identity alongside detached candidates and immutable stats
-  provenance. This audit does not wire a producer or change v2. Replay scope
-  is now fixed to **selection only**, conditional on a complete, ordered
-  candidate set captured by the live planner; M1.4 replay will not claim to
-  rerun or validate enumeration. The standalone consumer must bind to captured
-  selector identity/configuration, and the live producer still needs a
-  post-enumeration all-or-nothing completion boundary. Until both exist, the
-  v2 diagnostic envelope remains `replayable=false` with no replay inputs.
+  provenance. Replay scope is now fixed to **selection only**, conditional on
+  a complete, ordered final-path set captured by the live planner; M1.4 does
+  not claim to rerun or validate enumeration. Access-loop enumeration remains
+  outside scope. The v4 envelope embeds the canonical v5 selection input when
+  its captured selector identity/configuration and path list validate.
   `planner_vm_migration.md` records the scope boundary and Mermaid flow.
   *parallel: yes*.
-- [ ] **M1.4/M1.5 final-path selector prototype.** A versioned detached
+- [x] **M1.4/M1.5 final-path selector prototype.** A versioned detached
   selector now reproduces the final reduction in `wherePathSolver()` over an
   explicitly captured, post-beam final-path list: compare exact signed
   16-bit `LogEst` `rCost`, replace only on strict improvement, and therefore
@@ -495,20 +481,27 @@ them.
   advances to v5. Tests cover unique-min reorder stability, first-on-tie input
   order, captured ORDER BY/reverse metadata, unavailable versus known-empty
   final paths, and selector identity. Access-loop candidates alone no longer
-  pass replay readiness. This closes only the detached reducer contract: no
-  active `wherePathSolver()` producer captures the final retained `aFrom`
-  paths, their final `rCost`, and stable plan fingerprints. A producer must
-  attach after the solver's final beam state is known (including the relevant
-  ORDER BY pass), publish all paths or none, and preserve retained list order;
-  capture tests must pin empty/error/unavailable cases. Until then, M1.4 stays
-  open, M1.5 has no live artifact to consume, external v2 remains
-  `replayable=false`, and execution/EXPLAIN behavior is unchanged.
+  pass replay readiness. A live producer now captures the final retained
+  `aFrom` paths after `wherePathSolver()` completes, including replacing the
+  preliminary capture with the final ORDER BY cost pass. It preserves list
+  order and emits all paths or none, with stable fingerprints, exact `LogEst`
+  values, ordering, and reverse-scan metadata. The v4 envelope exposes
+  `final_path_status`, `final_paths`, and the live selected fingerprint; joins and any route
+  without a successful supported solver capture remain unavailable, while
+  overflow and ambiguous fingerprints fail closed. Supported single-relation
+  inputs now combine canonical SQL/schema/stats metadata with the exact ordered
+  candidates, selector/config identity, and beam width. Runtime coverage
+  verifies the embedded v5 input matches live candidates and the selected
+  fingerprint equals strict-min selection. The M0 harness validates replayable
+  and diagnostic-only v4 forms. The detached selector plus live capture slice
+  is complete; the standalone replay consumer remains M1.5.
   *parallel: yes; selector prototype is independent of live producer capture.*
-- [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
-  from a snapshot, diffs fingerprint and fallback reason. The current v2
-  diagnostic envelope still has no normalized predicates, relation/access-path
-  inputs, or statistics and explicitly sets `replayable=false`; the detached
-  M1.4 value prototype is not embedded in it. Implementing a tool against v2
+- [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs selection
+  from a replayable snapshot and diffs the selected fingerprint. Diagnostic-only
+  v4 envelopes still have no normalized predicates, relation/access-path
+  inputs, or statistics and keep `replayable=false`; the detached
+  M1.4 value prototype is not embedded in diagnostic-only envelopes.
+  Implementing a tool against v4 diagnostics without `replay_inputs`
   would only relabel live-state planning, not replay.
   The planner currently has no entry point that consumes normalized IR,
   logical access-path metadata, and captured statistics without the SQL
@@ -517,10 +510,9 @@ them.
   prototype's readiness gate requires complete final-path capture: absent
   paths are `INCOMPLETE`, while a known empty post-beam list is complete and
   permits the selector to report `NO_PLAN`. Access-loop candidates alone are
-  insufficient. The selector is only a detached final reducer: without a live
-  final-path producer, it cannot dispatch from an EXPLAIN snapshot or support
-  source-unavailable replay. It does not change the external envelope's
-  `replayable=false` status. M1.5 remains open.
+  insufficient. The selector is only a detached final reducer; M1.5 must add
+  the developer-facing artifact loader/consumer and verify replay after the
+  source SQL/catalog state is unavailable. M1.5 remains open.
   *parallel: yes*.
 
 ---
@@ -1555,8 +1547,8 @@ DML, triggers, subprograms, non-deterministic functions.
   wrong fallback destinations, and fallback metadata attached to a
   `current_where_c` path. This closes a schema-validation hole, not the
   broader M3.6 capture/parity gate. The live harness now also fails capture if
-  planner-snapshot EXPLAIN fails, returns no MsgPack, or violates the v2
-  diagnostic envelope / `replayable: false` contract; it no longer silently
+  planner-snapshot EXPLAIN fails, returns no MsgPack, or violates the v4
+  envelope's replayable/input consistency contract; it no longer silently
   records missing metadata as an ordinary path. It also preserves a nil path
   as `l3_path_class.taken: null` for statements that do not enter the WHERE
   planner, instead of crashing or mislabeling them `current_where_c`; the
@@ -1575,7 +1567,7 @@ DML, triggers, subprograms, non-deterministic functions.
   missing-relation SELECT regression exercises this exception while successful
   SELECT metric coverage remains fail-closed. This closes the metrics-coverage
   hole, not baseline recapture or full M3.6 parity. The old `04b63d19` anchor
-  cannot be recaptured because its server predates the v2 diagnostic envelope
+  cannot be recaptured because its server predates the planner snapshot envelope
   required by `EXPLAIN (planner = 'snapshot')`. L3 transitions were reviewed
   against snapshot-capable captures, then the reproducible anchor was promoted
   to `d8fc1e339b0bb8579c8b08e39d062e20edf66666`. Recaptures from that anchor
@@ -1767,7 +1759,7 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   by a new candidate; retain incomparable candidates for future loop
   extensions. The global beam cap and E1.2 diversity eviction still apply.
   The 112-test SQL suite passes (6 disabled). *parallel: no*.
-- [x] **E1.4** Snapshot v2 and the optional harness manifest now include
+- [x] **E1.4** Snapshot v4 and the optional harness manifest now include
   generated/dominated/truncated/retained bounded-path counts alongside legacy
   candidate, elapsed, and fallback counts. Matching process totals are
   available in `box.stat.sql()`. Metrics are diagnostic and non-gating.
