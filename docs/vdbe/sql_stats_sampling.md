@@ -407,23 +407,18 @@ attempt terminated during startup with a Fiber GC leak report and no
 backtrace frames; that failure did not reproduce in the root checkout.
 
 This proves the volatile common cut for the exercised memtx/Vinyl primary and
-secondary full scans; it does not complete S1.3a. The candidate-building
-transaction context and production collection route are not yet wired to this
-shared read-view API, and production `ANALYZE` is not connected. The persistent
+secondary full scans. A collector-context candidate builder now consumes the
+same pinned views, assembles complete single-relation summaries, and publishes
+only while the captured catalog/schema/index identities and commit-vclock
+signature still match. `ANALYZE` does not call this API yet. The persistent
 schema remains DRAFT and untouched.
 
-### Publication is a separate, currently blocked slice
+### Publication from a pinned view (volatile prototype)
 
-Do not implement a global pointer swap as a substitute for this contract.
-The builder checks equality of caller-provided tokens, but it cannot prove
-that those tokens identify a single read view. In particular, memtx samples
-are transaction-visible and Vinyl iterators use a transaction read view (or
-an internally-created autocommit transaction); sampling different relations
-does not itself pin them to one common view. A producer must use an engine
-mechanism that captures/pins a common view or validates a generation boundary
-before and after all reads, including catalog, schema, relation modification,
-and index-definition generations. If that mechanism cannot guarantee a
-consistent view, collection must fail closed rather than mint a token.
+The generic `sql_stats_collection_build_sample_candidate()` helper checks
+caller-provided generation tokens but cannot prove they identify one read
+view. Producers must therefore go through a collector context rather than
+minting a visibility token around unrelated samples.
 
 The transaction context now provides
 `sql_stats_tx_context_finish_and_publish()`. It matches the expected
@@ -440,20 +435,28 @@ cross-node identity or a concurrent-reader runtime test. The publisher accepts
 caller-derived summaries, so it does not prove their statistical provenance
 or wire an active collection job. It does not enable `ANALYZE`.
 
-The first reusable runtime slice now exists as
-`sql_stats_collection_context`: it owns one filtered core `read_view`, records
-that view's engine-assigned ID and schema version captured around open,
-rejects missing requested indexes or schema drift, and can
-exhaustively scan a pinned index into the existing bounded reservoir. Unit
-tests cover context ownership, fail-closed open cases, exhaustive population
-reporting, budget failure, and withholding sink delivery on stale/incomplete
-scans. The core context now pins memtx and opt-in Vinyl index read views; Vinyl
-supports full scans only, while point reads and pagination fail closed. It is
-still only a building block, not a complete candidate producer or publisher.
-Core `read_view_open()` does not expose a memory/work-budget argument and
-creates engine-wide read-view state, so filtering bounds the requested
-space/index views but does not cap the engine's read-view resource cost.
-Candidate construction/publication is not yet routed through this context.
+`sql_stats_collection_context` owns one filtered core `read_view`, records its
+engine-assigned ID plus captured catalog/schema, per-index unique IDs, and the
+local commit-vclock signature. It rejects missing indexes and generation
+drift, and exhaustively scans each requested index into a bounded reservoir.
+Its new sample-candidate builder validates that the requested relation and
+indexes exactly match the context, bounds aggregate summary/reservoir staging,
+derives population/width/NDV evidence, and returns one detached immutable
+candidate only after every requested index succeeds. Publication accepts only
+that exact candidate, revalidates catalog/schema/index identities and rejects
+any commit-vclock drift since the view opened before swapping the installed
+snapshot. A failed publish preserves the previous snapshot. The focused
+TEST_BUILD regression passes this build-and-publish path on memtx and Vinyl;
+it also verifies that a committed write after candidate construction makes
+publication fail while preserving the prior installation.
+
+Vinyl supports full scans only; point reads and pagination fail closed. Core
+`read_view_open()` does not expose a memory/work-budget argument and creates
+engine-wide read-view state, so filtering bounds the requested space/index
+views but does not cap the engine's read-view resource cost. The volatile
+builder supports one relation at a time and caller-provided modification
+epoch/confidence/extractor policy; production `ANALYZE`, multi-relation job
+orchestration, and persistent publication remain out of scope/open.
 
 The separate `sql_stats_tx_context` runtime slice can begin an owned box
 transaction, set `READ_CONFIRMED` before any read, validate the target indexes

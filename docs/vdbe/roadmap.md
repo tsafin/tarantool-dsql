@@ -630,12 +630,15 @@ format approval is implied.
   cover ownership and fail-closed open cases; `sql_stats_collection.test`
   passed locally, including pinned scan, tuple-budget, and schema-drift
   rejection cases. The core context pins data through memtx and Vinyl
-  primary/secondary full-scan views, but is not yet wired to candidate
-  construction; core read-view allocation has no explicit resource budget and
-  does not itself supply per-relation modification epochs or
-  catalog/index-definition versions needed for complete candidate
-  validation/publication. Current nonzero visibility tokens outside the
-  context remain caller-supplied claims. A separate
+  primary/secondary full-scan views. Its new single-relation candidate builder
+  derives all index summaries from that view, validates captured
+  catalog/schema/index generations, and publishes only the exact assembled
+  candidate while the commit-vclock signature remains unchanged. A held
+  candidate is rejected after a committed write without replacing the
+  installed snapshot. This closes the shared-view-to-candidate prototype
+  slice, not production ANALYZE. Core read-view allocation has no explicit
+  resource budget, and modification epoch/confidence/extractor policy remain
+  caller supplied. A separate
   `sql_stats_tx_context` now owns a box transaction, sets READ_CONFIRMED before
   sampling, validates transaction ID/isolation/schema/index definitions, and
   bounds/stages each requested index sample before delivery. Its finish commits
@@ -736,9 +739,10 @@ format approval is implied.
   These passed via focused test-run or direct unit-binary invocation in the
   root Clang-19 build; an earlier isolated-worktree startup failure with a
   Fiber GC leak report and no backtrace frames did not
-  reproduce here. This closes the shared volatile visibility-boundary
-  slice only; candidate construction/publication is not yet routed through
-  this view and production ANALYZE remains open. The persistence schema remains
+  reproduce here. The shared-view candidate builder now runs against memtx and
+  Vinyl and stale-after-commit publication fails closed; production ANALYZE
+  wiring, multi-relation orchestration, and resource-budget policy remain open.
+  The persistence schema remains
   DRAFT; no IDs or formats changed. See `sql_stats_sampling.md` for runtime
   details.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
