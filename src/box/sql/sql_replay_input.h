@@ -42,7 +42,7 @@ struct sql_replay_relation_spec {
 	uint64_t row_count;
 	enum sql_replay_cardinality_semantics cardinality_semantics;
 	const char *population_basis;
-	uint64_t average_row_width;
+	double average_row_width;
 	const char *width_basis;
 	uint64_t width_denominator_count;
 	uint32_t confidence_ppm;
@@ -182,7 +182,7 @@ struct sql_replay_input {
 	uint64_t row_count;
 	enum sql_replay_cardinality_semantics cardinality_semantics;
 	char *population_basis;
-	uint64_t average_row_width;
+	double average_row_width;
 	char *width_basis;
 	uint64_t width_denominator_count;
 	uint32_t confidence_ppm;
@@ -218,7 +218,7 @@ sql_replay_input_create(const struct sql_replay_input_spec *spec,
 void
 sql_replay_input_delete(struct sql_replay_input *input);
 
-/* Return owned deterministic MsgPack bytes for input format version 3. */
+/* Return owned deterministic MsgPack bytes for input format version 4. */
 enum sql_replay_input_status
 sql_replay_input_serialize(const struct sql_replay_input *input, char **data,
 			   size_t *size);

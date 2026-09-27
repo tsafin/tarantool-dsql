@@ -491,7 +491,7 @@ may be meaningful; stable logical candidate keys must be unique. Missing
 provider output differs from a known empty set. All candidate data is supplied
 by callers/providers: no active SQL planner producer is wired to this model.
 It copies values and stores no live `Expr`, catalog handle, cursor, or storage
-ID. It emits an internal version-3 MsgPack representation with fixed map-key
+ID. It emits an internal version-4 MsgPack representation with fixed map-key
 order and logical-index ordering. It still does not validate relation/index
 schema-definition syntax or feed a planner.
 `sql_replay_input_extract_select()` now accepts a resolved single-relation
@@ -506,8 +506,9 @@ indexes whose identity is not modeled fail closed. The catalog-only entry
 point leaves statistics absent. The snapshot-backed variant copies measured
 relation/index summaries and their semantics, provenance, confidence, and
 freshness from an immutable provider; stale or missing relation statistics
-remain explicitly absent, while values not exactly representable by replay
-input v3 fail closed. Planner configuration remains caller-supplied. The
+remain explicitly absent, while fractional cardinalities not exactly
+representable by replay input v4 fail closed. Average row width is retained
+as a finite double. Planner configuration remains caller-supplied. The
 extractor canonicalizes predicate, projection, and ordering
 expressions, captures sort direction and Tarantool's default NULL ordering,
 and extracts nonnegative integer literal LIMIT/OFFSET values. Unsupported

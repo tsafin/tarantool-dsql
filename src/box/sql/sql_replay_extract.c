@@ -281,7 +281,8 @@ sql_replay_input_extract_select_from_snapshot(
 		SQL_STATS_LOOKUP_MISSING : sql_stats_snapshot_get_relation(
 			snapshot, current_schema_version,
 			select->pSrc->a[0].space->def->id, &stats_relation);
-	uint64_t row_count, average_width;
+	uint64_t row_count;
+	double average_width;
 	if (lookup == SQL_STATS_LOOKUP_AVAILABLE) {
 		enum sql_stats_cardinality_semantics semantics =
 			sql_stats_relation_cardinality_semantics(stats_relation);
@@ -290,11 +291,10 @@ sql_replay_input_extract_select_from_snapshot(
 			status = SQL_REPLAY_INPUT_INVALID;
 			goto cleanup;
 		}
+		average_width = sql_stats_relation_average_row_width(stats_relation);
 		if (!replay_exact_uint64(sql_stats_relation_row_count(stats_relation),
-					 &row_count) ||
-		    !replay_exact_uint64(
-				sql_stats_relation_average_row_width(stats_relation),
-				&average_width) ||
+					 &row_count) || !isfinite(average_width) ||
+		    average_width < 0 ||
 		    sql_stats_relation_width_denominator_count(stats_relation) == 0 ||
 		    sql_stats_relation_population_basis(stats_relation) == NULL ||
 		    sql_stats_relation_width_basis(stats_relation) == NULL ||

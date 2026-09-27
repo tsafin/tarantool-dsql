@@ -321,7 +321,7 @@ put_relation_statistics(struct replay_writer *w,
 		return put_nil(w);
 	/* Keys are encoded in lexical order for canonical map representation. */
 	return put_map(w, 10) && put_string(w, "average_row_width") &&
-	       put_uint(w, in->average_row_width) &&
+	       put_double(w, in->average_row_width) &&
 	       put_string(w, "cardinality_semantics") &&
 	       put_uint(w, in->cardinality_semantics) &&
 	       put_string(w, "collected_at") && put_uint(w, in->collected_at) &&
@@ -428,6 +428,8 @@ sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 			    SQL_REPLAY_CARDINALITY_VISIBLE_ROWS ||
 		    in->cardinality_semantics >
 			    SQL_REPLAY_CARDINALITY_ESTIMATE ||
+		    !isfinite(in->average_row_width) ||
+		    in->average_row_width < 0 ||
 		    in->population_basis == NULL ||
 		    in->population_basis[0] == '\0' ||
 		    in->width_basis == NULL || in->width_basis[0] == '\0' ||
@@ -697,7 +699,7 @@ sql_replay_input_serialize(const struct sql_replay_input *in, char **data,
 	PUT(put_string(&w, "relation"));
 	PUT(put_relation(&w, in, indexes));
 	PUT(put_string(&w, "version"));
-	PUT(put_uint(&w, 3));
+	PUT(put_uint(&w, 4));
 	free(indexes);
 	*data = w.data;
 	*size = w.size;
@@ -738,7 +740,9 @@ valid_stats(const struct sql_replay_relation_spec *r)
 	return r->cardinality_semantics >=
 				       SQL_REPLAY_CARDINALITY_VISIBLE_ROWS &&
 			       r->cardinality_semantics <=
-				       SQL_REPLAY_CARDINALITY_ESTIMATE ?
+				       SQL_REPLAY_CARDINALITY_ESTIMATE &&
+			       isfinite(r->average_row_width) &&
+			       r->average_row_width >= 0 ?
 		       r->population_basis != NULL &&
 			       r->population_basis[0] != '\0' &&
 			       r->width_basis != NULL &&

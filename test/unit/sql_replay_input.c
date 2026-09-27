@@ -194,7 +194,7 @@ contains_bytes(const char *data, size_t size, const char *needle,
 static void
 test_extract_select_from_catalog(void)
 {
-	plan(6);
+	plan(7);
 	header();
 	struct field_def fields[] = { {
 		.type = FIELD_TYPE_INTEGER,
@@ -280,7 +280,7 @@ test_extract_select_from_catalog(void)
 		.space_id = 1234,
 		.row_count = 42,
 		.population_basis = "visible_rows@view-7",
-		.average_row_width = 11,
+		.average_row_width = 11.25,
 		.width_basis = "payload_bytes/sample_rows",
 		.width_denominator_count = 7,
 		.confidence = 0.75,
@@ -301,7 +301,7 @@ test_extract_select_from_catalog(void)
 		   strcmp(input->columns[0].type, "integer") == 0 &&
 		   input->planner_config_version == 2 &&
 		   input->beam_width == 4 && input->statistics_present &&
-		   input->row_count == 42 && input->average_row_width == 11 &&
+		   input->row_count == 42 && input->average_row_width == 11.25 &&
 		   input->confidence_ppm == 750000 &&
 		   input->collected_at == 99 &&
 		   input->modification_epoch == 3 && input->index_count == 1 &&
@@ -319,6 +319,10 @@ test_extract_select_from_catalog(void)
 	ok(serialized && !contains_bytes(bytes, size, "1234", 4) &&
 		   !contains_bytes(bytes, size, "88", 2),
 	   "catalog storage space and index IDs are absent from replay serialization");
+	const char *msgpack_cursor = bytes;
+	ok(serialized && mp_check(&msgpack_cursor, bytes + size) == 0 &&
+	   msgpack_cursor == bytes + size,
+	   "fractional average width serializes as a valid MsgPack value");
 	if (input != NULL)
 		sql_replay_input_delete(input);
 	input = NULL;
@@ -360,7 +364,7 @@ test_extract_select_from_catalog(void)
 			   &select, cursor_map, 2, 1, 2, 4, snapshot, 5,
 			   &input) == SQL_REPLAY_INPUT_INVALID &&
 		   input == NULL,
-	   "fractional cardinality not representable in v3 fails closed");
+	   "fractional cardinality not representable in v4 fails closed");
 	if (snapshot != NULL)
 		sql_stats_snapshot_release(snapshot);
 	free(key);
@@ -418,7 +422,7 @@ test_detached_single_relation_select(void)
 		.row_count = 12,
 		.cardinality_semantics = SQL_REPLAY_CARDINALITY_VISIBLE_ROWS,
 		.population_basis = relation_pop,
-		.average_row_width = 8,
+		.average_row_width = 8.5,
 		.width_basis = width_basis,
 		.width_denominator_count = 12,
 		.confidence_ppm = 900000,
@@ -494,7 +498,7 @@ test_detached_single_relation_select(void)
 			   SQL_REPLAY_CARDINALITY_VISIBLE_ROWS &&
 		   strcmp(input->population_basis, "visible_rows@view-9") ==
 			   0 &&
-		   input->average_row_width == 8 &&
+		   input->average_row_width == 8.5 &&
 		   input->width_denominator_count == 12 &&
 		   input->confidence_ppm == 900000 &&
 		   input->collected_at == 17 && input->modification_epoch == 3,
@@ -624,7 +628,7 @@ test_canonical_expression_grammar(void)
 static void
 test_rejects_incomplete_or_invalid_inputs(void)
 {
-	plan(9);
+	plan(12);
 	header();
 	struct sql_replay_column_spec column = { "integer", "binary" };
 	const char *projection[] = { "col(r0,c0)" };
@@ -667,6 +671,18 @@ test_rejects_incomplete_or_invalid_inputs(void)
 	spec.relation.confidence_source = "test";
 	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
 	   "missing width denominator and invalid confidence rejected");
+	spec.relation.width_denominator_count = 1;
+	spec.relation.confidence_ppm = 1;
+	spec.relation.average_row_width = NAN;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "NaN average row width rejected");
+	spec.relation.average_row_width = INFINITY;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "infinite average row width rejected");
+	spec.relation.average_row_width = -0.5;
+	ok(sql_replay_input_create(&spec, &input) == SQL_REPLAY_INPUT_INVALID,
+	   "negative average row width rejected");
+	spec.relation.average_row_width = 0;
 	spec.relation.statistics_present = false;
 	spec.relation.row_count = 0;
 	spec.relation.cardinality_semantics = 0;
@@ -794,7 +810,7 @@ test_access_candidates(void)
 		   bytes != NULL && (cursor = bytes) != NULL &&
 		   mp_check(&cursor, bytes + size) == 0 &&
 		   cursor == bytes + size,
-	   "v3 candidate payload serializes as valid MsgPack");
+	   "v4 candidate payload serializes as valid MsgPack");
 	ok(bytes != NULL && !byte_sequence_present(bytes, size, "index_id"),
 	   "candidate encoding contains no physical index-id field");
 	free(bytes);
@@ -865,7 +881,7 @@ test_access_candidates(void)
 static void
 test_canonical_msgpack(void)
 {
-	plan(4);
+	plan(5);
 	header();
 	struct sql_replay_column_spec column = { "integer", "binary" };
 	uint32_t parts[] = { 0, 0 };
@@ -916,6 +932,21 @@ test_canonical_msgpack(void)
 	ok(bytes_a != NULL && mp_check(&cursor, bytes_a + size_a) == 0 &&
 		   cursor == bytes_a + size_a,
 	   "canonical serialization is one valid MsgPack value");
+	bool version_four = false;
+	if (bytes_a != NULL) {
+		const char *version_cursor = bytes_a;
+		uint32_t field_count = mp_decode_map(&version_cursor);
+		for (uint32_t i = 0; i < field_count; i++) {
+			uint32_t key_size;
+			const char *key = mp_decode_str(&version_cursor, &key_size);
+			if (key_size == 7 && memcmp(key, "version", 7) == 0) {
+				version_four = mp_decode_uint(&version_cursor) == 4;
+				break;
+			}
+			mp_next(&version_cursor);
+		}
+	}
+	ok(version_four, "replay input advertises internal format version 4");
 	if (a != NULL)
 		a->indexes[0].tuple_count = 1;
 	char *invalid_bytes = NULL;
