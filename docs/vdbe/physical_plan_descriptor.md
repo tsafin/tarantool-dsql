@@ -148,12 +148,18 @@ predicate, ordering, limit, or offset. It validates every projected column's
 cursor binding and ordinal before creating the descriptor, and requires
 caller-supplied statement-time estimates. Unit coverage checks projection
 order, access kind, cursor binding, and rejection before descriptor creation
-for a filtered statement or mismatched cursor. This is not SQL route
-integration: it does not emit bytecode, and its descriptor is not evidence of
-runtime path selection. M3.4 still needs statement-lifetime lowering bindings,
-a complete VDBE emission boundary, runtime parity, and fallback accounting.
-M1.4 remains non-replayable; this producer does not change the diagnostic
-envelope or claim replay completeness.
+for a filtered statement or mismatched cursor. It is now consumed by a
+separate narrow `sqlSelect()` integration when
+`sql_new_planner_single_table` is enabled. That route supplies the statement
+estimate from the primary index size, allocates projection registers,
+opens/closes the cursor, invokes the VDBE table-scan lowering under a codegen
+checkpoint, and commits `SelectDest` metadata only after successful emission.
+Focused SQL execution passes for memtx and Vinyl, including NULL and
+empty-table cases. M3.4 remains open: estimates are coarse, only direct
+projection/table-full-scan is routed, error-injection and broader
+parity/capture coverage remain, and the checkpoint does not restore arbitrary
+AST/schema mutations. M1.4 remains non-replayable; this producer does not
+change the diagnostic envelope or claim replay completeness.
 
 M3.5 now has a producer-contract prototype in `sql_plan_fallback.{h,c}`.
 It maps the existing logical and physical reject enums to append-only numeric
@@ -197,26 +203,40 @@ the mapped reason at the code path that actually dispatches to `where.c`.
 Until then, unit coverage proves mapping semantics only; it does not prove
 SQL routing or runtime counter coverage.
 
-### M3.7 feature-flag readiness
+### M3.7 feature flag — partial implementation
 
-`sql_new_planner_single_table=on/off` is not implementable as a meaningful
-switch yet. `sql_physical_plan_from_logical()` selects only from a candidate
-array supplied by its caller; SQL planning has no provider that constructs
-that array from resolved indexes and estimates. `sql_plan_lower()` then emits
-an abstract callback sequence, not VDBE bytecode, and neither API is called by
-`sqlWhereBegin()`. An on/off setting added before those connections would be a
-no-op or would claim a planner route that did not produce the executable plan.
+`sql_new_planner_single_table` is a default-off session setting. When enabled,
+`sqlSelect()` attempts the direct-column table-full-scan slice only after
+resolved-shape preflight. It requires a TREE primary index, builds a physical
+descriptor from the statement estimate, and reports `new_planner` only after
+cursor setup, VDBE lowering, close, and result-register assignment succeed.
+Physical rejection and recoverable speculative codegen failure record a
+stable reason and continue on the legacy route; a hard diagnostic is not
+converted into fallback. The focused integration regression verifies
+off/on/off behavior and result parity on memtx and Vinyl.
 
-The eventual contract is: off (the default) preserves current planning and
-path classification. On may select `new_planner` only after candidate
-generation, complete descriptor validation, and executable lowering succeed.
-Unsupported shapes, absent candidates, and failures detected before bytecode
-emission use the current planner with their stable fallback classification;
-the new route must not emit partial VDBE and then fall back. Config scope
-(session or instance) is intentionally unresolved. Implement M3.7 only after
-an end-to-end success path exists, with tests proving default behavior is
-unchanged and that `on` selects an executable, parity-tested plan only for the
-supported query class.
+The flag does not govern the general physical selector, point/range/secondary
+access, filters, sort/limit, joins, aggregates, or other descriptor operators.
+Default-off compatibility, broad parity, capture/counter completeness, and
+acceptance remain open. Scope is session-local for this prototype; no
+instance-level configuration or rollout policy is implied.
+
+```mermaid
+flowchart TD
+    A[Resolved SELECT] --> B{Session flag on?}
+    B -- no --> L[Legacy SELECT codegen]
+    B -- yes --> C{Direct projection + one table + no finalizers?}
+    C -- no --> L
+    C -- yes --> D{TREE primary index?}
+    D -- no --> F[Record physical fallback reason]
+    F --> L
+    D -- yes --> E[Build scan descriptor and estimate]
+    E --> G{Checkpointed VDBE lowering succeeds?}
+    G -- recoverable failure --> H[Rollback and record reason]
+    H --> L
+    G -- hard diagnostic --> X[Propagate error]
+    G -- yes --> N[Commit result registers; new_planner]
+```
 
 ## Purpose
 

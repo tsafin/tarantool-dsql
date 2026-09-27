@@ -900,58 +900,24 @@ DML, triggers, subprograms, non-deterministic functions.
   expression bytecode, cursor/engine setup, sort semantics, result delivery,
   parity, and production routing remain open. See
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: yes*.
-- [ ] **M3.4 executable lowering** — blocked on a production producer and
-  statement-lifetime expression/register bindings. Code-path audit: the
-  SELECT classifier in `select.c` builds then deletes the logical plan;
-  physical candidate selection has unit-test-only callers and requires caller-
-  supplied candidates/expressions. A producer-side table-full-scan adapter
-  now derives a descriptor for resolved column-only `SELECT ... FROM t`
-  without filters or finalize clauses, using explicit statement-time estimate
-  inputs and validating projection cursor/column bindings. The local
-  `sql_physical_plan.test` target passes all access-path and producer checks,
-  and the production `tarantool` target links successfully. The adapter is not
-  called by SQL preparation and does not emit bytecode.
-  The live route still emits through
-  `sqlWhereBegin()` / `selectInnerLoop()` / `sqlWhereEnd()`. A separate narrow
-  VDBE backend now emits an executable table-full-scan loop with direct
-  projection columns: ascending uses `Rewind`/`Next`, descending uses
-  `Last`/`Prev`, and both emit `Column` plus `ResultRow`. It validates the
-  descriptor and register range before mutation, then rolls back emitted
-  opcodes through `vdbe_codegen_checkpoint` on emission failure. The caller
-  must still supply an already-open cursor and allocated result registers;
-  result metadata, SELECT integration, runtime execution parity, and a live
-  producer are absent. Eight focused opcode-level checks pass, and the
-  production `tarantool` target links this backend. This is an executable
-  lowering slice, not a safe routed statement path. Keep runtime routing and
-  M3.7 off until producer, preflight, backend bindings, and parity coverage
-  exist. Detailed audit:
-  `docs/vdbe/physical_plan_descriptor.md`; the narrowest candidate is
-  `SELECT c FROM t`, but its scan/projection/result opcodes currently belong
-  to `sqlWhereBegin()`/`wherecode.c`/`selectInnerLoop()`. A limited
-  `vdbe_codegen_checkpoint` now rolls back speculative opcode ownership and
-  selected `Parse` codegen state, including a speculative abort when the fiber
-  diagnostic is unchanged; it preserves abort when the diagnostic differs
-  from the checkpoint boundary, so codegen errors cannot be converted into
-  fallback. The boundary
-  diagnostic is retained during the checkpoint lifetime, avoiding false
-  failure from pre-existing diagnostics. The configured checkpoint unit
-  target rebuilt and passed all 10 checks, and the production `tarantool`
-  target linked successfully. It does not cover arbitrary
-  parser/AST or schema mutations, and
-  production statement-lifetime expression/cursor/result bindings are still
-  absent; the low-level loop backend only accepts explicit cursor/register
-  assignments. The pure
-  `sql_select_preflight_table_scan()` contract now
-  checks resolved base-source identity, direct projection column/cursor
-  bindings, and `SRT_Output` destination before `sqlSelect()` mutates its
-  select ID or emits preamble bytecode. It explicitly rejects other shapes;
-  unit tests pin accept/reject reasons and input immutability, while a focused
-  SQL regression passes with both memtx and Vinyl, proving eligible and
-  rejected queries still return legacy results and `current_where_c`.
-  Positive certification skips the
-  pre-optimization structural fallback walk, which cannot reject this exact
-  shape; it does not alter the legacy codegen route. *parallel: no* (shares
-  SELECT/VDBE integration boundary).
+- [ ] **M3.4 executable lowering** — partial: a narrow production route now
+  connects the producer, physical descriptor, VDBE loop emitter, and
+  `SelectDest` result registers. It accepts only a resolved direct-column
+  projection from one base table, with no filter/order/limit/offset/finalizer,
+  and requires a TREE primary index. The producer uses `index_size()` for a
+  coarse row estimate; successful lowering emits cursor open, ascending
+  `Rewind`/`Next` (or descending `Last`/`Prev`), `Column`, `ResultRow`, and
+  cursor close inside a codegen checkpoint. Physical candidate or recoverable
+  lowering rejection records a stable physical fallback reason and resumes
+  legacy codegen; hard diagnostics propagate. The session flag is default-off.
+  Focused SQL parity passes on memtx and Vinyl for one-/two-column projection,
+  NULL and empty-table results, and filtered/computed controls. This does not
+  cover all descriptor operators, secondary/range/point access, all storage
+  edge cases, or corpus-wide parity; checkpoint rollback does not include
+  arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
+  error-injection, parity, and capture coverage. Details:
+  `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
+  `SELECT`/VDBE integration).
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
   `fallback_reason` and routes to current `where.c`. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and
@@ -1021,15 +987,15 @@ DML, triggers, subprograms, non-deterministic functions.
   path unclassified; its runtime regression now pairs the null planner
   classification with an `EXPLAIN` opcode assertion for `OP_Count`, proving
   this query bypasses `sqlWhereBegin()` rather than falling back through it.
-  M3.5 remains partial: physical rejection reasons are not
-  routed/accounted and no new-planner success path exists. Repository caller
-  audit confirms `sql_physical_plan_from_logical()` and
-  `sql_plan_fallback_from_physical()` have unit-test-only callers: production
-  SQL does not yet build physical candidates or invoke that selector. Thus
-  physical-reject reason counters cannot truthfully be incremented at the
-  current `where.c` route; the new selector must first run and reject before
-  its reason can describe a legacy dispatch. This is an integration gate, not
-  a missing reason-code mapping. The focused `planner_fallback_*` SQL tests
+  M3.5 remains partial: the narrow table-scan route now records physical
+  rejection reasons at the attempted producer/lowering boundary, but the
+  remaining legacy planner rejects are not all classified and routed through
+  one complete producer gate. Physical candidate selection from the general
+  logical-plan API still has unit-test-only callers; this direct scan slice
+  uses its dedicated table-scan producer. Unsupported shapes continue to use
+  existing structural/expression classifications or the legacy route. This is
+  an incremental integration, not complete fallback coverage. The focused
+  `planner_fallback_*` SQL tests
   pass locally on both memtx and Vinyl (10 cases), as do
   `sql_plan_fallback.test` (32 Lua assertions and 9 TAP checks); refreshed
   result baselines no longer preserve earlier assertion-error output.
@@ -1091,19 +1057,18 @@ DML, triggers, subprograms, non-deterministic functions.
   always requires it. M3.6 capture/parity prototype is complete; new planner
   implementation, M3.5 classification closure, and M3.7 remain open.
   *parallel: yes*.
-- [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — blocked,
-  do not add a no-op flag. The physical selector only accepts caller-supplied
-  candidates and `sql_plan_lower()` emits callbacks, not VDBE; neither is
-  called by SQL planning. `sqlWhereBegin()` therefore has no new-planner
-  success route for the flag to select. Once a candidate provider and
-  executable lowering exist, the default/off state must preserve current
-  routing exactly. The on state may report `new_planner` only after a complete
-  descriptor is lowered successfully; unsupported shapes or pre-emission
-  candidate/lowering rejection must retain the legacy route and stable
-  fallback reason. Avoid partial VDBE emission before fallback. The setting's
-  session/global scope remains to be decided with its config integration.
-  M3.5 success routing and executable M3.4 lowering are prerequisites.
-  *parallel: no* (shares the eventual `where.c` integration owner).
+- [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
+  A default-off session setting now gates the narrow direct-column table scan
+  route in `sqlSelect()`. When enabled, only the supported single-table shape
+  with a TREE primary index can report `new_planner`, and only after physical
+  descriptor creation and VDBE lowering succeed; tested physical rejection
+  and recoverable codegen rejection retain legacy codegen with a reason. The
+  setting does not yet govern general physical candidate selection or other
+  supported query classes. Default-off behavior and off/on/off summary route
+  checks pass in the focused memtx/Vinyl regression. Complete fallback
+  classification, wider parity/corpus validation, runtime observability, and
+  feature acceptance remain open. Scope is explicitly session-local for this
+  prototype, not an unresolved instance/session decision. *parallel: no*.
 
 ---
 
