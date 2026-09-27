@@ -1062,8 +1062,13 @@ DML, triggers, subprograms, non-deterministic functions.
   Rollback coverage is specifically post-emission validation rejection, not
   an injected opcode-emitter failure: `late_invalid_point_desc` in
   `test/unit/sql_plan_vdbe_lowering.c` emits the wide-key opcode and then
-  rejects the projection, while `sql_vdbe_codegen_checkpoint.test` checks
-  checkpoint cleanup with manually emitted P4/comment state. The current
+  rejects the projection. Its strengthened assertion now pins unchanged
+  opcode count and pre-existing opcode contents, cleared speculative opcode
+  slots/P4 ownership, and restored register, cursor, label, expression-cache,
+  temporary-register, abort, and column-cache state. Meanwhile
+  `sql_vdbe_codegen_checkpoint.test` checks checkpoint cleanup with manually
+  emitted P4/comment state. This validates recoverable post-emission rejection,
+  not an injected failure from the opcode emitter itself. The current
   `sqlVdbeAddOp*()` path has no recoverable failure-injection seam (`growOp3()`
   calls `sql_xrealloc()`, and wide constants allocate through `sql_xmalloc()`),
   so adding a broad production hook solely for this test would distort the
