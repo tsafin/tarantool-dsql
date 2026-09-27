@@ -17,4 +17,22 @@ assert(indexed_by.rows[2][3] == 'UNSUPPORTED_ACCESS_HINT')
 after = box.stat.sql()
 assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total + 2)
 assert(after.sql_planner_fallback_UNSUPPORTED_ACCESS_HINT_total == before.sql_planner_fallback_UNSUPPORTED_ACCESS_HINT_total + 2)
+
+-- The enabled producer must preserve the pre-normalization access-hint
+-- rejection instead of attempting table-scan lowering and reporting a later
+-- generic physical rejection (or success).
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+before_enabled = box.stat.sql()
+not_indexed_enabled, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM access_hint_t NOT INDEXED]])
+assert(err == nil)
+assert(not_indexed_enabled.rows[1][3] == 'fallback')
+assert(not_indexed_enabled.rows[2][3] == 'UNSUPPORTED_ACCESS_HINT')
+indexed_by_enabled, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM access_hint_t INDEXED BY access_hint_v]])
+assert(err == nil)
+assert(indexed_by_enabled.rows[1][3] == 'fallback')
+assert(indexed_by_enabled.rows[2][3] == 'UNSUPPORTED_ACCESS_HINT')
+after_enabled = box.stat.sql()
+assert(after_enabled.sql_planner_fallback_total == before_enabled.sql_planner_fallback_total + 2)
+assert(after_enabled.sql_planner_fallback_UNSUPPORTED_ACCESS_HINT_total == before_enabled.sql_planner_fallback_UNSUPPORTED_ACCESS_HINT_total + 2)
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 test_run = require('test_run').new()
