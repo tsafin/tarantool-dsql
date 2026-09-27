@@ -1712,15 +1712,18 @@ DML, triggers, subprograms, non-deterministic functions.
   passed on all configured engine variants (7 runs: `in2` memtx; the other
   three on memtx and Vinyl). This resolves the previously missing ordinary
   runner evidence for these four timeout-triage files only. It does not cover
-  the two still-uncollected files, the full SQL-TAP corpus, SQL/SQL-luatest
-  reviewed corpus, or the remaining M3.5 route/reason dispositions.
+  the then-still-uncollected two standalone files, the full SQL-TAP corpus,
+  SQL/SQL-luatest reviewed corpus, or the remaining M3.5 route/reason
+  dispositions.
 
   The same regular-runner check passes `sort.test.lua` and
   `gh-3332-tuple-format-leak.test.lua` on their explicitly configured memtx
   variants (5.8 seconds each, with the latter run under `--long`). These
-  ordinary test passes do not change the separate baseline-capture timeout:
-  both still exceed the 60-second standalone capture budget, and Vinyl was
-  not configured for these two ordinary runs.
+  ordinary test passes did not by themselves change the separate
+  baseline-capture timeout known at that point: both exceeded the 60-second
+  standalone capture budget, and Vinyl was not configured for these two
+  ordinary runs. The following extended capture follow-up supersedes that
+  timeout status.
 
   **Extended standalone capture follow-up (2026-09-28).** Re-running those
   two files without the 60-second subprocess cap accepted both engines:
