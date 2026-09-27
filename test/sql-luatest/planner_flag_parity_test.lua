@@ -373,11 +373,21 @@ g.test_three_part_composite_primary_key_point_lookup = function()
                          '(1, 7, 4, \'other\')'):format(name))
             local point = ('SELECT v FROM %s WHERE c = 3 AND a = 1 AND b = 7')
                 :format(name)
+            local limited_point = point .. ' LIMIT 1'
+            local offset_point = point .. ' LIMIT 1 OFFSET 1'
             local incomplete = ('SELECT v FROM %s WHERE a = 1 AND b = 7 AND c > 2')
                 :format(name)
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             local off, err = box.execute(point)
             t.assert(err == nil, err and err.message)
+            local limited_queries = {limited_point, offset_point}
+            local off_limited = {}
+            for i, sql in ipairs(limited_queries) do
+                local result
+                result, err = box.execute(sql)
+                t.assert(err == nil, err and err.message)
+                off_limited[i] = result.rows
+            end
             box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
             local explain
             explain, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. point)
@@ -389,6 +399,18 @@ g.test_three_part_composite_primary_key_point_lookup = function()
             t.assert(err == nil, err and err.message)
             t.assert_equals(on.rows, off.rows)
             t.assert_equals(on.rows, {{'hit'}})
+            for i, sql in ipairs(limited_queries) do
+                explain, err = box.execute(
+                    [[EXPLAIN (planner = 'summary') ]] .. sql)
+                t.assert(err == nil, err and err.message)
+                t.assert_equals(explain.rows[1][3], 'new_planner')
+                local limited
+                limited, err = box.execute(sql)
+                t.assert(err == nil, err and err.message)
+                t.assert_equals(limited.rows, off_limited[i])
+                t.assert_equals(limited.rows, sql == limited_point and
+                                {{'hit'}} or {})
+            end
 
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             explain, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. point)

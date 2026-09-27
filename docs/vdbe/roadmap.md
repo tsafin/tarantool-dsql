@@ -1809,7 +1809,8 @@ DML, triggers, subprograms, non-deterministic functions.
   exact equality over two- and three-part INTEGER/UNSIGNED primary keys,
   including reversed predicate order, UINT64_MAX, and a miss. Enabled queries
   assert `new_planner`; disabled `fallback` outcomes must include a reason.
-  Generated and CnP runs pass on memtx and Vinyl.
+  Three-part point cases also verify LIMIT and OFFSET result parity and retain
+  `new_planner` when enabled. Generated and CnP runs pass on memtx and Vinyl.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
