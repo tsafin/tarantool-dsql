@@ -46,6 +46,8 @@ sql_plan_fallback_reason_name(uint32_t reason)
 		return "UNSUPPORTED_ACCESS_HINT";
 	case SQL_PLAN_FALLBACK_UNSUPPORTED_FUNCTION:
 		return "UNSUPPORTED_FUNCTION";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_COLLATION:
+		return "UNSUPPORTED_COLLATION";
 	default:
 		return NULL;
 	}

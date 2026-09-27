@@ -6,7 +6,7 @@
 static void
 test_reason_mapping(void)
 {
-	plan(27);
+	plan(29);
 	header();
 	const struct {
 		enum sql_logical_reject_reason input;
@@ -34,6 +34,9 @@ test_reason_mapping(void)
 		{SQL_LOGICAL_REJECT_FUNCTION,
 		 SQL_PLAN_FALLBACK_UNSUPPORTED_FUNCTION,
 		 "UNSUPPORTED_FUNCTION"},
+		{SQL_LOGICAL_REJECT_COLLATION,
+		 SQL_PLAN_FALLBACK_UNSUPPORTED_COLLATION,
+		 "UNSUPPORTED_COLLATION"},
 		{SQL_LOGICAL_REJECT_ACCESS_HINT,
 		 SQL_PLAN_FALLBACK_UNSUPPORTED_ACCESS_HINT,
 		 "UNSUPPORTED_ACCESS_HINT"},

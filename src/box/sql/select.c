@@ -5652,6 +5652,7 @@ sql_select_record_fallback_reason(Parse *parse,
 
 static bool sql_select_has_nondeterministic_func(Select *select);
 static bool sql_select_has_func(Select *select);
+static bool sql_select_has_collation(Select *select);
 
 static void
 sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
@@ -5689,6 +5690,9 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 		if (sql_select_has_func(select))
 			sql_select_record_fallback_reason(parse,
 					SQL_LOGICAL_REJECT_FUNCTION);
+		else if (sql_select_has_collation(select))
+			sql_select_record_fallback_reason(parse,
+					SQL_LOGICAL_REJECT_COLLATION);
 		return;
 	}
 	enum sql_logical_reject_reason logical_reason =
@@ -5774,6 +5778,28 @@ sql_select_has_func(Select *select)
 	Walker walker;
 	memset(&walker, 0, sizeof(walker));
 	walker.xExprCallback = sql_select_has_func_expr;
+	walker.xSelectCallback = sql_select_walk_subquery;
+	(void)sqlWalkSelect(&walker, select);
+	return walker.eCode != 0;
+}
+
+static int
+sql_select_has_collation_expr(Walker *walker, Expr *expr)
+{
+	/* EP_Collate denotes an explicit TK_COLLATE in this expression tree. */
+	if (ExprHasProperty(expr, EP_Collate)) {
+		walker->eCode = 1;
+		return WRC_Abort;
+	}
+	return WRC_Continue;
+}
+
+static bool
+sql_select_has_collation(Select *select)
+{
+	Walker walker;
+	memset(&walker, 0, sizeof(walker));
+	walker.xExprCallback = sql_select_has_collation_expr;
 	walker.xSelectCallback = sql_select_walk_subquery;
 	(void)sqlWalkSelect(&walker, select);
 	return walker.eCode != 0;

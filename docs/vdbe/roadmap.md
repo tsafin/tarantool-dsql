@@ -863,7 +863,11 @@ DML, triggers, subprograms, non-deterministic functions.
   Runtime `abs(v)` coverage asserts this reason in projection, predicate, and
   ordering expressions; `SUM(abs(v))` retains the higher-priority aggregate
   reason. Stable reason mapping is unit tested. No executor routing has
-  changed.
+  changed. Explicit `COLLATE` expressions now report
+  `UNSUPPORTED_COLLATION`, since the canonical expression contract does not
+  carry collation semantics; inherited/default column collations are not
+  treated as explicit hints. A focused live summary/counter test covers the
+  reject path.
   Zero-source constant SELECTs also enter `sqlWhereBegin()` but are outside the
   single-relation logical-plan contract. They now report
   `UNSUPPORTED_RELATION_COUNT`; a focused
