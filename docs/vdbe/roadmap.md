@@ -1188,6 +1188,13 @@ DML, triggers, subprograms, non-deterministic functions.
   ordering and three-part seek arity. Partial composite equality remains a
   leading-prefix range only when the existing supported form applies; other
   incomplete/mixed composite predicates remain on the fallback path.
+  A separate prefix-scan path handles equality on a proper multi-part leading
+  prefix of a longer composite key: it seeks with full prefix arity and
+  terminates when any prefix column changes. Memtx/Vinyl off/on/off parity
+  covers reversed two-part prefixes, misses, and UINT64_MAX in an UNSIGNED
+  prefix component; non-leading equalities and prefix ORDER BY or LIMIT/OFFSET
+  remain stable fallbacks. The VDBE unit pins the multi-part seek and mismatch
+  checks.
   *parallel: no (extends the existing producer/descriptor/lowering chain)*.
   The route also lowers `primary_key_part IS NOT NULL` as a full
   scan, relying on the primary-key non-null invariant, and `primary_key_part

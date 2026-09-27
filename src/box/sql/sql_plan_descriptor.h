@@ -14,6 +14,7 @@ enum sql_plan_access_kind {
 	SQL_PLAN_INDEX_RANGE_SCAN,
 	SQL_PLAN_INDEX_FULL_SCAN,
 	SQL_PLAN_TABLE_FULL_SCAN,
+	SQL_PLAN_PK_PREFIX_SCAN,
 };
 
 enum sql_plan_direction { SQL_PLAN_ASC, SQL_PLAN_DESC };
@@ -59,6 +60,7 @@ struct sql_plan_order_term {
 struct sql_plan_point_key_part {
 	int64_t integer_value;
 	uint64_t unsigned_value;
+	uint32_t column;
 	bool is_unsigned;
 };
 struct sql_plan_access {
@@ -72,6 +74,9 @@ struct sql_plan_access {
 	/* Multi-part integer/unsigned primary-key point lookup key. */
 	const struct sql_plan_point_key_part *point_key_parts;
 	size_t point_key_part_count;
+	/* Equality key for an ordered leading-prefix scan on a composite PK. */
+	const struct sql_plan_point_key_part *prefix_key_parts;
+	size_t prefix_key_part_count;
 	/* One-sided bound key/operator, or lower bound for a two-sided range. */
 	int64_t integer_range_key;
 	bool has_integer_range_key;

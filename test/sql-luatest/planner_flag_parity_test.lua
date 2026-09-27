@@ -441,6 +441,86 @@ g.test_three_part_composite_primary_key_point_lookup = function()
     end)
 end
 
+g.test_composite_primary_key_multi_part_prefix_scan = function()
+    g.server:exec(function()
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_composite_prefix2_' .. engine
+            box.execute(('CREATE TABLE %s (a INTEGER, b UNSIGNED, c INTEGER, ' ..
+                         'v STRING, PRIMARY KEY (a, b, c)) WITH ENGINE = \'%s\'')
+                        :format(name, engine))
+            box.execute(('INSERT INTO %s VALUES (1, 7, 4, \'b\'), ' ..
+                         '(2, 7, 1, \'d\'), (1, 7, 2, \'a\'), ' ..
+                         '(1, 8, 3, \'c\'), ' ..
+                         '(1, 18446744073709551615, 9, \'max\')')
+                        :format(name))
+            local queries = {
+                ('SELECT c, v FROM %s WHERE a = 1 AND b = 7'):format(name),
+                ('SELECT c, v FROM %s WHERE 7 = b AND 1 = a'):format(name),
+                ('SELECT c, v FROM %s WHERE a = 1 AND b = 99'):format(name),
+                ('SELECT c, v FROM %s WHERE a = 1 AND ' ..
+                 'b = 18446744073709551615'):format(name),
+            }
+            local limited_prefix = queries[1] .. ' LIMIT 1'
+            local function capture(enabled)
+                local rows = {}
+                for i, sql in ipairs(queries) do
+                    local explain, err = box.execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. sql)
+                    t.assert(err == nil, err and err.message)
+                    if enabled then
+                        t.assert_equals(explain.rows[1][3], 'new_planner')
+                    else
+                        local route = explain.rows[1][3]
+                        t.assert(route == 'current_where_c' or route == 'fallback')
+                        if route == 'fallback' then
+                            t.assert(type(explain.rows[2][3]) == 'string' and
+                                     #explain.rows[2][3] > 0)
+                        end
+                    end
+                    local result
+                    result, err = box.execute(sql)
+                    t.assert(err == nil, err and err.message)
+                    rows[i] = result.rows
+                end
+                return rows
+            end
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local off = capture(false)
+            local off_limited, err = box.execute(limited_prefix)
+            t.assert(err == nil, err and err.message)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            local on = capture(true)
+            t.assert_equals(on, off)
+            t.assert_equals(on[1], {{2, 'a'}, {4, 'b'}})
+            t.assert_equals(on[3], {})
+            t.assert_equals(on[4], {{9, 'max'}})
+
+            local nonleading = ('SELECT c, v FROM %s WHERE b = 7 AND c = 2')
+                :format(name)
+            local explain, err = box.execute(
+                [[EXPLAIN (planner = 'summary') ]] .. nonleading)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(explain.rows[1][3], 'fallback')
+            t.assert(type(explain.rows[2][3]) == 'string' and
+                     #explain.rows[2][3] > 0)
+            explain, err = box.execute(
+                [[EXPLAIN (planner = 'summary') ]] .. limited_prefix)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(explain.rows[1][3], 'fallback')
+            t.assert(type(explain.rows[2][3]) == 'string' and
+                     #explain.rows[2][3] > 0)
+            local limited_on
+            limited_on, err = box.execute(limited_prefix)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(limited_on.rows, off_limited.rows)
+
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            t.assert_equals(capture(false), off)
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
+
 g.test_one_sided_range_wrong_order_falls_back = function()
     g.server:exec(function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do

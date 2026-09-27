@@ -222,6 +222,14 @@ including predicate reordering, an unsigned maximum, a hit/miss, and an
 incomplete-key fallback. Parameters, secondary indexes, and expression
 evaluation remain unsupported.
 
+For a composite key with at least three parts, equality on a proper leading
+prefix of two or more INTEGER/UNSIGNED parts uses a dedicated prefix scan. It
+seeks with the entire prefix key and compares each prefix column on every row,
+exiting at the first mismatch. The current executable prefix path accepts no
+ORDER BY or LIMIT/OFFSET; those shapes retain legacy codegen with a stable
+fallback reason. Memtx/Vinyl tests cover reordered equalities, empty and
+non-empty prefixes, UINT64_MAX, and non-leading fallback.
+
 The production route also supports one-sided and two-sided INTEGER and
 UNSIGNED primary-key literal ranges (`>`, `>=`, `<`, `<=`), including reversed
 operand order. A two-sided range must be a conjunction of one lower and one
@@ -290,7 +298,8 @@ SQL routing or runtime counter coverage.
 preflight. Supported access paths are a TREE primary-index full scan, an
 INTEGER/UNSIGNED primary-key point lookup, one-sided primary-key literal
 ranges, complete composite INTEGER/UNSIGNED primary-key point lookups through
-255 parts, and one lower-plus-upper bound on a single-part key. Direct projections,
+255 parts, multi-part equality scans over a proper leading prefix of a longer
+composite key, and one lower-plus-upper bound on a single-part key. Direct projections,
 compatible primary-key ordering, and literal LIMIT/OFFSET are supported in
 the applicable paths. The descriptor estimate and checkpointed VDBE lowering
 must succeed before the statement reports `new_planner`.

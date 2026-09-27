@@ -309,6 +309,7 @@ sql_physical_table_scan_from_select(
 		SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
 	size_t composite_point_count = 0;
 	bool has_composite_point = false;
+	bool has_prefix_scan = false;
 	bool unsigned_point = false;
 	uint32_t primary_field = source->space->index_map[0]->def->key_def->
 		parts[0].fieldno;
@@ -363,14 +364,14 @@ sql_physical_table_scan_from_select(
 		uint32_t parsed_part[SQL_PLAN_POINT_KEY_PART_MAX];
 		for (size_t i = 0; i < expr_count; ++i)
 			parsed_part[i] = UINT32_MAX;
-		bool complete_composite_equality = expr_count > 1 &&
-			pk->part_count == expr_count &&
+		bool composite_equality = expr_count > 1 &&
+			expr_count <= pk->part_count &&
 			pk->part_count <= SQL_PLAN_POINT_KEY_PART_MAX;
 		bool seen_parts[SQL_PLAN_POINT_KEY_PART_MAX] = {false};
-		if (complete_composite_equality) {
+		if (composite_equality) {
 			for (size_t i = 0; i < expr_count; ++i) {
 				bool found = false;
-				for (uint32_t part = 0; part < pk->part_count; ++part) {
+				for (uint32_t part = 0; part < expr_count; ++part) {
 					const struct key_part *key_part = &pk->parts[part];
 					bool is_unsigned = key_part->type ==
 						FIELD_TYPE_UNSIGNED;
@@ -382,32 +383,36 @@ sql_physical_table_scan_from_select(
 						continue;
 					if (found || parsed[i].op != SQL_PLAN_EQ ||
 					    seen_parts[part]) {
-						complete_composite_equality = false;
+						composite_equality = false;
 						break;
 					}
 					found = true;
 					parsed_part[i] = part;
 				}
 				if (!found)
-					complete_composite_equality = false;
+					composite_equality = false;
 				else
 					seen_parts[parsed_part[i]] = true;
-				if (!complete_composite_equality)
+				if (!composite_equality)
 					break;
 			}
 		}
-		if (complete_composite_equality) {
+		if (composite_equality) {
 			for (size_t i = 0; i < expr_count; ++i) {
 				struct sql_plan_point_key_part *part =
 					&composite_point_parts[parsed_part[i]];
+				part->column = pk->parts[parsed_part[i]].fieldno;
 				part->is_unsigned = parsed[i].is_unsigned;
 				if (part->is_unsigned)
 					part->unsigned_value = parsed[i].unsigned_key;
 				else
 					part->integer_value = parsed[i].signed_key;
 			}
-			composite_point_count = pk->part_count;
-			has_point_key = has_composite_point = true;
+			composite_point_count = expr_count;
+			if (expr_count == pk->part_count)
+				has_point_key = has_composite_point = true;
+			else
+				has_prefix_scan = true;
 		} else if (expr_count <= 2) {
 			for (size_t i = 0; i < expr_count; ++i) {
 				if (!parse_pk_bound(exprs[i], source->iCursor,
@@ -503,9 +508,15 @@ predicate_parsed:
 	if (has_range_key)
 		direction = range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE ?
 			SQL_PLAN_DESC : SQL_PLAN_ASC;
+	if (has_prefix_scan &&
+	    (select->pOrderBy != NULL || select->pLimit != NULL ||
+	     select->pOffset != NULL))
+		goto invalid_predicate;
 	struct sql_plan_order_term *order_terms = NULL;
 	size_t order_term_count = 0;
 	if (select->pOrderBy != NULL) {
+		if (has_prefix_scan)
+			goto invalid_predicate;
 		const struct ExprList *order_by = select->pOrderBy;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
@@ -650,12 +661,15 @@ predicate_parsed:
 		.space_id = source->space->def->id,
 		.space_name = source->space->def->name,
 		.access = {
-			.kind = has_point_key ? SQL_PLAN_PK_POINT_LOOKUP :
+			.kind = has_prefix_scan ? SQL_PLAN_PK_PREFIX_SCAN :
+				has_point_key ? SQL_PLAN_PK_POINT_LOOKUP :
 				has_range_key ? SQL_PLAN_INDEX_RANGE_SCAN :
 				SQL_PLAN_TABLE_FULL_SCAN,
-			.bounds = has_composite_point ? composite_point_bounds :
+			.bounds = has_composite_point || has_prefix_scan ?
+				composite_point_bounds :
 				has_point_key || has_range_key ? point_bounds : NULL,
-			.bound_count = has_composite_point ? composite_point_count :
+			.bound_count = has_composite_point || has_prefix_scan ?
+				composite_point_count :
 				has_range_key ? (has_range_end_key ? 2 : 1) :
 				has_point_key ? 1 : 0,
 			.has_integer_point_key = has_point_key &&
@@ -667,6 +681,9 @@ predicate_parsed:
 			.point_key_parts = has_composite_point ?
 				composite_point_parts : NULL,
 			.point_key_part_count = has_composite_point ?
+				composite_point_count : 0,
+			.prefix_key_parts = has_prefix_scan ? composite_point_parts : NULL,
+			.prefix_key_part_count = has_prefix_scan ?
 				composite_point_count : 0,
 			.has_integer_range_key = has_range_key && !unsigned_point,
 			.integer_range_key = range_key,
@@ -692,10 +709,12 @@ predicate_parsed:
 		},
 		.projection_columns = columns,
 		.projection_column_count = select->pEList->nExpr,
-		.expressions = has_composite_point ? composite_point_expressions :
+		.expressions = has_composite_point || has_prefix_scan ?
+			composite_point_expressions :
 			has_point_key || has_range_key ?
 			(has_range_end_key ? point_expressions : &point_expression) : NULL,
-		.expression_count = has_composite_point ? composite_point_count :
+		.expression_count = has_composite_point || has_prefix_scan ?
+			composite_point_count :
 			has_range_end_key ? 2 :
 			(has_point_key || has_range_key ? 1 : 0),
 		.cost_startup = estimate->startup_cost,

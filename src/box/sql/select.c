@@ -6146,7 +6146,10 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		goto emission_error;
 	enum sql_plan_access_kind access_kind =
 		sql_plan_descriptor_access_kind(plan);
-	int lower_rc = access_kind == SQL_PLAN_PK_POINT_LOOKUP ?
+	int lower_rc = access_kind == SQL_PLAN_PK_PREFIX_SCAN ?
+		sql_plan_lower_vdbe_pk_prefix_scan(plan, vdbe, source->iCursor,
+						   result_first_reg) :
+		access_kind == SQL_PLAN_PK_POINT_LOOKUP ?
 		sql_plan_lower_vdbe_pk_point(plan, vdbe, source->iCursor,
 					      result_first_reg) :
 		access_kind == SQL_PLAN_INDEX_RANGE_SCAN ?

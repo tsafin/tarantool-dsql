@@ -59,4 +59,9 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 			     struct Vdbe *vdbe, int cursor,
 			     int result_first_reg);
 
+int
+sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
+				   struct Vdbe *vdbe, int cursor,
+				   int result_first_reg);
+
 #endif /* TARANTOOL_SQL_PLAN_LOWERING_H */
