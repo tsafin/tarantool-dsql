@@ -596,16 +596,18 @@ format approval is implied.
   bare enumeration and rejects them when named; and fails the complete batch
   for unsupported engine/index targets rather than silently omitting them.
   These choices and their limitations are recorded in
-  `sql_stats_sampling.md`. Production SQL discovery/execution and rollback
-  tests remain open. Bare `ANALYZE` with no eligible targets is a successful
+  `sql_stats_sampling.md`. This closes volatile SQL discovery/execution and
+  rollback coverage only; persistence remains unimplemented. Bare `ANALYZE`
+  with no eligible targets is a successful
   no-op with no publication. Per the user decision (2026-09-27), the first
   implementation uses fixed conservative compile-time sample/work/memory
   ceilings and fails atomically on exhaustion; no session-configurable limits
   are introduced. The exact ceilings are enumerated in
-  `sql_stats_analyze_budget.h` and `sql_stats_sampling.md`. The focused
+  `sql_stats_analyze_budget.h` and `sql_stats_sampling.md`; the production
+  analyzer consumes these per-index and aggregate ceilings. The focused
   `analyze_volatile_test.lua` runtime suite and `sql_stats_collection.test`
-  unit target pass against the current build. Runtime wiring must consume
-  those exact ceilings. The volatile SQL integration test now injects an
+  unit target pass against the current build. The volatile SQL integration
+  test injects an
   unsupported R-tree index into both named and bare collection requests and
   verifies each failure leaves the installed snapshot unchanged; the TEST_BUILD
   runtime suite passes locally.

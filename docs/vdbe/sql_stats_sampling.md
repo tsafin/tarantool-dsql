@@ -597,7 +597,7 @@ leaves production exports untouched.
 volatile local guards, not durable or cross-node visibility identities. This
 does not enable `ANALYZE` or persistent statistics.
 
-### ANALYZE integration gate (2026-09)
+### ANALYZE integration gate (pre-integration design, superseded below)
 
 The shared-view context now accepts a bounded set of relation specs and builds
 one detached multi-relation candidate from the exact index targets pinned by
@@ -640,7 +640,7 @@ ownership, and byte-budget rejection; `sql_stats_snapshot.test` passes.
 This does not depend on, or authorize, persistent schema IDs or payload
 formats; the schema remains DRAFT.
 
-### S1.2 SQL producer prerequisites audit (2026-09-27)
+### S1.2 SQL producer prerequisites audit (2026-09-27, historical)
 
 The shared-view batch collector and atomic publisher are usable primitives,
 but there is not yet an SQL-catalog discovery/producer helper. The collector
@@ -753,9 +753,38 @@ Minimum SQL integration test matrix after these policies are chosen:
 | named view/missing/data-temporary target | Preserve view and missing-name diagnostics; data-temporary is a fail-closed unsupported target. | Verify no publication and unchanged prior snapshot. |
 | bare set with unsupported engine/index | Fail the complete all-index batch rather than omit one target. | Verify no candidate/publication and exact prior snapshot identity/content. |
 
-Target semantics and fixed bounded defaults are now recorded. SQL grammar and
-execution can proceed against these volatile contracts; persistence remains
-separate and unapproved. Keep S1.1's persistence schema DRAFT.
+The preceding producer-prerequisite notes record the design state before the
+S1.2 SQL integration and are superseded by the current implementation status
+below. They remain useful for the compatibility rationale and invariant list.
+
+### Current S1.2 volatile ANALYZE status (2026-09-28)
+
+SQL grammar and VDBE execution are now wired through
+`sql_stats_analyze_execute()` to the shared-view batch collector. Bare
+`ANALYZE` discovers the complete eligible persistent non-system, non-view set;
+named `ANALYZE table` resolves and refreshes one relation, preserving unrelated
+relations in the installed same-generation snapshot. Both forms publish once
+only after complete collection, validation, and candidate assembly. Missing
+names and views retain their SQL errors; a named system space is a successful
+no-op; data-temporary, unsupported-engine/index, generation-drift, and any
+budget-exhaustion case fail closed without publishing partial results. An
+empty eligible bare target set is a no-op.
+
+The implementation uses the fixed compile-time ceilings in
+`sql_stats_analyze_budget.h` for per-index sampling, shared-view work, aggregate
+staging, and candidate snapshot size. These defaults are not session settings.
+The focused `analyze_volatile_test.lua` runtime suite covers bare memtx/Vinyl
+collection, named replacement, system-space no-op, lookup errors, unsupported
+R-tree atomic failure, and installed-snapshot preservation; it passes with the
+`sql_stats_collection.test` unit target on the current build.
+
+This closes volatile S1.2 grammar/execution, not persistence or the wider
+statistics-quality milestone. No system-space ID or payload format is
+implemented or approved: S1.1 remains DRAFT, and S1.3b cannot start until
+explicit review. The compatibility `analyze*.test.lua` suites remain disabled
+because their assertions depend on durable `_sql_stat1` / `_sql_stat4` rows and
+historical diagnostics; S1.8 is not satisfied by the volatile implementation.
+Planner-quality and M0 workload q-error evidence remain separate S1.9 work.
 
 ```mermaid
 flowchart LR
