@@ -6021,6 +6021,9 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		if (select->pWhere != NULL && reason ==
 		    SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN)
 			reason = SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER;
+		else if (select->pOrderBy != NULL && reason ==
+			 SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN)
+			reason = SQL_PHYSICAL_REJECT_UNSUPPORTED_ORDER;
 		sql_select_record_physical_fallback(parse, reason);
 		return 0;
 	}
