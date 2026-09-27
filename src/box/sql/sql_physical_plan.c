@@ -296,13 +296,26 @@ sql_physical_table_scan_from_select(
 		pk->parts[0].type == FIELD_TYPE_UNSIGNED;
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;
+		bool is_primary_key_part = false;
+		if ((where->op == TK_NOTNULL || where->op == TK_ISNULL) &&
+		    where->pLeft != NULL && where->pRight == NULL &&
+		    where->pLeft->op == TK_COLUMN_REF &&
+		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL &&
+		    where->pLeft->iTable == source->iCursor &&
+		    where->pLeft->iColumn >= 0) {
+			for (uint32_t i = 0; i < pk->part_count; ++i) {
+				if ((uint32_t)where->pLeft->iColumn == pk->parts[i].fieldno) {
+					is_primary_key_part = true;
+					break;
+				}
+			}
+		}
 		if ((where->op == TK_NOTNULL || where->op == TK_ISNULL) &&
 		    where->pLeft != NULL &&
 		    where->pRight == NULL && where->pLeft->op == TK_COLUMN_REF &&
 		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL &&
 		    where->pLeft->iTable == source->iCursor &&
-		    where->pLeft->iColumn >= 0 &&
-		    (uint32_t)where->pLeft->iColumn == primary_field) {
+		    is_primary_key_part) {
 			if (where->op == TK_NOTNULL) {
 				/* Tarantool primary-key fields are non-null. This predicate is
 				 * an identity and the full-scan path preserves it. */

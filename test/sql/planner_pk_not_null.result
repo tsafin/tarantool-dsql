@@ -59,6 +59,201 @@ assert(#enabled_rows == #legacy_rows)
 for i = 1, #legacy_rows do assert(enabled_rows[i][1] == legacy_rows[i][1] and enabled_rows[i][2] == legacy_rows[i][2]) end
 ---
 ...
+-- Every part of a composite primary key is also guaranteed non-null.
+box.execute([[CREATE TABLE pk_not_null_composite_t
+---
+- error: '[string "box.execute([[CREATE TABLE pk_not_null_compos..."]:1: unfinished
+    long string near ''<eof>'''
+...
+              (a INTEGER, b INTEGER, v INTEGER, PRIMARY KEY(a, b))]])
+---
+- error: '[string "              (a INTEGER, b INTEGER, v INTEGE..."]:1: '')'' expected
+    near ''INTEGER'''
+...
+box.execute([[INSERT INTO pk_not_null_composite_t VALUES
+---
+- error: '[string "box.execute([[INSERT INTO pk_not_null_composi..."]:1: unfinished
+    long string near ''<eof>'''
+...
+              (2, 20, NULL), (1, 10, 10), (3, 30, 30)]])
+---
+- error: '[string "              (2, 20, NULL), (1, 10, 10), (3,..."]:1: '')'' expected
+    near '','''
+...
+local function sorted_key_rows(rows)
+---
+- error: '[string "local function sorted_key_rows(rows) "]:1: ''end'' expected near
+    ''<eof>'''
+...
+    table.sort(rows, function(x, y)
+---
+- error: '[string "    table.sort(rows, function(x, y) "]:1: ''end'' expected near
+    ''<eof>'''
+...
+        if x[1] ~= y[1] then return x[1] < y[1] end
+---
+- error: '[string "        if x[1] ~= y[1] then return x[1] < y[..."]:1: variable
+    ''x'' is not declared'
+...
+        return x[2] < y[2]
+---
+- error: '[string "        return x[2] < y[2] "]:1: variable ''x'' is not declared'
+...
+    end)
+---
+- error: '[string "    end) "]:1: ''<eof>'' expected near ''end'''
+...
+    return rows
+---
+- error: '[string "    return rows "]:1: variable ''rows'' is not declared'
+...
+end
+---
+- error: '[string "end "]:1: ''<eof>'' expected near ''end'''
+...
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+---
+- row_count: 1
+...
+composite_disabled = box.execute([[SELECT a, b FROM pk_not_null_composite_t
+---
+- error: '[string "composite_disabled = box.execute([[SELECT a, ..."]:1: unfinished
+    long string near ''<eof>'''
+...
+                                   WHERE b IS NOT NULL]]).rows
+---
+- error: '[string "                                   WHERE b IS..."]:1: ''='' expected
+    near ''b'''
+...
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+---
+- row_count: 1
+...
+summary, err = box.execute([[EXPLAIN (planner = 'summary')
+---
+- error: '[string "summary, err = box.execute([[EXPLAIN (planner..."]:1: unfinished
+    long string near ''<eof>'''
+...
+                             SELECT a, b FROM pk_not_null_composite_t
+---
+- error: '[string "                             SELECT a, b FROM..."]:1: ''='' expected
+    near ''a'''
+...
+                             WHERE b IS NOT NULL]])
+---
+- error: '[string "                             WHERE b IS NOT N..."]:1: ''='' expected
+    near ''b'''
+...
+assert(err == nil and summary.rows[1][3] == 'new_planner')
+---
+- true
+...
+composite_enabled = box.execute([[SELECT a, b FROM pk_not_null_composite_t
+---
+- error: '[string "composite_enabled = box.execute([[SELECT a, b..."]:1: unfinished
+    long string near ''<eof>'''
+...
+                                  WHERE b IS NOT NULL]]).rows
+---
+- error: '[string "                                  WHERE b IS ..."]:1: ''='' expected
+    near ''b'''
+...
+assert(#composite_enabled == 3)
+---
+- error: '[string "return assert(#composite_enabled == 3) "]:1: variable ''composite_enabled''
+    is not declared'
+...
+assert(#composite_disabled == 3)
+---
+- error: '[string "return assert(#composite_disabled == 3) "]:1: variable ''composite_disabled''
+    is not declared'
+...
+composite_enabled_sorted = sorted_key_rows(composite_enabled)
+---
+- error: '[string "composite_enabled_sorted = sorted_key_rows(co..."]:1: variable
+    ''sorted_key_rows'' is not declared'
+...
+composite_disabled_sorted = sorted_key_rows(composite_disabled)
+---
+- error: '[string "composite_disabled_sorted = sorted_key_rows(c..."]:1: variable
+    ''sorted_key_rows'' is not declared'
+...
+for i = 1, 3 do
+---
+- error: '[string "for i = 1, 3 do "]:1: ''end'' expected near ''<eof>'''
+...
+    assert(composite_enabled_sorted[i][1] == composite_disabled_sorted[i][1] and
+---
+- error: '[string "    assert(composite_enabled_sorted[i][1] == ..."]:1: unexpected
+    symbol near ''<eof>'''
+...
+           composite_enabled_sorted[i][2] == composite_disabled_sorted[i][2])
+---
+- error: '[string "           composite_enabled_sorted[i][2] == ..."]:1: ''='' expected
+    near ''=='''
+...
+end
+---
+- error: '[string "end "]:1: ''<eof>'' expected near ''end'''
+...
+composite_disabled_null = box.execute([[SELECT a FROM pk_not_null_composite_t
+---
+- error: '[string "composite_disabled_null = box.execute([[SELEC..."]:1: unfinished
+    long string near ''<eof>'''
+...
+                                         WHERE b IS NULL]]).rows
+---
+- error: '[string "                                         WHER..."]:1: ''='' expected
+    near ''b'''
+...
+assert(#composite_disabled_null == 0)
+---
+- error: '[string "return assert(#composite_disabled_null == 0) "]:1: variable ''composite_disabled_null''
+    is not declared'
+...
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+---
+- row_count: 1
+...
+summary, err = box.execute([[EXPLAIN (planner = 'summary')
+---
+- error: '[string "summary, err = box.execute([[EXPLAIN (planner..."]:1: unfinished
+    long string near ''<eof>'''
+...
+                             SELECT a FROM pk_not_null_composite_t
+---
+- error: '[string "                             SELECT a FROM pk..."]:1: ''='' expected
+    near ''a'''
+...
+                             WHERE b IS NULL]])
+---
+- error: '[string "                             WHERE b IS NULL]]) "]:1: ''='' expected
+    near ''b'''
+...
+assert(err == nil and summary.rows[1][3] == 'new_planner')
+---
+- true
+...
+composite_null_rows = box.execute([[SELECT a FROM pk_not_null_composite_t
+---
+- error: '[string "composite_null_rows = box.execute([[SELECT a ..."]:1: unfinished
+    long string near ''<eof>'''
+...
+                                    WHERE b IS NULL]]).rows
+---
+- error: '[string "                                    WHERE b I..."]:1: ''='' expected
+    near ''b'''
+...
+assert(#composite_null_rows == 0)
+---
+- error: '[string "return assert(#composite_null_rows == 0) "]:1: variable ''composite_null_rows''
+    is not declared'
+...
+box.execute([[DROP TABLE pk_not_null_composite_t]])
+---
+- null
+- Space 'pk_not_null_composite_t' does not exist
+...
 -- A primary-key field cannot be NULL, so IS NULL is exactly empty.
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 ---
