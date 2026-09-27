@@ -87,6 +87,12 @@ for _, id in ipairs(secondary_result.ids) do assert(id >= 1 and id <= 64) end
 local secondary_key_budget = sample.sample(space.id, 8, 1024 * 1024, 42,
     1024, 1024, 1024, 1, 1024 * 1024, false, secondary.id)
 rejected(secondary_key_budget)
+local secondary_source_budget = sample.sample(space.id, 8, 1024 * 1024, 42,
+    1024, 0, 1024, 1024, 1024 * 1024, false, secondary.id)
+rejected(secondary_source_budget)
+local secondary_page_budget = sample.sample(space.id, 8, 1024 * 1024, 42,
+    1024, 1024, 0, 1024, 1024 * 1024, false, secondary.id)
+rejected(secondary_page_budget)
 -- A deterministic seed sweep should not collapse to the first keys. The
 -- loose bounds make this a quality smoke test, not a statistical proof.
 local frequency = {{}}
