@@ -1189,23 +1189,16 @@ DML, triggers, subprograms, non-deterministic functions.
   filter reports `UNSUPPORTED_FILTER` and increments both the total and
   per-reason counters exactly once. This test runs alongside the existing
   memtx/Vinyl filter-result parity checks and does not alter route selection.
-  A follow-up source audit traced the no-predicate `ORDER BY` on a
-  non-primary column through `sqlSelect()`: table-scan preflight rejects the
-  unsupported order, but its current rejection hook only records a physical
-  fallback when a WHERE clause is present. The later logical-expression
-  classifier accepts a resolved column reference; `sqlWhereBegin()` records
-  `current_where_c` for this one-relation legacy route. In the current source,
-  every assignment of `planner_path_class = "fallback"` also assigns a
-  non-null reason and increments the total/per-reason counters in the same
-  helper (or the multi-relation `sqlWhereBegin()` gate). Thus the reported
-  `fallback` with nil reason is not explained by the current assignment
-  sites. The binary used for the local reproduction identifies as
-  `0b5d4bee43`, older than source HEAD `6815839730`; runtime evidence from it
-  does not establish the behavior of this source revision. Before adding a
-  reason or claiming coverage, rebuild from this exact revision and rerun the
-  summary query on memtx and Vinyl. If that still reports `fallback`, trace
-  the prepared VDBE metadata lifetime/selection; do not add another
-  table-scan-producer hook until that route is proven. M3.5 remains open.
+  A focused rerun against the rebuilt current source shows that the no-predicate
+  `ORDER BY` on a non-primary column reports `fallback` with the existing stable
+  `UNSUPPORTED_EXPRESSION` reason and increments total/per-reason counters
+  exactly once. This is the conservative canonical-expression rejection, not a
+  distinct order-specific reason. The memtx/Vinyl `planner_preflight` regression
+  now checks the reason and counter delta around a single EXPLAIN execution;
+  both engines pass. An earlier double execution of the same EXPLAIN obscured
+  this behavior through statement reuse, and its intermediate test failure was
+  not evidence about the route. No new reason code is needed for this shape.
+  M3.5 remains open for the other legacy/producer rejection routes.
 
   ```mermaid
   flowchart TD
