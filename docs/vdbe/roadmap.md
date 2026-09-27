@@ -1717,6 +1717,26 @@ DML, triggers, subprograms, non-deterministic functions.
   build has JIT disabled. This improves CnP coverage but does not close M3.5's
   unsupported-topology or SQL-suite gates.
 
+  **Full SQL-luatest recapture (2026-09-28).** A resumable normal-runner audit
+  generated and validated 991 memtx snapshots across 42 files and 573 Vinyl
+  snapshots across 40 files. Generated-repeat and CnP comparisons produced
+  146 exact file-mode parities in the full sweep, including the isolated
+  prefix-range fixture. A focused rerun after fixing the fallback capture
+  assertion adds four exact CnP/repeat comparisons across the two engines.
+  The fallback-parity test initially failed only because its exact global
+  counter assertion observed the capture adapter's internal snapshot EXPLAIN;
+  the assertion now accounts for that observer-only increment when capture is
+  active, and the standalone test plus its generated/CnP/repeat audit pass on
+  both engines. Remaining sweep findings are two forced-Vinyl generated
+  capture failures (`datetime_test.lua`, `show_create_table_test.lua`), one
+  nondeterministic current-time datetime result in CnP and repeat comparisons,
+  and address-dependent `explain_modifiers` disassembly in repeat comparisons
+  on both engines. LLVM is not observed with JIT disabled, and unsupported
+  multi-child/restarted/prepared/net.box topologies and long tests remain
+  explicitly unrun. This is expanded review evidence, not a clean full-suite
+  parity decision; M3.5 remains open pending these dispositions and the SQL
+  suite/corpus gate.
+
   ```mermaid
   flowchart TD
     R[Root SELECT component] --> C[Child SELECT components]
