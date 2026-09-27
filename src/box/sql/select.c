@@ -5971,6 +5971,13 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 {
 	if ((parse->sql_flags & SQL_NewPlannerSingleTable) == 0 || dest == NULL)
 		return 0;
+	/* Structural classification may have happened before normalization or
+	 * flattening erased the rejected source shape. Do not let a later
+	 * successful physical lowering overwrite that statement's fallback route.
+	 */
+	if (parse->pVdbe != NULL &&
+	    parse->pVdbe->planner_fallback_reason != NULL)
+		return 0;
 	if (sql_select_preflight_table_scan(select, dest) !=
 	    SQL_SELECT_PREFLIGHT_OK) {
 		if (select->pWhere != NULL)
