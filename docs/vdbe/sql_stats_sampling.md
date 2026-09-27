@@ -442,8 +442,8 @@ or wire an active collection job. It does not enable `ANALYZE`.
 
 The first reusable runtime slice now exists as
 `sql_stats_collection_context`: it owns one filtered core `read_view`, records
-that view's engine-assigned ID and schema/catalog versions captured around
-open, rejects missing requested indexes or generation drift, and can
+that view's engine-assigned ID and schema version captured around open,
+rejects missing requested indexes or schema drift, and can
 exhaustively scan a pinned index into the existing bounded reservoir. Unit
 tests cover context ownership, fail-closed open cases, exhaustive population
 reporting, budget failure, and withholding sink delivery on stale/incomplete
