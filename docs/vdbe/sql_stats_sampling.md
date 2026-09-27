@@ -245,6 +245,19 @@ This is only a width observation: the helper does not decode tuple fields,
 derive per-index populations or prefix NDVs, calibrate confidence, or build a
 complete candidate.
 
+`sql_stats_index_summary` is a separate sampled-tuple consumer for one index.
+It computes HLL estimates for each leading prefix, but requires a caller
+callback to produce typed, SQL-canonical values for each tuple. The callback
+must apply the appropriate type, NULL, and collation/equality semantics; raw
+MessagePack encodings are not treated as SQL values. Its counters and NDVs
+describe only tuples delivered by the sampler, not the index population, and
+it does not extrapolate a sample estimate to total-population NDV. Its output
+is therefore intentionally not a `sql_stats_collected_index` and cannot be
+passed to the candidate builder as population-matched index statistics. The
+bounded sketch memory covers HLL registers and the sketch pointer vector;
+producer-owned temporary canonical-value storage is outside that bound. This
+is an aggregation building block, not a complete S1.3a producer.
+
 ### Publication is a separate, currently blocked slice
 
 Do not implement a global pointer swap as a substitute for this contract.

@@ -106,6 +106,12 @@ create_unit_test(PREFIX sql_stats_spacesaving
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_spacesaving.c
                  LIBRARIES unit
 )
+create_unit_test(PREFIX sql_stats_index_summary
+                 SOURCES sql_stats_index_summary.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_index_summary.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
+                 LIBRARIES unit m
+)
 create_unit_test(PREFIX sql_stats_snapshot
                  SOURCES sql_stats_snapshot.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_snapshot.c

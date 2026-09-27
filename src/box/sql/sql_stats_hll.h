@@ -1,6 +1,7 @@
 #ifndef TARANTOOL_SQL_STATS_HLL_H
 #define TARANTOOL_SQL_STATS_HLL_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -20,6 +21,10 @@
  * No persistent representation is defined; do not serialize this struct.
  */
 struct sql_stats_hll;
+
+/** Exact allocation size for a sketch, or false for invalid precision. */
+bool
+sql_stats_hll_storage_bytes(uint8_t precision, size_t *bytes);
 
 /** One typed field of a composite value to add to a joint-NDV sketch. */
 struct sql_stats_hll_value {

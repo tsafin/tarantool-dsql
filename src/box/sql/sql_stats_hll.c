@@ -10,6 +10,15 @@ struct sql_stats_hll {
 	uint8_t registers[];
 };
 
+bool
+sql_stats_hll_storage_bytes(uint8_t precision, size_t *bytes)
+{
+	if (bytes == NULL || precision < 4 || precision > 18)
+		return false;
+	*bytes = sizeof(struct sql_stats_hll) + ((size_t)1 << precision);
+	return true;
+}
+
 static uint64_t
 sql_stats_hll_hash_init(size_t size, uint64_t seed)
 {
