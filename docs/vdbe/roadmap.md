@@ -1521,22 +1521,17 @@ DML, triggers, subprograms, non-deterministic functions.
   statement versus per SELECT component); until then, do not add fallback
   assertions or infer a route class for VALUES.
 
-  **Route-ledger scope decision still required (2026-09-27).** The current
-  `path_class` / `fallback_reason` contract is stored on the statement VDBE,
-  while `sqlSelect()` recursively compiles compound terms, recursive CTE
-  anchor/recursive terms, and subquery producers into that same VDBE. The
-  existing first-reason-wins behavior is therefore not a per-component ledger
-  and cannot identify which component produced a statement-level fallback.
-  Before implementing a shared route record, M3.5
-  must choose its coverage unit: (a) only top-level SELECTs that enter the
-  planner attempt, leaving VALUES/OP_Count/nested components explicitly
-  outside this gate, or (b) every SELECT component, with component identity,
-  parent/role, and a separately defined top-level summary/aggregation rule.
-  The present requirement says “every unsupported shape” but does not define
-  this boundary or whether direct emitters count as supported routes versus
-  out-of-scope routes. Smallest next step is to freeze that coverage unit and
-  its summary semantics; only then can a route-result stack/ledger and mixed
-  nested-route tests avoid making statement-wide EXPLAIN misleading. No route
+  **Route-ledger scope decision (2026-09-27): resolved.** M3.5 uses every
+  SELECT component as its coverage unit: root, recursive compound/CTE/subquery,
+  direct multi-row VALUES, and direct OP_Count components. Each component
+  needs an identity, parent and producer role, and route result. Direct
+  emitters are explicit route classes, not fallback errors. Statement summary
+  mirrors a uniform root route; if component routes are mixed it reports
+  `mixed` with no fallback reason. Component records are authoritative. The
+  current statement-level `path_class` / `fallback_reason` fields and
+  first-reason-wins behavior do not satisfy this contract. Remaining work is
+  the producer inventory, route-ledger implementation, and mixed/direct/nested
+  runtime evidence. No route
   enum alone resolves the scope ambiguity; keep current diagnostics and
   execution behavior unchanged meanwhile.
 
