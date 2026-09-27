@@ -1545,7 +1545,16 @@ DML, triggers, subprograms, non-deterministic functions.
   and SELECT without FROM. Every successful snapshot is required to have a
   complete non-empty component ledger with no pending routes and valid parent
   references; the expanded luatest passes against the v5 build. This strengthens
-  focused branch coverage but is not a reviewed-corpus inventory.
+  focused branch coverage but is not a reviewed-corpus inventory. The M0
+  capture extension now preserves component records in manifest
+  `component_ledger_version: 1`; its validator checks parent ordering and
+  references, unique identities, stable routes/reasons, and summary agreement.
+  `VALUES` is now included in successful planner snapshot capture. The typed
+  capture fixture exercises fallback, current-WHERE, new-planner, mixed,
+  direct-VALUES, and direct-OP_Count paths; corruption probes verify rejection
+  of missing parents and mismatched summaries. The end-to-end typed capture,
+  M0 corpus/policy tests, and focused component runtime matrix all pass. Full
+  accepted-corpus capture/review is still required before M3.5 can close.
 
   ```mermaid
   flowchart TD

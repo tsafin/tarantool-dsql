@@ -133,7 +133,7 @@ l2_diagnostic:
   error_message_canonical: null        # canonicalized message text (parameter/path-stripped)
 
 l3_path_class:
-  taken: current_where_c               # current_where_c | new_planner | fallback | fallback_<reason>
+  taken: current_where_c               # current_where_c | new_planner | fallback | fallback_<reason> | mixed | direct_values | direct_op_count | compound_dispatch
   reason: null                         # required stable code for fallback; nil otherwise
   fallback_to: null                    # current_where_c for fallback; nil otherwise
 
@@ -246,6 +246,10 @@ Stable string values for `l3_path_class.taken`:
 - `current_where_c` — current planner produced this plan.
 - `new_planner` — new planner (M3+) produced this plan.
 - `fallback_<reason>` — new planner rejected the query; current planner ran.
+- `mixed` — SELECT components in the statement used different route classes;
+  the v5 per-component ledger is authoritative.
+- `direct_values`, `direct_op_count`, `compound_dispatch` — the root SELECT
+  used that direct producer route rather than the single-table WHERE planner.
 
 Stable values for `l3_path_class.reason` when `taken` starts with `fallback_`:
 
@@ -378,6 +382,15 @@ snapshot's L3 path metadata. A v2 manifest must include one entry for every
 successful SELECT/WITH statement; non-SELECT statements and failed SQL probes
 have no planner metrics and a null path. L1/L2 still gate failed probes.
 Manifests that omit the extension entirely remain valid for compatibility.
+
+New captures may add `component_ledger_version: 1`. In that case each planner
+metric also contains `component_status: complete` and the v5
+`component_routes` array, preserving each component's ID, parent ID, role,
+route, and optional fallback reason. The validator checks a single root,
+unique IDs, existing parent references, known roles/routes, no pending routes,
+and agreement between component records and the statement summary. This
+extension makes producer coverage auditable without mixing component data
+into L1-L3 parity fields.
 
 The per-query native proof distinguishes execution from structural native
 eligibility. An executed query has a positive interpreter-step or selected
