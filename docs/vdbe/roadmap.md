@@ -575,7 +575,7 @@ review of IDs and formats.
   level latency / read-amplification limits; therefore it is a prototype, not a completed
   statistics sampler. See `sql_stats_sampling.md`. *parallel: yes, against
   the S1.5 contract*.
-- [ ] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
+- [x] **S1.7** Compatibility adapter — `index_field_tuple_est()` and
   `whereRangeScanEst()` consume snapshot, fall back to defaults on absence.
   `sql_set_stats_snapshot()` now installs a retained immutable snapshot in the
   SQL core; `index_field_tuple_est()` and `sql_space_tuple_log_count()` use
