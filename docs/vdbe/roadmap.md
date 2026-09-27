@@ -1043,8 +1043,8 @@ DML, triggers, subprograms, non-deterministic functions.
   were indistinguishable from ordinary `current_where_c` execution. The point
   lookup boundary now has focused fallback coverage for a bind parameter,
   equality on a non-primary column, NULL/computed values, a range, OR, and
-  negative literals against UNSIGNED primary keys, with matching legacy
-  results and stable fallback reasons on both engines. More specific
+  negative and out-of-range literals against UNSIGNED primary keys, with
+  matching legacy results and stable fallback reasons on both engines. More specific
   expression/function rejection reasons retain precedence.
   M3.5 remains partial: the narrow table-scan route now records physical
   rejection reasons at the attempted producer/lowering boundary, but the

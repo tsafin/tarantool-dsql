@@ -184,8 +184,8 @@ result. ORDER BY is accepted only on the primary-key column and is redundant
 for the single-row result. Other filter shapes remain on legacy codegen (with
 the stable UNSUPPORTED_FILTER reason for unsupported filters). The SQL
 regression exercises hit, miss, positive and negative wide signed keys,
-UNSIGNED keys above `INT64_MAX` through `UINT64_MAX`, negative-UNSIGNED
-fallback, LIMIT/OFFSET,
+UNSIGNED keys above `INT64_MAX` through `UINT64_MAX`, negative and overflowing
+UNSIGNED fallback, LIMIT/OFFSET,
 primary-key ordering, and unsupported-filter fallback cases on both memtx and
 Vinyl. This is a first primary point path, not general
 point-lookup support: parameters, secondary indexes, composite keys, ranges,
