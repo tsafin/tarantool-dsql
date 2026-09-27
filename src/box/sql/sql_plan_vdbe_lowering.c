@@ -24,8 +24,8 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
 	      input->finalize[0].kind != SQL_PLAN_LIMIT ||
-	      input->finalize[0].offset > INT_MAX ||
-	      input->finalize[0].limit > INT_MAX)) ||
+	      input->finalize[0].offset > INT64_MAX ||
+	      input->finalize[0].limit > INT64_MAX)) ||
 	    input->projection_columns == NULL ||
 	    input->projection_column_count == 0 ||
 	    input->projection_column_count > INT_MAX ||
@@ -53,16 +53,31 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 	}
 	if (has_limit) {
 		limit_reg = ++parse->nMem;
-		int addr = sqlVdbeAddOp2(vdbe, OP_Integer,
-					 (int)input->finalize[0].limit, limit_reg);
+		int addr;
+		if (input->finalize[0].limit <= INT_MAX) {
+			addr = sqlVdbeAddOp2(vdbe, OP_Integer,
+					     (int)input->finalize[0].limit,
+					     limit_reg);
+		} else {
+			uint64_t value = input->finalize[0].limit;
+			addr = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, limit_reg, 0,
+						 (const u8 *)&value, P4_UINT64);
+		}
 		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
 		if (input->finalize[0].offset != 0) {
 			offset_reg = ++parse->nMem;
-			addr = sqlVdbeAddOp2(vdbe, OP_Integer,
-					     (int)input->finalize[0].offset,
-					     offset_reg);
+			if (input->finalize[0].offset <= INT_MAX) {
+				addr = sqlVdbeAddOp2(vdbe, OP_Integer,
+						     (int)input->finalize[0].offset,
+						     offset_reg);
+			} else {
+				uint64_t value = input->finalize[0].offset;
+				addr = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0,
+						offset_reg, 0, (const u8 *)&value,
+						P4_UINT64);
+			}
 			if (addr != vdbe->nOp - 1 || parse->is_aborted ||
 			    diag_last_error(diag_get()) != checkpoint.diag_error)
 				goto error;

@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include <math.h>
-#include <limits.h>
 #include <string.h>
 
 #include "sqlInt.h"
@@ -39,8 +38,6 @@ extract_literal_limit(const struct Expr *expr, uint64_t *value)
 			      strlen(expr->u.zToken)) != 0 || is_negative) {
 		return false;
 	}
-	if ((uint64_t)signed_value > INT_MAX)
-		return false;
 	*value = (uint64_t)signed_value;
 	return true;
 }

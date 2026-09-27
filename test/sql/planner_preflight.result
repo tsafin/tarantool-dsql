@@ -145,7 +145,7 @@ assert(err == nil and summary.rows[1][3] == 'fallback')
 summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t LIMIT 2147483648]])
  | ---
  | ...
-assert(err == nil and summary.rows[1][3] == 'fallback')
+assert(err == nil and summary.rows[1][3] == 'new_planner')
  | ---
  | - true
  | ...
@@ -153,6 +153,34 @@ wide_limit_result, wide_limit_error = box.execute([[SELECT v FROM planner_prefli
  | ---
  | ...
 assert(wide_limit_error == nil and #wide_limit_result.rows == 3)
+ | ---
+ | - true
+ | ...
+wide_limit_offset_result, wide_limit_offset_error = box.execute([[SELECT v FROM planner_preflight_t LIMIT 2147483648 OFFSET 2147483649]])
+ | ---
+ | ...
+assert(wide_limit_offset_error == nil and #wide_limit_offset_result.rows == 0)
+ | ---
+ | - true
+ | ...
+summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t LIMIT 2147483648 OFFSET 2147483649]])
+ | ---
+ | ...
+assert(err == nil and summary.rows[1][3] == 'new_planner')
+ | ---
+ | - true
+ | ...
+max_limit_offset_result, max_limit_offset_error = box.execute([[SELECT v FROM planner_preflight_t LIMIT 9223372036854775807 OFFSET 9223372036854775806]])
+ | ---
+ | ...
+assert(max_limit_offset_error == nil and #max_limit_offset_result.rows == 0)
+ | ---
+ | - true
+ | ...
+summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t LIMIT 9223372036854775807 OFFSET 9223372036854775806]])
+ | ---
+ | ...
+assert(err == nil and summary.rows[1][3] == 'new_planner')
  | ---
  | - true
  | ...

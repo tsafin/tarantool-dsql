@@ -75,7 +75,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(12);
+	plan(13);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -89,9 +89,14 @@ main(void)
 	static const struct sql_plan_finalize offset_limit = {
 		.kind = SQL_PLAN_LIMIT, .limit = 1, .offset = 1,
 	};
+	static const struct sql_plan_finalize wide_offset_limit = {
+		.kind = SQL_PLAN_LIMIT,
+		.limit = INT64_MAX,
+		.offset = INT64_MAX - 1,
+	};
 	static const struct sql_plan_finalize invalid_offset = {
 		.kind = SQL_PLAN_LIMIT, .limit = 1,
-		.offset = (uint64_t)INT_MAX + 1,
+		.offset = UINT64_MAX,
 	};
 	struct sql_plan_descriptor *plan_desc = new_scan_descriptor(NULL, 0,
 		SQL_PLAN_ASC, NULL, 0);
@@ -105,11 +110,14 @@ main(void)
 		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &limit_zero, 1);
 	struct sql_plan_descriptor *offset_limit_desc =
 		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &offset_limit, 1);
+	struct sql_plan_descriptor *wide_offset_limit_desc =
+		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &wide_offset_limit, 1);
 	struct sql_plan_descriptor *invalid_offset_desc =
 		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &invalid_offset, 1);
 	ok(plan_desc != NULL && filtered_desc != NULL && descending_desc != NULL &&
 	   limit_one_desc != NULL && limit_zero_desc != NULL &&
-	   offset_limit_desc != NULL && invalid_offset_desc != NULL,
+	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
+	   invalid_offset_desc != NULL,
 	   "scan and literal-limit descriptors are constructed");
 	struct Parse parse = {};
 	struct Vdbe vdbe = {};
@@ -169,6 +177,18 @@ main(void)
 	   vdbe.aOp[before_offset_limit + 7].opcode == OP_DecrJumpZero &&
 	   vdbe.aOp[before_offset_limit + 8].opcode == OP_Next,
 	   "literal OFFSET skips rows before projection and limit accounting");
+	int before_wide_offset_limit = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan(wide_offset_limit_desc, &vdbe, 4,
+					  20) == 0 &&
+	   vdbe.aOp[before_wide_offset_limit].opcode == OP_Int64 &&
+	   vdbe.aOp[before_wide_offset_limit].p4type == P4_UINT64 &&
+	   (uint64_t)*vdbe.aOp[before_wide_offset_limit].p4.pI64 ==
+		INT64_MAX &&
+	   vdbe.aOp[before_wide_offset_limit + 1].opcode == OP_Int64 &&
+	   vdbe.aOp[before_wide_offset_limit + 1].p4type == P4_UINT64 &&
+	   (uint64_t)*vdbe.aOp[before_wide_offset_limit + 1].p4.pI64 ==
+		INT64_MAX - 1,
+	   "maximum signed-64-bit LIMIT and OFFSET initialize unsigned counters");
 	int before_invalid_offset = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_table_scan(invalid_offset_desc, &vdbe, 4, 20) == -1 &&
 	   vdbe.nOp == before_invalid_offset,
@@ -180,7 +200,13 @@ main(void)
 	sql_plan_descriptor_delete(limit_one_desc);
 	sql_plan_descriptor_delete(limit_zero_desc);
 	sql_plan_descriptor_delete(offset_limit_desc);
+	sql_plan_descriptor_delete(wide_offset_limit_desc);
 	sql_plan_descriptor_delete(invalid_offset_desc);
+	for (int i = 0; i < vdbe.nOp; ++i) {
+		if (vdbe.aOp[i].p4type == P4_INT64 ||
+		    vdbe.aOp[i].p4type == P4_UINT64)
+			sql_xfree(vdbe.aOp[i].p4.p);
+	}
 	sql_xfree(vdbe.aOp);
 	footer();
 	int rc = check_plan();

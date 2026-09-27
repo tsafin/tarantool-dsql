@@ -148,9 +148,11 @@ completion.
 descriptor for resolved `SELECT column[, ...] FROM t` statements with no
 predicate. Ordering is accepted only for one direct reference to the single
 primary-key part; scan direction then satisfies the order without a sorter.
-It accepts a nonnegative integer-literal LIMIT and optional OFFSET, both up
-to `INT_MAX`, retaining them as a `Limit` finalizer; other LIMIT/OFFSET
-expressions fail closed. It validates every projected
+It accepts a nonnegative signed-64-bit integer-literal LIMIT and optional
+OFFSET, retaining them as a `Limit` finalizer. Values above `INT_MAX` use
+unsigned `OP_Int64` counter initialization; larger descriptor values are
+rejected before VDBE mutation. Other LIMIT/OFFSET expressions fail closed. It
+validates every projected
 column's cursor binding and ordinal before creating the descriptor, and requires
 caller-supplied statement-time estimates. Unit coverage checks projection
 order, access kind, cursor binding, and rejection before descriptor creation
