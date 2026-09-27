@@ -1553,8 +1553,22 @@ DML, triggers, subprograms, non-deterministic functions.
   capture fixture exercises fallback, current-WHERE, new-planner, mixed,
   direct-VALUES, and direct-OP_Count paths; corruption probes verify rejection
   of missing parents and mismatched summaries. The end-to-end typed capture,
-  M0 corpus/policy tests, and focused component runtime matrix all pass. Full
-  accepted-corpus capture/review is still required before M3.5 can close.
+  M0 corpus/policy tests, and focused component runtime matrix all pass. A
+  generated-mode standalone SQL-TAP audit then covered all 275 files on each
+  engine (reports under `/dev/shm/m35-sqltap-{memtx,vinyl}.json`): memtx
+  captured 66,055 statements / 53,592 component records; Vinyl captured
+  66,051 / 53,584. Every emitted successful-SELECT manifest used component
+  ledger v1, every ledger validated, and there were zero incomplete component
+  ledgers. Of those files, 235 memtx and 234 Vinyl standalone captures passed
+  TAP plus snapshot validation; seven timed out on each engine. Among the 234
+  files accepted on both engines, per-file component role and route histograms
+  matched exactly. The single acceptance difference was the known
+  concurrency-attribution test (`gh-2723-concurrency.test.lua`); rejected
+  ANALYZE/system-stat cases still depend on the unapproved persistence gate.
+  This is complete SQL-TAP producer coverage evidence, but the audit is not a
+  normal-runner parity decision and does not cover SQL or SQL-luatest corpus
+  entries. M3.5 remains open until those reviewed-corpus producers and route
+  changes are dispositioned.
 
   ```mermaid
   flowchart TD
