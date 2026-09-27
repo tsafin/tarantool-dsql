@@ -96,7 +96,7 @@ test_sample_prefix_summaries(void)
 static void
 test_population_prefix_estimation(void)
 {
-	plan(9);
+	plan(10);
 	header();
 	struct sql_stats_index_summary *summary =
 		sql_stats_index_summary_new(1, 12, 17, 10000, extract_scalar, NULL);
@@ -121,13 +121,13 @@ test_population_prefix_estimation(void)
 	double confidence = 0;
 	ok(sql_stats_index_summary_population_prefix_ndv(summary, &sample, 1,
 							   &ndv, 1,
-							   &confidence, 64) == 0 &&
+							   &confidence, 64, 1000000) == 0 &&
 	   ndv >= 90 && ndv <= 110 && confidence > 0 && confidence < 1,
 	   "reservoir occupancy inversion estimates population NDV and confidence");
 	sample.with_replacement = true;
 	ok(sql_stats_index_summary_population_prefix_ndv(summary, &sample, 1,
 							   &ndv, 1,
-							   &confidence, 64) == 0 &&
+							   &confidence, 64, 1000000) == 0 &&
 	   ndv >= 90 && ndv <= 110,
 	   "independent-draw occupancy inversion estimates population NDV");
 	sample.population_known = false;
@@ -135,20 +135,25 @@ test_population_prefix_estimation(void)
 	confidence = 0.25;
 	ok(sql_stats_index_summary_population_prefix_ndv(summary, &sample, 1,
 							   &ndv, 1,
-							   &confidence, 64) != 0 &&
+							   &confidence, 64, 1000000) != 0 &&
 	   ndv == 777 && confidence == 0.25,
 	   "unknown population rejects without exposing partial outputs");
 	sample.population_known = true;
 	ok(sql_stats_index_summary_population_prefix_ndv(summary, &sample, 1,
 							   &ndv, 1,
-							   &confidence, 15) != 0 &&
+							   &confidence, 15, 1000000) != 0 &&
 	   ndv == 777 && confidence == 0.25,
 	   "population estimator enforces temporary-memory budget");
+	ok(sql_stats_index_summary_population_prefix_ndv(summary, &sample, 1,
+							   &ndv, 1,
+							   &confidence, 64, 1) != 0 &&
+	   ndv == 777 && confidence == 0.25,
+	   "population estimator enforces its work budget");
 	sample.with_replacement = false;
 	sample.visible_population = sample.rows;
 	ok(sql_stats_index_summary_population_prefix_ndv(summary, &sample, 1,
 							   &ndv, 1,
-							   &confidence, 64) == 0 &&
+							   &confidence, 64, 1000000) == 0 &&
 	   ndv >= 60 && ndv <= 66 && confidence > 0,
 	   "complete reservoir sample returns observed HLL NDV without extrapolation");
 	sql_stats_index_summary_delete(summary);
@@ -173,7 +178,7 @@ test_population_prefix_estimation(void)
 	ok(skew_consumed &&
 	   sql_stats_index_summary_population_prefix_ndv(skewed, &sample, 1,
 							   &ndv, 1,
-							   &confidence, 64) == 0 &&
+							   &confidence, 64, 1000000) == 0 &&
 	   ndv < 20 && confidence > 0 && confidence < 0.1,
 	   "low-coverage skew returns a low-confidence occupancy-model estimate");
 	sql_stats_index_summary_delete(skewed);

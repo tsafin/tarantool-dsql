@@ -115,9 +115,11 @@ statement counter.
 over delivered sample rows into an explicitly model-based population NDV. It
 requires `population_known`, exact agreement between the summary's consumed
 rows and the sampler's delivered-row count, a nonempty sample for a nonempty
-population, and a caller-supplied temporary-memory cap. It leaves outputs
-untouched on incomplete or inconsistent input. An empty known population
-produces zero prefix NDVs.
+population, and caller-supplied temporary-memory and work caps. The reservoir
+inversion is bounded by `64 * sample_rows * prefix_count` occupancy-product
+iterations; independent-draw inversion is bounded by `64 * prefix_count`.
+It leaves outputs untouched on incomplete, inconsistent, or over-budget input.
+An empty known population produces zero prefix NDVs.
 
 For independent draws with replacement, the implementation solves for `K` in
 `D = K * (1 - (1 - 1/K)^n)`, where `D` is HLL's observed sample NDV and `n` is

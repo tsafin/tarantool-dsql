@@ -553,9 +553,9 @@ review of IDs and formats.
   closed without partial outputs; empty populations produce zero NDVs and a
   census returns observed HLL NDV without extrapolation. The estimator's
   equal-frequency assumption and confidence semantics are documented in
-  `sql_stats_sampling.md`; nine focused tests exercise both sampling designs,
+  `sql_stats_sampling.md`; ten focused tests exercise both sampling designs,
   a complete census, a low-coverage skew probe, provenance rejection, and the
-  temporary-memory bound. It is not wired into
+  temporary-memory and work bounds. It is not wired into
   complete relation collection or global publication, and has no agreed
   corpus validation for the distributional assumption. The native index-hash
   adapter supports

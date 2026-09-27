@@ -87,14 +87,16 @@ sql_stats_index_summary_prefix_ndv(
  * a reservoir sample it uses the finite-population no-observation product.
  * Returns -1 without modifying outputs when sample/population metadata or the
  * summary is incomplete/inconsistent or the temporary arrays would exceed
- * max_temp_bytes.
+ * max_temp_bytes or the estimator's bounded work would exceed max_work. The
+ * latter counts the inversion's bounded occupancy-product work across all
+ * prefixes.
  */
 int
 sql_stats_index_summary_population_prefix_ndv(
 	const struct sql_stats_index_summary *summary,
 	const struct sql_stats_sample_result *sample, size_t prefix_count,
 	uint64_t *estimates, size_t estimate_count, double *confidence,
-	size_t max_temp_bytes);
+	size_t max_temp_bytes, uint64_t max_work);
 
 #ifdef __cplusplus
 }

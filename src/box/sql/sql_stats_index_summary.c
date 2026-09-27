@@ -269,7 +269,7 @@ sql_stats_index_summary_population_prefix_ndv(
 	const struct sql_stats_index_summary *summary,
 	const struct sql_stats_sample_result *sample, size_t prefix_count,
 	uint64_t *estimates, size_t estimate_count, double *confidence,
-	size_t max_temp_bytes)
+	size_t max_temp_bytes, uint64_t max_work)
 {
 	if (summary == NULL || summary->failed || sample == NULL ||
 	    !sample->population_known || sample->rows != summary->rows ||
@@ -291,6 +291,15 @@ sql_stats_index_summary_population_prefix_ndv(
 		return 0;
 	}
 	if (sample->rows == 0)
+		return -1;
+	uint64_t work_per_prefix = 64;
+	if (!sample->with_replacement) {
+		if (sample->rows > UINT64_MAX / work_per_prefix)
+			return -1;
+		work_per_prefix *= sample->rows;
+	}
+	if (prefix_count > UINT64_MAX / work_per_prefix ||
+	    (uint64_t)prefix_count * work_per_prefix > max_work)
 		return -1;
 	if (prefix_count > SIZE_MAX / (sizeof(double) + sizeof(uint64_t)) ||
 	    prefix_count * (sizeof(double) + sizeof(uint64_t)) > max_temp_bytes)
