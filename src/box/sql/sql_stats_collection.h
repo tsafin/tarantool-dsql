@@ -146,6 +146,32 @@ struct sql_stats_tx_index_spec {
 	void *extract_context;
 };
 
+/*
+ * Build a detached single-relation candidate by scanning every requested
+ * index through this context's shared engine read view. The context must
+ * contain exactly those indexes. Failure marks it unusable; no partial
+ * candidate escapes. The assembler owns summaries/staging, while extractor
+ * contexts and request field_ids are borrowed for this synchronous call.
+ */
+struct sql_stats_snapshot *
+sql_stats_collection_context_build_sample_candidate(
+	struct sql_stats_collection_context *context,
+	const struct sql_stats_expected_relation *expected,
+	const struct sql_stats_tx_index_spec *specs, size_t spec_count,
+	uint32_t relation_index_id, double relation_confidence,
+	const char *confidence_source, size_t max_candidate_bytes,
+	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work);
+
+/*
+ * Install only the exact candidate assembled by this context. On success the
+ * context is deleted and *context is set to NULL. The caller retains its own
+ * candidate reference; on failure the caller must delete the context.
+ */
+int
+sql_stats_collection_context_publish_candidate(
+	struct sql_stats_collection_context **context,
+	struct sql_stats_snapshot *candidate);
+
 int
 sql_stats_tx_context_begin(
 	const struct sql_stats_collection_target *targets, size_t target_count,

@@ -1,20 +1,61 @@
 #include "sql_stats_collection.h"
 
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "box.h"
 #include "index.h"
 #include "read_view.h"
 #include "schema.h"
 #include "space.h"
+#include "sql.h"
+#include "sql_stats_index_summary.h"
+#include "vclock/vclock.h"
+
+struct sql_stats_collection_staged_index {
+	struct sql_stats_index_summary *summary;
+	struct sql_stats_sample_result sample;
+};
 
 struct sql_stats_collection_context {
 	struct read_view view;
 	struct sql_stats_collection_target *targets;
+	uint32_t *index_unique_ids;
+	struct sql_stats_snapshot *assembled_candidate;
 	size_t target_count;
+	uint64_t catalog_version;
 	uint64_t schema_version;
+	int64_t visibility_vclock_sum;
 	bool view_open;
+	bool failed;
 };
+
+static int
+collection_summary_sink_consume(void *arg, const char *tuple,
+				size_t tuple_size, const uint32_t *field_ids,
+				size_t field_count)
+{
+	return sql_stats_index_summary_consume(arg, tuple, tuple_size, field_ids,
+						field_count);
+}
+
+static bool
+collection_context_is_valid(const struct sql_stats_collection_context *context)
+{
+	if (context == NULL || !context->view_open || context->failed ||
+	    box_schema_version() != context->schema_version ||
+	    box_catalog_version() != context->catalog_version)
+		return false;
+	for (size_t i = 0; i < context->target_count; i++) {
+		struct space *space = space_by_id_slow(context->targets[i].space_id);
+		struct index *index = space != NULL ?
+			space_index(space, context->targets[i].index_id) : NULL;
+		if (index == NULL || index->unique_id != context->index_unique_ids[i])
+			return false;
+	}
+	return true;
+}
 
 static bool
 context_has_space(const struct sql_stats_collection_context *context,
@@ -87,6 +128,10 @@ sql_stats_collection_context_new(
 		goto fail;
 	memcpy(context->targets, targets, target_count * sizeof(*targets));
 	context->target_count = target_count;
+	context->index_unique_ids = calloc(target_count,
+						   sizeof(*context->index_unique_ids));
+	if (context->index_unique_ids == NULL)
+		goto fail;
 	for (size_t i = 0; i < target_count; i++) {
 		for (size_t j = i + 1; j < target_count; j++) {
 			if (targets[i].space_id == targets[j].space_id &&
@@ -95,6 +140,7 @@ sql_stats_collection_context_new(
 		}
 	}
 	uint64_t schema_before = box_schema_version();
+	uint64_t catalog_before = box_catalog_version();
 	struct read_view_opts opts;
 	read_view_opts_create(&opts);
 	opts.name = "sql-stats-collection";
@@ -105,12 +151,23 @@ sql_stats_collection_context_new(
 	if (read_view_open(&context->view, &opts) != 0)
 		goto fail;
 	context->view_open = true;
-	if (box_schema_version() != schema_before)
+	context->visibility_vclock_sum = vclock_sum(&context->view.vclock);
+	if (context->visibility_vclock_sum < 0)
+		goto fail;
+	if (box_schema_version() != schema_before ||
+	    box_catalog_version() != catalog_before)
 		goto fail;
 	for (size_t i = 0; i < target_count; i++) {
-		if (context_get_index(context, &targets[i]) == NULL)
+		struct index_read_view *index_view =
+			context_get_index(context, &targets[i]);
+		struct space *space = space_by_id_slow(targets[i].space_id);
+		struct index *index = space != NULL ?
+			space_index(space, targets[i].index_id) : NULL;
+		if (index_view == NULL || index == NULL || index->def == NULL)
 			goto fail;
+		context->index_unique_ids[i] = index->unique_id;
 	}
+	context->catalog_version = catalog_before;
 	context->schema_version = schema_before;
 	return context;
 fail:
@@ -126,6 +183,9 @@ sql_stats_collection_context_delete(
 		return;
 	if (context->view_open)
 		read_view_close(&context->view);
+	if (context->assembled_candidate != NULL)
+		sql_stats_snapshot_release(context->assembled_candidate);
+	free(context->index_unique_ids);
 	free(context->targets);
 	free(context);
 }
@@ -144,6 +204,191 @@ sql_stats_collection_context_schema_version(
 	return context == NULL ? 0 : context->schema_version;
 }
 
+static size_t
+collection_context_target_index(
+	const struct sql_stats_collection_context *context,
+	const struct sql_stats_collection_target *target)
+{
+	for (size_t i = 0; i < context->target_count; i++) {
+		if (context->targets[i].space_id == target->space_id &&
+		    context->targets[i].index_id == target->index_id)
+			return i;
+	}
+	return context->target_count;
+}
+
+struct sql_stats_snapshot *
+sql_stats_collection_context_build_sample_candidate(
+	struct sql_stats_collection_context *context,
+	const struct sql_stats_expected_relation *expected,
+	const struct sql_stats_tx_index_spec *specs, size_t spec_count,
+	uint32_t relation_index_id, double relation_confidence,
+	const char *confidence_source, size_t max_candidate_bytes,
+	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work)
+{
+	struct sql_stats_collection_staged_index *staged = NULL;
+	struct sql_stats_sampled_index *sampled_indexes = NULL;
+	double *confidences = NULL;
+	struct sql_stats_snapshot *candidate = NULL;
+	bool valid = collection_context_is_valid(context) &&
+		context->assembled_candidate == NULL && expected != NULL &&
+		expected->index_count != 0 && expected->indexes != NULL &&
+		specs != NULL && spec_count == expected->index_count &&
+		spec_count == context->target_count &&
+		spec_count <= SIZE_MAX / (sizeof(*staged) +
+			sizeof(*sampled_indexes) + sizeof(*confidences)) &&
+		isfinite(relation_confidence) && relation_confidence >= 0 &&
+		relation_confidence <= 1 && confidence_source != NULL &&
+		confidence_source[0] != '\0';
+	if (!valid)
+		goto fail;
+	size_t metadata_bytes = spec_count * (sizeof(*staged) +
+		sizeof(*sampled_indexes) + sizeof(*confidences));
+	if (metadata_bytes > max_staging_bytes)
+		goto fail;
+	size_t total_staging_bytes = metadata_bytes;
+	size_t max_reservoir_bytes = 0;
+	size_t relation_sample_index = spec_count;
+	for (size_t i = 0; i < spec_count; i++) {
+		const struct sql_stats_tx_index_spec *spec = &specs[i];
+		if (spec->expected == NULL || spec->extract == NULL ||
+		    spec->target.space_id != expected->space_id ||
+		    spec->target.index_id != spec->expected->index_id ||
+		    spec->request.index_id != spec->target.index_id ||
+		    spec->request.max_buffer_bytes == 0 ||
+		    spec->expected->definition_version == 0 ||
+		    spec->expected->part_count == 0 ||
+		    spec->summary_max_bytes == 0 ||
+		    total_staging_bytes > max_staging_bytes ||
+		    spec->summary_max_bytes > max_staging_bytes -
+						      total_staging_bytes)
+			goto fail;
+		total_staging_bytes += spec->summary_max_bytes;
+		bool expected_match = false;
+		for (size_t j = 0; j < expected->index_count; j++) {
+			if (expected->indexes[j].index_id ==
+				    spec->expected->index_id &&
+			    expected->indexes[j].definition_version ==
+				    spec->expected->definition_version &&
+			    expected->indexes[j].part_count ==
+				    spec->expected->part_count)
+				expected_match = true;
+		}
+		for (size_t j = 0; j < i; j++) {
+			if (specs[j].target.space_id == spec->target.space_id &&
+			    specs[j].target.index_id == spec->target.index_id)
+				goto fail;
+		}
+		size_t target_index = collection_context_target_index(context,
+									 &spec->target);
+		struct index_read_view *index_view =
+			context_get_index(context, &spec->target);
+		if (!expected_match || target_index == context->target_count ||
+		    context->index_unique_ids[target_index] !=
+			    spec->expected->definition_version || index_view == NULL ||
+		    index_view->def->key_def->part_count !=
+			    spec->expected->part_count)
+			goto fail;
+		if (spec->request.max_buffer_bytes > max_reservoir_bytes)
+			max_reservoir_bytes = spec->request.max_buffer_bytes;
+		if (spec->target.index_id == relation_index_id)
+			relation_sample_index = i;
+	}
+	if (total_staging_bytes > max_staging_bytes ||
+	    max_reservoir_bytes > max_staging_bytes - total_staging_bytes ||
+	    relation_sample_index == spec_count)
+		goto fail;
+	staged = calloc(spec_count, sizeof(*staged));
+	sampled_indexes = calloc(spec_count, sizeof(*sampled_indexes));
+	confidences = calloc(spec_count, sizeof(*confidences));
+	if (staged == NULL || sampled_indexes == NULL || confidences == NULL)
+		goto fail;
+	for (size_t i = 0; i < spec_count; i++) {
+		const struct sql_stats_tx_index_spec *spec = &specs[i];
+		staged[i].summary = sql_stats_index_summary_new(
+			spec->expected->part_count, spec->hll_precision,
+			spec->hll_seed, spec->summary_max_bytes, spec->extract,
+			spec->extract_context);
+		if (staged[i].summary == NULL)
+			goto fail;
+		struct sql_stats_sample_sink sink = {
+			.context = staged[i].summary,
+			.consume = collection_summary_sink_consume,
+		};
+		struct sql_stats_sample_request request = spec->request;
+		if (sql_stats_collection_context_sample_index(context,
+				&spec->target, &request, &sink,
+				&staged[i].sample) != 0)
+			goto fail;
+		sampled_indexes[i] = (struct sql_stats_sampled_index) {
+			.expected = spec->expected,
+			.sample = &staged[i].sample,
+			.summary = staged[i].summary,
+		};
+	}
+	if (!collection_context_is_valid(context))
+		goto fail;
+	struct sql_stats_collection_generation generation = {
+		.catalog_version = context->catalog_version,
+		.schema_version = context->schema_version,
+		.visibility_id = context->view.id,
+	};
+	candidate = sql_stats_collection_build_sample_candidate(&generation,
+		expected, sampled_indexes, spec_count,
+		&staged[relation_sample_index].sample, relation_confidence,
+		confidence_source, confidences, max_candidate_bytes,
+		max_temp_bytes, max_work);
+	if (candidate == NULL)
+		goto fail;
+	sql_stats_snapshot_retain(candidate);
+	context->assembled_candidate = candidate;
+	for (size_t i = 0; i < spec_count; i++)
+		sql_stats_index_summary_delete(staged[i].summary);
+	free(staged);
+	free(sampled_indexes);
+	free(confidences);
+	return candidate;
+fail:
+	if (context != NULL)
+		context->failed = true;
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+	if (staged != NULL) {
+		for (size_t i = 0; i < spec_count; i++)
+			sql_stats_index_summary_delete(staged[i].summary);
+	}
+	free(staged);
+	free(sampled_indexes);
+	free(confidences);
+	return NULL;
+}
+
+int
+sql_stats_collection_context_publish_candidate(
+	struct sql_stats_collection_context **context_ptr,
+	struct sql_stats_snapshot *candidate)
+{
+	if (context_ptr == NULL || *context_ptr == NULL)
+		return -1;
+	struct sql_stats_collection_context *context = *context_ptr;
+	if (candidate == NULL || context->assembled_candidate != candidate ||
+	    !collection_context_is_valid(context) || sql_get() == NULL ||
+	    box_vclock == NULL || vclock_sum(box_vclock) < 0 ||
+	    vclock_sum(box_vclock) != context->visibility_vclock_sum ||
+	    sql_stats_snapshot_catalog_version(candidate) !=
+		    context->catalog_version ||
+	    sql_stats_snapshot_schema_version(candidate) !=
+		    context->schema_version) {
+		context->failed = true;
+		return -1;
+	}
+	/* No yield is allowed between generation revalidation and pointer swap. */
+	sql_set_stats_snapshot(candidate);
+	sql_stats_collection_context_delete(context);
+	*context_ptr = NULL;
+	return 0;
+}
+
 int
 sql_stats_collection_context_sample_index(
 	struct sql_stats_collection_context *context,
@@ -156,7 +401,8 @@ sql_stats_collection_context_sample_index(
 		return -1;
 	*result = (struct sql_stats_sample_result){};
 	if (context == NULL || target == NULL || request == NULL || sink == NULL ||
-	    sink->consume == NULL || request->max_rows == 0 ||
+	    sink->consume == NULL || request->index_id != target->index_id ||
+	    request->max_rows == 0 ||
 	    request->max_bytes == 0 || request->max_buffer_bytes == 0 ||
 	    request->max_tuples_examined == 0 ||
 	    (request->field_count != 0 && request->field_ids == NULL) ||
