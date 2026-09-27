@@ -401,11 +401,10 @@ Vinyl relation, each with primary and secondary indexes, commits delete(1,2)
 and insert(9,10) in both engines, then scans all four indexes before closing
 the view. Every pre-cut scan returns `{1..8}`; reopening after the commits
 returns `{3..10}` from every index. The direct server-runtime command passed
-with the TEST_BUILD Clang-19 build. The focused `test-run` wrapper could not
-validate this in-process test in the isolated environment: it reached server
-readiness, then its startup/connection lifecycle terminated the server with a
-Fiber GC leak report that had no backtrace frames. A direct start/TERM check
-had no leak, and the barrier test passed directly in the binary.
+with the TEST_BUILD Clang-19 build, and the integrated focused
+`sql_stats_test.lua` test-run passed. An earlier isolated-worktree test-run
+attempt terminated during startup with a Fiber GC leak report and no
+backtrace frames; that failure did not reproduce in the root checkout.
 
 This proves the volatile common cut for the exercised memtx/Vinyl primary and
 secondary full scans; it does not complete S1.3a. The candidate-building

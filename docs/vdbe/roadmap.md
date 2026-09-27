@@ -733,10 +733,10 @@ format approval is implied.
   memtx and Vinyl relations with primary/secondary indexes, commits delete
   and insert changes, and confirms all four scans remain `{1..8}` until that
   view closes; reopening yields `{3..10}`. The Clang-19 TEST_BUILD target and
-  direct runtime invocation pass. The focused `test-run` harness still cannot
-  be counted as passing here: after reporting readiness it terminates the
-  server with a Fiber GC leak message and no backtrace frames, while direct
-  startup/TERM is clean. This closes the shared volatile visibility-boundary
+  direct runtime invocation pass. The integrated focused `sql_stats_test.lua`
+  test-run also passes in the root Clang-19 build; an earlier isolated-worktree
+  startup failure with a Fiber GC leak report and no backtrace frames did not
+  reproduce here. This closes the shared volatile visibility-boundary
   slice only; candidate construction/publication is not yet routed through
   this view and production ANALYZE remains open. The persistence schema remains
   DRAFT; no IDs or formats changed. See `sql_stats_sampling.md` for runtime
