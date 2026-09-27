@@ -1226,6 +1226,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `planner_scalar_filter_test.lua` across its memtx/Vinyl matrix under generated
   and CnP dispatch. This remains a bounded M3.4 extension, not general
   predicate lowering.
+  After integrating the composite-point filter extension and CTE role update,
+  the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
+  binary under generated and CnP dispatch; this remains focused route evidence,
+  not reviewed-corpus feature acceptance.
   Compound/general boolean predicates, filtered composite-prefix ranges, and
   other scalar operators remain outside this route. Direct-column full
   scans and primary-key ordering also pass
