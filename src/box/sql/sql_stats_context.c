@@ -592,6 +592,16 @@ sql_stats_collection_context_build_sample_candidates(
 		goto fail;
 	spec_metadata = total_specs * (sizeof(struct sql_stats_collection_staged_index) +
 				       sizeof(struct sql_stats_sampled_index) + sizeof(double));
+	/* The candidate builder keeps these input arrays alive while the
+	 * snapshot deep-copies them. Count all relation inputs and index inputs
+	 * across the batch in the aggregate staging bound. */
+	if (relation_count > SIZE_MAX / sizeof(struct sql_stats_relation_input) ||
+	    total_specs > SIZE_MAX / sizeof(struct sql_stats_index_input) ||
+	    !add_size_checked(&spec_metadata,
+			      relation_count * sizeof(struct sql_stats_relation_input)) ||
+	    !add_size_checked(&spec_metadata,
+			      total_specs * sizeof(struct sql_stats_index_input)))
+		goto fail;
 	if (relation_count > SIZE_MAX / sizeof(*parts) ||
 	    !add_size_checked(&spec_metadata, relation_count * sizeof(*parts)) ||
 	    !add_size_checked(&spec_metadata, summary_bytes) ||

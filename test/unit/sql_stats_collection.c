@@ -1302,7 +1302,7 @@ test_transaction_owned_assembler(void)
 static void
 test_shared_view_multi_candidate_preflight(void)
 {
-	plan(3);
+	plan(4);
 	header();
 	setup_test_indexes();
 	test_index_view.vtab = &test_index_view_vtab;
@@ -1364,6 +1364,18 @@ test_shared_view_multi_candidate_preflight(void)
 		sql_stats_snapshot_release(candidate);
 	uint64_t calls_before_reject = extract_state.calls;
 	context = sql_stats_collection_context_new(&target, 1);
+	budget.max_staging_bytes = 1;
+	candidate = context != NULL ?
+		sql_stats_collection_context_build_sample_candidates(context,
+			&relation, 1, &budget) : NULL;
+	if (context != NULL)
+		sql_stats_collection_context_delete(context);
+	ok(candidate == NULL && extract_state.calls == calls_before_reject,
+	   "aggregate staging rejection occurs before scanning");
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+	context = sql_stats_collection_context_new(&target, 1);
+	budget.max_staging_bytes = 4096;
 	budget.max_work = 1;
 	candidate = context != NULL ?
 		sql_stats_collection_context_build_sample_candidates(context,
