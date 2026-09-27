@@ -35,6 +35,10 @@ sql_stats_collection_index_from_sample(
 			max_temp_bytes, max_work) != 0)
 		return -1;
 	static const char population_basis[] = "visible-engine-index-count-v1";
+	static const char hash_basis[] =
+		"visible-engine-index-hash32-equivalence-classes-v1";
+	const char *ndv_basis = sql_stats_index_summary_hash_bits(summary) == 32 ?
+		hash_basis : population_basis;
 	struct sql_stats_collected_index value = {
 		.index_id = expected->index_id,
 		.definition_version = expected->definition_version,
@@ -42,7 +46,7 @@ sql_stats_collection_index_from_sample(
 		.tuple_count = sample->visible_population,
 		.tuple_count_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
 		.population_basis = population_basis,
-		.ndv_basis = population_basis,
+		.ndv_basis = ndv_basis,
 		.distinct_prefixes = distinct_prefixes,
 		.prefix_count = expected->part_count,
 	};

@@ -113,6 +113,27 @@ context_get_index(struct sql_stats_collection_context *context,
 	return NULL;
 }
 
+static struct sql_stats_index_summary *
+collection_context_new_summary(struct sql_stats_collection_context *context,
+			       const struct sql_stats_tx_index_spec *spec)
+{
+	if (!spec->use_native_index_hash)
+		return sql_stats_index_summary_new(spec->expected->part_count,
+			spec->hll_precision, spec->hll_seed,
+			spec->summary_max_bytes, spec->extract,
+			spec->extract_context);
+	struct index_read_view *index_view =
+		context_get_index(context, &spec->target);
+	struct space *space = space_by_id_slow(spec->target.space_id);
+	if (index_view == NULL || space == NULL || space->format == NULL ||
+	    index_view->def == NULL || index_view->def->key_def == NULL ||
+	    index_view->def->key_def->part_count != spec->expected->part_count)
+		return NULL;
+	return sql_stats_index_summary_new_for_index(space->format,
+		index_view->def, spec->hll_precision, spec->hll_seed,
+		spec->summary_max_bytes);
+}
+
 struct sql_stats_collection_context *
 sql_stats_collection_context_new(
 	const struct sql_stats_collection_target *targets, size_t target_count)
@@ -253,7 +274,9 @@ collection_context_build_relation_candidate(
 	size_t relation_sample_index = spec_count;
 	for (size_t i = 0; i < spec_count; i++) {
 		const struct sql_stats_tx_index_spec *spec = &specs[i];
-		if (spec->expected == NULL || spec->extract == NULL ||
+		if (spec->expected == NULL ||
+		    (spec->use_native_index_hash && spec->extract != NULL) ||
+		    (!spec->use_native_index_hash && spec->extract == NULL) ||
 		    spec->target.space_id != expected->space_id ||
 		    spec->target.index_id != spec->expected->index_id ||
 		    spec->request.index_id != spec->target.index_id ||
@@ -307,10 +330,7 @@ collection_context_build_relation_candidate(
 		goto fail;
 	for (size_t i = 0; i < spec_count; i++) {
 		const struct sql_stats_tx_index_spec *spec = &specs[i];
-		staged[i].summary = sql_stats_index_summary_new(
-			spec->expected->part_count, spec->hll_precision,
-			spec->hll_seed, spec->summary_max_bytes, spec->extract,
-			spec->extract_context);
+		staged[i].summary = collection_context_new_summary(context, spec);
 		if (staged[i].summary == NULL)
 			goto fail;
 		struct sql_stats_sample_sink sink = {
@@ -440,7 +460,9 @@ collection_context_validate_relation_spec(
 		const struct sql_stats_tx_index_spec *spec = &relation->indexes[i];
 		const struct sql_stats_expected_index *index = spec->expected;
 		if (index == NULL || index->definition_version == 0 ||
-		    index->part_count == 0 || spec->extract == NULL ||
+		    index->part_count == 0 ||
+		    (spec->use_native_index_hash && spec->extract != NULL) ||
+		    (!spec->use_native_index_hash && spec->extract == NULL) ||
 		    spec->target.space_id != expected->space_id ||
 		    spec->target.index_id != index->index_id ||
 		    spec->request.index_id != spec->target.index_id ||

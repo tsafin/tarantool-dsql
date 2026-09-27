@@ -164,6 +164,9 @@ struct sql_stats_tx_index_spec {
 	size_t summary_max_bytes;
 	sql_stats_index_value_extract_f *extract;
 	void *extract_context;
+	/* Shared-read-view collector only: use the engine's bounded index hash
+	 * adapter. Transaction collectors require an explicit canonical extractor. */
+	bool use_native_index_hash;
 };
 
 /*
