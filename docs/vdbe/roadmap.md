@@ -641,11 +641,14 @@ review of IDs and formats.
   imports are not in the Tarantool executable's dynamic export table; linking
   the test module alone cannot resolve this internal API. The current helper
   does not import `space_cache_version` itself (the context implementation reads
-  it inside the executable). Fixing this requires an intentional test
-  integration boundary—either selectively exporting internal symbols or moving
-  the seam into the server—not a build-mode toggle. No broad export change was
-  made, so this run provides no new live runtime confirmation. The unit test
-  still uses engine stubs for lifecycle/error injection.
+  it inside the executable). Compiling the context source into the DSO is not a
+  safe workaround: sampling also needs `engine_sql_stats_sample()` and
+  `space_by_id_slow()`, while linking the box archive risks a second engine
+  registry/state instead of exercising the live server. The narrow next seam
+  is a test-only wrapper compiled into the server process (or a deliberately
+  reviewed selective export), not a build-mode toggle. No production exports
+  were added, so this run provides no new live runtime confirmation. The unit
+  test still uses engine stubs for lifecycle/error injection.
   The context now captures the local commit-vclock signature and rejects
   sampling/finish if it changes, with unit coverage for drift during engine
   sampling and again at finish. It now also captures and revalidates the local

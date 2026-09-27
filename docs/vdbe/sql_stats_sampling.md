@@ -485,6 +485,14 @@ surface change is made here. This test-harness blocker says nothing about
 engine runtime behavior and does not establish a shared memtx/Vinyl snapshot.
 S1.3a remains open pending live engine confirmation and proof of any claimed
 cross-engine visibility semantics.
+Compiling the private context source into the loadable helper module is not a
+safe workaround: candidate assembly pulls in further private APIs, and
+sampling dispatch depends on the live engine registry (`engine_sql_stats_sample()`)
+and `space_by_id_slow()`. Linking the `box` archive into the DSO risks creating
+a second engine registry/state rather than exercising the server's memtx or
+Vinyl instances; linking msgpuck alone only resolves the decoder symbol. The
+narrow next seam is a test-only wrapper compiled into the server process, or a
+deliberately reviewed selective export—not a standalone module copy.
 `READ_CONFIRMED`, transaction ID, and local vclock/catalog/schema checks are
 volatile local guards, not durable or cross-node visibility identities. This
 does not enable `ANALYZE` or persistent statistics.
