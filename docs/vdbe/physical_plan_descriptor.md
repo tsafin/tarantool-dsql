@@ -146,9 +146,11 @@ completion.
 
 `sql_physical_table_scan_from_select()` now derives a table-full-scan
 descriptor for resolved `SELECT column[, ...] FROM t` statements with no
-predicate or ordering. It accepts a nonnegative integer-literal LIMIT and
-optional OFFSET, both up to `INT_MAX`, retaining them as a `Limit` finalizer;
-other LIMIT/OFFSET expressions fail closed. It validates every projected
+predicate. Ordering is accepted only for one direct reference to the single
+primary-key part; scan direction then satisfies the order without a sorter.
+It accepts a nonnegative integer-literal LIMIT and optional OFFSET, both up
+to `INT_MAX`, retaining them as a `Limit` finalizer; other LIMIT/OFFSET
+expressions fail closed. It validates every projected
 column's cursor binding and ordinal before creating the descriptor, and requires
 caller-supplied statement-time estimates. Unit coverage checks projection
 order, access kind, cursor binding, and rejection before descriptor creation
@@ -159,7 +161,9 @@ estimate from the primary index size, allocates projection registers,
 opens/closes the cursor, invokes the VDBE table-scan lowering under a codegen
 checkpoint, and commits `SelectDest` metadata only after successful emission.
 Focused SQL execution passes for memtx and Vinyl, including NULL,
-empty-table, `LIMIT 0`, `LIMIT 1`, and `LIMIT 1 OFFSET 1` cases. M3.4 remains
+empty-table, `LIMIT 0`, `LIMIT 1`, `LIMIT 1 OFFSET 1`, and descending primary-
+key order with LIMIT cases. Non-primary-key ordering remains on legacy codegen.
+M3.4 remains
 open: estimates are coarse, only direct
 projection/table-full-scan is routed, error-injection and broader
 parity/capture coverage remain, and the checkpoint does not restore arbitrary

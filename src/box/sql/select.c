@@ -5948,8 +5948,8 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 
 /*
  * Route the first executable physical-plan slice: a resolved, direct-column
- * projection over one TREE primary index, with no predicates/order and at
- * most one nonnegative integer-literal LIMIT/OFFSET pair.
+ * projection over one TREE primary index, with no predicates, and an optional
+ * order over that one-part primary key plus an integer-literal LIMIT/OFFSET.
  * Everything needed for the producer and emitter is validated before VDBE
  * mutation. A recoverable emission rejection rolls back to the legacy path;
  * a hard diagnostic remains an error.

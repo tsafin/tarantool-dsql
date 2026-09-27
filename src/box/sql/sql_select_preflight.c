@@ -21,7 +21,6 @@ sql_select_preflight_table_scan(const struct Select *select,
 	if (select->pPrior != NULL || select->pValuesTail != NULL ||
 	    select->pWith != NULL || select->pGroupBy != NULL ||
 	    select->pHaving != NULL || select->pWhere != NULL ||
-	    select->pOrderBy != NULL ||
 	    (select->selFlags & (SF_Values | SF_NestedFrom | SF_Compound |
 			 SF_Aggregate | SF_HasAgg | SF_Distinct)) != 0 ||
 	    source->pSelect != NULL || source->fg.isTabFunc || source->pOn != NULL ||

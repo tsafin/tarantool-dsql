@@ -7,6 +7,9 @@
 
 #include "sqlInt.h"
 #include "sql_logical_plan.h"
+#include "box/index.h"
+#include "box/index_def.h"
+#include "box/key_def.h"
 #include "box/space.h"
 
 static const struct sql_logical_node *
@@ -132,7 +135,6 @@ sql_physical_table_scan_from_select(
 		*reason = SQL_PHYSICAL_REJECT_NONE;
 	if (select == NULL || estimate == NULL || select->pSrc == NULL ||
 	    select->pSrc->nSrc != 1 || select->pWhere != NULL ||
-	    select->pOrderBy != NULL ||
 	    select->pEList == NULL ||
 	    select->pEList->nExpr <= 0) {
 		if (reason != NULL)
@@ -166,10 +168,47 @@ sql_physical_table_scan_from_select(
 	sql_logical_plan_delete(logical);
 	const struct SrcList_item *source = &select->pSrc->a[0];
 	if (source->space == NULL || source->space->def == NULL ||
-	    source->space->def->opts.is_view || source->iCursor < 0) {
+	    source->space->def->opts.is_view || source->iCursor < 0 ||
+	    source->space->index_map == NULL ||
+	    source->space->index_map[0] == NULL ||
+	    source->space->index_map[0]->def == NULL ||
+	    source->space->index_map[0]->def->key_def == NULL) {
 		if (reason != NULL)
 			*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 		return NULL;
+	}
+	enum sql_plan_direction direction = SQL_PLAN_ASC;
+	struct sql_plan_order_term order_term;
+	if (select->pOrderBy != NULL) {
+		const struct ExprList *order_by = select->pOrderBy;
+		const struct Expr *order_expr = order_by->nExpr == 1 ?
+			order_by->a[0].pExpr : NULL;
+		if (source->space->index_map[0]->def->key_def->part_count != 1) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		uint32_t primary_field = source->space->index_map[0]->def->key_def->
+			parts[0].fieldno;
+		if (order_expr == NULL ||
+		    ExprHasProperty(order_expr, EP_TokenOnly | EP_Reduced) ||
+		    order_expr->op != TK_COLUMN_REF || order_expr->pLeft != NULL ||
+		    order_expr->pRight != NULL || order_expr->iTable != source->iCursor ||
+		    order_expr->iColumn < 0 ||
+		    (uint32_t)order_expr->iColumn != primary_field ||
+		    (order_by->a[0].sort_order != SORT_ORDER_UNDEF &&
+		     order_by->a[0].sort_order != SORT_ORDER_ASC &&
+		     order_by->a[0].sort_order != SORT_ORDER_DESC)) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		direction = order_by->a[0].sort_order == SORT_ORDER_DESC ?
+			SQL_PLAN_DESC : SQL_PLAN_ASC;
+		order_term = (struct sql_plan_order_term) {
+			.column = primary_field,
+			.direction = direction,
+		};
 	}
 	uint32_t *columns = calloc(select->pEList->nExpr, sizeof(*columns));
 	if (columns == NULL) {
@@ -203,7 +242,9 @@ sql_physical_table_scan_from_select(
 		.space_name = source->space->def->name,
 		.access = {
 			.kind = SQL_PLAN_TABLE_FULL_SCAN,
-			.direction = SQL_PLAN_ASC,
+			.direction = direction,
+			.produced_order = select->pOrderBy == NULL ? NULL : &order_term,
+			.produced_order_count = select->pOrderBy == NULL ? 0 : 1,
 			.projected_columns = columns,
 			.projected_column_count = select->pEList->nExpr,
 			.est_rows = estimate->rows,

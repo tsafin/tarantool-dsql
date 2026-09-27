@@ -916,11 +916,12 @@ DML, triggers, subprograms, non-deterministic functions.
 - [ ] **M3.4 executable lowering** — partial: a narrow production route now
   connects the producer, physical descriptor, VDBE loop emitter, and
   `SelectDest` result registers. It accepts only a resolved direct-column
-  projection from one base table, with no filter/order, and requires a TREE
-  primary index. Nonnegative integer-literal `LIMIT` and optional `OFFSET`
-  through `INT_MAX` are retained in the descriptor; offset rows are skipped
-  before projection and a result counter handles the limit. `LIMIT 0` skips
-  scan execution. Other LIMIT/OFFSET expressions remain on legacy codegen.
+  projection from one base table, with no filter, and requires a TREE primary
+  index. Ordering is supported only on its single primary-key part, by scanning
+  in the requested direction. Nonnegative integer-literal `LIMIT` and optional
+  `OFFSET` through `INT_MAX` are retained in the descriptor; offset rows are
+  skipped before projection and a result counter handles the limit. `LIMIT 0`
+  skips scan execution. Other LIMIT/OFFSET expressions remain on legacy codegen.
   The producer uses `index_size()` for a coarse row
   estimate; successful lowering emits cursor open, ascending
   `Rewind`/`Next` (or descending `Last`/`Prev`), `Column`, `ResultRow`, and
@@ -929,7 +930,8 @@ DML, triggers, subprograms, non-deterministic functions.
   legacy codegen; hard diagnostics propagate. The session flag is default-off.
   Focused SQL parity passes on memtx and Vinyl for one-/two-column projection,
   NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
-  and filtered/computed controls. Twelve emitter checks cover unbounded,
+  descending primary-key order with LIMIT, and filtered/computed controls.
+  Twelve emitter checks cover unbounded,
   limited, offset, zero-limit, descending, and out-of-range opcode shapes.
   This does not cover all descriptor operators, secondary/range/point access,
   all storage edge cases, or corpus-wide parity; checkpoint rollback does not include
@@ -1079,9 +1081,11 @@ DML, triggers, subprograms, non-deterministic functions.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
   A default-off session setting now gates the narrow direct-column table scan
   route in `sqlSelect()`. When enabled, only the supported single-table shape
-  with a TREE primary index can report `new_planner`, and only after physical
-  descriptor creation and VDBE lowering succeed; tested physical rejection
-  and recoverable codegen rejection retain legacy codegen with a reason. The
+  with a TREE primary index can report `new_planner`: direct projections,
+  primary-key ordering, and literal LIMIT/OFFSET. This happens only after
+  physical descriptor creation and VDBE lowering succeed; tested physical
+  rejection (including non-primary ordering) and recoverable codegen rejection
+  retain legacy codegen with a reason. The
   setting does not yet govern general physical candidate selection or other
   supported query classes. Default-off behavior and off/on/off summary route
   checks pass in the focused memtx/Vinyl regression. Complete fallback
