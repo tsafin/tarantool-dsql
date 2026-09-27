@@ -131,6 +131,8 @@ create_unit_test(PREFIX sql_stats_collection
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_context.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_tx_context.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_sample.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_index_summary.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_snapshot.c
                  LIBRARIES unit m vclock
 )

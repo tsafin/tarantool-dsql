@@ -1,5 +1,7 @@
 #include "sql_stats_collection.h"
+#include "sql_stats_index_summary.h"
 
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -243,6 +245,13 @@ sql_stats_tx_context_catalog_version(
 	return context == NULL ? 0 : context->catalog_version;
 }
 
+uint64_t
+sql_stats_tx_context_schema_version(
+	const struct sql_stats_tx_context *context)
+{
+	return context == NULL ? 0 : context->schema_version;
+}
+
 int
 sql_stats_tx_context_sample_index(
 	struct sql_stats_tx_context *context,
@@ -449,4 +458,158 @@ sql_stats_tx_context_abort(struct sql_stats_tx_context **context_ptr)
 		*context_ptr = NULL;
 	}
 	return rc;
+}
+
+struct sql_stats_tx_staged_index {
+	struct sql_stats_index_summary *summary;
+	struct sql_stats_sample_result sample;
+};
+
+static int
+tx_summary_sink_consume(void *arg, const char *tuple, size_t tuple_size,
+			const uint32_t *field_ids, size_t field_count)
+{
+	return sql_stats_index_summary_consume(arg, tuple, tuple_size, field_ids,
+						field_count);
+}
+
+static void
+tx_staged_indexes_destroy(struct sql_stats_tx_staged_index *staged,
+			  size_t count)
+{
+	if (staged == NULL)
+		return;
+	for (size_t i = 0; i < count; i++)
+		sql_stats_index_summary_delete(staged[i].summary);
+	free(staged);
+}
+
+struct sql_stats_snapshot *
+sql_stats_tx_context_build_sample_candidate(
+	struct sql_stats_tx_context *context,
+	const struct sql_stats_expected_relation *expected,
+	const struct sql_stats_tx_index_spec *specs, size_t spec_count,
+	uint32_t relation_index_id, double relation_confidence,
+	const char *confidence_source, size_t max_candidate_bytes,
+	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work)
+{
+	if (context == NULL)
+		return NULL;
+	struct sql_stats_tx_staged_index *staged = NULL;
+	struct sql_stats_sampled_index *sampled_indexes = NULL;
+	double *confidences = NULL;
+	struct sql_stats_snapshot *candidate = NULL;
+	bool valid = owns_current_txn(context) && !context->failed &&
+		expected != NULL && expected->index_count != 0 &&
+		expected->indexes != NULL && specs != NULL &&
+		spec_count == expected->index_count &&
+		spec_count <= SIZE_MAX / (sizeof(*staged) +
+			sizeof(*sampled_indexes) + sizeof(*confidences)) &&
+		tx_context_matches_expected(context, expected, 1) &&
+		tx_context_valid(context) &&
+		context->visibility_id != 0 &&
+		isfinite(relation_confidence) && relation_confidence >= 0 &&
+		relation_confidence <= 1 &&
+		confidence_source != NULL && confidence_source[0] != '\0';
+	if (!valid)
+		goto fail;
+	size_t metadata_bytes = spec_count * sizeof(*staged) +
+		spec_count * sizeof(*sampled_indexes) +
+		spec_count * sizeof(*confidences);
+	if (metadata_bytes > max_staging_bytes)
+		goto fail;
+	size_t total_staging_bytes = metadata_bytes;
+	for (size_t i = 0; i < spec_count; i++) {
+		for (size_t j = 0; j < i; j++) {
+			if (expected->indexes[i].index_id ==
+			    expected->indexes[j].index_id)
+				goto fail;
+		}
+		const struct sql_stats_tx_index_spec *spec = &specs[i];
+		if (spec->expected == NULL || spec->extract == NULL ||
+		    spec->target.space_id != expected->space_id ||
+		    spec->target.index_id != spec->expected->index_id ||
+		    spec->request.index_id != spec->target.index_id ||
+		    spec->expected->part_count == 0 ||
+		    spec->expected->definition_version == 0 ||
+		    spec->summary_max_bytes == 0 ||
+		    spec->summary_max_bytes > max_staging_bytes -
+						      total_staging_bytes)
+			goto fail;
+		total_staging_bytes += spec->summary_max_bytes;
+		bool expected_match = false;
+		for (size_t j = 0; j < expected->index_count; j++) {
+			if (expected->indexes[j].index_id == spec->expected->index_id &&
+			    expected->indexes[j].definition_version ==
+				    spec->expected->definition_version &&
+			    expected->indexes[j].part_count ==
+				    spec->expected->part_count)
+				expected_match = true;
+		}
+		if (!expected_match)
+			goto fail;
+		for (size_t j = 0; j < i; j++) {
+			if (specs[j].target.space_id == spec->target.space_id &&
+			    specs[j].target.index_id == spec->target.index_id)
+				goto fail;
+		}
+	}
+	if (total_staging_bytes > max_staging_bytes)
+		goto fail;
+	staged = calloc(spec_count, sizeof(*staged));
+	sampled_indexes = calloc(spec_count, sizeof(*sampled_indexes));
+	confidences = calloc(spec_count, sizeof(*confidences));
+	if (staged == NULL || sampled_indexes == NULL || confidences == NULL)
+		goto fail;
+	size_t relation_sample_index = spec_count;
+	for (size_t i = 0; i < spec_count; i++) {
+		const struct sql_stats_tx_index_spec *spec = &specs[i];
+		staged[i].summary = sql_stats_index_summary_new(
+			spec->expected->part_count, spec->hll_precision,
+			spec->hll_seed, spec->summary_max_bytes, spec->extract,
+			spec->extract_context);
+		if (staged[i].summary == NULL)
+			goto fail;
+		struct sql_stats_sample_sink sink = {
+			.context = staged[i].summary,
+			.consume = tx_summary_sink_consume,
+		};
+		struct sql_stats_sample_request request = spec->request;
+		if (sql_stats_tx_context_sample_index(context, &spec->target,
+				&request, &sink, &staged[i].sample) != 0)
+			goto fail;
+		sampled_indexes[i] = (struct sql_stats_sampled_index) {
+			.expected = spec->expected,
+			.sample = &staged[i].sample,
+			.summary = staged[i].summary,
+		};
+		if (spec->target.index_id == relation_index_id)
+			relation_sample_index = i;
+	}
+	if (relation_sample_index == spec_count || !tx_context_valid(context))
+		goto fail;
+	struct sql_stats_collection_generation generation = {
+		.catalog_version = context->catalog_version,
+		.schema_version = context->schema_version,
+		.visibility_id = context->visibility_id,
+	};
+	candidate = sql_stats_collection_build_sample_candidate(&generation,
+		expected, sampled_indexes, spec_count,
+		&staged[relation_sample_index].sample, relation_confidence,
+		confidence_source, confidences, max_candidate_bytes,
+		max_temp_bytes, max_work);
+	if (candidate == NULL)
+		goto fail;
+	tx_staged_indexes_destroy(staged, spec_count);
+	free(sampled_indexes);
+	free(confidences);
+	return candidate;
+fail:
+	context->failed = true;
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+	tx_staged_indexes_destroy(staged, spec_count);
+	free(sampled_indexes);
+	free(confidences);
+	return NULL;
 }

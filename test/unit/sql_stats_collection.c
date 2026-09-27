@@ -45,8 +45,10 @@ static struct space_def test_space_def = {.id = 42};
 static struct space test_space = {.def = &test_space_def};
 static struct index_def test_index_def = {.space_id = 42, .iid = 8};
 static struct index test_index = {.def = &test_index_def};
+static struct index_def test_index2_def = {.space_id = 42, .iid = 9};
+static struct index test_index2 = {.def = &test_index2_def};
 static struct index_read_view test_index_view = {.def = &test_index_def};
-static struct index *test_space_index_map[9];
+static struct index *test_space_index_map[10];
 static struct index_read_view *test_index_map[9];
 static struct space_read_view test_space_view = {
 	.id = 42, .index_id_max = 8, .index_map = test_index_map,
@@ -237,7 +239,7 @@ space_by_id_slow(uint32_t id)
 	if (id != test_space_def.id)
 		return NULL;
 	test_space.index_map = test_space_index_map;
-	test_space.index_id_max = 8;
+	test_space.index_id_max = 9;
 	return &test_space;
 }
 
@@ -412,7 +414,9 @@ reset_test_txn(void)
 	space_cache_version = 4;
 	vclock_create(&test_vclock);
 	test_space_index_map[8] = &test_index;
+	test_space_index_map[9] = &test_index2;
 	test_index.unique_id = 808;
+	test_index2.unique_id = 909;
 }
 
 static void
@@ -1018,6 +1022,133 @@ test_empty_relation_candidate(void)
 	check_plan();
 }
 
+struct tx_extract_state {
+	bool fail;
+};
+
+static int
+test_tx_extract(void *arg, const char *tuple, size_t tuple_size,
+		const uint32_t *field_ids, size_t field_count,
+		struct sql_stats_hll_value *parts, size_t part_count)
+{
+	(void)field_ids;
+	(void)field_count;
+	struct tx_extract_state *state = arg;
+	if (state->fail && tuple_size == 2 && tuple[0] == 'b')
+		return -1;
+	if (part_count != 1 || tuple_size == 0)
+		return -1;
+	parts[0] = (struct sql_stats_hll_value){1, tuple, tuple_size};
+	return 0;
+}
+
+static void
+test_transaction_owned_assembler(void)
+{
+	plan(7);
+	header();
+	reset_test_txn();
+	advance_test_vclock();
+	struct sql_stats_relation_input baseline_relation = {
+		.space_id = 7, .row_count = 1, .population_basis = "baseline",
+		.average_row_width = 1, .width_basis = "baseline-width",
+		.width_denominator_count = 1, .confidence = 1,
+		.confidence_source = "baseline", .visibility_id = 1,
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+	};
+	struct sql_stats_snapshot *baseline = sql_stats_snapshot_new(1, 12,
+		&baseline_relation, 1, 4096);
+	assert(baseline != NULL);
+	sql_set_stats_snapshot(baseline);
+	struct sql_stats_expected_index expected_indexes[] = {
+		{.index_id = 8, .definition_version = 808, .part_count = 1},
+		{.index_id = 9, .definition_version = 909, .part_count = 1},
+	};
+	struct sql_stats_expected_relation expected = {
+		.space_id = 42, .modification_epoch = 1,
+		.indexes = expected_indexes, .index_count = 2,
+	};
+	struct sql_stats_collection_target targets[] = {
+		{.space_id = 42, .index_id = 8},
+		{.space_id = 42, .index_id = 9},
+	};
+	struct tx_extract_state extract_states[] = {{0}, {0}};
+	struct sql_stats_tx_index_spec reordered[] = {
+		{
+			.target = {.space_id = 42, .index_id = 9},
+			.expected = &expected_indexes[1],
+			.request = {.index_id = 9, .max_rows = 2, .max_bytes = 16,
+				    .max_buffer_bytes = 256},
+			.hll_precision = 8, .hll_seed = 9,
+			.summary_max_bytes = 1024, .extract = test_tx_extract,
+			.extract_context = &extract_states[1],
+		},
+		{
+			.target = {.space_id = 42, .index_id = 8},
+			.expected = &expected_indexes[0],
+			.request = {.index_id = 8, .max_rows = 2, .max_bytes = 16,
+				    .max_buffer_bytes = 256},
+			.hll_precision = 8, .hll_seed = 8,
+			.summary_max_bytes = 1024, .extract = test_tx_extract,
+			.extract_context = &extract_states[0],
+		},
+	};
+	struct sql_stats_tx_context *context = NULL;
+	ok(sql_stats_tx_context_begin(targets, 2, &context) == 0,
+	   "assembler context opens for the complete requested index set");
+	struct sql_stats_snapshot *candidate =
+		sql_stats_tx_context_build_sample_candidate(context, &expected,
+			reordered, 2, 8, 0.5, "test-confidence", 4096, 8192,
+			1024, 1000000);
+	const struct sql_stats_relation *relation = NULL;
+	const struct sql_stats_index *index8 = NULL, *index9 = NULL;
+	bool complete = candidate != NULL &&
+		sql_stats_snapshot_get_relation(candidate, 12, 42, &relation) ==
+		SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_get_index(relation, 8, &index8) ==
+		SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_get_index(relation, 9, &index9) ==
+		SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_width_denominator_count(relation) == 2 &&
+		sql_stats_index_tuple_count(index8) == 2 &&
+		sql_stats_index_tuple_count(index9) == 2;
+	ok(complete && test_installed_snapshot == baseline,
+	   "reordered owned samples build detached candidate without installation");
+	ok(sql_stats_tx_context_abort(&context) == 0 && context == NULL,
+	   "successful detached assembly remains under caller transaction ownership");
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+
+	struct sql_stats_tx_index_spec missing[] = {reordered[0]};
+	ok(sql_stats_tx_context_begin(targets, 2, &context) == 0 &&
+	   sql_stats_tx_context_build_sample_candidate(context, &expected, missing,
+		1, 8, 0.5, "test-confidence", 4096, 8192, 1024,
+		1000000) == NULL && sql_stats_tx_context_abort(&context) == 0,
+	   "missing requested index rejects and discards all staging");
+	struct sql_stats_tx_index_spec duplicate[] = {reordered[0], reordered[0]};
+	ok(sql_stats_tx_context_begin(targets, 2, &context) == 0 &&
+	   sql_stats_tx_context_build_sample_candidate(context, &expected,
+		duplicate, 2, 9, 0.5, "test-confidence", 4096, 8192,
+		1024, 1000000) == NULL && sql_stats_tx_context_abort(&context) == 0,
+	   "duplicate target rejects before any partial candidate is exposed");
+	struct sql_stats_tx_index_spec ordered[] = {reordered[1], reordered[0]};
+	extract_states[1].fail = true;
+	ok(sql_stats_tx_context_begin(targets, 2, &context) == 0,
+	   "failure case opens a fresh owned context");
+	candidate = sql_stats_tx_context_build_sample_candidate(context,
+		&expected, ordered, 2, 8, 0.5, "test-confidence", 4096,
+		8192, 1024, 1000000);
+	ok(candidate == NULL && test_installed_snapshot == baseline &&
+	   sql_stats_tx_context_finish(&context) != 0 && context == NULL,
+	   "later extractor failure discards staging and preserves installed snapshot");
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+	sql_set_stats_snapshot(NULL);
+	sql_stats_snapshot_release(baseline);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
@@ -1028,5 +1159,6 @@ main(void)
 	test_population_from_engine_sample();
 	test_complete_result_and_rejections();
 	test_empty_relation_candidate();
+	test_transaction_owned_assembler();
 	return 0;
 }

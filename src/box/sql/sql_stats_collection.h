@@ -3,6 +3,7 @@
 
 #include "sql_stats_snapshot.h"
 #include "sql_stats_sample.h"
+#include "sql_stats_index_summary.h"
 
 /* Provenance for confidence scores produced by the sample NDV bridge. */
 #define SQL_STATS_INDEX_NDV_CONFIDENCE_SOURCE "uniform-occupancy-hll-v1"
@@ -131,6 +132,19 @@ sql_stats_collection_context_sample_index(
  */
 struct sql_stats_tx_context;
 
+/* One caller-owned canonical extractor configuration for an expected index. */
+struct sql_stats_tx_index_spec {
+	struct sql_stats_collection_target target;
+	const struct sql_stats_expected_index *expected;
+	/* Copied by value; field_ids remains borrowed for this synchronous call. */
+	struct sql_stats_sample_request request;
+	uint8_t hll_precision;
+	uint64_t hll_seed;
+	size_t summary_max_bytes;
+	sql_stats_index_value_extract_f *extract;
+	void *extract_context;
+};
+
 int
 sql_stats_tx_context_begin(
 	const struct sql_stats_collection_target *targets, size_t target_count,
@@ -153,6 +167,27 @@ sql_stats_tx_context_visibility_id(
 uint64_t
 sql_stats_tx_context_catalog_version(
 	const struct sql_stats_tx_context *context);
+
+uint64_t
+sql_stats_tx_context_schema_version(
+	const struct sql_stats_tx_context *context);
+
+/*
+ * Sample all specs through this owned context and build one detached
+ * single-relation candidate. relation_index_id selects the sample supplying
+ * relation population and width. The assembler owns summaries/staging, but
+ * extractor contexts and request field_ids are borrowed during the call.
+ * Failure returns NULL, marks the context failed, and leaves installed state
+ * unchanged. This does not commit or publish.
+ */
+struct sql_stats_snapshot *
+sql_stats_tx_context_build_sample_candidate(
+	struct sql_stats_tx_context *context,
+	const struct sql_stats_expected_relation *expected,
+	const struct sql_stats_tx_index_spec *specs, size_t spec_count,
+	uint32_t relation_index_id, double relation_confidence,
+	const char *confidence_source, size_t max_candidate_bytes,
+	size_t max_staging_bytes, size_t max_temp_bytes, uint64_t max_work);
 
 /* Finish commits only after every requested index sample succeeds. */
 int
