@@ -539,11 +539,13 @@ review of IDs and formats.
   modification epochs or catalog/index-definition versions needed for
   complete candidate validation/publication. Current nonzero visibility
   tokens outside the context remain caller-supplied claims.
-  `sql_stats_snapshot` is only an opaque field in `sql` today; there is no
-  install/exchange consumer path to validate ownership, reader lifetime, or
-  rollback. Implementing a pointer swap alone would therefore not establish
-  common visibility or complete publication. Global publication/visibility
-  rollback remains unimplemented. See
+  `sql_set_stats_snapshot()` already retains/releases the installed immutable
+  snapshot and expires prepared statements, but collection does not call it.
+  There is no collector-owned install transaction that revalidates the
+  captured generation at the boundary and preserves the previous snapshot on
+  every failure. Reusing the setter as a raw pointer swap would therefore not
+  establish common visibility or complete publication. Global
+  publication/visibility rollback remains unimplemented. See
   `sql_stats_sampling.md` for the exact contract and local unit evidence.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval

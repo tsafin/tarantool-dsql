@@ -258,18 +258,20 @@ before and after all reads, including catalog, schema, relation modification,
 and index-definition generations. If that mechanism cannot guarantee a
 consistent view, collection must fail closed rather than mint a token.
 
-Publication additionally needs an owning SQL-level install/exchange API with
+Publication additionally needs a collector-owned install transaction with
 explicit snapshot retain/release rules for concurrent readers. It must expose
 only a complete detached candidate, atomically replace the installed snapshot,
 and leave the previous snapshot installed on every allocation, validation, or
 generation-check failure. Tests must cover concurrent readers across a swap,
 candidate-build failure, stale generation at the install boundary, and
-rollback preserving both the old pointer and its lifetime. Repository state
-does not yet provide the engine read-view token source or an installation
-consumer: `sql_stats_collection_build_candidate()` returns an uninstalled
-snapshot, while `sql.stats_snapshot` has no publication path. Therefore the
-atomic install/publication slice is not safely implementable as a local API-
-only change; it does not enable `ANALYZE`.
+rollback preserving both the old pointer and its lifetime. `sql_set_stats_snapshot()`
+already retains/releases an immutable snapshot and expires prepared
+statements, but `sql_stats_collection_build_candidate()` returns an
+uninstalled snapshot and the collection path does not call the setter or
+revalidate its generation at the install boundary. The read-view token source
+is also not complete across engines. The existing setter alone therefore does
+not establish a safe collection publication transaction and does not enable
+`ANALYZE`.
 
 The first reusable runtime slice now exists as
 `sql_stats_collection_context`: it owns one filtered core `read_view`, records
