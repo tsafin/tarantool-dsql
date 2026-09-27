@@ -1498,6 +1498,12 @@ DML, triggers, subprograms, non-deterministic functions.
   **Route-integration audit (2026-09-27, source inspection at M3.5 tip).**
   This inventory confirms M3.5 is not yet a complete SELECT producer gate:
 
+  The component-route regression now includes an actual recursive CTE in its
+  producer matrix and asserts complete ancestry plus the `values` anchor and
+  `recursive_term` component roles. This pins both generated recursive
+  branches individually; the outer statement remains a structural fallback,
+  so this improves route evidence without claiming a unified producer gate.
+
   | Producer / branch | Current boundary | M3.5 implication |
   | --- | --- | --- |
   | Plain multi-row `VALUES` | `sqlSelect()` returns through `multiSelectValues()` before VDBE creation and pre-opt fallback classification. | Direct emitter; not a `where.c` fallback. Keep out of the single-table SELECT gate or define an explicit direct path class. |

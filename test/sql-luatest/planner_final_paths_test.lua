@@ -273,6 +273,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
             intersect = [[SELECT id FROM planner_component_matrix
                           INTERSECT
                           SELECT id FROM planner_component_matrix WHERE id > 1]],
+            recursive_cte = [[WITH RECURSIVE r(x) AS (
+                VALUES (1) UNION ALL SELECT x + 1 FROM r WHERE x < 3
+            ) SELECT x FROM r]],
             single_values = [[EXPLAIN (planner = 'snapshot') SELECT 1]],
         }
         local result = {}
@@ -292,11 +295,13 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                 fallback_reason = snapshot.fallback_reason,
                 routes = {},
                 component_routes = {},
+                roles = {},
             }
             local ids = {}
             for _, component in ipairs(components) do
                 ids[component.id] = true
                 table.insert(item.routes, component.route)
+                item.roles[component.role] = true
                 table.insert(item.component_routes, {
                     id = component.id,
                     parent_id = component.parent_id,
@@ -331,4 +336,7 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_equals(scalar_count[2].parent_id, scalar_count[1].id)
     t.assert_equals(scalar_count[2].role, 'subquery')
     t.assert_equals(scalar_count[2].route, 'direct_op_count')
+    t.assert_gt(snapshots.recursive_cte.count, 2)
+    t.assert(snapshots.recursive_cte.roles.recursive_term)
+    t.assert(snapshots.recursive_cte.roles.values)
 end
