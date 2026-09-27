@@ -113,36 +113,37 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		return -1;
 	const struct sql_plan_descriptor_input *input =
 		sql_plan_descriptor_get_input(plan);
+	bool has_range_end = input != NULL &&
+		(input->access.has_integer_range_end_key ||
+		 input->access.has_unsigned_range_end_key);
+	bool invalid_range = range && input != NULL &&
+		(input->access.has_integer_range_key ==
+		 input->access.has_unsigned_range_key ||
+		 (input->access.integer_range_op != SQL_PLAN_GT &&
+		  input->access.integer_range_op != SQL_PLAN_GE &&
+		  input->access.integer_range_op != SQL_PLAN_LT &&
+		  input->access.integer_range_op != SQL_PLAN_LE) ||
+		 (input->access.has_integer_range_end_key &&
+		  input->access.has_unsigned_range_end_key) ||
+		 (has_range_end &&
+		  (input->access.has_integer_range_key !=
+		   input->access.has_integer_range_end_key ||
+		   input->access.has_unsigned_range_key !=
+		   input->access.has_unsigned_range_end_key ||
+		   (input->access.integer_range_end_op != SQL_PLAN_LT &&
+		    input->access.integer_range_end_op != SQL_PLAN_LE))) ||
+		 (has_range_end && input->access.range_key_column > INT_MAX) ||
+		 (!has_range_end &&
+		  (((input->access.integer_range_op == SQL_PLAN_LT ||
+		     input->access.integer_range_op == SQL_PLAN_LE) &&
+		    input->access.direction != SQL_PLAN_DESC) ||
+		   ((input->access.integer_range_op == SQL_PLAN_GT ||
+		     input->access.integer_range_op == SQL_PLAN_GE) &&
+		    input->access.direction != SQL_PLAN_ASC))));
 	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != (range ? SQL_PLAN_INDEX_RANGE_SCAN :
 				   SQL_PLAN_TABLE_FULL_SCAN) ||
-	    (range && (input->access.has_integer_range_key ==
-		       input->access.has_unsigned_range_key ||
-		       (input->access.integer_range_op != SQL_PLAN_GT &&
-			input->access.integer_range_op != SQL_PLAN_GE &&
-			input->access.integer_range_op != SQL_PLAN_LT &&
-			input->access.integer_range_op != SQL_PLAN_LE) ||
-		      (input->access.has_integer_range_end_key &&
-	       input->access.has_unsigned_range_end_key) ||
-		      ((input->access.has_integer_range_end_key ||
-			input->access.has_unsigned_range_end_key) &&
-		       (input->access.has_integer_range_key !=
-			input->access.has_integer_range_end_key ||
-			input->access.has_unsigned_range_key !=
-			input->access.has_unsigned_range_end_key ||
-			(input->access.integer_range_end_op != SQL_PLAN_LT &&
-			 input->access.integer_range_end_op != SQL_PLAN_LE))) ||
-			      ((input->access.has_integer_range_end_key ||
-				input->access.has_unsigned_range_end_key) &&
-			       input->access.range_key_column > INT_MAX) ||
-			      (!input->access.has_integer_range_end_key &&
-			       !input->access.has_unsigned_range_end_key &&
-			       (((input->access.integer_range_op == SQL_PLAN_LT ||
-				  input->access.integer_range_op == SQL_PLAN_LE) &&
-				 input->access.direction != SQL_PLAN_DESC) ||
-				 ((input->access.integer_range_op == SQL_PLAN_GT ||
-				   input->access.integer_range_op == SQL_PLAN_GE) &&
-				  input->access.direction != SQL_PLAN_ASC)))) ||
+	    invalid_range ||
 	    input->filter_count != 0 || input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
