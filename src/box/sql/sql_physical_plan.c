@@ -194,27 +194,48 @@ sql_physical_table_scan_from_select(
 		    column->op != TK_COLUMN_REF || column->pLeft != NULL ||
 		    column->pRight != NULL || column->iTable != source->iCursor ||
 		    column->iColumn != (int)pk->parts[0].fieldno ||
-		    ExprHasProperty(value, EP_TokenOnly | EP_Reduced) ||
-		    value->op != TK_INTEGER || (value->flags & EP_Resolved) == 0 ||
-		    value->pLeft != NULL || value->pRight != NULL) {
+		    ExprHasProperty(value, EP_TokenOnly | EP_Reduced)) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		bool negated = value->op == TK_UMINUS;
+		const struct Expr *literal = negated ? value->pLeft : value;
+		if ((negated && value->pRight != NULL) || literal == NULL ||
+		    ExprHasProperty(literal, EP_TokenOnly | EP_Reduced) ||
+		    literal->op != TK_INTEGER ||
+		    (literal->flags & EP_Resolved) == 0 ||
+		    literal->pLeft != NULL || literal->pRight != NULL) {
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
 		bool is_negative = false;
-		if ((value->flags & EP_IntValue) != 0) {
-			point_key = value->u.iValue;
-		} else if (value->u.zToken == NULL ||
-			   sql_atoi64(value->u.zToken, &point_key, &is_negative,
-				      strlen(value->u.zToken)) != 0 || is_negative) {
+		bool parsed = false;
+		if ((literal->flags & EP_IntValue) != 0) {
+			point_key = literal->u.iValue;
+			parsed = true;
+		} else if (literal->u.zToken != NULL &&
+			   sql_atoi64(literal->u.zToken, &point_key, &is_negative,
+				      strlen(literal->u.zToken)) == 0) {
+			parsed = true;
+		} else if (negated && literal->u.zToken != NULL &&
+			   strcmp(literal->u.zToken, "9223372036854775808") == 0) {
+			point_key = INT64_MIN;
+			parsed = true;
+		}
+		if (!parsed || (negated && is_negative)) {
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
-		if (point_key < 0) {
-			if (reason != NULL)
-				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-			return NULL;
+		if (negated && point_key != INT64_MIN) {
+			if (point_key < 0) {
+				if (reason != NULL)
+					*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+				return NULL;
+			}
+			point_key = -point_key;
 		}
 		has_point_key = true;
 	}

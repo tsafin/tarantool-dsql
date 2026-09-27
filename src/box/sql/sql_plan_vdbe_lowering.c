@@ -52,6 +52,9 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	int64_t key = input->access.integer_point_key;
 	if (key >= INT_MIN && key <= INT_MAX) {
 		key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg);
+	} else if (key < 0) {
+		key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
+					   (const u8 *)&key, P4_INT64);
 	} else {
 		uint64_t value = (uint64_t)key;
 		key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,

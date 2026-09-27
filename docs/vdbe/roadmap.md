@@ -932,7 +932,7 @@ DML, triggers, subprograms, non-deterministic functions.
   projection from one base table and requires a TREE primary index. The
   no-filter route supports optional primary-key ordering by scanning in the
   requested direction. A second route supports equality between the sole
-  integer primary-key part and a nonnegative signed-64-bit integer literal; it emits a
+  integer primary-key part and any signed-64-bit integer literal; it emits a
   primary cursor NotFound seek and returns at most one row. The equality
   route supports ORDER BY only on that one primary-key column; ordering is
   redundant for a point result. Literal LIMIT/OFFSET are accepted because
@@ -951,8 +951,8 @@ DML, triggers, subprograms, non-deterministic functions.
   Focused SQL parity passes on memtx and Vinyl for one-/two-column projection,
   NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
   descending primary-key order with LIMIT, primary-key point hit/miss with
-  LIMIT 1 / LIMIT 0 / OFFSET 1 semantics, and negative-literal/range-filter
-  fallback. Seventeen emitter checks cover
+  LIMIT 1 / LIMIT 0 / OFFSET 1 semantics, signed-64-bit point keys through
+  INT64_MIN/MAX, and range-filter fallback. Eighteen emitter checks cover
   unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, and out-of-range opcode
   shapes. SQL regressions verify `LIMIT 2147483648` and paired wide LIMIT / OFFSET
@@ -1040,7 +1040,7 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_FILTER` and increment its per-reason counter; earlier, they
   were indistinguishable from ordinary `current_where_c` execution. The point
   lookup boundary now has focused fallback coverage for a bind parameter,
-  equality on a non-primary column, NULL/computed/negative values, a range, and
+  equality on a non-primary column, NULL/computed values, a range, and
   OR, with matching legacy-result checks on both engines. More specific
   expression/function rejection reasons retain precedence.
   M3.5 remains partial: the narrow table-scan route now records physical

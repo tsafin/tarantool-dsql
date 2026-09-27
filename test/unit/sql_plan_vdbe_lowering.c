@@ -150,7 +150,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(17);
+	plan(18);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -190,6 +190,8 @@ main(void)
 	struct sql_plan_descriptor *invalid_offset_desc =
 		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &invalid_offset, 1);
 	struct sql_plan_descriptor *point_desc = new_point_descriptor(INT64_MAX);
+	struct sql_plan_descriptor *negative_point_desc =
+		new_point_descriptor(INT64_MIN);
 	struct sql_plan_descriptor *point_limit_desc =
 		new_point_limit_descriptor(1, 1, 0);
 	struct sql_plan_descriptor *point_zero_limit_desc =
@@ -200,6 +202,7 @@ main(void)
 	   limit_one_desc != NULL && limit_zero_desc != NULL &&
 	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
 	   invalid_offset_desc != NULL && point_desc != NULL &&
+	   negative_point_desc != NULL &&
 	   point_limit_desc != NULL && point_zero_limit_desc != NULL &&
 	   point_offset_desc != NULL,
 	   "scan and literal-limit descriptors are constructed");
@@ -288,6 +291,12 @@ main(void)
 	   vdbe.aOp[before_point + 4].opcode == OP_ResultRow &&
 	   vdbe.aOp[before_point + 1].p2 == before_point + 5,
 	   "integer primary-key point path seeks, projects, and returns at most one row");
+	int before_negative_point = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_point(negative_point_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_negative_point].opcode == OP_Int64 &&
+	   vdbe.aOp[before_negative_point].p4type == P4_INT64 &&
+	   *vdbe.aOp[before_negative_point].p4.pI64 == INT64_MIN,
+	   "wide negative primary-key values retain signed VDBE representation");
 	int before_point_limit = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_limit_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.nOp == before_point_limit + 5 &&
@@ -313,6 +322,7 @@ main(void)
 	sql_plan_descriptor_delete(wide_offset_limit_desc);
 	sql_plan_descriptor_delete(invalid_offset_desc);
 	sql_plan_descriptor_delete(point_desc);
+	sql_plan_descriptor_delete(negative_point_desc);
 	sql_plan_descriptor_delete(point_limit_desc);
 	sql_plan_descriptor_delete(point_zero_limit_desc);
 	sql_plan_descriptor_delete(point_offset_desc);
