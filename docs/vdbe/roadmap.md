@@ -1210,13 +1210,32 @@ DML, triggers, subprograms, non-deterministic functions.
   fallback SQL suites pass on memtx and Vinyl against the rebuilt executable.
   M3.5 remains open for the other legacy/producer rejection routes.
 
+  A follow-up audit of the production `SELECT` path found no additional
+  unclassified ordinary rejection that can safely be closed by adding a reason
+  enum alone. Classification is split across source-shape preservation before
+  rewrite, post-resolution logical/expression checks, the experimental
+  table-scan preflight/lowering attempt, and the actual legacy
+  `sqlWhereBegin()` route. In particular, the non-primary-key `ORDER BY v`
+  preflight case is already recorded as `fallback` / `UNSUPPORTED_EXPRESSION`
+  by the resolved canonical-expression check before physical preflight; the
+  existing memtx/Vinyl regression asserts that reason and its exact counter
+  delta. A separate `UNSUPPORTED_ORDER` code would duplicate and misstate that
+  producer rejection. Simple `COUNT(*)` remains a deliberate direct `OP_Count`
+  route, not a legacy-WHERE fallback. The remaining M3.5 blocker is
+  architectural completeness: dedicated SELECT emitters and recursive SELECT
+  branches do not pass through one producer gate, while the general
+  logical-to-physical API is still not the production producer for all SELECT
+  routes. Close M3.5 only after a route inventory and integration design cover
+  those boundaries with runtime evidence; do not infer closure from the current
+  reason-mapping table.
+
   ```mermaid
   flowchart TD
-    S[SELECT code generation] --> V{Plain multi-row VALUES?}
+    S[SELECT entry] --> V{Plain multi-row VALUES?}
     V -- yes --> VE[Direct VALUES emitter]
-    V -- no --> X{Compound or other dedicated branch?}
-    X -- yes --> SX[Dedicated/recursive SELECT path]
-    X -- no --> C{Simple COUNT(*)?}
+    V -- no --> P[Preserve structural rejects before rewrite]
+    P --> E[Resolve; classify logical and expression rejects]
+    E --> C{Simple COUNT(*) fast path?}
     C -- yes --> CO[Direct OP_Count; unclassified]
     C -- no --> N{Feature-gated table-scan lowering succeeds?}
     N -- yes --> NP[new_planner]
