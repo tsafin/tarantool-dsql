@@ -589,7 +589,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(46);
+	plan(47);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
