@@ -289,6 +289,7 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                 status = snapshot.planner.component_status,
                 count = #components,
                 path_class = snapshot.path_class,
+                fallback_reason = snapshot.fallback_reason,
                 routes = {},
                 component_routes = {},
             }
@@ -323,6 +324,8 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_gt(snapshots.intersect.count, 1)
     t.assert_gt(snapshots.scalar_exists.count, 1)
     local scalar_count = snapshots.scalar_direct_count.component_routes
+    t.assert_equals(snapshots.scalar_direct_count.path_class, 'mixed')
+    t.assert_equals(snapshots.scalar_direct_count.fallback_reason, nil)
     t.assert_equals(scalar_count[1].role, 'root')
     t.assert_equals(scalar_count[1].route, 'fallback')
     t.assert_equals(scalar_count[2].parent_id, scalar_count[1].id)

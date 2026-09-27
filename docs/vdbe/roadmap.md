@@ -1557,7 +1557,8 @@ DML, triggers, subprograms, non-deterministic functions.
   references; the expanded luatest passes against the v5 build. It now also
   asserts a mixed shared-VDBE case exactly: the scalar-subquery root is
   `fallback`, while its child is `subquery` / `direct_op_count` with the root
-  as parent. This strengthens focused branch coverage but is not a
+  as parent; the statement summary is `mixed` with no fallback reason. This
+  strengthens focused branch coverage but is not a
   reviewed-corpus inventory. The M0
   capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
