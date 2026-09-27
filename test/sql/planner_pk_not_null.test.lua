@@ -20,5 +20,11 @@ for i = 1, #legacy_rows do assert(enabled_rows[i][1] == legacy_rows[i][1] and en
 
 -- A non-primary column has no non-null guarantee; it must remain legacy.
 summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM pk_not_null_t WHERE v IS NOT NULL]])
-assert(err == nil and summary.rows[1][3] ~= 'new_planner')
+assert(err == nil and summary.rows[1][3] == 'fallback')
+assert(summary.rows[2][3] == 'UNSUPPORTED_FILTER')
+enabled_non_primary_rows = box.execute([[SELECT id FROM pk_not_null_t WHERE v IS NOT NULL]]).rows
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+disabled_non_primary_rows = box.execute([[SELECT id FROM pk_not_null_t WHERE v IS NOT NULL]]).rows
+assert(#enabled_non_primary_rows == #disabled_non_primary_rows)
+assert(enabled_non_primary_rows[1][1] == 2 and enabled_non_primary_rows[2][1] == 3)
+assert(disabled_non_primary_rows[1][1] == enabled_non_primary_rows[1][1] and disabled_non_primary_rows[2][1] == enabled_non_primary_rows[2][1])
