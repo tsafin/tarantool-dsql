@@ -1093,6 +1093,33 @@ DML, triggers, subprograms, non-deterministic functions.
   Full-corpus
   capture/parity review is complete under M3.6; it does not imply the missing
   physical-reject accounting or new-planner route is implemented.
+
+  A bounded live route audit distinguishes the direct multi-row VALUES and
+  simple `COUNT(*)` emitters from SELECTs that enter `sqlWhereBegin()`. The
+  latter are `current_where_c` when no earlier reject has been recorded, or
+  `fallback` with the structural/physical reject when one has; `OP_Count` is
+  deliberately left unclassified because it does not fall back through
+  `where.c`. The runtime regression now asserts that one attempted unsupported
+  filter reports `UNSUPPORTED_FILTER` and increments both the total and
+  per-reason counters exactly once. This test runs alongside the existing
+  memtx/Vinyl filter-result parity checks and does not alter route selection.
+
+  ```mermaid
+  flowchart TD
+    S[SELECT code generation] --> V{Plain multi-row VALUES?}
+    V -- yes --> VE[Direct VALUES emitter]
+    V -- no --> X{Compound or other dedicated branch?}
+    X -- yes --> SX[Dedicated/recursive SELECT path]
+    X -- no --> C{Simple COUNT(*)?}
+    C -- yes --> CO[Direct OP_Count; unclassified]
+    C -- no --> N{Feature-gated table-scan lowering succeeds?}
+    N -- yes --> NP[new_planner]
+    N -- no --> W[Continue through sqlWhereBegin]
+    W --> R{Earlier reject recorded?}
+    R -- no --> CW[current_where_c]
+    R -- yes --> FB[fallback + stable reason]
+  ```
+
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
