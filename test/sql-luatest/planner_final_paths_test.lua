@@ -264,6 +264,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                           FROM planner_component_matrix]],
             scalar_exists = [[SELECT EXISTS(
                 SELECT 1 FROM planner_component_matrix WHERE id = 1)]],
+            scalar_direct_count = [[SELECT (SELECT count(*)
+                FROM planner_component_matrix)
+                FROM planner_component_matrix]],
             union = [[SELECT id FROM planner_component_matrix WHERE id = 1
                       UNION ALL
                       SELECT id FROM planner_component_matrix WHERE id = 3]],
@@ -287,11 +290,19 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                 count = #components,
                 path_class = snapshot.path_class,
                 routes = {},
+                component_routes = {},
             }
             local ids = {}
             for _, component in ipairs(components) do
                 ids[component.id] = true
                 table.insert(item.routes, component.route)
+                table.insert(item.component_routes, {
+                    id = component.id,
+                    parent_id = component.parent_id,
+                    role = component.role,
+                    route = component.route,
+                    fallback_reason = component.fallback_reason,
+                })
                 assert(component.route ~= 'pending', name .. ' has pending route')
             end
             for _, component in ipairs(components) do
@@ -311,4 +322,10 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_gt(snapshots.union.count, 1)
     t.assert_gt(snapshots.intersect.count, 1)
     t.assert_gt(snapshots.scalar_exists.count, 1)
+    local scalar_count = snapshots.scalar_direct_count.component_routes
+    t.assert_equals(scalar_count[1].role, 'root')
+    t.assert_equals(scalar_count[1].route, 'fallback')
+    t.assert_equals(scalar_count[2].parent_id, scalar_count[1].id)
+    t.assert_equals(scalar_count[2].role, 'subquery')
+    t.assert_equals(scalar_count[2].route, 'direct_op_count')
 end

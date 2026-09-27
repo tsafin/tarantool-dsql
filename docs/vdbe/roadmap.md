@@ -1554,8 +1554,11 @@ DML, triggers, subprograms, non-deterministic functions.
   SELECT, DISTINCT, grouped aggregation, MIN/MAX, EXISTS, UNION, INTERSECT,
   and SELECT without FROM. Every successful snapshot is required to have a
   complete non-empty component ledger with no pending routes and valid parent
-  references; the expanded luatest passes against the v5 build. This strengthens
-  focused branch coverage but is not a reviewed-corpus inventory. The M0
+  references; the expanded luatest passes against the v5 build. It now also
+  asserts a mixed shared-VDBE case exactly: the scalar-subquery root is
+  `fallback`, while its child is `subquery` / `direct_op_count` with the root
+  as parent. This strengthens focused branch coverage but is not a
+  reviewed-corpus inventory. The M0
   capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.
