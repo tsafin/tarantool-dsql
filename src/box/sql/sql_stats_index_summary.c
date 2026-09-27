@@ -88,11 +88,14 @@ sql_stats_index_summary_new_for_index(struct tuple_format *format,
 	/* Keep the contract narrow: STRING and DOUBLE hash paths normalize
 	 * SQL-equal representations; BOOLEAN has a one-to-one MessagePack value
 	 * encoding and a value-decoding comparator; UNSIGNED has a value-decoding
-	 * hash. Other types need a separately verified equality/hash contract. */
+	 * hash. INTEGER accepts only MessagePack's canonical signed encoding for
+	 * negative values and unsigned encoding for nonnegative values, matching
+	 * the value comparator; noncanonical encodings are not produced by tuples. */
 	for (uint32_t i = 0; i < key_def->part_count; i++) {
 		enum field_type type = key_def->parts[i].type;
 		if (type != FIELD_TYPE_STRING && type != FIELD_TYPE_DOUBLE &&
-		    type != FIELD_TYPE_BOOLEAN && type != FIELD_TYPE_UNSIGNED)
+		    type != FIELD_TYPE_BOOLEAN && type != FIELD_TYPE_UNSIGNED &&
+		    type != FIELD_TYPE_INTEGER)
 			return NULL;
 		if (type == FIELD_TYPE_STRING && key_def->parts[i].coll != NULL &&
 		    key_def->parts[i].coll->hash == NULL)

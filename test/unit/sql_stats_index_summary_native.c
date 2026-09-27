@@ -7,6 +7,7 @@
 #include "msgpuck.h"
 #include "box/sql/sql_stats_index_summary.h"
 #include "tuple.h"
+#include "tuple_compare.h"
 #include "unit.h"
 
 static uint32_t
@@ -22,7 +23,7 @@ main(void)
 	fiber_init(fiber_c_invoke);
 	coll_init();
 	tuple_init(test_field_name_hash);
-	plan(4);
+	plan(5);
 	header();
 
 	struct key_part_def part = key_part_def_default;
@@ -79,8 +80,47 @@ main(void)
 	struct sql_stats_index_summary *signed_summary = signed_key_def == NULL ?
 		NULL : sql_stats_index_summary_new_for_index(tuple_format_runtime,
 			&signed_index_def, 8, 42, sketch_bytes + sizeof(void *));
-	ok(signed_key_def != NULL && signed_summary == NULL,
-	   "signed integer remains rejected without a proven hash contract");
+	ok(signed_key_def != NULL && signed_summary != NULL,
+	   "signed integer native hash is accepted with canonical MessagePack values");
+
+	char signed_tuple_data_buf[16];
+	char *signed_pos = mp_encode_array(signed_tuple_data_buf, 1);
+	signed_pos = mp_encode_int(signed_pos, -7);
+	struct tuple *negative = tuple_new(tuple_format_runtime,
+					   signed_tuple_data_buf, signed_pos);
+	signed_pos = mp_encode_array(signed_tuple_data_buf, 1);
+	signed_pos = mp_encode_int(signed_pos, -7);
+	struct tuple *negative_same = tuple_new(tuple_format_runtime,
+						 signed_tuple_data_buf, signed_pos);
+	signed_pos = mp_encode_array(signed_tuple_data_buf, 1);
+	signed_pos = mp_encode_uint(signed_pos, 7);
+	struct tuple *positive = tuple_new(tuple_format_runtime,
+					   signed_tuple_data_buf, signed_pos);
+	double signed_ndv[1] = {};
+	bool signed_values_ok = signed_summary != NULL && negative != NULL &&
+		negative_same != NULL && positive != NULL &&
+		tuple_compare(negative, HINT_NONE, negative_same, HINT_NONE,
+			signed_key_def) == 0 &&
+		tuple_compare(negative, HINT_NONE, positive, HINT_NONE,
+			signed_key_def) != 0 &&
+		sql_stats_index_summary_consume(signed_summary, tuple_data(negative),
+			tuple_bsize(negative), NULL, 0) == 0 &&
+		sql_stats_index_summary_consume(signed_summary,
+			tuple_data(negative_same), tuple_bsize(negative_same),
+			NULL, 0) == 0 &&
+		sql_stats_index_summary_consume(signed_summary, tuple_data(positive),
+			tuple_bsize(positive), NULL, 0) == 0 &&
+		sql_stats_index_summary_prefix_ndv(signed_summary, 1, signed_ndv,
+						    1) == 0 &&
+		signed_ndv[0] > 1.5 && signed_ndv[0] < 2.5;
+	ok(signed_values_ok,
+	   "integer hash deduplicates signed values and distinguishes signs");
+	if (negative != NULL)
+		tuple_delete(negative);
+	if (negative_same != NULL)
+		tuple_delete(negative_same);
+	if (positive != NULL)
+		tuple_delete(positive);
 
 	if (first != NULL)
 		tuple_delete(first);

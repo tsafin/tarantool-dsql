@@ -531,12 +531,14 @@ review of IDs and formats.
   accumulator memory, and suppresses output on extractor failure; it
   deliberately does not hash raw MessagePack or infer population-level NDV.
   Eight generic-summary checks pass. The native index-hash adapter supports
-  verified STRING, DOUBLE, BOOLEAN, and UNSIGNED parts for TREE/HASH
-  definitions; signed INTEGER remains rejected pending an explicit
-  equality/hash equivalence proof. A dedicated
+  verified STRING, DOUBLE, BOOLEAN, UNSIGNED, and signed INTEGER parts for
+  TREE/HASH definitions. INTEGER uses canonical MessagePack values (negative
+  values as MP_INT, nonnegative as MP_UINT), matching its numeric comparator;
+  the native test verifies duplicate negative values deduplicate and positive
+  values remain distinct. A dedicated
   `sql_stats_index_summary_native.test` target checks unsigned acceptance,
-  duplicate deduplication, distinct-value recognition, and continued signed
-  INTEGER rejection; all four checks pass locally. The native adapter
+  duplicate deduplication, distinct-value recognition, and signed INTEGER
+  hashing; all five checks pass locally. The native adapter
   now deletes its unreferenced runtime tuple returned by `tuple_new()` rather
   than decrementing a reference it does not own. The existing `key_def.test`
   native-adapter checks now delete their locally owned fixture tuples
