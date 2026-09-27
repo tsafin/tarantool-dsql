@@ -1897,7 +1897,10 @@ DML, triggers, subprograms, non-deterministic functions.
   asserts stable `UNSUPPORTED_FUNCTION` / `UNSUPPORTED_ACCESS_HINT` routes,
   identical executed rows, and exact total-reason counter deltas for enabled
   and disabled EXPLAIN plus execution. This extends feature-flag evidence to
-  unsupported shapes without claiming corpus-wide acceptance.
+  unsupported shapes without claiming corpus-wide acceptance. A fresh
+  generated/CnP capture on both engines matches exactly (47/47 snapshots per
+  engine, zero errors or diffs), including the capture observer's counter
+  contribution.
   Composite-primary-key prefix predicates now also participate in the same
   off/on/off feature gate: equality scans, one-sided bounds, a two-sided bound,
   and descending equality-prefix order return identical rows on memtx and
