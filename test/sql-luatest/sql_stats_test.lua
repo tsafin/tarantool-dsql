@@ -99,6 +99,7 @@ g.test_shared_view_multi_relation_candidate = function()
         t.skip('SQL stats live wrapper requires a TEST_BUILD server')
     end
     t.assert_equals(res.published_two_relations, true)
+    t.assert_equals(res.native_hash_provenance, true)
     t.assert_equals(res.publish_rc, 0)
     t.assert_equals(res.first_relation_rows, 8)
     t.assert_equals(res.second_relation_rows, 8)

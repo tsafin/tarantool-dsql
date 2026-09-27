@@ -2,6 +2,7 @@
 #include <lauxlib.h>
 #include <limits.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "box/error.h"
 #include "box/index.h"
@@ -566,8 +567,12 @@ lbox_collect_multirelation(lua_State *L)
 			index_specs[flat].hll_precision = 8;
 			index_specs[flat].hll_seed = 41 + flat;
 			index_specs[flat].summary_max_bytes = 4096;
-			index_specs[flat].extract = extract_unsigned;
-			index_specs[flat].extract_context = &extracts[flat];
+			if (r == 0) {
+				index_specs[flat].use_native_index_hash = true;
+			} else {
+				index_specs[flat].extract = extract_unsigned;
+				index_specs[flat].extract_context = &extracts[flat];
+			}
 		}
 		relations[r] = (struct sql_stats_collection_relation_spec) {
 			.expected = NULL,
@@ -611,6 +616,16 @@ lbox_collect_multirelation(lua_State *L)
 		published_snapshot != NULL &&
 		sql_stats_snapshot_relation_count(published_snapshot) == 2 &&
 		published_snapshot != old_snapshot;
+	const struct sql_stats_relation *native_relation = NULL;
+	const struct sql_stats_index *native_index = NULL;
+	bool native_hash_provenance = candidate != NULL &&
+		sql_stats_snapshot_get_relation(candidate,
+			box_schema_version(), space_ids[0],
+			&native_relation) == SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_get_index(native_relation, 0, &native_index) ==
+			SQL_STATS_LOOKUP_AVAILABLE &&
+		strcmp(sql_stats_index_ndv_basis(native_index),
+			"visible-engine-index-hash32-equivalence-classes-v1") == 0;
 	if (candidate != NULL)
 		sql_stats_snapshot_release(candidate);
 
@@ -639,6 +654,8 @@ lbox_collect_multirelation(lua_State *L)
 	lua_newtable(L);
 	lua_pushboolean(L, published_two_relations);
 	lua_setfield(L, -2, "published_two_relations");
+	lua_pushboolean(L, native_hash_provenance);
+	lua_setfield(L, -2, "native_hash_provenance");
 	lua_pushinteger(L, publish_rc);
 	lua_setfield(L, -2, "publish_rc");
 	lua_pushnumber(L, success_rows[0]);
