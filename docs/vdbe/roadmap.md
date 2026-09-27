@@ -1420,9 +1420,12 @@ DML, triggers, subprograms, non-deterministic functions.
   logical-plan API still has unit-test-only callers; this direct scan slice
   uses its dedicated table-scan producer. Unsupported shapes continue to use
   existing structural/expression classifications or the legacy route. This is
-  an incremental integration, not complete fallback coverage. The focused
-  `planner_fallback_*` SQL tests
-  pass locally on both memtx and Vinyl (10 cases), as do
+  an incremental integration, not complete fallback coverage. A focused
+  fallback SQL matrix (six `planner_fallback_*` tests, `planner_preflight`,
+  and `misc`) passes locally on both memtx and Vinyl (16 cases). The snapshot
+  assertion in `misc` now pins the disabled ORDER BY's
+  `fallback / UNSUPPORTED_EXPRESSION` classification and non-replayable
+  disposition instead of the stale `current_where_c` expectation. Also passing
   `sql_plan_fallback.test` (34 Lua assertions and 9 TAP checks); refreshed
   result baselines no longer preserve earlier assertion-error output.
   Full-corpus

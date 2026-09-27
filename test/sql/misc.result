@@ -692,7 +692,11 @@ assert(err == nil)
 simple_snapshot_object = require('msgpack').decode(tostring(simple_snapshot.rows[1][1]))
 ---
 ...
-assert(simple_snapshot_object.path_class == 'current_where_c')
+assert(simple_snapshot_object.path_class == 'fallback')
+---
+- true
+...
+assert(simple_snapshot_object.fallback_reason == 'UNSUPPORTED_EXPRESSION')
 ---
 - true
 ...
@@ -716,15 +720,19 @@ assert(#simple_snapshot_object.planner.component_routes == 1)
 ---
 - true
 ...
-assert(simple_snapshot_object.planner.component_routes[1].route == 'current_where_c')
+assert(simple_snapshot_object.planner.component_routes[1].route == 'fallback')
 ---
 - true
 ...
-assert(simple_snapshot_object.replayable == true)
+assert(simple_snapshot_object.planner.component_routes[1].fallback_reason == 'UNSUPPORTED_EXPRESSION')
 ---
 - true
 ...
-assert(type(simple_snapshot_object.replay_inputs) == 'string')
+assert(simple_snapshot_object.replayable == false)
+---
+- true
+...
+assert(simple_snapshot_object.replay_inputs == nil)
 ---
 - true
 ...
@@ -732,7 +740,7 @@ assert(simple_snapshot_object.planner.candidate_count > 0)
 ---
 - true
 ...
-assert(simple_snapshot_object.planner.fallback_count == 0)
+assert(simple_snapshot_object.planner.fallback_count == 1)
 ---
 - true
 ...
