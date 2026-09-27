@@ -1219,11 +1219,13 @@ DML, triggers, subprograms, non-deterministic functions.
   is explicitly retained as `fallback / UNSUPPORTED_FILTER`.
   Point-lookup residual lowering now accepts up to eight direct non-primary
   `IS NULL`/`IS NOT NULL` checks on a single-part INTEGER/UNSIGNED primary-key
-  equality. All checks execute before projection and share the reject/result
-  exit; overflow and other access shapes remain fail-closed. The unit target
-  passes all 46 assertions, and the rebuilt Debug runtime passes
-  `planner_scalar_filter_test.lua` across its memtx/Vinyl matrix. This remains
-  a bounded M3.4 extension, not general predicate lowering.
+  equality, and complete composite INTEGER/UNSIGNED primary-key equality.
+  All checks execute before projection and share the reject/result exit;
+  overflow and other access shapes remain fail-closed. The VDBE unit target
+  passes all 47 assertions, and the rebuilt Debug runtime passes
+  `planner_scalar_filter_test.lua` across its memtx/Vinyl matrix under generated
+  and CnP dispatch. This remains a bounded M3.4 extension, not general
+  predicate lowering.
   Compound/general boolean predicates, filtered composite-prefix ranges, and
   other scalar operators remain outside this route. Direct-column full
   scans and primary-key ordering also pass
@@ -2003,11 +2005,13 @@ DML, triggers, subprograms, non-deterministic functions.
   The scalar non-primary `IS NULL` / `IS NOT NULL` scan route also has exact
   off/on/off result assertions, plus exact generated/CnP parity on memtx and
   Vinyl (85/85 snapshots per engine); generated-repeat also matches exactly.
-  The single-part primary-key point path now admits up to eight such residual
-  filters. The memtx/Vinyl off/on/off matrix verifies mixed NULL/NOT NULL
-  predicates, reversed order, hit/reject/miss behavior, and `new_planner` on
-  enabled execution; multiple-filter ranges, scans, and composite point paths
-  remain explicitly outside the feature gate.
+  Single-part primary-key points admit up to eight such residual filters.
+  Complete composite INTEGER/UNSIGNED primary-key equality now also accepts
+  the bounded residual list. The memtx/Vinyl off/on/off matrix verifies mixed
+  NULL/NOT NULL predicates, reversed order, hit/reject/miss behavior, and
+  `new_planner` on enabled execution. Incomplete composite equality with
+  multiple residuals and multiple-filter ranges remain fail-closed; a single
+  residual on leading-part equality remains the existing bounded-range route.
   A material lowering extension admits up to eight direct non-primary `IS NULL`
   or `IS NOT NULL` predicates alongside a single-part INTEGER/UNSIGNED
   primary-key equality. The point lowerer evaluates all residuals after
@@ -2015,11 +2019,11 @@ DML, triggers, subprograms, non-deterministic functions.
   `ResultRow`. SQL off/on/off parity cases cover both predicates together,
   reversed predicate order, a matching row, residual rejection, and a missing
   key on memtx and Vinyl; the VDBE unit pins both opcodes and the shared branch
-  target. Multiple residuals remain rejected on range, scan-only, and composite
-  point shapes; the descriptor rejects filter lists above the fixed bound of
-  eight. The integrated Debug build passed; the VDBE unit passes all 46
-  assertions and the focused memtx/Vinyl luatest passes under generated and
-  CnP dispatch. The earlier
+  target. Multiple residuals remain rejected on range and scan-only shapes;
+  incomplete composite equality remains fail-closed, and the descriptor
+  rejects filter lists above the fixed bound of eight. The integrated Debug
+  build passed; the VDBE unit passes all 47 assertions and the focused
+  memtx/Vinyl luatest passes under generated and CnP dispatch. The earlier
   single-filter route's incremental Debug build and 45-assertion VDBE unit plus
   memtx/Vinyl luatest also passed. The broader M3.4 operator
   and producer coverage remains open.
