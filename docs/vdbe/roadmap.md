@@ -1330,7 +1330,17 @@ DML, triggers, subprograms, non-deterministic functions.
   ordered scan, point lookup, one-sided bounds, and a two-sided range; it also
   asserts `new_planner` while enabled and `current_where_c` while disabled.
   The focused test passes on memtx and Vinyl. This is representative route
-  coverage, not yet the wider supported-shape/corpus acceptance gate.
+  coverage, not yet the wider supported-shape/corpus acceptance gate. A
+  separate `sql-luatest/planner_flag_parity_test.lua` now extends off/on/off
+  row parity to eight supported UNSIGNED-primary-key queries across memtx and
+  Vinyl, including signed-boundary/UINT64_MAX points, one- and two-sided
+  ranges, compatible ordering, LIMIT, and OFFSET. All enabled queries assert
+  `new_planner`; disabled queries assert `current_where_c`, except the
+  high-half UNSIGNED literals, which report
+  `fallback / UNSUPPORTED_EXPRESSION` while retaining result parity. The local
+  focused luatest passes against a binary rebuilt from current HEAD. This
+  broadens typed/boundary coverage, but remains a focused sample rather than
+  corpus-wide feature acceptance.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
