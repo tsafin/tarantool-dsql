@@ -433,33 +433,32 @@ producer consumes sampled tuples to populate all relation/index summaries and
 live engine tests prove a shared candidate-generation boundary. Nothing here
 enables `ANALYZE` or persistent statistics.
 
-### Next S1.3a integration slice: transaction-driven assembly
+### Transaction-driven assembly prototype
 
-The next safe integration unit is a single-relation volatile assembler over
-`sql_stats_tx_context`, not another independently supplied list of
-`sql_stats_sampled_index` values. Its bounded input should pair every expected
-index with exactly one sample request and canonical value extractor (or an
-already-created summary that owns that extractor), and state which requested
-index supplies the relation sample's row/byte facts. That relation source
-should be one of the sampled indexes, so relation width and population cannot
-silently come from an unrelated scan. The assembler should own per-index
-summaries and staging arrays, sample each target through the same context, and
-invoke candidate construction only after all samples and summary conversions
-succeed. Any scan, extractor, estimate, allocation, generation, or validation
-failure must destroy partial state and return no candidate; it must not modify
-caller outputs or the installed snapshot. The detached result can then use the
-existing `sql_stats_tx_context_finish_and_publish()` commit/publication gate.
+`sql_stats_tx_context_build_sample_candidate()` now implements a bounded
+single-relation volatile assembler over the owned transaction context. Each
+input spec binds an expected index definition to one collection target, a
+copied sample request, HLL bounds, and a caller-owned canonical extractor.
+The caller designates one requested index as the source of relation population
+and sampled width. The helper owns the summaries and staging arrays, samples
+through the same context, and only returns a detached candidate after every
+sample and conversion succeeds. It rejects missing/duplicate index specs,
+definition/target mismatches, and an extractor failure after an earlier index
+sample; all failure paths poison the transaction context and expose no
+candidate. Seven focused assertions cover reordered requests, missing and
+duplicate indexes, a later-index failure, and unchanged installed snapshot.
+The unit target uses an index-summary test double because these checks pin
+transaction orchestration, not HLL estimator accuracy; the real estimator and
+sample-to-candidate bridge are tested separately. The main Clang-19
+`sql_stats_collection.test` target and all seven assertions pass.
 
-This API is not implemented. Today the transaction context stages one whole
-sample before invoking its sink and makes failure sticky, while candidate
-construction accepts caller-associated summaries plus a separate relation
-sample. No production bridge binds target identity, expected definition,
-extractor lifetime, request bounds, and sampled result into one owned
-per-index record. Implementing orchestration before defining that record would
-leave association and cleanup guarantees implicit. Focused tests should cover
-reordered and missing/duplicate/unrequested indexes, a later-index extractor
-failure, generation drift, candidate allocation failure, and preservation of
-caller outputs and the installed snapshot. `READ_CONFIRMED`, transaction ID,
-and local vclock/catalog/schema checks are volatile local guards, not durable
-or cross-node visibility identities; this helper must not claim more than
-those checks and the engine samplers establish.
+The returned candidate remains detached and the helper neither commits nor
+publishes it. In particular, it cannot yet flow directly into the existing
+`sql_stats_tx_context_finish_and_publish()`, which accepts a raw collection
+result rather than a candidate snapshot. The next integration must combine
+this assembler with post-commit generation revalidation and atomic install,
+without a gap that could publish stale data. No live memtx/Vinyl transaction
+test of the new orchestration has run. `READ_CONFIRMED`, transaction ID, and
+local vclock/catalog/schema checks are volatile local guards, not durable or
+cross-node visibility identities. This does not enable `ANALYZE` or persistent
+statistics.

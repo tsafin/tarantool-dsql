@@ -670,17 +670,20 @@ review of IDs and formats.
   checks. The production target plus replay-input unit target pass. Full
   relation/index summary derivation from sampled values and live collection
   wiring remain open; `ANALYZE` stays disabled. See
-  `sql_stats_sampling.md` for the exact contract and local unit evidence. The
-  next bounded S1.3a slice is a transaction-driven single-relation assembler:
-  own one summary per expected index, bind each to its request and canonical
-  extractor, derive relation row/width facts from a designated sample among
-  those indexes, and build only after every sample/conversion succeeds. This
-  binding is not implemented today; the existing tx sampler and detached
-  candidate builder are separate APIs, and callers could otherwise mismatch
-  targets, definitions, summaries, and relation facts. The next integration
-  must discard all partial summaries on failure and retain the existing
-  finish-and-publish no-change-on-failure gate. Local READ_CONFIRMED and
-  vclock/catalog/schema checks are not a durable or cross-node snapshot claim.
+  `sql_stats_sampling.md` for the exact contract and local unit evidence. A new
+  `sql_stats_tx_context_build_sample_candidate()` binds every requested target
+  to an expected index, request, and canonical extractor; owns per-index
+  summaries; derives relation population/width from a designated sampled index;
+  and returns a detached candidate only after all samples and conversions
+  succeed. Its seven focused transaction-context checks cover reordered,
+  missing, duplicate, and later-extractor-failure cases, while asserting that
+  the installed snapshot is unchanged. This does not commit or publish the
+  returned candidate and has no live memtx/Vinyl orchestration confirmation.
+  The next integration must combine detached candidate assembly with the
+  transaction's final generation revalidation and atomic install; the existing
+  `finish_and_publish()` currently accepts a collection result, not this
+  candidate value. Local READ_CONFIRMED and vclock/catalog/schema checks are
+  not a durable or cross-node snapshot claim.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
   of system-space IDs and tuple/payload formats. *parallel: no*.
