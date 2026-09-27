@@ -911,7 +911,9 @@ DML, triggers, subprograms, non-deterministic functions.
   retain precedence; LIMIT/OFFSET are restricted to nonnegative integer
   literals as required by the replay/descriptor model. Focused runtime and
   counter tests cover CAST, LIKE, arithmetic and negative LIMIT, and
-  parameterized LIMIT and OFFSET; bind parameters remain on the legacy route
+  parameterized LIMIT and OFFSET; LIKE is correctly classified as an
+  unsupported function because the parser represents it through the function
+  operator. Bind parameters remain on the legacy route
   because their value is not part of the immutable descriptor at prepare time.
   The per-reason SQL counter array and exported stat fields now use an
   exclusive reason-count sentinel, so appended function/collation/expression
