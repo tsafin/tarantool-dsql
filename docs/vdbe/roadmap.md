@@ -1689,6 +1689,15 @@ DML, triggers, subprograms, non-deterministic functions.
   entries. M3.5 remains open until those reviewed-corpus producers and route
   changes are dispositioned.
 
+  **Extended timeout triage (2026-09-28).** A fresh standalone retry with a
+  60-second per-file limit accepted `in2`, `select2`, and `select9` on both
+  engines, with 6,001 / 30,073 / 21,313 captured statements respectively and
+  complete component ledgers. `sort.test.lua` still exceeded the cap on both
+  engines (61.3s memtx / 61.8s Vinyl); `autoindex1` and two tuple-memory stress
+  cases were not retried. This changes the outstanding SQL-TAP timeout count
+  from seven to four per engine, but remains standalone capture evidence, not
+  normal-runner parity or final M3.5 closure.
+
   **SQL-luatest capture extension (2026-09-27).** The child capture adapter
   now records planner metrics and component routes for successful
   SELECT/WITH-SELECT/VALUES executions, alongside each SQL snapshot's
