@@ -415,9 +415,12 @@ sql_physical_table_scan_from_select(
 			exprs[bound_count++] = term;
 		}
 		expr_count = bound_count;
-		if (expr_count == 0)
+		if (expr_count == 0 && null_filter_count == 0)
 			goto invalid_predicate;
-		if (pk->parts[0].type != FIELD_TYPE_INTEGER &&
+		if (expr_count == 0)
+			goto predicate_parsed;
+		if (expr_count != 0 &&
+		    pk->parts[0].type != FIELD_TYPE_INTEGER &&
 		    pk->parts[0].type != FIELD_TYPE_UNSIGNED)
 			goto invalid_predicate;
 		struct parsed_pk_bound parsed[SQL_PLAN_POINT_KEY_PART_MAX];
@@ -672,10 +675,8 @@ sql_physical_table_scan_from_select(
 			goto invalid_predicate;
 		}
 		if (null_filter_count != 0 &&
-		    ((!has_range_key && !has_point_key) ||
-		     (has_point_key &&
+		    ((has_point_key &&
 		      (!has_composite_point && pk->part_count != 1)) ||
-		     (null_filter_count > 1 && !has_point_key) ||
 		     has_prefix_scan))
 			goto invalid_predicate;
 	}

@@ -447,9 +447,7 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		return -1;
 	const struct sql_plan_descriptor_input *input =
 		sql_plan_descriptor_get_input(plan);
-	bool has_null_filter = input != NULL && input->filter_count == 1 &&
-		(input->filters[0].op == SQL_PLAN_FILTER_IS_NULL ||
-		 input->filters[0].op == SQL_PLAN_FILTER_IS_NOT_NULL);
+	bool has_null_filter = input != NULL && input->filter_count != 0;
 	bool has_range_end = input != NULL &&
 		(input->access.has_integer_range_end_key ||
 		 input->access.has_unsigned_range_end_key);
@@ -481,7 +479,8 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	    input->access.kind != (range ? SQL_PLAN_INDEX_RANGE_SCAN :
 				   SQL_PLAN_TABLE_FULL_SCAN) ||
 	    invalid_range ||
-	    (input->filter_count != 0 && !has_null_filter) ||
+	    (input->filter_count > SQL_PLAN_FILTER_MAX) ||
+	    (input->filter_count != 0 && input->filters == NULL) ||
 	    input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
@@ -493,6 +492,12 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	    input->projection_column_count > INT_MAX ||
 	    result_first_reg > INT_MAX - (int)input->projection_column_count + 1)
 		return -1;
+	for (size_t i = 0; i < input->filter_count; ++i) {
+		if ((input->filters[i].op != SQL_PLAN_FILTER_IS_NULL &&
+		     input->filters[i].op != SQL_PLAN_FILTER_IS_NOT_NULL) ||
+		    input->filters[i].column > INT_MAX)
+			return -1;
+	}
 	for (size_t i = 0; i < input->projection_column_count; i++) {
 		if (input->projection_columns[i] > INT_MAX)
 			return -1;
@@ -686,9 +691,9 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
 	}
-	int filter_break = -1;
-	if (has_null_filter) {
-		const struct sql_plan_filter *filter = &input->filters[0];
+	int filter_breaks[SQL_PLAN_FILTER_MAX];
+	for (size_t i = 0; i < input->filter_count; ++i) {
+		const struct sql_plan_filter *filter = &input->filters[i];
 		int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
 					   filter->column, filter_reg);
 		if (column != vdbe->nOp - 1 || parse->is_aborted ||
@@ -696,8 +701,8 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 			goto error;
 		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
 			OP_IsNull;
-		filter_break = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
-		if (filter_break != vdbe->nOp - 1 || parse->is_aborted ||
+		filter_breaks[i] = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
+		if (filter_breaks[i] != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
 	}
@@ -731,8 +736,8 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	if (offset_skip >= 0)
 		sqlVdbeJumpHere(vdbe, offset_skip);
 	/* A rejected row must continue the cursor loop, not terminate it. */
-	if (filter_break >= 0)
-		sqlVdbeJumpHere(vdbe, filter_break);
+	for (size_t i = 0; i < input->filter_count; ++i)
+		sqlVdbeJumpHere(vdbe, filter_breaks[i]);
 	int next = sqlVdbeAddOp2(vdbe, step_op, cursor, body);
 	if (next != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
