@@ -140,6 +140,7 @@ sql_plan_component_role_name(enum sql_plan_component_role role)
 		"root", "compound_branch", "recursive_anchor",
 		"recursive_term", "from_subquery", "scalar_subquery",
 		"subquery", "values", "count", "cte",
+		"expression_subquery",
 	};
 	return role >= SQL_PLAN_COMPONENT_ROOT &&
 		role < SQL_PLAN_COMPONENT_ROLE_COUNT ? names[role] : NULL;

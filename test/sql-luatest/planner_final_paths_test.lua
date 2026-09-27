@@ -264,6 +264,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                           FROM planner_component_matrix]],
             scalar_exists = [[SELECT EXISTS(
                 SELECT 1 FROM planner_component_matrix WHERE id = 1)]],
+            in_subquery = [[SELECT id FROM planner_component_matrix
+                WHERE id IN (SELECT id FROM planner_component_matrix
+                             WHERE id > 1)]],
             nested_function = [[SELECT (SELECT abs(id)
                 FROM planner_component_matrix WHERE id = 1)
                 FROM planner_component_matrix]],
@@ -367,6 +370,11 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_gt(snapshots.union.count, 1)
     t.assert_gt(snapshots.intersect.count, 1)
     t.assert_gt(snapshots.scalar_exists.count, 1)
+    local exists_routes = snapshots.scalar_exists.component_routes
+    t.assert_equals(exists_routes[2].role, 'expression_subquery')
+    local in_routes = snapshots.in_subquery.component_routes
+    t.assert_gt(#in_routes, 1)
+    t.assert_equals(in_routes[2].role, 'expression_subquery')
     local nested_routes = snapshots.nested_function.component_routes
     t.assert_gt(#nested_routes, 1)
     t.assert_equals(nested_routes[1].role, 'root')

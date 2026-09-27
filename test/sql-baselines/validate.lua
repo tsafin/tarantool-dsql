@@ -172,6 +172,7 @@ local valid_component_roles = {
     recursive_term = true,
     from_subquery = true,
     scalar_subquery = true,
+    expression_subquery = true,
     subquery = true,
     values = true,
     count = true,

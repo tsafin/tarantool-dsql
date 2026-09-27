@@ -1666,8 +1666,11 @@ DML, triggers, subprograms, non-deterministic functions.
   FROM label on a DISTINCT FROM-subquery that cannot be flattened, and the
   scalar label on a `count(*)` component. The rebuilt Debug binary and regular
   test-runner pass `planner_final_paths_test.lua` with both role assertions.
-  EXISTS/IN expression subqueries still need call-site context; the M3.5
-  reviewed-corpus producer gate remains open.
+  `sqlCodeSubselect()` now assigns the shared `expression_subquery` role to
+  EXISTS and IN-with-SELECT producers; AST/codegen does not justify separate
+  role claims for these paths. Runtime matrix assertions pin both roles while
+  scalar SELECT retains `scalar_subquery`. The snapshot validator accepts the
+  appended role. M3.5's reviewed-corpus producer gate remains open.
   The capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.

@@ -36,6 +36,7 @@
 #include "box/coll_id_cache.h"
 #include "coll/coll.h"
 #include "sqlInt.h"
+#include "sql_plan_component.h"
 #include "tarantoolInt.h"
 #include "box/schema.h"
 #include "box/session.h"
@@ -2719,8 +2720,13 @@ sqlCodeSubselect(Parse * pParse,	/* Parsing context */
 					assert((pExpr->iTable & 0x0000FFFF) ==
 					       pExpr->iTable);
 					pSelect->iLimit = 0;
-					if (sqlSelect
-					    (pParse, pSelect, &dest)) {
+					int old_component_role =
+						pParse->planner_component_role;
+					pParse->planner_component_role =
+						SQL_PLAN_COMPONENT_EXPRESSION_SUBQUERY;
+					int select_rc = sqlSelect(pParse, pSelect, &dest);
+					pParse->planner_component_role = old_component_role;
+					if (select_rc) {
 						sql_xfree(dest.dest_type);
 						return 0;
 					}
@@ -2803,6 +2809,7 @@ sqlCodeSubselect(Parse * pParse,	/* Parsing context */
 			Select *pSel;	/* SELECT statement to encode */
 			SelectDest dest;	/* How to deal with SELECT result */
 			int nReg;	/* Registers to allocate */
+			int old_component_role = pParse->planner_component_role;
 
 			assert(pExpr->op == TK_EXISTS
 			       || pExpr->op == TK_SELECT);
@@ -2842,7 +2849,12 @@ sqlCodeSubselect(Parse * pParse,	/* Parsing context */
 			}
 			pSel->iLimit = 0;
 			pSel->selFlags &= ~SF_MultiValue;
-			if (sqlSelect(pParse, pSel, &dest)) {
+			if (pExpr->op == TK_EXISTS)
+				pParse->planner_component_role =
+					SQL_PLAN_COMPONENT_EXPRESSION_SUBQUERY;
+			int select_rc = sqlSelect(pParse, pSel, &dest);
+			pParse->planner_component_role = old_component_role;
+			if (select_rc) {
 				return 0;
 			}
 			rReg = dest.iSDParm;
