@@ -1325,7 +1325,12 @@ DML, triggers, subprograms, non-deterministic functions.
   checks for scan and point routes pass in the focused memtx/Vinyl
   regression. A two-sided INTEGER primary-key range now also has explicit
   flag-on `new_planner` and flag-off `fallback` route assertions plus result
-  parity on both memtx and Vinyl.
+  parity on both memtx and Vinyl. `planner_preflight.test.lua` now adds a
+  seven-query off/on/off row-parity matrix spanning table scan, LIMIT/OFFSET,
+  ordered scan, point lookup, one-sided bounds, and a two-sided range; it also
+  asserts `new_planner` while enabled and `current_where_c` while disabled.
+  The focused test passes on memtx and Vinyl. This is representative route
+  coverage, not yet the wider supported-shape/corpus acceptance gate.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
