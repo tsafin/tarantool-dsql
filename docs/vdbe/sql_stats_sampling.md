@@ -667,16 +667,33 @@ publication failure must leave the exact installed snapshot unchanged; neither
 form may expose intermediate per-relation publications. This operation is
 volatile only and does not add a persistence dependency.
 
-Two production policies are not chosen by the current S1.2 contract and must
-be explicit before implementing that operation:
+The prior implementation supplies a compatibility baseline that the initial
+volatile command should preserve where the new sampler supports it. In the
+source immediately before `a617765f17` (`sql: ban ANALYZE statement`), bare
+`sqlAnalyze()` used `space_foreach()`, skipped views in
+`sql_space_foreach_analyze()`, and `vdbe_emit_analyze_space()` skipped system
+spaces; its index loop visited every index of each remaining space. Named
+ANALYZE resolved one space, reported `ER_NO_SUCH_SPACE` for a missing name and
+`ER_SQL_ANALYZE_ARGUMENT` for a view, then used the same analyzer (so a system
+space reached the system-space early return). That named system case was an
+effective no-collection path, though the old persistent implementation also
+cleared its legacy stats rows. The old code did not explicitly test temporary
+space status. It scanned each selected index exhaustively, so it provides no
+historical bounded-sampling or numeric-budget defaults.
 
-1. **Target scope:** which bare-ANALYZE spaces are eligible (at minimum decide
-   system spaces, views, temporary spaces, and spaces with unsupported/no
-   indexes), and whether collection covers every supported index or a selected
-   subset. Named ANALYZE must state whether an ineligible target is a user
-   error or a successful no-op. The rule must make bare scope deterministic
-   for one pinned catalog generation.
-2. **Production budget defaults:** the API requires aggregate maxima for
+Thus bare scope can follow the historical non-system, non-view, all-index
+baseline, and named lookup can retain missing/view errors. Remaining scope
+decisions are temporary-space compatibility, named system-space semantics in a
+volatile implementation, and whether an unsupported engine/index makes the
+whole requested collection fail (recommended, matching the current fail-closed
+batch contract) or is omitted. All-index collection is the documented
+historical behavior; any narrower index subset would be a deliberate scope
+change, not an existing ambiguity.
+
+One production policy is still unchosen and must be explicit before
+implementing that operation:
+
+1. **Production budget defaults:** the API requires aggregate maxima for
    index requests, staging bytes, candidate bytes, temporary bytes, and scan /
    inversion work; sampler requests also require row, byte, tuple-examination,
    and reservoir-buffer limits. The implementation plan says these are
@@ -697,8 +714,9 @@ Minimum SQL integration test matrix after these policies are chosen:
 | either form | Run on memtx and Vinyl; verify pinned visibility/catalog/schema and index-definition metadata are accepted. | Mutate catalog/schema or data visibility between discovery and publish; candidate is rejected and prior snapshot is preserved. |
 | named ineligible target / empty eligible database | Assert the chosen error/no-op semantics. | Assert no publication and unchanged prior snapshot. |
 
-Until target scope and numeric/default budget policy are recorded, SQL grammar
-and execution remain disabled. Keep S1.1's persistence schema DRAFT.
+Until the remaining runtime scope exceptions and numeric/default budget policy
+are recorded, SQL grammar and execution remain disabled. Keep S1.1's persistence
+schema DRAFT.
 
 ```mermaid
 flowchart LR
