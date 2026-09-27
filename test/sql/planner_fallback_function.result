@@ -60,7 +60,7 @@ assert(err == nil)
 ...
 assert(aggregate.rows[2][3] == 'UNSUPPORTED_AGGREGATE')
 ---
-- error: assertion failed!
+- true
 ...
 after = box.stat.sql()
 ---
@@ -71,13 +71,11 @@ assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total + 4
 ...
 assert(after.sql_planner_fallback_UNSUPPORTED_FUNCTION_total == before.sql_planner_fallback_UNSUPPORTED_FUNCTION_total + 3)
 ---
-- error: '[string "return assert(after.sql_planner_fallback_UNSU..."]:1: attempt to
-    perform arithmetic on field ''sql_planner_fallback_UNSUPPORTED_FUNCTION_total''
-    (a nil value)'
+- true
 ...
 assert(after.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total == before.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total + 1)
 ---
-- error: assertion failed!
+- true
 ...
 test_run = require('test_run').new()
 ---
