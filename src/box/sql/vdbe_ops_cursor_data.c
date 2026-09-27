@@ -174,7 +174,10 @@ vdbe_op_column_decode_fast(struct Mem *mem, const char *data,
 	case MP_STR:
 		if (field_type != FIELD_TYPE_STRING)
 			return 1;
-		mem_set_str_ephemeral(mem, (char *)data, mp_decode_strl(&data));
+		{
+			uint32_t len = mp_decode_strl(&data);
+			mem_set_str_ephemeral(mem, (char *)data, len);
+		}
 		return 0;
 	case MP_BOOL:
 		if (field_type != FIELD_TYPE_BOOLEAN)

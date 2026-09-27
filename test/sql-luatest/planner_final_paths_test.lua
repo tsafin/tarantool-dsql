@@ -40,6 +40,10 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
         box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
         local direct_values = box.execute([[VALUES (1), (2)]])
         assert(direct_values ~= nil and #direct_values.rows == 2)
+        local direct_strings = box.execute([[VALUES ('alpha'), ('beta')]])
+        assert(direct_strings ~= nil and
+               direct_strings.rows[1][1] == 'alpha' and
+               direct_strings.rows[2][1] == 'beta')
         local direct_count = box.execute(
             [[SELECT count(*) FROM planner_final_paths_t]])
         assert(direct_count ~= nil and direct_count.rows[1][1] == 8)

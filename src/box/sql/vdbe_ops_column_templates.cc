@@ -60,10 +60,13 @@ vdbeOpColumnDecodeExactFast(struct Mem *mem, const char *data)
 			mp_decode_nil(&data);
 			mem_set_null(mem);
 			return 0;
-		case MP_STR:
-			mem_set_str_ephemeral(mem, (char *)data,
-					      mp_decode_strl(&data));
+		case MP_STR: {
+			/* Decode the length first: argument evaluation order would
+			 * otherwise make the payload pointer depend on the compiler. */
+			uint32_t len = mp_decode_strl(&data);
+			mem_set_str_ephemeral(mem, (char *)data, len);
 			return 0;
+		}
 		default:
 			return 1;
 		}
