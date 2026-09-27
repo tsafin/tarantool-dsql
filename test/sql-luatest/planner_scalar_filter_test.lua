@@ -50,6 +50,11 @@ g.test_non_primary_null_filters_off_on_off = function()
                 },
                 {
                     sql = ('SELECT id FROM %s WHERE id = 2 AND ' ..
+                           'v IS NOT NULL'):format(name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id = 2 AND ' ..
                            'v IS NOT NULL LIMIT 1 OFFSET 1'):format(name),
                     expected = {},
                 },

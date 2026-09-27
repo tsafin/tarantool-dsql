@@ -1987,7 +1987,8 @@ DML, triggers, subprograms, non-deterministic functions.
   The scalar non-primary `IS NULL` / `IS NOT NULL` scan route also has exact
   off/on/off result assertions, plus exact generated/CnP parity on memtx and
   Vinyl (85/85 snapshots per engine); generated-repeat also matches exactly.
-  A material lowering extension admits one direct non-primary NULL predicate
+  A material lowering extension admits one direct non-primary `IS NULL` or
+  `IS NOT NULL` predicate
   alongside a single-part INTEGER/UNSIGNED primary-key equality. The point
   lowerer evaluates the residual after `NotFound` and before projection, with
   both miss and rejected-filter branches joining after `ResultRow`. SQL
