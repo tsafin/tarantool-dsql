@@ -548,21 +548,25 @@ format approval is implied.
   snapshots and would not share one visibility cut. Keep both grammar forms
   disabled until the shared-view collector can assemble all requested
   relations into one detached candidate and publish once. The table-target
-  form additionally needs a safe immutable snapshot iteration/merge operation
-  that replaces only that relation while preserving other entries from the
-  same catalog/schema generation. A failed scan, unsupported index, budget
+  form additionally needs a safe immutable snapshot merge/replace operation
+  that preserves other entries from the same catalog/schema generation. The
+  snapshot API now provides ordered borrowed enumeration, disjoint same-
+  generation combine, and target-only same-generation replacement; it rejects
+  mixed generations and duplicate relation ownership. These are detached-copy
+  primitives, not yet wired into the shared-view multi-relation collector. A
+  failed scan, unsupported index, budget
   exhaustion, generation drift, or candidate-build failure must retain the
   exact installed snapshot. This is a volatile in-memory API requirement, not
   a persistence/schema decision; S1.1 remains DRAFT.
   Smallest viable sequence: (1) add shared-view multi-relation assembly and
-  single publication; (2) add same-generation snapshot merge/replace for the
-  table-target case; (3) add the SQL execution operation and grammar for bare
-  and named `ANALYZE`, then test rollback/preservation across both forms.
+  single publication; (2) same-generation snapshot merge/replace primitives
+  are now implemented; (3) add the SQL execution operation and grammar for
+  bare and named `ANALYZE`, then test rollback/preservation across both forms.
   Do not route either grammar form through the current one-relation publisher.
-  As groundwork for step (2), the immutable snapshot API now exposes ordered,
-  borrowed relation/index enumeration while the caller retains the snapshot;
-  this is read-only access, not yet merge/replace semantics. The focused
-  `sql_stats_snapshot.test` passes with bounds and lifetime checks.
+  Step (2) now has bounded immutable snapshot primitives. The focused
+  `sql_stats_snapshot.test` covers enumeration lifetime/bounds, disjoint
+  combine, target replacement, generation mismatch, duplicate ownership, and
+  the deep-copy allocation budget.
 - [x] **S1.3a prototype** Volatile collection core — consume sampled tuples, build and
   validate relation/index summaries, then atomically publish one immutable
   candidate snapshot. No persistence or grammar dependency; test rollback on

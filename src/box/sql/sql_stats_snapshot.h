@@ -106,6 +106,21 @@ sql_stats_snapshot_relation_at(const struct sql_stats_snapshot *snapshot,
 			       size_t ordinal,
 			       const struct sql_stats_relation **relation);
 
+/*
+ * Combine disjoint immutable candidates from the same catalog/schema
+ * generation, or replace one relation from that generation. These helpers
+ * deep-copy a new detached snapshot; inputs remain unchanged. Temporary and
+ * resulting allocations are independently bounded by max_bytes.
+ */
+struct sql_stats_snapshot *
+sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
+			   size_t snapshot_count, size_t max_bytes);
+
+struct sql_stats_snapshot *
+sql_stats_snapshot_replace_relation(const struct sql_stats_snapshot *base,
+				    const struct sql_stats_snapshot *replacement,
+				    uint32_t space_id, size_t max_bytes);
+
 size_t
 sql_stats_relation_index_count(const struct sql_stats_relation *relation);
 

@@ -7,7 +7,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(24);
+	plan(28);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
@@ -115,6 +115,53 @@ test_deep_copy_lookup_and_lifetime(void)
 	ok(sql_stats_snapshot_get_relation(snapshot, 7, 43, &relation) ==
 	   SQL_STATS_LOOKUP_MISSING && relation == NULL,
 	   "unknown relation reports missing");
+	struct sql_stats_relation_input second_input = {
+		.space_id = 43, .row_count = 4,
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+	};
+	struct sql_stats_snapshot *second = sql_stats_snapshot_new(4, 7,
+		&second_input, 1, 4096);
+	const struct sql_stats_snapshot *parts[] = {snapshot, second};
+	struct sql_stats_snapshot *combined = second != NULL ?
+		sql_stats_snapshot_combine(parts, 2, 8192) : NULL;
+	ok(combined != NULL &&
+	   sql_stats_snapshot_relation_count(combined) == 2,
+	   "same-generation disjoint snapshots combine atomically");
+	struct sql_stats_relation_input replacement_input = {
+		.space_id = 42, .row_count = 11,
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+	};
+	struct sql_stats_snapshot *replacement = sql_stats_snapshot_new(4, 7,
+		&replacement_input, 1, 4096);
+	struct sql_stats_snapshot *replaced = combined != NULL && replacement != NULL ?
+		sql_stats_snapshot_replace_relation(combined, replacement, 42, 8192) :
+		NULL;
+	const struct sql_stats_relation *replaced_relation = NULL;
+	const struct sql_stats_relation *preserved_relation = NULL;
+	ok(replaced != NULL &&
+	   sql_stats_snapshot_get_relation(replaced, 7, 42,
+					   &replaced_relation) ==
+		   SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_relation_row_count(replaced_relation) == 11 &&
+	   sql_stats_snapshot_get_relation(replaced, 7, 43,
+					   &preserved_relation) ==
+		   SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_relation_row_count(preserved_relation) == 4,
+	   "same-generation replacement changes one relation and preserves others");
+	struct sql_stats_snapshot *wrong_generation = sql_stats_snapshot_new(5, 7,
+		&replacement_input, 1, 4096);
+	const struct sql_stats_snapshot *wrong_parts[] = {snapshot,
+		wrong_generation};
+	ok(sql_stats_snapshot_combine(wrong_parts, 2, 8192) == NULL,
+	   "combine rejects catalog-generation mismatch");
+	const struct sql_stats_snapshot *duplicate_parts[] = {snapshot, snapshot};
+	ok(sql_stats_snapshot_combine(duplicate_parts, 2, 8192) == NULL,
+	   "combine rejects duplicate relation ownership");
+	sql_stats_snapshot_release(wrong_generation);
+	sql_stats_snapshot_release(replaced);
+	sql_stats_snapshot_release(replacement);
+	sql_stats_snapshot_release(combined);
+	sql_stats_snapshot_release(second);
 	sql_stats_snapshot_retain(snapshot);
 	sql_stats_snapshot_release(snapshot);
 	ok(sql_stats_snapshot_relation_count(snapshot) == 1,

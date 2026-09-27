@@ -331,6 +331,240 @@ sql_stats_relation_index_at(const struct sql_stats_relation *r, size_t ordinal,
 	return SQL_STATS_LOOKUP_AVAILABLE;
 }
 
+struct snapshot_copy_storage {
+	struct sql_stats_relation_input *relations;
+	struct sql_stats_index_input **indexes;
+	uint64_t ***prefixes;
+	size_t relation_count;
+};
+
+static void
+snapshot_copy_storage_destroy(struct snapshot_copy_storage *storage)
+{
+	for (size_t i = 0; i < storage->relation_count; i++) {
+		if (storage->prefixes != NULL && storage->prefixes[i] != NULL) {
+			for (size_t j = 0; storage->indexes != NULL &&
+			     storage->indexes[i] != NULL &&
+			     j < storage->relations[i].index_count; j++)
+				free(storage->prefixes[i][j]);
+		}
+		if (storage->prefixes != NULL)
+			free(storage->prefixes[i]);
+		if (storage->indexes != NULL)
+			free(storage->indexes[i]);
+	}
+	free(storage->prefixes);
+	free(storage->indexes);
+	free(storage->relations);
+	*storage = (struct snapshot_copy_storage){};
+}
+
+static bool
+snapshot_copy_relation(const struct sql_stats_relation *source,
+		       struct sql_stats_relation_input *relation,
+		       struct sql_stats_index_input **indexes,
+		       uint64_t ***prefixes, size_t *scratch_bytes,
+		       size_t max_bytes)
+{
+	size_t index_count = sql_stats_relation_index_count(source);
+	if (index_count > SIZE_MAX / sizeof(**indexes) ||
+	    index_count > SIZE_MAX / sizeof(**prefixes))
+		return false;
+	size_t index_bytes = index_count * sizeof(**indexes);
+	size_t prefix_ptr_bytes = index_count * sizeof(**prefixes);
+	if (index_bytes > max_bytes - *scratch_bytes ||
+	    prefix_ptr_bytes > max_bytes - *scratch_bytes - index_bytes)
+		return false;
+	*indexes = index_count == 0 ? NULL : calloc(index_count, sizeof(**indexes));
+	*prefixes = index_count == 0 ? NULL : calloc(index_count, sizeof(**prefixes));
+	if (index_count != 0 && (*indexes == NULL || *prefixes == NULL))
+		return false;
+	*scratch_bytes += index_bytes + prefix_ptr_bytes;
+	for (size_t i = 0; i < index_count; i++) {
+		const struct sql_stats_index *source_index = NULL;
+		if (sql_stats_relation_index_at(source, i, &source_index) !=
+		    SQL_STATS_LOOKUP_AVAILABLE)
+			return false;
+		size_t prefix_count = sql_stats_index_prefix_count(source_index);
+		if (prefix_count > SIZE_MAX / sizeof(uint64_t) ||
+		    prefix_count * sizeof(uint64_t) > max_bytes - *scratch_bytes)
+			return false;
+		uint64_t *prefix = prefix_count == 0 ? NULL :
+			malloc(prefix_count * sizeof(*prefix));
+		if (prefix_count != 0 && prefix == NULL)
+			return false;
+		*scratch_bytes += prefix_count * sizeof(*prefix);
+		for (size_t j = 0; j < prefix_count; j++)
+			prefix[j] = sql_stats_index_distinct_prefix(source_index, j);
+		(*prefixes)[i] = prefix;
+		(*indexes)[i] = (struct sql_stats_index_input) {
+			.index_id = sql_stats_index_id(source_index),
+			.tuple_count = sql_stats_index_tuple_count(source_index),
+			.tuple_count_semantics =
+				sql_stats_index_tuple_count_semantics(source_index),
+			.population_basis =
+				sql_stats_index_population_basis(source_index),
+			.ndv_basis = sql_stats_index_ndv_basis(source_index),
+			.definition_version =
+				sql_stats_index_definition_version(source_index),
+			.distinct_prefixes = prefix,
+			.prefix_count = prefix_count,
+		};
+	}
+	*relation = (struct sql_stats_relation_input) {
+		.space_id = sql_stats_relation_space_id(source),
+		.row_count = sql_stats_relation_row_count(source),
+		.population_basis = sql_stats_relation_population_basis(source),
+		.average_row_width = sql_stats_relation_average_row_width(source),
+		.width_basis = sql_stats_relation_width_basis(source),
+		.width_denominator_count =
+			sql_stats_relation_width_denominator_count(source),
+		.confidence = sql_stats_relation_confidence(source),
+		.confidence_source = sql_stats_relation_confidence_source(source),
+		.cardinality_semantics =
+			sql_stats_relation_cardinality_semantics(source),
+		.collected_at = sql_stats_relation_collected_at(source),
+		.modification_epoch =
+			sql_stats_relation_modification_epoch(source),
+		.visibility_id = sql_stats_relation_visibility_id(source),
+		.indexes = *indexes,
+		.index_count = index_count,
+	};
+	return true;
+}
+
+static struct sql_stats_snapshot *
+snapshot_rebuild(const struct sql_stats_snapshot *base,
+		const struct sql_stats_snapshot *replacement,
+		uint32_t replace_space_id, size_t max_bytes)
+{
+	if (base == NULL || max_bytes == 0 ||
+	    (replacement != NULL &&
+	     (sql_stats_snapshot_catalog_version(base) !=
+	      sql_stats_snapshot_catalog_version(replacement) ||
+	      sql_stats_snapshot_schema_version(base) !=
+	      sql_stats_snapshot_schema_version(replacement))))
+		return NULL;
+	size_t base_count = sql_stats_snapshot_relation_count(base);
+	size_t replacement_count = replacement == NULL ? 0 :
+		sql_stats_snapshot_relation_count(replacement);
+	if (replacement != NULL && replace_space_id != 0 && replacement_count != 1)
+		return NULL;
+	if (replacement != NULL && replace_space_id != 0) {
+		const struct sql_stats_relation *r = NULL;
+		if (sql_stats_snapshot_relation_at(replacement, 0, &r) !=
+		    SQL_STATS_LOOKUP_AVAILABLE ||
+		    sql_stats_relation_space_id(r) != replace_space_id)
+			return NULL;
+	}
+	size_t count = base_count;
+	if (replace_space_id != 0) {
+		const struct sql_stats_relation *existing = NULL;
+		for (size_t i = 0; i < base_count; i++) {
+			if (sql_stats_snapshot_relation_at(base, i, &existing) !=
+			    SQL_STATS_LOOKUP_AVAILABLE)
+				return NULL;
+			if (sql_stats_relation_space_id(existing) == replace_space_id) {
+				count--;
+				break;
+			}
+		}
+	}
+	if (replacement_count > SIZE_MAX - count ||
+	    count + replacement_count > SIZE_MAX / sizeof(struct sql_stats_relation_input))
+		return NULL;
+	count += replacement_count;
+	size_t relation_bytes = count * sizeof(struct sql_stats_relation_input);
+	if (count > SIZE_MAX / sizeof(struct sql_stats_index_input *) ||
+	    count > SIZE_MAX / sizeof(uint64_t **))
+		return NULL;
+	size_t pointer_bytes = count * (sizeof(struct sql_stats_index_input *) +
+					 sizeof(uint64_t **));
+	if (relation_bytes > max_bytes ||
+	    pointer_bytes > max_bytes - relation_bytes)
+		return NULL;
+	struct snapshot_copy_storage storage = {.relation_count = count};
+	storage.relations = count == 0 ? NULL : calloc(count,
+								 sizeof(*storage.relations));
+	storage.indexes = count == 0 ? NULL : calloc(count,
+							       sizeof(*storage.indexes));
+	storage.prefixes = count == 0 ? NULL : calloc(count,
+							        sizeof(*storage.prefixes));
+	if (count != 0 && (storage.relations == NULL || storage.indexes == NULL ||
+			   storage.prefixes == NULL))
+		goto fail;
+	size_t scratch_bytes = relation_bytes + pointer_bytes;
+	size_t out = 0;
+	const struct sql_stats_snapshot *sources[2] = {base, replacement};
+	for (size_t s = 0; s < 2; s++) {
+		const struct sql_stats_snapshot *source = sources[s];
+		if (source == NULL)
+			continue;
+		for (size_t i = 0; i < sql_stats_snapshot_relation_count(source); i++) {
+			const struct sql_stats_relation *r = NULL;
+			if (sql_stats_snapshot_relation_at(source, i, &r) !=
+			    SQL_STATS_LOOKUP_AVAILABLE)
+				goto fail;
+			if (s == 0 && replace_space_id != 0 &&
+			    sql_stats_relation_space_id(r) == replace_space_id)
+				continue;
+			if (out >= count || !snapshot_copy_relation(r,
+				&storage.relations[out], &storage.indexes[out],
+				&storage.prefixes[out], &scratch_bytes, max_bytes))
+				goto fail;
+			out++;
+		}
+	}
+	if (out != count)
+		goto fail;
+	struct sql_stats_snapshot *result = sql_stats_snapshot_new(
+		sql_stats_snapshot_catalog_version(base),
+		sql_stats_snapshot_schema_version(base), storage.relations, count,
+		max_bytes);
+	snapshot_copy_storage_destroy(&storage);
+	return result;
+fail:
+	snapshot_copy_storage_destroy(&storage);
+	return NULL;
+}
+
+struct sql_stats_snapshot *
+sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
+			   size_t snapshot_count, size_t max_bytes)
+{
+	if (snapshots == NULL || snapshot_count == 0 || snapshots[0] == NULL)
+		return NULL;
+	struct sql_stats_snapshot *result = NULL;
+	for (size_t i = 0; i < snapshot_count; i++) {
+		if (snapshots[i] == NULL)
+			goto fail;
+		if (result == NULL) {
+			result = snapshot_rebuild(snapshots[i], NULL, 0, max_bytes);
+		} else {
+			struct sql_stats_snapshot *next = snapshot_rebuild(result,
+				snapshots[i], 0, max_bytes);
+			sql_stats_snapshot_release(result);
+			result = next;
+		}
+		if (result == NULL)
+			goto fail;
+	}
+	return result;
+fail:
+	sql_stats_snapshot_release(result);
+	return NULL;
+}
+
+struct sql_stats_snapshot *
+sql_stats_snapshot_replace_relation(const struct sql_stats_snapshot *base,
+				    const struct sql_stats_snapshot *replacement,
+				    uint32_t space_id, size_t max_bytes)
+{
+	if (space_id == 0 || replacement == NULL)
+		return NULL;
+	return snapshot_rebuild(base, replacement, space_id, max_bytes);
+}
+
 enum sql_stats_lookup_status
 sql_stats_snapshot_get_relation(const struct sql_stats_snapshot *s,
 				uint64_t schema_version, uint32_t space_id,
