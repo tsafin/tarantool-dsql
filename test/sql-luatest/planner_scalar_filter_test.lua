@@ -39,6 +39,21 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{3}},
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE id = 1 AND ' ..
+                           'v IS NULL'):format(name),
+                    expected = {{1}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id = 2 AND ' ..
+                           'v IS NULL'):format(name),
+                    expected = {},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id = 2 AND ' ..
+                           'v IS NOT NULL LIMIT 1 OFFSET 1'):format(name),
+                    expected = {},
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE v IS NOT NULL AND ' ..
                            'id < 4 ORDER BY id DESC'):format(name),
                     expected = {{2}},

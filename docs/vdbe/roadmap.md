@@ -1987,6 +1987,17 @@ DML, triggers, subprograms, non-deterministic functions.
   The scalar non-primary `IS NULL` / `IS NOT NULL` scan route also has exact
   off/on/off result assertions, plus exact generated/CnP parity on memtx and
   Vinyl (85/85 snapshots per engine); generated-repeat also matches exactly.
+  A material lowering extension admits one direct non-primary NULL predicate
+  alongside a single-part INTEGER/UNSIGNED primary-key equality. The point
+  lowerer evaluates the residual after `NotFound` and before projection, with
+  both miss and rejected-filter branches joining after `ResultRow`. SQL
+  parity cases cover a matching row, a matched key rejected by the residual,
+  and positive OFFSET on memtx and Vinyl; the VDBE unit pins filter-column
+  evaluation and branch placement. Composite point filters and multiple
+  residual filters remain rejected. Local executable validation is pending:
+  the isolated worktree cannot configure because its submodule checkouts are
+  absent and the root filesystem has only 56 MB free; configuration in
+  `/dev/shm` also requires project submodules to be present.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

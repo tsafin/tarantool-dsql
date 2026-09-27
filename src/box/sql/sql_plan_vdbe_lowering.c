@@ -32,7 +32,11 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	      input->access.bound_count != input->access.point_key_part_count) :
 	     (input->access.has_integer_point_key ==
 	      input->access.has_unsigned_point_key)) ||
-	    input->filter_count != 0 ||
+	    (input->filter_count != 0 &&
+	     (input->filter_count != 1 || input->filters == NULL ||
+	      (input->filters[0].op != SQL_PLAN_FILTER_IS_NULL &&
+	       input->filters[0].op != SQL_PLAN_FILTER_IS_NOT_NULL) ||
+	      input->filters[0].column > INT_MAX)) ||
 	    input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
@@ -105,6 +109,24 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	if (miss != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
+	int filter_break = -1;
+	if (input->filter_count != 0) {
+		if (parse->nMem == INT_MAX)
+			goto error;
+		int filter_reg = ++parse->nMem;
+		const struct sql_plan_filter *filter = &input->filters[0];
+		int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
+					   (int)filter->column, filter_reg);
+		if (column != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
+			OP_IsNull;
+		filter_break = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
+		if (filter_break != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+	}
 	for (size_t i = 0; i < input->projection_column_count; ++i) {
 		if (input->projection_columns[i] > INT_MAX)
 			goto error;
@@ -121,6 +143,8 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	sqlVdbeJumpHere(vdbe, miss);
+	if (filter_break >= 0)
+		sqlVdbeJumpHere(vdbe, filter_break);
 	vdbe_codegen_checkpoint_commit(&checkpoint);
 	return 0;
 error:
