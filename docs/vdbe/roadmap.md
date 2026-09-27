@@ -1570,6 +1570,20 @@ DML, triggers, subprograms, non-deterministic functions.
   entries. M3.5 remains open until those reviewed-corpus producers and route
   changes are dispositioned.
 
+  **SQL-luatest capture extension (2026-09-27).** The child capture adapter
+  now records planner metrics and component routes for successful
+  SELECT/WITH-SELECT/VALUES executions, alongside each SQL snapshot's
+  `path_class` and `fallback_reason`; the manifest identifies ledger v1 and
+  metrics v2. `planner_final_paths_test.lua` now executes direct scan,
+  new-planner scan, VALUES, OP_Count, and mixed compound routes in addition
+  to EXPLAIN assertions. Generated memtx capture passed (27 snapshots, 5
+  route-bearing statements, 9 component records); generated Vinyl capture
+  passed with the same counts. CnP execution of this expanded fixture exposed
+  a server crash in the constant-opcode path (`vdbe_op_bool_impl`); this is
+  not treated as capture success or native parity. Investigate and fix before
+  extending native SQL-luatest parity. The full SQL-luatest and SQL-suite
+  reviewed-corpus audits remain outstanding.
+
   ```mermaid
   flowchart TD
     R[Root SELECT component] --> C[Child SELECT components]
