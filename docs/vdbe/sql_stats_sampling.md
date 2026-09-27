@@ -269,10 +269,9 @@ definition from the same captured schema version. This is an aggregation
 building block, not a complete S1.3a producer. Native-adapter checks were added
 to `key_def.test` for leading prefixes, unsupported type rejection, the
 DOUBLE hash normalization of integer/floating encodings, collation equality,
-and BOOLEAN distinctness/deduplication. The current sources were manually
-compiled/relinked against the configured unit-test link line; all 52 top-level
-tests and the 12-check native-adapter subtest passed. The current CMake target
-was not rebuilt after this extension.
+and BOOLEAN distinctness/deduplication. After the BOOLEAN extension, the
+configured CMake target rebuilt successfully and all 52 top-level tests passed,
+including the 12-check native-adapter subtest.
 
 No common cross-engine visibility mechanism has been established. A viable
 collector boundary must atomically capture catalog/schema/index definitions
