@@ -151,6 +151,56 @@ g.test_feature_flag_is_session_local = function()
     second:close()
 end
 
+g.test_one_sided_range_wrong_order_falls_back = function()
+    g.server:exec(function()
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_flag_range_direction_' .. engine
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY) ' ..
+                         "WITH ENGINE = '%s'"):format(name, engine))
+            box.execute(('INSERT INTO %s VALUES (1), (2), (3)'):format(name))
+            local queries = {
+                {
+                    ('SELECT id FROM %s WHERE id > 1 ORDER BY id DESC')
+                        :format(name),
+                    {{3}, {2}},
+                },
+                {
+                    ('SELECT id FROM %s WHERE id < 3 ORDER BY id ASC')
+                        :format(name),
+                    {{1}, {2}},
+                },
+            }
+
+            local function capture(enabled)
+                box.execute(('SET SESSION "sql_new_planner_single_table" = %s')
+                            :format(enabled and 'true' or 'false'))
+                local rows = {}
+                for i, item in ipairs(queries) do
+                    local explain = box.execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. item[1])
+                    if enabled then
+                        t.assert_equals(explain.rows[1][3], 'fallback')
+                        t.assert_equals(explain.rows[2][3],
+                                        'UNSUPPORTED_FILTER')
+                    else
+                        t.assert_equals(explain.rows[1][3], 'fallback')
+                        t.assert_equals(explain.rows[2][3],
+                                        'UNSUPPORTED_EXPRESSION')
+                    end
+                    rows[i] = box.execute(item[1]).rows
+                    t.assert_equals(rows[i], item[2])
+                end
+                return rows
+            end
+
+            local disabled = capture(false)
+            local enabled = capture(true)
+            t.assert_equals(enabled, disabled)
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
+
 g.test_text_primary_key_scan_off_on_off_parity = function()
     g.server:exec(function()
         box.execute([[SET SESSION "sql_seq_scan" = true]])
