@@ -1781,8 +1781,9 @@ DML, triggers, subprograms, non-deterministic functions.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
   A default-off session setting now gates the narrow direct-column table scan,
   sole INTEGER/UNSIGNED primary-key point lookups, one-sided primary-key
-  literal ranges, and a single lower-plus-upper bound on the same primary key
-  in `sqlSelect()`. When enabled, only the supported
+  literal ranges, a single lower-plus-upper bound on one primary-key part, and
+  ranges on the next key part after a contiguous equality prefix in
+  `sqlSelect()`. When enabled, only the supported
   single-table shape with a TREE primary index can report `new_planner`: direct
   projections, primary-key ordering compatible with the range direction, and
   literal LIMIT/OFFSET. This happens only after
