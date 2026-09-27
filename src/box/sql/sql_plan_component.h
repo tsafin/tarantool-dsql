@@ -7,7 +7,8 @@
 
 #include "sql_plan_descriptor.h"
 
-#define SQL_PLAN_COMPONENT_MAX 128
+/* Bound planner snapshot diagnostics without truncating reviewed VALUES sets. */
+#define SQL_PLAN_COMPONENT_MAX 4096
 
 enum sql_plan_component_role {
 	SQL_PLAN_COMPONENT_ROOT = 0,

@@ -83,7 +83,7 @@ test_component_routes_and_mixed_summary(void)
 static void
 test_incomplete_and_bounded_ledger(void)
 {
-	plan(8);
+	plan(9);
 	header();
 	struct sql_plan_component_ledger ledger;
 	sql_plan_component_ledger_create(&ledger);
@@ -103,6 +103,8 @@ test_incomplete_and_bounded_ledger(void)
 	ok(sql_plan_component_add(&ledger, 2, 0,
 			  SQL_PLAN_COMPONENT_FROM_SUBQUERY) ==
 	   SQL_PLAN_COMPONENT_INVALID, "only root role may omit parent");
+	ok(SQL_PLAN_COMPONENT_MAX > 1000,
+	   "ledger capacity covers the reviewed thousand-row VALUES query");
 	for (uint32_t id = 2; id <= SQL_PLAN_COMPONENT_MAX; id++) {
 		assert(sql_plan_component_add(&ledger, id, 1,
 			SQL_PLAN_COMPONENT_SCALAR_SUBQUERY) == SQL_PLAN_COMPONENT_OK);
