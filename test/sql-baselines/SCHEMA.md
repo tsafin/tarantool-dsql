@@ -274,6 +274,8 @@ Stable values for `l3_path_class.reason` when `taken` starts with `fallback_`:
 | `UNSUPPORTED_FUNCTION` | Deterministic function call is outside the canonical expression contract. |
 | `UNSUPPORTED_COLLATION` | Explicit collation semantics are not represented by the expression contract. |
 | `UNSUPPORTED_EXPRESSION` | Resolved scalar expression is outside the canonical expression contract. |
+| `UNSUPPORTED_FILTER` | Filter shape is outside the currently supported table-scan contract. |
+| `UNSUPPORTED_DESTINATION` | SELECT destination cannot consume direct table-scan results. |
 | `BUDGET_EXCEEDED` | New planner search budget exhausted. |
 | `LOW_CONFIDENCE_STATS` | Stats confidence below threshold (post-S1). |
 | `LOWERING_FAILED` | Internal bug; falls back rather than crashing. |
@@ -285,8 +287,8 @@ reason in the separate `reason` field. Its append-only reason codes are
 `UNSUPPORTED_DISTINCT`, `INVALID_LOGICAL_PLAN`, `NO_ACCESS_PATH`,
 `INVALID_CANDIDATE`, `UNSUPPORTED_ACCESS_HINT`,
 `UNSUPPORTED_NONDETERMINISTIC`, `UNSUPPORTED_FUNCTION`,
-`UNSUPPORTED_COLLATION`, and `UNSUPPORTED_EXPRESSION`. For both fallback
-encodings, `fallback_to` must be
+`UNSUPPORTED_COLLATION`, `UNSUPPORTED_EXPRESSION`, `UNSUPPORTED_FILTER`, and
+`UNSUPPORTED_DESTINATION`. For both fallback encodings, `fallback_to` must be
 `current_where_c`; non-fallback paths must leave both `reason` and
 `fallback_to` null. The capture validator enforces these combinations.
 
