@@ -1415,9 +1415,13 @@ DML, triggers, subprograms, non-deterministic functions.
   architectural completeness: dedicated SELECT emitters and recursive SELECT
   branches do not pass through one producer gate, while the general
   logical-to-physical API is still not the production producer for all SELECT
-  routes. Close M3.5 only after a route inventory and integration design cover
-  those boundaries with runtime evidence; do not infer closure from the current
-  reason-mapping table.
+  routes. The scope decision is now per-component: root, recursive
+  compound/CTE/subquery, direct VALUES, and direct OP_Count components all get
+  records; statement summary mirrors a uniform root route, otherwise reports
+  `mixed` with no reason. Component records, not the summary, are authoritative.
+  Close M3.5 only after the producer inventory and mixed/direct/nested runtime
+  cases verify this contract. See `planner_vm_migration.md` for the Mermaid
+  flow. Do not infer closure from the current reason-mapping table.
 
   ```mermaid
   flowchart TD

@@ -437,7 +437,7 @@ prevents consumers from treating the current diagnostic capture as executable
 replay data. M1.5 owns replay tooling; a later envelope version can add the
 normalized inputs when they are produced.
 
-#### M3.5 route-ledger scope gate
+#### M3.5 route-ledger scope decision
 
 The current diagnostic is one record per prepared-statement VDBE, but the
 production `sqlSelect()` path is recursive: compound branches, recursive CTE
@@ -449,25 +449,37 @@ rows without entering the WHERE planner or the table-scan attempt. Counting
 such a direct route as a planner fallback would be false; silently omitting it
 is only valid if the gate explicitly excludes direct producers.
 
-Before adding a shared route ledger, freeze one of these coverage contracts:
+Adopt **per-component scope**. Every SELECT producer, including recursive
+compound/CTE/subquery branches, direct multi-row `VALUES`, and direct
+`OP_Count`, receives a route record. A component is identified by its
+statement-local `iSelectId`; records also carry parent component ID and a
+stable role (`root`, `compound`, `subquery`, `cte`, or `direct`). Direct paths
+are not fallbacks merely because they bypass `where.c`.
 
-1. **Top-level planner-attempt scope:** classify only top-level SELECTs that
-   enter the new/legacy planner gate. Direct emitters and nested SELECT
-   components are explicit exclusions, and the statement summary describes
-   that top-level attempt only.
-2. **Per-component scope:** every SELECT producer gets a stable component
-   identity and parent/role; direct routes have explicit path classes; the
-   top-level summary rule for mixed routes (including failure precedence) is
-   specified independently from component records.
+The component list is authoritative. Statement summary remains a compact
+compatibility view: it reports the root component's path class/reason when
+there is one; if the root is absent or route records disagree across the
+statement, it reports `mixed` and a NULL fallback reason. It must never select
+an arbitrary first nested reason. Counters count each component's actual
+planner attempt once; EXPLAIN serialization does not increment them. This
+scope is required by the roadmap's “every unsupported shape” contract and
+avoids silently excluding direct or recursive producers. The implementation
+can be incremental, but M3.5 stays open until the producer inventory is
+covered and mixed/direct/nested runtime cases verify these semantics.
 
-The roadmap's “every unsupported shape” wording does not choose between these
-contracts. The smallest missing decision is that coverage unit plus the
-meaning of the existing statement-level summary for mixed route outcomes.
-After it is fixed, implementation can add the corresponding producer-boundary
-record and tests combining direct, nested, and planner routes. Until then,
-adding a reason code or changing first-reason-wins behavior risks reporting a
-route that did not produce the statement; keep current VDBE diagnostics,
-counters, and execution dispatch unchanged.
+```mermaid
+flowchart TD
+  S[Prepared statement VDBE] --> L[Component route ledger]
+  L --> R[Root SELECT component]
+  L --> C[Compound / CTE / subquery components]
+  L --> D[Direct VALUES / OP_Count components]
+  R --> A{All component routes agree?}
+  C --> A
+  D --> A
+  A -- yes --> T[Summary mirrors root route]
+  A -- no or root unavailable --> M[Summary mixed, reason NULL]
+  L --> X[Snapshot preserves all component records]
+```
 
 #### Replay-input acceptance contract (future envelope)
 
