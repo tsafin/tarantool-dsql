@@ -197,7 +197,8 @@ single-part INTEGER/UNSIGNED primary key. For bounded ranges, the range-end
 check precedes residual filtering so rows outside the access interval always
 terminate the walk; rejected in-range rows skip to `Next`. SQL tests pin exact
 flag-off/on/off parity on memtx and Vinyl, with exact generated/CnP snapshot
-parity (61 snapshots per engine). Compound/general boolean predicates,
+parity (73 snapshots per engine). Literal LIMIT/OFFSET is applied only after
+the key-range and NULL predicates. Compound/general boolean predicates,
 filtered composite-prefix ranges, and other scalar expressions remain on
 legacy codegen. A TEXT
 primary key also uses the ordered
