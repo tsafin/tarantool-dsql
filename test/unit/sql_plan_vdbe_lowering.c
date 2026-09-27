@@ -137,7 +137,7 @@ new_unsigned_point_descriptor(uint64_t key)
 
 static struct sql_plan_descriptor *
 new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
-		    bool unsigned_key)
+		    bool unsigned_key, enum sql_plan_direction direction)
 {
 	static const uint32_t columns[] = {2, 0};
 	struct sql_plan_bound bound = {
@@ -165,8 +165,7 @@ new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
 			.has_unsigned_range_key = unsigned_key,
 			.unsigned_range_key = (uint64_t)key,
 			.integer_range_op = op,
-			.direction = op == SQL_PLAN_LT || op == SQL_PLAN_LE ?
-				SQL_PLAN_DESC : SQL_PLAN_ASC,
+			.direction = direction,
 		},
 		.projection_columns = columns,
 		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
@@ -363,15 +362,18 @@ main(void)
 	struct sql_plan_descriptor *unsigned_point_desc =
 		new_unsigned_point_descriptor(UINT64_MAX);
 	struct sql_plan_descriptor *range_gt_desc =
-		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false);
+		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *range_le_desc =
-		new_range_descriptor(SQL_PLAN_LE, 7, false);
+		new_range_descriptor(SQL_PLAN_LE, 7, false, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *range_ge_desc =
-		new_range_descriptor(SQL_PLAN_GE, INT64_MIN, false);
+		new_range_descriptor(SQL_PLAN_GE, INT64_MIN, false, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *range_lt_desc =
-		new_range_descriptor(SQL_PLAN_LT, 7, false);
+		new_range_descriptor(SQL_PLAN_LT, 7, false, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *unsigned_range_desc =
-		new_range_descriptor(SQL_PLAN_GT, (int64_t)UINT64_MAX, true);
+		new_range_descriptor(SQL_PLAN_GT, (int64_t)UINT64_MAX, true,
+				     SQL_PLAN_ASC);
+	struct sql_plan_descriptor *invalid_direction_range_desc =
+		new_range_descriptor(SQL_PLAN_GT, 7, false, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *bounded_range_desc =
 		new_bounded_range_descriptor(SQL_PLAN_LT);
 	struct sql_plan_descriptor *invalid_bounded_range_desc =
@@ -393,6 +395,7 @@ main(void)
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
 	   range_gt_desc != NULL && range_le_desc != NULL &&
 	   unsigned_range_desc != NULL && bounded_range_desc != NULL &&
+	   invalid_direction_range_desc != NULL &&
 	   invalid_point_desc != NULL && late_invalid_point_desc != NULL &&
 	   point_limit_desc != NULL && point_zero_limit_desc != NULL &&
 	   point_offset_desc != NULL,
@@ -407,6 +410,9 @@ main(void)
 	int old_op = sqlVdbeAddOp0(&vdbe, OP_Noop);
 	assert(old_op == 0);
 	int op_count = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(invalid_direction_range_desc, &vdbe, 4,
+					20) == -1 && vdbe.nOp == op_count,
+	   "one-sided lower range rejects descending scan before VDBE mutation");
 	ok(sql_plan_lower_vdbe_table_scan(filtered_desc, &vdbe, 4, 20) == -1 &&
 	   vdbe.nOp == op_count,
 	   "unsupported filter descriptor is rejected before VDBE mutation");
@@ -634,6 +640,7 @@ main(void)
 	sql_plan_descriptor_delete(range_ge_desc);
 	sql_plan_descriptor_delete(range_lt_desc);
 	sql_plan_descriptor_delete(unsigned_range_desc);
+	sql_plan_descriptor_delete(invalid_direction_range_desc);
 	sql_plan_descriptor_delete(bounded_range_desc);
 	sql_plan_descriptor_delete(invalid_bounded_range_desc);
 	sql_plan_descriptor_delete(invalid_point_desc);
