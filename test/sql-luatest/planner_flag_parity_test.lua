@@ -390,6 +390,23 @@ g.test_three_part_composite_primary_key_point_lookup = function()
             t.assert_equals(on.rows, off.rows)
             t.assert_equals(on.rows, {{'hit'}})
 
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            explain, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. point)
+            t.assert(err == nil, err and err.message)
+            local disabled_route = explain.rows[1][3]
+            t.assert(disabled_route == 'current_where_c' or
+                     disabled_route == 'fallback')
+            if disabled_route == 'fallback' then
+                t.assert(type(explain.rows[2][3]) == 'string' and
+                         #explain.rows[2][3] > 0)
+            end
+            local off_again
+            off_again, err = box.execute(point)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(off_again.rows, off.rows)
+
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+
             explain, err = box.execute([[EXPLAIN (planner = 'summary') ]] ..
                                        incomplete)
             t.assert(err == nil, err and err.message)
