@@ -37,8 +37,9 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	if (key >= INT_MIN && key <= INT_MAX) {
 		key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg);
 	} else {
+		uint64_t value = (uint64_t)key;
 		key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
-					   (const u8 *)&key, P4_INT64);
+					   (const u8 *)&value, P4_UINT64);
 	}
 	if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)

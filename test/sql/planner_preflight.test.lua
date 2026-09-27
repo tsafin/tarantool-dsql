@@ -97,6 +97,14 @@ empty_result, empty_error = box.execute([[SELECT v FROM planner_preflight_empty_
 assert(empty_error == nil and #empty_result.rows == 0)
 box.execute([[DROP TABLE planner_preflight_empty_t]])
 
+box.execute([[CREATE TABLE planner_preflight_wide_t (id INTEGER PRIMARY KEY, v INTEGER)]])
+box.execute([[INSERT INTO planner_preflight_wide_t VALUES (9223372036854775807, 7)]])
+wide_point_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_wide_t WHERE id = 9223372036854775807]])
+assert(err == nil and wide_point_summary.rows[1][3] == 'new_planner')
+wide_point = box.execute([[SELECT v FROM planner_preflight_wide_t WHERE id = 9223372036854775807]])
+assert(#wide_point.rows == 1 and wide_point.rows[1][1] == 7)
+box.execute([[DROP TABLE planner_preflight_wide_t]])
+
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t]])
 assert(err == nil and summary.rows[1][3] == 'fallback')

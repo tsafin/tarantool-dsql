@@ -950,7 +950,9 @@ DML, triggers, subprograms, non-deterministic functions.
   unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, and out-of-range opcode
   shapes. SQL regressions verify `LIMIT 2147483648` and paired wide LIMIT / OFFSET
-  execute on the new route with unchanged row semantics. Descriptor values
+  execute on the new route with unchanged row semantics; a point lookup at
+  `INT64_MAX` also exercises wide key-register encoding on both engines.
+  Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
   This does not cover all descriptor operators, secondary/range access,
   all storage edge cases, or corpus-wide parity; checkpoint rollback does not include

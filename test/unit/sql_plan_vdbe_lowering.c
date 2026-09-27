@@ -231,7 +231,8 @@ main(void)
 	int before_point = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_point].opcode == OP_Int64 &&
-	   vdbe.aOp[before_point].p4type == P4_INT64 &&
+	   vdbe.aOp[before_point].p4type == P4_UINT64 &&
+	   (uint64_t)*vdbe.aOp[before_point].p4.pI64 == INT64_MAX &&
 	   vdbe.aOp[before_point + 1].opcode == OP_NotFound &&
 	   vdbe.aOp[before_point + 1].p1 == 4 &&
 	   vdbe.aOp[before_point + 2].opcode == OP_Column &&
