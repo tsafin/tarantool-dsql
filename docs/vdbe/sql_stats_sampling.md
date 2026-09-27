@@ -236,6 +236,32 @@ This is only a width observation: the helper does not decode tuple fields,
 derive per-index populations or prefix NDVs, calibrate confidence, or build a
 complete candidate.
 
+### Publication is a separate, currently blocked slice
+
+Do not implement a global pointer swap as a substitute for this contract.
+The builder checks equality of caller-provided tokens, but it cannot prove
+that those tokens identify a single read view. In particular, memtx samples
+are transaction-visible and Vinyl iterators use a transaction read view (or
+an internally-created autocommit transaction); sampling different relations
+does not itself pin them to one common view. A producer must use an engine
+mechanism that captures/pins a common view or validates a generation boundary
+before and after all reads, including catalog, schema, relation modification,
+and index-definition generations. If that mechanism cannot guarantee a
+consistent view, collection must fail closed rather than mint a token.
+
+Publication additionally needs an owning SQL-level install/exchange API with
+explicit snapshot retain/release rules for concurrent readers. It must expose
+only a complete detached candidate, atomically replace the installed snapshot,
+and leave the previous snapshot installed on every allocation, validation, or
+generation-check failure. Tests must cover concurrent readers across a swap,
+candidate-build failure, stale generation at the install boundary, and
+rollback preserving both the old pointer and its lifetime. Repository state
+does not yet provide the engine read-view token source or an installation
+consumer: `sql_stats_collection_build_candidate()` returns an uninstalled
+snapshot, while `sql.stats_snapshot` has no publication path. Therefore this
+slice is specified but not safely implementable as a local API-only change;
+it does not enable `ANALYZE`.
+
 The in-memory snapshot API version is now 2 so the new provenance and width
 denominator metadata are explicit. Existing designated/zero-initialized
 snapshot callers may omit metadata and it stays unset, with no inferred

@@ -508,8 +508,17 @@ review of IDs and formats.
   cleanup until complete construction succeeds; the hook is compiled only
   into that unit target. The collection unit separately injects failures at
   both staging-array allocations and verifies no candidate is returned before
-  a complete build succeeds. Global publication/visibility rollback remains
-  unimplemented. See
+  a complete build succeeds. These tests close only the detached-candidate
+  builder slice (S1.3a.1); S1.3a remains open. The next slice (S1.3a.2) must
+  establish one truthful engine read view across every sampled relation and
+  index, then install a fully built candidate with an atomic swap and prove
+  failure leaves the prior snapshot visible. Current nonzero visibility tokens
+  are caller-supplied claims: no engine capture/validation API assigns them.
+  `sql_stats_snapshot` is only an opaque field in `sql` today; there is no
+  install/exchange consumer path to validate ownership, reader lifetime, or
+  rollback. Implementing a pointer swap alone would therefore not establish
+  common visibility or complete publication. Global publication/visibility
+  rollback remains unimplemented. See
   `sql_stats_sampling.md` for the exact contract and local unit evidence.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
