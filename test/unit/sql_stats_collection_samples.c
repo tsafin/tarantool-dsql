@@ -82,7 +82,7 @@ test_sample_to_candidate(void)
 		.catalog_version = 4, .schema_version = 7, .visibility_id = 9,
 	};
 	struct sql_stats_index_summary *second_summary = sql_stats_index_summary_new(
-		2, 14, 23, 8192, extract_index_value, NULL);
+		1, 12, 23, 8192, extract_index_value, NULL);
 	bool second_consumed = second_summary != NULL;
 	for (int i = 0; second_consumed && i < 100; i++) {
 		const char *value = values[i < 63 ? i : i - 63];
