@@ -139,6 +139,61 @@ g.test_sql_statement_compile_count = function()
     t.assert_equals(res.rows, {{177014}})
 end
 
+g.test_snapshot_estimate_adapter = function()
+    local res = g.server:exec(function()
+        local build_path = os.getenv('BUILDDIR')
+        local fio = require('fio')
+        local source_dir = fio.dirname(debug.getinfo(1, 'S').source:sub(2))
+        local module_cpath = source_dir..'/?.so;'..source_dir..'/?.dylib;'
+        if build_path ~= nil then
+            module_cpath = module_cpath..build_path..'/test/box/?.so;'..
+                           build_path..'/test/box/?.dylib;'
+        end
+        package.cpath = module_cpath..package.cpath
+        local adapter = require('sql_stats_snapshot_test')
+        adapter.clear()
+        box.execute([[CREATE TABLE sql_stats_adapter_t
+                      (id INT PRIMARY KEY, a INT);]])
+        box.execute([[CREATE INDEX sql_stats_adapter_ix
+                      ON sql_stats_adapter_t (a);]])
+        box.execute([[INSERT INTO sql_stats_adapter_t VALUES
+                      (1, 1), (2, 1), (3, 1), (4, 2),
+                      (5, 2), (6, 2), (7, 3), (8, 3);]])
+        local space = box.space.sql_stats_adapter_t
+        local index_id = space.index.sql_stats_adapter_ix.id
+        local baseline = adapter.estimates(space.id, index_id)
+        adapter.install(space.id, index_id, 128, 96, 32, false)
+        local current = adapter.estimates(space.id, index_id)
+        adapter.clear()
+        local cleared = adapter.estimates(space.id, index_id)
+        adapter.install(space.id, index_id, 128, 96, 0, false)
+        local missing_prefix = adapter.estimates(space.id, index_id)
+        adapter.clear()
+        adapter.install(space.id, index_id, 128, 96, 32, true)
+        local stale = adapter.estimates(space.id, index_id)
+        local rows = box.execute([[SELECT id FROM sql_stats_adapter_t
+                                   WHERE id = 3;]]).rows
+        adapter.clear()
+        box.execute([[DROP TABLE sql_stats_adapter_t;]])
+        return {
+            baseline = baseline,
+            current = current,
+            cleared = cleared,
+            missing_prefix = missing_prefix,
+            stale = stale,
+            rows = rows,
+        }
+    end)
+
+    t.assert_gt(res.current.relation, res.baseline.relation)
+    t.assert_lt(res.current.prefix, res.baseline.prefix)
+    t.assert_equals(res.cleared, res.baseline)
+    t.assert_gt(res.missing_prefix.relation, res.baseline.relation)
+    t.assert_equals(res.missing_prefix.prefix, res.baseline.prefix)
+    t.assert_equals(res.stale, res.baseline)
+    t.assert_equals(res.rows, {{3}})
+end
+
 g_budget.test_path_solver_width_configuration = function()
     local res = g_budget.server:exec(function()
         box.execute([[CREATE TABLE t (id INT PRIMARY KEY, a INT);]])

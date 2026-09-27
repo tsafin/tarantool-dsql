@@ -20,3 +20,7 @@ build_module(cfunc4 cfunc4.c)
 target_link_libraries(cfunc4 msgpuck)
 build_module(sql_stats_sample_vinyl sql_stats_sample_vinyl.c)
 build_module(sql_stats_sample_memtx sql_stats_sample_memtx.c)
+build_module(sql_stats_snapshot_test sql_stats_snapshot_test.c)
+target_include_directories(sql_stats_snapshot_test PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/box/sql
+    ${PROJECT_BINARY_DIR}/src/box/sql)

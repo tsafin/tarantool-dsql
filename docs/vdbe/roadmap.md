@@ -586,10 +586,14 @@ review of IDs and formats.
   estimates, distinct relation/index tuple populations, stale schemas and
   missing indexes (both leave caller output untouched for legacy fallback),
   and definition-length mismatch,
-  and the production SQL target links the snapshot API. This is only the
-  reader/adapter side: no collection or SQL preparation path populates the
-  provider, prepared statements do not own their own snapshot references,
-  and there is no live SQL A/B estimate test. *parallel: no* (touches
+  and the production SQL target links the snapshot API. A test-only C module
+  now installs an immutable fixture through `sql_set_stats_snapshot()` and a
+  live SQL luatest compares relation and index-prefix estimates before/after
+  install, after clear, for a missing prefix, and for a stale schema. The SQL
+  result is checked unchanged. This closes live adapter exercise only: no
+  collection or SQL preparation path populates the provider, prepared
+  statements do not own their own snapshot references, and estimates are not
+  yet measured against actual SQL-corpus cardinalities. *parallel: no* (touches
   `where.c` integration surface).
 - [ ] **S1.8** Re-enable disabled `analyze*.test.lua` tests, validate they
   pass. Audit of the 12 disabled suites found no safe file-level subset yet:
