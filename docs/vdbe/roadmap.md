@@ -1652,8 +1652,9 @@ DML, triggers, subprograms, non-deterministic functions.
   focused producer matrix now additionally covers direct non-primary NULL
   filters both on full scans and conjoined with primary-key bounds; both emit
   complete single-component `new_planner` ledgers when enabled. The expanded
-  planner-final-path luatest passes locally, extending component-level route
-  evidence without changing the reviewed-corpus gate.
+  planner-final-path luatest passes locally; its memtx generated/CnP capture
+  also matches exactly (40/40 snapshots, zero errors or diffs). This extends
+  component-level route evidence without changing the reviewed-corpus gate.
   capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.
