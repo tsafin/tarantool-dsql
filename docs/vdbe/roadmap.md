@@ -916,22 +916,23 @@ DML, triggers, subprograms, non-deterministic functions.
 - [ ] **M3.4 executable lowering** — partial: a narrow production route now
   connects the producer, physical descriptor, VDBE loop emitter, and
   `SelectDest` result registers. It accepts only a resolved direct-column
-  projection from one base table, with no filter/order/offset, and requires a
-  TREE primary index. A nonnegative integer-literal `LIMIT` through `INT_MAX`
-  is now retained in the descriptor and lowered with a result counter;
-  `LIMIT 0` skips scan execution. Other LIMIT expressions and all offsets
-  remain on legacy codegen. The producer uses `index_size()` for a coarse row
+  projection from one base table, with no filter/order, and requires a TREE
+  primary index. Nonnegative integer-literal `LIMIT` and optional `OFFSET`
+  through `INT_MAX` are retained in the descriptor; offset rows are skipped
+  before projection and a result counter handles the limit. `LIMIT 0` skips
+  scan execution. Other LIMIT/OFFSET expressions remain on legacy codegen.
+  The producer uses `index_size()` for a coarse row
   estimate; successful lowering emits cursor open, ascending
   `Rewind`/`Next` (or descending `Last`/`Prev`), `Column`, `ResultRow`, and
   cursor close inside a codegen checkpoint. Physical candidate or recoverable
   lowering rejection records a stable physical fallback reason and resumes
   legacy codegen; hard diagnostics propagate. The session flag is default-off.
   Focused SQL parity passes on memtx and Vinyl for one-/two-column projection,
-  NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`, and filtered/
-  computed controls. Eleven emitter checks cover unbounded, limited, zero-limit,
-  descending, and unsupported-offset opcode shapes. This does not
-  cover all descriptor operators, secondary/range/point access, all storage
-  edge cases, or corpus-wide parity; checkpoint rollback does not include
+  NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
+  and filtered/computed controls. Twelve emitter checks cover unbounded,
+  limited, offset, zero-limit, descending, and out-of-range opcode shapes.
+  This does not cover all descriptor operators, secondary/range/point access,
+  all storage edge cases, or corpus-wide parity; checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
   error-injection, parity, and capture coverage. Details:
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares

@@ -24,7 +24,7 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
 	      input->finalize[0].kind != SQL_PLAN_LIMIT ||
-	      input->finalize[0].offset != 0 ||
+	      input->finalize[0].offset > INT_MAX ||
 	      input->finalize[0].limit > INT_MAX)) ||
 	    input->projection_columns == NULL ||
 	    input->projection_column_count == 0 ||
@@ -41,6 +41,7 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 		return -1;
 	bool has_limit = input->finalize_count == 1;
 	int limit_reg = 0;
+	int offset_reg = 0;
 	if (has_limit && input->finalize[0].limit == 0) {
 		int skip = sqlVdbeAddOp2(vdbe, OP_Goto, 0, 0);
 		if (skip != vdbe->nOp - 1 || parse->is_aborted ||
@@ -57,6 +58,15 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
+		if (input->finalize[0].offset != 0) {
+			offset_reg = ++parse->nMem;
+			addr = sqlVdbeAddOp2(vdbe, OP_Integer,
+					     (int)input->finalize[0].offset,
+					     offset_reg);
+			if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+		}
 	}
 	int rewind_op = input->access.direction == SQL_PLAN_DESC ? OP_Last :
 		OP_Rewind;
@@ -67,6 +77,13 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	int body = sqlVdbeCurrentAddr(vdbe);
+	int offset_skip = -1;
+	if (offset_reg != 0) {
+		offset_skip = sqlVdbeAddOp2(vdbe, OP_IfNotZero, offset_reg, 0);
+		if (offset_skip != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+	}
 	for (size_t i = 0; i < input->projection_column_count; i++) {
 		int addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
 					 input->projection_columns[i],
@@ -87,6 +104,8 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
 	}
+	if (offset_skip >= 0)
+		sqlVdbeJumpHere(vdbe, offset_skip);
 	int next = sqlVdbeAddOp2(vdbe, step_op, cursor, body);
 	if (next != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)

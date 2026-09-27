@@ -5948,8 +5948,8 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 
 /*
  * Route the first executable physical-plan slice: a resolved, direct-column
- * projection over one TREE primary index, with no predicates/order/offset and
- * at most one nonnegative integer-literal LIMIT.
+ * projection over one TREE primary index, with no predicates/order and at
+ * most one nonnegative integer-literal LIMIT/OFFSET pair.
  * Everything needed for the producer and emitter is validated before VDBE
  * mutation. A recoverable emission rejection rolls back to the legacy path;
  * a hard diagnostic remains an error.
@@ -5962,12 +5962,6 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		return 0;
 	if (sql_select_preflight_table_scan(select, dest) !=
 	    SQL_SELECT_PREFLIGHT_OK) {
-		/* Keep explicit OFFSET on the legacy route and make the rejection
-		 * observable when the experimental single-table route was requested.
-		 */
-		if (select->pOffset != NULL)
-			sql_select_record_physical_fallback(parse,
-				SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN);
 		return 0;
 	}
 	struct SrcList_item *source = &select->pSrc->a[0];
