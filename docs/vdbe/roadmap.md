@@ -1663,7 +1663,7 @@ DML, triggers, subprograms, non-deterministic functions.
   Component producer roles now distinguish FROM-subqueries at the two
   recursive code-generation call sites (coroutine and materialized) and scalar
   expression subqueries via `SF_SingleRow`. The component matrix asserts the
-  FROM label on a grouped FROM-subquery that survives flattening, and the
+  FROM label on a DISTINCT FROM-subquery that cannot be flattened, and the
   scalar label on a `count(*)` component. EXISTS/IN expression subqueries
   still need call-site context; the M3.5 reviewed-corpus producer gate remains
   open.

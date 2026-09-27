@@ -267,8 +267,8 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
             nested_function = [[SELECT (SELECT abs(id)
                 FROM planner_component_matrix WHERE id = 1)
                 FROM planner_component_matrix]],
-            grouped_from_subquery = [[SELECT q.id FROM
-                (SELECT id FROM planner_component_matrix GROUP BY id) AS q]],
+            distinct_from_subquery = [[SELECT q.id FROM
+                (SELECT DISTINCT id FROM planner_component_matrix) AS q]],
             nested_destination = [[SELECT (SELECT id
                 FROM planner_component_matrix)
                 FROM planner_component_matrix]],
@@ -403,7 +403,7 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_equals(scalar_count[2].role, 'scalar_subquery')
     t.assert_equals(scalar_count[2].route, 'direct_op_count')
     local from_subquery_routes =
-        snapshots.grouped_from_subquery.component_routes
+        snapshots.distinct_from_subquery.component_routes
     t.assert_gt(#from_subquery_routes, 1)
     t.assert_equals(from_subquery_routes[2].parent_id,
                     from_subquery_routes[1].id)
