@@ -536,24 +536,71 @@ sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
 {
 	if (snapshots == NULL || snapshot_count == 0 || snapshots[0] == NULL)
 		return NULL;
-	struct sql_stats_snapshot *result = NULL;
+	uint64_t catalog_version =
+		sql_stats_snapshot_catalog_version(snapshots[0]);
+	uint64_t schema_version =
+		sql_stats_snapshot_schema_version(snapshots[0]);
+	size_t relation_count = 0;
 	for (size_t i = 0; i < snapshot_count; i++) {
-		if (snapshots[i] == NULL)
-			goto fail;
-		if (result == NULL) {
-			result = snapshot_rebuild(snapshots[i], NULL, 0, max_bytes);
-		} else {
-			struct sql_stats_snapshot *next = snapshot_rebuild(result,
-				snapshots[i], 0, max_bytes);
-			sql_stats_snapshot_release(result);
-			result = next;
-		}
-		if (result == NULL)
-			goto fail;
+		if (snapshots[i] == NULL ||
+		    sql_stats_snapshot_catalog_version(snapshots[i]) !=
+			    catalog_version ||
+		    sql_stats_snapshot_schema_version(snapshots[i]) !=
+			    schema_version)
+			return NULL;
+		size_t count = sql_stats_snapshot_relation_count(snapshots[i]);
+		if (count > SIZE_MAX - relation_count)
+			return NULL;
+		relation_count += count;
 	}
+	if (relation_count > SIZE_MAX /
+	    sizeof(struct sql_stats_relation_input) || max_bytes == 0)
+		return NULL;
+	size_t relation_bytes = relation_count *
+		sizeof(struct sql_stats_relation_input);
+	if (relation_count > SIZE_MAX /
+	    (sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **)))
+		return NULL;
+	size_t pointer_bytes = relation_count *
+		(sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **));
+	if (relation_bytes > max_bytes || pointer_bytes > max_bytes - relation_bytes)
+		return NULL;
+	struct snapshot_copy_storage storage = {.relation_count = relation_count};
+	storage.relations = relation_count == 0 ? NULL :
+		calloc(relation_count, sizeof(*storage.relations));
+	storage.indexes = relation_count == 0 ? NULL :
+		calloc(relation_count, sizeof(*storage.indexes));
+	storage.prefixes = relation_count == 0 ? NULL :
+		calloc(relation_count, sizeof(*storage.prefixes));
+	if (relation_count != 0 && (storage.relations == NULL ||
+				    storage.indexes == NULL ||
+				    storage.prefixes == NULL))
+		goto fail;
+	size_t scratch_bytes = relation_bytes + pointer_bytes;
+	size_t out = 0;
+	for (size_t i = 0; i < snapshot_count; i++) {
+		for (size_t j = 0;
+		     j < sql_stats_snapshot_relation_count(snapshots[i]); j++) {
+			const struct sql_stats_relation *relation = NULL;
+			if (sql_stats_snapshot_relation_at(snapshots[i], j,
+							   &relation) !=
+			    SQL_STATS_LOOKUP_AVAILABLE || out >= relation_count ||
+			    !snapshot_copy_relation(relation, &storage.relations[out],
+				&storage.indexes[out], &storage.prefixes[out],
+				&scratch_bytes, max_bytes))
+				goto fail;
+			out++;
+		}
+	}
+	if (out != relation_count)
+		goto fail;
+	struct sql_stats_snapshot *result = sql_stats_snapshot_new(
+		catalog_version, schema_version, storage.relations, relation_count,
+		max_bytes);
+	snapshot_copy_storage_destroy(&storage);
 	return result;
 fail:
-	sql_stats_snapshot_release(result);
+	snapshot_copy_storage_destroy(&storage);
 	return NULL;
 }
 
