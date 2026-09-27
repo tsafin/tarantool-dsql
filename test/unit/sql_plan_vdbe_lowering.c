@@ -450,10 +450,18 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(40);
+	plan(42);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
+	};
+	static const struct sql_plan_filter is_null_filter = {
+		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
+		.column = 1, .op = SQL_PLAN_FILTER_IS_NULL,
+	};
+	static const struct sql_plan_filter is_not_null_filter = {
+		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
+		.column = 1, .op = SQL_PLAN_FILTER_IS_NOT_NULL,
 	};
 	static const struct sql_plan_finalize limit_one = {
 		.kind = SQL_PLAN_LIMIT, .limit = 1,
@@ -477,6 +485,10 @@ main(void)
 		SQL_PLAN_ASC, NULL, 0);
 	struct sql_plan_descriptor *filtered_desc =
 		new_scan_descriptor(&filter, 1, SQL_PLAN_ASC, NULL, 0);
+	struct sql_plan_descriptor *is_null_desc =
+		new_scan_descriptor(&is_null_filter, 1, SQL_PLAN_ASC, NULL, 0);
+	struct sql_plan_descriptor *is_not_null_desc =
+		new_scan_descriptor(&is_not_null_filter, 1, SQL_PLAN_ASC, NULL, 0);
 	struct sql_plan_descriptor *descending_desc =
 		new_scan_descriptor(NULL, 0, SQL_PLAN_DESC, NULL, 0);
 	struct sql_plan_descriptor *limit_one_desc =
@@ -537,7 +549,8 @@ main(void)
 		new_point_limit_descriptor(1, 0, 0);
 	struct sql_plan_descriptor *point_offset_desc =
 		new_point_limit_descriptor(1, 1, 1);
-	ok(plan_desc != NULL && filtered_desc != NULL && descending_desc != NULL &&
+	ok(plan_desc != NULL && filtered_desc != NULL && is_null_desc != NULL &&
+	   is_not_null_desc != NULL && descending_desc != NULL &&
 	   limit_one_desc != NULL && limit_zero_desc != NULL &&
 	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
 	   invalid_offset_desc != NULL && point_desc != NULL &&
@@ -599,6 +612,20 @@ main(void)
 	   ops[4].p2 == 2 && ops[5].opcode == OP_Next &&
 	   ops[5].p1 == 4 && ops[5].p2 == 2,
 	   "result delivery and next-row branch complete the loop");
+	int before_is_null = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan(is_null_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_is_null + 1].opcode == OP_Column &&
+	   vdbe.aOp[before_is_null + 1].p2 == 1 &&
+	   vdbe.aOp[before_is_null + 2].opcode == OP_NotNull &&
+	   vdbe.aOp[before_is_null + 2].p2 == before_is_null + 6 &&
+	   vdbe.aOp[before_is_null + 6].opcode == OP_Next,
+	   "IS NULL filter skips rejected rows to the cursor next opcode");
+	int before_is_not_null = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan(is_not_null_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_is_not_null + 2].opcode == OP_IsNull &&
+	   vdbe.aOp[before_is_not_null + 2].p2 == before_is_not_null + 6 &&
+	   vdbe.aOp[before_is_not_null + 6].opcode == OP_Next,
+	   "IS NOT NULL filter skips rejected rows to the cursor next opcode");
 	int before_bad_call = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_table_scan(plan_desc, &vdbe, -1, 20) == -1 &&
 	   vdbe.nOp == before_bad_call,

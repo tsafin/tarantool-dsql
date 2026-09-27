@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <limits.h>
 #include <string.h>
 
 #include "unit.h"
@@ -7,13 +8,15 @@
 static void
 test_descriptor_owns_input(void)
 {
-	plan(6);
+	plan(9);
 	header();
 	char canonical[] = "col(c0) > 7";
 	char space_name[] = "t1";
 	struct sql_plan_expression expr[] = {{1, canonical}};
 	struct sql_plan_bound bound[] = {{SQL_PLAN_LOWER, SQL_PLAN_GT, 1}};
-	struct sql_plan_filter filter[] = {{1, 0.4, 0.8}};
+	struct sql_plan_filter filter[] = {{
+		.expr_ref = 1, .selectivity = 0.4, .confidence = 0.8,
+	}};
 	struct sql_plan_order_term order[] = {{0, SQL_PLAN_ASC, 1}};
 	struct sql_plan_finalize fin[] = {{SQL_PLAN_SORT, order, 1, 0, 0}};
 	struct sql_plan_descriptor_input input = {
@@ -44,6 +47,18 @@ test_descriptor_owns_input(void)
 	ok(sql_plan_descriptor_expression_count(d) == 1,
 	   "expression table retained");
 	sql_plan_descriptor_delete(d);
+	filter[0].op = SQL_PLAN_FILTER_IS_NULL;
+	filter[0].column = 3;
+	d = sql_plan_descriptor_new(&input);
+	ok(d != NULL, "typed null filter descriptor accepted");
+	sql_plan_descriptor_delete(d);
+	filter[0].column = (uint32_t)INT_MAX + 1;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "typed null filter rejects a column outside VDBE integer range");
+	filter[0].op = (enum sql_plan_filter_op)INT_MAX;
+	filter[0].column = 0;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "unknown typed filter operation rejected");
 	footer();
 	check_plan();
 }

@@ -31,7 +31,9 @@ test_lowering_contract(void)
 	plan(10);
 	header();
 	struct sql_plan_expression expression = {1, "col(c0) > 7"};
-	struct sql_plan_filter filter = {1, 0.5, 1};
+	struct sql_plan_filter filter = {
+		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
+	};
 	struct sql_plan_order_term key = {0, SQL_PLAN_ASC, 1};
 	struct sql_plan_finalize finalize[] = {
 		{SQL_PLAN_SORT, &key, 1, 0, 0},

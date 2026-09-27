@@ -101,7 +101,18 @@ struct sql_plan_access {
 	double est_rows;
 	double est_rows_confidence;
 };
-struct sql_plan_filter { uint32_t expr_ref; double selectivity; double confidence; };
+enum sql_plan_filter_op {
+	SQL_PLAN_FILTER_EXPRESSION,
+	SQL_PLAN_FILTER_IS_NULL,
+	SQL_PLAN_FILTER_IS_NOT_NULL,
+};
+struct sql_plan_filter {
+	uint32_t expr_ref;
+	double selectivity;
+	double confidence;
+	uint32_t column;
+	enum sql_plan_filter_op op;
+};
 struct sql_plan_finalize {
 	enum sql_plan_finalize_kind kind;
 	const struct sql_plan_order_term *keys;

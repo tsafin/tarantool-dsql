@@ -297,6 +297,9 @@ sql_physical_table_scan_from_select(
 	bool has_range_end_key = false;
 	bool primary_key_not_null = false;
 	bool primary_key_is_null = false;
+	bool has_null_filter = false;
+	uint32_t null_filter_column = 0;
+	enum sql_plan_filter_op null_filter_op = SQL_PLAN_FILTER_EXPRESSION;
 	int64_t point_key = 0;
 	int64_t range_key = 0;
 	int64_t range_end_key = 0;
@@ -356,6 +359,21 @@ sql_physical_table_scan_from_select(
 			goto predicate_parsed;
 		if (primary_key_is_null) {
 			force_empty = true;
+			goto predicate_parsed;
+		}
+		if ((where->op == TK_NOTNULL || where->op == TK_ISNULL) &&
+		    where->pLeft != NULL && where->pRight == NULL &&
+		    where->pLeft->op == TK_COLUMN_REF &&
+		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL &&
+		    where->pLeft->iTable == source->iCursor &&
+		    where->pLeft->iColumn >= 0 &&
+		    (uint32_t)where->pLeft->iColumn <
+			source->space->def->field_count) {
+			has_null_filter = true;
+			null_filter_column = (uint32_t)where->pLeft->iColumn;
+			null_filter_op = where->op == TK_ISNULL ?
+				SQL_PLAN_FILTER_IS_NULL :
+				SQL_PLAN_FILTER_IS_NOT_NULL;
 			goto predicate_parsed;
 		}
 		const struct Expr *exprs[SQL_PLAN_POINT_KEY_PART_MAX];
@@ -841,6 +859,17 @@ predicate_parsed:
 			"integer-range-key") :
 			"integer-point-key",
 	};
+	struct sql_plan_expression null_filter_expression = {
+		.id = 1,
+		.canonical = "direct-column-null-filter",
+	};
+	struct sql_plan_filter null_filter = {
+		.expr_ref = 1,
+		.selectivity = 0.5,
+		.confidence = 0,
+		.column = null_filter_column,
+		.op = null_filter_op,
+	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
 		.planner_version = 1,
@@ -899,14 +928,18 @@ predicate_parsed:
 				estimate->rows / 2 : estimate->rows,
 			.est_rows_confidence = estimate->confidence,
 		},
+		.filters = has_null_filter ? &null_filter : NULL,
+		.filter_count = has_null_filter ? 1 : 0,
 		.projection_columns = columns,
 		.projection_column_count = select->pEList->nExpr,
 		.expressions = has_composite_point || has_prefix_scan ?
 			composite_point_expressions :
-			has_point_key || has_range_key ?
+		has_null_filter ? &null_filter_expression :
+		has_point_key || has_range_key ?
 			(has_range_end_key ? point_expressions : &point_expression) : NULL,
 		.expression_count = has_composite_point || has_prefix_scan ?
 			composite_expression_count :
+		has_null_filter ? 1 :
 			has_range_end_key ? 2 :
 			(has_point_key || has_range_key ? 1 : 0),
 		.cost_startup = estimate->startup_cost,

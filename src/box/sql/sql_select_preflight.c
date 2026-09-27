@@ -111,7 +111,11 @@ sql_select_preflight_table_scan(const struct Select *select,
 		    where->pLeft != NULL &&
 		    where->pRight == NULL &&
 		    where->pLeft->op == TK_COLUMN_REF &&
-		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL) {
+		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL &&
+		    where->pLeft->iTable == source->iCursor &&
+		    where->pLeft->iColumn >= 0 &&
+		    (uint32_t)where->pLeft->iColumn <
+			source->space->def->field_count) {
 			/* The producer validates that this is the primary-key column.
 			 * Only that column is guaranteed non-null by the schema. */
 		} else if (where->op == TK_AND) {

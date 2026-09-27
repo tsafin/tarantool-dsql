@@ -286,7 +286,11 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		    !isfinite(in->filters[i].selectivity) ||
 		    in->filters[i].selectivity < 0 || in->filters[i].selectivity > 1 ||
 		    !isfinite(in->filters[i].confidence) ||
-		    in->filters[i].confidence < 0 || in->filters[i].confidence > 1)
+		    in->filters[i].confidence < 0 || in->filters[i].confidence > 1 ||
+		    in->filters[i].op < SQL_PLAN_FILTER_EXPRESSION ||
+		    in->filters[i].op > SQL_PLAN_FILTER_IS_NOT_NULL ||
+		    (in->filters[i].op != SQL_PLAN_FILTER_EXPRESSION &&
+		     in->filters[i].column > INT_MAX))
 			return NULL;
 	for (size_t i = 0; i < in->expression_count; ++i) {
 		if (in->expressions[i].canonical == NULL) return NULL;
