@@ -103,6 +103,34 @@ sql_stats_collection_context_sample_index(
 	struct sql_stats_sample_sink *sink,
 	struct sql_stats_sample_result *result);
 
+/*
+ * An owned transaction sampler context. This pins transaction ownership and
+ * READ_CONFIRMED isolation, not a common data snapshot; its transaction ID
+ * must never be used as sql_stats_collection_generation.visibility_id.
+ */
+struct sql_stats_tx_context;
+
+int
+sql_stats_tx_context_begin(
+	const struct sql_stats_collection_target *targets, size_t target_count,
+	struct sql_stats_tx_context **context);
+
+int
+sql_stats_tx_context_sample_index(
+	struct sql_stats_tx_context *context,
+	const struct sql_stats_collection_target *target,
+	const struct sql_stats_sample_request *request,
+	struct sql_stats_sample_sink *sink,
+	struct sql_stats_sample_result *result);
+
+/* Finish commits only after every requested index sample succeeds. */
+int
+sql_stats_tx_context_finish(struct sql_stats_tx_context **context);
+
+/* Abort rolls back only the transaction owned by this context. */
+int
+sql_stats_tx_context_abort(struct sql_stats_tx_context **context);
+
 /* Exact relation population fact produced by an engine sampler. */
 struct sql_stats_collected_population {
 	uint64_t row_count;

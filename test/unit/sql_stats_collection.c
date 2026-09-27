@@ -9,18 +9,30 @@
 #include "box/read_view.h"
 #include "box/schema.h"
 #include "box/space.h"
+#include "box/space_cache.h"
 #include "box/space_def.h"
+#include "box/txn.h"
 #include "unit.h"
 
 static uint64_t test_schema_version = 12;
 static int test_read_view_mode;
 static unsigned test_read_view_close_count;
+static bool test_txn_active;
+static int64_t test_txn_id;
+static int test_txn_isolation;
+static int test_txn_begin_result;
+static int test_txn_set_isolation_result;
+static int test_txn_commit_result;
+static int test_txn_rollback_result;
+static int test_engine_sample_mode;
+static bool test_schema_change_on_isolation;
 
 static struct space_def test_space_def = {.id = 42};
 static struct space test_space = {.def = &test_space_def};
 static struct index_def test_index_def = {.space_id = 42, .iid = 8};
 static struct index test_index = {.def = &test_index_def};
 static struct index_read_view test_index_view = {.def = &test_index_def};
+static struct index *test_space_index_map[9];
 static struct index_read_view *test_index_map[9];
 static struct space_read_view test_space_view = {
 	.id = 42, .index_id_max = 8, .index_map = test_index_map,
@@ -115,6 +127,103 @@ uint64_t
 box_schema_version(void)
 {
 	return test_schema_version;
+}
+
+bool
+box_txn(void)
+{
+	return test_txn_active;
+}
+
+int64_t
+box_txn_id(void)
+{
+	return test_txn_active ? test_txn_id : -1;
+}
+
+int
+box_txn_isolation(void)
+{
+	return test_txn_active ? test_txn_isolation : -1;
+}
+
+int
+box_txn_begin(void)
+{
+	if (test_txn_active || test_txn_begin_result != 0)
+		return -1;
+	test_txn_active = true;
+	test_txn_id++;
+	test_txn_isolation = TXN_ISOLATION_BEST_EFFORT;
+	return 0;
+}
+
+int
+box_txn_set_isolation(uint32_t isolation)
+{
+	if (!test_txn_active || test_txn_set_isolation_result != 0)
+		return -1;
+	test_txn_isolation = isolation;
+	if (test_schema_change_on_isolation)
+		test_schema_version++;
+	return 0;
+}
+
+int
+box_txn_commit(void)
+{
+	if (!test_txn_active)
+		return -1;
+	test_txn_active = false;
+	return test_txn_commit_result;
+}
+
+int
+box_txn_rollback(void)
+{
+	if (!test_txn_active || test_txn_rollback_result != 0)
+		return -1;
+	test_txn_active = false;
+	return 0;
+}
+
+struct space *
+space_by_id_slow(uint32_t id)
+{
+	if (id != test_space_def.id)
+		return NULL;
+	test_space.index_map = test_space_index_map;
+	test_space.index_id_max = 8;
+	return &test_space;
+}
+
+int
+engine_sql_stats_sample(struct space *space,
+			const struct sql_stats_sample_request *request,
+			struct sql_stats_sample_sink *sink,
+			struct sql_stats_sample_result *result)
+{
+	(void)request;
+	if (space != &test_space)
+		return -1;
+	static const char first[] = "a";
+	static const char second[] = "bb";
+	*result = (struct sql_stats_sample_result){};
+	if (sink->consume(sink->context, first, sizeof(first) - 1, NULL, 0) != 0)
+		return -1;
+	result->rows = 1;
+	result->bytes = sizeof(first) - 1;
+	if (test_engine_sample_mode == 1)
+		return -1;
+	if (sink->consume(sink->context, second, sizeof(second) - 1, NULL, 0) != 0)
+		return -1;
+	result->rows++;
+	result->bytes += sizeof(second) - 1;
+	result->population_known = true;
+	result->visible_population = 2;
+	if (test_engine_sample_mode == 2)
+		test_schema_version++;
+	return 0;
 }
 
 void
@@ -237,6 +346,135 @@ test_context_sample_index(void)
 	sql_stats_collection_context_delete(context);
 	ok(test_read_view_close_count == close_count + 1,
 	   "sample context closes its read view after scanning");
+	footer();
+	check_plan();
+}
+
+static void
+reset_test_txn(void)
+{
+	test_txn_active = false;
+	test_txn_isolation = -1;
+	test_txn_begin_result = 0;
+	test_txn_set_isolation_result = 0;
+	test_txn_commit_result = 0;
+	test_txn_rollback_result = 0;
+	test_schema_change_on_isolation = false;
+	test_engine_sample_mode = 0;
+	test_schema_version = 12;
+	test_space_index_map[8] = &test_index;
+	test_index.unique_id = 808;
+}
+
+static void
+test_transaction_sample_context(void)
+{
+	plan(21);
+	header();
+	reset_test_txn();
+	struct sql_stats_collection_target target = {.space_id = 42, .index_id = 8};
+	struct sql_stats_collection_target duplicate[] = {target, target};
+	struct sql_stats_tx_context *context = NULL;
+	ok(sql_stats_tx_context_begin(duplicate, 2, &context) != 0 &&
+	   context == NULL && !test_txn_active,
+	   "duplicate targets fail before the context acquires a transaction");
+	struct sql_stats_collection_target missing = {
+		.space_id = 42, .index_id = 7,
+	};
+	ok(sql_stats_tx_context_begin(&missing, 1, &context) != 0 &&
+	   !test_txn_active,
+	   "missing target index fails before transaction begin");
+	test_txn_active = true;
+	test_txn_id = 100;
+	ok(sql_stats_tx_context_begin(&target, 1, &context) != 0 &&
+	   test_txn_active && test_txn_id == 100,
+	   "context refuses to take ownership of an existing transaction");
+	test_txn_active = false;
+	test_txn_begin_result = -1;
+	ok(sql_stats_tx_context_begin(&target, 1, &context) != 0 &&
+	   context == NULL && !test_txn_active,
+	   "failed transaction begin returns no active context");
+	test_txn_begin_result = 0;
+	test_txn_set_isolation_result = -1;
+	ok(sql_stats_tx_context_begin(&target, 1, &context) != 0 &&
+	   context == NULL && !test_txn_active,
+	   "failed READ_CONFIRMED setup rolls back the owned transaction");
+	test_txn_set_isolation_result = 0;
+	test_schema_change_on_isolation = true;
+	ok(sql_stats_tx_context_begin(&target, 1, &context) != 0 &&
+	   context == NULL && !test_txn_active,
+	   "schema drift during begin rolls back without returning a context");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   context != NULL && test_txn_active &&
+	   test_txn_isolation == TXN_ISOLATION_READ_CONFIRMED,
+	   "context owns one READ_CONFIRMED box transaction");
+	struct test_sink_state sink_state = {};
+	struct sql_stats_sample_sink sink = {
+		.context = &sink_state, .consume = test_sink_consume,
+	};
+	struct sql_stats_sample_request request = {
+		.max_rows = 2, .max_bytes = 16, .max_buffer_bytes = 256,
+	};
+	struct sql_stats_sample_result result;
+	test_engine_sample_mode = 1;
+	ok(sql_stats_tx_context_sample_index(context, &target, &request,
+		&sink, &result) != 0 && sink_state.rows == 0 && result.rows == 0,
+	   "partial engine failure is withheld from the collector sink");
+	ok(sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
+	   !test_txn_active,
+	   "failed sampling cannot finish or publish a partial collection");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
+	   !test_txn_active,
+	   "finish with a missing target sample rolls back the transaction");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0,
+	   "context starts before a runtime isolation check");
+	test_txn_isolation = TXN_ISOLATION_READ_COMMITTED;
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_sample_index(context, &target, &request,
+		&sink, &result) != 0 && sink_state.rows == 0,
+	   "changed transaction isolation fails before sample delivery");
+	ok(sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
+	   !test_txn_active,
+	   "finish rolls back when the owned transaction mode changed");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0,
+	   "context starts before a runtime schema check");
+	test_engine_sample_mode = 2;
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_sample_index(context, &target, &request,
+		&sink, &result) != 0 && sink_state.rows == 0,
+	   "schema drift during engine sampling withholds staged tuples");
+	ok(sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
+	   !test_txn_active,
+	   "schema-drifted sample context rolls back");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0,
+	   "context begins before abort ownership validation");
+	int64_t owned_id = test_txn_id;
+	test_txn_id++;
+	int abort_rc = sql_stats_tx_context_abort(&context);
+	bool preserved = abort_rc != 0 && context != NULL && test_txn_active;
+	test_txn_id = owned_id;
+	ok(preserved && sql_stats_tx_context_abort(&context) == 0 &&
+	   context == NULL && !test_txn_active,
+	   "abort preserves another transaction and releases only its own");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_abort(&context) == 0 && context == NULL &&
+	   !test_txn_active,
+	   "explicit abort rolls back and consumes the owned context");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
+	   sql_stats_tx_context_sample_index(context, &target, &request,
+		&sink, &result) == 0 && sink_state.rows == 2,
+	   "successful requested-index sample stages complete rows");
+	ok(sql_stats_tx_context_finish(&context) == 0 && context == NULL &&
+	   !test_txn_active,
+	   "finish commits only after all requested index samples succeed");
 	footer();
 	check_plan();
 }
@@ -503,6 +741,7 @@ main(void)
 {
 	test_collection_context();
 	test_context_sample_index();
+	test_transaction_sample_context();
 	test_population_from_engine_sample();
 	test_complete_result_and_rejections();
 	return 0;

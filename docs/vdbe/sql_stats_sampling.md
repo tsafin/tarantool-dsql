@@ -291,6 +291,26 @@ Until a bounded Vinyl read-view path and a complete stats producer exist,
 collection remains disabled. The context does not install snapshots, so the
 previously specified publication/rollback tests are still required.
 
+The separate `sql_stats_tx_context` runtime slice can begin an owned box
+transaction, set `READ_CONFIRMED` before any read, validate the target indexes
+and schema, and call `engine_sql_stats_sample()` for each requested index
+under that same transaction ID. A per-index bounded staging buffer prevents
+an engine error from forwarding only part of that index's sample. `finish`
+commits only when every requested index succeeded; otherwise it rolls back.
+`abort` only rolls back if the calling fiber still owns the captured
+transaction ID. The API returns no visibility token and cannot be converted
+to `sql_stats_collection_generation` by its interface.
+
+This transaction context is not a frozen database snapshot. `READ_CONFIRMED`
+excludes prepared/unconfirmed writes, but it does not freeze confirmed writes
+between calls; equal transaction IDs therefore do not establish one common
+data-time boundary. A successful earlier index can already have delivered to
+the caller's sink if a later index fails, so sinks must target disposable
+off-side staging and callers must discard it unless all requested work and
+candidate validation succeed. The context neither builds nor publishes a
+candidate; `READ_CONFIRMED` is not authorization for global publication and
+does not enable `ANALYZE`.
+
 The in-memory snapshot API version is now 2 so the new provenance and width
 denominator metadata are explicit. Existing designated/zero-initialized
 snapshot callers may omit metadata and it stays unset, with no inferred
