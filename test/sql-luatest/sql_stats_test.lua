@@ -285,6 +285,10 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
         t.assert_equals(res[engine].candidate.width_rows, 4)
         t.assert_equals(res[engine].candidate.primary_rows, 8)
         t.assert_equals(res[engine].candidate.secondary_rows, 8)
+        t.assert_equals(res[engine].candidate.extract_0_calls, 4)
+        t.assert_equals(res[engine].candidate.extract_1_calls, 4)
+        t.assert_equals(res[engine].candidate.extract_0_errors, 0)
+        t.assert_equals(res[engine].candidate.extract_1_errors, 0)
         for _, index in ipairs({'primary', 'secondary'}) do
             local sample = res[engine][index]
             t.assert_equals(sample.begin_rc, 0)
