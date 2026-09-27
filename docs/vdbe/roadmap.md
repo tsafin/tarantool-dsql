@@ -634,9 +634,17 @@ review of IDs and formats.
   focused `sql_stats_collection.test` target builds and passes locally,
   including all 32 transaction-context checks. The production `tarantool`
   target links with the API. A prior runtime luatest exercised live memtx/Vinyl
-  primary- and secondary-index samples, but the current configured CnP run
-  cannot load its helper modules because of unresolved `space_cache_version`
-  and `mp_type_hint`; it provides no new runtime confirmation. The unit test
+  primary- and secondary-index samples. Re-running focused `sql_stats_test.lua`
+  against the configured Clang-19 build reproduced a helper loader error:
+  `sql_stats_tx_context_test.so` has undefined `mp_type_hint`. ELF inspection
+  also shows that the helper's `sql_stats_tx_context_{begin,sample_index,finish}`
+  imports are not in the Tarantool executable's dynamic export table; linking
+  the test module alone cannot resolve this internal API. The current helper
+  does not import `space_cache_version` itself (the context implementation reads
+  it inside the executable). Fixing this requires an intentional test
+  integration boundary—either selectively exporting internal symbols or moving
+  the seam into the server—not a build-mode toggle. No broad export change was
+  made, so this run provides no new live runtime confirmation. The unit test
   still uses engine stubs for lifecycle/error injection.
   The context now captures the local commit-vclock signature and rejects
   sampling/finish if it changes, with unit coverage for drift during engine

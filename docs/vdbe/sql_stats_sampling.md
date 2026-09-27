@@ -470,9 +470,21 @@ The focused publication assertions cover successful install, unrelated
 candidate rejection, commit failure, post-commit vclock drift, repeated
 assembly, and preservation of the prior installed snapshot. Root reports that
 the configured Clang-19 build and `sql_stats_collection.test` passed after
-cherry-pick. No live memtx/Vinyl transaction test of the orchestration has
-run. S1.3a remains open pending live engine confirmation and proof of any
-claimed cross-engine visibility semantics.
+cherry-pick. A focused runtime attempt was repeated on 2026-09-27 with
+`test/sql-luatest/sql_stats_test.lua` and the configured Clang-19 executable.
+The helper module target builds, but loading `sql_stats_tx_context_test.so`
+fails with undefined `mp_type_hint`. The module also imports
+`sql_stats_tx_context_begin()`, `sample_index()`, and `finish()`, which are
+present in the executable's full symbol table but absent from its dynamic
+export table. Thus the module is not a valid integration seam for this
+internal API as currently linked. `space_cache_version` is read by the context
+implementation within the server and is not an undefined import of this
+current helper. Fixing runtime coverage requires an explicit choice to expose
+selected internal symbols or add an in-process server test seam; no such
+surface change is made here. This test-harness blocker says nothing about
+engine runtime behavior and does not establish a shared memtx/Vinyl snapshot.
+S1.3a remains open pending live engine confirmation and proof of any claimed
+cross-engine visibility semantics.
 `READ_CONFIRMED`, transaction ID, and local vclock/catalog/schema checks are
 volatile local guards, not durable or cross-node visibility identities. This
 does not enable `ANALYZE` or persistent statistics.
