@@ -238,6 +238,59 @@ g.test_snapshot_estimate_adapter = function()
     t.assert_equals(res.rows, {{1}, {2}, {3}})
 end
 
+g.test_transaction_sampler_memtx_and_vinyl = function()
+    local res = g.server:exec(function()
+        local build_path = os.getenv('BUILDDIR')
+        local fio = require('fio')
+        local source_dir = fio.dirname(debug.getinfo(1, 'S').source:sub(2))
+        local module_cpath = source_dir..'/?.so;'..source_dir..'/?.dylib;'
+        if build_path ~= nil then
+            module_cpath = module_cpath..build_path..'/test/box/?.so;'..
+                           build_path..'/test/box/?.dylib;'
+        end
+        package.cpath = module_cpath..package.cpath
+        local sampler = require('sql_stats_tx_context_test')
+        local output = {}
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'sql_stats_tx_context_'..engine
+            local space = box.schema.space.create(name, {engine = engine})
+            space:format({
+                {name = 'id', type = 'unsigned'},
+                {name = 'a', type = 'unsigned'},
+            })
+            space:create_index('primary')
+            space:create_index('by_a', {
+                unique = false,
+                parts = {{field = 2, type = 'unsigned'}},
+            })
+            for i = 1, 8 do
+                space:insert({i, i % 3})
+            end
+            local secondary_id = space.index.by_a.id
+            output[engine] = {
+                primary = sampler.sample(space.id, space.index.primary.id),
+                secondary = sampler.sample(space.id, secondary_id),
+            }
+            space:drop()
+        end
+        return output
+    end)
+
+    for _, engine in ipairs({'memtx', 'vinyl'}) do
+        for _, index in ipairs({'primary', 'secondary'}) do
+            local sample = res[engine][index]
+            t.assert_equals(sample.begin_rc, 0)
+            t.assert_equals(sample.sample_rc, 0)
+            t.assert_equals(sample.finish_rc, 0)
+            t.assert_equals(sample.rows, 4)
+            t.assert_equals(sample.delivered, 4)
+            t.assert_equals(sample.population, 8)
+            t.assert_equals(sample.population_known, true)
+            t.assert_equals(#sample.ids, 4)
+        end
+    end
+end
+
 g_budget.test_path_solver_width_configuration = function()
     local res = g_budget.server:exec(function()
         box.execute([[CREATE TABLE t (id INT PRIMARY KEY, a INT);]])
