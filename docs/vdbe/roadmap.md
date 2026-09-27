@@ -522,7 +522,9 @@ review of IDs and formats.
   and secondary samples. A new reusable context now owns a core `read_view`,
   records its engine-assigned ID and schema version, validates requested
   indexes, and scans pinned indexes into a bounded reservoir. Its unit tests
-  cover ownership and fail-closed open cases. This context is not yet wired to
+  cover ownership and fail-closed open cases; `sql_stats_collection.test`
+  passed locally, including pinned scan, tuple-budget, and schema-drift
+  rejection cases. This context is not yet wired to
   candidate construction; core read-view allocation has no resource budget,
   and Vinyl's generic index read view rejects consistent reads. It therefore
   cannot replace the tested transaction sampler across both engines. Where
@@ -852,9 +854,11 @@ DML, triggers, subprograms, non-deterministic functions.
   backend bindings, and parity coverage exist. Detailed audit:
   `docs/vdbe/physical_plan_descriptor.md`; the narrowest candidate is
   `SELECT c FROM t`, but its scan/projection/result opcodes currently belong
-  to `sqlWhereBegin()`/`wherecode.c`/`selectInnerLoop()`, and no safe VDBE plus
-  `Parse` codegen checkpoint/rollback exists. *parallel: no* (shares
-  SELECT/VDBE integration boundary).
+  to `sqlWhereBegin()`/`wherecode.c`/`selectInnerLoop()`. A limited
+  `vdbe_codegen_checkpoint` now rolls back speculative opcode ownership and
+  selected `Parse` codegen state; it does not cover arbitrary parser/AST or
+  schema mutations, and production expression/cursor/result bindings are
+  still absent. *parallel: no* (shares SELECT/VDBE integration boundary).
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
   `fallback_reason` and routes to current `where.c`. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and

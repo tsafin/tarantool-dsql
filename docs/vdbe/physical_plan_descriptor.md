@@ -91,19 +91,17 @@ current descriptor. The descriptor also has no binding from canonical
 expression refs back to resolved `Expr` nodes, so even column `c` cannot yet
 be compiled from descriptor contents.
 
-The relevant failure-safety primitive is absent as well. VDBE has no
-code-generation mark/rollback API. `sqlVdbeDeletePriorOpcode()` only turns a
-last instruction into `OP_Noop`; `sqlVdbeTakeOpArray()` resolves labels and
-transfers the whole opcode array rather than checkpointing it. Truncating
-`Vdbe.nOp` alone would leak dynamically owned P4/comment payloads and leave
-`Parse` allocations (register/cursor numbers, labels, expression cache and
-temporary-register state) advanced. Consequently a safe attempt needs either
-a real checkpoint/rollback primitive covering VDBE op ownership and the
-associated `Parse` codegen state, or a builder whose full validation is
-provably complete before its first emit and whose only post-emit failures
-abort preparation rather than fall back. The current producer/expression
-binding gaps prevent the latter route today. This is the narrow blocker; it
-is not a claim that existing VDBE opcodes cannot express the scan.
+The failure-safety primitive now exists as `vdbe_codegen_checkpoint`: it
+captures the opcode boundary and the relevant `Parse` register/cursor,
+label, expression-cache, and temporary-register state. Rollback frees owned
+P4/comment payloads, clears the speculative opcode suffix, and restores the
+captured parse state; a focused unit test exercises rollback and commit.
+This checkpoint intentionally does not cover arbitrary parser/AST mutations,
+schema side effects, or VDBE metadata, so it is not yet sufficient to wrap
+the complete SELECT integration path. The producer/expression/cursor/result
+bindings and an auditable boundary around every other mutable state remain
+the narrow blockers. This is not a claim that existing VDBE opcodes cannot
+express the scan.
 
 M3.5 now has a producer-contract prototype in `sql_plan_fallback.{h,c}`.
 It maps the existing logical and physical reject enums to append-only numeric
