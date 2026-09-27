@@ -197,8 +197,8 @@ emits `OP_SeekGT`/`OP_SeekGE`/`OP_SeekLT`/`OP_SeekLE` followed by `Next` or
 UNSIGNED keys retain their full uint64 representation in the seek register,
 including values above `INT64_MAX`. Negative UNSIGNED values fail closed to
 legacy codegen; a literal above `UINT64_MAX` is rejected by SQL parsing before
-planning. LIMIT and OFFSET share the scan-loop
-implementation. Parameters, expressions, composite predicates, and
+planning. LIMIT and OFFSET share the scan-loop implementation. Parameters,
+expressions, composite predicates, and
 non-primary columns remain fallback cases. Focused memtx/Vinyl SQL regressions
 cover strict/inclusive bounds, reversed operands, ordered output, and
 LIMIT/OFFSET. M3.4 remains open pending broader range semantics, injected

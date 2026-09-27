@@ -1052,9 +1052,11 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_FILTER` and increment its per-reason counter; earlier, they
   were indistinguishable from ordinary `current_where_c` execution. The point
   lookup boundary now has focused fallback coverage for a bind parameter,
-  equality on a non-primary column, NULL/computed values, a range, OR, and
-  negative and out-of-range literals against UNSIGNED primary keys, with
-  matching legacy results and stable fallback reasons on both engines. More specific
+  equality on a non-primary column, NULL/computed values, unsupported ranges
+  (including non-primary-key ranges), OR, and negative literals against
+  UNSIGNED primary keys, with matching legacy results and stable fallback
+  reasons on both engines. Literals above `UINT64_MAX` are rejected by SQL
+  parsing before planner fallback classification. More specific
   expression/function rejection reasons retain precedence.
   M3.5 remains partial: the narrow table-scan route now records physical
   rejection reasons at the attempted producer/lowering boundary, but the
