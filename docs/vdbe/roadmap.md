@@ -980,10 +980,12 @@ DML, triggers, subprograms, non-deterministic functions.
   constants retain uint64 values through UINT64_MAX; negative UNSIGNED values
   fail closed to legacy codegen, while literals above UINT64_MAX are rejected
   by SQL parsing before planner dispatch. Unsupported predicates still fall
-  back. Twenty-three emitter checks cover
-  unbounded, limited, offset, zero-limit,
-  descending, signed-64-bit counter initialization, register overflow, and
-  checkpoint rollback after late point-projection rejection. SQL regressions
+  back. Twenty-seven emitter checks now also pin strict `SeekGT` and inclusive
+  `SeekLE` opcode selection, ascending/descending step opcodes, signed range
+  key encoding, and full-width unsigned `P4_UINT64` preservation, alongside
+  unbounded, limited, offset, zero-limit, descending, signed-64-bit counter
+  initialization, register overflow, and checkpoint rollback after late
+  point-projection rejection. SQL regressions
   verify `LIMIT 2147483648` and paired wide LIMIT / OFFSET
   execute on the new route with unchanged row semantics; a point lookup at
   `INT64_MAX` also exercises wide key-register encoding on both engines.
