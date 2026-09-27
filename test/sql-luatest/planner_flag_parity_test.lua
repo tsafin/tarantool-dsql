@@ -564,6 +564,7 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             t.assert_equals(explain.rows[1][3], 'fallback')
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             box.execute(('DROP TABLE %s'):format(suffix_name))
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
 
             for i, sql in ipairs(limited_queries) do
                 explain, err = box.execute(
