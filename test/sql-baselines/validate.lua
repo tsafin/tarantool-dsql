@@ -119,6 +119,7 @@ local stable_fallback_reasons = {
     UNSUPPORTED_DML = true,
     UNSUPPORTED_TRIGGER = true,
     UNSUPPORTED_NONDETERMINISTIC = true,
+    UNSUPPORTED_ACCESS_HINT = true,
     BUDGET_EXCEEDED = true,
     LOW_CONFIDENCE_STATS = true,
     LOWERING_FAILED = true,

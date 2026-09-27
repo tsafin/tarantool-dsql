@@ -5767,6 +5767,11 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 		sql_select_record_fallback_reason(parse,
 					 SQL_LOGICAL_REJECT_RELATION_COUNT);
 	} else if (select->pSrc != NULL && select->pSrc->nSrc == 1 &&
+		   (select->pSrc->a[0].fg.isIndexedBy ||
+		    select->pSrc->a[0].fg.notIndexed)) {
+		sql_select_record_fallback_reason(parse,
+				 SQL_LOGICAL_REJECT_ACCESS_HINT);
+	} else if (select->pSrc != NULL && select->pSrc->nSrc == 1 &&
 		   (select->pSrc->a[0].pSelect != NULL ||
 		    select->pSrc->a[0].fg.isTabFunc)) {
 		sql_select_record_fallback_reason(parse, SQL_LOGICAL_REJECT_SUBQUERY);

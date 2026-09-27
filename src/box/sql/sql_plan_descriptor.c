@@ -42,6 +42,8 @@ sql_plan_fallback_reason_name(uint32_t reason)
 		return "INVALID_CANDIDATE";
 	case SQL_PLAN_FALLBACK_UNSUPPORTED_NONDETERMINISTIC:
 		return "UNSUPPORTED_NONDETERMINISTIC";
+	case SQL_PLAN_FALLBACK_UNSUPPORTED_ACCESS_HINT:
+		return "UNSUPPORTED_ACCESS_HINT";
 	default:
 		return NULL;
 	}

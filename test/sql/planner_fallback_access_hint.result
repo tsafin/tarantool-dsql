@@ -1,0 +1,67 @@
+-- test-run result file version 2
+test_run = require('test_run').new()
+ | ---
+ | ...
+engine = test_run:get_cfg('engine')
+ | ---
+ | ...
+_ = box.space._session_settings:update('sql_default_engine', {{'=', 2, engine}})
+ | ---
+ | ...
+
+box.execute([[CREATE TABLE access_hint_t (id INTEGER PRIMARY KEY, v INTEGER)]])
+ | ---
+ | - row_count: 1
+ | ...
+box.execute([[CREATE INDEX access_hint_v ON access_hint_t(v)]])
+ | ---
+ | - row_count: 1
+ | ...
+
+before = box.stat.sql()
+ | ---
+ | ...
+not_indexed, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM access_hint_t NOT INDEXED]])
+ | ---
+ | ...
+assert(err == nil)
+ | ---
+ | - true
+ | ...
+assert(not_indexed.rows[1][3] == 'fallback')
+ | ---
+ | - true
+ | ...
+assert(not_indexed.rows[2][3] == 'UNSUPPORTED_ACCESS_HINT')
+ | ---
+ | - true
+ | ...
+indexed_by, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM access_hint_t INDEXED BY access_hint_v]])
+ | ---
+ | ...
+assert(err == nil)
+ | ---
+ | - true
+ | ...
+assert(indexed_by.rows[1][3] == 'fallback')
+ | ---
+ | - true
+ | ...
+assert(indexed_by.rows[2][3] == 'UNSUPPORTED_ACCESS_HINT')
+ | ---
+ | - true
+ | ...
+after = box.stat.sql()
+ | ---
+ | ...
+assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total + 2)
+ | ---
+ | - true
+ | ...
+assert(after.sql_planner_fallback_UNSUPPORTED_ACCESS_HINT_total == before.sql_planner_fallback_UNSUPPORTED_ACCESS_HINT_total + 2)
+ | ---
+ | - true
+ | ...
+test_run = require('test_run').new()
+ | ---
+ | ...

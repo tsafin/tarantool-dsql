@@ -6,7 +6,7 @@
 static void
 test_reason_mapping(void)
 {
-	plan(23);
+	plan(25);
 	header();
 	const struct {
 		enum sql_logical_reject_reason input;
@@ -31,6 +31,9 @@ test_reason_mapping(void)
 		{SQL_LOGICAL_REJECT_NONDETERMINISTIC,
 		 SQL_PLAN_FALLBACK_UNSUPPORTED_NONDETERMINISTIC,
 		 "UNSUPPORTED_NONDETERMINISTIC"},
+		{SQL_LOGICAL_REJECT_ACCESS_HINT,
+		 SQL_PLAN_FALLBACK_UNSUPPORTED_ACCESS_HINT,
+		 "UNSUPPORTED_ACCESS_HINT"},
 	};
 	for (size_t i = 0; i < sizeof(logical) / sizeof(logical[0]); ++i) {
 	enum sql_plan_fallback_reason reason =

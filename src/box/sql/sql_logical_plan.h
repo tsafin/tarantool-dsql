@@ -25,6 +25,7 @@ enum sql_logical_reject_reason {
 	SQL_LOGICAL_REJECT_CTE,
 	SQL_LOGICAL_REJECT_DISTINCT,
 	SQL_LOGICAL_REJECT_NONDETERMINISTIC,
+	SQL_LOGICAL_REJECT_ACCESS_HINT,
 };
 
 struct sql_logical_node {
@@ -43,11 +44,12 @@ struct sql_logical_plan;
 /*
  * Build a statement-lifetime logical operator chain from a resolved SELECT.
  * Structurally supported shapes are one resolved base relation with
- * WHERE/projection, ORDER BY, LIMIT and OFFSET. The caller remains
- * responsible for excluding non-deterministic/side-effecting expressions;
- * this prototype does not inspect function semantics. Expression trees are
- * intentionally borrowed, not copied; there are no rewrites or execution
- * routing.
+ * WHERE/projection, ORDER BY, LIMIT and OFFSET. Explicit INDEXED BY / NOT
+ * INDEXED access constraints are rejected because this prototype does not
+ * model them. The caller remains responsible for excluding non-deterministic
+ * or side-effecting expressions; this prototype does not inspect function
+ * semantics. Expression trees are intentionally borrowed, not copied; there
+ * are no rewrites or execution routing.
  */
 struct sql_logical_plan *
 sql_logical_plan_from_select(const struct Select *select,

@@ -784,6 +784,11 @@ DML, triggers, subprograms, non-deterministic functions.
   or predicate are also detected before rewrite and report
   `UNSUPPORTED_SUBQUERY`; runtime assertions cover each form and the shared
   per-reason counter delta.
+  Explicit `INDEXED BY` and `NOT INDEXED` constraints now fail the logical
+  plan prototype closed and report `UNSUPPORTED_ACCESS_HINT`; the planner IR
+  does not yet represent those access-path requirements. Builder and reason-
+  mapping unit tests cover both forms, with SQL runtime/counter coverage in
+  `planner_fallback_access_hint.test.lua`.
   After name resolution, ordinary scalar calls lacking the deterministic
   function property now report `UNSUPPORTED_NONDETERMINISTIC` before logical
   plan construction/flattening; runtime coverage includes built-in `random()`,

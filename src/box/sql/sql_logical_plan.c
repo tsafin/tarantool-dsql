@@ -53,6 +53,11 @@ sql_logical_plan_from_select(const struct Select *select,
 	const struct SrcList_item *src = &select->pSrc->a[0];
 	if (src->space == NULL || src->pSelect != NULL || src->fg.isTabFunc)
 		return reject(SQL_LOGICAL_REJECT_SUBQUERY, reason);
+	/* INDEXED BY / NOT INDEXED are semantic access-path constraints. The
+	 * prototype does not model them, so never let a future consumer silently
+	 * choose a different access path. */
+	if (src->fg.isIndexedBy || src->fg.notIndexed)
+		return reject(SQL_LOGICAL_REJECT_ACCESS_HINT, reason);
 
 	struct sql_logical_plan *plan = calloc(1, sizeof(*plan));
 	if (plan == NULL)

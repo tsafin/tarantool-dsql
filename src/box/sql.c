@@ -75,7 +75,8 @@ static char sql_cnp_last_compile_error[SQL_LAST_COMPILE_ERROR_MAX];
 static int64_t sql_statement_compiles_total;
 static int64_t sql_planner_candidates_total;
 static int64_t sql_planner_fallback_total;
-static int64_t sql_planner_fallback_by_reason[SQL_PLAN_FALLBACK_UNSUPPORTED_NONDETERMINISTIC + 1];
+static int64_t sql_planner_fallback_by_reason[
+	SQL_PLAN_FALLBACK_UNSUPPORTED_ACCESS_HINT + 1];
 static int64_t sql_planner_elapsed_us;
 static int64_t sql_planner_path_metrics[SQL_PLANNER_PATH_METRIC_COUNT];
 static const char *sql_planner_path_metric_names[] = {
@@ -117,7 +118,7 @@ sql_record_planner_fallback(Vdbe *vdbe, uint32_t reason)
 	if (vdbe != NULL)
 		vdbe->planner_fallback_count++;
 	if (reason > SQL_PLAN_FALLBACK_NONE &&
-	    reason <= SQL_PLAN_FALLBACK_UNSUPPORTED_NONDETERMINISTIC)
+	    reason <= SQL_PLAN_FALLBACK_UNSUPPORTED_ACCESS_HINT)
 		sql_planner_fallback_by_reason[reason]++;
 }
 
@@ -1396,7 +1397,7 @@ sql_debug_info(struct info_handler *h)
 	info_append_int(h, "sql_planner_fallback_total",
 			sql_planner_fallback_total);
 	for (uint32_t reason = SQL_PLAN_FALLBACK_UNRESOLVED_INPUT;
-	     reason <= SQL_PLAN_FALLBACK_UNSUPPORTED_NONDETERMINISTIC; reason++) {
+	     reason <= SQL_PLAN_FALLBACK_UNSUPPORTED_ACCESS_HINT; reason++) {
 		const char *reason_name = sql_plan_fallback_reason_name(reason);
 		if (reason_name == NULL)
 			continue;

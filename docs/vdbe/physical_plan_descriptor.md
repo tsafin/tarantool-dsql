@@ -59,6 +59,9 @@ flattening. Ordinary function expressions without the resolver's
 non-deterministic SQL UDF, deterministic `abs()`, and the reason counter.
 This metadata has no separate side-effect bit and can miss argument-dependent
 volatility, so it is not yet proof that every effectful expression is gated.
+Explicit `INDEXED BY` and `NOT INDEXED` clauses are also rejected as
+`UNSUPPORTED_ACCESS_HINT` until access constraints are represented in the
+logical/physical IR.
 
 This remains a producer prototype, not new-planner execution routing: no new
 resolver caller consumes a descriptor and statements are not dispatched to a
@@ -289,6 +292,7 @@ when join algorithms can differ in those dimensions.
 | `UNSUPPORTED_DML` | INSERT / UPDATE / DELETE. |
 | `UNSUPPORTED_TRIGGER` | Statement involves trigger subprogram. |
 | `UNSUPPORTED_NONDETERMINISTIC` | Non-deterministic or side-effecting function. |
+| `UNSUPPORTED_ACCESS_HINT` | Explicit `INDEXED BY` / `NOT INDEXED` requirement is not modeled. |
 | `BUDGET_EXCEEDED` | Planner search budget exhausted. |
 | `LOW_CONFIDENCE_STATS` | Stats confidence below threshold (configurable). |
 | `LOWERING_FAILED` | Internal bug in lowering; record and fall back. |

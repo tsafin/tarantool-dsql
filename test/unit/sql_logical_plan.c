@@ -9,7 +9,7 @@
 int
 main(void)
 {
-	plan(9);
+	plan(11);
 	struct space_def *def = calloc(1, sizeof(*def) + sizeof("t1"));
 	strcpy(def->name, "t1");
 	def->id = 512;
@@ -61,6 +61,16 @@ main(void)
 	plan = sql_logical_plan_from_select(&select, &reason);
 	ok(plan == NULL && reason == SQL_LOGICAL_REJECT_RELATION_COUNT,
 	   "missing source rejected with stable reason");
+	select.pSrc = &source;
+	source.a[0].fg.notIndexed = true;
+	plan = sql_logical_plan_from_select(&select, &reason);
+	ok(plan == NULL && reason == SQL_LOGICAL_REJECT_ACCESS_HINT,
+	   "NOT INDEXED rejected because access constraints are not modeled");
+	source.a[0].fg.notIndexed = false;
+	source.a[0].fg.isIndexedBy = true;
+	plan = sql_logical_plan_from_select(&select, &reason);
+	ok(plan == NULL && reason == SQL_LOGICAL_REJECT_ACCESS_HINT,
+	   "INDEXED BY rejected because access constraints are not modeled");
 
 	free(def);
 	check_plan();
