@@ -1178,14 +1178,16 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_EXPRESSION` fallback metadata. Memtx/Vinyl off/on result parity
   covers ascending prefix order and complete ascending/descending composite
   key order, while preflight unit tests reject mixed and non-prefix shapes. It
-  now also recognizes equality predicates covering both parts of a two-part
-  INTEGER/UNSIGNED composite primary key (independent of predicate order) as a
-  true point lookup; the lowering emits one key register per part and a
-  two-part `NotFound` seek. Memtx/Vinyl off/on/off parity includes a
-  `UINT64_MAX` key component and a miss, with unit coverage for key register
-  ordering and composite seek arity. Equality on only the leading part remains
-  a range, not a point. This implementation remains intentionally limited to
-  two-part integer/unsigned keys; wider composite points are unsupported.
+  now recognizes complete equality predicates over composite INTEGER/UNSIGNED
+  primary keys through the supported 255-part key bound, independent of
+  predicate order, as a true point lookup. Preflight and producer flatten
+  bounded AND trees, and lowering emits one key register per part plus a
+  `NotFound` seek with the composite arity. Memtx/Vinyl off/on/off parity
+  covers two- and three-part keys, including a `UINT64_MAX` component, reversed
+  predicates, and a miss; unit coverage checks signed/unsigned register
+  ordering and three-part seek arity. Partial composite equality remains a
+  leading-prefix range only when the existing supported form applies; other
+  incomplete/mixed composite predicates remain on the fallback path.
   *parallel: no (extends the existing producer/descriptor/lowering chain)*.
   The route also lowers `primary_key_part IS NOT NULL` as a full
   scan, relying on the primary-key non-null invariant, and `primary_key_part
@@ -1804,7 +1806,7 @@ DML, triggers, subprograms, non-deterministic functions.
   legacy execution with either `current_where_c` or a stable fallback reason.
   Generated and CnP focused runs pass. This remains targeted route evidence,
   not corpus-wide feature acceptance. The same off/on/off matrix now covers
-  exact equality on both parts of a two-part INTEGER/UNSIGNED primary key,
+  exact equality over two- and three-part INTEGER/UNSIGNED primary keys,
   including reversed predicate order, UINT64_MAX, and a miss. Enabled queries
   assert `new_planner`; disabled `fallback` outcomes must include a reason.
   Generated and CnP runs pass on memtx and Vinyl.

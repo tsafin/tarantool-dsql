@@ -362,6 +362,46 @@ g.test_composite_primary_key_point_lookup_off_on_off = function()
     end)
 end
 
+g.test_three_part_composite_primary_key_point_lookup = function()
+    g.server:exec(function()
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_composite_point3_' .. engine
+            box.execute(('CREATE TABLE %s (a INTEGER, b UNSIGNED, c INTEGER, ' ..
+                         'v STRING, PRIMARY KEY (a, b, c)) WITH ENGINE = \'%s\'')
+                        :format(name, engine))
+            box.execute(('INSERT INTO %s VALUES (1, 7, 3, \'hit\'), ' ..
+                         '(1, 7, 4, \'other\')'):format(name))
+            local point = ('SELECT v FROM %s WHERE c = 3 AND a = 1 AND b = 7')
+                :format(name)
+            local incomplete = ('SELECT v FROM %s WHERE a = 1 AND b = 7 AND c > 2')
+                :format(name)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local off, err = box.execute(point)
+            t.assert(err == nil, err and err.message)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            local explain
+            explain, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. point)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(explain.rows[1][3], 'new_planner',
+                            tostring(explain.rows[2] and explain.rows[2][3]))
+            local on
+            on, err = box.execute(point)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(on.rows, off.rows)
+            t.assert_equals(on.rows, {{'hit'}})
+
+            explain, err = box.execute([[EXPLAIN (planner = 'summary') ]] ..
+                                       incomplete)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(explain.rows[1][3], 'fallback')
+            t.assert(type(explain.rows[2][3]) == 'string' and
+                     #explain.rows[2][3] > 0)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
+
 g.test_one_sided_range_wrong_order_falls_back = function()
     g.server:exec(function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do

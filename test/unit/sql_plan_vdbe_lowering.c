@@ -142,14 +142,17 @@ new_composite_point_descriptor(void)
 	static const struct sql_plan_bound bounds[] = {
 		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1},
 		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 2},
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 3},
 	};
 	static const struct sql_plan_expression expressions[] = {
 		{.id = 1, .canonical = "composite-key-part-0"},
 		{.id = 2, .canonical = "composite-key-part-1"},
+		{.id = 3, .canonical = "composite-key-part-2"},
 	};
 	static const struct sql_plan_point_key_part parts[] = {
 		{.integer_value = -7},
 		{.unsigned_value = UINT64_MAX, .is_unsigned = true},
+		{.integer_value = INT64_MIN},
 	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
@@ -160,9 +163,9 @@ new_composite_point_descriptor(void)
 		.access = {
 			.kind = SQL_PLAN_PK_POINT_LOOKUP,
 			.bounds = bounds,
-			.bound_count = 2,
+			.bound_count = 3,
 			.point_key_parts = parts,
-			.point_key_part_count = 2,
+			.point_key_part_count = 3,
 		},
 		.projection_columns = columns,
 		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
@@ -612,10 +615,13 @@ main(void)
 	   vdbe.aOp[before_composite_point + 1].opcode == OP_Int64 &&
 	   vdbe.aOp[before_composite_point + 1].p4type == P4_UINT64 &&
 	   (uint64_t)*vdbe.aOp[before_composite_point + 1].p4.pI64 == UINT64_MAX &&
-	   vdbe.aOp[before_composite_point + 2].opcode == OP_NotFound &&
-	   vdbe.aOp[before_composite_point + 2].p4type == P4_INT32 &&
-	   vdbe.aOp[before_composite_point + 2].p4.i == 2,
-	   "composite point lookup emits ordered key registers and a two-part seek");
+	   vdbe.aOp[before_composite_point + 2].opcode == OP_Int64 &&
+	   vdbe.aOp[before_composite_point + 2].p4type == P4_INT64 &&
+	   *vdbe.aOp[before_composite_point + 2].p4.pI64 == INT64_MIN &&
+	   vdbe.aOp[before_composite_point + 3].opcode == OP_NotFound &&
+	   vdbe.aOp[before_composite_point + 3].p4type == P4_INT32 &&
+	   vdbe.aOp[before_composite_point + 3].p4.i == 3,
+	   "composite point lookup emits ordered registers and a three-part seek");
 	int before_range_gt = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(range_gt_desc, &vdbe, 4, 20) == 0,
 	   "strict lower range descriptor lowers successfully");

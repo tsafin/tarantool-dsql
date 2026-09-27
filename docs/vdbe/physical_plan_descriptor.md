@@ -197,13 +197,18 @@ change the diagnostic envelope or claim replay completeness.
 
 #### Integer primary-key point lookup
 
-The executable producer also accepts a narrowly constrained equality filter:
-one operand must be the one-part INTEGER or UNSIGNED primary-key column and
-the other a resolved integer literal in that type's range (signed 64-bit or
-unsigned 64-bit, respectively). It copies the scalar key into
-the immutable access descriptor (alongside its equality bound), and the VDBE
-lowering emits the key constant, NotFound, direct projected-column reads, and
-ResultRow. Literal LIMIT/OFFSET are supported: positive LIMIT with no offset
+The executable producer also accepts narrowly constrained equality filters.
+For a one-part primary key, the predicate must compare its INTEGER or UNSIGNED
+column with a resolved integer literal in that type's range (signed 64-bit or
+unsigned 64-bit, respectively). For a composite primary key, it accepts a
+conjunction containing one equality for every key part, provided all key parts
+are INTEGER or UNSIGNED and the complete conjunction has at most 255 terms;
+term order is independent of key order. The immutable descriptor owns one
+typed key value and equality bound per key part. VDBE lowering emits one key
+register per part, a `NotFound` seek with the composite arity, direct
+projected-column reads, and `ResultRow`. Equality on the leading part alone
+remains a prefix range rather than a point lookup. Literal LIMIT/OFFSET are
+supported: positive LIMIT with no offset
 returns the matching row, while LIMIT 0 or positive OFFSET skips the seek and
 result. ORDER BY is accepted only on the primary-key column and is redundant
 for the single-row result. Other filter shapes remain on legacy codegen (with
@@ -211,10 +216,11 @@ the stable UNSUPPORTED_FILTER reason for unsupported filters). The SQL
 regression exercises hit, miss, positive and negative wide signed keys,
 UNSIGNED keys above `INT64_MAX` through `UINT64_MAX`, negative UNSIGNED
 fallback, and SQL rejection of literals above `UINT64_MAX`, LIMIT/OFFSET,
-primary-key ordering, and unsupported-filter
-fallback cases on both memtx and Vinyl. This is a first primary point path,
-not general point-lookup support: parameters, secondary indexes, composite
-keys, and expression evaluation are not included.
+primary-key ordering, and unsupported-filter fallback cases on both memtx and
+Vinyl. Composite point tests cover two- and three-part keys on both engines,
+including predicate reordering, an unsigned maximum, a hit/miss, and an
+incomplete-key fallback. Parameters, secondary indexes, and expression
+evaluation remain unsupported.
 
 The production route also supports one-sided and two-sided INTEGER and
 UNSIGNED primary-key literal ranges (`>`, `>=`, `<`, `<=`), including reversed
@@ -283,7 +289,8 @@ SQL routing or runtime counter coverage.
 `sqlSelect()` attempts the narrow direct-column route after resolved-shape
 preflight. Supported access paths are a TREE primary-index full scan, an
 INTEGER/UNSIGNED primary-key point lookup, one-sided primary-key literal
-ranges, and one lower-plus-upper bound on the same key. Direct projections,
+ranges, complete composite INTEGER/UNSIGNED primary-key point lookups through
+255 parts, and one lower-plus-upper bound on a single-part key. Direct projections,
 compatible primary-key ordering, and literal LIMIT/OFFSET are supported in
 the applicable paths. The descriptor estimate and checkpointed VDBE lowering
 must succeed before the statement reports `new_planner`.

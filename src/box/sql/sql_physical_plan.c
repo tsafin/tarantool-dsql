@@ -51,6 +51,23 @@ struct parsed_pk_bound {
 };
 
 static bool
+collect_and_terms(const struct Expr *expr, const struct Expr **terms,
+		  size_t capacity, size_t *count, size_t depth)
+{
+	if (expr == NULL || terms == NULL || count == NULL || depth >= capacity)
+		return false;
+	if (expr->op == TK_AND && expr->pLeft != NULL && expr->pRight != NULL)
+		return collect_and_terms(expr->pLeft, terms, capacity, count,
+					 depth + 1) &&
+			collect_and_terms(expr->pRight, terms, capacity, count,
+					  depth + 1);
+	if (*count == capacity)
+		return false;
+	terms[(*count)++] = expr;
+	return true;
+}
+
+static bool
 parse_pk_bound(const struct Expr *expr, int cursor, uint32_t fieldno,
 	       bool is_unsigned, struct parsed_pk_bound *out)
 {
@@ -288,7 +305,9 @@ sql_physical_table_scan_from_select(
 	uint64_t unsigned_point_key = 0;
 	uint64_t unsigned_range_key = 0;
 	uint64_t unsigned_range_end_key = 0;
-	struct sql_plan_point_key_part composite_point_parts[2] = {{0}};
+	struct sql_plan_point_key_part composite_point_parts[
+		SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+	size_t composite_point_count = 0;
 	bool has_composite_point = false;
 	bool unsigned_point = false;
 	uint32_t primary_field = source->space->index_map[0]->def->key_def->
@@ -332,25 +351,26 @@ sql_physical_table_scan_from_select(
 			force_empty = true;
 			goto predicate_parsed;
 		}
-		const struct Expr *exprs[2] = {select->pWhere, NULL};
-		size_t expr_count = 1;
-		if (select->pWhere->op == TK_AND && select->pWhere->pLeft != NULL &&
-		    select->pWhere->pRight != NULL) {
-			exprs[0] = select->pWhere->pLeft;
-			exprs[1] = select->pWhere->pRight;
-			expr_count = 2;
-		}
+		const struct Expr *exprs[SQL_PLAN_POINT_KEY_PART_MAX];
+		size_t expr_count = 0;
+		if (!collect_and_terms(select->pWhere, exprs,
+				       SQL_PLAN_POINT_KEY_PART_MAX, &expr_count, 0))
+			goto invalid_predicate;
 		if (pk->parts[0].type != FIELD_TYPE_INTEGER &&
 		    pk->parts[0].type != FIELD_TYPE_UNSIGNED)
 			goto invalid_predicate;
-		struct parsed_pk_bound parsed[2];
-		uint32_t parsed_part[2] = {UINT32_MAX, UINT32_MAX};
-		for (size_t i = 0; i < expr_count; ++i) {
-			bool found = false;
-			uint32_t part_count = pk->part_count < 2 ? pk->part_count : 2;
-			if (expr_count == 2 && pk->part_count == 2 &&
-			    exprs[i]->op == TK_EQ) {
-				for (uint32_t part = 0; part < part_count; ++part) {
+		struct parsed_pk_bound parsed[SQL_PLAN_POINT_KEY_PART_MAX];
+		uint32_t parsed_part[SQL_PLAN_POINT_KEY_PART_MAX];
+		for (size_t i = 0; i < expr_count; ++i)
+			parsed_part[i] = UINT32_MAX;
+		bool complete_composite_equality = expr_count > 1 &&
+			pk->part_count == expr_count &&
+			pk->part_count <= SQL_PLAN_POINT_KEY_PART_MAX;
+		bool seen_parts[SQL_PLAN_POINT_KEY_PART_MAX] = {false};
+		if (complete_composite_equality) {
+			for (size_t i = 0; i < expr_count; ++i) {
+				bool found = false;
+				for (uint32_t part = 0; part < pk->part_count; ++part) {
 					const struct key_part *key_part = &pk->parts[part];
 					bool is_unsigned = key_part->type ==
 						FIELD_TYPE_UNSIGNED;
@@ -360,56 +380,24 @@ sql_physical_table_scan_from_select(
 						   key_part->fieldno, is_unsigned,
 						   &parsed[i]))
 						continue;
-					if (found)
-						goto invalid_predicate;
+					if (found || parsed[i].op != SQL_PLAN_EQ ||
+					    seen_parts[part]) {
+						complete_composite_equality = false;
+						break;
+					}
 					found = true;
 					parsed_part[i] = part;
 				}
-			} else {
-				found = parse_pk_bound(exprs[i], source->iCursor,
-						      primary_field, unsigned_point,
-						      &parsed[i]);
-				if (found)
-					parsed_part[i] = 0;
-			}
-			if (!found)
-				goto invalid_predicate;
-		}
-		if (expr_count == 1 && parsed[0].op == SQL_PLAN_EQ) {
-			if (pk->part_count == 1) {
-				has_point_key = true;
-				if (unsigned_point)
-					unsigned_point_key = parsed[0].unsigned_key;
+				if (!found)
+					complete_composite_equality = false;
 				else
-					point_key = parsed[0].signed_key;
-			} else {
-				/* Equality on the leading part of a composite key selects a
-				 * contiguous prefix range, not a one-row point lookup.
-				 */
-				has_range_key = has_range_end_key = true;
-				range_op = SQL_PLAN_GE;
-				range_end_op = SQL_PLAN_LE;
-				if (unsigned_point) {
-					unsigned_range_key = parsed[0].unsigned_key;
-					unsigned_range_end_key = parsed[0].unsigned_key;
-				} else {
-					range_key = parsed[0].signed_key;
-					range_end_key = parsed[0].signed_key;
-				}
+					seen_parts[parsed_part[i]] = true;
+				if (!complete_composite_equality)
+					break;
 			}
-		} else if (expr_count == 1) {
-			has_range_key = true;
-			range_op = parsed[0].op;
-			if (unsigned_point)
-				unsigned_range_key = parsed[0].unsigned_key;
-			else
-				range_key = parsed[0].signed_key;
-		} else if (expr_count == 2 && pk->part_count == 2 &&
-			   parsed[0].op == SQL_PLAN_EQ &&
-			   parsed[1].op == SQL_PLAN_EQ &&
-			   parsed_part[0] != parsed_part[1]) {
-			has_point_key = has_composite_point = true;
-			for (size_t i = 0; i < 2; ++i) {
+		}
+		if (complete_composite_equality) {
+			for (size_t i = 0; i < expr_count; ++i) {
 				struct sql_plan_point_key_part *part =
 					&composite_point_parts[parsed_part[i]];
 				part->is_unsigned = parsed[i].is_unsigned;
@@ -418,29 +406,83 @@ sql_physical_table_scan_from_select(
 				else
 					part->integer_value = parsed[i].signed_key;
 			}
-		} else {
-			if (parsed_part[0] != 0 || parsed_part[1] != 0)
-				goto invalid_predicate;
-			if (parsed[0].op == SQL_PLAN_EQ || parsed[1].op == SQL_PLAN_EQ)
-				goto invalid_predicate;
-			int lower = (parsed[0].op == SQL_PLAN_GT ||
-				     parsed[0].op == SQL_PLAN_GE) ? 0 : 1;
-			int upper = 1 - lower;
-			if ((parsed[lower].op != SQL_PLAN_GT &&
-			     parsed[lower].op != SQL_PLAN_GE) ||
-			    (parsed[upper].op != SQL_PLAN_LT &&
-			     parsed[upper].op != SQL_PLAN_LE))
-				goto invalid_predicate;
-			has_range_key = has_range_end_key = true;
-			range_op = parsed[lower].op;
-			range_end_op = parsed[upper].op;
-			if (unsigned_point) {
-				unsigned_range_key = parsed[lower].unsigned_key;
-				unsigned_range_end_key = parsed[upper].unsigned_key;
-			} else {
-				range_key = parsed[lower].signed_key;
-				range_end_key = parsed[upper].signed_key;
+			composite_point_count = pk->part_count;
+			has_point_key = has_composite_point = true;
+		} else if (expr_count <= 2) {
+			for (size_t i = 0; i < expr_count; ++i) {
+				if (!parse_pk_bound(exprs[i], source->iCursor,
+						    primary_field,
+						    unsigned_point, &parsed[i]))
+					goto invalid_predicate;
+				parsed_part[i] = 0;
 			}
+			if (expr_count == 1 && parsed[0].op == SQL_PLAN_EQ) {
+				if (pk->part_count == 1) {
+					has_point_key = true;
+					if (unsigned_point)
+						unsigned_point_key =
+							parsed[0].unsigned_key;
+					else
+						point_key =
+							parsed[0].signed_key;
+				} else {
+					/* Equality on the leading part of a composite key selects a
+				 * contiguous prefix range, not a one-row point lookup.
+				 */
+					has_range_key = has_range_end_key =
+						true;
+					range_op = SQL_PLAN_GE;
+					range_end_op = SQL_PLAN_LE;
+					if (unsigned_point) {
+						unsigned_range_key =
+							parsed[0].unsigned_key;
+						unsigned_range_end_key =
+							parsed[0].unsigned_key;
+					} else {
+						range_key =
+							parsed[0].signed_key;
+						range_end_key =
+							parsed[0].signed_key;
+					}
+				}
+			} else if (expr_count == 1) {
+				has_range_key = true;
+				range_op = parsed[0].op;
+				if (unsigned_point)
+					unsigned_range_key =
+						parsed[0].unsigned_key;
+				else
+					range_key = parsed[0].signed_key;
+			} else {
+				if (parsed[0].op == SQL_PLAN_EQ ||
+				    parsed[1].op == SQL_PLAN_EQ)
+					goto invalid_predicate;
+				int lower = (parsed[0].op == SQL_PLAN_GT ||
+					     parsed[0].op == SQL_PLAN_GE) ?
+						    0 :
+						    1;
+				int upper = 1 - lower;
+				if ((parsed[lower].op != SQL_PLAN_GT &&
+				     parsed[lower].op != SQL_PLAN_GE) ||
+				    (parsed[upper].op != SQL_PLAN_LT &&
+				     parsed[upper].op != SQL_PLAN_LE))
+					goto invalid_predicate;
+				has_range_key = has_range_end_key = true;
+				range_op = parsed[lower].op;
+				range_end_op = parsed[upper].op;
+				if (unsigned_point) {
+					unsigned_range_key =
+						parsed[lower].unsigned_key;
+					unsigned_range_end_key =
+						parsed[upper].unsigned_key;
+				} else {
+					range_key = parsed[lower].signed_key;
+					range_end_key =
+						parsed[upper].signed_key;
+				}
+			}
+		} else {
+			goto invalid_predicate;
 		}
 	}
 	goto predicate_parsed;
@@ -571,28 +613,21 @@ predicate_parsed:
 			.expr_ref = 2,
 		},
 	};
-	struct sql_plan_expression composite_point_expressions[2] = {
-		{
-			.id = 1,
-			.canonical = "composite-primary-point-part-0",
-		},
-		{
-			.id = 2,
-			.canonical = "composite-primary-point-part-1",
-		},
-	};
-	struct sql_plan_bound composite_point_bounds[2] = {
-		{
+	struct sql_plan_expression composite_point_expressions[
+		SQL_PLAN_POINT_KEY_PART_MAX];
+	struct sql_plan_bound composite_point_bounds[
+		SQL_PLAN_POINT_KEY_PART_MAX];
+	for (size_t i = 0; i < composite_point_count; ++i) {
+		composite_point_expressions[i] = (struct sql_plan_expression) {
+			.id = (uint32_t)i + 1,
+			.canonical = "composite-primary-point-part",
+		};
+		composite_point_bounds[i] = (struct sql_plan_bound) {
 			.side = SQL_PLAN_LOWER,
 			.op = SQL_PLAN_EQ,
-			.expr_ref = 1,
-		},
-		{
-			.side = SQL_PLAN_LOWER,
-			.op = SQL_PLAN_EQ,
-			.expr_ref = 2,
-		},
-	};
+			.expr_ref = (uint32_t)i + 1,
+		};
+	}
 	/*
 	 * Keep the original single-bound encoding for point and one-sided routes;
 	 * bounded ranges add one independently-owned expression/bound.
@@ -620,7 +655,7 @@ predicate_parsed:
 				SQL_PLAN_TABLE_FULL_SCAN,
 			.bounds = has_composite_point ? composite_point_bounds :
 				has_point_key || has_range_key ? point_bounds : NULL,
-			.bound_count = has_composite_point ? 2 :
+			.bound_count = has_composite_point ? composite_point_count :
 				has_range_key ? (has_range_end_key ? 2 : 1) :
 				has_point_key ? 1 : 0,
 			.has_integer_point_key = has_point_key &&
@@ -631,7 +666,8 @@ predicate_parsed:
 			.unsigned_point_key = unsigned_point_key,
 			.point_key_parts = has_composite_point ?
 				composite_point_parts : NULL,
-			.point_key_part_count = has_composite_point ? 2 : 0,
+			.point_key_part_count = has_composite_point ?
+				composite_point_count : 0,
 			.has_integer_range_key = has_range_key && !unsigned_point,
 			.integer_range_key = range_key,
 			.has_unsigned_range_key = has_range_key && unsigned_point,
@@ -659,7 +695,7 @@ predicate_parsed:
 		.expressions = has_composite_point ? composite_point_expressions :
 			has_point_key || has_range_key ?
 			(has_range_end_key ? point_expressions : &point_expression) : NULL,
-		.expression_count = has_composite_point ? 2 :
+		.expression_count = has_composite_point ? composite_point_count :
 			has_range_end_key ? 2 :
 			(has_point_key || has_range_key ? 1 : 0),
 		.cost_startup = estimate->startup_cost,

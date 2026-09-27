@@ -1,6 +1,7 @@
 #include "sql_select_preflight.h"
 
 #include "sqlInt.h"
+#include "sql_plan_descriptor.h"
 #include "box/index.h"
 #include "box/index_def.h"
 #include "box/key_def.h"
@@ -12,6 +13,25 @@ is_comparison_predicate(const struct Expr *expr)
 	return expr != NULL && expr->pLeft != NULL && expr->pRight != NULL &&
 		(expr->op == TK_EQ || expr->op == TK_GT || expr->op == TK_GE ||
 		 expr->op == TK_LT || expr->op == TK_LE);
+}
+
+static bool
+is_comparison_conjunction(const struct Expr *expr, size_t *term_count,
+			  size_t depth)
+{
+	if (expr == NULL || term_count == NULL ||
+	    depth >= SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	if (expr->op == TK_AND && expr->pLeft != NULL && expr->pRight != NULL)
+		return is_comparison_conjunction(expr->pLeft, term_count,
+						 depth + 1) &&
+			is_comparison_conjunction(expr->pRight, term_count,
+						   depth + 1);
+	if (!is_comparison_predicate(expr) ||
+	    *term_count == SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	++*term_count;
+	return true;
 }
 
 enum sql_select_preflight_reject
@@ -79,8 +99,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 			/* The producer validates that this is the primary-key column.
 			 * Only that column is guaranteed non-null by the schema. */
 		} else if (where->op == TK_AND) {
-			if (!is_comparison_predicate(where->pLeft) ||
-			    !is_comparison_predicate(where->pRight))
+			size_t term_count = 0;
+			if (!is_comparison_conjunction(where, &term_count, 0))
 				return SQL_SELECT_PREFLIGHT_SHAPE;
 		} else if (!is_comparison_predicate(where)) {
 			return SQL_SELECT_PREFLIGHT_SHAPE;
