@@ -25,6 +25,27 @@ assert(aliases.column_names[4] == 'user_sql_sq_ABC.COLUMN_1')
 local dml = canonicalize.canon_L1(nil, false, nil)
 assert(dml.column_names == nil and dml.column_types == nil)
 
+local msgpack = require('msgpack')
+local varbinary = require('varbinary')
+local planner_snapshot = {
+    format = 'tarantool.sql.planner.snapshot',
+    version = 5,
+    planner = {elapsed_us = 123, candidate_count = 4},
+}
+local planner_blob = varbinary.new(msgpack.encode(planner_snapshot))
+local normalized_planner = canonicalize.canon_L1({{planner_blob}}, false, {
+    {name = 'snapshot', type = 'varbinary'},
+}, [[EXPLAIN (planner = 'snapshot') SELECT 1]]).rows[1][1]
+assert(normalized_planner.sql_type == 'varbinary')
+local normalized_envelope = msgpack.decode(normalized_planner.value)
+assert(normalized_envelope.planner.elapsed_us == 0)
+assert(normalized_envelope.planner.candidate_count == 4)
+local unnormalized_planner = canonicalize.canon_L1({{planner_blob}}, false, {
+    {name = 'snapshot', type = 'varbinary'},
+}, [[SELECT ?]]).rows[1][1]
+assert(unnormalized_planner.value == tostring(planner_blob),
+       'ordinary SQL varbinary values must not be rewritten')
+
 local ok = pcall(canonicalize.canon_L1, {}, false, {{name = 'N'}})
 assert(not ok, 'malformed result metadata must fail capture')
 

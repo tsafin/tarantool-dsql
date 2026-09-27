@@ -14,6 +14,7 @@ MODES = ("generated", "cnp", "llvm", "generated-repeat")
 def invoke(command, timeout):
     try:
         result = subprocess.run([str(part) for part in command], text=True,
+                                encoding="utf-8", errors="replace",
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, timeout=timeout)
         return result.returncode == 0, result.stdout[-4000:]
@@ -72,7 +73,11 @@ def main():
                            "--test", path.name, "--engine", engine,
                            "--mode", actual]
                 ok, detail = invoke(command, args.timeout)
-                result = {"status": "passed" if ok else "capture_failed",
+                status = "passed" if ok else (
+                    "not_observed" if
+                    "requested execution mode was not observed" in detail else
+                    "capture_failed")
+                result = {"status": status,
                           "detail": detail, "output": str(out)}
                 if ok:
                     manifest_path = out / "manifests/sql-luatest" / f"{stem}.{engine}.json"

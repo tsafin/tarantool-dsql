@@ -1586,10 +1586,23 @@ DML, triggers, subprograms, non-deterministic functions.
   correctness bug in fast MessagePack string extraction: argument evaluation
   could store the encoded string marker instead of its payload. Both string
   decoders now advance to the payload before constructing the ephemeral Mem;
-  a direct multirow string VALUES assertion guards the path. Generated-mode
-  memtx capture passes with 28 snapshots and no errors. This is focused
-  planner-route evidence, not a full native parity claim. Full SQL-luatest
-  and SQL-suite reviewed-corpus audits remain outstanding.
+  a direct multirow string VALUES assertion guards the path. The component
+  cap is now 4,096 records (the previous cap of 128 truncated the reviewed
+  1,000-row VALUES/MAP query); `map_test.lua` now captures successfully.
+  The full single-child generated audit passed 41 memtx files (912 SQL
+  statements / 1,357 component records); 12 files were explicitly not run
+  because they use multiple/restarted children, prepared/net.box bypasses, or
+  are long-run. The Vinyl audit captured 39 files (494 statements / 1,163
+  records); two existing engine-specific tests fail when the adapter forces
+  Vinyl and remain dispositioned, and the same 12 were not run. Every captured
+  SELECT ledger was complete. On both engines, the targeted `ANALYZE`, 1,000-
+  row MAP/VALUES, and planner fixtures passed CnP vs generated parity and a
+  repeated generated capture. Explicit planner-snapshot results now normalize
+  only `planner.elapsed_us`; route and all other fields remain compared, while
+  raw elapsed values remain in manifest metrics. The current build has
+  `ENABLE_SQL_JIT=OFF`, so LLVM execution is not observed here. These are
+  broad but adapter-limited SQL-luatest results; the remaining unsupported
+  topologies and SQL-suite audit keep M3.5 open.
 
   ```mermaid
   flowchart TD

@@ -10,6 +10,7 @@ local decimal = require('decimal')
 local datetime = require('datetime')
 local uuid = require('uuid')
 local varbinary = require('varbinary')
+local msgpack = require('msgpack')
 
 -- Rule 1 helper: produce a sort key for a row
 local function row_sort_key(row)
@@ -207,6 +208,30 @@ function M.canon_L1(rows, ordered, metadata, sql)
             r[1] = row
         end
         table.insert(plain, r)
+    end
+
+    -- Planner snapshot EXPLAIN is itself a MsgPack diagnostic envelope. Its
+    -- elapsed_us field is intentionally nondeterministic across dispatchers
+    -- and repeated runs; planner_metrics in the manifest carries the same
+    -- structural evidence separately. Canonicalize only this volatile field
+    -- while preserving the result's VARBINARY type and all other fields.
+    local explain_options = type(sql) == 'string' and
+        sql:lower():match('^%s*explain%s*%((.-)%)')
+    local is_planner_snapshot = type(explain_options) == 'string' and
+        (explain_options:match("planner%s*=%s*'snapshot'") ~= nil or
+         explain_options:match('planner%s*=%s*"snapshot"') ~= nil)
+    if is_planner_snapshot then
+        for _, row in ipairs(plain) do
+            if varbinary.is(row[1]) then
+                local ok, envelope = pcall(msgpack.decode, tostring(row[1]))
+                if ok and type(envelope) == 'table' and
+                   envelope.format == 'tarantool.sql.planner.snapshot' and
+                   type(envelope.planner) == 'table' then
+                    envelope.planner.elapsed_us = 0
+                    row[1] = varbinary.new(msgpack.encode(envelope))
+                end
+            end
+        end
     end
 
     -- EXPLAIN's OpenTEphemeral P4 is a raw sql_space_info struct pointer,

@@ -122,11 +122,16 @@ box.cfg = setmetatable({}, {
                        planner_snapshot.format ==
                            'tarantool.sql.planner.snapshot' and
                        planner_snapshot.version == 5 and
-                       type(planner_snapshot.planner) == 'table' and
-                       planner_snapshot.planner.component_status == 'complete' and
-                       type(planner_snapshot.planner.component_routes) == 'table' and
-                       #planner_snapshot.planner.component_routes > 0,
-                       'planner snapshot EXPLAIN returned an invalid v5 ledger')
+                       type(planner_snapshot.planner) == 'table',
+                       'planner snapshot EXPLAIN returned invalid metadata')
+                local routes = planner_snapshot.planner.component_routes
+                assert(planner_snapshot.planner.component_status == 'complete' and
+                       type(routes) == 'table' and #routes > 0,
+                       ('planner snapshot EXPLAIN returned incomplete v5 ledger ' ..
+                        '(status=%s, routes=%s, path=%s)'):format(
+                           tostring(planner_snapshot.planner.component_status),
+                           tostring(type(routes) == 'table' and #routes or routes),
+                           tostring(planner_snapshot.path_class)))
                 local metrics = planner_snapshot.planner
                 planner_metrics[#planner_metrics + 1] = {
                     query_index = count,

@@ -57,7 +57,7 @@ def capture(args):
         env["TARANTOOL_RUN_BEFORE_BOX_CFG"] = f"dofile({str(hook)!r})"
     else:
         env["SQL_BASELINE_HOOK"] = str(hook)
-    with tempfile.TemporaryDirectory(prefix="sql-luatest-vardir-") as vardir:
+    with tempfile.TemporaryDirectory(prefix="lt-") as vardir:
         command = [sys.executable, str(runner_repo / "test/test-run.py"),
                    "--builddir", str(binary.parent.parent),
                    "--vardir", vardir, "--suite", args.suite,

@@ -191,12 +191,19 @@ variance, and floating-point formatting. The harness MUST:
 8. **Normalize EXPLAIN's volatile `OpenTEphemeral` P4 only.** When this
    opcode has a nonempty P4, its `sql_space_info` pointer bytes are replaced
    with `<sql_space_info>`; every other opcode/P4 value remains gated.
-9. **Normalize the observed generated subquery metadata form.** The engine
+9. **Normalize explicit planner-snapshot timing only.** For a VARBINARY
+   result from `EXPLAIN (planner = 'snapshot')`, decode the v5 MsgPack
+   envelope and set `planner.elapsed_us` to zero before typed-cell encoding.
+   All other envelope fields and the VARBINARY result type remain intact;
+   capture manifests separately retain per-query elapsed measurements. This
+   keeps repeated/native result parity deterministic without suppressing route
+   or planner-state changes.
+10. **Normalize the observed generated subquery metadata form.** The engine
    formats temporary derived-table names with a process pointer. Only a
    column name matching `sql_sq_<UPPERCASE-HEX>.COLUMN_<digits>` has its
    pointer segment replaced with `<generated>`; bare names, other suffixes,
    and user names remain gated.
-10. **LF line endings**, single trailing newline at EOF.
+11. **LF line endings**, single trailing newline at EOF.
 
 Extended SQL scalars and containers use typed cell wrappers inside
 `l1_result.rows`, because Tarantool's YAML decoder otherwise turns DECIMAL
