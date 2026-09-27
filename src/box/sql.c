@@ -229,6 +229,15 @@ sql_set_stats_snapshot(struct sql_stats_snapshot *snapshot)
 	sqlExpirePreparedStatements();
 }
 
+struct sql_stats_snapshot *
+sql_get_stats_snapshot(void)
+{
+	if (db == NULL || db->stats_snapshot == NULL)
+		return NULL;
+	sql_stats_snapshot_retain(db->stats_snapshot);
+	return db->stats_snapshot;
+}
+
 /*********************************************************************
  * sql cursor implementation on top of Tarantool storage API-s.
  *

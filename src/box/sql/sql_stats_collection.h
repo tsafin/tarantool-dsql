@@ -216,6 +216,19 @@ sql_stats_collection_context_publish_candidate(
 	struct sql_stats_collection_context **context,
 	struct sql_stats_snapshot *candidate);
 
+/*
+ * Atomically publish one named-relation candidate, preserving unrelated rows
+ * from base only when it belongs to the same catalog/schema generation. A
+ * stale base is replaced by the complete one-relation candidate. The
+ * collection context is consumed on success; on failure it remains owned by
+ * the caller and the installed snapshot is unchanged.
+ */
+int
+sql_stats_collection_context_publish_replacement(
+	struct sql_stats_collection_context **context,
+	const struct sql_stats_snapshot *base, uint32_t space_id,
+	size_t max_candidate_bytes);
+
 int
 sql_stats_tx_context_begin(
 	const struct sql_stats_collection_target *targets, size_t target_count,

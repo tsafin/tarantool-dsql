@@ -69,6 +69,10 @@ sql_get(void);
 void
 sql_set_stats_snapshot(struct sql_stats_snapshot *snapshot);
 
+/** Return the installed immutable snapshot with one retained reference. */
+struct sql_stats_snapshot *
+sql_get_stats_snapshot(void);
+
 enum sql_native_compile_backend {
 	SQL_NATIVE_COMPILE_JIT = 0,
 	SQL_NATIVE_COMPILE_CNP = 1,

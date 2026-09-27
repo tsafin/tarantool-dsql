@@ -732,6 +732,55 @@ sql_stats_collection_context_publish_candidate(
 }
 
 int
+sql_stats_collection_context_publish_replacement(
+	struct sql_stats_collection_context **context_ptr,
+	const struct sql_stats_snapshot *base, uint32_t space_id,
+	size_t max_candidate_bytes)
+{
+	if (context_ptr == NULL || *context_ptr == NULL || space_id == 0 ||
+	    max_candidate_bytes == 0)
+		return -1;
+	struct sql_stats_collection_context *context = *context_ptr;
+	struct sql_stats_snapshot *candidate = context->assembled_candidate;
+	const struct sql_stats_relation *relation = NULL;
+	bool valid = candidate != NULL && context->target_count != 0 &&
+		sql_stats_snapshot_relation_count(candidate) == 1 &&
+		sql_stats_snapshot_relation_at(candidate, 0, &relation) ==
+			SQL_STATS_LOOKUP_AVAILABLE &&
+		sql_stats_relation_space_id(relation) == space_id;
+	for (size_t i = 0; valid && i < context->target_count; i++)
+		valid = context->targets[i].space_id == space_id;
+	if (!valid || !collection_context_is_valid(context) || sql_get() == NULL ||
+	    box_vclock == NULL || vclock_sum(box_vclock) < 0 ||
+	    vclock_sum(box_vclock) != context->visibility_vclock_sum ||
+	    sql_stats_snapshot_catalog_version(candidate) !=
+		    context->catalog_version ||
+	    sql_stats_snapshot_schema_version(candidate) != context->schema_version) {
+		context->failed = true;
+		return -1;
+	}
+	struct sql_stats_snapshot *replacement = candidate;
+	if (base != NULL &&
+	    sql_stats_snapshot_catalog_version(base) == context->catalog_version &&
+	    sql_stats_snapshot_schema_version(base) == context->schema_version) {
+		replacement = sql_stats_snapshot_replace_relation(base, candidate,
+								  space_id,
+								  max_candidate_bytes);
+		if (replacement == NULL) {
+			context->failed = true;
+			return -1;
+		}
+	}
+	/* No yield is allowed between generation revalidation and pointer swap. */
+	sql_set_stats_snapshot(replacement);
+	if (replacement != candidate)
+		sql_stats_snapshot_release(replacement);
+	sql_stats_collection_context_delete(context);
+	*context_ptr = NULL;
+	return 0;
+}
+
+int
 sql_stats_collection_context_sample_index(
 	struct sql_stats_collection_context *context,
 	const struct sql_stats_collection_target *target,
