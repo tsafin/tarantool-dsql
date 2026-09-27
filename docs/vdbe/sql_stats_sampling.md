@@ -396,7 +396,7 @@ limited to full scans: point reads and pagination fail closed. Vinyl remains
 opt-in for existing read-view users, and a requested space without an engine
 view or a requested index whose view cannot be created fails the whole open.
 
-A TEST_BUILD-only barrier regression opens one view over both a memtx and a
+A TEST_BUILD-only held-view commit regression opens one view over both a memtx and a
 Vinyl relation, each with primary and secondary indexes, commits delete(1,2)
 and insert(9,10) in both engines, then scans all four indexes before closing
 the view. Every pre-cut scan returns `{1..8}`; reopening after the commits
@@ -442,21 +442,18 @@ or wire an active collection job. It does not enable `ANALYZE`.
 
 The first reusable runtime slice now exists as
 `sql_stats_collection_context`: it owns one filtered core `read_view`, records
-that view's engine-assigned ID and the schema version captured around open,
-rejects missing requested indexes/schema drift, and can exhaustively scan a
-pinned index into the existing bounded reservoir. Unit tests cover context
-ownership, fail-closed open cases, exhaustive population reporting, budget
-failure, and withholding sink delivery on stale/incomplete scans. This is only
-a building block, not a complete collector or publisher. Core
-`read_view_open()` does not expose a
-memory/work-budget argument and creates engine-wide read-view state, so
-filtering bounds the requested space/index views but does not cap the engine's
-read-view resource cost. Moreover, Vinyl indexes
-currently use `generic_index_create_read_view()`, which rejects consistent
-read views; a requested Vinyl index consequently fails context creation.
-Until a bounded Vinyl read-view path and a complete stats producer exist,
-this read-view context remains separate from publication and collection stays
-disabled.
+that view's engine-assigned ID and schema/catalog versions captured around
+open, rejects missing requested indexes or generation drift, and can
+exhaustively scan a pinned index into the existing bounded reservoir. Unit
+tests cover context ownership, fail-closed open cases, exhaustive population
+reporting, budget failure, and withholding sink delivery on stale/incomplete
+scans. The core context now pins memtx and opt-in Vinyl index read views; Vinyl
+supports full scans only, while point reads and pagination fail closed. It is
+still only a building block, not a complete candidate producer or publisher.
+Core `read_view_open()` does not expose a memory/work-budget argument and
+creates engine-wide read-view state, so filtering bounds the requested
+space/index views but does not cap the engine's read-view resource cost.
+Candidate construction/publication is not yet routed through this context.
 
 The separate `sql_stats_tx_context` runtime slice can begin an owned box
 transaction, set `READ_CONFIRMED` before any read, validate the target indexes

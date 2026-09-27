@@ -720,17 +720,13 @@ format approval is implied.
   not a common cross-engine visibility boundary or production ANALYZE wiring,
   so S1.3a stays open. Local READ_CONFIRMED and vclock/catalog/schema checks
   are not durable or cross-node snapshot claims. A source audit committed as
-  `a68268c9a4` confirms that neither core `read_view` nor READ_CONFIRMED pins
-  one shared memtx/Vinyl cut. The minimum safe next slice is a box-owned API
-  that atomically pins catalog/index metadata and a commit cut, retains
-  per-engine views, provides bounded Vinyl pinned-VLSN iteration, and fails
-  closed when any engine cannot honor the cut. A barrier-controlled
-  insert/delete test must prove primary and secondary candidates match one
-  common before-or-after population. This cannot be completed at the SQL
-  collector layer with current engine APIs; production ANALYZE remains open.
+  `a68268c9a4` records the pre-implementation gap: neither core `read_view`
+  nor READ_CONFIRMED then pinned one shared memtx/Vinyl cut. That gap is now
+  closed for the volatile core read-view boundary and full-scan index adapter
+  below; candidate assembly/publication and production ANALYZE remain open.
   **Update (2026-09):** the core read-view API now passes each engine's pinned
   view to selected index views; Vinyl is opt-in and pins one committed VLSN
-  for full-scan iterators. A TEST_BUILD barrier regression opens one view over
+  for full-scan iterators. A TEST_BUILD held-view commit regression opens one view over
   memtx and Vinyl relations with primary/secondary indexes, commits delete
   and insert changes, and confirms all four scans remain `{1..8}` until that
   view closes; reopening yields `{3..10}`. The Clang-19 TEST_BUILD target and
