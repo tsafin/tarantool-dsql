@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "box/sql/sql_replay_input.h"
+#include "box/sql/sql_replay_candidate_provider.h"
 #include "box/sql/sql_replay_extract.h"
 #include "box/sql/sqlInt.h"
 #include "box/space.h"
@@ -852,6 +853,58 @@ test_access_candidates(void)
 	ok(sql_replay_input_check_replay_ready(NULL) ==
 		   SQL_REPLAY_INPUT_INVALID,
 	   "null replay input cannot pass the completeness gate");
+	struct sql_replay_candidate_provider provider = {
+		.state = SQL_REPLAY_CANDIDATES_COMPLETE,
+		.items = &candidate,
+		.count = 1,
+	};
+	struct sql_replay_input *provided = NULL;
+	ok(sql_replay_input_create_with_candidate_provider(
+		   &spec, &provider, &provided) == SQL_REPLAY_INPUT_OK &&
+		   provided != NULL && provided->access_candidates_present &&
+		   provided->access_candidate_count == 1 &&
+		   sql_replay_input_check_replay_ready(provided) ==
+			   SQL_REPLAY_INPUT_OK,
+	   "complete provider result is copied into a ready detached input");
+	sql_replay_input_delete(provided);
+	provided = NULL;
+	provider.state = SQL_REPLAY_CANDIDATES_UNAVAILABLE;
+	provider.items = NULL;
+	provider.count = 0;
+	ok(sql_replay_input_create_with_candidate_provider(
+		   &spec, &provider, &provided) == SQL_REPLAY_INPUT_OK &&
+		   provided != NULL && !provided->access_candidates_present &&
+		   sql_replay_input_check_replay_ready(provided) ==
+			   SQL_REPLAY_INPUT_INCOMPLETE,
+	   "unavailable provider remains missing, not known-empty");
+	sql_replay_input_delete(provided);
+	provided = NULL;
+	provider.state = SQL_REPLAY_CANDIDATES_COMPLETE;
+	provider.items = NULL;
+	provider.count = 0;
+	ok(sql_replay_input_create_with_candidate_provider(
+		   &spec, &provider, &provided) == SQL_REPLAY_INPUT_OK &&
+		   provided != NULL && provided->access_candidates_present &&
+		   provided->access_candidate_count == 0 &&
+		   sql_replay_input_check_replay_ready(provided) ==
+			   SQL_REPLAY_INPUT_OK,
+	   "complete empty provider is distinct and capture-ready");
+	sql_replay_input_delete(provided);
+	provided = NULL;
+	provider.state = SQL_REPLAY_CANDIDATES_INCOMPLETE;
+	provider.items = &candidate;
+	provider.count = 1;
+	ok(sql_replay_input_create_with_candidate_provider(
+		   &spec, &provider, &provided) == SQL_REPLAY_INPUT_INCOMPLETE &&
+		   provided == NULL,
+	   "partial provider prefix is never embedded as a complete candidate set");
+	provider.state = SQL_REPLAY_CANDIDATES_UNAVAILABLE;
+	provider.items = &candidate;
+	provider.count = 1;
+	ok(sql_replay_input_create_with_candidate_provider(
+		   &spec, &provider, &provided) == SQL_REPLAY_INPUT_INVALID &&
+		   provided == NULL,
+	   "unavailable provider cannot carry candidate data");
 	free(absent_bytes);
 	free(empty_bytes);
 	sql_replay_input_delete(absent);

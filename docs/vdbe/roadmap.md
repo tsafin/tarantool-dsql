@@ -434,7 +434,18 @@ them.
   identity, immutable stats provenance, and an all-or-nothing ordered candidate
   result; only after that context is complete should the v3 diagnostic envelope
   gain `replay_inputs` and `replayable=true`. Until then, no partial embedding
-  or diagnostic behavior change is justified.
+  or diagnostic behavior change is justified. A focused internal bridge now
+  models provider outcomes explicitly as `UNAVAILABLE`, `COMPLETE`, or
+  `INCOMPLETE`. It preserves the existing unavailable-vs-known-empty encoding,
+  deep-copies only a complete provider list into the owned input, and returns
+  `INCOMPLETE` with no result object when a provider reports a partial prefix.
+  Unit tests cover all three outcomes and reject payload attached to an
+  unavailable state. This validates transport/completeness-state handling
+  only: the bridge cannot prove that a caller labeling its list `COMPLETE`
+  actually enumerated every viable access candidate, and no active planner
+  producer calls it. `WhereLoop` capture therefore remains open; M1.4 stays
+  non-replayable, and neither the external v2 envelope nor its `replayable`
+  field changes.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2
