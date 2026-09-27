@@ -5717,7 +5717,9 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 		else if (sql_select_has_collation(select))
 			sql_select_record_fallback_reason(parse,
 					SQL_LOGICAL_REJECT_COLLATION);
-		else if (sql_select_has_unsupported_expr(parse, select))
+		else if (sql_select_has_unsupported_expr(parse, select) &&
+			 !((parse->sql_flags & SQL_NewPlannerSingleTable) != 0 &&
+			   select->pWhere != NULL))
 			sql_select_record_fallback_reason(parse,
 					SQL_LOGICAL_REJECT_EXPRESSION);
 		return;
@@ -5962,6 +5964,9 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		return 0;
 	if (sql_select_preflight_table_scan(select, dest) !=
 	    SQL_SELECT_PREFLIGHT_OK) {
+		if (select->pWhere != NULL)
+			sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER);
 		return 0;
 	}
 	struct SrcList_item *source = &select->pSrc->a[0];

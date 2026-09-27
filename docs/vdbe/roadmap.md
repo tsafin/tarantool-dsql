@@ -1010,6 +1010,11 @@ DML, triggers, subprograms, non-deterministic functions.
   path unclassified; its runtime regression now pairs the null planner
   classification with an `EXPLAIN` opcode assertion for `OP_Count`, proving
   this query bypasses `sqlWhereBegin()` rather than falling back through it.
+  When the experimental table-scan route is enabled, simple predicate queries
+  that the executable slice cannot lower now report stable
+  `UNSUPPORTED_FILTER` and increment its per-reason counter; earlier, they
+  were indistinguishable from ordinary `current_where_c` execution. More
+  specific expression/function rejection reasons retain precedence.
   M3.5 remains partial: the narrow table-scan route now records physical
   rejection reasons at the attempted producer/lowering boundary, but the
   remaining legacy planner rejects are not all classified and routed through

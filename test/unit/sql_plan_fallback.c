@@ -6,7 +6,7 @@
 static void
 test_reason_mapping(void)
 {
-	plan(32);
+	plan(34);
 	header();
 	const struct {
 		enum sql_logical_reject_reason input;
@@ -62,6 +62,8 @@ test_reason_mapping(void)
 		 SQL_PLAN_FALLBACK_NO_ACCESS_PATH, "NO_ACCESS_PATH"},
 		{SQL_PHYSICAL_REJECT_INVALID_CANDIDATE,
 		 SQL_PLAN_FALLBACK_INVALID_CANDIDATE, "INVALID_CANDIDATE"},
+		{SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER,
+		 SQL_PLAN_FALLBACK_UNSUPPORTED_FILTER, "UNSUPPORTED_FILTER"},
 	};
 	for (size_t i = 0; i < sizeof(physical) / sizeof(physical[0]); ++i) {
 	enum sql_plan_fallback_reason reason =
@@ -74,7 +76,7 @@ test_reason_mapping(void)
 	   sql_plan_fallback_reason_name(999) == NULL,
 	   "none and unknown reason codes have no external name");
 	ok(SQL_PLAN_FALLBACK_REASON_COUNT ==
-	   SQL_PLAN_FALLBACK_UNSUPPORTED_EXPRESSION + 1,
+	   SQL_PLAN_FALLBACK_UNSUPPORTED_FILTER + 1,
 	   "reason count sentinel follows all stable fallback codes");
 	footer();
 	check_plan();

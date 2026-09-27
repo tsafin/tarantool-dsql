@@ -14,6 +14,7 @@ enum sql_physical_reject_reason {
 	SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN,
 	SQL_PHYSICAL_REJECT_NO_ACCESS_PATH,
 	SQL_PHYSICAL_REJECT_INVALID_CANDIDATE,
+	SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER,
 };
 
 /* Candidate fields are supplied by a fixed/current statistics provider. */

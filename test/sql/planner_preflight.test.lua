@@ -43,6 +43,13 @@ summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner
 assert(err == nil and summary.rows[1][3] == 'fallback')
 wide_limit_result, wide_limit_error = box.execute([[SELECT v FROM planner_preflight_t LIMIT 2147483648]])
 assert(wide_limit_error == nil and #wide_limit_result.rows == 3)
+filter_fallback_before = box.stat.sql()
+filter_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t WHERE id = 2]])
+assert(err == nil and filter_summary.rows[1][3] == 'fallback')
+assert(filter_summary.rows[2][3] == 'UNSUPPORTED_FILTER', tostring(filter_summary.rows[2][3]))
+filter_fallback_after = box.stat.sql()
+assert(filter_fallback_after.sql_planner_fallback_total == filter_fallback_before.sql_planner_fallback_total + 1)
+assert(filter_fallback_after.sql_planner_fallback_UNSUPPORTED_FILTER_total == filter_fallback_before.sql_planner_fallback_UNSUPPORTED_FILTER_total + 1)
 
 filtered = box.execute([[SELECT v FROM planner_preflight_t WHERE id = 2]])
 assert(#filtered.rows == 1 and filtered.rows[1][1] == 20)
