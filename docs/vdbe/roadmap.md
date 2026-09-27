@@ -1000,7 +1000,9 @@ DML, triggers, subprograms, non-deterministic functions.
   resolver/VDBE routing is wired. A separate expression canonicalizer now
   handles a conservative resolved scalar subset with caller-supplied logical
   relation bindings; it is not yet wired into descriptor expression refs and
-  rejects function calls because stable identity/effect proof is absent.
+  treats resolved-column `EP_Lookup2` and `EP_NoReduce` as semantically inert,
+  while still rejecting those flags on other operators. It rejects function
+  calls because stable identity/effect proof is absent.
   Focused unit tests: `sql_logical_plan`, `sql_expr_canonical`.
   *parallel: yes*.
 - [x] **M3.3** Physical IR prototype — choose the least-cost supplied access
@@ -1063,28 +1065,21 @@ DML, triggers, subprograms, non-deterministic functions.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
   Rollback coverage is specifically post-emission validation rejection, not
-  an injected opcode-emitter failure: `late_invalid_point_desc` in
+  an allocation failure inside the opcode emitter: `late_invalid_point_desc` in
   `test/unit/sql_plan_vdbe_lowering.c` emits the wide-key opcode and then
   rejects the projection. Its strengthened assertion now pins unchanged
   opcode count and pre-existing opcode contents, cleared speculative opcode
   slots/P4 ownership, and restored register, cursor, label, expression-cache,
   temporary-register, abort, and column-cache state. Meanwhile
   `sql_vdbe_codegen_checkpoint.test` checks checkpoint cleanup with manually
-  emitted P4/comment state. This validates recoverable post-emission rejection,
-  not an injected failure from the opcode emitter itself. The current
-  `sqlVdbeAddOp*()` path has no recoverable failure-injection seam (`growOp3()`
-  calls `sql_xrealloc()`, and wide constants allocate through `sql_xmalloc()`),
-  so adding a broad production hook solely for this test would distort the
-  API. The narrow next step is a private/test-build-only VDBE opcode failure
-  seam, then fail after at least one successful opcode and assert the lowerer
-  returns failure with opcode array, `Parse` codegen counters, labels, and
-  owned P4 unchanged. Do not infer rollback of AST, parser, or schema state.
+  emitted P4/comment state. A broad production failure hook to force allocator
+  failure inside `sqlVdbeAddOp*()` would distort the API and is not planned.
+  Do not infer rollback of AST, parser, or schema state.
   This does not cover all descriptor operators, secondary-index access,
   additional/multibound ranges, all storage edge cases, or corpus-wide parity;
   checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
-  the isolated injected-opcode-failure regression described above, parity, and
-  capture coverage. Details:
+  parity, and capture coverage. Details:
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
   `SELECT`/VDBE integration).
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
@@ -1201,6 +1196,13 @@ DML, triggers, subprograms, non-deterministic functions.
   both engines pass. An earlier double execution of the same EXPLAIN obscured
   this behavior through statement reuse, and its intermediate test failure was
   not evidence about the route. No new reason code is needed for this shape.
+  A focused canonicalization correction also accepts the resolved-column
+  `EP_NoReduce` marker, which name resolution may set alongside `EP_Lookup2`.
+  This removes false `UNSUPPORTED_EXPRESSION` rejection for otherwise-supported
+  direct column expressions. The legacy planner now correctly reports
+  `current_where_c` for ordinary projections and primary-key predicates when
+  the feature flag is off; targeted `misc`, `planner_preflight`, and all five
+  fallback SQL suites pass on memtx and Vinyl against the rebuilt executable.
   M3.5 remains open for the other legacy/producer rejection routes.
 
   ```mermaid

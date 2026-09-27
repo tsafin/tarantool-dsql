@@ -6,6 +6,9 @@ sql_expr_canonicalize() is an isolated M3 prerequisite prototype. It returns
 an owned structural encoding for resolved columns, NULL/integer/finite-float/
 string constants, and a fixed scalar operator set. It rejects function calls,
 reduced/token-only nodes, flags outside its allowlist, and unknown operators.
+For resolved column references only, `EP_Lookup2` and `EP_NoReduce` are
+accepted because they retain no semantic effect after name resolution; the
+same bits remain rejected on other operators.
 Expr exposes function source tokens but does not by itself prove a stable
 function identity or absence of side effects. The helper is not wired into
 descriptor expression references, resolver routing, or lowering. Column
