@@ -254,7 +254,7 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
         box.execute([[CREATE TABLE planner_component_matrix (
             id INTEGER PRIMARY KEY, v INTEGER)]])
         box.execute([[INSERT INTO planner_component_matrix VALUES
-            (1, 10), (2, 10), (3, 30)]])
+            (1, 10), (2, 10), (3, 30), (4, NULL)]])
         local queries = {
             constant = [[SELECT 1]],
             distinct = [[SELECT DISTINCT v FROM planner_component_matrix]],
@@ -283,10 +283,17 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                 VALUES (1) UNION ALL SELECT x + 1 FROM r WHERE x < 3
             ) SELECT x FROM r]],
             single_values = [[EXPLAIN (planner = 'snapshot') SELECT 1]],
+            direct_null_filter = [[SELECT id FROM planner_component_matrix
+                                   WHERE v IS NULL]],
+            direct_null_range_filter = [[SELECT id FROM
+                planner_component_matrix WHERE v IS NOT NULL AND id > 1
+                ORDER BY id ASC]],
         }
         local result = {}
         for name, sql in pairs(queries) do
-            if name == 'nested_destination' then
+            if name == 'nested_destination' or
+               name == 'direct_null_filter' or
+               name == 'direct_null_range_filter' then
                 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
             end
             local explain_sql = sql
@@ -326,7 +333,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                        name .. ' has missing component parent')
             end
             result[name] = item
-            if name == 'nested_destination' then
+            if name == 'nested_destination' or
+               name == 'direct_null_filter' or
+               name == 'direct_null_range_filter' then
                 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             end
         end
@@ -338,6 +347,12 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
         t.assert_gt(snapshot.count, 0, name)
     end
     t.assert_equals(snapshots.constant.routes[1], 'fallback')
+    t.assert_equals(snapshots.direct_null_filter.path_class, 'new_planner')
+    t.assert_equals(snapshots.direct_null_filter.routes[1], 'new_planner')
+    t.assert_equals(snapshots.direct_null_range_filter.path_class,
+                    'new_planner')
+    t.assert_equals(snapshots.direct_null_range_filter.routes[1],
+                    'new_planner')
     t.assert_gt(snapshots.union.count, 1)
     t.assert_gt(snapshots.intersect.count, 1)
     t.assert_gt(snapshots.scalar_exists.count, 1)
