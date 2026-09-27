@@ -582,3 +582,23 @@ leaves production exports untouched.
 `READ_CONFIRMED`, transaction ID, and local vclock/catalog/schema checks are
 volatile local guards, not durable or cross-node visibility identities. This
 does not enable `ANALYZE` or persistent statistics.
+
+### ANALYZE integration gate (2026-09)
+
+The shared-view collection context and candidate publisher currently accept one
+relation's complete index set and atomically replace the entire installed
+snapshot. That is a valid prototype boundary, but it is not sufficient for
+either SQL form: `ANALYZE table` must preserve statistics for unrelated
+relations, and bare `ANALYZE` must collect all requested relations under one
+shared visibility cut and install one complete candidate. Publishing a series
+of per-relation candidates is unsafe because it exposes intermediate states
+and a later failure cannot restore the original snapshot atomically.
+
+Therefore neither grammar form is enabled yet. The required volatile API work
+is multi-relation collection/assembly through one pinned view, followed by one
+publication, plus immutable snapshot iteration and same-catalog/schema
+merge-replace semantics for the table-target form. All unsupported relations
+or indexes, generation drift, scan-budget failures, and candidate-construction
+failures must preserve the exact installed snapshot. This gate does not depend
+on, or authorize, any persistent schema ID or format choice; the persistence
+schema remains DRAFT.
