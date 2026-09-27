@@ -48,6 +48,8 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 		vdbe_codegen_checkpoint_commit(&checkpoint);
 		return 0;
 	}
+	if (parse->nMem == INT_MAX)
+		goto error;
 	int key_reg = ++parse->nMem;
 	int key_op;
 	if (input->access.has_unsigned_point_key) {
@@ -129,6 +131,14 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 			return -1;
 	}
 	Parse *parse = vdbe->pParse;
+	int registers_needed = 0;
+	if (input->finalize_count == 1 && input->finalize[0].limit != 0) {
+		registers_needed = 1;
+		if (input->finalize[0].offset != 0)
+			++registers_needed;
+	}
+	if (parse->nMem > INT_MAX - registers_needed)
+		return -1;
 	struct vdbe_codegen_checkpoint checkpoint;
 	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
 		return -1;

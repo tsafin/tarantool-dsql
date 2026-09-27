@@ -203,7 +203,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(20);
+	plan(22);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -278,6 +278,18 @@ main(void)
 	ok(sql_plan_lower_vdbe_table_scan(plan_desc, &vdbe, 4, INT_MAX) == -1 &&
 	   vdbe.nOp == op_count,
 	   "register overflow is rejected before VDBE mutation");
+	int saved_n_mem = parse.nMem;
+	parse.nMem = INT_MAX - 1;
+	int before_register_overflow = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan(wide_offset_limit_desc, &vdbe, 4, 20) == -1 &&
+	   vdbe.nOp == before_register_overflow && parse.nMem == INT_MAX - 1,
+	   "LIMIT/OFFSET register overflow is rejected before VDBE mutation");
+	parse.nMem = INT_MAX;
+	before_register_overflow = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_point(point_desc, &vdbe, 4, 20) == -1 &&
+	   vdbe.nOp == before_register_overflow && parse.nMem == INT_MAX,
+	   "point-key register overflow rolls back without changing VDBE state");
+	parse.nMem = saved_n_mem;
 	ok(sql_plan_lower_vdbe_table_scan(plan_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.nOp == op_count + 5,
 	   "table scan emits a complete VDBE loop");
