@@ -907,8 +907,9 @@ DML, triggers, subprograms, non-deterministic functions.
   treated as explicit hints. A focused live summary/counter test covers the
   reject path. Otherwise-supported SELECTs now also consult the resolved
   scalar expression canonicalizer and report `UNSUPPORTED_EXPRESSION` when
-  CAST/LIKE or another operator falls outside its grammar. Structural rejects
-  retain precedence; LIMIT/OFFSET are restricted to nonnegative integer
+  CAST or another scalar operator falls outside its grammar; LIKE is
+  represented as a function operator and reports `UNSUPPORTED_FUNCTION`.
+  Structural rejects retain precedence; LIMIT/OFFSET are restricted to nonnegative integer
   literals as required by the replay/descriptor model. Focused runtime and
   counter tests cover CAST, LIKE, arithmetic and negative LIMIT, and
   parameterized LIMIT and OFFSET; LIKE is correctly classified as an
@@ -944,7 +945,11 @@ DML, triggers, subprograms, non-deterministic functions.
   physical-reject reason counters cannot truthfully be incremented at the
   current `where.c` route; the new selector must first run and reject before
   its reason can describe a legacy dispatch. This is an integration gate, not
-  a missing reason-code mapping. Full-corpus
+  a missing reason-code mapping. The focused `planner_fallback_*` SQL tests
+  pass locally on both memtx and Vinyl (10 cases), as do
+  `sql_plan_fallback.test` (32 Lua assertions and 9 TAP checks); refreshed
+  result baselines no longer preserve earlier assertion-error output.
+  Full-corpus
   capture/parity review is complete under M3.6; it does not imply the missing
   physical-reject accounting or new-planner route is implemented.
   *parallel: no*.
