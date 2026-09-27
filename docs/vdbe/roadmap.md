@@ -1649,6 +1649,11 @@ DML, triggers, subprograms, non-deterministic functions.
   as parent; the statement summary is `mixed` with no fallback reason. This
   strengthens focused branch coverage but is not a
   reviewed-corpus inventory. The M0
+  focused producer matrix now additionally covers direct non-primary NULL
+  filters both on full scans and conjoined with primary-key bounds; both emit
+  complete single-component `new_planner` ledgers when enabled. The expanded
+  planner-final-path luatest passes locally, extending component-level route
+  evidence without changing the reviewed-corpus gate.
   capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.
