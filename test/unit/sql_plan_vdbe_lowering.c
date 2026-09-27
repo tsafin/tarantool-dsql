@@ -135,6 +135,25 @@ new_unsigned_point_descriptor(uint64_t key)
 }
 
 static struct sql_plan_descriptor *
+new_invalid_point_descriptor(void)
+{
+	static const uint32_t columns[] = {2};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_TABLE_FULL_SCAN,
+		},
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_point_limit_descriptor(int64_t key, uint64_t limit, uint64_t offset)
 {
 	static const uint32_t columns[] = {2, 0};
@@ -184,7 +203,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(19);
+	plan(20);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -228,6 +247,8 @@ main(void)
 		new_point_descriptor(INT64_MIN);
 	struct sql_plan_descriptor *unsigned_point_desc =
 		new_unsigned_point_descriptor(UINT64_MAX);
+	struct sql_plan_descriptor *invalid_point_desc =
+		new_invalid_point_descriptor();
 	struct sql_plan_descriptor *point_limit_desc =
 		new_point_limit_descriptor(1, 1, 0);
 	struct sql_plan_descriptor *point_zero_limit_desc =
@@ -239,6 +260,7 @@ main(void)
 	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
 	   invalid_offset_desc != NULL && point_desc != NULL &&
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
+	   invalid_point_desc != NULL &&
 	   point_limit_desc != NULL && point_zero_limit_desc != NULL &&
 	   point_offset_desc != NULL,
 	   "scan and literal-limit descriptors are constructed");
@@ -316,6 +338,10 @@ main(void)
 	ok(sql_plan_lower_vdbe_table_scan(invalid_offset_desc, &vdbe, 4, 20) == -1 &&
 	   vdbe.nOp == before_invalid_offset,
 	   "out-of-range offset descriptor is rejected before VDBE mutation");
+	int before_invalid_point = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_point(invalid_point_desc, &vdbe, 4, 20) == -1 &&
+	   vdbe.nOp == before_invalid_point,
+	   "non-point descriptor is rejected before VDBE mutation by the point lowerer");
 	int before_point = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_point].opcode == OP_Int64 &&
@@ -366,6 +392,7 @@ main(void)
 	sql_plan_descriptor_delete(point_desc);
 	sql_plan_descriptor_delete(negative_point_desc);
 	sql_plan_descriptor_delete(unsigned_point_desc);
+	sql_plan_descriptor_delete(invalid_point_desc);
 	sql_plan_descriptor_delete(point_limit_desc);
 	sql_plan_descriptor_delete(point_zero_limit_desc);
 	sql_plan_descriptor_delete(point_offset_desc);
