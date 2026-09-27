@@ -29,10 +29,21 @@ assert(summary.rows[2][3] == 'UNSUPPORTED_FUNCTION')
 ---
 - true
 ...
+aggregate, err = box.execute([[EXPLAIN (planner = 'summary') SELECT sum(abs(v)) FROM fallback_function_t]])
+---
+...
+assert(err == nil)
+---
+- true
+...
+assert(aggregate.rows[2][3] == 'UNSUPPORTED_AGGREGATE')
+---
+- error: assertion failed!
+...
 after = box.stat.sql()
 ---
 ...
-assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total + 1)
+assert(after.sql_planner_fallback_total == before.sql_planner_fallback_total + 2)
 ---
 - true
 ...
@@ -41,6 +52,10 @@ assert(after.sql_planner_fallback_UNSUPPORTED_FUNCTION_total == before.sql_plann
 - error: '[string "return assert(after.sql_planner_fallback_UNSU..."]:1: attempt to
     perform arithmetic on field ''sql_planner_fallback_UNSUPPORTED_FUNCTION_total''
     (a nil value)'
+...
+assert(after.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total == before.sql_planner_fallback_UNSUPPORTED_AGGREGATE_total + 1)
+---
+- error: assertion failed!
 ...
 test_run = require('test_run').new()
 ---

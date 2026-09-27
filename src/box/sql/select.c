@@ -5672,22 +5672,25 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 				SQL_LOGICAL_REJECT_NONDETERMINISTIC);
 		return;
 	}
-	/* Function calls are not yet in the canonical expression contract, even
-	 * when deterministic. Keep them on the legacy route until their identity
-	 * and evaluation semantics can be represented by the new planner.
-	 */
-	if (sql_select_has_func(select)) {
-		sql_select_record_fallback_reason(parse,
-				SQL_LOGICAL_REJECT_FUNCTION);
-		return;
-	}
 	bool structurally_unsupported = is_aggregate || select->pPrior != NULL ||
 		select->pWith != NULL || select->pGroupBy != NULL ||
 		select->pHaving != NULL || (select->selFlags & SF_Distinct) != 0 ||
 		src->nSrc != 1 || src->a[0].pSelect != NULL ||
 		src->a[0].fg.isTabFunc;
-	if (!structurally_unsupported)
+	/* Prefer structural rejection reasons (for example aggregate) when the
+	 * query shape itself is unsupported. Function calls need their own reason
+	 * only for otherwise-supported single-relation SELECTs.
+	 */
+	if (!structurally_unsupported) {
+		/* Function calls are not yet in the canonical expression contract,
+		 * even when deterministic. Keep them on the legacy route until their
+		 * identity and evaluation semantics can be represented.
+		 */
+		if (sql_select_has_func(select))
+			sql_select_record_fallback_reason(parse,
+					SQL_LOGICAL_REJECT_FUNCTION);
 		return;
+	}
 	enum sql_logical_reject_reason logical_reason =
 		SQL_LOGICAL_REJECT_NONE;
 	if (is_aggregate) {
