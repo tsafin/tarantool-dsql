@@ -37,7 +37,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 		return SQL_SELECT_PREFLIGHT_SHAPE;
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;
-		if (where->op == TK_NOTNULL && where->pLeft != NULL &&
+		if ((where->op == TK_NOTNULL || where->op == TK_ISNULL) &&
+		    where->pLeft != NULL &&
 		    where->pRight == NULL &&
 		    where->pLeft->op == TK_COLUMN_REF &&
 		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL) {

@@ -238,7 +238,8 @@ sql_physical_table_scan_from_select(
 			*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 		return NULL;
 	}
-	struct sql_plan_finalize finalize;
+	struct sql_plan_finalize finalize = {0};
+	bool force_empty = false;
 	if (select->pLimit != NULL || select->pOffset != NULL) {
 		uint64_t limit, offset = 0;
 		if (!extract_literal_limit(select->pLimit, &limit) ||
@@ -278,6 +279,7 @@ sql_physical_table_scan_from_select(
 	bool has_range_key = false;
 	bool has_range_end_key = false;
 	bool primary_key_not_null = false;
+	bool primary_key_is_null = false;
 	int64_t point_key = 0;
 	int64_t range_key = 0;
 	int64_t range_end_key = 0;
@@ -294,18 +296,28 @@ sql_physical_table_scan_from_select(
 		pk->parts[0].type == FIELD_TYPE_UNSIGNED;
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;
-		if (where->op == TK_NOTNULL && where->pLeft != NULL &&
+		if ((where->op == TK_NOTNULL || where->op == TK_ISNULL) &&
+		    where->pLeft != NULL &&
 		    where->pRight == NULL && where->pLeft->op == TK_COLUMN_REF &&
 		    where->pLeft->pLeft == NULL && where->pLeft->pRight == NULL &&
 		    where->pLeft->iTable == source->iCursor &&
 		    where->pLeft->iColumn >= 0 &&
 		    (uint32_t)where->pLeft->iColumn == primary_field) {
-			/* Tarantool primary-key fields are non-null. This predicate is an
-			 * identity and the existing full-scan access path preserves it. */
-			primary_key_not_null = true;
+			if (where->op == TK_NOTNULL) {
+				/* Tarantool primary-key fields are non-null. This predicate is
+				 * an identity and the full-scan path preserves it. */
+				primary_key_not_null = true;
+			} else {
+				/* A primary-key field can never be SQL NULL. */
+				primary_key_is_null = true;
+			}
 		}
 		if (primary_key_not_null)
 			goto predicate_parsed;
+		if (primary_key_is_null) {
+			force_empty = true;
+			goto predicate_parsed;
+		}
 		const struct Expr *exprs[2] = {select->pWhere, NULL};
 		size_t expr_count = 1;
 		if (select->pWhere->op == TK_AND && select->pWhere->pLeft != NULL &&
@@ -366,6 +378,13 @@ invalid_predicate:
 	return NULL;
 predicate_parsed:
 	;
+	if (force_empty) {
+		finalize = (struct sql_plan_finalize) {
+			.kind = SQL_PLAN_LIMIT,
+			.limit = 0,
+			.offset = 0,
+		};
+	}
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	if (has_range_key)
 		direction = range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE ?
@@ -470,10 +489,11 @@ predicate_parsed:
 		.descriptor_version = 1,
 		.planner_version = 1,
 		.path_class = SQL_PLAN_NEW_PLANNER,
-		.finalize = select->pLimit == NULL && select->pOffset == NULL ?
+		.finalize = select->pLimit == NULL && select->pOffset == NULL &&
+			!force_empty ?
 			NULL : &finalize,
 		.finalize_count = select->pLimit == NULL && select->pOffset == NULL ?
-			0 : 1,
+			(force_empty ? 1 : 0) : 1,
 		.space_id = source->space->def->id,
 		.space_name = source->space->def->name,
 		.access = {

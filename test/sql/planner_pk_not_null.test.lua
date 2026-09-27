@@ -18,6 +18,16 @@ enabled_rows = box.execute([[SELECT id, v FROM pk_not_null_t WHERE id IS NOT NUL
 assert(#enabled_rows == #legacy_rows)
 for i = 1, #legacy_rows do assert(enabled_rows[i][1] == legacy_rows[i][1] and enabled_rows[i][2] == legacy_rows[i][2]) end
 
+-- A primary-key field cannot be NULL, so IS NULL is exactly empty.
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+legacy_null_result, legacy_null_error = box.execute([[SELECT id, v FROM pk_not_null_t WHERE id IS NULL]])
+assert(legacy_null_error == nil and #legacy_null_result.rows == 0)
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id, v FROM pk_not_null_t WHERE id IS NULL]])
+assert(err == nil and summary.rows[1][3] == 'new_planner')
+enabled_null_rows = box.execute([[SELECT id, v FROM pk_not_null_t WHERE id IS NULL]]).rows
+assert(#enabled_null_rows == 0)
+
 -- A non-primary column has no non-null guarantee; it must remain legacy.
 summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM pk_not_null_t WHERE v IS NOT NULL]])
 assert(err == nil and summary.rows[1][3] == 'fallback')
