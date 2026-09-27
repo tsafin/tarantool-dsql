@@ -1459,6 +1459,25 @@ DML, triggers, subprograms, non-deterministic functions.
   statement versus per SELECT component); until then, do not add fallback
   assertions or infer a route class for VALUES.
 
+  **Route-ledger scope decision still required (2026-09-27).** The current
+  `path_class` / `fallback_reason` contract is stored on the statement VDBE,
+  while `sqlSelect()` recursively compiles compound terms, recursive CTE
+  anchor/recursive terms, and subquery producers into that same VDBE. The
+  existing first-reason-wins behavior is therefore not a per-component ledger
+  and cannot identify which component produced a statement-level fallback.
+  Before implementing a shared route record, M3.5
+  must choose its coverage unit: (a) only top-level SELECTs that enter the
+  planner attempt, leaving VALUES/OP_Count/nested components explicitly
+  outside this gate, or (b) every SELECT component, with component identity,
+  parent/role, and a separately defined top-level summary/aggregation rule.
+  The present requirement says “every unsupported shape” but does not define
+  this boundary or whether direct emitters count as supported routes versus
+  out-of-scope routes. Smallest next step is to freeze that coverage unit and
+  its summary semantics; only then can a route-result stack/ledger and mixed
+  nested-route tests avoid making statement-wide EXPLAIN misleading. No route
+  enum alone resolves the scope ambiguity; keep current diagnostics and
+  execution behavior unchanged meanwhile.
+
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its

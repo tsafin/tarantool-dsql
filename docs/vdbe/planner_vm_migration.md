@@ -437,6 +437,38 @@ prevents consumers from treating the current diagnostic capture as executable
 replay data. M1.5 owns replay tooling; a later envelope version can add the
 normalized inputs when they are produced.
 
+#### M3.5 route-ledger scope gate
+
+The current diagnostic is one record per prepared-statement VDBE, but the
+production `sqlSelect()` path is recursive: compound branches, recursive CTE
+terms, and subquery producers can each compile into that VDBE. Existing
+first-reason-wins metadata therefore describes neither every SELECT component
+nor identifies which component produced a statement-level fallback. Direct
+`VALUES` and simple `OP_Count` emitters add another boundary: they can produce
+rows without entering the WHERE planner or the table-scan attempt. Counting
+such a direct route as a planner fallback would be false; silently omitting it
+is only valid if the gate explicitly excludes direct producers.
+
+Before adding a shared route ledger, freeze one of these coverage contracts:
+
+1. **Top-level planner-attempt scope:** classify only top-level SELECTs that
+   enter the new/legacy planner gate. Direct emitters and nested SELECT
+   components are explicit exclusions, and the statement summary describes
+   that top-level attempt only.
+2. **Per-component scope:** every SELECT producer gets a stable component
+   identity and parent/role; direct routes have explicit path classes; the
+   top-level summary rule for mixed routes (including failure precedence) is
+   specified independently from component records.
+
+The roadmap's “every unsupported shape” wording does not choose between these
+contracts. The smallest missing decision is that coverage unit plus the
+meaning of the existing statement-level summary for mixed route outcomes.
+After it is fixed, implementation can add the corresponding producer-boundary
+record and tests combining direct, nested, and planner routes. Until then,
+adding a reason code or changing first-reason-wins behavior risks reporting a
+route that did not produce the statement; keep current VDBE diagnostics,
+counters, and execution dispatch unchanged.
+
 #### Replay-input acceptance contract (future envelope)
 
 Do not set `replayable=true` on version 2 or add a replay command that reparses
