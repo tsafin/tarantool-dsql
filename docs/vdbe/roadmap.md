@@ -1289,11 +1289,12 @@ DML, triggers, subprograms, non-deterministic functions.
   an UNSIGNED suffix above `INT64_MAX` and a literal-left bound whose resolved
   comparison expression is commuted by the parser. The earlier three-part point fixture
   now confirms equality on the first two parts plus a range on the third uses
-  `new_planner`. Generated, CnP, and repeated-generated captures pass on both
-  engines; LLVM was not observed because this build has JIT disabled. Descriptor
-  and VDBE lowering unit targets pass. Other range
-  predicates, gaps in the equality prefix, duplicate bounds, and descending
-  suffix ranges remain fail-closed.
+  `new_planner`. Generated, CnP, and repeated-generated captures each record
+  72 snapshots per engine with zero capture errors; CnP and repeated-generated
+  comparisons each have exact 72/72 parity. LLVM was not observed because this
+  build has JIT disabled. Descriptor and VDBE lowering unit targets pass.
+  Other range predicates, gaps in the equality prefix, duplicate bounds, and
+  descending suffix ranges remain fail-closed.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
   Rollback coverage is specifically post-emission validation rejection, not
