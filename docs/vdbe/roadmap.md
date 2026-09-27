@@ -913,13 +913,15 @@ single-table query class.
 **State:** `PROTOTYPE`. A default-off, session-gated executable route now
 lowers direct-column scans, INTEGER/UNSIGNED primary-key point lookups, and
 one-sided primary-key literal ranges through the physical descriptor and VDBE
-emitter. Focused memtx/Vinyl parity and fallback tests cover this narrow slice;
+emitter, plus bounded two-sided literal ranges on a single INTEGER/UNSIGNED
+primary-key part. Focused memtx/Vinyl parity and fallback tests cover this
+narrow slice;
 emitter unit checks pin all four range seek opcodes and signed/unsigned key
 encoding. M3.5 has broad structural fallback classification but remains open
 for route/reason closure; M3.6 capture/parity tooling is prototyped and M3.7's
 feature flag gates only the current narrow route. Secondary indexes,
-two-sided ranges, broader expression parity, corpus-wide new-planner coverage,
-and acceptance latency evidence remain open. M3 consumes M1 diagnostic
+broader range shapes, broader expression parity, corpus-wide new-planner
+coverage, and acceptance latency evidence remain open. M3 consumes M1 diagnostic
 path-class/fallback reporting and the M0-A seed parity gate, but does not wait
 for replay or S2; use fixed/current estimates until real statistics are
 integrated.
@@ -1000,12 +1002,15 @@ DML, triggers, subprograms, non-deterministic functions.
   descending primary-key order with LIMIT, primary-key point hit/miss with
   LIMIT 1 / LIMIT 0 / OFFSET 1 semantics, signed-64-bit point keys through
   INT64_MIN/MAX, UNSIGNED point keys through UINT64_MAX, and INTEGER/UNSIGNED
-  one-sided primary-key literal ranges (`>`, `>=`, `<`, `<=`) with reversed
-  operands, direction-matched ordering, and LIMIT/OFFSET. UNSIGNED range seek
+  one- and two-sided primary-key literal ranges (`>`, `>=`, `<`, `<=`) with
+  reversed operands, ascending/descending ordering, and LIMIT/OFFSET. A
+  two-sided route accepts one lower and one upper literal on the same key and
+  terminates at the opposite endpoint; mixed filters and duplicate-side bounds
+  remain on legacy codegen. UNSIGNED range seek
   constants retain uint64 values through UINT64_MAX; negative UNSIGNED values
   fail closed to legacy codegen, while literals above UINT64_MAX are rejected
   by SQL parsing before planner dispatch. Unsupported predicates still fall
-  back. Twenty-nine emitter checks now pin all four range opcodes (`SeekGT`,
+  back. Thirty-one emitter checks now pin all four range opcodes (`SeekGT`,
   `SeekGE`, `SeekLT`, `SeekLE`), ascending/descending step opcodes, signed
   range key encoding, and full-width unsigned `P4_UINT64` preservation, alongside
   unbounded, limited, offset, zero-limit, descending, signed-64-bit counter
@@ -1017,7 +1022,7 @@ DML, triggers, subprograms, non-deterministic functions.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
   This does not cover all descriptor operators, secondary-index access,
-  two-sided/multi-bound ranges, all storage edge cases, or corpus-wide parity;
+  additional/multibound ranges, all storage edge cases, or corpus-wide parity;
   checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
   injected-opcode-failure, parity, and capture coverage. Details:
