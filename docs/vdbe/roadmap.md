@@ -582,19 +582,22 @@ review of IDs and formats.
   bounds/stages each requested index sample before delivery. Its finish commits
   only after every requested target succeeds; otherwise it rolls back. The
   focused `sql_stats_collection.test` target builds and passes locally,
-  including all 21 transaction-context checks. The production `tarantool`
+  including all 27 transaction-context checks. The production `tarantool`
   target links with the API, and the `sql_stats_test` luatest passes live
   memtx/Vinyl primary- and secondary-index samples. The unit test still uses
   engine stubs for lifecycle/error injection.
-  READ_CONFIRMED excludes
-  prepared/unconfirmed writes but does not freeze confirmed commits between
-  index calls; the transaction ID is not a shared visibility token and must
-  not populate `sql_stats_collection_generation`. A completed earlier sample
+  The context now captures the local commit-vclock signature and rejects
+  sampling/finish if it changes, with unit coverage for drift during engine
+  sampling and again at finish. This is only a volatile local commit-generation
+  guard, not a durable/cross-node snapshot identity; callers still need
+  catalog/schema/index-definition provenance before it can participate in a
+  candidate generation. READ_CONFIRMED excludes prepared/unconfirmed writes but does
+  not itself freeze confirmed commits. A completed earlier sample
   can reach the caller's off-side staging sink if a later target fails, so the
   caller must discard all staging unless the full collection validates. This
   helper neither builds nor publishes a candidate and does not enable
-  `ANALYZE`; S1.3a remains open for a common visibility/generation mechanism,
-  candidate production, and failure-safe publication.
+  `ANALYZE`; S1.3a remains open for remaining candidate provenance, candidate
+  production, and failure-safe publication.
   `sql_set_stats_snapshot()` already retains/releases the installed immutable
   snapshot and expires prepared statements, but collection does not call it.
   There is no collector-owned install transaction that revalidates the

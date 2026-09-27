@@ -6,13 +6,18 @@
 
 #include "box/index.h"
 #include "box/index_def.h"
+#include "box/box.h"
 #include "box/read_view.h"
 #include "box/schema.h"
 #include "box/space.h"
 #include "box/space_cache.h"
 #include "box/space_def.h"
 #include "box/txn.h"
+#include "vclock/vclock.h"
 #include "unit.h"
+
+static struct vclock test_vclock;
+const struct vclock *box_vclock = &test_vclock;
 
 static uint64_t test_schema_version = 12;
 static int test_read_view_mode;
@@ -26,6 +31,12 @@ static int test_txn_commit_result;
 static int test_txn_rollback_result;
 static int test_engine_sample_mode;
 static bool test_schema_change_on_isolation;
+
+static void
+advance_test_vclock(void)
+{
+	vclock_follow(&test_vclock, 0, vclock_get(&test_vclock, 0) + 1);
+}
 
 static struct space_def test_space_def = {.id = 42};
 static struct space test_space = {.def = &test_space_def};
@@ -223,6 +234,8 @@ engine_sql_stats_sample(struct space *space,
 	result->visible_population = 2;
 	if (test_engine_sample_mode == 2)
 		test_schema_version++;
+	if (test_engine_sample_mode == 3)
+		advance_test_vclock();
 	return 0;
 }
 
@@ -362,6 +375,7 @@ reset_test_txn(void)
 	test_schema_change_on_isolation = false;
 	test_engine_sample_mode = 0;
 	test_schema_version = 12;
+	vclock_create(&test_vclock);
 	test_space_index_map[8] = &test_index;
 	test_index.unique_id = 808;
 }
@@ -369,7 +383,7 @@ reset_test_txn(void)
 static void
 test_transaction_sample_context(void)
 {
-	plan(21);
+	plan(27);
 	header();
 	reset_test_txn();
 	struct sql_stats_collection_target target = {.space_id = 42, .index_id = 8};
@@ -407,8 +421,9 @@ test_transaction_sample_context(void)
 	reset_test_txn();
 	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
 	   context != NULL && test_txn_active &&
-	   test_txn_isolation == TXN_ISOLATION_READ_CONFIRMED,
-	   "context owns one READ_CONFIRMED box transaction");
+	   test_txn_isolation == TXN_ISOLATION_READ_CONFIRMED &&
+	   sql_stats_tx_context_visibility_id(context) == 0,
+	   "context owns a READ_CONFIRMED transaction and captures visibility");
 	struct test_sink_state sink_state = {};
 	struct sql_stats_sample_sink sink = {
 		.context = &sink_state, .consume = test_sink_consume,
@@ -424,6 +439,29 @@ test_transaction_sample_context(void)
 	ok(sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
 	   !test_txn_active,
 	   "failed sampling cannot finish or publish a partial collection");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0,
+	   "context begins before a concurrent commit check");
+	test_engine_sample_mode = 3;
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_sample_index(context, &target, &request,
+		&sink, &result) != 0 && sink_state.rows == 0 && result.rows == 0,
+	   "visibility generation drift withholds staged tuples");
+	ok(sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
+	   !test_txn_active,
+	   "visibility-drifted context rolls back instead of completing");
+	reset_test_txn();
+	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0,
+	   "context begins before finish-boundary visibility check");
+	test_engine_sample_mode = 0;
+	sink_state = (struct test_sink_state){};
+	ok(sql_stats_tx_context_sample_index(context, &target, &request,
+		&sink, &result) == 0,
+	   "sample completes before a visibility change at finish");
+	advance_test_vclock();
+	ok(sql_stats_tx_context_finish(&context) != 0 && context == NULL &&
+	   !test_txn_active,
+	   "finish-boundary visibility drift rejects the completed sample");
 	reset_test_txn();
 	ok(sql_stats_tx_context_begin(&target, 1, &context) == 0 &&
 	   sql_stats_tx_context_finish(&context) != 0 && context == NULL &&

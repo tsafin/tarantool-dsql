@@ -123,6 +123,11 @@ sql_stats_tx_context_sample_index(
 	struct sql_stats_sample_sink *sink,
 	struct sql_stats_sample_result *result);
 
+/* Stable volatile visibility token captured from the local commit vclock. */
+uint64_t
+sql_stats_tx_context_visibility_id(
+	const struct sql_stats_tx_context *context);
+
 /* Finish commits only after every requested index sample succeeds. */
 int
 sql_stats_tx_context_finish(struct sql_stats_tx_context **context);

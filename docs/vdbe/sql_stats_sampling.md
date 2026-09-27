@@ -340,17 +340,21 @@ under that same transaction ID. A per-index bounded staging buffer prevents
 an engine error from forwarding only part of that index's sample. `finish`
 commits only when every requested index succeeded; otherwise it rolls back.
 `abort` only rolls back if the calling fiber still owns the captured
-transaction ID. The API returns no visibility token and cannot be converted
-to `sql_stats_collection_generation` by its interface.
+transaction ID. The context also captures the local commit-vclock signature
+as a volatile visibility token and rejects sampling/finish if it changes.
+This is a local commit-generation guard, not a durable identity or a
+cross-node snapshot ID; callers must still pair it with catalog/schema/index
+definition provenance before using it in `sql_stats_collection_generation`.
 The focused `sql_stats_collection.test` CMake target builds and passes,
-including transaction lifecycle, isolation/schema drift, staging, and
+including transaction lifecycle, isolation/schema/visibility drift, staging,
 all-target finish checks. This is unit-stub coverage; no live memtx/Vinyl
 integration run has validated this context.
 
 This transaction context is not a frozen database snapshot. `READ_CONFIRMED`
-excludes prepared/unconfirmed writes, but it does not freeze confirmed writes
-between calls; equal transaction IDs therefore do not establish one common
-data-time boundary. A successful earlier index can already have delivered to
+excludes prepared/unconfirmed writes, but does not itself freeze confirmed
+writes between calls. The local commit-vclock check detects such commits and
+fails closed, but is not an MVCC snapshot handle or a durable/cross-node
+identity. A successful earlier index can already have delivered to
 the caller's sink if a later index fails, so sinks must target disposable
 off-side staging and callers must discard it unless all requested work and
 candidate validation succeed. The context neither builds nor publishes a
@@ -373,7 +377,7 @@ unknown/inconsistent results. Allocation failures are injected at snapshot
 deep-copy and collection staging points. There is still no publication in
 this slice, so publication rollback is not covered. S1.3a remains incomplete
 until a producer consumes sampled tuples to populate the remaining
-relation/index summaries, a shared visibility/generation mechanism is defined,
+relation/index summaries, a shared candidate-generation contract is defined,
 and an independent publication step proves that failed construction preserves
 the installed snapshot. Nothing here enables `ANALYZE` or persistent
 statistics.

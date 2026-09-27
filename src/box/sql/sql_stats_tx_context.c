@@ -4,10 +4,12 @@
 #include <string.h>
 
 #include "engine.h"
+#include "box.h"
 #include "schema.h"
 #include "space.h"
 #include "space_cache.h"
 #include "txn.h"
+#include "vclock/vclock.h"
 
 struct sql_stats_tx_target {
 	struct sql_stats_collection_target key;
@@ -20,6 +22,7 @@ struct sql_stats_tx_context {
 	size_t target_count;
 	int64_t txn_id;
 	uint64_t schema_version;
+	uint64_t visibility_id;
 	bool active;
 	bool failed;
 };
@@ -91,6 +94,13 @@ has_required_isolation(const struct sql_stats_tx_context *context)
 		box_txn_isolation() == TXN_ISOLATION_READ_CONFIRMED;
 }
 
+static bool
+has_same_visibility(const struct sql_stats_tx_context *context)
+{
+	return box_vclock != NULL && vclock_sum(box_vclock) >= 0 &&
+		(uint64_t)vclock_sum(box_vclock) == context->visibility_id;
+}
+
 static void
 free_context(struct sql_stats_tx_context *context)
 {
@@ -149,6 +159,7 @@ static bool
 tx_context_valid(struct sql_stats_tx_context *context)
 {
 	return has_required_isolation(context) &&
+		has_same_visibility(context) &&
 		box_schema_version() == context->schema_version &&
 		validate_targets(context, true);
 }
@@ -184,6 +195,11 @@ sql_stats_tx_context_begin(
 		}
 	}
 	context->schema_version = box_schema_version();
+	if (box_vclock == NULL || vclock_sum(box_vclock) < 0) {
+		free_context(context);
+		return -1;
+	}
+	context->visibility_id = (uint64_t)vclock_sum(box_vclock);
 	if (!validate_targets(context, false)) {
 		free_context(context);
 		return -1;
@@ -206,6 +222,13 @@ sql_stats_tx_context_begin(
 	}
 	*context_out = context;
 	return 0;
+}
+
+uint64_t
+sql_stats_tx_context_visibility_id(
+	const struct sql_stats_tx_context *context)
+{
+	return context == NULL ? 0 : context->visibility_id;
 }
 
 int
@@ -297,6 +320,7 @@ sql_stats_tx_context_finish(struct sql_stats_tx_context **context_ptr)
 	if (!owns_current_txn(context))
 		return -1;
 	bool complete = !context->failed && has_required_isolation(context) &&
+		has_same_visibility(context) &&
 		box_schema_version() == context->schema_version &&
 		validate_targets(context, true);
 	for (size_t i = 0; i < context->target_count; i++)
@@ -305,6 +329,9 @@ sql_stats_tx_context_finish(struct sql_stats_tx_context **context_ptr)
 	if (complete) {
 		rc = box_txn_commit();
 		context->active = false;
+		/* Commit may yield; reject if another transaction committed meanwhile. */
+		if (rc == 0 && !has_same_visibility(context))
+			rc = -1;
 	} else {
 		rc = rollback_owned(context);
 		if (rc == 0)
