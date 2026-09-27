@@ -248,13 +248,16 @@ complete candidate.
 `sql_stats_index_summary` is a separate sampled-tuple consumer for one index.
 Its generic callback path requires typed, SQL-canonical values from the
 caller; raw MessagePack encodings are not treated as SQL values. The native
-`sql_stats_index_summary_new_for_key_def()` adapter instead retains a tuple
-format and copies the key definition, reconstructs native Tarantool tuples
-from delivered full-row bytes, then hashes each prefix using
+`sql_stats_index_summary_new_for_index()` adapter instead retains a tuple
+format and copies the index key definition, reconstructs native Tarantool
+tuples from delivered full-row bytes, then hashes each prefix using
 `tuple_hash_key_part()` and the key-part type/collation. It initially accepts
-only TREE/HASH indexes with STRING or DOUBLE parts and rejects multikey and
-functional key definitions. Native mode reports `hash_bits=32`: because HLL receives the
-engine's 32-bit index hash, distinct SQL keys can collide before sketching,
+only TREE/HASH indexes with STRING, DOUBLE, or BOOLEAN parts and rejects
+multikey and functional key definitions. BOOLEAN is supported because its
+accepted MessagePack domain has exactly two canonical boolean encodings and
+the comparator decodes those values before comparing. Native mode reports
+`hash_bits=32`: because HLL receives the engine's 32-bit index hash, distinct
+SQL keys can collide before sketching,
 so estimates can be biased for high cardinalities. It does not claim exact or
 canonical NDV. Both modes count and sketch only delivered sample tuples, do
 not extrapolate to population, and cannot produce a
@@ -264,10 +267,12 @@ producer-owned temporary canonical-value storage, native tuple reconstruction,
 or the temporary prefix-hash vector. The caller must supply a format and key
 definition from the same captured schema version. This is an aggregation
 building block, not a complete S1.3a producer. Native-adapter checks were added
-to `key_def.test` for leading prefixes, unsupported type rejection, and the
-DOUBLE hash normalization of integer/floating encodings. The full configured
-CMake `key_def.test` target was built and passed locally, including all 10
-native-adapter checks.
+to `key_def.test` for leading prefixes, unsupported type rejection, the
+DOUBLE hash normalization of integer/floating encodings, collation equality,
+and BOOLEAN distinctness/deduplication. The current sources were manually
+compiled/relinked against the configured unit-test link line; all 52 top-level
+tests and the 12-check native-adapter subtest passed. The current CMake target
+was not rebuilt after this extension.
 
 No common cross-engine visibility mechanism has been established. A viable
 collector boundary must atomically capture catalog/schema/index definitions

@@ -1401,7 +1401,7 @@ test_key_def_find_by_fieldno(void)
 static void
 test_sql_stats_index_summary_native(void)
 {
-	plan(10);
+	plan(12);
 	header();
 	struct key_def *def = test_key_def_new(
 		"[{%s%u%s%s}{%s%u%s%s}]",
@@ -1526,6 +1526,39 @@ test_sql_stats_index_summary_native(void)
 	tuple_unref(lower);
 	key_def_delete(coll_defn);
 	coll_unref(coll);
+	struct key_def *bool_def = test_key_def_new(
+		"[{%s%u%s%s}]", "field", 0, "type", "boolean");
+	struct index_def bool_index = {};
+	bool_index.type = TREE;
+	bool_index.key_def = bool_def;
+	struct sql_stats_index_summary *bool_summary =
+		sql_stats_index_summary_new_for_index(tuple_format_runtime,
+			&bool_index, 8, 13, sketch_bytes + sizeof(void *));
+	struct tuple *false_a = test_tuple_new("[%b]", false);
+	struct tuple *true_tuple = test_tuple_new("[%b]", true);
+	struct tuple *false_b = test_tuple_new("[%b]", false);
+	ok(bool_summary != NULL &&
+	   sql_stats_index_summary_consume(bool_summary, tuple_data(false_a),
+			tuple_bsize(false_a), NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(bool_summary, tuple_data(true_tuple),
+			tuple_bsize(true_tuple), NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(bool_summary, tuple_data(false_b),
+			tuple_bsize(false_b), NULL, 0) == 0,
+	   "boolean parts accept and hash typed tuple values");
+	if (bool_summary != NULL) {
+		double bool_ndv[1];
+		ok(sql_stats_index_summary_prefix_ndv(bool_summary, 1,
+				bool_ndv, 1) == 0 && bool_ndv[0] > 1.5 &&
+		   bool_ndv[0] < 2.5,
+		   "boolean hash distinguishes true and false, deduplicating repeats");
+		sql_stats_index_summary_delete(bool_summary);
+	} else {
+		ok(false, "boolean summary remains available");
+	}
+	tuple_unref(false_a);
+	tuple_unref(true_tuple);
+	tuple_unref(false_b);
+	key_def_delete(bool_def);
 	footer();
 	check_plan();
 }

@@ -85,12 +85,14 @@ sql_stats_index_summary_new_for_index(struct tuple_format *format,
 	    key_def->part_count > UINT32_MAX || key_def->is_multikey ||
 	    key_def->for_func_index)
 		return NULL;
-	/* Keep the initial contract narrow: these hash paths explicitly
-	 * normalize SQL-equal representations and support collations. Other
-	 * field types need a separately verified equality/hash contract. */
+	/* Keep the contract narrow: STRING and DOUBLE hash paths normalize
+	 * SQL-equal representations; BOOLEAN has a one-to-one MessagePack value
+	 * encoding and a value-decoding comparator. Other types need a separately
+	 * verified equality/hash contract. */
 	for (uint32_t i = 0; i < key_def->part_count; i++) {
 		enum field_type type = key_def->parts[i].type;
-		if (type != FIELD_TYPE_STRING && type != FIELD_TYPE_DOUBLE)
+		if (type != FIELD_TYPE_STRING && type != FIELD_TYPE_DOUBLE &&
+		    type != FIELD_TYPE_BOOLEAN)
 			return NULL;
 		if (type == FIELD_TYPE_STRING && key_def->parts[i].coll != NULL &&
 		    key_def->parts[i].coll->hash == NULL)
