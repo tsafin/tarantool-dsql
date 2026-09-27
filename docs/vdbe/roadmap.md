@@ -1990,18 +1990,19 @@ DML, triggers, subprograms, non-deterministic functions.
   The scalar non-primary `IS NULL` / `IS NOT NULL` scan route also has exact
   off/on/off result assertions, plus exact generated/CnP parity on memtx and
   Vinyl (85/85 snapshots per engine); generated-repeat also matches exactly.
-  A material lowering extension admits one direct non-primary `IS NULL` or
-  `IS NOT NULL` predicate
-  alongside a single-part INTEGER/UNSIGNED primary-key equality. The point
-  lowerer evaluates the residual after `NotFound` and before projection, with
-  both miss and rejected-filter branches joining after `ResultRow`. SQL
-  parity cases cover a matching row, a matched key rejected by the residual,
-  and positive OFFSET on memtx and Vinyl; the VDBE unit pins filter-column
-  evaluation and branch placement. The incremental Debug build succeeds;
-  `sql_plan_vdbe_lowering.test` passes all 45 assertions, and the regular
-  luatest runner passes `planner_scalar_filter_test.lua` against the rebuilt
-  binary (its fixture covers both memtx and Vinyl). Composite point filters
-  and multiple residual filters remain rejected. The broader M3.4 operator
+  A material lowering extension admits up to eight direct non-primary `IS NULL`
+  or `IS NOT NULL` predicates alongside a single-part INTEGER/UNSIGNED
+  primary-key equality. The point lowerer evaluates all residuals after
+  `NotFound` and before projection, with each miss/filter branch joining after
+  `ResultRow`. SQL off/on/off parity cases cover both predicates together,
+  reversed predicate order, a matching row, residual rejection, and a missing
+  key on memtx and Vinyl; the VDBE unit pins both opcodes and the shared branch
+  target. Multiple residuals remain rejected on range, scan-only, and composite
+  point shapes; the descriptor rejects filter lists above the fixed bound of
+  eight. Implementation and focused tests are committed, but executable
+  validation of this multi-filter extension is pending integration. The earlier
+  single-filter route's incremental Debug build and 45-assertion VDBE unit plus
+  memtx/Vinyl luatest passed. The broader M3.4 operator
   and producer coverage remains open.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
