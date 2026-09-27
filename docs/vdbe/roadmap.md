@@ -1698,6 +1698,15 @@ DML, triggers, subprograms, non-deterministic functions.
   from seven to four per engine, but remains standalone capture evidence, not
   normal-runner parity or final M3.5 closure.
 
+  **Remaining timeout follow-up (2026-09-28).** Extending the retry to the
+  other timeout cases accepted `autoindex1.test.lua` (20,496 statements) and
+  `gh-3083-ephemeral-unref-tuples.test.lua` (11,001 statements) on both
+  engines, again with complete ledgers. `sort.test.lua` and
+  `gh-3332-tuple-format-leak.test.lua` still exceeded 60 seconds on both.
+  Thus two known standalone SQL-TAP files remain uncollected per engine; this
+  does not disposition normal-runner parity or the persistence-dependent
+  ANALYZE rejections.
+
   **SQL-luatest capture extension (2026-09-27).** The child capture adapter
   now records planner metrics and component routes for successful
   SELECT/WITH-SELECT/VALUES executions, alongside each SQL snapshot's
