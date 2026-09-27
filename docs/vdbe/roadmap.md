@@ -1209,8 +1209,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `IS NOT NULL` predicates on full scans; rejected rows branch to the cursor's
   next-row opcode. A dedicated SQL regression checks exact rows and off/on/off
   parity on memtx and Vinyl, and descriptor/VDBE unit tests pin filter
-  validation and both branch targets. Compound predicates, filtered ranges,
-  and other scalar operators remain outside this route. Direct-column full
+  validation and both branch targets. The isolated fixture also passes local
+  CnP captures on both engines (37 snapshots each, zero capture errors).
+  Compound predicates, filtered ranges, and other scalar operators remain
+  outside this route. Direct-column full
   scans and primary-key ordering also pass
   off/on/off parity for a TEXT primary key on both engines; the enabled route
   preserves descending order and LIMIT. A second
@@ -1907,6 +1909,8 @@ DML, triggers, subprograms, non-deterministic functions.
   literal-left forms. Their isolated off/on/off fixture has 72 snapshots per
   engine and exact generated-repeat/CnP parity; descriptor and VDBE lowering
   unit coverage pins accepted/rejected metadata and seek/termination opcodes.
+  The scalar non-primary `IS NULL` / `IS NOT NULL` scan route also has exact
+  off/on/off result assertions, plus local CnP captures on memtx and Vinyl.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
