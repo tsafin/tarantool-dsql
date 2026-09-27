@@ -468,31 +468,30 @@ results and rejects a context that already owns an assembled candidate.
 
 The focused publication assertions cover successful install, unrelated
 candidate rejection, commit failure, post-commit vclock drift, repeated
-assembly, and preservation of the prior installed snapshot. Root reports that
-the configured Clang-19 build and `sql_stats_collection.test` passed after
-cherry-pick. A focused runtime attempt was repeated on 2026-09-27 with
-`test/sql-luatest/sql_stats_test.lua` and the configured Clang-19 executable.
-The helper module target builds, but loading `sql_stats_tx_context_test.so`
-fails with undefined `mp_type_hint`. The module also imports
-`sql_stats_tx_context_begin()`, `sample_index()`, and `finish()`, which are
-present in the executable's full symbol table but absent from its dynamic
-export table. Thus the module is not a valid integration seam for this
-internal API as currently linked. `space_cache_version` is read by the context
-implementation within the server and is not an undefined import of this
-current helper. Fixing runtime coverage requires an explicit choice to expose
-selected internal symbols or add an in-process server test seam; no such
-surface change is made here. This test-harness blocker says nothing about
-engine runtime behavior and does not establish a shared memtx/Vinyl snapshot.
-S1.3a remains open pending live engine confirmation and proof of any claimed
-cross-engine visibility semantics.
+assembly, and preservation of the prior installed snapshot. The configured
+Clang-19 build and `sql_stats_collection.test` pass. The first live-runtime
+attempt through `sql_stats_tx_context_test.so` failed because the helper's
+private engine symbols, including `mp_type_hint`, are not exported by the
+server. The safe in-process seam is now implemented: under `TEST_BUILD`, the
+server compiles and registers the snapshot and transaction-context test
+wrappers directly, without adding dynamic exports or linking a second box
+archive. The transaction wrapper also decodes positive MessagePack integer
+keys as unsigned values rather than calling the signed decoder unconditionally.
+The focused `test/sql-luatest/sql_stats_test.lua` passes with `TEST_BUILD=ON`,
+including live memtx/Vinyl primary- and secondary-index sampling. With
+`TEST_BUILD=OFF`, the suite passes and skips only those two wrapper-dependent
+tests; symbol inspection verifies that the ordinary server binary contains no
+test wrapper entry points. This provides live sampler evidence, but does not
+establish complete candidate publication or a shared memtx/Vinyl snapshot.
+S1.3a remains open pending those broader collection guarantees.
 Compiling the private context source into the loadable helper module is not a
 safe workaround: candidate assembly pulls in further private APIs, and
 sampling dispatch depends on the live engine registry (`engine_sql_stats_sample()`)
 and `space_by_id_slow()`. Linking the `box` archive into the DSO risks creating
 a second engine registry/state rather than exercising the server's memtx or
 Vinyl instances; linking msgpuck alone only resolves the decoder symbol. The
-narrow next seam is a test-only wrapper compiled into the server process, or a
-deliberately reviewed selective export—not a standalone module copy.
+implemented test-only in-process wrapper avoids this duplicate-state hazard and
+leaves production exports untouched.
 `READ_CONFIRMED`, transaction ID, and local vclock/catalog/schema checks are
 volatile local guards, not durable or cross-node visibility identities. This
 does not enable `ANALYZE` or persistent statistics.

@@ -639,21 +639,19 @@ review of IDs and formats.
   focused `sql_stats_collection.test` target builds and passes locally,
   including all 32 transaction-context checks. The production `tarantool`
   target links with the API. A prior runtime luatest exercised live memtx/Vinyl
-  primary- and secondary-index samples. Re-running focused `sql_stats_test.lua`
-  against the configured Clang-19 build reproduced a helper loader error:
-  `sql_stats_tx_context_test.so` has undefined `mp_type_hint`. ELF inspection
-  also shows that the helper's `sql_stats_tx_context_{begin,sample_index,finish}`
-  imports are not in the Tarantool executable's dynamic export table; linking
-  the test module alone cannot resolve this internal API. The current helper
-  does not import `space_cache_version` itself (the context implementation reads
-  it inside the executable). Compiling the context source into the DSO is not a
-  safe workaround: sampling also needs `engine_sql_stats_sample()` and
-  `space_by_id_slow()`, while linking the box archive risks a second engine
-  registry/state instead of exercising the live server. The narrow next seam
-  is a test-only wrapper compiled into the server process (or a deliberately
-  reviewed selective export), not a build-mode toggle. No production exports
-  were added, so this run provides no new live runtime confirmation. The unit
-  test still uses engine stubs for lifecycle/error injection.
+  primary- and secondary-index samples. A test-only wrapper now compiles into
+  the server process under `TEST_BUILD`, registers its Lua modules at startup,
+  and calls the private context against the live engine registry without adding
+  exported symbols. The wrapper was corrected to decode positive MessagePack
+  integer keys as unsigned values. The full focused `sql_stats_test.lua` suite
+  passes in a TEST_BUILD Clang-19 binary; with `TEST_BUILD=OFF`, the suite also
+  passes while marking its two wrapper-dependent live checks skipped. `nm`
+  confirms that the ordinary server binary does not contain either test entry
+  point. The earlier DSO loader failure is therefore avoided without exporting
+  engine internals or linking a second box archive. The unit test still uses
+  engine stubs for lifecycle/error injection; live wrapper coverage currently
+  verifies sampling only, not complete candidate publication or shared
+  cross-engine visibility.
   The context now captures the local commit-vclock signature and rejects
   sampling/finish if it changes, with unit coverage for drift during engine
   sampling and again at finish. It now also captures and revalidates the local
@@ -701,8 +699,15 @@ review of IDs and formats.
   retain separate snapshot references. Candidate mismatch, repeated assembly,
   commit failure, and post-commit visibility drift preserve the old installed
   snapshot. The 10-check `sql_stats_collection.test` target passes in the root
-  Clang-19 build. Live memtx/Vinyl orchestration and common cross-engine
-  visibility remain unverified, so S1.3a stays open. Local READ_CONFIRMED and
+  Clang-19 build. Live engine-sampler runtime coverage now runs through
+  test-only wrappers linked into the server under `TEST_BUILD`; the focused
+  `sql_stats_test.lua` suite passes and samples primary and secondary indexes
+  on memtx and Vinyl. `TEST_BUILD=OFF` also passes the suite while explicitly
+  skipping its two wrapper-dependent live cases, and symbol inspection confirms
+  that the production-configured server has no linked wrapper entry points.
+  This verifies live sampling, not complete summary construction or atomic
+  publication across engines; common cross-engine visibility and live candidate
+  publication remain unverified, so S1.3a stays open. Local READ_CONFIRMED and
   vclock/catalog/schema checks are not durable or cross-node snapshot claims.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
