@@ -1722,6 +1722,15 @@ DML, triggers, subprograms, non-deterministic functions.
   both still exceed the 60-second standalone capture budget, and Vinyl was
   not configured for these two ordinary runs.
 
+  **Extended standalone capture follow-up (2026-09-28).** Re-running those
+  two files without the 60-second subprocess cap accepted both engines:
+  `sort` wrote 100,119 snapshots per engine and
+  `gh-3332-tuple-format-leak` wrote 100,014 per engine, with zero skipped or
+  errored records and accepted manifests. The TAP cases passed in each run.
+  This clears the two previously outstanding standalone SQL-TAP captures;
+  their long capture duration is a resource/runtime concern, not missing
+  baseline evidence. The broader M3.5 corpus and route/reason gates remain.
+
   **SQL-luatest capture extension (2026-09-27).** The child capture adapter
   now records planner metrics and component routes for successful
   SELECT/WITH-SELECT/VALUES executions, alongside each SQL snapshot's
