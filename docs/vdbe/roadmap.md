@@ -571,8 +571,8 @@ review of IDs and formats.
   summaries for one relation into a detached candidate atomically. It requires
   exact common population counts, caller-supplied relation confidence and
   provenance, and only returns per-index confidence outputs after full
-  candidate validation. A two-index success case and population-mismatch
-  no-partial-output case pass in the five-check
+  candidate validation. Two-index success, empty-population exact-zero/no-width,
+  and population-mismatch no-partial-output cases pass in the six-check
   `sql_stats_collection_samples.test` target. The helper does not independently
   verify each summary's index association or establish that caller-supplied
   visibility tokens represent one shared engine snapshot. It is not wired to
