@@ -30,6 +30,23 @@ g.test_snapshot_contains_complete_final_single_relation_paths = function()
         for i = 1, 8 do
             space:insert({i, i % 3})
         end
+        local direct_scan = box.execute([[SELECT id FROM planner_final_paths_t
+            WHERE id = 1]])
+        assert(direct_scan ~= nil and #direct_scan.rows == 1)
+        box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+        local new_planner_scan = box.execute(
+            [[SELECT id FROM planner_final_paths_t WHERE id = 1]])
+        assert(new_planner_scan ~= nil and #new_planner_scan.rows == 1)
+        box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+        local direct_values = box.execute([[VALUES (1), (2)]])
+        assert(direct_values ~= nil and #direct_values.rows == 2)
+        local direct_count = box.execute(
+            [[SELECT count(*) FROM planner_final_paths_t]])
+        assert(direct_count ~= nil and direct_count.rows[1][1] == 8)
+        local direct_compound = box.execute([[SELECT id FROM
+            planner_final_paths_t WHERE id < 3 UNION ALL SELECT id FROM
+            planner_final_paths_t WHERE id > 6]])
+        assert(direct_compound ~= nil and #direct_compound.rows == 4)
 
         local point_explain = box.execute(
             [[EXPLAIN (planner = 'snapshot')

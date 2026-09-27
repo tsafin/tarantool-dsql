@@ -156,6 +156,9 @@ def capture(args):
         "written_snapshots": count,
         "skipped_queries": 0,
         "snapshot_errors": 0,
+        "planner_metrics_version": 2,
+        "component_ledger_version": 1,
+        "planner_metrics": state.get("planner_metrics", []),
         "accepted": True,
     }
     stem = test[:-len(".test.lua")] if args.suite == "sql" else \

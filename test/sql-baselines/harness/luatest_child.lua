@@ -29,8 +29,11 @@ if not fio.mkdir(owner) then
 end
 
 local harness_dir = debug.getinfo(1, 'S').source:sub(2):match('^(.+)/[^/]+$')
-package.path = harness_dir .. '/?.lua;' .. package.path
+package.path = harness_dir .. '/?.lua;' .. harness_dir .. '/../lib/?.lua;' ..
+               package.path
 local snapshot = require('snapshot')
+local msgpack = require('msgpack')
+local sql_statement = require('sql_statement')
 local original_cfg = box.cfg
 local installed = false
 
@@ -54,6 +57,7 @@ box.cfg = setmetatable({}, {
         local native_participation_query_indices = {}
         local eligible_query_indices = {}
         local mode_miss_queries = {}
+        local planner_metrics = {}
 
         box.execute = function(sql, bindings)
             if type(sql) ~= 'string' then
@@ -90,6 +94,55 @@ box.cfg = setmetatable({}, {
             count = count + 1
             local trimmed = sql:match('^%s*(.-)%s*$')
             assert(trimmed ~= '', 'empty SQL query in luatest capture')
+            -- Take dispatcher counters before asking EXPLAIN for its planner
+            -- snapshot, so observability work is not attributed to the test's
+            -- execution.
+            local after = box.stat.sql()
+            local planner_snapshot = nil
+            if err == nil and sql_statement.has_select_plan(trimmed) then
+                local explain_ok, explain_res, explain_err
+                if bindings ~= nil then
+                    explain_ok, explain_res, explain_err =
+                        pcall(original_execute,
+                              "EXPLAIN (planner = 'snapshot') " .. trimmed,
+                              bindings)
+                else
+                    explain_ok, explain_res, explain_err =
+                        pcall(original_execute,
+                              "EXPLAIN (planner = 'snapshot') " .. trimmed)
+                end
+                assert(explain_ok and explain_err == nil and explain_res ~= nil and
+                       explain_res.rows ~= nil and explain_res.rows[1] ~= nil and
+                       explain_res.rows[1][1] ~= nil,
+                       'planner snapshot EXPLAIN failed: ' .. tostring(explain_err))
+                local decode_ok
+                decode_ok, planner_snapshot = pcall(msgpack.decode,
+                    tostring(explain_res.rows[1][1]))
+                assert(decode_ok and type(planner_snapshot) == 'table' and
+                       planner_snapshot.format ==
+                           'tarantool.sql.planner.snapshot' and
+                       planner_snapshot.version == 5 and
+                       type(planner_snapshot.planner) == 'table' and
+                       planner_snapshot.planner.component_status == 'complete' and
+                       type(planner_snapshot.planner.component_routes) == 'table' and
+                       #planner_snapshot.planner.component_routes > 0,
+                       'planner snapshot EXPLAIN returned an invalid v5 ledger')
+                local metrics = planner_snapshot.planner
+                planner_metrics[#planner_metrics + 1] = {
+                    query_index = count,
+                    path_class = planner_snapshot.path_class,
+                    fallback_reason = planner_snapshot.fallback_reason,
+                    component_status = metrics.component_status,
+                    component_routes = metrics.component_routes,
+                    candidate_count = metrics.candidate_count,
+                    elapsed_us = metrics.elapsed_us,
+                    fallback_count = metrics.fallback_count,
+                    generated = metrics.generated,
+                    dominated = metrics.dominated,
+                    truncated = metrics.truncated,
+                    retained = metrics.retained,
+                }
+            end
             local write_ok, write_err = pcall(snapshot.write, {
                 baselines_root = out,
                 suite = suite,
@@ -101,6 +154,9 @@ box.cfg = setmetatable({}, {
                 rows = ok and res and res.rows or nil,
                 metadata = ok and res and res.metadata or nil,
                 err = err,
+                path_class = planner_snapshot and planner_snapshot.path_class,
+                fallback_reason = planner_snapshot and
+                                  planner_snapshot.fallback_reason,
             })
             if not write_ok then
                 local error_file = assert(io.open(out .. '/luatest-capture-error', 'w'))
@@ -108,7 +164,6 @@ box.cfg = setmetatable({}, {
                 error_file:close()
                 error(write_err, 0)
             end
-            local after = box.stat.sql()
             local query_cnp = tonumber(after.sql_cnp_exec_count or 0) -
                               tonumber(query_before.sql_cnp_exec_count or 0)
             local query_llvm = tonumber(after.sql_jit_exec_count or 0) -
@@ -178,6 +233,7 @@ box.cfg = setmetatable({}, {
                 native_participation_query_indices =
                     native_participation_query_indices,
                 mode_miss_queries = mode_miss_queries,
+                planner_metrics = planner_metrics,
             }
             local state_file = assert(io.open(out .. '/luatest-child-state.json', 'w'))
             state_file:write(json.encode(state), '\n')
