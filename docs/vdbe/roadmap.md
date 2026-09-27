@@ -500,9 +500,8 @@ review of IDs and formats.
   population; a second bridge exposes fractional sample-average serialized
   tuple width with its row denominator, without truncating the mean or
   inventing width for an empty sample. It
-  does not derive index/prefix summaries or confidence, establish a shared
-  engine visibility mechanism, or publish globally; therefore this subtask remains open and
-  `ANALYZE` stays disabled. The
+  does not derive index/prefix summaries or confidence, or publish globally;
+  therefore this subtask remains open and `ANALYZE` stays disabled. The
   collection unit now sweeps the snapshot byte budget from immediate rejection
   through the first complete deep copy, releasing candidates and checking that
   every incomplete budget fails closed. Snapshot unit tests also inject a
@@ -512,10 +511,16 @@ review of IDs and formats.
   both staging-array allocations and verifies no candidate is returned before
   a complete build succeeds. These tests close only the detached-candidate
   builder slice (S1.3a.1); S1.3a remains open. The next slice (S1.3a.2) must
-  establish one truthful engine read view across every sampled relation and
-  index, then install a fully built candidate with an atomic swap and prove
-  failure leaves the prior snapshot visible. Current nonzero visibility tokens
-  are caller-supplied claims: no engine capture/validation API assigns them.
+  establish a collector-owned read view across every sampled relation and
+  index, capture/revalidate catalog, data, and index-definition generations,
+  then install a fully built candidate with an atomic swap and prove failure
+  leaves the prior snapshot visible. The engine samplers can now be called
+  over multiple requested indexes using the same caller transaction/read view;
+  Vinyl runtime coverage verifies an uncommitted tuple appears in both primary
+  and secondary samples. No collection context owns that view or validates it
+  against catalog/data/index-definition generations. Current nonzero
+  visibility tokens are caller-supplied claims: no engine capture/validation
+  API assigns them.
   `sql_stats_snapshot` is only an opaque field in `sql` today; there is no
   install/exchange consumer path to validate ownership, reader lifetime, or
   rollback. Implementing a pointer swap alone would therefore not establish
