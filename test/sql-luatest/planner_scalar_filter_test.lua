@@ -46,7 +46,8 @@ g.test_non_primary_null_filters_off_on_off = function()
                 },
                 {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND ' ..
-                           'v IS NULL'):format(composite_name),
+                           'v IS NULL AND w IS NOT NULL')
+                          :format(composite_name),
                     expected = {{1, 10}},
                     enabled_route = 'fallback',
                     enabled_reason = 'UNSUPPORTED_FILTER',
