@@ -465,6 +465,8 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
                 queries[1] .. ' LIMIT 0',
                 queries[1] .. ' LIMIT 1 OFFSET 1',
             }
+            local ordered = ('SELECT c, v FROM %s WHERE a = 1 AND b = 7 ' ..
+                             'ORDER BY c ASC'):format(name)
             local function capture(enabled)
                 local rows = {}
                 for i, sql in ipairs(queries) do
@@ -490,6 +492,7 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             end
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             local off = capture(false)
+            local ordered_off = box.execute(ordered).rows
             local off_limited = {}
             for i, sql in ipairs(limited_queries) do
                 local result, err = box.execute(sql)
@@ -503,6 +506,14 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             t.assert_equals(on[3], {})
             t.assert_equals(on[4], {{9, 'max'}})
 
+            local ordered_explain, ordered_err = box.execute(
+                [[EXPLAIN (planner = 'summary') ]] .. ordered)
+            t.assert(ordered_err == nil, ordered_err and ordered_err.message)
+            t.assert_equals(ordered_explain.rows[1][3], 'new_planner')
+            local ordered_on = box.execute(ordered)
+            t.assert_equals(ordered_on.rows, ordered_off)
+            t.assert_equals(ordered_on.rows, {{2, 'a'}, {4, 'b'}})
+
             local nonleading = ('SELECT c, v FROM %s WHERE b = 7 AND c = 2')
                 :format(name)
             local explain, err = box.execute(
@@ -511,6 +522,12 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             t.assert_equals(explain.rows[1][3], 'fallback')
             t.assert(type(explain.rows[2][3]) == 'string' and
                      #explain.rows[2][3] > 0)
+            local descending = ('SELECT c, v FROM %s WHERE a = 1 AND b = 7 ' ..
+                                'ORDER BY c DESC'):format(name)
+            explain, err = box.execute(
+                [[EXPLAIN (planner = 'summary') ]] .. descending)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(explain.rows[1][3], 'fallback')
             for i, sql in ipairs(limited_queries) do
                 explain, err = box.execute(
                     [[EXPLAIN (planner = 'summary') ]] .. sql)

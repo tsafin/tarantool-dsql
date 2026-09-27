@@ -68,9 +68,25 @@ sql_select_preflight_table_scan(const struct Select *select,
 		    (uint32_t)order->nExpr >
 			source->space->index_map[0]->def->key_def->part_count)
 			return SQL_SELECT_PREFLIGHT_SHAPE;
+		if (order->a[0].pExpr == NULL ||
+		    ExprHasProperty(order->a[0].pExpr, EP_TokenOnly | EP_Reduced) ||
+		    order->a[0].pExpr->op != TK_COLUMN_REF ||
+		    order->a[0].pExpr->iColumn < 0)
+			return SQL_SELECT_PREFLIGHT_SHAPE;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
 		enum sort_order order_direction = SORT_ORDER_UNDEF;
+		uint32_t first_part = UINT32_MAX;
+		for (uint32_t part = 0; part < key_def->part_count; ++part) {
+			if (key_def->parts[part].fieldno ==
+			    (uint32_t)order->a[0].pExpr->iColumn) {
+				first_part = part;
+				break;
+			}
+		}
+		if (first_part == UINT32_MAX ||
+		    (uint32_t)order->nExpr > key_def->part_count - first_part)
+			return SQL_SELECT_PREFLIGHT_SHAPE;
 		for (int i = 0; i < order->nExpr; ++i) {
 			const struct Expr *expr = order->a[i].pExpr;
 			enum sort_order direction = order->a[i].sort_order;
@@ -81,7 +97,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 			    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
 			    expr->pRight != NULL || expr->iTable != source->iCursor ||
 			    expr->iColumn < 0 ||
-			    (uint32_t)expr->iColumn != key_def->parts[i].fieldno ||
+			    (uint32_t)expr->iColumn !=
+				key_def->parts[first_part + (uint32_t)i].fieldno ||
 			    (direction != SORT_ORDER_ASC && direction != SORT_ORDER_DESC) ||
 			    (order_direction != SORT_ORDER_UNDEF &&
 			     direction != order_direction))

@@ -1193,8 +1193,9 @@ DML, triggers, subprograms, non-deterministic functions.
   terminates when any prefix column changes. Memtx/Vinyl off/on/off parity
   covers reversed two-part prefixes, misses, and UINT64_MAX in an UNSIGNED
   prefix component. Literal LIMIT/OFFSET (including zero LIMIT and positive
-  OFFSET) retain `new_planner` and off/on result parity; non-leading equalities
-  and prefix ORDER BY remain stable fallbacks. The VDBE unit pins the
+  OFFSET) retain `new_planner` and off/on result parity; ascending ordering on
+  the unfixed contiguous suffix uses that same walk, while descending and
+  unrelated orderings remain stable fallbacks. The VDBE unit pins the
   multi-part seek, mismatch checks, and limit/offset placement.
   *parallel: no (extends the existing producer/descriptor/lowering chain)*.
   The route also lowers `primary_key_part IS NOT NULL` as a full

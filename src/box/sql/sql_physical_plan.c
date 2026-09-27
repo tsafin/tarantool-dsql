@@ -508,13 +508,9 @@ predicate_parsed:
 	if (has_range_key)
 		direction = range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE ?
 			SQL_PLAN_DESC : SQL_PLAN_ASC;
-	if (has_prefix_scan && select->pOrderBy != NULL)
-		goto invalid_predicate;
 	struct sql_plan_order_term *order_terms = NULL;
 	size_t order_term_count = 0;
 	if (select->pOrderBy != NULL) {
-		if (has_prefix_scan)
-			goto invalid_predicate;
 		const struct ExprList *order_by = select->pOrderBy;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
@@ -532,6 +528,15 @@ predicate_parsed:
 			return NULL;
 		}
 		enum sql_plan_direction order_direction = SQL_PLAN_ASC;
+		uint32_t first_order_part = 0;
+		if (has_prefix_scan) {
+			first_order_part = (uint32_t)composite_point_count;
+			if ((uint32_t)order_by->nExpr >
+			    key_def->part_count - first_order_part) {
+				free(order_terms);
+				goto invalid_predicate;
+			}
+		}
 		for (int i = 0; i < order_by->nExpr; ++i) {
 			const struct Expr *order_expr = order_by->a[i].pExpr;
 			enum sort_order term_direction = order_by->a[i].sort_order;
@@ -544,9 +549,10 @@ predicate_parsed:
 			    order_expr->iTable != source->iCursor ||
 			    order_expr->iColumn < 0 ||
 			    (uint32_t)order_expr->iColumn !=
-					key_def->parts[i].fieldno ||
+					key_def->parts[first_order_part + (uint32_t)i].fieldno ||
 			    (term_direction != SORT_ORDER_ASC &&
-			     term_direction != SORT_ORDER_DESC) ||
+				term_direction != SORT_ORDER_DESC) ||
+			    (has_prefix_scan && term_direction != SORT_ORDER_ASC) ||
 			    (i > 0 && term_direction !=
 				(order_direction == SQL_PLAN_DESC ? SORT_ORDER_DESC :
 				 SORT_ORDER_ASC))) {
@@ -559,7 +565,8 @@ predicate_parsed:
 			order_direction = term_direction == SORT_ORDER_DESC ?
 				SQL_PLAN_DESC : SQL_PLAN_ASC;
 			order_terms[i] = (struct sql_plan_order_term) {
-				.column = key_def->parts[i].fieldno,
+				.column = key_def->parts[first_order_part +
+							 (uint32_t)i].fieldno,
 				.direction = order_direction,
 			};
 		}

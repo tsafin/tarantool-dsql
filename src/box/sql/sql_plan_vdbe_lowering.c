@@ -152,7 +152,7 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 	      in->finalize[0].kind != SQL_PLAN_LIMIT ||
 	      in->finalize[0].limit > INT64_MAX ||
 	      in->finalize[0].offset > INT64_MAX)) ||
-	    in->access.produced_order_count != 0 ||
+	    in->access.produced_order_count > SQL_PLAN_POINT_KEY_PART_MAX ||
 	    in->projection_columns == NULL || in->projection_column_count == 0 ||
 	    in->projection_column_count > INT_MAX ||
 	    result_first_reg > INT_MAX - (int)in->projection_column_count + 1 ||
@@ -161,6 +161,10 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 	for (size_t i = 0; i < in->access.prefix_key_part_count; ++i)
 		if (in->access.bounds[i].op != SQL_PLAN_EQ ||
 		    in->access.prefix_key_parts[i].column > INT_MAX)
+			return -1;
+	for (size_t i = 0; i < in->access.produced_order_count; ++i)
+		if (in->access.produced_order[i].direction != SQL_PLAN_ASC ||
+		    in->access.produced_order[i].column > INT_MAX)
 			return -1;
 	for (size_t i = 0; i < in->projection_column_count; ++i)
 		if (in->projection_columns[i] > INT_MAX)
