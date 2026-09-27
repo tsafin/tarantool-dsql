@@ -7,6 +7,11 @@ local SNAPSHOT_VERSION = 4
 local INPUT_VERSION = 5
 local SELECTOR_VERSION = 1
 
+local function is_logest(value)
+    return type(value) == 'number' and value == math.floor(value) and
+        value >= -32768 and value <= 32767
+end
+
 local function decode(value, what)
     if type(value) ~= 'string' then
         error(what .. ' must be a MessagePack string or varbinary', 3)
@@ -36,9 +41,14 @@ local function select_final_path(input)
     for _, path in ipairs(paths) do
         if type(path) ~= 'table' or type(path.plan_fingerprint) ~= 'string' or
            #path.plan_fingerprint ~= 16 or
-           type(path.path_cost_logest) ~= 'number' or
-           path.path_cost_logest ~= math.floor(path.path_cost_logest) or
-           path.path_cost_logest < -32768 or path.path_cost_logest > 32767 then
+           not is_logest(path.path_cost_logest) or
+           not is_logest(path.unsorted_cost_logest) or
+           not is_logest(path.output_rows_logest) or
+           type(path.is_ordered) ~= 'number' or
+           path.is_ordered ~= math.floor(path.is_ordered) or
+           path.is_ordered < 0 or type(path.reverse_mask) ~= 'number' or
+           path.reverse_mask ~= math.floor(path.reverse_mask) or
+           path.reverse_mask < 0 then
             error('invalid SQL final-path candidate', 3)
         end
         if seen[path.plan_fingerprint] then
@@ -88,6 +98,16 @@ function M.replay_snapshot(snapshot_bytes)
            input.final_path_candidates[i].plan_fingerprint then
             error('SQL replay input final-path order does not match snapshot', 2)
         end
+    end
+    local selected_is_captured = false
+    for _, path in ipairs(captured.final_paths) do
+        if path.fingerprint == captured.selected_final_path_fingerprint then
+            selected_is_captured = true
+            break
+        end
+    end
+    if not selected_is_captured then
+        error('captured selected fingerprint is absent from final paths', 2)
     end
     result.captured_fingerprint =
         captured.selected_final_path_fingerprint
