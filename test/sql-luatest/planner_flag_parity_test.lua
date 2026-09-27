@@ -196,3 +196,98 @@ g.test_text_primary_key_scan_off_on_off_parity = function()
         end
     end)
 end
+
+g.test_composite_primary_key_order_off_on_off_parity = function()
+    g.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_flag_composite_' .. engine
+            box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, v STRING, ' ..
+                         'PRIMARY KEY (a, b)) WITH ENGINE = \'%s\'')
+                        :format(name, engine))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         "(2, 20, 'd'), (1, 30, 'c'), (2, 10, 'e'), " ..
+                         "(1, 10, 'a'), (1, 20, 'b')"):format(name))
+            local queries = {
+                ('SELECT a, b FROM %s ORDER BY a ASC'):format(name),
+                ('SELECT a, b FROM %s ORDER BY a ASC, b ASC'):format(name),
+                ('SELECT a, b FROM %s ORDER BY a DESC, b DESC'):format(name),
+                ('SELECT a, b FROM %s ORDER BY a ASC, b DESC'):format(name),
+            }
+
+            local function capture(enabled)
+                box.execute(('SET SESSION "sql_new_planner_single_table" = %s')
+                            :format(enabled and 'true' or 'false'))
+                local results = {}
+                for i, sql in ipairs(queries) do
+                    local explain = box.execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. sql)
+                    if enabled and i < 4 then
+                        t.assert_equals(explain.rows[1][3], 'new_planner')
+                        t.assert_equals(explain.rows[2][3], nil)
+                    elseif not enabled or i == 4 then
+                        t.assert_equals(explain.rows[1][3], 'fallback')
+                        t.assert_equals(explain.rows[2][3],
+                                        'UNSUPPORTED_EXPRESSION')
+                    else
+                        t.assert_equals(explain.rows[1][3], 'current_where_c')
+                        t.assert_equals(explain.rows[2][3], nil)
+                    end
+                    results[i] = box.execute(sql).rows
+                end
+                return results
+            end
+
+            local off_before = box.stat.sql()
+            local default_off = capture(false)
+            local off_after = box.stat.sql()
+            t.assert_equals(off_after.sql_planner_fallback_total,
+                            off_before.sql_planner_fallback_total + 8)
+            t.assert_equals(
+                off_after.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total,
+                off_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total + 8)
+            local enabled_before = box.stat.sql()
+            local enabled = capture(true)
+            local enabled_after = box.stat.sql()
+            t.assert_equals(enabled_after.sql_planner_fallback_total,
+                            enabled_before.sql_planner_fallback_total + 2)
+            t.assert_equals(
+                enabled_after.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total,
+                enabled_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total + 2)
+            local off_again_before = box.stat.sql()
+            local off_again = capture(false)
+            local off_again_after = box.stat.sql()
+            t.assert_equals(off_again_after.sql_planner_fallback_total,
+                            off_again_before.sql_planner_fallback_total + 8)
+            t.assert_equals(
+                off_again_after.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total,
+                off_again_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total + 8)
+            local expected = {
+                {{1, 10}, {1, 20}, {1, 30}, {2, 10}, {2, 20}},
+                {{1, 10}, {1, 20}, {1, 30}, {2, 10}, {2, 20}},
+                {{2, 20}, {2, 10}, {1, 30}, {1, 20}, {1, 10}},
+                {{1, 30}, {1, 20}, {1, 10}, {2, 20}, {2, 10}},
+            }
+            for i = 1, #queries do
+                t.assert_equals(enabled[i], expected[i],
+                                ('enabled query %d order differs on %s')
+                                :format(i, engine))
+                table.sort(default_off[i], function(a, b)
+                    if a[1] ~= b[1] then return a[1] < b[1] end
+                    return a[2] < b[2]
+                end)
+                table.sort(off_again[i], function(a, b)
+                    if a[1] ~= b[1] then return a[1] < b[1] end
+                    return a[2] < b[2]
+                end)
+                table.sort(enabled[i], function(a, b)
+                    if a[1] ~= b[1] then return a[1] < b[1] end
+                    return a[2] < b[2]
+                end)
+                t.assert_equals(enabled[i], default_off[i])
+                t.assert_equals(off_again[i], default_off[i])
+            end
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
