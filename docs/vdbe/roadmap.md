@@ -932,7 +932,8 @@ DML, triggers, subprograms, non-deterministic functions.
   projection from one base table and requires a TREE primary index. The
   no-filter route supports optional primary-key ordering by scanning in the
   requested direction. A second route supports equality between the sole
-  integer primary-key part and any signed-64-bit integer literal; it emits a
+  INTEGER/UNSIGNED primary-key part and a matching signed-64-bit/unsigned-64-bit
+  integer literal; it emits a
   primary cursor NotFound seek and returns at most one row. The equality
   route supports ORDER BY only on that one primary-key column; ordering is
   redundant for a point result. Literal LIMIT/OFFSET are accepted because
@@ -952,7 +953,8 @@ DML, triggers, subprograms, non-deterministic functions.
   NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
   descending primary-key order with LIMIT, primary-key point hit/miss with
   LIMIT 1 / LIMIT 0 / OFFSET 1 semantics, signed-64-bit point keys through
-  INT64_MIN/MAX, and range-filter fallback. Eighteen emitter checks cover
+  INT64_MIN/MAX, an UNSIGNED point key, and range-filter fallback. Nineteen
+  emitter checks cover
   unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, and out-of-range opcode
   shapes. SQL regressions verify `LIMIT 2147483648` and paired wide LIMIT / OFFSET

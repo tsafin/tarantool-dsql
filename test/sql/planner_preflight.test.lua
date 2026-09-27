@@ -130,6 +130,14 @@ wide_negative_point = box.execute([[SELECT v FROM planner_preflight_wide_t WHERE
 assert(#wide_negative_point.rows == 1 and wide_negative_point.rows[1][1] == 8)
 box.execute([[DROP TABLE planner_preflight_wide_t]])
 
+box.execute([[CREATE TABLE planner_preflight_unsigned_t (id UNSIGNED PRIMARY KEY, v INTEGER)]])
+box.execute([[INSERT INTO planner_preflight_unsigned_t VALUES (9223372036854775807, 9)]])
+unsigned_point_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_unsigned_t WHERE id = 9223372036854775807]])
+assert(err == nil and unsigned_point_summary.rows[1][3] == 'new_planner')
+unsigned_point = box.execute([[SELECT v FROM planner_preflight_unsigned_t WHERE id = 9223372036854775807]])
+assert(#unsigned_point.rows == 1 and unsigned_point.rows[1][1] == 9)
+box.execute([[DROP TABLE planner_preflight_unsigned_t]])
+
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t]])
 assert(err == nil and summary.rows[1][3] == 'fallback')

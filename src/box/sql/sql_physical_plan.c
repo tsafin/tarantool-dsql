@@ -1,5 +1,6 @@
 #include "sql_physical_plan.h"
 
+#include <errno.h>
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
@@ -176,6 +177,8 @@ sql_physical_table_scan_from_select(
 	}
 	bool has_point_key = false;
 	int64_t point_key = 0;
+	uint64_t unsigned_point_key = 0;
+	bool unsigned_point = false;
 	if (select->pWhere != NULL) {
 		const struct Expr *column = select->pWhere->pLeft;
 		const struct Expr *value = select->pWhere->pRight;
@@ -186,10 +189,13 @@ sql_physical_table_scan_from_select(
 			value = tmp;
 		}
 		const struct key_def *pk = source->space->index_map[0]->def->key_def;
+		unsigned_point = pk->part_count == 1 &&
+			pk->parts[0].type == FIELD_TYPE_UNSIGNED;
 		if (select->pWhere->op != TK_EQ ||
 		    column == NULL || value == NULL ||
 		    pk->part_count != 1 ||
-		    pk->parts[0].type != FIELD_TYPE_INTEGER ||
+		    (pk->parts[0].type != FIELD_TYPE_INTEGER &&
+		     pk->parts[0].type != FIELD_TYPE_UNSIGNED) ||
 		    ExprHasProperty(column, EP_TokenOnly | EP_Reduced) ||
 		    column->op != TK_COLUMN_REF || column->pLeft != NULL ||
 		    column->pRight != NULL || column->iTable != source->iCursor ||
@@ -210,32 +216,66 @@ sql_physical_table_scan_from_select(
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
-		bool is_negative = false;
-		bool parsed = false;
-		if ((literal->flags & EP_IntValue) != 0) {
-			point_key = literal->u.iValue;
-			parsed = true;
-		} else if (literal->u.zToken != NULL &&
-			   sql_atoi64(literal->u.zToken, &point_key, &is_negative,
-				      strlen(literal->u.zToken)) == 0) {
-			parsed = true;
-		} else if (negated && literal->u.zToken != NULL &&
-			   strcmp(literal->u.zToken, "9223372036854775808") == 0) {
-			point_key = INT64_MIN;
-			parsed = true;
-		}
-		if (!parsed || (negated && is_negative)) {
-			if (reason != NULL)
-				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-			return NULL;
-		}
-		if (negated && point_key != INT64_MIN) {
-			if (point_key < 0) {
+		if (unsigned_point) {
+			if (negated) {
 				if (reason != NULL)
 					*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 				return NULL;
 			}
-			point_key = -point_key;
+			if ((literal->flags & EP_IntValue) != 0) {
+				if (literal->u.iValue < 0) {
+					if (reason != NULL)
+						*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+					return NULL;
+				}
+				unsigned_point_key = (uint64_t)literal->u.iValue;
+			} else {
+				const char *token = literal->u.zToken;
+				if (token == NULL || token[0] == '-') {
+					if (reason != NULL)
+						*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+					return NULL;
+				}
+				errno = 0;
+				char *end;
+				unsigned long long parsed = strtoull(token, &end, 10);
+				if (errno == ERANGE || end == token || *end != '\0') {
+					if (reason != NULL)
+						*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+					return NULL;
+				}
+				unsigned_point_key = (uint64_t)parsed;
+			}
+		} else {
+			bool is_negative = false;
+			bool parsed = false;
+			if ((literal->flags & EP_IntValue) != 0) {
+				point_key = literal->u.iValue;
+				parsed = true;
+			} else if (literal->u.zToken != NULL &&
+				   sql_atoi64(literal->u.zToken, &point_key,
+					      &is_negative,
+					      strlen(literal->u.zToken)) == 0) {
+				parsed = true;
+			} else if (negated && literal->u.zToken != NULL &&
+				   strcmp(literal->u.zToken,
+					  "9223372036854775808") == 0) {
+				point_key = INT64_MIN;
+				parsed = true;
+			}
+			if (!parsed || (negated && is_negative)) {
+				if (reason != NULL)
+					*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+				return NULL;
+			}
+			if (negated && point_key != INT64_MIN) {
+				if (point_key < 0) {
+					if (reason != NULL)
+						*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+					return NULL;
+				}
+				point_key = -point_key;
+			}
 		}
 		has_point_key = true;
 	}
@@ -316,8 +356,10 @@ sql_physical_table_scan_from_select(
 				SQL_PLAN_TABLE_FULL_SCAN,
 			.bounds = has_point_key ? &point_bound : NULL,
 			.bound_count = has_point_key ? 1 : 0,
-			.has_integer_point_key = has_point_key,
+			.has_integer_point_key = has_point_key && !unsigned_point,
 			.integer_point_key = point_key,
+			.has_unsigned_point_key = has_point_key && unsigned_point,
+			.unsigned_point_key = unsigned_point_key,
 			.direction = direction,
 			.produced_order = select->pOrderBy == NULL ? NULL : &order_term,
 			.produced_order_count = select->pOrderBy == NULL ? 0 : 1,

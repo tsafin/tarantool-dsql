@@ -21,7 +21,8 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 		sql_plan_descriptor_get_input(plan);
 	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != SQL_PLAN_PK_POINT_LOOKUP ||
-	    !input->access.has_integer_point_key || input->filter_count != 0 ||
+	    (input->access.has_integer_point_key ==
+	     input->access.has_unsigned_point_key) || input->filter_count != 0 ||
 	    input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
@@ -49,16 +50,26 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	}
 	int key_reg = ++parse->nMem;
 	int key_op;
-	int64_t key = input->access.integer_point_key;
-	if (key >= INT_MIN && key <= INT_MAX) {
-		key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg);
-	} else if (key < 0) {
-		key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
-					   (const u8 *)&key, P4_INT64);
+	if (input->access.has_unsigned_point_key) {
+		uint64_t key = input->access.unsigned_point_key;
+		if (key <= INT_MAX) {
+			key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg);
+		} else {
+			key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
+					   (const u8 *)&key, P4_UINT64);
+		}
 	} else {
-		uint64_t value = (uint64_t)key;
-		key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
+		int64_t key = input->access.integer_point_key;
+		if (key >= INT_MIN && key <= INT_MAX) {
+			key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg);
+		} else if (key < 0) {
+			key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
+					   (const u8 *)&key, P4_INT64);
+		} else {
+			uint64_t value = (uint64_t)key;
+			key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
 					   (const u8 *)&value, P4_UINT64);
+		}
 	}
 	if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)

@@ -60,6 +60,8 @@ struct sql_plan_access {
 	/* Owned scalar key for the executable integer primary-key point path. */
 	int64_t integer_point_key;
 	bool has_integer_point_key;
+	uint64_t unsigned_point_key;
+	bool has_unsigned_point_key;
 	const struct sql_plan_bound *bounds;
 	size_t bound_count;
 	enum sql_plan_direction direction;
