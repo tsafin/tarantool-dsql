@@ -1191,6 +1191,13 @@ DML, triggers, subprograms, non-deterministic functions.
   reason or counter, while the disabled legacy route retains the stable
   `UNSUPPORTED_EXPRESSION` diagnostic. Focused memtx/Vinyl route and result
   parity passes.
+  The new-planner producer now refuses to attempt lowering after a structural
+  fallback has already been recorded, preventing flattening from erasing a
+  rejected subquery shape and the later physical route from overwriting its
+  statement-level `fallback` classification. `misc.test.lua` verifies the
+  FROM-subquery and scalar/EXISTS/IN subquery reasons with the feature enabled;
+  memtx and Vinyl pass. This protects the current first-reason statement
+  contract but does not provide per-SELECT route records for shared VDBEs.
   The per-reason SQL counter array and exported stat fields now use an
   exclusive reason-count sentinel, so appended function/collation/expression
   codes are counted instead of silently disappearing after access-hint code
