@@ -1679,6 +1679,11 @@ DML, triggers, subprograms, non-deterministic functions.
   role claims for these paths. Runtime matrix assertions pin both roles while
   scalar SELECT retains `scalar_subquery`. The snapshot validator accepts the
   appended role. M3.5's reviewed-corpus producer gate remains open.
+  CTE-expanded FROM sources now retain their `cte` identity instead of being
+  mislabeled as ordinary `from_subquery` producers at coroutine/materialized
+  codegen. The runtime component matrix asserts the recursive CTE role and
+  passes under generated and CnP dispatch; syntax and diff checks passed before
+  integration, and the integrated Debug build passed.
   The capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.
