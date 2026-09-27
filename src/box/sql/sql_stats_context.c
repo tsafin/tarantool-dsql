@@ -11,6 +11,7 @@
 #include "space.h"
 #include "sql.h"
 #include "sql_stats_index_summary.h"
+#include "tuple.h"
 #include "vclock/vclock.h"
 
 struct sql_stats_collection_staged_index {
@@ -125,13 +126,23 @@ collection_context_new_summary(struct sql_stats_collection_context *context,
 	struct index_read_view *index_view =
 		context_get_index(context, &spec->target);
 	if (index_view == NULL || index_view->space == NULL ||
-	    index_view->space->format == NULL ||
 	    index_view->def == NULL || index_view->def->key_def == NULL ||
 	    index_view->def->key_def->part_count != spec->expected->part_count)
 		return NULL;
-	return sql_stats_index_summary_new_for_index(index_view->space->format,
+	struct tuple_format *format = runtime_tuple_format_new(
+		index_view->space->format_data,
+		index_view->space->format_data_len, true);
+	if (format == NULL)
+		return NULL;
+	/* runtime formats may be shared/reused; hold a ref across construction.
+	 * The summary takes its own reference and outlives this local handle. */
+	tuple_format_ref(format);
+	struct sql_stats_index_summary *summary =
+		sql_stats_index_summary_new_for_index(format,
 		index_view->def, spec->hll_precision, spec->hll_seed,
 		spec->summary_max_bytes);
+	tuple_format_unref(format);
+	return summary;
 }
 
 struct sql_stats_collection_context *
@@ -165,6 +176,9 @@ sql_stats_collection_context_new(
 	struct read_view_opts opts;
 	read_view_opts_create(&opts);
 	opts.name = "sql-stats-collection";
+	/* Copy format bytes into the read view so native sampling can construct
+	 * a runtime tuple format from the same pinned schema generation. */
+	opts.enable_field_names = true;
 	opts.enable_vinyl = true;
 	opts.filter_space = context_filter_space;
 	opts.filter_index = context_filter_index;
