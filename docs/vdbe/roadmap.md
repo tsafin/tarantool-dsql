@@ -517,7 +517,9 @@ on missing/stale data; `whereRangeScanEst()` still uses its heuristic
 reduction over the adapted base estimate. Persistent collection,
 prepared-statement snapshot ownership, ANALYZE, and complete adapter
 validation remain open. The system-space schema remains DRAFT pending human
-review of IDs and formats.
+review of IDs and formats. On 2026-09-27 the user reconfirmed that the schema
+stays DRAFT and that work should continue on independent tracks; no ID or
+format approval is implied.
 
 **Exit criteria:**
 
