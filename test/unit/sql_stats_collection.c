@@ -442,7 +442,8 @@ test_context_sample_index(void)
 		.context = &sink_state, .consume = test_sink_consume,
 	};
 	struct sql_stats_sample_request request = {
-		.max_rows = 2, .max_bytes = 16, .max_buffer_bytes = 256,
+		.index_id = 8, .max_rows = 2, .max_bytes = 16,
+		.max_buffer_bytes = 256,
 		.max_tuples_examined = 3, .seed = 7,
 	};
 	struct sql_stats_sample_result result;

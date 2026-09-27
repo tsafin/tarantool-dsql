@@ -6,10 +6,13 @@
 #include "box/error.h"
 #include "box/index.h"
 #include "box/read_view.h"
+#include "box/schema.h"
 #include "box/space.h"
 #include "box/space_cache.h"
 #include "box/sql/sql_stats_collection.h"
 #include "box/sql/sql_stats_sample.h"
+#include "box/sql/sqlInt.h"
+#include "box/sql.h"
 #include "diag.h"
 #include "msgpuck.h"
 
@@ -34,6 +37,8 @@ struct live_read_view_filter {
 static struct read_view live_read_view;
 static bool live_read_view_open;
 static struct live_read_view_filter live_filter;
+static struct sql_stats_collection_context *held_candidate_context;
+static struct sql_stats_snapshot *held_candidate;
 
 static bool
 live_filter_space(struct space *space, void *arg)
@@ -321,6 +326,137 @@ lbox_collect_candidate(lua_State *L)
 }
 
 static int
+lbox_collect_view_candidate(lua_State *L)
+{
+	bool hold = lua_toboolean(L, 2);
+	bool keep_installed = lua_toboolean(L, 3);
+	if (hold && (held_candidate_context != NULL || held_candidate != NULL))
+		return luaL_error(L, "a held candidate already exists");
+	uint32_t space_id = (uint32_t)luaL_checkinteger(L, 1);
+	struct space *space = space_by_id_slow(space_id);
+	struct sql_stats_collection_target targets[2];
+	struct sql_stats_expected_index expected_indexes[2];
+	struct tx_unsigned_extract extracts[2] = {};
+	struct sql_stats_tx_index_spec specs[2] = {};
+	uint32_t field_ids[2] = {0, 1};
+	bool setup_ok = space != NULL;
+	for (uint32_t i = 0; setup_ok && i < 2; i++) {
+		struct index *index = space_index(space, i);
+		if (index == NULL || index->def->key_def->part_count != 1) {
+			setup_ok = false;
+			break;
+		}
+		targets[i] = (struct sql_stats_collection_target) {
+			.space_id = space_id, .index_id = i,
+		};
+		expected_indexes[i] = (struct sql_stats_expected_index) {
+			.index_id = i, .definition_version = index->unique_id,
+			.part_count = 1,
+		};
+		extracts[i].field_id = i;
+		specs[i].target = targets[i];
+		specs[i].expected = &expected_indexes[i];
+		specs[i].request = (struct sql_stats_sample_request) {
+			.index_id = i, .max_rows = 4, .max_bytes = 1024 * 1024,
+			.seed = 31 + i, .max_buffer_bytes = 4096,
+			.max_tuples_examined = 10000, .max_disk_sources = 10000,
+			.max_page_reads = 10000, .max_iterator_keys = 10000,
+			.field_ids = &field_ids[i], .field_count = 1,
+		};
+		specs[i].hll_precision = 8;
+		specs[i].hll_seed = 31 + i;
+		specs[i].summary_max_bytes = 1024;
+		specs[i].extract = extract_unsigned;
+		specs[i].extract_context = &extracts[i];
+	}
+	struct sql_stats_expected_relation expected = {
+		.space_id = space_id, .modification_epoch = 1,
+		.indexes = expected_indexes, .index_count = 2,
+	};
+	struct sql_stats_collection_context *context = setup_ok ?
+		sql_stats_collection_context_new(targets, 2) : NULL;
+	struct sql_stats_snapshot *candidate = context != NULL ?
+		sql_stats_collection_context_build_sample_candidate(context,
+			&expected, specs, 2, 0, 0.5, "live_view_test", 4096,
+			8192, 1024, 1000000) : NULL;
+	double relation_rows = 0;
+	uint64_t width_rows = 0, primary_rows = 0, secondary_rows = 0;
+	if (candidate != NULL) {
+		const struct sql_stats_relation *relation = NULL;
+		const struct sql_stats_index *primary = NULL, *secondary = NULL;
+		if (sql_stats_snapshot_get_relation(candidate, box_schema_version(),
+				space_id, &relation) == SQL_STATS_LOOKUP_AVAILABLE &&
+		    sql_stats_relation_get_index(relation, 0, &primary) ==
+				SQL_STATS_LOOKUP_AVAILABLE &&
+		    sql_stats_relation_get_index(relation, 1, &secondary) ==
+				SQL_STATS_LOOKUP_AVAILABLE) {
+			relation_rows = sql_stats_relation_row_count(relation);
+			width_rows =
+				sql_stats_relation_width_denominator_count(relation);
+			primary_rows = sql_stats_index_tuple_count(primary);
+			secondary_rows = sql_stats_index_tuple_count(secondary);
+		}
+	}
+	int candidate_built = candidate != NULL;
+	int publish_rc = -1;
+	if (hold && candidate != NULL) {
+		held_candidate_context = context;
+		held_candidate = candidate;
+		context = NULL;
+		candidate = NULL;
+		publish_rc = 1;
+	} else if (candidate != NULL) {
+		publish_rc = sql_stats_collection_context_publish_candidate(&context,
+										 candidate);
+	}
+	if (context != NULL)
+		sql_stats_collection_context_delete(context);
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+	if (!hold && !keep_installed)
+		/* Do not leak this test candidate into subsequent SQL statements. */
+		sql_set_stats_snapshot(NULL);
+	lua_newtable(L);
+	lua_pushinteger(L, candidate_built);
+	lua_setfield(L, -2, "candidate_built");
+	lua_pushinteger(L, publish_rc);
+	lua_setfield(L, -2, "publish_rc");
+	lua_pushnumber(L, relation_rows);
+	lua_setfield(L, -2, "relation_rows");
+	lua_pushinteger(L, width_rows);
+	lua_setfield(L, -2, "width_rows");
+	lua_pushinteger(L, primary_rows);
+	lua_setfield(L, -2, "primary_rows");
+	lua_pushinteger(L, secondary_rows);
+	lua_setfield(L, -2, "secondary_rows");
+	return 1;
+}
+
+static int
+lbox_publish_held_candidate(lua_State *L)
+{
+	(void)L;
+	if (held_candidate_context == NULL || held_candidate == NULL)
+		return luaL_error(L, "no held candidate exists");
+	struct sql_stats_snapshot *installed_before = sql_get()->stats_snapshot;
+	int rc = sql_stats_collection_context_publish_candidate(
+		&held_candidate_context, held_candidate);
+	bool preserved = sql_get()->stats_snapshot == installed_before;
+	if (held_candidate_context != NULL)
+		sql_stats_collection_context_delete(held_candidate_context);
+	sql_stats_snapshot_release(held_candidate);
+	held_candidate_context = NULL;
+	held_candidate = NULL;
+	sql_set_stats_snapshot(NULL);
+	lua_newtable(L);
+	lua_pushinteger(L, rc);
+	lua_setfield(L, -2, "rc");
+	lua_pushboolean(L, preserved);
+	lua_setfield(L, -2, "preserved");
+	return 1;
+}
+
+static int
 lbox_visibility_open(lua_State *L)
 {
 	if (live_read_view_open)
@@ -434,6 +570,8 @@ luaopen_sql_stats_tx_context_test(lua_State *L)
 	static const struct luaL_Reg methods[] = {
 		{"sample", lbox_sample},
 		{"collect_candidate", lbox_collect_candidate},
+		{"collect_view_candidate", lbox_collect_view_candidate},
+		{"publish_held_candidate", lbox_publish_held_candidate},
 		{"visibility_open", lbox_visibility_open},
 		{"visibility_scan", lbox_visibility_scan},
 		{"visibility_close", lbox_visibility_close},

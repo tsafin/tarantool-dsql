@@ -264,7 +264,21 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
                 primary = sampler.sample(space.id, space.index.primary.id),
                 secondary = sampler.sample(space.id, secondary_id),
                 candidate = sampler.collect_candidate(space.id),
+                view_candidate = sampler.collect_view_candidate(space.id,
+                                                                false, true),
             }
+            local stale_candidate = sampler.collect_view_candidate(space.id,
+                                                                    true)
+            if stale_candidate.candidate_built == 1 then
+                -- The view retains the old population, but publishing it
+                -- after a committed write must fail closed.
+                space:insert({9, 9})
+                local stale_publish = sampler.publish_held_candidate()
+                stale_candidate.publish_after_write = stale_publish.rc
+                stale_candidate.preserved_old_snapshot = stale_publish.preserved
+                space:delete({9})
+            end
+            output[engine].stale_view_candidate = stale_candidate
             spaces[engine] = space
         end
         -- One core read view must cover both engines. Keep it open across
@@ -326,6 +340,18 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
         t.assert_equals(res[engine].candidate.extract_1_calls, 4)
         t.assert_equals(res[engine].candidate.extract_0_errors, 0)
         t.assert_equals(res[engine].candidate.extract_1_errors, 0)
+        local view_candidate = res[engine].view_candidate
+        t.assert_equals(view_candidate.candidate_built, 1)
+        t.assert_equals(view_candidate.publish_rc, 0)
+        t.assert_equals(view_candidate.relation_rows, 8)
+        t.assert_equals(view_candidate.width_rows, 4)
+        t.assert_equals(view_candidate.primary_rows, 8)
+        t.assert_equals(view_candidate.secondary_rows, 8)
+        t.assert_equals(res[engine].stale_view_candidate.candidate_built, 1)
+        t.assert_equals(res[engine].stale_view_candidate.publish_rc, 1)
+        t.assert_equals(res[engine].stale_view_candidate.publish_after_write, -1)
+        t.assert_equals(res[engine].stale_view_candidate.preserved_old_snapshot,
+                        true)
         local visibility = res[engine].visibility
         t.assert_equals(visibility.open_rc, 0)
         t.assert_equals(visibility.reopen_rc, 0)
