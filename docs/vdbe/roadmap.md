@@ -675,15 +675,19 @@ review of IDs and formats.
   to an expected index, request, and canonical extractor; owns per-index
   summaries; derives relation population/width from a designated sampled index;
   and returns a detached candidate only after all samples and conversions
-  succeed. Its seven focused transaction-context checks cover reordered,
+  succeed. Its focused transaction-context checks cover reordered,
   missing, duplicate, and later-extractor-failure cases, while asserting that
-  the installed snapshot is unchanged. This does not commit or publish the
-  returned candidate and has no live memtx/Vinyl orchestration confirmation.
-  The next integration must combine detached candidate assembly with the
-  transaction's final generation revalidation and atomic install; the existing
-  `finish_and_publish()` currently accepts a collection result, not this
-  candidate value. Local READ_CONFIRMED and vclock/catalog/schema checks are
-  not a durable or cross-node snapshot claim.
+  the installed snapshot is unchanged. A dedicated
+  `sql_stats_tx_context_finish_sample_candidate_and_publish()` now accepts
+  only the exact candidate retained by this context, commits its owned
+  transaction, revalidates local schema/catalog/vclock generations after
+  commit, and installs that same immutable candidate. The context and caller
+  retain separate snapshot references. Candidate mismatch, repeated assembly,
+  commit failure, and post-commit visibility drift preserve the old installed
+  snapshot. The 10-check `sql_stats_collection.test` target passes in the root
+  Clang-19 build. Live memtx/Vinyl orchestration and common cross-engine
+  visibility remain unverified, so S1.3a stays open. Local READ_CONFIRMED and
+  vclock/catalog/schema checks are not durable or cross-node snapshot claims.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
   of system-space IDs and tuple/payload formats. *parallel: no*.

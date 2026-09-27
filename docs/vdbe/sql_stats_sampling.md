@@ -449,16 +449,30 @@ candidate. Seven focused assertions cover reordered requests, missing and
 duplicate indexes, a later-index failure, and unchanged installed snapshot.
 The unit target uses an index-summary test double because these checks pin
 transaction orchestration, not HLL estimator accuracy; the real estimator and
-sample-to-candidate bridge are tested separately. The main Clang-19
-`sql_stats_collection.test` target and all seven assertions pass.
+sample-to-candidate bridge are tested separately. The root Clang-19
+`sql_stats_collection.test` target passes with 10 assembler/publication
+assertions.
 
-The returned candidate remains detached and the helper neither commits nor
-publishes it. In particular, it cannot yet flow directly into the existing
-`sql_stats_tx_context_finish_and_publish()`, which accepts a raw collection
-result rather than a candidate snapshot. The next integration must combine
-this assembler with post-commit generation revalidation and atomic install,
-without a gap that could publish stale data. No live memtx/Vinyl transaction
-test of the new orchestration has run. `READ_CONFIRMED`, transaction ID, and
-local vclock/catalog/schema checks are volatile local guards, not durable or
-cross-node visibility identities. This does not enable `ANALYZE` or persistent
-statistics.
+The new `sql_stats_tx_context_finish_sample_candidate_and_publish()` accepts
+only the exact candidate registered by this context's assembler. The context
+retains its own snapshot reference until finish/abort; the caller retains the
+reference returned by assembly. Publication holds a temporary reference across
+transaction teardown, commits only after every requested target was sampled,
+revalidates schema/catalog/vclock generations after commit, then installs that
+same immutable candidate without yielding between the final check and swap.
+Repeated assembly, an unrelated candidate, commit failure, or post-commit
+generation drift leaves the installed snapshot unchanged; transaction failure
+consumes the context when possible and releases its owned candidate reference.
+The prior generic `finish_and_publish()` path remains for normalized collection
+results and rejects a context that already owns an assembled candidate.
+
+The focused publication assertions cover successful install, unrelated
+candidate rejection, commit failure, post-commit vclock drift, repeated
+assembly, and preservation of the prior installed snapshot. Root reports that
+the configured Clang-19 build and `sql_stats_collection.test` passed after
+cherry-pick. No live memtx/Vinyl transaction test of the orchestration has
+run. S1.3a remains open pending live engine confirmation and proof of any
+claimed cross-engine visibility semantics.
+`READ_CONFIRMED`, transaction ID, and local vclock/catalog/schema checks are
+volatile local guards, not durable or cross-node visibility identities. This
+does not enable `ANALYZE` or persistent statistics.
