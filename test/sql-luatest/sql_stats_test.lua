@@ -72,6 +72,7 @@ g.test_shared_view_multi_relation_candidate = function()
             parts = {{field = 1, type = 'unsigned'}},
         })
         memtx:create_index('by_value', {
+            unique = false,
             parts = {{field = 2, type = 'unsigned'}},
         })
         local vinyl = box.schema.space.create('sql_stats_multi_vinyl', {
@@ -81,6 +82,7 @@ g.test_shared_view_multi_relation_candidate = function()
             parts = {{field = 1, type = 'unsigned'}},
         })
         vinyl:create_index('by_value', {
+            unique = false,
             parts = {{field = 2, type = 'unsigned'}},
         })
         for i = 1, 8 do
