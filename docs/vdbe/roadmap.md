@@ -598,27 +598,35 @@ format approval is implied.
   S1.1's schema remains DRAFT. The compatibility baseline from the historical
   `sqlAnalyze` implementation is now source-audited: bare form visits
   non-system, non-view spaces and all indexes; named missing-space and view
-  targets error. Named system-space, temporary-space, unsupported engine/index,
-  and no-eligible-target behavior still needs an explicit volatile contract.
-  Numeric sample/work/memory defaults are also open; the source audit and the
-  point for direction are recorded in `sql_stats_sampling.md`.
+  targets error. The volatile contract now explicitly preserves named
+  system-space no-collection behavior; excludes data-temporary spaces from
+  bare enumeration and rejects them when named; and fails the complete batch
+  for unsupported engine/index targets rather than silently omitting them.
+  These choices and their limitations are recorded in
+  `sql_stats_sampling.md`. Production SQL discovery/execution and rollback
+  tests remain open. Bare `ANALYZE` with no eligible targets still needs an
+  explicit no-op/error decision. Numeric sample/work/memory defaults also
+  remain open; do not invent these policies while implementing
+  grammar/dispatch.
 
   ```mermaid
   flowchart TD
     A[ANALYZE statement] --> B{Bare or named?}
-    B -- Bare --> C[Enumerate non-system, non-view spaces]
+    B -- Bare --> C[Enumerate persistent non-system, non-view spaces]
     C --> D[Include all indexes]
     B -- Named --> E[Resolve space name]
     E --> F{Missing or view?}
     F -- Yes --> X[Return SQL error]
-    F -- No --> G{System, temporary, supported?}
-    G -- Scope pending --> H[Apply explicit eligibility policy]
-    G -- Eligible --> I[Include all indexes]
+    F -- No --> G{Named target category?}
+    G -- System --> H[No collection / no publication]
+    G -- Data-temporary --> X2[Fail closed / no publication]
+    G -- Persistent --> I[Include all indexes]
     D --> J[Open one shared read view]
-    H --> J
     I --> J
     J --> K[Build one complete detached candidate]
-    K --> L{Bare or named?}
+    K --> Q{Any target or index unsupported?}
+    Q -- Yes --> R[Fail whole request; preserve installed snapshot]
+    Q -- No --> L{Bare or named?}
     L -- Bare --> M[Use complete batch candidate]
     L -- Named --> N[Replace one relation in prior snapshot]
     M --> O[Publish once]
