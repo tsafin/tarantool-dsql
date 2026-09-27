@@ -911,11 +911,19 @@ DML, triggers, subprograms, non-deterministic functions.
   and the production `tarantool` target links successfully. The adapter is not
   called by SQL preparation and does not emit bytecode.
   The live route still emits through
-  `sqlWhereBegin()` / `selectInnerLoop()` / `sqlWhereEnd()`, and the callback
-  lowerer has no VDBE/`Parse`/result context or rollback boundary. A safe
-  table-full-scan-only implementation is therefore not isolated or all-or-
-  nothing yet. Keep runtime routing and M3.7 off until producer, preflight,
-  backend bindings, and parity coverage exist. Detailed audit:
+  `sqlWhereBegin()` / `selectInnerLoop()` / `sqlWhereEnd()`. A separate narrow
+  VDBE backend now emits an executable table-full-scan loop with direct
+  projection columns: ascending uses `Rewind`/`Next`, descending uses
+  `Last`/`Prev`, and both emit `Column` plus `ResultRow`. It validates the
+  descriptor and register range before mutation, then rolls back emitted
+  opcodes through `vdbe_codegen_checkpoint` on emission failure. The caller
+  must still supply an already-open cursor and allocated result registers;
+  result metadata, SELECT integration, runtime execution parity, and a live
+  producer are absent. Eight focused opcode-level checks pass, and the
+  production `tarantool` target links this backend. This is an executable
+  lowering slice, not a safe routed statement path. Keep runtime routing and
+  M3.7 off until producer, preflight, backend bindings, and parity coverage
+  exist. Detailed audit:
   `docs/vdbe/physical_plan_descriptor.md`; the narrowest candidate is
   `SELECT c FROM t`, but its scan/projection/result opcodes currently belong
   to `sqlWhereBegin()`/`wherecode.c`/`selectInnerLoop()`. A limited
@@ -929,7 +937,9 @@ DML, triggers, subprograms, non-deterministic functions.
   target rebuilt and passed all 10 checks, and the production `tarantool`
   target linked successfully. It does not cover arbitrary
   parser/AST or schema mutations, and
-  production expression/cursor/result bindings are still absent. The pure
+  production statement-lifetime expression/cursor/result bindings are still
+  absent; the low-level loop backend only accepts explicit cursor/register
+  assignments. The pure
   `sql_select_preflight_table_scan()` contract now
   checks resolved base-source identity, direct projection column/cursor
   bindings, and `SRT_Output` destination before `sqlSelect()` mutates its

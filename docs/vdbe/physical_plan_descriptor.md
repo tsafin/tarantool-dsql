@@ -110,6 +110,19 @@ bindings and an auditable boundary around every other mutable state remain
 the narrow blockers. This is not a claim that existing VDBE opcodes cannot
 express the scan.
 
+`sql_plan_lower_vdbe_table_scan()` is a first opcode-emitting backend slice.
+For a `SQL_PLAN_TABLE_FULL_SCAN` descriptor with direct projection columns and
+no filters or finalizers, it emits the cursor loop and result-row opcode.
+Ascending scans use `OP_Rewind`/`OP_Next`; descending scans use
+`OP_Last`/`OP_Prev`. The caller remains responsible for opening the cursor,
+allocating the output register range, and setting SQL result metadata. Shape
+and integer-range validation happen before emission; codegen failures roll
+back the opcode suffix through the checkpoint. Eight unit checks inspect the
+actual opcode sequence and reject unsupported shapes without VDBE mutation.
+This backend has no active SQL caller and has not been validated by executing
+the generated loop against storage, so it does not establish SQL result
+parity or close M3.4.
+
 #### `sqlSelect()` preflight prerequisite
 
 `sql_select_preflight_table_scan()` is a side-effect-free predicate for the
