@@ -912,7 +912,9 @@ DML, triggers, subprograms, non-deterministic functions.
   from the checkpoint boundary, so codegen errors cannot be converted into
   fallback. The boundary
   diagnostic is retained during the checkpoint lifetime, avoiding false
-  failure from pre-existing diagnostics. It does not cover arbitrary
+  failure from pre-existing diagnostics. The configured checkpoint unit
+  target rebuilt and passed all 10 checks, and the production `tarantool`
+  target linked successfully. It does not cover arbitrary
   parser/AST or schema mutations, and
   production expression/cursor/result bindings are still absent. The pure
   `sql_select_preflight_table_scan()` contract now

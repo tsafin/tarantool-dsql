@@ -101,6 +101,8 @@ boundary. The boundary error is retained while
 the checkpoint is live, so an unchanged pre-existing diagnostic is not
 mistaken for a new failure. Rollback cannot silently turn a codegen error into
 legacy fallback. Focused unit tests cover these cases and commit.
+The configured `sql_vdbe_codegen_checkpoint.test` target rebuilt and passed
+all 10 checks, and the production `tarantool` target linked successfully.
 This checkpoint intentionally does not cover arbitrary parser/AST mutations,
 schema side effects, or VDBE metadata, so it is not yet sufficient to wrap
 the complete SELECT integration path. The producer/expression/cursor/result
