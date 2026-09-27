@@ -141,16 +141,10 @@ end
 
 g.test_snapshot_estimate_adapter = function()
     local res = g.server:exec(function()
-        local build_path = os.getenv('BUILDDIR')
-        local fio = require('fio')
-        local source_dir = fio.dirname(debug.getinfo(1, 'S').source:sub(2))
-        local module_cpath = source_dir..'/?.so;'..source_dir..'/?.dylib;'
-        if build_path ~= nil then
-            module_cpath = module_cpath..build_path..'/test/box/?.so;'..
-                           build_path..'/test/box/?.dylib;'
+        local adapter = package.loaded.sql_stats_snapshot_test
+        if adapter == nil then
+            return {test_wrapper_unavailable = true}
         end
-        package.cpath = module_cpath..package.cpath
-        local adapter = require('sql_stats_snapshot_test')
         adapter.clear()
         box.execute([[CREATE TABLE sql_stats_adapter_t
                       (id INT PRIMARY KEY, a INT);]])
@@ -218,6 +212,10 @@ g.test_snapshot_estimate_adapter = function()
         }
     end)
 
+    if res.test_wrapper_unavailable then
+        t.skip('SQL stats live wrapper requires a TEST_BUILD server')
+    end
+
     t.assert_gt(res.current.relation, res.baseline.relation)
     t.assert_lt(res.current.prefix, res.baseline.prefix)
     t.assert_equals(res.cleared, res.baseline)
@@ -240,16 +238,10 @@ end
 
 g.test_transaction_sampler_memtx_and_vinyl = function()
     local res = g.server:exec(function()
-        local build_path = os.getenv('BUILDDIR')
-        local fio = require('fio')
-        local source_dir = fio.dirname(debug.getinfo(1, 'S').source:sub(2))
-        local module_cpath = source_dir..'/?.so;'..source_dir..'/?.dylib;'
-        if build_path ~= nil then
-            module_cpath = module_cpath..build_path..'/test/box/?.so;'..
-                           build_path..'/test/box/?.dylib;'
+        local sampler = package.loaded.sql_stats_tx_context_test
+        if sampler == nil then
+            return {test_wrapper_unavailable = true}
         end
-        package.cpath = module_cpath..package.cpath
-        local sampler = require('sql_stats_tx_context_test')
         local output = {}
         for _, engine in ipairs({'memtx', 'vinyl'}) do
             local name = 'sql_stats_tx_context_'..engine
@@ -275,6 +267,10 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
         end
         return output
     end)
+
+    if res.test_wrapper_unavailable then
+        t.skip('SQL stats live wrapper requires a TEST_BUILD server')
+    end
 
     for _, engine in ipairs({'memtx', 'vinyl'}) do
         for _, index in ipairs({'primary', 'secondary'}) do
