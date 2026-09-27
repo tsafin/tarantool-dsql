@@ -509,8 +509,17 @@ review of IDs and formats.
   population; a second bridge exposes fractional sample-average serialized
   tuple width with its row denominator, without truncating the mean or
   inventing width for an empty sample. It
-  does not derive index/prefix summaries or confidence, or publish globally;
-  therefore this subtask remains open and `ANALYZE` stays disabled. The
+  does not derive complete population-level index/prefix summaries or
+  confidence, or publish globally; therefore this subtask remains open and
+  `ANALYZE` stays disabled. A new `sql_stats_index_summary` unit API now
+  computes sampled prefix-NDV values through HLL from a caller-provided
+  canonical SQL-value extractor. It counts delivered rows/bytes, bounds
+  accumulator memory, and suppresses output on extractor failure; it
+  deliberately does not hash raw MessagePack or infer population-level NDV.
+  Eight focused unit checks pass. A focused runtime luatest also exercises the
+  owned READ_CONFIRMED context against real memtx and Vinyl primary and
+  secondary indexes; `sql_stats_test` passes locally. Neither slice provides
+  a common cross-index visibility boundary or a complete candidate. The
   collection unit now sweeps the snapshot byte budget from immediate rejection
   through the first complete deep copy, releasing candidates and checking that
   every incomplete budget fails closed. Snapshot unit tests also inject a
@@ -518,12 +527,14 @@ review of IDs and formats.
   cleanup until complete construction succeeds; the hook is compiled only
   into that unit target. The collection unit separately injects failures at
   both staging-array allocations and verifies no candidate is returned before
-  a complete build succeeds. These tests close only the detached-candidate
-  builder slice (S1.3a.1); S1.3a remains open. The next slice (S1.3a.2) must
-  establish a collector-owned read view across every sampled relation and
-  index, capture/revalidate catalog, data, and index-definition generations,
-  then install a fully built candidate with an atomic swap and prove failure
-  leaves the prior snapshot visible. The engine samplers can now be called
+  a complete build succeeds. These tests close only detached builder
+  coverage; S1.3a remains open. The remaining integration must derive complete
+  stats from canonical sampled values and capture/revalidate catalog, data,
+  and index-definition generations under one common cross-engine visibility
+  boundary before atomically installing the candidate; failure must preserve
+  the prior snapshot. Neither core `read_view` nor READ_CONFIRMED currently
+  supplies that common boundary across the supported engines. The engine
+  samplers can now be called
   over multiple requested indexes using the same caller transaction/read view;
   Vinyl runtime coverage verifies an uncommitted tuple appears in both primary
   and secondary samples. A new reusable context now owns a core `read_view`,
@@ -544,9 +555,10 @@ review of IDs and formats.
   bounds/stages each requested index sample before delivery. Its finish commits
   only after every requested target succeeds; otherwise it rolls back. The
   focused `sql_stats_collection.test` target builds and passes locally,
-  including all 21 transaction-context checks. The CMake target was rebuilt
-  from the root build, and the production `tarantool` target links with the
-  new API; live memtx/Vinyl integration was not run.
+  including all 21 transaction-context checks. The production `tarantool`
+  target links with the API, and the `sql_stats_test` luatest passes live
+  memtx/Vinyl primary- and secondary-index samples. The unit test still uses
+  engine stubs for lifecycle/error injection.
   READ_CONFIRMED excludes
   prepared/unconfirmed writes but does not freeze confirmed commits between
   index calls; the transaction ID is not a shared visibility token and must
@@ -875,8 +887,10 @@ DML, triggers, subprograms, non-deterministic functions.
   supplied candidates/expressions. A producer-side table-full-scan adapter
   now derives a descriptor for resolved column-only `SELECT ... FROM t`
   without filters or finalize clauses, using explicit statement-time estimate
-  inputs and validating projection cursor/column bindings. It is covered by
-  unit tests but is not called by SQL preparation and does not emit bytecode.
+  inputs and validating projection cursor/column bindings. The local
+  `sql_physical_plan.test` target passes all access-path and producer checks,
+  and the production `tarantool` target links successfully. The adapter is not
+  called by SQL preparation and does not emit bytecode.
   The live route still emits through
   `sqlWhereBegin()` / `selectInnerLoop()` / `sqlWhereEnd()`, and the callback
   lowerer has no VDBE/`Parse`/result context or rollback boundary. A safe
@@ -1074,7 +1088,11 @@ compile-time EXPLAIN diagnostics, not executed-result evidence. This confirms
 native-mode width sensitivity but does not measure query quality or execution
 latency. E1 acceptance and the GATE decision still depend on integrated M3 +
 S2 and an accepted evaluation workload with plan-quality and end-to-end latency
-data.
+data. A standalone `test/sql-baselines/e1_measure.py` consumer and
+`E1_WORKLOAD.md` contract now define stage-matched estimate/actual JSONL and
+end-to-end execution timing, including zero-cardinality and provenance rules.
+Its six unit tests pass; no integrated M3/S2 producer currently supplies these
+observations, and the contract intentionally selects no acceptance thresholds.
 
 **Exit criteria:**
 

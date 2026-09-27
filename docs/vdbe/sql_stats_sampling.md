@@ -256,7 +256,10 @@ is therefore intentionally not a `sql_stats_collected_index` and cannot be
 passed to the candidate builder as population-matched index statistics. The
 bounded sketch memory covers HLL registers and the sketch pointer vector;
 producer-owned temporary canonical-value storage is outside that bound. This
-is an aggregation building block, not a complete S1.3a producer.
+is an aggregation building block, not a complete S1.3a producer. Its focused
+`sql_stats_index_summary.test` unit target passes all eight checks locally;
+the production `tarantool` target also links after including the HLL source in
+the box library.
 
 ### Publication is a separate, currently blocked slice
 
