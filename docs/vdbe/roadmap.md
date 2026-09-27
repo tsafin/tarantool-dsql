@@ -1066,7 +1066,7 @@ DML, triggers, subprograms, non-deterministic functions.
   by SQL parsing before planner dispatch. Unsupported predicates still fall
   back. One-sided bounds now also reject a scan direction that cannot
   terminate correctly (lower-bound scans must ascend; upper-bound scans must
-  descend) before VDBE mutation; the focused unit target passes all 31 checks.
+  descend) before VDBE mutation; the focused unit target passes all 32 checks.
   Those emitter checks pin all four range opcodes (`SeekGT`,
   `SeekGE`, `SeekLT`, `SeekLE`), ascending/descending step opcodes, signed
   range key encoding, and full-width unsigned `P4_UINT64` preservation, alongside
