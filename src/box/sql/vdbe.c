@@ -65,6 +65,7 @@
 /* Dispatcher interface for Phase 5.4 integration */
 #include "vdbe_dispatch_interface.h"
 #include "vdbe_helpers.h"
+#include "sql_stats_analyze.h"
 #ifdef ENABLE_SQL_JIT
 #include "vdbe_jit.h"
 #endif
@@ -3803,6 +3804,19 @@ EXECUTE(OP_Expire,(P1)): {
 	} else {
 		p->expired = 1;
 	}
+	DISPATCH();
+}
+
+/* Opcode: Analyze P1 * * P4 *
+ * Synopsis: Collect volatile SQL statistics
+ *
+ * P1 is non-zero for ANALYZE name; P4 contains that name. P1 zero means the
+ * bare form. Collection is all-or-nothing and publishes one candidate.
+ */
+EXECUTE(OP_Analyze,(P1,P4)): {
+	assert(P1 == 0 || pOp->p4.z != NULL);
+	if (sql_stats_analyze_execute(P1 != 0 ? pOp->p4.z : NULL) != 0)
+		goto abort_due_to_error;
 	DISPATCH();
 }
 

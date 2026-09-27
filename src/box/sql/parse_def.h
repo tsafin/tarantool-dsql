@@ -546,6 +546,10 @@ create_fk_constraint_parse_def_destroy(struct create_fk_constraint_parse_def *d)
 void
 sql_ast_init_start_transaction(struct Parse *parse);
 
+/** Compile volatile ANALYZE command execution into the VDBE. */
+void
+sqlAnalyze(struct Parse *parse, const struct Token *name);
+
 /** Save parsed COMMIT statement. */
 void
 sql_ast_init_commit(struct Parse *parse);

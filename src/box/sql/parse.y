@@ -213,6 +213,12 @@ sql_set_explain_planner(Parse *pParse, const Token *name_token,
 ///////////////////// Begin and end transactions. ////////////////////////////
 //
 
+cmd ::= ANALYZE_KW. {
+  sqlAnalyze(pParse, NULL);
+}
+cmd ::= ANALYZE_KW nm(X). {
+  sqlAnalyze(pParse, &X);
+}
 cmd ::= START TRANSACTION. {
   sql_ast_init_start_transaction(pParse);
 }

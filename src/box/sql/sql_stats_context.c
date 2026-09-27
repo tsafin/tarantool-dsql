@@ -233,6 +233,13 @@ sql_stats_collection_context_visibility_id(
 }
 
 uint64_t
+sql_stats_collection_context_catalog_version(
+	const struct sql_stats_collection_context *context)
+{
+	return context == NULL ? 0 : context->catalog_version;
+}
+
+uint64_t
 sql_stats_collection_context_schema_version(
 	const struct sql_stats_collection_context *context)
 {

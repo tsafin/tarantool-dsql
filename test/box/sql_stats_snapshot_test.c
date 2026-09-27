@@ -65,6 +65,38 @@ lbox_clear_snapshot(lua_State *L)
 }
 
 static int
+lbox_snapshot_state(lua_State *L)
+{
+	struct sql_stats_snapshot *snapshot = sql_get_stats_snapshot();
+	if (snapshot == NULL) {
+		lua_pushnil(L);
+		return 1;
+	}
+	lua_createtable(L, 0, 2);
+	lua_pushinteger(L, sql_stats_snapshot_relation_count(snapshot));
+	lua_setfield(L, -2, "relation_count");
+	lua_newtable(L);
+	size_t count = sql_stats_snapshot_relation_count(snapshot);
+	for (size_t i = 0; i < count; i++) {
+		const struct sql_stats_relation *relation = NULL;
+		if (sql_stats_snapshot_relation_at(snapshot, i, &relation) !=
+		    SQL_STATS_LOOKUP_AVAILABLE) {
+			sql_stats_snapshot_release(snapshot);
+			return luaL_error(L, "failed to enumerate SQL stats snapshot");
+		}
+		lua_createtable(L, 0, 2);
+		lua_pushinteger(L, sql_stats_relation_space_id(relation));
+		lua_setfield(L, -2, "space_id");
+		lua_pushnumber(L, sql_stats_relation_row_count(relation));
+		lua_setfield(L, -2, "row_count");
+		lua_rawseti(L, -2, i + 1);
+	}
+	lua_setfield(L, -2, "relations");
+	sql_stats_snapshot_release(snapshot);
+	return 1;
+}
+
+static int
 lbox_estimates(lua_State *L)
 {
 	uint32_t space_id = luaL_checkinteger(L, 1);
@@ -87,6 +119,7 @@ luaopen_sql_stats_snapshot_test(lua_State *L)
 	static const struct luaL_Reg methods[] = {
 		{"install", lbox_install_snapshot},
 		{"clear", lbox_clear_snapshot},
+		{"state", lbox_snapshot_state},
 		{"estimates", lbox_estimates},
 		{NULL, NULL},
 	};
