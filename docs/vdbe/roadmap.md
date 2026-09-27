@@ -1050,7 +1050,8 @@ DML, triggers, subprograms, non-deterministic functions.
   no-filter route supports optional primary-key ordering by scanning in the
   requested direction. Composite primary indexes now support ORDER BY on a
   leading key prefix with uniform ASC or DESC direction; mixed directions and
-  non-prefix terms remain on legacy codegen. Memtx/Vinyl off/on result parity
+  non-prefix terms remain on legacy codegen with stable
+  `UNSUPPORTED_EXPRESSION` fallback metadata. Memtx/Vinyl off/on result parity
   covers ascending prefix order and complete ascending/descending composite
   key order, while preflight unit tests reject mixed and non-prefix shapes. It
   also lowers `primary_key_part IS NOT NULL` as a full
@@ -1441,7 +1442,8 @@ DML, triggers, subprograms, non-deterministic functions.
   A new `planner_composite_pk_order.test.lua` acceptance case confirms the
   prefix and full-key routes report `new_planner`, preserves ASC/DESC row order
   on both engines, and leaves mixed-direction or non-prefix ordering on the
-  legacy route with exact flag-off/on result parity.
+  legacy route with stable fallback reasons and exact flag-off/on result
+  parity.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
