@@ -1308,6 +1308,32 @@ DML, triggers, subprograms, non-deterministic functions.
     R -- yes --> FB[fallback + stable reason]
   ```
 
+  **Route-integration audit (2026-09-27, source inspection at M3.5 tip).**
+  This inventory confirms M3.5 is not yet a complete SELECT producer gate:
+
+  | Producer / branch | Current boundary | M3.5 implication |
+  | --- | --- | --- |
+  | Plain multi-row `VALUES` | `sqlSelect()` returns through `multiSelectValues()` before VDBE creation and pre-opt fallback classification. | Direct emitter; not a `where.c` fallback. Keep out of the single-table SELECT gate or define an explicit direct path class. |
+  | Compound SELECT / recursive CTE | `sqlSelect()` dispatches `pPrior` to `multiSelect()`; that invokes `sqlSelect()` again for component SELECTs. Recursive generation separately calls it for setup and recursive terms, and directly emits queue/current-row loops. | Classification and route evidence must be per SELECT component, not inferred from the outer compound route. Recursive components may share a VDBE. |
+  | FROM-subquery | `sqlSelect()` prepares/compiles subqueries or coroutine producers before attempting the outer table-scan lowering; flattening may also rewrite the outer tree. | The outer attempt is not a statement-wide producer gate. Preserve pre-rewrite rejects and account for nested producers independently. |
+  | Simple `COUNT(*)` | Aggregate branch opens a cursor and emits `OP_Count`, returning without `sqlWhereBegin()`. | Deliberate direct route, not fallback. It needs its own explicit path class if the contract requires every SELECT to be classified. |
+  | Feature-gated table scan | `sql_select_try_lower_table_scan()` is called once for an eligible non-compound SELECT after preparation/subquery work. It builds its own table-scan descriptor and lowers it; it does not call the general logical-to-physical selector. | This is the only production new-planner SELECT producer today. Its rejects are useful for this attempt, not a universal classification of every path. |
+  | Ordinary scan / aggregates except simple count | Reaches one of several `sqlWhereBegin()` call sites (ordinary row loop, grouped aggregate, aggregate-without-group). `where.c` only adds a multi-relation reason if no earlier reason exists. | `current_where_c` vs `fallback` currently describes the shared VDBE's recorded metadata, not a complete per-producer route ledger. |
+  | Scalar / expression subquery | Expression codegen can recursively compile a SELECT into the same statement VDBE; source-tree walker may mark the containing SELECT unsupported first. | A statement-global reason can mask which nested component rejected, and a component-level `new_planner` assignment is not automatically a truthful statement-level classification. |
+
+  **Required integration before closure:** define a route-result record with an
+  explicit scope (SELECT component versus whole statement) and direct-route
+  classes; establish a common entry/exit gate around each `sqlSelect()` producer
+  before it mutates shared VDBE state; preserve source-shape evidence before
+  flattening; and ensure each legacy dispatch attaches the reason from the
+  producer that actually rejected the candidate. Then add runtime tests that
+  combine nested/recursive components with different route outcomes and assert
+  that neither a direct emitter nor a nested `new_planner` attempt silently
+  overwrites or inherits another component's classification. Only after that
+  integration should the production path build logical inputs/candidates and
+  call the general physical selector. This is a design/coverage prerequisite,
+  not a proposed routing change; no additional enum alone closes it.
+
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
