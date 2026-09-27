@@ -1543,7 +1543,12 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_EXPRESSION` classification for ordering outside the resolved
   expression contract, and exact total/per-reason fallback deltas (14 for
   seven disabled EXPLAIN+execution pairs, two for the single rejected enabled
-  pair). The focused luatest passes locally.
+  pair). The focused luatest passes locally. A separate two-connection case
+  also verifies session isolation: enabling or disabling
+  `sql_new_planner_single_table` changes only that net.box session's route,
+  while another connection retains its prior/default route. This focused
+  runtime check passes; broad parity/corpus validation and feature acceptance
+  remain open.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
