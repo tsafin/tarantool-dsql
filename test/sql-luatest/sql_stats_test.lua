@@ -267,6 +267,8 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
                 view_candidate = sampler.collect_view_candidate(space.id,
                                                                 false, true),
             }
+            output[engine].budget_rejection =
+                sampler.collect_view_candidate(space.id, false, true, 1)
             local stale_candidate = sampler.collect_view_candidate(space.id,
                                                                     true)
             if stale_candidate.candidate_built == 1 then
@@ -347,6 +349,9 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
         t.assert_equals(view_candidate.width_rows, 4)
         t.assert_equals(view_candidate.primary_rows, 8)
         t.assert_equals(view_candidate.secondary_rows, 8)
+        t.assert_equals(res[engine].budget_rejection.candidate_built, 0)
+        t.assert_equals(res[engine].budget_rejection.has_installed_snapshot,
+                        true)
         t.assert_equals(res[engine].stale_view_candidate.candidate_built, 1)
         t.assert_equals(res[engine].stale_view_candidate.publish_rc, 1)
         t.assert_equals(res[engine].stale_view_candidate.publish_after_write, -1)

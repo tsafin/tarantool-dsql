@@ -386,10 +386,22 @@ read_view_close(struct read_view *view)
 }
 
 static void
+setup_test_indexes(void)
+{
+	test_space.index_map = test_space_index_map;
+	test_space.index_id_max = 9;
+	test_space_index_map[8] = &test_index;
+	test_space_index_map[9] = &test_index2;
+	test_index.unique_id = 808;
+	test_index2.unique_id = 909;
+}
+
+static void
 test_collection_context(void)
 {
 	plan(6);
 	header();
+	setup_test_indexes();
 	struct sql_stats_collection_target target = {.space_id = 42, .index_id = 8};
 	struct sql_stats_collection_target duplicate[] = {target, target};
 	test_read_view_mode = 1;
@@ -430,6 +442,7 @@ test_context_sample_index(void)
 {
 	plan(4);
 	header();
+	setup_test_indexes();
 	test_read_view_mode = 1;
 	test_schema_version = 12;
 	test_schema_change_on_eof = false;
@@ -490,10 +503,7 @@ reset_test_txn(void)
 	test_schema_version = 12;
 	space_cache_version = 4;
 	vclock_create(&test_vclock);
-	test_space_index_map[8] = &test_index;
-	test_space_index_map[9] = &test_index2;
-	test_index.unique_id = 808;
-	test_index2.unique_id = 909;
+	setup_test_indexes();
 }
 
 static void

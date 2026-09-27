@@ -330,6 +330,7 @@ lbox_collect_view_candidate(lua_State *L)
 {
 	bool hold = lua_toboolean(L, 2);
 	bool keep_installed = lua_toboolean(L, 3);
+	size_t staging_bytes = luaL_optinteger(L, 4, 8192);
 	if (hold && (held_candidate_context != NULL || held_candidate != NULL))
 		return luaL_error(L, "a held candidate already exists");
 	uint32_t space_id = (uint32_t)luaL_checkinteger(L, 1);
@@ -378,7 +379,7 @@ lbox_collect_view_candidate(lua_State *L)
 	struct sql_stats_snapshot *candidate = context != NULL ?
 		sql_stats_collection_context_build_sample_candidate(context,
 			&expected, specs, 2, 0, 0.5, "live_view_test", 4096,
-			8192, 1024, 1000000) : NULL;
+			staging_bytes, 1024, 1000000) : NULL;
 	double relation_rows = 0;
 	uint64_t width_rows = 0, primary_rows = 0, secondary_rows = 0;
 	if (candidate != NULL) {
@@ -429,6 +430,8 @@ lbox_collect_view_candidate(lua_State *L)
 	lua_setfield(L, -2, "primary_rows");
 	lua_pushinteger(L, secondary_rows);
 	lua_setfield(L, -2, "secondary_rows");
+	lua_pushboolean(L, sql_get()->stats_snapshot != NULL);
+	lua_setfield(L, -2, "has_installed_snapshot");
 	return 1;
 }
 
