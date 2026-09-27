@@ -86,10 +86,83 @@ test_rejects_invalid_contract(void)
 	check_plan();
 }
 
+static void
+test_composite_prefix_range_contract(void)
+{
+	plan(5);
+	header();
+	struct sql_plan_expression expr[] = {
+		{1, "prefix-equality"}, {2, "lower-bound"}, {3, "upper-bound"},
+	};
+	struct sql_plan_point_key_part prefix[] = {
+		{.column = 0, .integer_value = 1},
+	};
+	struct sql_plan_bound bounds[] = {
+		{SQL_PLAN_LOWER, SQL_PLAN_EQ, 1},
+		{SQL_PLAN_LOWER, SQL_PLAN_GT, 2},
+		{SQL_PLAN_UPPER, SQL_PLAN_LE, 3},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1, .planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.access = {
+			.kind = SQL_PLAN_PK_PREFIX_SCAN,
+			.prefix_key_parts = prefix,
+			.prefix_key_part_count = 1,
+			.has_unsigned_range_key = true,
+			.unsigned_range_key = 20,
+			.integer_range_op = SQL_PLAN_GT,
+			.has_unsigned_range_end_key = true,
+			.unsigned_range_end_key = 40,
+			.integer_range_end_op = SQL_PLAN_LE,
+			.range_key_column = 1,
+			.bounds = bounds,
+			.bound_count = 3,
+			.direction = SQL_PLAN_ASC,
+		},
+		.expressions = expr, .expression_count = 3,
+		.cost_total = 1, .cost_confidence = 1,
+	};
+	struct sql_plan_descriptor *d = sql_plan_descriptor_new(&input);
+	ok(d != NULL, "bounded unsigned suffix range descriptor accepted");
+	sql_plan_descriptor_delete(d);
+
+	bounds[2].op = SQL_PLAN_LT;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "suffix upper bound must match the endpoint operator");
+	bounds[2].op = SQL_PLAN_LE;
+	input.access.has_unsigned_range_end_key = false;
+	input.access.has_integer_range_end_key = true;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "suffix range endpoints must use the same key type");
+	input.access.has_integer_range_end_key = false;
+	input.access.has_unsigned_range_end_key = true;
+	bounds[0].op = SQL_PLAN_GE;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "composite prefix bounds must be equality terms");
+
+	struct sql_plan_bound upper_only[] = {
+		{SQL_PLAN_LOWER, SQL_PLAN_EQ, 1},
+		{SQL_PLAN_UPPER, SQL_PLAN_LT, 3},
+	};
+	input.access.bounds = upper_only;
+	input.access.bound_count = 2;
+	input.access.integer_range_op = SQL_PLAN_LT;
+	input.access.has_integer_range_key = false;
+	input.access.has_unsigned_range_key = true;
+	input.access.has_integer_range_end_key = false;
+	input.access.has_unsigned_range_end_key = false;
+	ok(sql_plan_descriptor_new(&input) != NULL,
+	   "one-sided unsigned suffix upper bound descriptor accepted");
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
 	test_descriptor_owns_input();
 	test_rejects_invalid_contract();
+	test_composite_prefix_range_contract();
 	return 0;
 }
