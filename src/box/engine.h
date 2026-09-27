@@ -323,6 +323,8 @@ struct engine_read_view_vtab {
 struct engine_read_view {
 	/** Virtual function table. */
 	const struct engine_read_view_vtab *vtab;
+	/** Engine that owns this view. Set by engine_create_read_view(). */
+	struct engine *engine;
 	/** Link in read_view::engines. */
 	struct rlist link;
 };
@@ -363,7 +365,11 @@ static inline struct engine_read_view *
 engine_create_read_view(struct engine *engine,
 			const struct read_view_opts *opts)
 {
-	return engine->vtab->create_read_view(engine, opts);
+	struct engine_read_view *rv = engine->vtab->create_read_view(engine,
+								      opts);
+	if (rv != NULL)
+		rv->engine = engine;
+	return rv;
 }
 
 static inline int

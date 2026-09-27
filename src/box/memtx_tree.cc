@@ -2070,8 +2070,10 @@ tree_read_view_create_iterator(struct index_read_view *base,
 /** Implementation of create_read_view index callback. */
 template <bool USE_HINT>
 static struct index_read_view *
-memtx_tree_index_create_read_view(struct index *base)
+memtx_tree_index_create_read_view(struct index *base,
+				  struct engine_read_view *engine_rv)
 {
+	(void)engine_rv;
 	static const struct index_read_view_vtab vtab = {
 		.free = tree_read_view_free<USE_HINT>,
 		.get_raw = tree_read_view_get_raw<USE_HINT>,

@@ -69,6 +69,7 @@ read_view_opts_create(struct read_view_opts *opts)
 	opts->enable_space_upgrade = false;
 	opts->enable_data_temporary_spaces = false;
 	opts->disable_decompression = false;
+	opts->enable_vinyl = false;
 }
 
 static void
@@ -90,7 +91,8 @@ space_read_view_delete(struct space_read_view *space_rv)
 }
 
 static struct space_read_view *
-space_read_view_new(struct space *space, const struct read_view_opts *opts)
+space_read_view_new(struct space *space, const struct read_view_opts *opts,
+		    struct engine_read_view *engine_rv)
 {
 	struct space_read_view *space_rv;
 	size_t index_map_size = sizeof(*space_rv->index_map) *
@@ -106,6 +108,7 @@ space_read_view_new(struct space *space, const struct read_view_opts *opts)
 	assert(grp_alloc_size(&all) == 0);
 
 	space_rv->id = space_id(space);
+	space_rv->engine_rv = engine_rv;
 	space_rv->group_id = space_group_id(space);
 	if (opts->enable_field_names &&
 	    space->def->format_data != NULL) {
@@ -131,7 +134,7 @@ space_read_view_new(struct space *space, const struct read_view_opts *opts)
 		if (index == NULL ||
 		    !opts->filter_index(space, index, opts->filter_arg))
 			continue;
-		space_rv->index_map[i] = index_create_read_view(index);
+		space_rv->index_map[i] = index_create_read_view(index, engine_rv);
 		if (space_rv->index_map[i] == NULL)
 			goto fail;
 		space_rv->index_map[i]->space = space_rv;
@@ -139,6 +142,17 @@ space_read_view_new(struct space *space, const struct read_view_opts *opts)
 	return space_rv;
 fail:
 	space_read_view_delete(space_rv);
+	return NULL;
+}
+
+static struct engine_read_view *
+read_view_get_engine(struct read_view *rv, struct engine *engine)
+{
+	struct engine_read_view *engine_rv;
+	rlist_foreach_entry(engine_rv, &rv->engines, link) {
+		if (engine_rv->engine == engine)
+			return engine_rv;
+	}
 	return NULL;
 }
 
@@ -157,11 +171,21 @@ read_view_add_space_cb(struct space *space, void *arg_raw)
 	struct read_view *rv = arg->rv;
 	const struct read_view_opts *opts = arg->opts;
 	if ((space->engine->flags & ENGINE_SUPPORTS_READ_VIEW) == 0 ||
+	    (space_is_vinyl(space) && !opts->enable_vinyl) ||
 	    (space_is_data_temporary(space) &&
 	     !opts->enable_data_temporary_spaces) ||
 	    !opts->filter_space(space, opts->filter_arg))
 		return 0;
-	struct space_read_view *space_rv = space_read_view_new(space, opts);
+	struct engine_read_view *engine_rv = read_view_get_engine(rv,
+								   space->engine);
+	if (engine_rv == NULL) {
+		diag_set(IllegalParams,
+			 "No engine read view for space %s (%u)",
+			 space_name(space), space_id(space));
+		return -1;
+	}
+	struct space_read_view *space_rv = space_read_view_new(space, opts,
+							       engine_rv);
 	if (space_rv == NULL)
 		return -1;
 	space_rv->rv = rv;
@@ -214,7 +238,8 @@ read_view_open(struct read_view *rv, const struct read_view_opts *opts)
 	read_view_register(rv);
 	struct engine *engine;
 	engine_foreach(engine) {
-		if ((engine->flags & ENGINE_SUPPORTS_READ_VIEW) == 0)
+		if ((engine->flags & ENGINE_SUPPORTS_READ_VIEW) == 0 ||
+		    (strcmp(engine->name, "vinyl") == 0 && !opts->enable_vinyl))
 			continue;
 		struct engine_read_view *engine_rv =
 			engine_create_read_view(engine, opts);

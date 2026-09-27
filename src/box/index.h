@@ -48,6 +48,7 @@ struct space;
 struct space_read_view;
 struct index;
 struct index_read_view;
+struct engine_read_view;
 struct index_read_view_iterator;
 struct index_def;
 struct key_def;
@@ -584,7 +585,8 @@ struct index_vtab {
 					    uint32_t part_count,
 					    const char *pos);
 	/** Create an index read view. */
-	struct index_read_view *(*create_read_view)(struct index *index);
+	struct index_read_view *(*create_read_view)(
+		struct index *index, struct engine_read_view *engine_rv);
 	/** Introspection (index:stat()) */
 	void (*stat)(struct index *, struct info_handler *);
 	/**
@@ -962,9 +964,10 @@ index_create_iterator(struct index *index, enum iterator_type type,
 }
 
 static inline struct index_read_view *
-index_create_read_view(struct index *index)
+index_create_read_view(struct index *index,
+		       struct engine_read_view *engine_rv)
 {
-	return index->vtab->create_read_view(index);
+	return index->vtab->create_read_view(index, engine_rv);
 }
 
 static inline void
@@ -1096,7 +1099,8 @@ int generic_index_replace(struct index *, struct tuple *, struct tuple *,
 			  enum dup_replace_mode,
 			  struct tuple **, struct tuple **);
 struct index_read_view *
-generic_index_create_read_view(struct index *index);
+generic_index_create_read_view(struct index *index,
+			       struct engine_read_view *engine_rv);
 void generic_index_stat(struct index *, struct info_handler *);
 void generic_index_compact(struct index *);
 void generic_index_reset_stat(struct index *);

@@ -406,8 +406,10 @@ sequence_data_read_view_free(struct index_read_view *base)
 }
 
 struct index_read_view *
-sequence_data_read_view_create(struct index *index)
+sequence_data_read_view_create(struct index *index,
+			       struct engine_read_view *engine_rv)
 {
+	(void)engine_rv;
 	static const struct index_read_view_vtab vtab = {
 		.free = sequence_data_read_view_free,
 		.get_raw = sequence_data_read_view_get_raw,

@@ -45,6 +45,7 @@ extern "C" {
 
 struct index;
 struct index_read_view;
+struct engine_read_view;
 
 /** Sequence metadata. */
 struct sequence_def {
@@ -167,7 +168,8 @@ access_check_sequence(struct sequence *seq);
  * _sequence_data space.
  */
 struct index_read_view *
-sequence_data_read_view_create(struct index *index);
+sequence_data_read_view_create(struct index *index,
+			       struct engine_read_view *engine_rv);
 
 /**
  * Get last element of given sequence.

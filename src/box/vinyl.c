@@ -66,6 +66,7 @@
 #include "engine.h"
 #include "space.h"
 #include "index.h"
+#include "read_view.h"
 #include "schema.h"
 #include "xstream.h"
 #include "info/info.h"
@@ -84,6 +85,174 @@ enum { VY_YIELD_LOOPS = 2 };
 #endif
 
 struct vy_squash_queue;
+
+struct vinyl_engine_read_view {
+	struct engine_read_view base;
+	struct vy_read_view *read_view;
+};
+
+struct vinyl_index_read_view {
+	struct index_read_view base;
+	struct vy_lsm *lsm;
+	const struct vy_read_view *read_view;
+};
+
+struct vinyl_read_view_iterator_state {
+	struct vy_read_iterator iterator;
+	const struct vy_read_view *read_view;
+	struct vy_entry key;
+	struct vy_entry last;
+	struct tuple *current;
+};
+
+struct vinyl_read_view_iterator {
+	struct index_read_view_iterator_base base;
+	struct vinyl_read_view_iterator_state *state;
+};
+
+static void
+vinyl_index_read_view_free(struct index_read_view *base)
+{
+	struct vinyl_index_read_view *rv =
+		(struct vinyl_index_read_view *)base;
+	vy_lsm_unref(rv->lsm);
+	free(rv);
+}
+
+static int
+vinyl_read_view_iterator_next_raw(struct index_read_view_iterator *base,
+				  struct read_view_tuple *result)
+{
+	struct vinyl_read_view_iterator *it =
+		(struct vinyl_read_view_iterator *)base;
+	struct vinyl_read_view_iterator_state *state = it->state;
+	if (state->current != NULL) {
+		tuple_unref(state->current);
+		state->current = NULL;
+	}
+	struct vy_entry entry;
+	if (vy_read_iterator_next(&state->iterator, &entry) != 0)
+		return -1;
+	if (entry.stmt == NULL) {
+		*result = read_view_tuple_none();
+		return 0;
+	}
+	tuple_ref(entry.stmt);
+	state->current = entry.stmt;
+	result->needs_upgrade = false;
+	result->data = tuple_data(entry.stmt);
+	result->size = tuple_bsize(entry.stmt);
+	return 0;
+}
+
+static void
+vinyl_read_view_iterator_destroy(struct index_read_view_iterator *base)
+{
+	struct vinyl_read_view_iterator *it =
+		(struct vinyl_read_view_iterator *)base;
+	struct vinyl_read_view_iterator_state *state = it->state;
+	if (state != NULL) {
+		vy_read_iterator_close(&state->iterator);
+		if (state->current != NULL)
+			tuple_unref(state->current);
+		if (state->key.stmt != NULL)
+			tuple_unref(state->key.stmt);
+		if (state->last.stmt != NULL)
+			tuple_unref(state->last.stmt);
+	}
+	free(it->state);
+}
+
+static int
+vinyl_read_view_iterator_position(struct index_read_view_iterator *it,
+				  const char **pos, uint32_t *size)
+{
+	(void)pos;
+	(void)size;
+	diag_set(UnsupportedIndexFeature, it->base.index->def, "pagination");
+	return -1;
+}
+
+static int
+vinyl_index_read_view_create_iterator(struct index_read_view *base,
+				      enum iterator_type type,
+				      const char *key, uint32_t part_count,
+				      const char *pos,
+				      struct index_read_view_iterator *iterator)
+{
+	if (pos != NULL) {
+		diag_set(UnsupportedIndexFeature, base->def, "pagination");
+		return -1;
+	}
+	struct vinyl_index_read_view *rv =
+		(struct vinyl_index_read_view *)base;
+	struct vinyl_read_view_iterator *it =
+		(struct vinyl_read_view_iterator *)iterator;
+	struct vinyl_read_view_iterator_state *state =
+		calloc(1, sizeof(*state));
+	if (state == NULL) {
+		diag_set(OutOfMemory, sizeof(*state), "calloc",
+			 "Vinyl read-view iterator");
+		return -1;
+	}
+	const char *key_data = key != NULL ? key :
+		tuple_data(rv->lsm->env->empty_key.stmt);
+	state->key = vy_entry_key_new(rv->lsm->env->key_format,
+				      rv->lsm->cmp_def, key_data, part_count);
+	if (state->key.stmt == NULL) {
+		free(state);
+		return -1;
+	}
+	state->last = vy_entry_none();
+	it->base.index = base;
+	it->base.destroy = vinyl_read_view_iterator_destroy;
+	it->base.next_raw = vinyl_read_view_iterator_next_raw;
+	it->base.position = vinyl_read_view_iterator_position;
+	it->state = state;
+	state->read_view = rv->read_view;
+	vy_read_iterator_open_after(&state->iterator, rv->lsm, NULL, type,
+				    state->key, state->last,
+				    &state->read_view);
+	return 0;
+}
+
+static int
+vinyl_index_read_view_get_raw(struct index_read_view *base, const char *key,
+			      uint32_t part_count,
+			      struct read_view_tuple *result)
+{
+	(void)key;
+	(void)part_count;
+	(void)result;
+	diag_set(UnsupportedIndexFeature, base->def, "point read view");
+	return -1;
+}
+
+static struct index_read_view *
+vinyl_index_create_read_view(struct index *index,
+			     struct engine_read_view *engine_rv)
+{
+	if (engine_rv == NULL || engine_rv->engine != index->engine) {
+		diag_set(IllegalParams, "Vinyl index view without engine view");
+		return NULL;
+	}
+	static const struct index_read_view_vtab vtab = {
+		.free = vinyl_index_read_view_free,
+		.get_raw = vinyl_index_read_view_get_raw,
+		.create_iterator = vinyl_index_read_view_create_iterator,
+	};
+	struct vinyl_index_read_view *rv = calloc(1, sizeof(*rv));
+	if (rv == NULL) {
+		diag_set(OutOfMemory, sizeof(*rv), "calloc",
+			 "struct vinyl_index_read_view");
+		return NULL;
+	}
+	index_read_view_create(&rv->base, &vtab, index->def);
+	rv->lsm = vy_lsm(index);
+	vy_lsm_ref(rv->lsm);
+	rv->read_view = ((struct vinyl_engine_read_view *)engine_rv)->read_view;
+	return &rv->base;
+}
 
 enum vy_status {
 	VINYL_OFFLINE,
@@ -186,6 +355,45 @@ vy_env(struct engine *engine)
 {
 	assert(engine->vtab == &vinyl_engine_vtab);
 	return (struct vy_env *)engine;
+}
+
+static void
+vinyl_engine_read_view_free(struct engine_read_view *base)
+{
+	struct vinyl_engine_read_view *rv =
+		(struct vinyl_engine_read_view *)base;
+	struct vy_env *env = vy_env(base->engine);
+	vy_tx_manager_destroy_read_view(env->xm, rv->read_view);
+	free(rv);
+}
+
+static struct engine_read_view *
+vinyl_engine_create_read_view(struct engine *engine,
+			      const struct read_view_opts *opts)
+{
+	(void)opts;
+	struct vy_env *env = vy_env(engine);
+	struct vinyl_engine_read_view *rv = calloc(1, sizeof(*rv));
+	if (rv == NULL) {
+		diag_set(OutOfMemory, sizeof(*rv), "calloc",
+			 "struct vinyl_engine_read_view");
+		return NULL;
+	}
+	static const struct engine_read_view_vtab vtab = {
+		.free = vinyl_engine_read_view_free,
+	};
+	rv->base.vtab = &vtab;
+	/*
+	 * read_view_open() does not yield between engine and index view
+	 * creation. Pin Vinyl's latest committed VLSN at that same TX-thread
+	 * cut; the read-view list keeps history needed by later iterators.
+	 */
+	rv->read_view = vy_tx_manager_read_view(env->xm, INT64_MAX);
+	if (rv->read_view == NULL) {
+		free(rv);
+		return NULL;
+	}
+	return &rv->base;
 }
 
 /** Extract vy_lsm from an index object. */
@@ -2871,6 +3079,7 @@ vinyl_engine_new(const char *dir, size_t memory,
 
 	env->base.vtab = &vinyl_engine_vtab;
 	env->base.name = "vinyl";
+	env->base.flags = ENGINE_SUPPORTS_READ_VIEW;
 	return &env->base;
 }
 
@@ -4780,7 +4989,7 @@ static const struct engine_vtab vinyl_engine_vtab = {
 	/* .free = */ vinyl_engine_free,
 	/* .shutdown = */ vinyl_engine_shutdown,
 	/* .create_space = */ vinyl_engine_create_space,
-	/* .create_read_view = */ generic_engine_create_read_view,
+	/* .create_read_view = */ vinyl_engine_create_read_view,
 	/* .prepare_join = */ vinyl_engine_prepare_join,
 	/* .join = */ vinyl_engine_join,
 	/* .complete_join = */ vinyl_engine_complete_join,
@@ -4853,7 +5062,7 @@ static const struct index_vtab vinyl_index_vtab = {
 	/* .get = */ vinyl_index_get,
 	/* .replace = */ generic_index_replace,
 	/* .create_iterator = */ vinyl_index_create_iterator,
-	/* .create_read_view = */ generic_index_create_read_view,
+	/* .create_read_view = */ vinyl_index_create_read_view,
 	/* .stat = */ vinyl_index_stat,
 	/* .compact = */ vinyl_index_compact,
 	/* .reset_stat = */ vinyl_index_reset_stat,

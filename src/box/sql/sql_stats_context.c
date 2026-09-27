@@ -98,6 +98,7 @@ sql_stats_collection_context_new(
 	struct read_view_opts opts;
 	read_view_opts_create(&opts);
 	opts.name = "sql-stats-collection";
+	opts.enable_vinyl = true;
 	opts.filter_space = context_filter_space;
 	opts.filter_index = context_filter_index;
 	opts.filter_arg = context;

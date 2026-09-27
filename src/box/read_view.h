@@ -17,6 +17,7 @@ extern "C" {
 #endif /* defined(__cplusplus) */
 
 struct cord;
+struct engine_read_view;
 struct field_def;
 struct index;
 struct index_read_view;
@@ -30,6 +31,8 @@ struct space_read_view {
 	struct rlist link;
 	/** Read view that owns this space. */
 	struct read_view *rv;
+	/** Engine-wide view that pins data for this space's index views. */
+	struct engine_read_view *engine_rv;
 	/** Space id. */
 	uint32_t id;
 	/** Space name. */
@@ -176,6 +179,11 @@ struct read_view_opts {
 	 * encoded in the MP_COMPRESSION MsgPack extension manually.
 	 */
 	bool disable_decompression;
+	/**
+	 * Include Vinyl spaces in the read view. Vinyl read views are
+	 * comparatively expensive and are opt-in for non-checkpoint users.
+	 */
+	bool enable_vinyl;
 };
 
 /** Sets read view options to default values. */
@@ -189,6 +197,12 @@ read_view_opts_create(struct read_view_opts *opts);
  * Engines that don't support read view creation are silently skipped.
  *
  * Returns 0 on success. On error, returns -1 and sets diag.
+ */
+/**
+ * Open a database read view. Engine boundaries are captured synchronously,
+ * back-to-back on the calling fiber, before any index views are created.
+ * Engine create_read_view callbacks must not yield: this is the common
+ * visibility cut for all included engines.
  */
 int
 read_view_open(struct read_view *rv, const struct read_view_opts *opts);
