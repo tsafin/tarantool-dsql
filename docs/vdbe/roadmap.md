@@ -541,12 +541,12 @@ format approval is implied.
   path without persistence. Remove the `unsupported ANALYZE` rejection only
   after S1.3a defines complete candidate-snapshot publication semantics.
   *parallel: yes, after S1.3a*.
-- [ ] **S1.3a** Volatile collection core — consume sampled tuples, build and
+- [x] **S1.3a prototype** Volatile collection core — consume sampled tuples, build and
   validate relation/index summaries, then atomically publish one immutable
   candidate snapshot. No persistence or grammar dependency; test rollback on
   any incomplete/invalid relation or index summary. *parallel: yes*.
-  **Status note:** partial prototype only. A normalized volatile result and
-  pure completeness validator now build a detached, deep-copied snapshot
+  **Status note:** complete as a volatile one-relation prototype. A normalized
+  result and pure completeness validator build a detached, deep-copied snapshot
   candidate. Caller-defined width/population/confidence provenance tokens
   plus the width denominator count are retained without selecting estimator
   policy; relation/index/prefix completeness (including duplicate result-ID
@@ -555,9 +555,9 @@ format approval is implied.
   into exact relation cardinality without mistaking delivered draws for the
   population; a second bridge exposes fractional sample-average serialized
   tuple width with its row denominator, without truncating the mean or
-  inventing width for an empty sample. It does not yet derive a complete
-  collection or publish globally; therefore this subtask remains open and
-  `ANALYZE` stays disabled. A new `sql_stats_index_summary` unit API now
+  inventing width for an empty sample. The standalone helpers are now composed
+  by the shared-view candidate builder and publisher described below. A new
+  `sql_stats_index_summary` unit API now
   computes sampled prefix-NDV values through HLL from a caller-provided
   canonical SQL-value extractor. It counts delivered rows/bytes, bounds
   accumulator memory, and suppresses output on extractor failure; it
@@ -582,8 +582,10 @@ format approval is implied.
   and population-mismatch no-partial-output cases pass in the six-check
   `sql_stats_collection_samples.test` target. The helper does not independently
   verify each summary's index association or establish that caller-supplied
-  visibility tokens represent one shared engine snapshot. It is not wired to
-  ANALYZE or global publication. There is no agreed corpus validation for the
+  visibility tokens represent one shared engine snapshot. The separate
+  shared-view context now validates that association and publishes the exact
+  candidate; ANALYZE/job wiring is tracked under S1.2. There is no agreed
+  corpus validation for the
   distributional assumption. The native index-hash
   adapter supports
   verified STRING, DOUBLE, BOOLEAN, UNSIGNED, and signed INTEGER parts for
@@ -612,15 +614,14 @@ format approval is implied.
   cleanup until complete construction succeeds; the hook is compiled only
   into that unit target. The collection unit separately injects failures at
   both staging-array allocations and verifies no candidate is returned before
-  a complete build succeeds. These tests close only detached builder
-  coverage; S1.3a remains open. The remaining integration must derive complete
-  stats from canonical sampled values and capture/revalidate catalog, data,
-  and index-definition generations under one common cross-engine visibility
-  boundary before atomically installing the candidate; failure must preserve
-  the prior snapshot. The new opt-in core `read_view` supplies a volatile
-  memtx/Vinyl visibility cut for selected indexes, but detached candidate
-  assembly/publication still uses the separate READ_CONFIRMED transaction
-  context and has not been routed through this view. The engine
+  a complete build succeeds. These tests close detached builder coverage. The
+  shared-view builder and publisher below now derive complete one-relation
+  stats from canonical sampled values and capture/revalidate catalog/schema/
+  index identity plus the data-view generation before one atomic install;
+  failure preserves the prior snapshot. The new opt-in core `read_view` supplies
+  a volatile memtx/Vinyl visibility cut for selected indexes. Candidate
+  assembly/publication now uses the shared-view context; the older
+  READ_CONFIRMED transaction context remains a separate prototype. The engine
   samplers can now be called
   over multiple requested indexes using the same caller transaction/read view;
   Vinyl runtime coverage verifies an uncommitted tuple appears in both primary
@@ -637,8 +638,8 @@ format approval is implied.
   candidate is rejected after a committed write without replacing the
   installed snapshot; an undersized aggregate staging budget also returns no
   candidate and preserves installed state. This closes the
-  shared-view-to-candidate prototype
-  slice, not production ANALYZE. Core read-view allocation has no explicit
+  shared-view-to-candidate prototype slice, not production ANALYZE. Core
+  read-view allocation has no explicit
   resource budget, and modification epoch/confidence/extractor policy remain
   caller supplied. A separate
   `sql_stats_tx_context` now owns a box transaction, sets READ_CONFIRMED before
@@ -720,15 +721,15 @@ format approval is implied.
   each engine, then confirm relation/index populations of 8 and a width
   denominator of 4 from four delivered sample rows; snapshot cleanup follows
   each case. The runtime regression also asserts four canonical extractor
-  calls per index and zero extraction errors. This verifies local live
-  candidate assembly and publication, but
-  not a common cross-engine visibility boundary or production ANALYZE wiring,
-  so S1.3a stays open. Local READ_CONFIRMED and vclock/catalog/schema checks
+  calls per index and zero extraction errors. This verifies the older
+  transaction-based candidate path, not a common cross-engine visibility
+  boundary. Local READ_CONFIRMED and vclock/catalog/schema checks
   are not durable or cross-node snapshot claims. A source audit committed as
   `a68268c9a4` records the pre-implementation gap: neither core `read_view`
   nor READ_CONFIRMED then pinned one shared memtx/Vinyl cut. That gap is now
-  closed for the volatile core read-view boundary and full-scan index adapter
-  below; candidate assembly/publication and production ANALYZE remain open.
+  closed for the volatile core read-view boundary, full-scan index adapter,
+  and one-relation candidate assembly/publication. Production ANALYZE remains
+  open.
   **Update (2026-09):** the core read-view API now passes each engine's pinned
   view to selected index views; Vinyl is opt-in and pins one committed VLSN
   for full-scan iterators. A TEST_BUILD held-view commit regression opens one view over
