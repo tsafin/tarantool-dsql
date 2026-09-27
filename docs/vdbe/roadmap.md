@@ -1187,9 +1187,13 @@ DML, triggers, subprograms, non-deterministic functions.
   A follow-up audit found a related no-predicate shape: `ORDER BY` on a
   non-primary column fails table-scan preflight but previously had no stable
   physical reason because accounting only ran when a WHERE clause existed.
-  It now reports the append-only `UNSUPPORTED_ORDER` reason and increments
-  the reason counter; focused memtx/Vinyl execution is pending. This closes
-  that one observed hole only and does not establish complete M3.5 coverage.
+  An append-only `UNSUPPORTED_ORDER` reason and producer/preflight accounting
+  have been added, but focused `EXPLAIN (planner = 'summary')` runtime checks
+  still fail on both memtx and Vinyl: the route is `fallback`, while the
+  reason row is absent and total/per-reason counters do not increment. The
+  reason's actual assignment point is unresolved, so this is not yet a
+  validated M3.5 closure. Keep the regression open; do not count this shape
+  as covered until its live route passes. M3.5 remains partial.
 
   ```mermaid
   flowchart TD
