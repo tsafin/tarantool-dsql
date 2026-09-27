@@ -270,7 +270,7 @@ alloc_failure(const char *filename, int line, size_t size)
  * including padding if any.
  */
 #ifndef offsetof
-#define offsetof(type, member) ((size_t) &((type *)0)->member)
+#define offsetof(type, member) __builtin_offsetof(type, member)
 #endif
 
 /**
