@@ -114,9 +114,71 @@ test_access_path_choices(void)
 	check_plan();
 }
 
+static void
+test_resolved_table_scan_producer(void)
+{
+	plan(5);
+	header();
+	struct space_def *def = calloc(1, sizeof(*def) + sizeof("t1"));
+	strcpy(def->name, "t1");
+	def->id = 512;
+	def->field_count = 3;
+	struct space space = {.def = def};
+	struct SrcList source = {.nSrc = 1};
+	source.a[0].space = &space;
+	source.a[0].iCursor = 4;
+	struct Expr columns[2] = {
+		{.op = TK_COLUMN_REF, .iTable = 4, .iColumn = 2},
+		{.op = TK_COLUMN_REF, .iTable = 4, .iColumn = 0},
+	};
+	struct ExprList_item items[2] = {
+		{.pExpr = &columns[0]}, {.pExpr = &columns[1]},
+	};
+	struct ExprList projection = {.nExpr = 2, .a = items};
+	struct Select select = {
+		.selFlags = SF_Resolved,
+		.pEList = &projection,
+		.pSrc = &source,
+	};
+	struct sql_physical_table_scan_estimate estimate = {
+		.startup_cost = 1, .total_cost = 8, .rows = 10,
+		.row_width = 16, .confidence = 0.5,
+	};
+	enum sql_physical_reject_reason reason;
+	struct sql_plan_descriptor *physical =
+		sql_physical_table_scan_from_select(&select, &estimate, &reason);
+	ok(physical != NULL && reason == SQL_PHYSICAL_REJECT_NONE,
+	   "resolved column projection produces a table-scan descriptor");
+	const struct sql_plan_descriptor_input *input =
+		sql_plan_descriptor_get_input(physical);
+	ok(input->access.kind == SQL_PLAN_TABLE_FULL_SCAN &&
+	   input->access.projected_column_count == 2,
+	   "producer records a full scan with both required columns");
+	ok(input->projection_columns[0] == 2 &&
+	   input->projection_columns[1] == 0,
+	   "producer preserves projection order");
+	sql_plan_descriptor_delete(physical);
+
+	columns[1].iTable = 99;
+	physical = sql_physical_table_scan_from_select(&select, &estimate, &reason);
+	ok(physical == NULL &&
+	   reason == SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN,
+	   "column bound to another cursor is rejected before descriptor creation");
+	columns[1].iTable = 4;
+	select.pWhere = &columns[0];
+	physical = sql_physical_table_scan_from_select(&select, &estimate, &reason);
+	ok(physical == NULL &&
+	   reason == SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN,
+	   "filtered SELECT is outside the table-scan producer contract");
+	free(def);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
 	test_access_path_choices();
+	test_resolved_table_scan_producer();
 	return 0;
 }

@@ -872,7 +872,12 @@ DML, triggers, subprograms, non-deterministic functions.
   statement-lifetime expression/register bindings. Code-path audit: the
   SELECT classifier in `select.c` builds then deletes the logical plan;
   physical candidate selection has unit-test-only callers and requires caller-
-  supplied candidates/expressions. The live route still emits through
+  supplied candidates/expressions. A producer-side table-full-scan adapter
+  now derives a descriptor for resolved column-only `SELECT ... FROM t`
+  without filters or finalize clauses, using explicit statement-time estimate
+  inputs and validating projection cursor/column bindings. It is covered by
+  unit tests but is not called by SQL preparation and does not emit bytecode.
+  The live route still emits through
   `sqlWhereBegin()` / `selectInnerLoop()` / `sqlWhereEnd()`, and the callback
   lowerer has no VDBE/`Parse`/result context or rollback boundary. A safe
   table-full-scan-only implementation is therefore not isolated or all-or-

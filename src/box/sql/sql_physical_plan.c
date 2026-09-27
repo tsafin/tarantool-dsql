@@ -3,7 +3,9 @@
 #include <stdbool.h>
 #include <math.h>
 
+#include "sqlInt.h"
 #include "sql_logical_plan.h"
+#include "box/space.h"
 
 static const struct sql_logical_node *
 find_scan(const struct sql_logical_plan *logical)
@@ -92,4 +94,86 @@ sql_physical_plan_from_logical(const struct sql_logical_plan *logical,
 		*reason = invalid_candidate ? SQL_PHYSICAL_REJECT_INVALID_CANDIDATE :
 			SQL_PHYSICAL_REJECT_NO_ACCESS_PATH;
 	return best_plan;
+}
+
+struct sql_plan_descriptor *
+sql_physical_table_scan_from_select(
+	const struct Select *select,
+	const struct sql_physical_table_scan_estimate *estimate,
+	enum sql_physical_reject_reason *reason)
+{
+	if (reason != NULL)
+		*reason = SQL_PHYSICAL_REJECT_NONE;
+	if (select == NULL || estimate == NULL || select->pSrc == NULL ||
+	    select->pSrc->nSrc != 1 || select->pWhere != NULL ||
+	    select->pOrderBy != NULL || select->pLimit != NULL ||
+	    select->pOffset != NULL || select->pEList == NULL ||
+	    select->pEList->nExpr <= 0) {
+		if (reason != NULL)
+			*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+		return NULL;
+	}
+	enum sql_logical_reject_reason logical_reason;
+	struct sql_logical_plan *logical = sql_logical_plan_from_select(select,
+									 &logical_reason);
+	if (logical == NULL) {
+		if (reason != NULL)
+			*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+		return NULL;
+	}
+	sql_logical_plan_delete(logical);
+	const struct SrcList_item *source = &select->pSrc->a[0];
+	if (source->space == NULL || source->space->def == NULL ||
+	    source->space->def->opts.is_view || source->iCursor < 0) {
+		if (reason != NULL)
+			*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+		return NULL;
+	}
+	uint32_t *columns = calloc(select->pEList->nExpr, sizeof(*columns));
+	if (columns == NULL) {
+		if (reason != NULL)
+			*reason = SQL_PHYSICAL_REJECT_INVALID_CANDIDATE;
+		return NULL;
+	}
+	for (int i = 0; i < select->pEList->nExpr; ++i) {
+		const struct Expr *expr = select->pEList->a[i].pExpr;
+		if (expr == NULL || ExprHasProperty(expr, EP_TokenOnly | EP_Reduced) ||
+		    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
+		    expr->pRight != NULL ||
+		    expr->iTable != source->iCursor || expr->iColumn < 0 ||
+		    (uint32_t)expr->iColumn >= source->space->def->field_count) {
+			free(columns);
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		columns[i] = (uint32_t)expr->iColumn;
+	}
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = source->space->def->id,
+		.space_name = source->space->def->name,
+		.access = {
+			.kind = SQL_PLAN_TABLE_FULL_SCAN,
+			.direction = SQL_PLAN_ASC,
+			.projected_columns = columns,
+			.projected_column_count = select->pEList->nExpr,
+			.est_rows = estimate->rows,
+			.est_rows_confidence = estimate->confidence,
+		},
+		.projection_columns = columns,
+		.projection_column_count = select->pEList->nExpr,
+		.cost_startup = estimate->startup_cost,
+		.cost_total = estimate->total_cost,
+		.cost_rows = estimate->rows,
+		.cost_row_width = estimate->row_width,
+		.cost_confidence = estimate->confidence,
+	};
+	struct sql_plan_descriptor *plan = sql_plan_descriptor_new(&input);
+	free(columns);
+	if (plan == NULL && reason != NULL)
+		*reason = SQL_PHYSICAL_REJECT_INVALID_CANDIDATE;
+	return plan;
 }

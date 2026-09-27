@@ -103,6 +103,21 @@ bindings and an auditable boundary around every other mutable state remain
 the narrow blockers. This is not a claim that existing VDBE opcodes cannot
 express the scan.
 
+#### Producer-side full-scan slice
+
+`sql_physical_table_scan_from_select()` now derives a table-full-scan
+descriptor for resolved `SELECT column[, ...] FROM t` statements with no
+predicate, ordering, limit, or offset. It validates every projected column's
+cursor binding and ordinal before creating the descriptor, and requires
+caller-supplied statement-time estimates. Unit coverage checks projection
+order, access kind, cursor binding, and rejection before descriptor creation
+for a filtered statement or mismatched cursor. This is not SQL route
+integration: it does not emit bytecode, and its descriptor is not evidence of
+runtime path selection. M3.4 still needs statement-lifetime lowering bindings,
+a complete VDBE emission boundary, runtime parity, and fallback accounting.
+M1.4 remains non-replayable; this producer does not change the diagnostic
+envelope or claim replay completeness.
+
 M3.5 now has a producer-contract prototype in `sql_plan_fallback.{h,c}`.
 It maps the existing logical and physical reject enums to append-only numeric
 `sql_plan_fallback_reason` values and stable names, and returns an observable

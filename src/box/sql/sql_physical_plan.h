@@ -7,6 +7,7 @@
 #include "sql_plan_descriptor.h"
 
 struct sql_logical_plan;
+struct Select;
 
 enum sql_physical_reject_reason {
 	SQL_PHYSICAL_REJECT_NONE,
@@ -27,6 +28,18 @@ struct sql_physical_candidate {
 	double confidence;
 };
 
+/* Estimates for the deliberately narrow, no-predicate table-scan producer.
+ * They must come from the caller's statement-time stats view; zero confidence
+ * is valid when only a conservative fallback estimate is available.
+ */
+struct sql_physical_table_scan_estimate {
+	double startup_cost;
+	double total_cost;
+	double rows;
+	double row_width;
+	double confidence;
+};
+
 /*
  * Select a deterministic least-cost access candidate for a single-table
  * logical chain and produce its immutable physical descriptor. Expressions,
@@ -38,5 +51,13 @@ sql_physical_plan_from_logical(const struct sql_logical_plan *logical,
 			       const struct sql_physical_candidate *candidates,
 			       size_t candidate_count,
 			       enum sql_physical_reject_reason *reason);
+
+/* Produce a descriptor only for resolved `SELECT column[, ...] FROM t` with
+ * no filter/finalize clauses. This is a producer-side adapter, not routing or
+ * executable lowering. */
+struct sql_plan_descriptor *
+sql_physical_table_scan_from_select(const struct Select *select,
+				    const struct sql_physical_table_scan_estimate *estimate,
+				    enum sql_physical_reject_reason *reason);
 
 #endif
