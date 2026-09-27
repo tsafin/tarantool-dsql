@@ -5760,8 +5760,7 @@ sql_select_record_fallback(Parse *parse, Select *select, SelectDest *dest,
 {
 	Vdbe *v = parse->pVdbe;
 	SrcList *src = select->pSrc;
-	if (v == NULL || v->planner_fallback_reason != NULL || src == NULL ||
-	    src->nSrc == 0)
+	if (v == NULL || src == NULL || src->nSrc == 0)
 		return;
 	/* This first pass runs before SELECT codegen decides whether a simple
 	 * COUNT(*) can use the direct OP_Count path. Defer aggregate reasons until

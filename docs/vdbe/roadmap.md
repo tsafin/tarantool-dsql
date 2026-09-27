@@ -1508,7 +1508,12 @@ DML, triggers, subprograms, non-deterministic functions.
   and the recursive branch as `fallback / UNSUPPORTED_COMPOUND`. This records
   each generated branch individually; the outer statement remains a structural
   fallback, so this improves route evidence without claiming a unified
-  producer gate.
+  producer gate. The recorder no longer stops classifying components after
+  the first statement-level fallback reason is set: a mixed nested-query test
+  pins the root as `fallback / UNSUPPORTED_SUBQUERY` and its child as
+  `fallback / UNSUPPORTED_FUNCTION`, while the statement summary retains the
+  root's first reason. The focused component-route and fallback SQL matrices
+  pass on the rebuilt binary.
 
   | Producer / branch | Current boundary | M3.5 implication |
   | --- | --- | --- |

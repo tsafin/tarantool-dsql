@@ -264,6 +264,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                           FROM planner_component_matrix]],
             scalar_exists = [[SELECT EXISTS(
                 SELECT 1 FROM planner_component_matrix WHERE id = 1)]],
+            nested_function = [[SELECT (SELECT abs(id)
+                FROM planner_component_matrix WHERE id = 1)
+                FROM planner_component_matrix]],
             scalar_direct_count = [[SELECT (SELECT count(*)
                 FROM planner_component_matrix)
                 FROM planner_component_matrix]],
@@ -328,6 +331,20 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
     t.assert_gt(snapshots.union.count, 1)
     t.assert_gt(snapshots.intersect.count, 1)
     t.assert_gt(snapshots.scalar_exists.count, 1)
+    local nested_routes = snapshots.nested_function.component_routes
+    t.assert_gt(#nested_routes, 1)
+    t.assert_equals(nested_routes[1].role, 'root')
+    t.assert_equals(nested_routes[1].route, 'fallback')
+    t.assert_equals(nested_routes[1].fallback_reason, 'UNSUPPORTED_SUBQUERY')
+    local has_nested_function_reject = false
+    for _, component in ipairs(nested_routes) do
+        if component.parent_id == nested_routes[1].id then
+            t.assert_equals(component.route, 'fallback')
+            t.assert_equals(component.fallback_reason, 'UNSUPPORTED_FUNCTION')
+            has_nested_function_reject = true
+        end
+    end
+    t.assert(has_nested_function_reject)
     local scalar_count = snapshots.scalar_direct_count.component_routes
     t.assert_equals(snapshots.scalar_direct_count.path_class, 'mixed')
     t.assert_equals(snapshots.scalar_direct_count.fallback_reason, nil)
