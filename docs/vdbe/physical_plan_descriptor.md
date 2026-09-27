@@ -269,17 +269,21 @@ SQL routing or runtime counter coverage.
 ### M3.7 feature flag — partial implementation
 
 `sql_new_planner_single_table` is a default-off session setting. When enabled,
-`sqlSelect()` attempts the direct-column table-full-scan slice only after
-resolved-shape preflight. It requires a TREE primary index, builds a physical
-descriptor from the statement estimate, and reports `new_planner` only after
-cursor setup, VDBE lowering, close, and result-register assignment succeed.
+`sqlSelect()` attempts the narrow direct-column route after resolved-shape
+preflight. Supported access paths are a TREE primary-index full scan, an
+INTEGER/UNSIGNED primary-key point lookup, one-sided primary-key literal
+ranges, and one lower-plus-upper bound on the same key. Direct projections,
+compatible primary-key ordering, and literal LIMIT/OFFSET are supported in
+the applicable paths. The descriptor estimate and checkpointed VDBE lowering
+must succeed before the statement reports `new_planner`.
 Physical rejection and recoverable speculative codegen failure record a
 stable reason and continue on the legacy route; a hard diagnostic is not
 converted into fallback. The focused integration regression verifies
-off/on/off behavior and result parity on memtx and Vinyl.
+off/on/off behavior and row parity on memtx and Vinyl. With the flag off,
+supported statements are classified as `current_where_c`, not as fallback.
 
-The flag does not govern the general physical selector, point/range/secondary
-access, filters, sort/limit, joins, aggregates, or other descriptor operators.
+The flag does not govern the general physical candidate selector, secondary
+index access, joins, aggregates, or other descriptor operators.
 Default-off compatibility, broad parity, capture/counter completeness, and
 acceptance remain open. Scope is session-local for this prototype; no
 instance-level configuration or rollout policy is implied.
@@ -287,8 +291,8 @@ instance-level configuration or rollout policy is implied.
 ```mermaid
 flowchart TD
     A[Resolved SELECT] --> B{Session flag on?}
-    B -- no --> L[Legacy SELECT codegen]
-    B -- yes --> C{Direct projection + one table + no finalizers?}
+    B -- no --> L[Legacy SELECT codegen / current_where_c]
+    B -- yes --> C{Supported projection + one table?}
     C -- no --> L
     C -- yes --> D{TREE primary index?}
     D -- no --> F[Record physical fallback reason]
