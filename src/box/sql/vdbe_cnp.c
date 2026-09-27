@@ -2197,7 +2197,7 @@ cnp_select_applytype_cast_helper(const struct Vdbe *p, int pc)
 	}
 }
 
-static bool
+static bool __attribute__((unused))
 cnp_fragment_has_local_relocs(const struct cnp_fragment *frag)
 {
 	for (uint32_t i = 0; i < frag->num_relocs; i++) {
@@ -2247,7 +2247,7 @@ cnp_find_last_reg_writer(const struct Vdbe *p, int pc, int reg)
 	return NULL;
 }
 
-static const Op *
+static __attribute__((unused)) const Op *
 cnp_find_unique_reg_writer(const struct Vdbe *p, int reg)
 {
 	const Op *writer = NULL;
@@ -2697,7 +2697,7 @@ cnp_select_builtinfunction_handler(const struct Vdbe *p, int pc)
 	return (uintptr_t)vdbe_op_builtinfunction_substr3_string_fast;
 }
 
-static bool
+static bool __attribute__((unused))
 cnp_fragment_find_hot_jmp(const struct cnp_fragment *frag, uint32_t *jmp_offset)
 {
 	for (uint32_t i = frag->transfer_offset; i + 1 < frag->size; i++) {
