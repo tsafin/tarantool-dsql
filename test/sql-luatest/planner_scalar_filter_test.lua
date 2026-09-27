@@ -58,6 +58,11 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{1}, {3}},
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE v IS NULL AND ' ..
+                           'w IS NOT NULL ORDER BY id ASC'):format(name),
+                    expected = {{1}},
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE v IS NOT NULL ' ..
                            'ORDER BY id ASC'):format(name),
                     expected = {{2}, {4}},
@@ -106,8 +111,21 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT id FROM %s WHERE id > 0 AND ' ..
                            'v IS NULL AND w IS NOT NULL'):format(name),
                     expected = {{1}},
-                    enabled_route = 'fallback',
-                    enabled_reason = 'UNSUPPORTED_FILTER',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id > 0 AND id < 4 ' ..
+                           'AND v IS NULL AND w IS NOT NULL'):format(name),
+                    expected = {{1}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE v IS NULL AND ' ..
+                           'w IS NULL AND id > 0 AND id < 4'):format(name),
+                    expected = {{3}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE v IS NULL AND ' ..
+                           'v IS NOT NULL'):format(name),
+                    expected = {},
                 },
                 {
                     sql = ('SELECT id FROM %s WHERE v IS NOT NULL AND ' ..
@@ -123,8 +141,6 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT id FROM %s WHERE v IS NULL AND ' ..
                            'v IS NOT NULL'):format(name),
                     expected = {},
-                    enabled_route = 'fallback',
-                    enabled_reason = 'UNSUPPORTED_FILTER',
                 },
             }
             local function capture(enabled)
