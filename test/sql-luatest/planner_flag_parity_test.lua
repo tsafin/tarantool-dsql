@@ -307,6 +307,75 @@ g.test_composite_primary_key_prefix_ranges_off_on_off = function()
     end)
 end
 
+g.test_composite_prefix_equality_then_range_off_on_off = function()
+    g.server:exec(function()
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_prefix_range_' .. engine
+            box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, c INTEGER, ' ..
+                         'v STRING, PRIMARY KEY (a, b, c)) WITH ENGINE = \'%s\'')
+                        :format(name, engine))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         '(1, 10, 2, \'a\'), (1, 20, 3, \'b\'), ' ..
+                         '(1, 20, 1, \'c\'), (1, 30, 2, \'d\'), ' ..
+                         '(1, 40, 1, \'e\'), (2, 20, 1, \'f\')')
+                        :format(name))
+            local queries = {
+                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b >= 20 ' ..
+                 'ORDER BY a ASC, b ASC, c ASC'):format(name),
+                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b < 30 ' ..
+                 'ORDER BY a ASC, b ASC, c ASC'):format(name),
+                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b >= 20 ' ..
+                 'AND b < 40 ORDER BY a ASC, b ASC, c ASC'):format(name),
+            }
+            local expected = {
+                {{1, 20, 1, 'c'}, {1, 20, 3, 'b'}, {1, 30, 2, 'd'},
+                 {1, 40, 1, 'e'}},
+                {{1, 10, 2, 'a'}, {1, 20, 1, 'c'}, {1, 20, 3, 'b'}},
+                {{1, 20, 1, 'c'}, {1, 20, 3, 'b'}, {1, 30, 2, 'd'}},
+            }
+            local function capture()
+                local rows = {}
+                for i, sql in ipairs(queries) do
+                    local explain, err = box.execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. sql)
+                    t.assert(err == nil, err and err.message)
+                    local route = explain.rows[1][3]
+                    t.assert(route == 'new_planner' or
+                             route == 'current_where_c' or route == 'fallback',
+                             ('unexpected route %s for query %d on %s')
+                             :format(tostring(route), i, engine))
+                    if route == 'fallback' then
+                        t.assert(type(explain.rows[2][3]) == 'string' and
+                                 #explain.rows[2][3] > 0,
+                                 ('missing fallback reason for query %d on %s')
+                                 :format(i, engine))
+                    end
+                    local result
+                    result, err = box.execute(sql)
+                    t.assert(err == nil and result ~= nil,
+                             ('query %d on %s: %s')
+                             :format(i, engine, tostring(err)))
+                    rows[i] = result.rows
+                    t.assert_equals(rows[i], expected[i],
+                                    ('query %d ordering/result on %s')
+                                    :format(i, engine))
+                end
+                return rows
+            end
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local off = capture()
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            local on = capture()
+            t.assert_equals(on, off, 'enabled route changed results on ' .. engine)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local off_again = capture()
+            t.assert_equals(off_again, off,
+                            'second disabled run changed results on ' .. engine)
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
+
 g.test_composite_primary_key_point_lookup_off_on_off = function()
     g.server:exec(function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do
