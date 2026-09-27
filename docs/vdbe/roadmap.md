@@ -989,8 +989,9 @@ DML, triggers, subprograms, non-deterministic functions.
   `INT64_MAX` also exercises wide key-register encoding on both engines.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
-  This does not cover all descriptor operators, secondary-index/range access,
-  all storage edge cases, or corpus-wide parity; checkpoint rollback does not include
+  This does not cover all descriptor operators, secondary-index access,
+  two-sided/multi-bound ranges, all storage edge cases, or corpus-wide parity;
+  checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
   injected-opcode-failure, parity, and capture coverage. Details:
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
@@ -1146,17 +1147,18 @@ DML, triggers, subprograms, non-deterministic functions.
   implementation, M3.5 classification closure, and M3.7 remain open.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
-  A default-off session setting now gates the narrow direct-column table scan
-  and sole INTEGER/UNSIGNED primary-key point routes in `sqlSelect()`. When
-  enabled, only the supported single-table shape
-  with a TREE primary index can report `new_planner`: direct projections,
-  primary-key ordering, and literal LIMIT/OFFSET. This happens only after
+  A default-off session setting now gates the narrow direct-column table scan,
+  sole INTEGER/UNSIGNED primary-key point lookups, and one-sided primary-key
+  literal ranges in `sqlSelect()`. When enabled, only the supported
+  single-table shape with a TREE primary index can report `new_planner`: direct
+  projections, primary-key ordering compatible with the range direction, and
+  literal LIMIT/OFFSET. This happens only after
   physical descriptor creation and VDBE lowering succeed; tested physical
   rejection (including non-primary ordering) and recoverable codegen rejection
   retain legacy codegen with a reason. The
   setting does not yet govern general physical candidate selection or other
   supported query classes. Default-off behavior and off/on/off summary route
-  checks for both scan and point routes pass in the focused memtx/Vinyl
+  checks for scan and point routes pass in the focused memtx/Vinyl
   regression. Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
