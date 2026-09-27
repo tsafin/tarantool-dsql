@@ -5678,6 +5678,7 @@ sql_select_record_fallback(Parse *parse, Select *select, bool is_aggregate)
 	bool structurally_unsupported = is_aggregate || select->pPrior != NULL ||
 		select->pWith != NULL || select->pGroupBy != NULL ||
 		select->pHaving != NULL || (select->selFlags & SF_Distinct) != 0 ||
+		(select->selFlags & (SF_Aggregate | SF_HasAgg)) != 0 ||
 		src->nSrc != 1 || src->a[0].pSelect != NULL ||
 		src->a[0].fg.isTabFunc;
 	/* Prefer structural rejection reasons (for example aggregate) when the
