@@ -1578,11 +1578,14 @@ DML, triggers, subprograms, non-deterministic functions.
   new-planner scan, VALUES, OP_Count, and mixed compound routes in addition
   to EXPLAIN assertions. Generated memtx capture passed (27 snapshots, 5
   route-bearing statements, 9 component records); generated Vinyl capture
-  passed with the same counts. CnP execution of this expanded fixture exposed
-  a server crash in the constant-opcode path (`vdbe_op_bool_impl`); this is
-  not treated as capture success or native parity. Investigate and fix before
-  extending native SQL-luatest parity. The full SQL-luatest and SQL-suite
-  reviewed-corpus audits remain outstanding.
+  passed with the same counts. The CnP crash was an ABI mismatch: stencils
+  called `SQL_PRESERVE_NONE` handlers using SysV argument registers. A typed
+  bridge now performs the calling-convention transition; the expanded
+  `planner_final_paths_test.lua` passes under CnP and generated dispatchers.
+  The broader CnP `planner_flag_parity_test.lua` still fails in the text-key
+  ordering case (returned bytes differ) and then crashes in `vdbe_op_compare`;
+  CnP native parity is therefore still open. Full SQL-luatest and SQL-suite
+  reviewed-corpus audits also remain outstanding.
 
   ```mermaid
   flowchart TD
