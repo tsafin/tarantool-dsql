@@ -474,8 +474,9 @@ review of IDs and formats.
   completeness and catalog/schema/visibility/index-definition generations
   are checked. A narrow bridge now converts a known engine-sampler population
   into exact relation cardinality without mistaking delivered draws for the
-  population; a second bridge exposes sample-average serialized tuple bytes
-  with its row denominator, without inventing width for an empty sample. It
+  population; a second bridge exposes fractional sample-average serialized
+  tuple width with its row denominator, without truncating the mean or
+  inventing width for an empty sample. It
   does not derive index/prefix summaries or confidence, establish a shared
   engine visibility mechanism, or publish globally; therefore this subtask remains open and
   `ANALYZE` stays disabled. The

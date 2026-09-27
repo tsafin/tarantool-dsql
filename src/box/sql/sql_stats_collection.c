@@ -76,7 +76,7 @@ sql_stats_collection_width_from_sample(
 	     sample->rows > sample->visible_population))
 		return false;
 	*width = (struct sql_stats_collected_width) {
-		.average_bytes = sample->bytes / sample->rows,
+		.average_bytes = (double)sample->bytes / sample->rows,
 		.denominator_rows = sample->rows,
 	};
 	return true;

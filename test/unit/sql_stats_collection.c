@@ -8,7 +8,7 @@
 static void
 test_population_from_engine_sample(void)
 {
-	plan(8);
+	plan(9);
 	header();
 	struct sql_stats_collected_population population;
 	struct sql_stats_sample_result sample = {
@@ -23,6 +23,14 @@ test_population_from_engine_sample(void)
 	ok(sql_stats_collection_width_from_sample(&sample, &width) &&
 	   width.average_bytes == 32 && width.denominator_rows == 8,
 	   "sample bytes produce a row-count-denominated mean serialized width");
+	struct sql_stats_sample_result fractional = {
+		.rows = 3, .bytes = 10, .population_known = true,
+		.visible_population = 20, .with_replacement = true,
+	};
+	ok(sql_stats_collection_width_from_sample(&fractional, &width) &&
+	   fabs(width.average_bytes - 10.0 / 3.0) < 1e-12 &&
+	   width.denominator_rows == 3,
+	   "fractional sample-average width is not rounded down");
 	sample.bytes = 7;
 	ok(!sql_stats_collection_width_from_sample(&sample, &width),
 	   "sample byte count cannot be smaller than its tuple count");

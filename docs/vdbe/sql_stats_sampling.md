@@ -226,9 +226,10 @@ replacement draws and Vinyl's successful exhaustive scan/reservoir result.
 The helper does not invent a visibility token or prove that catalog/schema
 capture spans the sampling call; the producer must still establish one common
 generation boundary. `sql_stats_collection_width_from_sample()` separately
-exposes the integer sample-average serialized tuple size with sampled rows as
-its denominator. It rejects unknown/inconsistent populations, empty samples,
-and impossible byte totals rather than inventing width for an empty relation.
+exposes the fractional sample-average serialized tuple size as a floating-
+point value with sampled rows as its denominator. It rejects unknown/
+inconsistent populations, empty samples, and impossible byte totals rather
+than inventing width for an empty relation.
 This is only a width observation: the helper does not decode tuple fields,
 derive per-index populations or prefix NDVs, calibrate confidence, or build a
 complete candidate.

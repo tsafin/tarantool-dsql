@@ -81,7 +81,7 @@ sql_stats_collection_population_from_sample(
 
 /* Sample-average serialized tuple width; unavailable for an empty sample. */
 struct sql_stats_collected_width {
-	uint64_t average_bytes;
+	double average_bytes;
 	uint64_t denominator_rows;
 };
 
