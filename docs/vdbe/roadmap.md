@@ -595,7 +595,37 @@ format approval is implied.
   unrelated same-generation rows. A failure in either form must retain the
   exact installed snapshot. Do not route either form through a sequence of
   one-relation publications. This does not authorize persistence choices;
-  S1.1's schema remains DRAFT.
+  S1.1's schema remains DRAFT. The compatibility baseline from the historical
+  `sqlAnalyze` implementation is now source-audited: bare form visits
+  non-system, non-view spaces and all indexes; named missing-space and view
+  targets error. Named system-space, temporary-space, unsupported engine/index,
+  and no-eligible-target behavior still needs an explicit volatile contract.
+  Numeric sample/work/memory defaults are also open; the source audit and the
+  point for direction are recorded in `sql_stats_sampling.md`.
+
+  ```mermaid
+  flowchart TD
+    A[ANALYZE statement] --> B{Bare or named?}
+    B -- Bare --> C[Enumerate non-system, non-view spaces]
+    C --> D[Include all indexes]
+    B -- Named --> E[Resolve space name]
+    E --> F{Missing or view?}
+    F -- Yes --> X[Return SQL error]
+    F -- No --> G{System, temporary, supported?}
+    G -- Scope pending --> H[Apply explicit eligibility policy]
+    G -- Eligible --> I[Include all indexes]
+    D --> J[Open one shared read view]
+    H --> J
+    I --> J
+    J --> K[Build one complete detached candidate]
+    K --> L{Bare or named?}
+    L -- Bare --> M[Use complete batch candidate]
+    L -- Named --> N[Replace one relation in prior snapshot]
+    M --> O[Publish once]
+    N --> O
+    K -- Any failure --> P[Keep exact installed snapshot]
+    O -- Revalidation failure --> P
+  ```
 - [x] **S1.3a prototype** Volatile collection core — consume sampled tuples, build and
   validate relation/index summaries, then atomically publish one immutable
   candidate snapshot. No persistence or grammar dependency; test rollback on
