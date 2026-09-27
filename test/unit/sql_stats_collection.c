@@ -64,6 +64,29 @@ sql_stats_index_summary_new(size_t part_count, uint8_t precision,
 	return summary;
 }
 
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_for_index(struct tuple_format *format,
+				      const struct index_def *index_def,
+				      uint8_t precision, uint64_t seed,
+				      size_t max_bytes)
+{
+	(void)format;
+	(void)index_def;
+	(void)precision;
+	(void)seed;
+	(void)max_bytes;
+	/* This unit uses a custom summary double and never opts into native hashes. */
+	return NULL;
+}
+
+uint8_t
+sql_stats_index_summary_hash_bits(
+	const struct sql_stats_index_summary *summary)
+{
+	(void)summary;
+	return 0;
+}
+
 void
 sql_stats_index_summary_delete(struct sql_stats_index_summary *summary)
 {
