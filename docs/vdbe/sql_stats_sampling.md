@@ -381,8 +381,37 @@ and schema-change behavior before wiring the collector. The proving runtime
 test must hold an insert/delete race at barriers while sampling memtx and
 Vinyl primary plus secondary indexes, and show that every accepted candidate
 matches one common before-or-after population; inability to pin or retain that
-view must leave the installed snapshot unchanged. Until that API and test
-exist, S1.3a and production `ANALYZE` wiring remain open.
+view must leave the installed snapshot unchanged. This was the pre-implementation
+boundary audit; the box-owned volatile cut and direct barrier runtime proof are
+now recorded below. S1.3a and production `ANALYZE` wiring remain open.
+
+#### Shared volatile read-view boundary (2026-09)
+
+The core `read_view` now optionally captures Vinyl alongside memtx. Engine
+read-view callbacks are invoked synchronously, without yielding, before index
+views are created. Vinyl pins one `vy_read_view` at its latest committed VLSN
+and retains it for the lifetime of the box read view; each Vinyl index view
+uses that pinned engine view and holds its LSM. Its raw iterator is deliberately
+limited to full scans: point reads and pagination fail closed. Vinyl remains
+opt-in for existing read-view users, and a requested space without an engine
+view or a requested index whose view cannot be created fails the whole open.
+
+A TEST_BUILD-only barrier regression opens one view over both a memtx and a
+Vinyl relation, each with primary and secondary indexes, commits delete(1,2)
+and insert(9,10) in both engines, then scans all four indexes before closing
+the view. Every pre-cut scan returns `{1..8}`; reopening after the commits
+returns `{3..10}` from every index. The direct server-runtime command passed
+with the TEST_BUILD Clang-19 build. The focused `test-run` wrapper could not
+validate this in-process test in the isolated environment: it reached server
+readiness, then its startup/connection lifecycle terminated the server with a
+Fiber GC leak report that had no backtrace frames. A direct start/TERM check
+had no leak, and the barrier test passed directly in the binary.
+
+This proves the volatile common cut for the exercised memtx/Vinyl primary and
+secondary full scans; it does not complete S1.3a. The candidate-building
+transaction context and production collection route are not yet wired to this
+shared read-view API, and production `ANALYZE` is not connected. The persistent
+schema remains DRAFT and untouched.
 
 ### Publication is a separate, currently blocked slice
 

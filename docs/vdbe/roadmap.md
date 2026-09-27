@@ -727,6 +727,20 @@ format approval is implied.
   insert/delete test must prove primary and secondary candidates match one
   common before-or-after population. This cannot be completed at the SQL
   collector layer with current engine APIs; production ANALYZE remains open.
+  **Update (2026-09):** the core read-view API now passes each engine's pinned
+  view to selected index views; Vinyl is opt-in and pins one committed VLSN
+  for full-scan iterators. A TEST_BUILD barrier regression opens one view over
+  memtx and Vinyl relations with primary/secondary indexes, commits delete
+  and insert changes, and confirms all four scans remain `{1..8}` until that
+  view closes; reopening yields `{3..10}`. The Clang-19 TEST_BUILD target and
+  direct runtime invocation pass. The focused `test-run` harness still cannot
+  be counted as passing here: after reporting readiness it terminates the
+  server with a Fiber GC leak message and no backtrace frames, while direct
+  startup/TERM is clean. This closes the shared volatile visibility-boundary
+  slice only; candidate construction/publication is not yet routed through
+  this view and production ANALYZE remains open. The persistence schema remains
+  DRAFT; no IDs or formats changed. See `sql_stats_sampling.md` for runtime
+  details.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
   of system-space IDs and tuple/payload formats. *parallel: no*.
