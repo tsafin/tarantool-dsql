@@ -1,9 +1,11 @@
 #include <lua.h>
 #include <lauxlib.h>
+#include <limits.h>
 #include <stdio.h>
 
 #include "box/error.h"
 #include "box/index.h"
+#include "box/read_view.h"
 #include "box/space.h"
 #include "box/space_cache.h"
 #include "box/sql/sql_stats_collection.h"
@@ -23,6 +25,44 @@ struct tx_unsigned_extract {
 	uint64_t calls;
 	uint64_t errors;
 };
+
+struct live_read_view_filter {
+	uint32_t space_ids[2];
+	size_t space_count;
+};
+
+static struct read_view live_read_view;
+static bool live_read_view_open;
+static struct live_read_view_filter live_filter;
+
+static bool
+live_filter_space(struct space *space, void *arg)
+{
+	struct live_read_view_filter *filter = arg;
+	for (size_t i = 0; i < filter->space_count; i++) {
+		if (space_id(space) == filter->space_ids[i])
+			return true;
+	}
+	return false;
+}
+
+static bool
+live_filter_index(struct space *space, struct index *index, void *arg)
+{
+	struct live_read_view_filter *filter = arg;
+	return live_filter_space(space, filter) && index->def->iid < 2;
+}
+
+static struct space_read_view *
+live_read_view_space(uint32_t space_id)
+{
+	struct space_read_view *space_view;
+	read_view_foreach_space(space_view, &live_read_view) {
+		if (space_view->id == space_id)
+			return space_view;
+	}
+	return NULL;
+}
 
 static int
 extract_unsigned(void *arg, const char *tuple, size_t tuple_size,
@@ -280,12 +320,123 @@ lbox_collect_candidate(lua_State *L)
 	return 1;
 }
 
+static int
+lbox_visibility_open(lua_State *L)
+{
+	if (live_read_view_open)
+		return luaL_error(L, "a live SQL stats read view is already open");
+	live_filter.space_ids[0] = (uint32_t)luaL_checkinteger(L, 1);
+	live_filter.space_count = lua_isnoneornil(L, 2) ? 1 : 2;
+	if (live_filter.space_count == 2)
+		live_filter.space_ids[1] = (uint32_t)luaL_checkinteger(L, 2);
+	struct space *space[2] = {
+		space_by_id_slow(live_filter.space_ids[0]), NULL,
+	};
+	if (live_filter.space_count == 2)
+		space[1] = space_by_id_slow(live_filter.space_ids[1]);
+	for (size_t i = 0; i < live_filter.space_count; i++) {
+		if (space[i] == NULL || space_index(space[i], 0) == NULL ||
+		    space_index(space[i], 1) == NULL)
+			return luaL_error(L,
+				"expected spaces with primary and secondary indexes");
+		if (i != 0 && space[i]->engine == space[0]->engine)
+			return luaL_error(L, "expected spaces from distinct engines");
+	}
+	struct read_view_opts opts;
+	read_view_opts_create(&opts);
+	opts.name = "sql-stats-live-test";
+	opts.filter_space = live_filter_space;
+	opts.filter_index = live_filter_index;
+	opts.filter_arg = &live_filter;
+	opts.enable_vinyl = true;
+	int rc = read_view_open(&live_read_view, &opts);
+	if (rc == 0)
+		live_read_view_open = true;
+	lua_newtable(L);
+	lua_pushinteger(L, rc);
+	lua_setfield(L, -2, "rc");
+	if (rc == 0) {
+		lua_pushnumber(L, live_read_view.id);
+		lua_setfield(L, -2, "id");
+	}
+	return 1;
+}
+
+static void
+lbox_capture_read_view_index(lua_State *L, struct index_read_view *index_view)
+{
+	lua_newtable(L);
+	struct index_read_view_iterator iterator;
+	if (index_read_view_create_iterator(index_view, ITER_ALL, NULL, 0,
+					    &iterator) != 0)
+		luaL_error(L, "failed to create read-view iterator");
+	uint32_t row = 0;
+	for (;;) {
+		struct read_view_tuple tuple;
+		if (index_read_view_iterator_next_raw(&iterator, &tuple) != 0) {
+			index_read_view_iterator_destroy(&iterator);
+			luaL_error(L, "failed to advance read-view iterator");
+		}
+		if (tuple.data == NULL)
+			break;
+		const char *data = tuple.data;
+		if (tuple.size == 0 || mp_typeof(*data) != MP_ARRAY ||
+		    mp_decode_array(&data) == 0 || mp_typeof(*data) != MP_UINT) {
+			index_read_view_iterator_destroy(&iterator);
+			luaL_error(L, "expected unsigned first tuple field");
+		}
+		uint64_t id = mp_decode_uint(&data);
+		if (id > INT_MAX) {
+			index_read_view_iterator_destroy(&iterator);
+			luaL_error(L, "tuple id exceeds Lua test integer range");
+		}
+		lua_pushinteger(L, (lua_Integer)id);
+		lua_rawseti(L, -2, ++row);
+	}
+	index_read_view_iterator_destroy(&iterator);
+}
+
+static int
+lbox_visibility_scan(lua_State *L)
+{
+	if (!live_read_view_open)
+		return luaL_error(L, "no live SQL stats read view is open");
+	uint32_t space_id = (uint32_t)luaL_checkinteger(L, 1);
+	struct space_read_view *space_view = live_read_view_space(space_id);
+	if (space_view == NULL)
+		return luaL_error(L, "target space is absent from read view");
+	struct index_read_view *primary = space_read_view_index(space_view, 0);
+	struct index_read_view *secondary = space_read_view_index(space_view, 1);
+	if (primary == NULL || secondary == NULL)
+		return luaL_error(L, "target index is absent from read view");
+	lua_newtable(L);
+	lbox_capture_read_view_index(L, primary);
+	lua_setfield(L, -2, "primary");
+	lbox_capture_read_view_index(L, secondary);
+	lua_setfield(L, -2, "secondary");
+	return 1;
+}
+
+static int
+lbox_visibility_close(lua_State *L)
+{
+	(void)L;
+	if (live_read_view_open) {
+		read_view_close(&live_read_view);
+		live_read_view_open = false;
+	}
+	return 0;
+}
+
 LUA_API int
 luaopen_sql_stats_tx_context_test(lua_State *L)
 {
 	static const struct luaL_Reg methods[] = {
 		{"sample", lbox_sample},
 		{"collect_candidate", lbox_collect_candidate},
+		{"visibility_open", lbox_visibility_open},
+		{"visibility_scan", lbox_visibility_scan},
+		{"visibility_close", lbox_visibility_close},
 		{NULL, NULL},
 	};
 	luaL_register(L, "sql_stats_tx_context_test", methods);

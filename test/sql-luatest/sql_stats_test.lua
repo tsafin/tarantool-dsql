@@ -243,6 +243,7 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
             return {test_wrapper_unavailable = true}
         end
         local output = {}
+        local spaces = {}
         for _, engine in ipairs({'memtx', 'vinyl'}) do
             local name = 'sql_stats_tx_context_'..engine
             local space = box.schema.space.create(name, {engine = engine})
@@ -264,8 +265,44 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
                 secondary = sampler.sample(space.id, secondary_id),
                 candidate = sampler.collect_candidate(space.id),
             }
+            spaces[engine] = space
+        end
+        -- One core read view must cover both engines. Keep it open across
+        -- deterministic commits, then prove each primary and secondary scan
+        -- still sees the same pre-commit population.
+        local opened = sampler.visibility_open(spaces.memtx.id,
+                                               spaces.vinyl.id)
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local space = spaces[engine]
+            box.begin()
+            space:delete({1})
+            space:delete({2})
+            space:insert({9, 9})
+            space:insert({10, 10})
+            box.commit()
+        end
+        local before = {
+            memtx = sampler.visibility_scan(spaces.memtx.id),
+            vinyl = sampler.visibility_scan(spaces.vinyl.id),
+        }
+        sampler.visibility_close()
+        local reopened = sampler.visibility_open(spaces.memtx.id,
+                                                 spaces.vinyl.id)
+        local after = {
+            memtx = sampler.visibility_scan(spaces.memtx.id),
+            vinyl = sampler.visibility_scan(spaces.vinyl.id),
+        }
+        sampler.visibility_close()
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            output[engine].visibility = {
+                open_rc = opened.rc,
+                reopen_rc = reopened.rc,
+                view_id = opened.id,
+                before = before[engine],
+                after = after[engine],
+            }
             package.loaded.sql_stats_snapshot_test.clear()
-            space:drop()
+            spaces[engine]:drop()
         end
         return output
     end)
@@ -289,6 +326,22 @@ g.test_transaction_sampler_memtx_and_vinyl = function()
         t.assert_equals(res[engine].candidate.extract_1_calls, 4)
         t.assert_equals(res[engine].candidate.extract_0_errors, 0)
         t.assert_equals(res[engine].candidate.extract_1_errors, 0)
+        local visibility = res[engine].visibility
+        t.assert_equals(visibility.open_rc, 0)
+        t.assert_equals(visibility.reopen_rc, 0)
+        t.assert_gt(visibility.view_id, 0)
+        local before_primary = visibility.before.primary
+        local before_secondary = visibility.before.secondary
+        local after_primary = visibility.after.primary
+        local after_secondary = visibility.after.secondary
+        table.sort(before_primary)
+        table.sort(before_secondary)
+        table.sort(after_primary)
+        table.sort(after_secondary)
+        t.assert_equals(before_primary, {1, 2, 3, 4, 5, 6, 7, 8})
+        t.assert_equals(before_secondary, before_primary)
+        t.assert_equals(after_primary, {3, 4, 5, 6, 7, 8, 9, 10})
+        t.assert_equals(after_secondary, after_primary)
         for _, index in ipairs({'primary', 'secondary'}) do
             local sample = res[engine][index]
             t.assert_equals(sample.begin_rc, 0)
