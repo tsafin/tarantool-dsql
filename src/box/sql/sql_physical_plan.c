@@ -181,6 +181,7 @@ sql_physical_table_scan_from_select(
 	int64_t range_key = 0;
 	enum sql_plan_bound_op range_op = SQL_PLAN_EQ;
 	uint64_t unsigned_point_key = 0;
+	uint64_t unsigned_range_key = 0;
 	bool unsigned_point = false;
 	if (select->pWhere != NULL) {
 		const struct Expr *column = select->pWhere->pLeft;
@@ -207,7 +208,7 @@ sql_physical_table_scan_from_select(
 		    column == NULL || value == NULL ||
 		    pk->part_count != 1 ||
 		    (pk->parts[0].type != FIELD_TYPE_INTEGER &&
-		     (pk->parts[0].type != FIELD_TYPE_UNSIGNED || op != SQL_PLAN_EQ)) ||
+		     pk->parts[0].type != FIELD_TYPE_UNSIGNED) ||
 		    ExprHasProperty(column, EP_TokenOnly | EP_Reduced) ||
 		    column->op != TK_COLUMN_REF || column->pLeft != NULL ||
 		    column->pRight != NULL || column->iTable != source->iCursor ||
@@ -228,7 +229,7 @@ sql_physical_table_scan_from_select(
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
-		if (unsigned_point && op == SQL_PLAN_EQ) {
+		if (unsigned_point) {
 			if (negated) {
 				if (reason != NULL)
 					*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
@@ -258,6 +259,7 @@ sql_physical_table_scan_from_select(
 				}
 				unsigned_point_key = (uint64_t)parsed;
 			}
+			unsigned_range_key = unsigned_point_key;
 		} else {
 			bool is_negative = false;
 			bool parsed = false;
@@ -371,7 +373,8 @@ sql_physical_table_scan_from_select(
 	}
 	struct sql_plan_expression point_expression = {
 		.id = 1,
-		.canonical = has_range_key ? "integer-range-key" :
+		.canonical = has_range_key ? (unsigned_point ? "unsigned-range-key" :
+			"integer-range-key") :
 			"integer-point-key",
 	};
 	struct sql_plan_bound point_bound = {
@@ -400,8 +403,10 @@ sql_physical_table_scan_from_select(
 			.integer_point_key = point_key,
 			.has_unsigned_point_key = has_point_key && unsigned_point,
 			.unsigned_point_key = unsigned_point_key,
-			.has_integer_range_key = has_range_key,
+			.has_integer_range_key = has_range_key && !unsigned_point,
 			.integer_range_key = range_key,
+			.has_unsigned_range_key = has_range_key && unsigned_point,
+			.unsigned_range_key = unsigned_range_key,
 			.integer_range_op = range_op,
 			.direction = direction,
 			.produced_order = select->pOrderBy == NULL ? NULL : &order_term,

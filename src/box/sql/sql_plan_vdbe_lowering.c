@@ -116,7 +116,8 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != (range ? SQL_PLAN_INDEX_RANGE_SCAN :
 				   SQL_PLAN_TABLE_FULL_SCAN) ||
-	    (range && (!input->access.has_integer_range_key ||
+	    (range && (input->access.has_integer_range_key ==
+		       input->access.has_unsigned_range_key ||
 		       (input->access.integer_range_op != SQL_PLAN_GT &&
 			input->access.integer_range_op != SQL_PLAN_GE &&
 			input->access.integer_range_op != SQL_PLAN_LT &&
@@ -203,11 +204,20 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		if (parse->nMem == INT_MAX)
 			goto error;
 		int key_reg = ++parse->nMem;
-		int64_t key = input->access.integer_range_key;
-		int key_op = key >= INT_MIN && key <= INT_MAX ?
-			sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg) :
-			sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
-					  (const u8 *)&key, P4_INT64);
+		int key_op;
+		if (input->access.has_unsigned_range_key) {
+			uint64_t key = input->access.unsigned_range_key;
+			key_op = key <= INT_MAX ?
+				sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg) :
+				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
+						  (const u8 *)&key, P4_UINT64);
+		} else {
+			int64_t key = input->access.integer_range_key;
+			key_op = key >= INT_MIN && key <= INT_MAX ?
+				sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg) :
+				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
+						  (const u8 *)&key, P4_INT64);
+		}
 		if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;

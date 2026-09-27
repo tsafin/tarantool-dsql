@@ -957,10 +957,12 @@ DML, triggers, subprograms, non-deterministic functions.
   NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
   descending primary-key order with LIMIT, primary-key point hit/miss with
   LIMIT 1 / LIMIT 0 / OFFSET 1 semantics, signed-64-bit point keys through
-  INT64_MIN/MAX, UNSIGNED point keys through UINT64_MAX, and signed INTEGER
+  INT64_MIN/MAX, UNSIGNED point keys through UINT64_MAX, and INTEGER/UNSIGNED
   one-sided primary-key literal ranges (`>`, `>=`, `<`, `<=`) with reversed
-  operands, direction-matched ordering, and LIMIT/OFFSET. UNSIGNED ranges and
-  unsupported predicates still fall back. Twenty-three emitter checks cover
+  operands, direction-matched ordering, and LIMIT/OFFSET. UNSIGNED range seek
+  constants retain uint64 values through UINT64_MAX; negative and out-of-range
+  literals fail closed to legacy codegen. Unsupported predicates still fall
+  back. Twenty-three emitter checks cover
   unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, register overflow, and
   checkpoint rollback after late point-projection rejection. SQL regressions
