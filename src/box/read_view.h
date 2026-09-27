@@ -191,18 +191,12 @@ void
 read_view_opts_create(struct read_view_opts *opts);
 
 /**
- * Opens a database read view: all changes done to the database after a read
- * view was open will not be visible from the read view.
- *
- * Engines that don't support read view creation are silently skipped.
- *
- * Returns 0 on success. On error, returns -1 and sets diag.
- */
-/**
- * Open a database read view. Engine boundaries are captured synchronously,
- * back-to-back on the calling fiber, before any index views are created.
- * Engine create_read_view callbacks must not yield: this is the common
- * visibility cut for all included engines.
+ * Opens a database read view: changes committed after its visibility cut are
+ * not visible through it. Engine boundaries are captured synchronously,
+ * back-to-back on the calling fiber, before any index views are created;
+ * engine create_read_view callbacks must not yield. Engines that don't
+ * support read-view creation are silently skipped. Returns 0 on success. On
+ * error, returns -1 and sets diag.
  */
 int
 read_view_open(struct read_view *rv, const struct read_view_opts *opts);
