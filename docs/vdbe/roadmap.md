@@ -1051,11 +1051,24 @@ DML, triggers, subprograms, non-deterministic functions.
   `INT64_MAX` also exercises wide key-register encoding on both engines.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
+  Rollback coverage is specifically post-emission validation rejection, not
+  an injected opcode-emitter failure: `late_invalid_point_desc` in
+  `test/unit/sql_plan_vdbe_lowering.c` emits the wide-key opcode and then
+  rejects the projection, while `sql_vdbe_codegen_checkpoint.test` checks
+  checkpoint cleanup with manually emitted P4/comment state. The current
+  `sqlVdbeAddOp*()` path has no recoverable failure-injection seam (`growOp3()`
+  calls `sql_xrealloc()`, and wide constants allocate through `sql_xmalloc()`),
+  so adding a broad production hook solely for this test would distort the
+  API. The narrow next step is a private/test-build-only VDBE opcode failure
+  seam, then fail after at least one successful opcode and assert the lowerer
+  returns failure with opcode array, `Parse` codegen counters, labels, and
+  owned P4 unchanged. Do not infer rollback of AST, parser, or schema state.
   This does not cover all descriptor operators, secondary-index access,
   additional/multibound ranges, all storage edge cases, or corpus-wide parity;
   checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
-  injected-opcode-failure, parity, and capture coverage. Details:
+  the isolated injected-opcode-failure regression described above, parity, and
+  capture coverage. Details:
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
   `SELECT`/VDBE integration).
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
