@@ -632,7 +632,7 @@ test_canonical_expression_grammar(void)
 static void
 test_rejects_incomplete_or_invalid_inputs(void)
 {
-	plan(13);
+	plan(12);
 	header();
 	struct sql_replay_column_spec column = { "integer", "binary" };
 	const char *projection[] = { "col(r0,c0)" };

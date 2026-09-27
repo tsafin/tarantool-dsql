@@ -45,4 +45,15 @@ sql_replay_input_extract_select_from_snapshot(
 	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
 	struct sql_replay_input **result);
 
+enum sql_replay_input_status
+sql_replay_input_extract_select_from_snapshot_with_final_paths(
+	const struct Select *select, const uint32_t *cursor_to_relation,
+	size_t cursor_count, uint32_t planner_algorithm_version,
+	uint32_t planner_config_version, uint32_t beam_width,
+	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
+	const struct sql_replay_final_path_spec *final_paths,
+	size_t final_path_count, bool final_paths_present,
+	uint32_t selector_version,
+	struct sql_replay_input **result);
+
 #endif /* TARANTOOL_SQL_REPLAY_EXTRACT_H */

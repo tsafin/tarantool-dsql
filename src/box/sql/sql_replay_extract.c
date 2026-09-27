@@ -244,11 +244,14 @@ replay_exact_uint64(double value, uint64_t *result)
 }
 
 enum sql_replay_input_status
-sql_replay_input_extract_select_from_snapshot(
+sql_replay_input_extract_select_from_snapshot_with_final_paths(
 	const struct Select *select, const uint32_t *cursor_to_relation,
 	size_t cursor_count, uint32_t planner_algorithm_version,
 	uint32_t planner_config_version, uint32_t beam_width,
 	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
+	const struct sql_replay_final_path_spec *final_paths,
+	size_t final_path_count, bool final_paths_present,
+	uint32_t selector_version,
 	struct sql_replay_input **result)
 {
 	if (result == NULL)
@@ -369,6 +372,10 @@ sql_replay_input_extract_select_from_snapshot(
 	}
 	struct sql_replay_input_spec metadata = {
 		.relation = relation,
+		.final_paths = final_paths,
+		.final_path_count = final_path_count,
+		.final_paths_present = final_paths_present,
+		.selector_version = selector_version,
 		.planner_algorithm_version = planner_algorithm_version,
 		.planner_config_version = planner_config_version,
 		.beam_width = beam_width,
@@ -383,4 +390,18 @@ cleanup:
 	free(indexes);
 	sql_replay_space_schema_destroy(&schema);
 	return status;
+}
+
+enum sql_replay_input_status
+sql_replay_input_extract_select_from_snapshot(
+	const struct Select *select, const uint32_t *cursor_to_relation,
+	size_t cursor_count, uint32_t planner_algorithm_version,
+	uint32_t planner_config_version, uint32_t beam_width,
+	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
+	struct sql_replay_input **result)
+{
+	return sql_replay_input_extract_select_from_snapshot_with_final_paths(
+		select, cursor_to_relation, cursor_count,
+		planner_algorithm_version, planner_config_version, beam_width,
+		snapshot, current_schema_version, NULL, 0, false, 0, result);
 }

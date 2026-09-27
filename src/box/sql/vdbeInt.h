@@ -235,6 +235,23 @@ struct sql_column_metadata {
  * The "sql_stmt" structure pointer that is returned by sql_prepare()
  * is really a pointer to an instance of this structure.
  */
+#define SQL_PLANNER_FINAL_PATH_MAX 64
+
+enum sql_planner_final_path_status {
+	SQL_PLANNER_FINAL_PATH_UNAVAILABLE = 0,
+	SQL_PLANNER_FINAL_PATH_COMPLETE,
+	SQL_PLANNER_FINAL_PATH_INCOMPLETE,
+};
+
+struct sql_planner_final_path_capture {
+	char fingerprint[17];
+	int16_t path_cost_logest;
+	int16_t unsorted_cost_logest;
+	int16_t output_rows_logest;
+	int32_t is_ordered;
+	uint64_t reverse_mask;
+};
+
 struct Vdbe {
 	Vdbe *pPrev, *pNext;	/* Linked list of VDBEs with the same Vdbe.db */
 	Parse *pParse;		/* Parsing context used to create this Vdbe */
@@ -324,6 +341,18 @@ struct Vdbe {
 	uint64_t planner_fallback_count;
 	/* generated, dominated, truncated, and retained candidate paths. */
 	uint64_t planner_path_metrics[4];
+	/* Complete post-beam one-relation paths from the final solver pass. */
+	struct sql_planner_final_path_capture
+		planner_final_paths[SQL_PLANNER_FINAL_PATH_MAX];
+	uint32_t planner_final_path_count;
+	enum sql_planner_final_path_status planner_final_path_status;
+	char planner_selected_final_path_fingerprint[17];
+	/* Serialized detached SQL input, set only when the whole capture validates. */
+	char *planner_replay_inputs;
+	size_t planner_replay_inputs_size;
+	uint32_t planner_algorithm_version;
+	uint32_t planner_config_version;
+	uint32_t planner_beam_width;
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
 	char *explain_text;	/* Cached row-oriented EXPLAIN text */

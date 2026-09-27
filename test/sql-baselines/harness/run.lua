@@ -288,11 +288,48 @@ local function intercepted_execute(sql, bindings)
         assert(decode_ok and type(planner_snapshot) == 'table',
                'planner snapshot EXPLAIN returned malformed MsgPack')
         assert(planner_snapshot.format == 'tarantool.sql.planner.snapshot' and
-               planner_snapshot.version == 2 and
-               planner_snapshot.replayable == false and
-               planner_snapshot.replay_inputs == nil and
-               type(planner_snapshot.planner) == 'table',
-               'planner snapshot EXPLAIN returned an invalid v2 diagnostic envelope')
+               planner_snapshot.version == 4 and
+               type(planner_snapshot.replayable) == 'boolean' and
+               type(planner_snapshot.planner) == 'table' and
+               (planner_snapshot.planner.final_path_status == 'complete' or
+                planner_snapshot.planner.final_path_status == 'incomplete' or
+                planner_snapshot.planner.final_path_status == 'unavailable') and
+               type(planner_snapshot.planner.final_paths) == 'table',
+               'planner snapshot EXPLAIN returned an invalid v4 envelope')
+        local final_paths = planner_snapshot.planner.final_paths
+        if planner_snapshot.planner.final_path_status == 'complete' then
+            assert(#final_paths > 0,
+                   'complete final-path capture must contain candidates')
+            for _, path in ipairs(final_paths) do
+                assert(type(path.fingerprint) == 'string' and
+                       #path.fingerprint == 16 and
+                       type(path.path_cost_logest) == 'number' and
+                       type(path.unsorted_cost_logest) == 'number' and
+                       type(path.output_rows_logest) == 'number' and
+                       type(path.is_ordered) == 'number' and
+                       type(path.reverse_mask) == 'number',
+                       'final-path candidate is malformed')
+            end
+        else
+            assert(#final_paths == 0,
+                   'incomplete or unavailable capture must not expose a prefix')
+        end
+        if planner_snapshot.replayable then
+            assert(planner_snapshot.planner.final_path_status == 'complete' and
+                   planner_snapshot.replay_inputs ~= nil,
+                   'replayable snapshot must embed a complete input')
+            local decode_ok, replay_input = pcall(msgpack.decode,
+                tostring(planner_snapshot.replay_inputs))
+            assert(decode_ok and type(replay_input) == 'table' and
+                   replay_input.version == 5 and
+                   replay_input.planner.final_path_selector_version == 1 and
+                   type(replay_input.final_path_candidates) == 'table' and
+                   #replay_input.final_path_candidates == #final_paths,
+                   'replay inputs do not match the captured final paths')
+        else
+            assert(planner_snapshot.replay_inputs == nil,
+                   'non-replayable snapshot must not carry partial replay inputs')
+        end
         planner_path_class = planner_snapshot.path_class
         planner_fallback_reason = planner_snapshot.fallback_reason
         planner_metrics = planner_snapshot.planner

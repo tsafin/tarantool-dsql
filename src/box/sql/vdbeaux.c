@@ -1448,6 +1448,19 @@ sqlVdbeFrameDelete(VdbeFrame * p)
  * When p->explain==1, first the main program is listed, then each of
  * the trigger subprograms are listed one by one.
  */
+static size_t
+vdbe_mp_sizeof_int64(int64_t value)
+{
+	return value < 0 ? mp_sizeof_int(value) : mp_sizeof_uint((uint64_t)value);
+}
+
+static char *
+vdbe_mp_encode_int64(char *pos, int64_t value)
+{
+	return value < 0 ? mp_encode_int(pos, value) :
+		mp_encode_uint(pos, (uint64_t)value);
+}
+
 int
 sqlVdbeList(Vdbe * p)
 {
@@ -1457,25 +1470,31 @@ sqlVdbeList(Vdbe * p)
 		p->pResultSet = NULL;
 		if (p->pc >= 1)
 			return SQL_DONE;
-		/*
-		 * Version 2 adds per-statement planner measurements. It is still not a
-		 * complete replay input: normalized predicates, statistics, and
-		 * access-path alternatives are not captured yet.
-		 */
+		/* Version 4 can embed a complete selection-replay input. */
 		const char *path_class = p->planner_path_class;
 		const char *fallback_reason = p->planner_fallback_reason;
+		const char *path_status =
+			p->planner_final_path_status ==
+			SQL_PLANNER_FINAL_PATH_COMPLETE ? "complete" :
+			p->planner_final_path_status ==
+			SQL_PLANNER_FINAL_PATH_INCOMPLETE ? "incomplete" :
+			"unavailable";
+		bool replayable = p->planner_replay_inputs != NULL &&
+			p->planner_replay_inputs_size != 0 &&
+			p->planner_replay_inputs_size <= UINT32_MAX;
 		size_t path_class_size = path_class != NULL ?
 			mp_sizeof_str(strlen(path_class)) : mp_sizeof_nil();
 		size_t fallback_reason_size = fallback_reason != NULL ?
 			mp_sizeof_str(strlen(fallback_reason)) : mp_sizeof_nil();
-		size_t size = mp_sizeof_map(6) +
+		size_t size = mp_sizeof_map(replayable ? 7 : 6) +
 			mp_sizeof_str(strlen("format")) +
 			mp_sizeof_str(strlen("tarantool.sql.planner.snapshot")) +
-			mp_sizeof_str(strlen("version")) + mp_sizeof_uint(2) +
+			mp_sizeof_str(strlen("version")) + mp_sizeof_uint(4) +
 			mp_sizeof_str(strlen("path_class")) + path_class_size +
 			mp_sizeof_str(strlen("fallback_reason")) + fallback_reason_size +
-			mp_sizeof_str(strlen("replayable")) + mp_sizeof_bool(false) +
-			mp_sizeof_str(strlen("planner")) + mp_sizeof_map(7) +
+			mp_sizeof_str(strlen("replayable")) +
+			mp_sizeof_bool(replayable) +
+			mp_sizeof_str(strlen("planner")) + mp_sizeof_map(10) +
 			mp_sizeof_str(strlen("candidate_count")) +
 			mp_sizeof_uint(p->planner_candidate_count) +
 			mp_sizeof_str(strlen("elapsed_us")) +
@@ -1493,14 +1512,49 @@ sqlVdbeList(Vdbe * p)
 				SQL_PLANNER_PATH_TRUNCATED]) +
 			mp_sizeof_str(strlen("retained")) +
 			mp_sizeof_uint(p->planner_path_metrics[
-				SQL_PLANNER_PATH_RETAINED]);
+				SQL_PLANNER_PATH_RETAINED]) +
+			mp_sizeof_str(strlen("final_path_status")) +
+			mp_sizeof_str(strlen(path_status)) +
+			mp_sizeof_str(strlen("final_paths")) +
+			mp_sizeof_array(p->planner_final_path_status ==
+					SQL_PLANNER_FINAL_PATH_COMPLETE ?
+					p->planner_final_path_count : 0) +
+			mp_sizeof_str(strlen("selected_final_path_fingerprint")) +
+			(p->planner_final_path_status ==
+			 SQL_PLANNER_FINAL_PATH_COMPLETE ?
+			 mp_sizeof_str(strlen(
+				p->planner_selected_final_path_fingerprint)) :
+			 mp_sizeof_nil());
+		if (p->planner_final_path_status ==
+		    SQL_PLANNER_FINAL_PATH_COMPLETE) {
+			for (uint32_t i = 0; i < p->planner_final_path_count; i++) {
+				const struct sql_planner_final_path_capture *path =
+					&p->planner_final_paths[i];
+				size += mp_sizeof_map(6) +
+					mp_sizeof_str(strlen("fingerprint")) +
+					mp_sizeof_str(strlen(path->fingerprint)) +
+					mp_sizeof_str(strlen("path_cost_logest")) +
+					vdbe_mp_sizeof_int64(path->path_cost_logest) +
+					mp_sizeof_str(strlen("unsorted_cost_logest")) +
+					vdbe_mp_sizeof_int64(path->unsorted_cost_logest) +
+					mp_sizeof_str(strlen("output_rows_logest")) +
+					vdbe_mp_sizeof_int64(path->output_rows_logest) +
+					mp_sizeof_str(strlen("is_ordered")) +
+					vdbe_mp_sizeof_int64(path->is_ordered) +
+					mp_sizeof_str(strlen("reverse_mask")) +
+					mp_sizeof_uint(path->reverse_mask);
+			}
+		}
+		if (replayable)
+			size += mp_sizeof_str(strlen("replay_inputs")) +
+				mp_sizeof_bin(p->planner_replay_inputs_size);
 		char *buf = sql_xmalloc(size);
-		char *pos = mp_encode_map(buf, 6);
+		char *pos = mp_encode_map(buf, replayable ? 7 : 6);
 		pos = mp_encode_str(pos, "format", strlen("format"));
 		pos = mp_encode_str(pos, "tarantool.sql.planner.snapshot",
 				    strlen("tarantool.sql.planner.snapshot"));
 		pos = mp_encode_str(pos, "version", strlen("version"));
-		pos = mp_encode_uint(pos, 2);
+		pos = mp_encode_uint(pos, 4);
 		pos = mp_encode_str(pos, "path_class", strlen("path_class"));
 		if (path_class != NULL) {
 			pos = mp_encode_str(pos, path_class, strlen(path_class));
@@ -1516,9 +1570,15 @@ sqlVdbeList(Vdbe * p)
 			pos = mp_encode_nil(pos);
 		}
 		pos = mp_encode_str(pos, "replayable", strlen("replayable"));
-		pos = mp_encode_bool(pos, false);
+		pos = mp_encode_bool(pos, replayable);
+		if (replayable) {
+			pos = mp_encode_str(pos, "replay_inputs",
+					    strlen("replay_inputs"));
+			pos = mp_encode_bin(pos, p->planner_replay_inputs,
+					    p->planner_replay_inputs_size);
+		}
 		pos = mp_encode_str(pos, "planner", strlen("planner"));
-		pos = mp_encode_map(pos, 7);
+		pos = mp_encode_map(pos, 10);
 		pos = mp_encode_str(pos, "candidate_count",
 				    strlen("candidate_count"));
 		pos = mp_encode_uint(pos, p->planner_candidate_count);
@@ -1539,6 +1599,48 @@ sqlVdbeList(Vdbe * p)
 		pos = mp_encode_str(pos, "retained", strlen("retained"));
 		pos = mp_encode_uint(pos, p->planner_path_metrics[
 					     SQL_PLANNER_PATH_RETAINED]);
+		pos = mp_encode_str(pos, "final_path_status",
+				    strlen("final_path_status"));
+		pos = mp_encode_str(pos, path_status, strlen(path_status));
+		pos = mp_encode_str(pos, "final_paths", strlen("final_paths"));
+		uint32_t final_path_count =
+			p->planner_final_path_status ==
+			SQL_PLANNER_FINAL_PATH_COMPLETE ?
+			p->planner_final_path_count : 0;
+		pos = mp_encode_array(pos, final_path_count);
+		for (uint32_t i = 0; i < final_path_count; i++) {
+			const struct sql_planner_final_path_capture *path =
+				&p->planner_final_paths[i];
+			pos = mp_encode_map(pos, 6);
+			pos = mp_encode_str(pos, "fingerprint",
+					    strlen("fingerprint"));
+			pos = mp_encode_str(pos, path->fingerprint,
+					    strlen(path->fingerprint));
+			pos = mp_encode_str(pos, "path_cost_logest",
+					    strlen("path_cost_logest"));
+			pos = vdbe_mp_encode_int64(pos, path->path_cost_logest);
+			pos = mp_encode_str(pos, "unsorted_cost_logest",
+					    strlen("unsorted_cost_logest"));
+			pos = vdbe_mp_encode_int64(pos, path->unsorted_cost_logest);
+			pos = mp_encode_str(pos, "output_rows_logest",
+					    strlen("output_rows_logest"));
+			pos = vdbe_mp_encode_int64(pos, path->output_rows_logest);
+			pos = mp_encode_str(pos, "is_ordered", strlen("is_ordered"));
+			pos = vdbe_mp_encode_int64(pos, path->is_ordered);
+			pos = mp_encode_str(pos, "reverse_mask",
+					    strlen("reverse_mask"));
+			pos = mp_encode_uint(pos, path->reverse_mask);
+		}
+		pos = mp_encode_str(pos, "selected_final_path_fingerprint",
+				    strlen("selected_final_path_fingerprint"));
+		if (p->planner_final_path_status ==
+		    SQL_PLANNER_FINAL_PATH_COMPLETE) {
+			pos = mp_encode_str(pos,
+					    p->planner_selected_final_path_fingerprint,
+					    strlen(p->planner_selected_final_path_fingerprint));
+		} else {
+			pos = mp_encode_nil(pos);
+		}
 		mem_set_bin_allocated(&pMem[0], buf, pos - buf);
 		p->pc++;
 		p->nResColumn = 1;
@@ -2603,6 +2705,7 @@ sqlVdbeClearObject(struct Vdbe *p)
 	vdbeFreeOpArray(p->aOp, p->nOp);
 	sql_xfree(p->explain_text);
 	sql_xfree(p->zSql);
+	sql_xfree(p->planner_replay_inputs);
 }
 
 /*

@@ -47,7 +47,13 @@
 #include "sql_physical_plan.h"
 #include "sql_plan_lowering.h"
 #include "sql_select_preflight.h"
+#include "sql_replay_extract.h"
+#include "sql_replay_input.h"
+#include "sql_stats_snapshot.h"
+#include "sql.h"
 #include "box/index.h"
+
+#include <stdlib.h>
 
 /*
  * Trace output macros
@@ -6080,6 +6086,72 @@ emission_error:
  * @retval 0 on success.
  * @retval != 0 on error.
  */
+static void
+sql_select_capture_replay_input(Parse *parse, const Select *select)
+{
+	Vdbe *vdbe = parse->pVdbe;
+	if (vdbe == NULL || parse->explain != 4 || parse->iSelectId != 0 ||
+	    vdbe->planner_final_path_status !=
+		SQL_PLANNER_FINAL_PATH_COMPLETE ||
+	    vdbe->planner_final_path_count == 0 ||
+	    vdbe->planner_algorithm_version == 0 ||
+	    vdbe->planner_config_version == 0 || vdbe->planner_beam_width == 0 ||
+	    parse->nTab <= 0 || parse->nTab > 4096 || select == NULL ||
+	    select->pSrc == NULL || select->pSrc->nSrc != 1)
+		return;
+	size_t cursor_count = parse->nTab;
+	uint32_t *cursor_map = malloc(cursor_count * sizeof(*cursor_map));
+	if (cursor_map == NULL)
+		return;
+	for (size_t i = 0; i < cursor_count; i++)
+		cursor_map[i] = UINT32_MAX;
+	int cursor = select->pSrc->a[0].iCursor;
+	if (cursor < 0 || (size_t)cursor >= cursor_count) {
+		free(cursor_map);
+		return;
+	}
+	cursor_map[cursor] = 0;
+	struct sql_replay_final_path_spec final_paths[
+		SQL_PLANNER_FINAL_PATH_MAX];
+	for (uint32_t i = 0; i < vdbe->planner_final_path_count; i++) {
+		const struct sql_planner_final_path_capture *source =
+			&vdbe->planner_final_paths[i];
+		final_paths[i] = (struct sql_replay_final_path_spec) {
+			.plan_fingerprint = source->fingerprint,
+			.path_cost_logest = source->path_cost_logest,
+			.unsorted_cost_logest = source->unsorted_cost_logest,
+			.output_rows_logest = source->output_rows_logest,
+			.is_ordered = source->is_ordered,
+			.reverse_mask = source->reverse_mask,
+		};
+	}
+	struct sql_stats_snapshot *snapshot = sql_get_stats_snapshot();
+	struct sql_replay_input *input = NULL;
+	enum sql_replay_input_status status =
+		sql_replay_input_extract_select_from_snapshot_with_final_paths(
+			select, cursor_map, cursor_count,
+			vdbe->planner_algorithm_version,
+			vdbe->planner_config_version, vdbe->planner_beam_width,
+			snapshot, box_schema_version(), final_paths,
+			vdbe->planner_final_path_count, true,
+			SQL_REPLAY_SELECTOR_FINAL_PATH_V1, &input);
+	free(cursor_map);
+	sql_stats_snapshot_release(snapshot);
+	if (status != SQL_REPLAY_INPUT_OK || input == NULL ||
+	    sql_replay_input_check_replay_ready(input) != SQL_REPLAY_INPUT_OK) {
+		sql_replay_input_delete(input);
+		return;
+	}
+	char *bytes = NULL;
+	size_t size = 0;
+	status = sql_replay_input_serialize(input, &bytes, &size);
+	sql_replay_input_delete(input);
+	if (status != SQL_REPLAY_INPUT_OK)
+		return;
+	vdbe->planner_replay_inputs = bytes;
+	vdbe->planner_replay_inputs_size = size;
+}
+
 int
 sqlSelect(Parse * pParse,		/* The parser context */
 	      Select * p,		/* The SELECT statement being coded. */
@@ -7139,6 +7211,8 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	 * successful coding of the SELECT.
 	 */
  select_end:
+	if (rc == 0)
+		sql_select_capture_replay_input(pParse, p);
 	pParse->iSelectId = iRestoreSelectId;
 
 	/* Identify column names if results of the SELECT are to be output.

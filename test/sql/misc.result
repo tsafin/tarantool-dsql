@@ -618,7 +618,7 @@ assert(snapshot_object.format == 'tarantool.sql.planner.snapshot')
 ---
 - true
 ...
-assert(snapshot_object.version == 2)
+assert(snapshot_object.version == 4)
 ---
 - true
 ...
@@ -639,6 +639,14 @@ assert(snapshot_object.replay_inputs == nil)
 - true
 ...
 assert(snapshot_object.planner.fallback_count == 1)
+---
+- true
+...
+assert(snapshot_object.planner.final_path_status == 'unavailable')
+---
+- true
+...
+assert(#snapshot_object.planner.final_paths == 0)
 ---
 - true
 ...
@@ -666,7 +674,7 @@ assert(snapshot_object.planner.retained >= 0)
 ---
 - true
 ...
-simple_snapshot, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT id FROM planner_snapshot_t WHERE id = 1]])
+simple_snapshot, err = box.execute([[EXPLAIN (planner = 'snapshot') SELECT id FROM planner_snapshot_t ORDER BY id DESC]])
 ---
 ...
 assert(err == nil)
@@ -680,11 +688,23 @@ assert(simple_snapshot_object.path_class == 'current_where_c')
 ---
 - true
 ...
-assert(simple_snapshot_object.replayable == false)
+assert(simple_snapshot_object.version == 4)
 ---
 - true
 ...
-assert(simple_snapshot_object.replay_inputs == nil)
+assert(simple_snapshot_object.planner.final_path_status == 'complete')
+---
+- true
+...
+assert(#simple_snapshot_object.planner.final_paths > 0)
+---
+- true
+...
+assert(simple_snapshot_object.replayable == true)
+---
+- true
+...
+assert(type(simple_snapshot_object.replay_inputs) == 'string')
 ---
 - true
 ...

@@ -50,7 +50,9 @@
 #include "sql_plan_fallback.h"
 
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /** Increase the memory allocation for p->aLTerm[] to be at least n. */
 static void
@@ -65,6 +67,119 @@ whereLoopResize(struct WhereLoop *p, int n);
 
 static int sql_path_solver_widths[3] = {1, 5, 10};
 static bool sql_path_solver_widths_loaded;
+
+static uint64_t
+sql_path_fingerprint_add(uint64_t hash, uint64_t value)
+{
+	for (int i = 0; i < 8; i++) {
+		hash ^= (uint8_t)(value >> (i * 8));
+		hash *= UINT64_C(1099511628211);
+	}
+	return hash;
+}
+
+static bool
+sql_path_fingerprint(const WherePath *path, char fingerprint[17])
+{
+	if (path->aLoop == NULL || path->aLoop[0] == NULL ||
+	    path->aLoop[0]->iTab != 0)
+		return false;
+	const WhereLoop *loop = path->aLoop[0];
+	uint64_t hash = UINT64_C(14695981039346656037);
+	hash = sql_path_fingerprint_add(hash, loop->wsFlags);
+	hash = sql_path_fingerprint_add(hash, loop->iSortIdx);
+	hash = sql_path_fingerprint_add(hash, loop->nEq);
+	hash = sql_path_fingerprint_add(hash, loop->nBtm);
+	hash = sql_path_fingerprint_add(hash, loop->nTop);
+	hash = sql_path_fingerprint_add(hash, loop->nSkip);
+	hash = sql_path_fingerprint_add(hash, loop->nLTerm);
+	if (loop->index_def != NULL) {
+		if (loop->index_def->key_def == NULL)
+			return false;
+		hash = sql_path_fingerprint_add(hash, loop->index_def->type);
+		hash = sql_path_fingerprint_add(hash,
+						 loop->index_def->opts.is_unique);
+	}
+	const struct key_def *key_def = loop->index_def != NULL ?
+		loop->index_def->key_def : NULL;
+	hash = sql_path_fingerprint_add(hash,
+					 key_def == NULL ? UINT64_MAX :
+					 key_def->part_count);
+	if (key_def != NULL) {
+		for (uint32_t i = 0; i < key_def->part_count; i++) {
+			const struct key_part *part = &key_def->parts[i];
+			hash = sql_path_fingerprint_add(hash, part->fieldno);
+			hash = sql_path_fingerprint_add(hash, part->type);
+			hash = sql_path_fingerprint_add(hash, part->sort_order);
+			hash = sql_path_fingerprint_add(hash, part->path_len);
+			for (uint32_t j = 0; j < part->path_len; j++) {
+				hash ^= (uint8_t)part->path[j];
+				hash *= UINT64_C(1099511628211);
+			}
+		}
+	}
+	int rc = snprintf(fingerprint, 17, "%016llx",
+			  (unsigned long long)hash);
+	return rc == 16;
+}
+
+/* Capture only the final, ordinary one-relation beam. OR-subclause solvers
+ * and joins are separate producer shapes and must not publish a prefix as a
+ * complete replay candidate set. Each solver invocation replaces the prior
+ * one-relation result, so an ORDER BY cost pass wins over the preliminary
+ * row-estimation pass. */
+static void
+sql_path_capture_final_candidates(WherePath *paths, int count,
+				  WhereInfo *where_info,
+				  const WherePath *selected)
+{
+	Vdbe *vdbe = where_info->pParse->pVdbe;
+	if (vdbe == NULL || where_info->pParse->explain != 4 ||
+	    where_info->pParse->iSelectId != 0 ||
+	    (where_info->wctrlFlags & WHERE_OR_SUBCLAUSE) != 0 ||
+	    where_info->nLevel != 1 || where_info->pTabList->nSrc != 1)
+		return;
+	vdbe->planner_final_path_count = 0;
+	vdbe->planner_final_path_status = SQL_PLANNER_FINAL_PATH_INCOMPLETE;
+	vdbe->planner_selected_final_path_fingerprint[0] = '\0';
+	if (count <= 0 || count > SQL_PLANNER_FINAL_PATH_MAX)
+		return;
+	for (int i = 0; i < count; i++) {
+		struct sql_planner_final_path_capture *dest =
+			&vdbe->planner_final_paths[i];
+		if (!sql_path_fingerprint(&paths[i], dest->fingerprint))
+			goto incomplete;
+		for (int j = 0; j < i; j++) {
+			if (strcmp(dest->fingerprint,
+				   vdbe->planner_final_paths[j].fingerprint) == 0)
+				goto incomplete;
+		}
+		dest->path_cost_logest = paths[i].rCost;
+		dest->unsorted_cost_logest = paths[i].rUnsorted;
+		dest->output_rows_logest = paths[i].nRow;
+		dest->is_ordered = paths[i].isOrdered;
+		dest->reverse_mask = paths[i].revLoop;
+	}
+	bool selected_found = false;
+	for (int i = 0; i < count; i++) {
+		if (&paths[i] == selected) {
+			strcpy(vdbe->planner_selected_final_path_fingerprint,
+			       vdbe->planner_final_paths[i].fingerprint);
+			selected_found = true;
+			break;
+		}
+	}
+	if (!selected_found)
+		goto incomplete;
+	vdbe->planner_final_path_count = count;
+	vdbe->planner_final_path_status = SQL_PLANNER_FINAL_PATH_COMPLETE;
+	vdbe->planner_algorithm_version = 1;
+	vdbe->planner_config_version = 1;
+	vdbe->planner_beam_width = sql_path_solver_width(1);
+	return;
+incomplete:
+	vdbe->planner_final_path_count = 0;
+}
 
 static int
 sql_path_solver_parse_width(const char *name, int default_value)
@@ -3298,6 +3413,7 @@ candidate_ready:
 		if (pFrom->rCost > aFrom[ii].rCost)
 			pFrom = &aFrom[ii];
 	}
+	sql_path_capture_final_candidates(aFrom, nFrom, pWInfo, pFrom);
 	assert(pWInfo->nLevel == nLoop);
 	/* Load the lowest cost path into pWInfo */
 	for (iLoop = 0; iLoop < nLoop; iLoop++) {
