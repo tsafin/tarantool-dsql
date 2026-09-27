@@ -52,8 +52,6 @@ sql_plan_fallback_reason_name(uint32_t reason)
 		return "UNSUPPORTED_EXPRESSION";
 	case SQL_PLAN_FALLBACK_UNSUPPORTED_FILTER:
 		return "UNSUPPORTED_FILTER";
-	case SQL_PLAN_FALLBACK_UNSUPPORTED_ORDER:
-		return "UNSUPPORTED_ORDER";
 	default:
 		return NULL;
 	}

@@ -76,7 +76,7 @@ test_reason_mapping(void)
 	   sql_plan_fallback_reason_name(999) == NULL,
 	   "none and unknown reason codes have no external name");
 	ok(SQL_PLAN_FALLBACK_REASON_COUNT ==
-	   SQL_PLAN_FALLBACK_UNSUPPORTED_ORDER + 1,
+	   SQL_PLAN_FALLBACK_UNSUPPORTED_FILTER + 1,
 	   "reason count sentinel follows all stable fallback codes");
 	footer();
 	check_plan();

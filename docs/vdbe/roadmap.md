@@ -1185,15 +1185,12 @@ DML, triggers, subprograms, non-deterministic functions.
   per-reason counters exactly once. This test runs alongside the existing
   memtx/Vinyl filter-result parity checks and does not alter route selection.
   A follow-up audit found a related no-predicate shape: `ORDER BY` on a
-  non-primary column fails table-scan preflight but previously had no stable
-  physical reason because accounting only ran when a WHERE clause existed.
-  An append-only `UNSUPPORTED_ORDER` reason and producer/preflight accounting
-  have been added, but focused `EXPLAIN (planner = 'summary')` runtime checks
-  still fail on both memtx and Vinyl: the route is `fallback`, while the
-  reason row is absent and total/per-reason counters do not increment. The
-  reason's actual assignment point is unresolved, so this is not yet a
-  validated M3.5 closure. Keep the regression open; do not count this shape
-  as covered until its live route passes. M3.5 remains partial.
+  non-primary column is reported as `fallback`, but the summary EXPLAIN does
+  not expose a reason or increment fallback counters. Attempts to classify it
+  at table-scan preflight and physical-producer rejection did not affect that
+  runtime path on either memtx or Vinyl, so no reason code or passing
+  regression is claimed. Treat this as an open M3.5 audit finding until its
+  summary-route hook is identified; the query's result path remains legacy.
 
   ```mermaid
   flowchart TD
