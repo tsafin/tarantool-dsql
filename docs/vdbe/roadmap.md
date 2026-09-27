@@ -1163,6 +1163,12 @@ DML, triggers, subprograms, non-deterministic functions.
   filter reports `UNSUPPORTED_FILTER` and increments both the total and
   per-reason counters exactly once. This test runs alongside the existing
   memtx/Vinyl filter-result parity checks and does not alter route selection.
+  A follow-up audit found a related no-predicate shape: `ORDER BY` on a
+  non-primary column fails table-scan preflight but previously had no stable
+  physical reason because accounting only ran when a WHERE clause existed.
+  It now reports the append-only `UNSUPPORTED_ORDER` reason and increments
+  the reason counter; focused memtx/Vinyl execution is pending. This closes
+  that one observed hole only and does not establish complete M3.5 coverage.
 
   ```mermaid
   flowchart TD
