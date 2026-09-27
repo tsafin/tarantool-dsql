@@ -566,14 +566,18 @@ review of IDs and formats.
   a complete census, a low-coverage skew probe, provenance rejection, and the
   temporary-memory and work bounds. `sql_stats_collection_index_from_sample()`
   now converts one bounded index summary plus its engine sample into a detached
-  collection record with caller-supplied visibility and definition tokens;
-  `sql_stats_collection_samples.test` carries that record together with the
-  exact population/width bridges through candidate-snapshot construction;
-  all four assertions pass locally.
-  The helper does not independently verify the sample/summary-to-index
-  association, and multi-index orchestration remains caller-owned. It is not
-  wired to ANALYZE or global publication. There is no agreed corpus validation for
-  the distributional assumption. The native index-hash
+  collection record with caller-supplied visibility and definition tokens.
+  `sql_stats_collection_build_sample_candidate()` assembles all expected index
+  summaries for one relation into a detached candidate atomically. It requires
+  exact common population counts, caller-supplied relation confidence and
+  provenance, and only returns per-index confidence outputs after full
+  candidate validation. A two-index success case and population-mismatch
+  no-partial-output case pass in the five-check
+  `sql_stats_collection_samples.test` target. The helper does not independently
+  verify each summary's index association or establish that caller-supplied
+  visibility tokens represent one shared engine snapshot. It is not wired to
+  ANALYZE or global publication. There is no agreed corpus validation for the
+  distributional assumption. The native index-hash
   adapter supports
   verified STRING, DOUBLE, BOOLEAN, UNSIGNED, and signed INTEGER parts for
   TREE/HASH definitions. INTEGER uses canonical MessagePack values (negative
