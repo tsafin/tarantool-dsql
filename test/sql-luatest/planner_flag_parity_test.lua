@@ -117,6 +117,40 @@ g.test_unsigned_primary_key_off_on_off_parity = function()
     end)
 end
 
+g.test_feature_flag_is_session_local = function()
+    local netbox = require('net.box')
+    local first = netbox.connect(g.server.net_box_uri)
+    local second = netbox.connect(g.server.net_box_uri)
+    local table_name = 'planner_flag_session_local'
+    first:execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY)'):format(table_name))
+    first:execute(('INSERT INTO %s VALUES (1)'):format(table_name))
+    local query = ('SELECT id FROM %s'):format(table_name)
+    local explain = [[EXPLAIN (planner = 'summary') ]] .. query
+
+    local function route(conn)
+        return conn:execute(explain).rows[1][3]
+    end
+
+    -- A fresh connection starts with the default-off setting. Enabling the
+    -- experimental route on one connection must not affect another session.
+    t.assert_equals(route(first), 'current_where_c')
+    t.assert_equals(route(second), 'current_where_c')
+    first:execute([[SET SESSION "sql_new_planner_single_table" = true]])
+    t.assert_equals(route(first), 'new_planner')
+    t.assert_equals(route(second), 'current_where_c')
+
+    -- The second session can opt in independently; turning the first off
+    -- likewise must not change the second session's route.
+    second:execute([[SET SESSION "sql_new_planner_single_table" = true]])
+    first:execute([[SET SESSION "sql_new_planner_single_table" = false]])
+    t.assert_equals(route(first), 'current_where_c')
+    t.assert_equals(route(second), 'new_planner')
+
+    first:execute(('DROP TABLE %s'):format(table_name))
+    first:close()
+    second:close()
+end
+
 g.test_text_primary_key_scan_off_on_off_parity = function()
     g.server:exec(function()
         box.execute([[SET SESSION "sql_seq_scan" = true]])
