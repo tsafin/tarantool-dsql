@@ -1363,6 +1363,17 @@ DML, triggers, subprograms, non-deterministic functions.
   call the general physical selector. This is a design/coverage prerequisite,
   not a proposed routing change; no additional enum alone closes it.
 
+  **Access-hint producer regression (2026-09-27).** The existing
+  `planner_fallback_access_hint` SQL test checked `INDEXED BY` and `NOT INDEXED`
+  only with the feature disabled. It now repeats both `EXPLAIN (planner =
+  'summary')` cases with `sql_new_planner_single_table` enabled and asserts the
+  pre-normalization `UNSUPPORTED_ACCESS_HINT` reason plus exact total and
+  reason-counter deltas. This covers the ordering contract at the attempted
+  table-scan producer boundary: the structural rejection must survive rather
+  than be replaced by a later lowering result. It does not address nested
+  producer ownership, direct emitters, or the missing statement/component
+  route ledger; M3.5 remains open.
+
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
