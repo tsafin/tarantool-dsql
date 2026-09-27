@@ -176,7 +176,10 @@ sql_physical_table_scan_from_select(
 		return NULL;
 	}
 	bool has_point_key = false;
+	bool has_range_key = false;
 	int64_t point_key = 0;
+	int64_t range_key = 0;
+	enum sql_plan_bound_op range_op = SQL_PLAN_EQ;
 	uint64_t unsigned_point_key = 0;
 	bool unsigned_point = false;
 	if (select->pWhere != NULL) {
@@ -191,11 +194,20 @@ sql_physical_table_scan_from_select(
 		const struct key_def *pk = source->space->index_map[0]->def->key_def;
 		unsigned_point = pk->part_count == 1 &&
 			pk->parts[0].type == FIELD_TYPE_UNSIGNED;
-		if (select->pWhere->op != TK_EQ ||
+		enum sql_plan_bound_op op;
+		switch (select->pWhere->op) {
+		case TK_EQ: op = SQL_PLAN_EQ; break;
+		case TK_GT: op = SQL_PLAN_GT; break;
+		case TK_GE: op = SQL_PLAN_GE; break;
+		case TK_LT: op = SQL_PLAN_LT; break;
+		case TK_LE: op = SQL_PLAN_LE; break;
+		default: op = SQL_PLAN_EQ; break;
+		}
+		if ((op == SQL_PLAN_EQ && select->pWhere->op != TK_EQ) ||
 		    column == NULL || value == NULL ||
 		    pk->part_count != 1 ||
 		    (pk->parts[0].type != FIELD_TYPE_INTEGER &&
-		     pk->parts[0].type != FIELD_TYPE_UNSIGNED) ||
+		     (pk->parts[0].type != FIELD_TYPE_UNSIGNED || op != SQL_PLAN_EQ)) ||
 		    ExprHasProperty(column, EP_TokenOnly | EP_Reduced) ||
 		    column->op != TK_COLUMN_REF || column->pLeft != NULL ||
 		    column->pRight != NULL || column->iTable != source->iCursor ||
@@ -216,7 +228,7 @@ sql_physical_table_scan_from_select(
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
-		if (unsigned_point) {
+		if (unsigned_point && op == SQL_PLAN_EQ) {
 			if (negated) {
 				if (reason != NULL)
 					*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
@@ -277,9 +289,27 @@ sql_physical_table_scan_from_select(
 				point_key = -point_key;
 			}
 		}
-		has_point_key = true;
+		if (column != select->pWhere->pLeft) {
+			switch (op) {
+			case SQL_PLAN_GT: op = SQL_PLAN_LT; break;
+			case SQL_PLAN_GE: op = SQL_PLAN_LE; break;
+			case SQL_PLAN_LT: op = SQL_PLAN_GT; break;
+			case SQL_PLAN_LE: op = SQL_PLAN_GE; break;
+			default: break;
+			}
+		}
+		if (op == SQL_PLAN_EQ) {
+			has_point_key = true;
+		} else {
+			has_range_key = true;
+			range_key = point_key;
+			range_op = op;
+		}
 	}
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
+	if (has_range_key)
+		direction = range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE ?
+			SQL_PLAN_DESC : SQL_PLAN_ASC;
 	struct sql_plan_order_term order_term;
 	if (select->pOrderBy != NULL) {
 		const struct ExprList *order_by = select->pOrderBy;
@@ -307,6 +337,13 @@ sql_physical_table_scan_from_select(
 		}
 		direction = order_by->a[0].sort_order == SORT_ORDER_DESC ?
 			SQL_PLAN_DESC : SQL_PLAN_ASC;
+		if (has_range_key && direction != (range_op == SQL_PLAN_LT ||
+							 range_op == SQL_PLAN_LE ?
+							 SQL_PLAN_DESC : SQL_PLAN_ASC)) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
 		order_term = (struct sql_plan_order_term) {
 			.column = primary_field,
 			.direction = direction,
@@ -334,11 +371,13 @@ sql_physical_table_scan_from_select(
 	}
 	struct sql_plan_expression point_expression = {
 		.id = 1,
-		.canonical = "integer-point-key",
+		.canonical = has_range_key ? "integer-range-key" :
+			"integer-point-key",
 	};
 	struct sql_plan_bound point_bound = {
-		.side = SQL_PLAN_LOWER,
-		.op = SQL_PLAN_EQ,
+		.side = has_range_key && (range_op == SQL_PLAN_LT ||
+			range_op == SQL_PLAN_LE) ? SQL_PLAN_UPPER : SQL_PLAN_LOWER,
+		.op = has_range_key ? range_op : SQL_PLAN_EQ,
 		.expr_ref = 1,
 	};
 	struct sql_plan_descriptor_input input = {
@@ -353,28 +392,35 @@ sql_physical_table_scan_from_select(
 		.space_name = source->space->def->name,
 		.access = {
 			.kind = has_point_key ? SQL_PLAN_PK_POINT_LOOKUP :
+				has_range_key ? SQL_PLAN_INDEX_RANGE_SCAN :
 				SQL_PLAN_TABLE_FULL_SCAN,
-			.bounds = has_point_key ? &point_bound : NULL,
-			.bound_count = has_point_key ? 1 : 0,
+			.bounds = has_point_key || has_range_key ? &point_bound : NULL,
+			.bound_count = has_point_key || has_range_key ? 1 : 0,
 			.has_integer_point_key = has_point_key && !unsigned_point,
 			.integer_point_key = point_key,
 			.has_unsigned_point_key = has_point_key && unsigned_point,
 			.unsigned_point_key = unsigned_point_key,
+			.has_integer_range_key = has_range_key,
+			.integer_range_key = range_key,
+			.integer_range_op = range_op,
 			.direction = direction,
 			.produced_order = select->pOrderBy == NULL ? NULL : &order_term,
 			.produced_order_count = select->pOrderBy == NULL ? 0 : 1,
 			.projected_columns = columns,
 			.projected_column_count = select->pEList->nExpr,
-			.est_rows = has_point_key ? 1 : estimate->rows,
+			.est_rows = has_point_key ? 1 : has_range_key ?
+				estimate->rows / 2 : estimate->rows,
 			.est_rows_confidence = estimate->confidence,
 		},
 		.projection_columns = columns,
 		.projection_column_count = select->pEList->nExpr,
-		.expressions = has_point_key ? &point_expression : NULL,
-		.expression_count = has_point_key ? 1 : 0,
+		.expressions = has_point_key || has_range_key ? &point_expression : NULL,
+		.expression_count = has_point_key || has_range_key ? 1 : 0,
 		.cost_startup = estimate->startup_cost,
-		.cost_total = has_point_key ? 1 : estimate->total_cost,
-		.cost_rows = has_point_key ? 1 : estimate->rows,
+		.cost_total = has_point_key ? 1 : has_range_key ?
+			estimate->total_cost / 2 : estimate->total_cost,
+		.cost_rows = has_point_key ? 1 : has_range_key ?
+			estimate->rows / 2 : estimate->rows,
 		.cost_row_width = estimate->row_width,
 		.cost_confidence = estimate->confidence,
 	};

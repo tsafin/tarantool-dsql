@@ -6014,10 +6014,14 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	vdbe_emit_open_cursor(parse, source->iCursor, 0, space);
 	if (parse->is_aborted)
 		goto emission_error;
-	int lower_rc = sql_plan_descriptor_access_kind(plan) ==
-		SQL_PLAN_PK_POINT_LOOKUP ?
+	enum sql_plan_access_kind access_kind =
+		sql_plan_descriptor_access_kind(plan);
+	int lower_rc = access_kind == SQL_PLAN_PK_POINT_LOOKUP ?
 		sql_plan_lower_vdbe_pk_point(plan, vdbe, source->iCursor,
 					      result_first_reg) :
+		access_kind == SQL_PLAN_INDEX_RANGE_SCAN ?
+		sql_plan_lower_vdbe_pk_range(plan, vdbe, source->iCursor,
+					     result_first_reg) :
 		sql_plan_lower_vdbe_table_scan(plan, vdbe, source->iCursor,
 					       result_first_reg);
 	if (lower_rc != 0)

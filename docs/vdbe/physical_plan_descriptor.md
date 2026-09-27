@@ -103,10 +103,9 @@ silently turn a codegen error into legacy fallback. Focused unit tests cover
 these cases and commit.
 This checkpoint intentionally does not cover arbitrary parser/AST mutations,
 schema side effects, or VDBE metadata, so it is not yet sufficient to wrap
-the complete SELECT integration path. The producer/expression/cursor/result
-bindings and an auditable boundary around every other mutable state remain
-the narrow blockers. This is not a claim that existing VDBE opcodes cannot
-express the scan.
+the complete SELECT integration path. Producer/expression/cursor/result
+bindings and boundaries around other mutable state remain limitations. This
+is not a claim that existing VDBE opcodes cannot express the scan.
 
 `sql_plan_lower_vdbe_table_scan()` is a first opcode-emitting backend slice.
 For a `SQL_PLAN_TABLE_FULL_SCAN` descriptor with direct projection columns and
@@ -185,11 +184,21 @@ for the single-row result. Other filter shapes remain on legacy codegen (with
 the stable UNSUPPORTED_FILTER reason for unsupported filters). The SQL
 regression exercises hit, miss, positive and negative wide signed keys,
 UNSIGNED keys above `INT64_MAX` through `UINT64_MAX`, negative and overflowing
-UNSIGNED fallback, LIMIT/OFFSET,
-primary-key ordering, and unsupported-filter fallback cases on both memtx and
-Vinyl. This is a first primary point path, not general
-point-lookup support: parameters, secondary indexes, composite keys, ranges,
-and expression evaluation are not included.
+UNSIGNED fallback, LIMIT/OFFSET, primary-key ordering, and unsupported-filter
+fallback cases on both memtx and Vinyl. This is a first primary point path,
+not general point-lookup support: parameters, secondary indexes, composite
+keys, and expression evaluation are not included.
+
+The production route also supports one-sided signed INTEGER primary-key
+literal ranges (`>`, `>=`, `<`, `<=`), including reversed operand order. It
+emits `OP_SeekGT`/`OP_SeekGE`/`OP_SeekLT`/`OP_SeekLE` followed by `Next` or
+`Prev`; an explicit primary-key order must agree with the natural direction.
+LIMIT and OFFSET share the scan-loop implementation. UNSIGNED ranges,
+parameters, expressions, composite predicates, and non-primary columns remain
+fallback cases. Focused memtx/Vinyl SQL regressions cover strict/inclusive
+bounds, reversed operands, ordered output, and LIMIT/OFFSET. M3.4 remains open
+pending broader range semantics, injected opcode-failure coverage, and corpus
+parity.
 
 M3.5 now has a producer-contract prototype in `sql_plan_fallback.{h,c}`.
 It maps the existing logical and physical reject enums to append-only numeric

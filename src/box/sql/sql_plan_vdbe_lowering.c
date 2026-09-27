@@ -103,10 +103,10 @@ error:
 	return -1;
 }
 
-int
-sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
-			       struct Vdbe *vdbe, int cursor,
-			       int result_first_reg)
+static int
+sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
+			 struct Vdbe *vdbe, int cursor,
+			 int result_first_reg, bool range)
 {
 	if (plan == NULL || vdbe == NULL || vdbe->pParse == NULL || cursor < 0 ||
 	    result_first_reg < 1 || vdbe->magic != VDBE_MAGIC_INIT)
@@ -114,7 +114,13 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 	const struct sql_plan_descriptor_input *input =
 		sql_plan_descriptor_get_input(plan);
 	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
-	    input->access.kind != SQL_PLAN_TABLE_FULL_SCAN ||
+	    input->access.kind != (range ? SQL_PLAN_INDEX_RANGE_SCAN :
+				   SQL_PLAN_TABLE_FULL_SCAN) ||
+	    (range && (!input->access.has_integer_range_key ||
+		       (input->access.integer_range_op != SQL_PLAN_GT &&
+			input->access.integer_range_op != SQL_PLAN_GE &&
+			input->access.integer_range_op != SQL_PLAN_LT &&
+			input->access.integer_range_op != SQL_PLAN_LE))) ||
 	    input->filter_count != 0 || input->finalize_count > 1 ||
 	    (input->finalize_count == 1 &&
 	     (input->finalize == NULL ||
@@ -190,7 +196,31 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 		OP_Rewind;
 	int step_op = input->access.direction == SQL_PLAN_DESC ? OP_Prev :
 		OP_Next;
-	int rewind = sqlVdbeAddOp2(vdbe, rewind_op, cursor, 0);
+	int rewind;
+	if (!range) {
+		rewind = sqlVdbeAddOp2(vdbe, rewind_op, cursor, 0);
+	} else {
+		if (parse->nMem == INT_MAX)
+			goto error;
+		int key_reg = ++parse->nMem;
+		int64_t key = input->access.integer_range_key;
+		int key_op = key >= INT_MIN && key <= INT_MAX ?
+			sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg) :
+			sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
+					  (const u8 *)&key, P4_INT64);
+		if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+		int seek_op;
+		switch (input->access.integer_range_op) {
+		case SQL_PLAN_GT: seek_op = OP_SeekGT; break;
+		case SQL_PLAN_GE: seek_op = OP_SeekGE; break;
+		case SQL_PLAN_LT: seek_op = OP_SeekLT; break;
+		case SQL_PLAN_LE: seek_op = OP_SeekLE; break;
+		default: goto error;
+		}
+		rewind = sqlVdbeAddOp4Int(vdbe, seek_op, cursor, 0, key_reg, 1);
+	}
 	if (rewind != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
@@ -236,4 +266,22 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 error:
 	vdbe_codegen_checkpoint_rollback(&checkpoint);
 	return -1;
+}
+
+int
+sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
+			       struct Vdbe *vdbe, int cursor,
+			       int result_first_reg)
+{
+	return sql_plan_lower_vdbe_scan(plan, vdbe, cursor, result_first_reg,
+					 false);
+}
+
+int
+sql_plan_lower_vdbe_pk_range(const struct sql_plan_descriptor *plan,
+			     struct Vdbe *vdbe, int cursor,
+			     int result_first_reg)
+{
+	return sql_plan_lower_vdbe_scan(plan, vdbe, cursor, result_first_reg,
+					 true);
 }

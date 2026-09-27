@@ -957,8 +957,10 @@ DML, triggers, subprograms, non-deterministic functions.
   NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
   descending primary-key order with LIMIT, primary-key point hit/miss with
   LIMIT 1 / LIMIT 0 / OFFSET 1 semantics, signed-64-bit point keys through
-  INT64_MIN/MAX, UNSIGNED point keys through UINT64_MAX, and range-filter
-  fallback. Twenty-three emitter checks cover
+  INT64_MIN/MAX, UNSIGNED point keys through UINT64_MAX, and signed INTEGER
+  one-sided primary-key literal ranges (`>`, `>=`, `<`, `<=`) with reversed
+  operands, direction-matched ordering, and LIMIT/OFFSET. UNSIGNED ranges and
+  unsupported predicates still fall back. Twenty-three emitter checks cover
   unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, register overflow, and
   checkpoint rollback after late point-projection rejection. SQL regressions
@@ -967,7 +969,7 @@ DML, triggers, subprograms, non-deterministic functions.
   `INT64_MAX` also exercises wide key-register encoding on both engines.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
-  This does not cover all descriptor operators, secondary/range access,
+  This does not cover all descriptor operators, secondary-index/range access,
   all storage edge cases, or corpus-wide parity; checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
   injected-opcode-failure, parity, and capture coverage. Details:

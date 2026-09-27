@@ -28,7 +28,9 @@ sql_select_preflight_table_scan(const struct Select *select,
 	    source->fg.notIndexed)
 		return SQL_SELECT_PREFLIGHT_SHAPE;
 	if (select->pWhere != NULL &&
-	    (select->pWhere->op != TK_EQ || select->pWhere->pLeft == NULL ||
+	    ((select->pWhere->op != TK_EQ && select->pWhere->op != TK_GT &&
+	      select->pWhere->op != TK_GE && select->pWhere->op != TK_LT &&
+	      select->pWhere->op != TK_LE) || select->pWhere->pLeft == NULL ||
 	     select->pWhere->pRight == NULL))
 		return SQL_SELECT_PREFLIGHT_SHAPE;
 	if (source->iCursor < 0 || select->pEList == NULL ||
