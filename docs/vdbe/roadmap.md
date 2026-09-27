@@ -1084,7 +1084,10 @@ DML, triggers, subprograms, non-deterministic functions.
   reversed operands, ascending/descending ordering, and LIMIT/OFFSET. A
   two-sided route accepts one lower and one upper literal on the same key and
   terminates at the opposite endpoint; mixed filters and duplicate-side bounds
-  remain on legacy codegen. UNSIGNED range seek
+  remain on legacy codegen. Additional memtx/Vinyl SQL assertions pin a
+  singleton inclusive interval, an empty interval sharing an exclusive
+  endpoint, and an inverted interval; all three preserve flag-off/on results.
+  UNSIGNED range seek
   constants retain uint64 values through UINT64_MAX; negative UNSIGNED values
   fail closed to legacy codegen, while literals above UINT64_MAX are rejected
   by SQL parsing before planner dispatch. Unsupported predicates still fall
