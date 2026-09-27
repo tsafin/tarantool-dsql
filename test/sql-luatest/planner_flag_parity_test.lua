@@ -212,6 +212,12 @@ g.test_composite_primary_key_order_off_on_off_parity = function()
                 ('SELECT a, b FROM %s ORDER BY a ASC'):format(name),
                 ('SELECT a, b FROM %s ORDER BY a ASC, b ASC'):format(name),
                 ('SELECT a, b FROM %s ORDER BY a DESC, b DESC'):format(name),
+                ('SELECT a, b FROM %s ORDER BY a DESC, b DESC LIMIT 2 OFFSET 1')
+                    :format(name),
+                ('SELECT a, b FROM %s ORDER BY a ASC LIMIT 3 OFFSET 1')
+                    :format(name),
+                ('SELECT a, b FROM %s ORDER BY a DESC, b DESC LIMIT 0')
+                    :format(name),
                 ('SELECT a, b FROM %s ORDER BY a ASC, b DESC'):format(name),
             }
 
@@ -222,10 +228,10 @@ g.test_composite_primary_key_order_off_on_off_parity = function()
                 for i, sql in ipairs(queries) do
                     local explain = box.execute(
                         [[EXPLAIN (planner = 'summary') ]] .. sql)
-                    if enabled and i < 4 then
+                    if enabled and i < 7 then
                         t.assert_equals(explain.rows[1][3], 'new_planner')
                         t.assert_equals(explain.rows[2][3], nil)
-                    elseif not enabled or i == 4 then
+                    elseif not enabled or i == 7 then
                         t.assert_equals(explain.rows[1][3], 'fallback')
                         t.assert_equals(explain.rows[2][3],
                                         'UNSUPPORTED_EXPRESSION')
@@ -242,10 +248,10 @@ g.test_composite_primary_key_order_off_on_off_parity = function()
             local default_off = capture(false)
             local off_after = box.stat.sql()
             t.assert_equals(off_after.sql_planner_fallback_total,
-                            off_before.sql_planner_fallback_total + 8)
+                            off_before.sql_planner_fallback_total + 14)
             t.assert_equals(
                 off_after.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total,
-                off_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total + 8)
+                off_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total + 14)
             local enabled_before = box.stat.sql()
             local enabled = capture(true)
             local enabled_after = box.stat.sql()
@@ -258,14 +264,17 @@ g.test_composite_primary_key_order_off_on_off_parity = function()
             local off_again = capture(false)
             local off_again_after = box.stat.sql()
             t.assert_equals(off_again_after.sql_planner_fallback_total,
-                            off_again_before.sql_planner_fallback_total + 8)
+                            off_again_before.sql_planner_fallback_total + 14)
             t.assert_equals(
                 off_again_after.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total,
-                off_again_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total + 8)
+                off_again_before.sql_planner_fallback_UNSUPPORTED_EXPRESSION_total + 14)
             local expected = {
                 {{1, 10}, {1, 20}, {1, 30}, {2, 10}, {2, 20}},
                 {{1, 10}, {1, 20}, {1, 30}, {2, 10}, {2, 20}},
                 {{2, 20}, {2, 10}, {1, 30}, {1, 20}, {1, 10}},
+                {{2, 10}, {1, 30}},
+                {{1, 20}, {1, 30}, {2, 10}},
+                {},
                 {{1, 30}, {1, 20}, {1, 10}, {2, 20}, {2, 10}},
             }
             for i = 1, #queries do
