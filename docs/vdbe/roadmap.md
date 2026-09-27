@@ -1179,7 +1179,10 @@ DML, triggers, subprograms, non-deterministic functions.
   When the experimental table-scan route is enabled, simple predicate queries
   that the executable slice cannot lower now report stable
   `UNSUPPORTED_FILTER` and increment its per-reason counter; earlier, they
-  were indistinguishable from ordinary `current_where_c` execution. The point
+  were indistinguishable from ordinary `current_where_c` execution. The new
+  primary-key `IS NOT NULL` scan route has a paired non-primary-key regression
+  that asserts `fallback / UNSUPPORTED_FILTER` and identical flag-on/off rows
+  on memtx and Vinyl. The point
   lookup boundary now has focused fallback coverage for a bind parameter,
   equality on a non-primary column, NULL/computed values, unsupported ranges
   (including non-primary-key ranges), OR, and negative literals against
