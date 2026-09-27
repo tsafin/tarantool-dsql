@@ -176,12 +176,13 @@ new_range_descriptor(enum sql_plan_bound_op op, int64_t key,
 }
 
 static struct sql_plan_descriptor *
-new_bounded_range_descriptor(enum sql_plan_bound_op upper_op)
+new_bounded_range_descriptor(enum sql_plan_bound_op upper_op,
+			     int64_t lower_key, int64_t upper_key)
 {
 	static const uint32_t columns[] = {0};
-	static const struct sql_plan_bound bounds[] = {
+	struct sql_plan_bound bounds[] = {
 		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_GE, .expr_ref = 1},
-		{.side = SQL_PLAN_UPPER, .op = SQL_PLAN_LT, .expr_ref = 2},
+		{.side = SQL_PLAN_UPPER, .op = upper_op, .expr_ref = 2},
 	};
 	static const struct sql_plan_expression expressions[] = {
 		{.id = 1, .canonical = "integer-range-lower"},
@@ -198,10 +199,10 @@ new_bounded_range_descriptor(enum sql_plan_bound_op upper_op)
 			.bounds = bounds,
 			.bound_count = 2,
 			.has_integer_range_key = true,
-			.integer_range_key = 1,
+			.integer_range_key = lower_key,
 			.integer_range_op = SQL_PLAN_GE,
 			.has_integer_range_end_key = true,
-			.integer_range_end_key = 3,
+			.integer_range_end_key = upper_key,
 			.integer_range_end_op = upper_op,
 			.range_key_column = 0,
 			.direction = SQL_PLAN_ASC,
@@ -317,7 +318,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(32);
+	plan(33);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -375,9 +376,11 @@ main(void)
 	struct sql_plan_descriptor *invalid_direction_range_desc =
 		new_range_descriptor(SQL_PLAN_GT, 7, false, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *bounded_range_desc =
-		new_bounded_range_descriptor(SQL_PLAN_LT);
+		new_bounded_range_descriptor(SQL_PLAN_LT, 1, 3);
+	struct sql_plan_descriptor *wide_bounded_range_desc =
+		new_bounded_range_descriptor(SQL_PLAN_LE, INT64_MIN, INT64_MAX);
 	struct sql_plan_descriptor *invalid_bounded_range_desc =
-		new_bounded_range_descriptor(SQL_PLAN_EQ);
+		new_bounded_range_descriptor(SQL_PLAN_EQ, 1, 3);
 	struct sql_plan_descriptor *invalid_point_desc =
 		new_invalid_point_descriptor();
 	struct sql_plan_descriptor *late_invalid_point_desc =
@@ -395,6 +398,7 @@ main(void)
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
 	   range_gt_desc != NULL && range_le_desc != NULL &&
 	   unsigned_range_desc != NULL && bounded_range_desc != NULL &&
+	   wide_bounded_range_desc != NULL &&
 	   invalid_direction_range_desc != NULL &&
 	   invalid_point_desc != NULL && late_invalid_point_desc != NULL &&
 	   point_limit_desc != NULL && point_zero_limit_desc != NULL &&
@@ -608,6 +612,16 @@ main(void)
 	   vdbe.aOp[before_bounded_range + 4].p2 == before_bounded_range + 8 &&
 	   vdbe.aOp[before_bounded_range + 7].opcode == OP_Next,
 	   "bounded range seeks at lower bound and exits at exclusive upper bound");
+	int before_wide_bounded_range = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(wide_bounded_range_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_wide_bounded_range].opcode == OP_Int64 &&
+	   vdbe.aOp[before_wide_bounded_range].p4type == P4_UINT64 &&
+	   (uint64_t)*vdbe.aOp[before_wide_bounded_range].p4.pI64 == INT64_MAX &&
+	   vdbe.aOp[before_wide_bounded_range + 1].opcode == OP_Int64 &&
+	   vdbe.aOp[before_wide_bounded_range + 1].p4type == P4_INT64 &&
+	   *vdbe.aOp[before_wide_bounded_range + 1].p4.pI64 == INT64_MIN &&
+	   vdbe.aOp[before_wide_bounded_range + 2].opcode == OP_SeekGE,
+	   "wide bounded range encodes positive end and negative seek bounds safely");
 	int before_point_limit = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_limit_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.nOp == before_point_limit + 5 &&
@@ -642,6 +656,7 @@ main(void)
 	sql_plan_descriptor_delete(unsigned_range_desc);
 	sql_plan_descriptor_delete(invalid_direction_range_desc);
 	sql_plan_descriptor_delete(bounded_range_desc);
+	sql_plan_descriptor_delete(wide_bounded_range_desc);
 	sql_plan_descriptor_delete(invalid_bounded_range_desc);
 	sql_plan_descriptor_delete(invalid_point_desc);
 	sql_plan_descriptor_delete(late_invalid_point_desc);
