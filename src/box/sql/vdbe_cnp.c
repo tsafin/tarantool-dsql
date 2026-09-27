@@ -1142,6 +1142,57 @@ vdbe_cnp_ttransaction_handler(struct Vdbe *p, struct VdbeOp *pOp,
 }
 
 /*
+ * SQL_PRESERVE_NONE handlers use r12-r14 for their arguments on x86-64,
+ * while generated CnP stencils call handlers using the normal SysV ABI
+ * (rdi/rsi/rdx). Keep this single SysV entry point and make the compiler
+ * perform the ABI transition at each typed call site.
+ */
+static int
+vdbe_cnp_preserve_none_bridge(struct Vdbe *p, struct VdbeOp *pOp,
+			      struct Mem *aMem)
+{
+	switch (pOp->opcode) {
+	case OP_Noop: return vdbe_op_noop(p, pOp, aMem);
+	case OP_Add: return vdbe_op_add(p, pOp, aMem);
+	case OP_Subtract: return vdbe_op_sub(p, pOp, aMem);
+	case OP_Multiply: return vdbe_op_multiply(p, pOp, aMem);
+	case OP_Divide: return vdbe_op_divide(p, pOp, aMem);
+	case OP_Remainder: return vdbe_op_remainder(p, pOp, aMem);
+	case OP_Integer: return vdbe_op_integer(p, pOp, aMem);
+	case OP_Bool: return vdbe_op_bool(p, pOp, aMem);
+	case OP_Int64: return vdbe_op_int64(p, pOp, aMem);
+	case OP_Real: return vdbe_op_real(p, pOp, aMem);
+	case OP_String: return vdbe_op_string(p, pOp, aMem);
+	case OP_String8: return vdbe_op_string8(p, pOp, aMem);
+	case OP_Blob: return vdbe_op_blob(p, pOp, aMem);
+	case OP_Move: return vdbe_op_move(p, pOp, aMem);
+	case OP_Eq: return vdbe_op_eq(p, pOp, aMem);
+	case OP_Ne: return vdbe_op_ne(p, pOp, aMem);
+	case OP_Lt: return vdbe_op_lt(p, pOp, aMem);
+	case OP_Le: return vdbe_op_le(p, pOp, aMem);
+	case OP_Gt: return vdbe_op_gt(p, pOp, aMem);
+	case OP_Ge: return vdbe_op_ge(p, pOp, aMem);
+	case OP_And: return vdbe_op_and(p, pOp, aMem);
+	case OP_Or: return vdbe_op_or(p, pOp, aMem);
+	case OP_Not: return vdbe_op_not(p, pOp, aMem);
+	case OP_BitAnd: return vdbe_op_bitand(p, pOp, aMem);
+	case OP_BitOr: return vdbe_op_bitor(p, pOp, aMem);
+	case OP_BitNot: return vdbe_op_bitnot(p, pOp, aMem);
+	case OP_OffsetLimit: return vdbe_op_offsetlimit(p, pOp, aMem);
+	case OP_Concat: return vdbe_op_concat(p, pOp, aMem);
+	case OP_MustBeInt: return vdbe_op_mustbeint(p, pOp, aMem);
+	case OP_Cast: return vdbe_op_cast(p, pOp, aMem);
+	case OP_ApplyType: return vdbe_op_applytype(p, pOp, aMem);
+	case OP_MakeRecord: return vdbe_op_makerecord(p, pOp, aMem);
+	case OP_RowData: return vdbe_op_rowdata(p, pOp, aMem);
+	case OP_Compare: return vdbe_op_compare(p, pOp, aMem);
+	default:
+		assert(false);
+		return -1;
+	}
+}
+
+/*
  * Return the C handler function address for HOLE_HANDLER patching.
  * Covers all 139 opcodes that have a HOLE_HANDLER hole (excludes
  * OP_Goto, OP_Jump which have no handler call, and OP_Program which
@@ -1152,13 +1203,13 @@ cnp_resolve_handler_by_opcode(int opcode)
 {
 	switch (opcode) {
 	case OP_Concat:
-		return (uintptr_t)vdbe_op_concat;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Cast:
-		return (uintptr_t)vdbe_op_cast;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_ApplyType:
-		return (uintptr_t)vdbe_op_applytype;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_MakeRecord:
-		return (uintptr_t)vdbe_op_makerecord;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_AggStep:
 		return (uintptr_t)vdbe_op_aggstep;
 	case OP_AggFinal:
@@ -1168,7 +1219,7 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_Column:
 		return (uintptr_t)vdbe_op_column;
 	case OP_RowData:
-		return (uintptr_t)vdbe_op_rowdata;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Rewind:
 		return (uintptr_t)vdbe_op_rewind;
 	case OP_Last:
@@ -1236,23 +1287,23 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_Remainder:
 		return (uintptr_t)vdbe_op_remainder;
 	case OP_Eq:
-		return (uintptr_t)vdbe_op_eq;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Ne:
-		return (uintptr_t)vdbe_op_ne;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Lt:
-		return (uintptr_t)vdbe_op_lt;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Le:
-		return (uintptr_t)vdbe_op_le;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Gt:
-		return (uintptr_t)vdbe_op_gt;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Ge:
-		return (uintptr_t)vdbe_op_ge;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_And:
-		return (uintptr_t)vdbe_op_and;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Or:
-		return (uintptr_t)vdbe_op_or;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Not:
-		return (uintptr_t)vdbe_op_not;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_BitAnd:
 		return (uintptr_t)vdbe_op_bitand_inline;
 	case OP_BitOr:
@@ -1260,23 +1311,23 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_BitNot:
 		return (uintptr_t)vdbe_op_bitnot_inline;
 	case OP_Integer:
-		return (uintptr_t)vdbe_op_integer;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Bool:
-		return (uintptr_t)vdbe_op_bool;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Int64:
-		return (uintptr_t)vdbe_op_int64;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Real:
-		return (uintptr_t)vdbe_op_real;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_String:
-		return (uintptr_t)vdbe_op_string;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Null:
 		return (uintptr_t)vdbe_op_null;
 	case OP_Blob:
-		return (uintptr_t)vdbe_op_blob;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Variable:
 		return (uintptr_t)vdbe_op_variable;
 	case OP_Move:
-		return (uintptr_t)vdbe_op_move;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Copy:
 		return (uintptr_t)vdbe_op_copy;
 	case OP_SCopy:
@@ -1300,7 +1351,7 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_ElseNotEq:
 		return (uintptr_t)vdbe_op_elsenoteq_inline;
 	case OP_MustBeInt:
-		return (uintptr_t)vdbe_op_mustbeint;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_IfPos:
 		return (uintptr_t)vdbe_op_ifpos_inline;
 	case OP_IfNotZero:
@@ -1319,7 +1370,7 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_SorterNext:
 		return (uintptr_t)vdbe_op_sorternext_jit;
 	case OP_String8:
-		return (uintptr_t)vdbe_op_string8;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_SkipLoad:
 		return (uintptr_t)vdbe_op_skipload_inline;
 	case OP_BuiltinFunction:
@@ -1411,7 +1462,7 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_Param:
 		return (uintptr_t)vdbe_op_param_inline;
 	case OP_OffsetLimit:
-		return (uintptr_t)vdbe_op_offsetlimit;
+		return (uintptr_t)vdbe_cnp_preserve_none_bridge;
 	case OP_Expire:
 		return (uintptr_t)vdbe_op_expire_inline;
 	case OP_GenSpaceid:
