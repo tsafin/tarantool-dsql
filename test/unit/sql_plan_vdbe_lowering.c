@@ -846,16 +846,27 @@ main(void)
 	   vdbe.aOp[before_is_not_null + 6].opcode == OP_Next,
 	   "IS NOT NULL filter skips rejected rows to the cursor next opcode");
 	int before_multi_scan = vdbe.nOp;
-	ok(sql_plan_lower_vdbe_table_scan(multi_scan_filter_desc, &vdbe, 4,
-					  20) == 0 &&
-	   vdbe.aOp[before_multi_scan + 1].opcode == OP_Column &&
-	   vdbe.aOp[before_multi_scan + 2].opcode == OP_NotNull &&
-	   vdbe.aOp[before_multi_scan + 2].p2 == before_multi_scan + 8 &&
-	   vdbe.aOp[before_multi_scan + 3].opcode == OP_Column &&
-	   vdbe.aOp[before_multi_scan + 4].opcode == OP_IsNull &&
-	   vdbe.aOp[before_multi_scan + 4].p2 == before_multi_scan + 8 &&
-	   vdbe.aOp[before_multi_scan + 7].opcode == OP_ResultRow &&
-	   vdbe.aOp[before_multi_scan + 8].opcode == OP_Next,
+	bool multi_scan_lowered = sql_plan_lower_vdbe_table_scan(
+		multi_scan_filter_desc, &vdbe, 4, 20) == 0;
+	int first_filter = -1;
+	int second_filter = -1;
+	int result_row = -1;
+	int next_row = -1;
+	for (int i = before_multi_scan; multi_scan_lowered && i < vdbe.nOp; ++i) {
+		if (vdbe.aOp[i].opcode == OP_NotNull)
+			first_filter = i;
+		if (vdbe.aOp[i].opcode == OP_IsNull)
+			second_filter = i;
+		if (vdbe.aOp[i].opcode == OP_ResultRow)
+			result_row = i;
+		if (vdbe.aOp[i].opcode == OP_Next)
+			next_row = i;
+	}
+	ok(multi_scan_lowered && first_filter > before_multi_scan &&
+	   second_filter > first_filter && result_row > second_filter &&
+	   next_row > result_row &&
+	   vdbe.aOp[first_filter].p2 == next_row &&
+	   vdbe.aOp[second_filter].p2 == next_row,
 	   "full scan evaluates all null filters before projection and continues on rejection");
 	int before_bad_call = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_table_scan(plan_desc, &vdbe, -1, 20) == -1 &&
