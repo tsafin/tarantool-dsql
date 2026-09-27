@@ -1803,7 +1803,11 @@ DML, triggers, subprograms, non-deterministic functions.
   Vinyl. Every enabled case reports `new_planner`; disabled cases preserve
   legacy execution with either `current_where_c` or a stable fallback reason.
   Generated and CnP focused runs pass. This remains targeted route evidence,
-  not corpus-wide feature acceptance.
+  not corpus-wide feature acceptance. The same off/on/off matrix now covers
+  exact equality on both parts of a two-part INTEGER/UNSIGNED primary key,
+  including reversed predicate order, UINT64_MAX, and a miss. Enabled queries
+  assert `new_planner`; disabled `fallback` outcomes must include a reason.
+  Generated and CnP runs pass on memtx and Vinyl.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

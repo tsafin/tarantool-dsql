@@ -328,7 +328,15 @@ g.test_composite_primary_key_point_lookup_off_on_off = function()
                     t.assert(err == nil, err and err.message)
                     local route = explain.rows[1][3]
                     if expected_route == 'current_where_c' then
-                        t.assert(route == 'current_where_c' or route == 'fallback')
+                        t.assert(route == 'current_where_c' or route == 'fallback',
+                                 ('query %d on %s has unexpected disabled route %s')
+                                 :format(i, engine, tostring(route)))
+                        if route == 'fallback' then
+                            t.assert(type(explain.rows[2][3]) == 'string' and
+                                     #explain.rows[2][3] > 0,
+                                     ('query %d on %s lacks fallback reason')
+                                     :format(i, engine))
+                        end
                     else
                         t.assert_equals(route, expected_route)
                     end
