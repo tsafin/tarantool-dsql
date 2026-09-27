@@ -910,7 +910,13 @@ DML, triggers, subprograms, non-deterministic functions.
   CAST/LIKE or another operator falls outside its grammar. Structural rejects
   retain precedence; LIMIT/OFFSET are restricted to nonnegative integer
   literals as required by the replay/descriptor model. Focused runtime and
-  counter tests cover CAST, LIKE, arithmetic LIMIT, and negative LIMIT.
+  counter tests cover CAST, LIKE, arithmetic and negative LIMIT, and
+  parameterized LIMIT and OFFSET; bind parameters remain on the legacy route
+  because their value is not part of the immutable descriptor at prepare time.
+  The per-reason SQL counter array and exported stat fields now use an
+  exclusive reason-count sentinel, so appended function/collation/expression
+  codes are counted instead of silently disappearing after access-hint code
+  12. A focused unit assertion pins the sentinel after the last stable code.
   Zero-source constant SELECTs also enter `sqlWhereBegin()` but are outside the
   single-relation logical-plan contract. They now report
   `UNSUPPORTED_RELATION_COUNT`; a focused

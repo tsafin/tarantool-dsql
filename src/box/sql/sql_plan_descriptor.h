@@ -37,6 +37,8 @@ enum sql_plan_fallback_reason {
 	SQL_PLAN_FALLBACK_UNSUPPORTED_FUNCTION = 13,
 	SQL_PLAN_FALLBACK_UNSUPPORTED_COLLATION = 14,
 	SQL_PLAN_FALLBACK_UNSUPPORTED_EXPRESSION = 15,
+	/** Exclusive upper bound for valid reason-code values. */
+	SQL_PLAN_FALLBACK_REASON_COUNT,
 };
 enum sql_plan_finalize_kind { SQL_PLAN_SORT, SQL_PLAN_LIMIT };
 

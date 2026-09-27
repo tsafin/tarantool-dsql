@@ -6,7 +6,7 @@
 static void
 test_reason_mapping(void)
 {
-	plan(31);
+	plan(32);
 	header();
 	const struct {
 		enum sql_logical_reject_reason input;
@@ -73,6 +73,9 @@ test_reason_mapping(void)
 	ok(sql_plan_fallback_reason_name(0) == NULL &&
 	   sql_plan_fallback_reason_name(999) == NULL,
 	   "none and unknown reason codes have no external name");
+	ok(SQL_PLAN_FALLBACK_REASON_COUNT ==
+	   SQL_PLAN_FALLBACK_UNSUPPORTED_EXPRESSION + 1,
+	   "reason count sentinel follows all stable fallback codes");
 	footer();
 	check_plan();
 }
