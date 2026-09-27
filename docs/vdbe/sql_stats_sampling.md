@@ -315,8 +315,17 @@ not extrapolate to population, and cannot produce a
 Memory limits cover HLL registers and sketch-pointer storage but not
 producer-owned temporary canonical-value storage, native tuple reconstruction,
 or the temporary prefix-hash vector. The caller must supply a format and key
-definition from the same captured schema version. This is an aggregation
-building block, not a complete S1.3a producer. Native-adapter checks were added
+definition from the same captured schema version. The shared-read-view batch
+collector can now opt into this adapter per index when no custom extractor is
+provided; unsupported key parts still fail closed. The resulting index NDV
+provenance is explicitly `visible-engine-index-hash32-equivalence-classes-v1`,
+while custom canonical extractors retain `visible-engine-index-count-v1`.
+Confidence is reduced by the estimator's 32-bit collision-risk penalty. This
+does not make hash-equivalence NDV interchangeable with exact SQL NDV, and
+transaction-owned collectors still require explicit canonical extractors.
+The TEST_BUILD memtx/Vinyl collector test exercises native collection and
+asserts the hash-specific provenance label. This is still a volatile producer
+building block, not SQL `ANALYZE`. Native-adapter checks were added
 to `key_def.test` for leading prefixes, unsupported type rejection, the
 DOUBLE hash normalization of integer/floating encodings, collation equality,
 and BOOLEAN distinctness/deduplication. After the BOOLEAN extension, the

@@ -578,7 +578,12 @@ format approval is implied.
   prior repeated-assembly rejection/preservation case. A TEST_BUILD memtx-then-
   Vinyl runtime test now verifies a two-relation candidate, one publication,
   later-relation extractor failure, and installed pointer/content preservation;
-  it passes locally. The shared view and candidate API are volatile only.
+  it passes locally. The shared-view batch can also opt into the native index
+  hash adapter where no canonical extractor is supplied; unsupported key
+  definitions remain fail-closed. Native output is labeled as 32-bit hash
+  equivalence-class NDV (with collision-risk confidence discount), not exact
+  SQL NDV. The TEST_BUILD memtx/Vinyl test checks this provenance. The shared
+  view and candidate API are volatile only.
   **Remaining S1.2 gate:** production SQL still needs table/relation discovery,
   the `ANALYZE` execution operation and grammar, and rollback/preservation
   tests for bare and named forms. Bare `ANALYZE` must pass its complete target
