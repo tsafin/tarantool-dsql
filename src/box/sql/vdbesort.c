@@ -2591,7 +2591,7 @@ sqlVdbeSorterWriteFromMems(const VdbeCursor *pCsr, const Mem *mems,
 			else
 				pos = mp_encode_uint(pos, mem->u.u);
 		}
-		assert((uint32_t)(pos - SRVAL(pNew)) == total);
+		assert((uint32_t)(pos - (char *)SRVAL(pNew)) == total);
 		mp_tuple_assert(SRVAL(pNew), pos);
 		return 0;
 	}
@@ -2648,7 +2648,7 @@ generic:
 			pNew->partOffsets[i] = (uint16_t)(pos - (char *)SRVAL(pNew));
 		pos = mem_to_mp_buf(mem, pos);
 	}
-	assert((uint32_t)(pos - SRVAL(pNew)) == total);
+	assert((uint32_t)(pos - (char *)SRVAL(pNew)) == total);
 	mp_tuple_assert(SRVAL(pNew), pos);
 	return 0;
 }

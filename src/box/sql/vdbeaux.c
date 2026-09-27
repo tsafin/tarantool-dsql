@@ -1555,14 +1555,15 @@ sqlVdbeList(Vdbe * p)
 		if (p->pc == 0) {
 			mem_set_str0_static(&pMem[1], "path_class");
 			if (p->planner_path_class != NULL)
-				mem_set_str0_static(&pMem[2], p->planner_path_class);
+				mem_set_str0_static(&pMem[2],
+						   (char *)p->planner_path_class);
 			else
 				mem_set_null(&pMem[2]);
 		} else {
 			mem_set_str0_static(&pMem[1], "fallback_reason");
 			if (p->planner_fallback_reason != NULL) {
 				mem_set_str0_static(&pMem[2],
-						   p->planner_fallback_reason);
+						   (char *)p->planner_fallback_reason);
 			} else {
 				mem_set_null(&pMem[2]);
 			}

@@ -980,7 +980,9 @@ vdbeSorterWriteCnpTerminalFallbackEntry(void)
 }
 
 extern "C" int __attribute__((naked))
-vdbeSorterCompareCnpEnter(void *target, const char *field1, const char *field2)
+vdbeSorterCompareCnpEnter(void *target __attribute__((unused)),
+			  const char *field1 __attribute__((unused)),
+			  const char *field2 __attribute__((unused)))
 {
 	/*
 	 * Bridge from normal SysV C into the sorter fragment ABI.
@@ -1017,7 +1019,9 @@ vdbeSorterCompareCnpEnter(void *target, const char *field1, const char *field2)
 }
 
 extern "C" int __attribute__((naked))
-vdbeSorterWriteCnpEnter(void *target, struct vdbe_sorter_cnp_write_state *state)
+vdbeSorterWriteCnpEnter(void *target __attribute__((unused)),
+			struct vdbe_sorter_cnp_write_state *state
+				__attribute__((unused)))
 {
 	__asm__ volatile(
 		"push %rbx\n\t"
