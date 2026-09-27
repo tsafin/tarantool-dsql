@@ -941,13 +941,17 @@ format approval is implied.
   cardinalities. *parallel: no* (touches
   `where.c` integration surface).
 - [ ] **S1.8** Re-enable disabled `analyze*.test.lua` tests, validate they
-  pass. Audit of the 12 disabled suites found no safe file-level subset yet:
-  they exercise ANALYZE execution and/or legacy `_sql_stat1` / `_sql_stat4`
-  contents, rather than behavior supplied by the in-memory snapshot prototype.
-  A probe run of `analyze1.test.lua` fails immediately because ANALYZE grammar
-  is still unsupported and later because `_sql_stat4` is absent. Keep these
-  suites disabled until S1.2/S1.3 provide an execution/collection contract;
-  do not map them onto the draft persistent schema. *parallel: yes*.
+  pass. The volatile execution contract is now implemented under S1.2, but
+  these compatibility suites also assert legacy `_sql_stat1` / `_sql_stat4`
+  contents and historical diagnostics. Re-probing `analyze1.test.lua` with
+  only that suite entry temporarily enabled confirms parsing now succeeds,
+  while the test still fails on legacy case-sensitive error text and queries
+  `_sql_stat4`, which intentionally does not exist under the current draft
+  persistence gate. The suite config was restored after the probe. No safe
+  file-level subset has yet been demonstrated; keep the suites disabled until
+  the persistent format is approved and implemented, then adapt only where
+  the approved contract preserves behavior. Do not map these tests onto the
+  draft persistent schema. *parallel: yes*.
 - [ ] **S1.9** Add synthetic uniform / skewed validation cases to the M0
   corpus, gate q-error improvement. The lower-level estimator already has
   passing synthetic unit probes for uniform equality/median-range and
