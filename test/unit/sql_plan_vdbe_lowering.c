@@ -261,6 +261,53 @@ new_composite_point_descriptor(void)
 }
 
 static struct sql_plan_descriptor *
+new_composite_point_filter_descriptor(void)
+{
+	static const uint32_t columns[] = {2};
+	static const struct sql_plan_bound bounds[] = {
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1},
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 2},
+	};
+	static const struct sql_plan_point_key_part parts[] = {
+		{.integer_value = -7, .column = 0},
+		{.unsigned_value = UINT64_MAX, .column = 1, .is_unsigned = true},
+	};
+	static const struct sql_plan_filter filters[] = {
+		{.expr_ref = 3, .selectivity = 0.5, .column = 3,
+		 .op = SQL_PLAN_FILTER_IS_NULL},
+		{.expr_ref = 4, .selectivity = 0.5, .column = 4,
+		 .op = SQL_PLAN_FILTER_IS_NOT_NULL},
+	};
+	static const struct sql_plan_expression expressions[] = {
+		{.id = 1, .canonical = "composite-key-part-0"},
+		{.id = 2, .canonical = "composite-key-part-1"},
+		{.id = 3, .canonical = "direct-column-null-filter"},
+		{.id = 4, .canonical = "direct-column-not-null-filter"},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_PK_POINT_LOOKUP,
+			.bounds = bounds,
+			.bound_count = 2,
+			.point_key_parts = parts,
+			.point_key_part_count = 2,
+		},
+		.filters = filters,
+		.filter_count = sizeof(filters) / sizeof(filters[0]),
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+		.expressions = expressions,
+		.expression_count = sizeof(expressions) / sizeof(expressions[0]),
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_composite_prefix_descriptor(bool with_limit, uint64_t limit,
 				uint64_t offset)
 {
@@ -542,7 +589,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(45);
+	plan(46);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -610,6 +657,8 @@ main(void)
 		new_point_multi_filter_descriptor();
 	struct sql_plan_descriptor *composite_point_desc =
 		new_composite_point_descriptor();
+	struct sql_plan_descriptor *composite_point_filter_desc =
+		new_composite_point_filter_descriptor();
 	struct sql_plan_descriptor *composite_prefix_desc =
 		new_composite_prefix_descriptor(false, 0, 0);
 	struct sql_plan_descriptor *composite_prefix_limit_desc =
@@ -667,6 +716,7 @@ main(void)
 	   point_not_null_filter_desc != NULL &&
 	   point_multi_filter_desc != NULL &&
 	   composite_point_desc != NULL &&
+	   composite_point_filter_desc != NULL &&
 	   composite_prefix_desc != NULL &&
 	   composite_prefix_limit_desc != NULL &&
 	   composite_prefix_offset_desc != NULL &&
@@ -906,6 +956,26 @@ main(void)
 	   vdbe.aOp[before_composite_point + 3].p4type == P4_INT32 &&
 	   vdbe.aOp[before_composite_point + 3].p4.i == 3,
 	   "composite point lookup emits ordered registers and a three-part seek");
+	int before_composite_point_filter = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_point(composite_point_filter_desc, &vdbe, 4,
+					20) == 0 &&
+	   vdbe.aOp[before_composite_point_filter + 2].opcode == OP_NotFound &&
+	   vdbe.aOp[before_composite_point_filter + 2].p4.i == 2 &&
+	   vdbe.aOp[before_composite_point_filter + 3].opcode == OP_Column &&
+	   vdbe.aOp[before_composite_point_filter + 3].p2 == 3 &&
+	   vdbe.aOp[before_composite_point_filter + 4].opcode == OP_NotNull &&
+	   vdbe.aOp[before_composite_point_filter + 5].opcode == OP_Column &&
+	   vdbe.aOp[before_composite_point_filter + 5].p2 == 4 &&
+	   vdbe.aOp[before_composite_point_filter + 6].opcode == OP_IsNull &&
+	   vdbe.aOp[before_composite_point_filter + 7].opcode == OP_Column &&
+	   vdbe.aOp[before_composite_point_filter + 8].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_composite_point_filter + 2].p2 ==
+		before_composite_point_filter + 9 &&
+	   vdbe.aOp[before_composite_point_filter + 4].p2 ==
+		before_composite_point_filter + 9 &&
+	   vdbe.aOp[before_composite_point_filter + 6].p2 ==
+		before_composite_point_filter + 9,
+	   "composite point lookup applies every null residual before projection");
 	int before_prefix_scan = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_prefix_scan(composite_prefix_desc, &vdbe,
 						      4, 20) == 0 &&
@@ -1061,6 +1131,7 @@ main(void)
 	sql_plan_descriptor_delete(point_not_null_filter_desc);
 	sql_plan_descriptor_delete(point_multi_filter_desc);
 	sql_plan_descriptor_delete(composite_point_desc);
+	sql_plan_descriptor_delete(composite_point_filter_desc);
 	sql_plan_descriptor_delete(composite_prefix_desc);
 	sql_plan_descriptor_delete(composite_prefix_limit_desc);
 	sql_plan_descriptor_delete(composite_prefix_offset_desc);

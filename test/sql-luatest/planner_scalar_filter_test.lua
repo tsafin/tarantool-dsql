@@ -24,7 +24,33 @@ g.test_non_primary_null_filters_off_on_off = function()
                          "(1, NULL, 'a'), (2, 'x', NULL), " ..
                          "(3, NULL, NULL), (4, 'y', 'z')")
                         :format(name))
+            local composite_name = name .. '_composite'
+            box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, v STRING, ' ..
+                         'w STRING, PRIMARY KEY (a, b)) ' ..
+                         "WITH ENGINE = '%s'"):format(composite_name, engine))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         "(1, 10, NULL, 'a'), (1, 11, 'x', NULL), " ..
+                         '(2, 20, NULL, NULL)'):format(composite_name))
             local queries = {
+                {
+                    sql = ('SELECT a, b FROM %s WHERE a = 1 AND b = 10 ' ..
+                           'AND v IS NULL AND w IS NOT NULL')
+                          :format(composite_name),
+                    expected = {{1, 10}},
+                },
+                {
+                    sql = ('SELECT a, b FROM %s WHERE b = 11 AND ' ..
+                           'a = 1 AND v IS NULL AND w IS NOT NULL')
+                          :format(composite_name),
+                    expected = {},
+                },
+                {
+                    sql = ('SELECT a, b FROM %s WHERE a = 1 AND ' ..
+                           'v IS NULL'):format(composite_name),
+                    expected = {{1, 10}},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FILTER',
+                },
                 {
                     sql = ('SELECT id FROM %s WHERE v IS NULL ' ..
                            'ORDER BY id ASC'):format(name),
@@ -138,6 +164,7 @@ g.test_non_primary_null_filters_off_on_off = function()
             local off_again = capture(false)
             t.assert_equals(off_again, off)
             box.execute(('DROP TABLE %s'):format(name))
+            box.execute(('DROP TABLE %s'):format(composite_name))
         end
     end)
 end

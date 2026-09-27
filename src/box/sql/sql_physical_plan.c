@@ -674,9 +674,9 @@ sql_physical_table_scan_from_select(
 		if (null_filter_count != 0 &&
 		    ((!has_range_key && !has_point_key) ||
 		     (has_point_key &&
-		      (has_composite_point || pk->part_count != 1)) ||
+		      (!has_composite_point && pk->part_count != 1)) ||
 		     (null_filter_count > 1 && !has_point_key) ||
-		     composite_point_count != 0 || has_prefix_scan))
+		     has_prefix_scan))
 			goto invalid_predicate;
 	}
 	goto predicate_parsed;
