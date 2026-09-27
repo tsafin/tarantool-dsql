@@ -607,9 +607,9 @@ and preserve the exact installed snapshot. The focused collection unit suite
 passes, including aggregate work-budget rejection before extraction. A
 TEST_BUILD runtime test now covers two relations (memtx first, Vinyl second),
 one publication, and a later-relation extraction failure with installed
-snapshot pointer/content preservation; changed server translation units
-compiled, but local final linking stopped with `No space left on device`, so
-this runtime test has not yet executed. This gate does not depend on, or
+snapshot pointer/content preservation; it and the full focused SQL stats
+luatest pass locally. SQL grammar/execution and its end-to-end failure tests
+remain pending. This gate does not depend on, or
 authorize, any persistent schema ID or format choice; the persistence schema
 remains DRAFT.
 
@@ -617,9 +617,9 @@ The immutable snapshot supports ordered read-only enumeration of borrowed
 relation and index views while the caller retains its reference, and detached
 same-generation combine/replace helpers. The shared-view multi-relation
 assembler is complete at the volatile API level; SQL grammar/execution remains
-closed, and the live memtx/Vinyl regression still needs execution with adequate
-local build capacity. A named `ANALYZE table` path must select and replace that
-target in the same-generation snapshot while preserving unrelated relations.
+closed. Bare `ANALYZE` must discover and pass its complete relation set to the
+batch assembler; named `ANALYZE table` must select and replace that target in
+the same-generation snapshot while preserving unrelated relations.
 This does not depend on, or authorize, persistent schema IDs or payload
 formats; the schema remains DRAFT.
 

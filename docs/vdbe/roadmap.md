@@ -541,33 +541,7 @@ format approval is implied.
   path without persistence. Remove the `unsupported ANALYZE` rejection only
   after S1.3a defines complete candidate-snapshot publication semantics.
   *parallel: yes, after S1.3a*.
-  **Implementation blocker (2026-09):** S1.3a currently assembles and publishes
-  exactly one relation by replacing the entire installed snapshot. Wiring
-  `ANALYZE table` to that API would silently discard other relations' stats;
-  repeating one-relation builds for bare `ANALYZE` would expose intermediate
-  snapshots and would not share one visibility cut. Keep both grammar forms
-  disabled until the shared-view collector can assemble all requested
-  relations into one detached candidate and publish once. The table-target
-  form additionally needs a safe immutable snapshot merge/replace operation
-  that preserves other entries from the same catalog/schema generation. The
-  snapshot API now provides ordered borrowed enumeration, disjoint same-
-  generation combine, and target-only same-generation replacement; it rejects
-  mixed generations and duplicate relation ownership. These are detached-copy
-  primitives, not yet wired into the shared-view multi-relation collector. A
-  failed scan, unsupported index, budget
-  exhaustion, generation drift, or candidate-build failure must retain the
-  exact installed snapshot. This is a volatile in-memory API requirement, not
-  a persistence/schema decision; S1.1 remains DRAFT.
-  Smallest viable sequence: (1) add shared-view multi-relation assembly and
-  single publication; (2) same-generation snapshot merge/replace primitives
-  are now implemented; (3) add the SQL execution operation and grammar for
-  bare and named `ANALYZE`, then test rollback/preservation across both forms.
-  Do not route either grammar form through the current one-relation publisher.
-  Step (2) now has bounded immutable snapshot primitives. The focused
-  `sql_stats_snapshot.test` covers enumeration lifetime/bounds, disjoint
-  combine, target replacement, generation mismatch, duplicate ownership, and
-  the deep-copy allocation budget.
-  **Multi-relation API slice (2026-09):** the shared-view context now has a
+  **Implementation status (2026-09):** the shared-view context now has a
   batch candidate assembler for complete relation/index spec sets. It checks
   exact flattened target coverage, duplicate relation/index ownership, and
   aggregate request, staging, temporary-memory, and scan/estimator work limits
@@ -578,13 +552,19 @@ format approval is implied.
   only that final candidate. A later relation failure exposes no candidate and
   cannot replace the installed snapshot. The focused collection unit target
   passes, including work-budget rejection before extractor invocation and the
-  prior repeated-assembly rejection/preservation case. TEST_BUILD server and
-  live-wrapper changed translation units compiled; final tarantool linking
-  stopped at `ranlib: libbox.a: No space left on device` on the shared
-  filesystem, so the 2-relation memtx-then-Vinyl runtime case remains
-  unexecuted pending local disk capacity. This advances only the volatile
-  API, not production ANALYZE: grammar and execution remain disabled. S1.1's
-  persistence schema remains DRAFT.
+  prior repeated-assembly rejection/preservation case. A TEST_BUILD memtx-then-
+  Vinyl runtime test now verifies a two-relation candidate, one publication,
+  later-relation extractor failure, and installed pointer/content preservation;
+  it passes locally. The shared view and candidate API are volatile only.
+  **Remaining S1.2 gate:** production SQL still needs table/relation discovery,
+  the `ANALYZE` execution operation and grammar, and rollback/preservation
+  tests for bare and named forms. Bare `ANALYZE` must pass its complete target
+  set to the batch builder and publish once. Named `ANALYZE table` must build
+  one relation and use `sql_stats_snapshot_replace_relation()` to preserve
+  unrelated same-generation rows. A failure in either form must retain the
+  exact installed snapshot. Do not route either form through a sequence of
+  one-relation publications. This does not authorize persistence choices;
+  S1.1's schema remains DRAFT.
 - [x] **S1.3a prototype** Volatile collection core — consume sampled tuples, build and
   validate relation/index summaries, then atomically publish one immutable
   candidate snapshot. No persistence or grammar dependency; test rollback on
