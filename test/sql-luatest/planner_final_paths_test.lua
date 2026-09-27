@@ -267,6 +267,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
             nested_function = [[SELECT (SELECT abs(id)
                 FROM planner_component_matrix WHERE id = 1)
                 FROM planner_component_matrix]],
+            nested_destination = [[SELECT (SELECT id
+                FROM planner_component_matrix)
+                FROM planner_component_matrix]],
             scalar_direct_count = [[SELECT (SELECT count(*)
                 FROM planner_component_matrix)
                 FROM planner_component_matrix]],
@@ -283,6 +286,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
         }
         local result = {}
         for name, sql in pairs(queries) do
+            if name == 'nested_destination' then
+                box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            end
             local explain_sql = sql
             if name ~= 'single_values' then
                 explain_sql = [[EXPLAIN (planner = 'snapshot') ]] .. sql
@@ -294,6 +300,7 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
             local item = {
                 status = snapshot.planner.component_status,
                 count = #components,
+                fallback_count = snapshot.planner.fallback_count,
                 path_class = snapshot.path_class,
                 fallback_reason = snapshot.fallback_reason,
                 routes = {},
@@ -319,6 +326,9 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
                        name .. ' has missing component parent')
             end
             result[name] = item
+            if name == 'nested_destination' then
+                box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            end
         end
         box.execute([[DROP TABLE planner_component_matrix]])
         return result
@@ -345,6 +355,19 @@ g.test_snapshot_component_ledger_covers_producer_matrix = function()
         end
     end
     t.assert(has_nested_function_reject)
+    local destination_routes = snapshots.nested_destination.component_routes
+    t.assert_gt(#destination_routes, 1)
+    t.assert_equals(destination_routes[1].role, 'root')
+    t.assert_equals(destination_routes[1].fallback_reason,
+                    'UNSUPPORTED_SUBQUERY')
+    t.assert_equals(destination_routes[2].role, 'subquery')
+    t.assert_equals(destination_routes[2].route, 'fallback')
+    t.assert_equals(destination_routes[2].fallback_reason,
+                    'UNSUPPORTED_DESTINATION')
+    t.assert_equals(snapshots.nested_destination.path_class, 'fallback')
+    t.assert_equals(snapshots.nested_destination.fallback_reason,
+                    'UNSUPPORTED_SUBQUERY')
+    t.assert_equals(snapshots.nested_destination.fallback_count, 2)
     local scalar_count = snapshots.scalar_direct_count.component_routes
     t.assert_equals(snapshots.scalar_direct_count.path_class, 'mixed')
     t.assert_equals(snapshots.scalar_direct_count.fallback_reason, nil)

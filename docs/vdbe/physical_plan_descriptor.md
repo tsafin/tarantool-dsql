@@ -541,6 +541,8 @@ when join algorithms can differ in those dimensions.
 | `UNSUPPORTED_FUNCTION` | Deterministic function call is outside the canonical expression contract. |
 | `UNSUPPORTED_COLLATION` | Explicit collation semantics are not represented by the expression contract. |
 | `UNSUPPORTED_EXPRESSION` | Resolved scalar expression is outside the canonical expression contract. |
+| `UNSUPPORTED_FILTER` | Filter shape is outside the currently supported table-scan contract. |
+| `UNSUPPORTED_DESTINATION` | SELECT destination cannot be emitted by the attempted table-scan route. |
 | `BUDGET_EXCEEDED` | Planner search budget exhausted. |
 | `LOW_CONFIDENCE_STATS` | Stats confidence below threshold (configurable). |
 | `LOWERING_FAILED` | Internal bug in lowering; record and fall back. |

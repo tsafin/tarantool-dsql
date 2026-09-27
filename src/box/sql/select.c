@@ -5801,12 +5801,18 @@ sql_select_record_fallback(Parse *parse, Select *select, SelectDest *dest,
 		else if (sql_select_has_collation(select))
 			sql_select_record_fallback_reason(parse,
 					SQL_LOGICAL_REJECT_COLLATION);
-		else if (sql_select_has_unsupported_expr(parse, select) &&
-			 !((parse->sql_flags & SQL_NewPlannerSingleTable) != 0 &&
-			   sql_select_preflight_table_scan(select, dest) ==
-			   SQL_SELECT_PREFLIGHT_OK))
-			sql_select_record_fallback_reason(parse,
-					SQL_LOGICAL_REJECT_EXPRESSION);
+		else {
+			enum sql_select_preflight_reject preflight =
+				sql_select_preflight_table_scan(select, dest);
+			bool physical_attempt =
+				(parse->sql_flags & SQL_NewPlannerSingleTable) != 0 &&
+				(preflight == SQL_SELECT_PREFLIGHT_OK ||
+				 preflight == SQL_SELECT_PREFLIGHT_DESTINATION);
+			if (sql_select_has_unsupported_expr(parse, select) &&
+			    !physical_attempt)
+				sql_select_record_fallback_reason(parse,
+						SQL_LOGICAL_REJECT_EXPRESSION);
+		}
 		return;
 	}
 	enum sql_logical_reject_reason logical_reason =
@@ -6071,15 +6077,26 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	if ((parse->sql_flags & SQL_NewPlannerSingleTable) == 0 || dest == NULL)
 		return 0;
 	/* Structural classification may have happened before normalization or
-	 * flattening erased the rejected source shape. Do not let a later
-	 * successful physical lowering overwrite that statement's fallback route.
+	 * flattening erased this component's rejected source shape. Do not let a
+	 * later physical attempt overwrite that component. A different nested
+	 * component may still be classified independently.
 	 */
-	if (parse->pVdbe != NULL &&
-	    parse->pVdbe->planner_fallback_reason != NULL)
+	Vdbe *vdbe = parse->pVdbe;
+	if (vdbe != NULL && vdbe->planner_components != NULL) {
+		uint32_t id = (uint32_t)parse->iSelectId + 1;
+		if (!sql_plan_component_route_is_pending(vdbe->planner_components,
+							 id))
+			return 0;
+	} else if (vdbe != NULL && vdbe->planner_fallback_reason != NULL) {
 		return 0;
-	if (sql_select_preflight_table_scan(select, dest) !=
-	    SQL_SELECT_PREFLIGHT_OK) {
-		if (select->pWhere != NULL)
+	}
+	enum sql_select_preflight_reject preflight =
+		sql_select_preflight_table_scan(select, dest);
+	if (preflight != SQL_SELECT_PREFLIGHT_OK) {
+		if (preflight == SQL_SELECT_PREFLIGHT_DESTINATION)
+			sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_UNSUPPORTED_DESTINATION);
+		else if (select->pWhere != NULL)
 			sql_select_record_physical_fallback(parse,
 				SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER);
 		return 0;
@@ -6126,7 +6143,6 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		sql_select_record_physical_fallback(parse, reason);
 		return 0;
 	}
-	Vdbe *vdbe = parse->pVdbe;
 	struct vdbe_codegen_checkpoint checkpoint;
 	bool hard_error;
 	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0) {

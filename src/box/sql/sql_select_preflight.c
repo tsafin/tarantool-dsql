@@ -40,9 +40,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 {
 	if (select == NULL || (select->selFlags & SF_Resolved) == 0)
 		return SQL_SELECT_PREFLIGHT_UNRESOLVED;
-	if (dest == NULL || dest->eDest != SRT_Output ||
-	    dest->pOrderBy != NULL)
-		return SQL_SELECT_PREFLIGHT_DESTINATION;
+	bool supported_destination = dest != NULL && dest->eDest == SRT_Output &&
+		dest->pOrderBy == NULL;
 	if (select->pSrc == NULL || select->pSrc->nSrc != 1 ||
 	    select->pSrc->a[0].space == NULL ||
 	    select->pSrc->a[0].space->def == NULL ||
@@ -136,5 +135,6 @@ sql_select_preflight_table_scan(const struct Select *select,
 		    (uint32_t)expr->iColumn >= source->space->def->field_count)
 			return SQL_SELECT_PREFLIGHT_COLUMN_BINDING;
 	}
-	return SQL_SELECT_PREFLIGHT_OK;
+	return supported_destination ? SQL_SELECT_PREFLIGHT_OK :
+		SQL_SELECT_PREFLIGHT_DESTINATION;
 }

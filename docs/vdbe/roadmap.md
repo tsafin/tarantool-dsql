@@ -1515,6 +1515,17 @@ DML, triggers, subprograms, non-deterministic functions.
   root's first reason. The focused component-route and fallback SQL matrices
   pass on the rebuilt binary.
 
+  The same component ledger now allows a nested table-scan attempt after the
+  root has already fallen back, while preventing a component already classified
+  as fallback from being overwritten. Preflight distinguishes an unsupported
+  destination only after validating the SELECT shape, so an invalid filter or
+  projection retains its more specific rejection. The regression enables the
+  feature flag for a scalar subquery compiled to a non-output destination and
+  asserts root `UNSUPPORTED_SUBQUERY`, child `UNSUPPORTED_DESTINATION`, and a
+  statement summary that retains the root reason with two component fallbacks.
+  This improves nested route evidence but does not close M3.5's universal
+  producer-gate requirement.
+
   | Producer / branch | Current boundary | M3.5 implication |
   | --- | --- | --- |
   | Plain multi-row `VALUES` | `sqlSelect()` returns through `multiSelectValues()` before VDBE creation and pre-opt fallback classification. | Direct emitter; not a `where.c` fallback. Keep out of the single-table SELECT gate or define an explicit direct path class. |
