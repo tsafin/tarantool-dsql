@@ -916,15 +916,20 @@ DML, triggers, subprograms, non-deterministic functions.
 - [ ] **M3.4 executable lowering** — partial: a narrow production route now
   connects the producer, physical descriptor, VDBE loop emitter, and
   `SelectDest` result registers. It accepts only a resolved direct-column
-  projection from one base table, with no filter/order/limit/offset/finalizer,
-  and requires a TREE primary index. The producer uses `index_size()` for a
-  coarse row estimate; successful lowering emits cursor open, ascending
+  projection from one base table, with no filter/order/offset, and requires a
+  TREE primary index. A nonnegative integer-literal `LIMIT` through `INT_MAX`
+  is now retained in the descriptor and lowered with a result counter;
+  `LIMIT 0` skips scan execution. Other LIMIT expressions and all offsets
+  remain on legacy codegen. The producer uses `index_size()` for a coarse row
+  estimate; successful lowering emits cursor open, ascending
   `Rewind`/`Next` (or descending `Last`/`Prev`), `Column`, `ResultRow`, and
   cursor close inside a codegen checkpoint. Physical candidate or recoverable
   lowering rejection records a stable physical fallback reason and resumes
   legacy codegen; hard diagnostics propagate. The session flag is default-off.
   Focused SQL parity passes on memtx and Vinyl for one-/two-column projection,
-  NULL and empty-table results, and filtered/computed controls. This does not
+  NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`, and filtered/
+  computed controls. Eleven emitter checks cover unbounded, limited, zero-limit,
+  descending, and unsupported-offset opcode shapes. This does not
   cover all descriptor operators, secondary/range/point access, all storage
   edge cases, or corpus-wide parity; checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,

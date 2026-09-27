@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 #include <math.h>
+#include <limits.h>
+#include <string.h>
 
 #include "sqlInt.h"
 #include "sql_logical_plan.h"
@@ -106,12 +108,35 @@ sql_physical_table_scan_from_select(
 		*reason = SQL_PHYSICAL_REJECT_NONE;
 	if (select == NULL || estimate == NULL || select->pSrc == NULL ||
 	    select->pSrc->nSrc != 1 || select->pWhere != NULL ||
-	    select->pOrderBy != NULL || select->pLimit != NULL ||
-	    select->pOffset != NULL || select->pEList == NULL ||
+	    select->pOrderBy != NULL || select->pOffset != NULL ||
+	    select->pEList == NULL ||
 	    select->pEList->nExpr <= 0) {
 		if (reason != NULL)
 			*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 		return NULL;
+	}
+	struct sql_plan_finalize finalize;
+	if (select->pLimit != NULL) {
+		const struct Expr *limit_expr = select->pLimit;
+		int64_t value;
+		bool is_negative = false;
+		if (limit_expr->op != TK_INTEGER ||
+		    (limit_expr->flags & EP_Resolved) == 0 ||
+		    (limit_expr->flags & (EP_Reduced | EP_TokenOnly)) != 0 ||
+		    ((limit_expr->flags & EP_IntValue) != 0 ?
+		     ((value = limit_expr->u.iValue), value < 0) :
+		     (limit_expr->u.zToken == NULL ||
+		      sql_atoi64(limit_expr->u.zToken, &value, &is_negative,
+				 strlen(limit_expr->u.zToken)) != 0 ||
+		      is_negative)) || value > INT_MAX) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		finalize = (struct sql_plan_finalize) {
+			.kind = SQL_PLAN_LIMIT,
+			.limit = (uint64_t)value,
+		};
 	}
 	enum sql_logical_reject_reason logical_reason;
 	struct sql_logical_plan *logical = sql_logical_plan_from_select(select,
@@ -153,6 +178,8 @@ sql_physical_table_scan_from_select(
 		.descriptor_version = 1,
 		.planner_version = 1,
 		.path_class = SQL_PLAN_NEW_PLANNER,
+		.finalize = select->pLimit == NULL ? NULL : &finalize,
+		.finalize_count = select->pLimit == NULL ? 0 : 1,
 		.space_id = source->space->def->id,
 		.space_name = source->space->def->name,
 		.access = {

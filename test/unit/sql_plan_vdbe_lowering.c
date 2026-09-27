@@ -30,7 +30,9 @@ set_sigint_cb(sigint_cb_t new_sigint_cb)
 
 static struct sql_plan_descriptor *
 new_scan_descriptor(const struct sql_plan_filter *filters, size_t filter_count,
-		    enum sql_plan_direction direction)
+		    enum sql_plan_direction direction,
+		    const struct sql_plan_finalize *finalize,
+		    size_t finalize_count)
 {
 	static const uint32_t columns[] = {2, 0};
 	static const struct sql_plan_expression expressions[] = {
@@ -50,6 +52,8 @@ new_scan_descriptor(const struct sql_plan_filter *filters, size_t filter_count,
 		},
 		.filters = filters,
 		.filter_count = filter_count,
+		.finalize = finalize,
+		.finalize_count = finalize_count,
 		.projection_columns = columns,
 		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
 		.expressions = expressions,
@@ -71,19 +75,36 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(8);
+	plan(11);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
 	};
+	static const struct sql_plan_finalize limit_one = {
+		.kind = SQL_PLAN_LIMIT, .limit = 1,
+	};
+	static const struct sql_plan_finalize limit_zero = {
+		.kind = SQL_PLAN_LIMIT, .limit = 0,
+	};
+	static const struct sql_plan_finalize offset_limit = {
+		.kind = SQL_PLAN_LIMIT, .limit = 1, .offset = 1,
+	};
 	struct sql_plan_descriptor *plan_desc = new_scan_descriptor(NULL, 0,
-							     SQL_PLAN_ASC);
+		SQL_PLAN_ASC, NULL, 0);
 	struct sql_plan_descriptor *filtered_desc =
-		new_scan_descriptor(&filter, 1, SQL_PLAN_ASC);
+		new_scan_descriptor(&filter, 1, SQL_PLAN_ASC, NULL, 0);
 	struct sql_plan_descriptor *descending_desc =
-		new_scan_descriptor(NULL, 0, SQL_PLAN_DESC);
-	ok(plan_desc != NULL && filtered_desc != NULL && descending_desc != NULL,
-	   "ascending, descending, and unsupported descriptors are constructed");
+		new_scan_descriptor(NULL, 0, SQL_PLAN_DESC, NULL, 0);
+	struct sql_plan_descriptor *limit_one_desc =
+		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &limit_one, 1);
+	struct sql_plan_descriptor *limit_zero_desc =
+		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &limit_zero, 1);
+	struct sql_plan_descriptor *offset_limit_desc =
+		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &offset_limit, 1);
+	ok(plan_desc != NULL && filtered_desc != NULL && descending_desc != NULL &&
+	   limit_one_desc != NULL && limit_zero_desc != NULL &&
+	   offset_limit_desc != NULL,
+	   "scan and literal-limit descriptors are constructed");
 	struct Parse parse = {};
 	struct Vdbe vdbe = {};
 	vdbe.magic = VDBE_MAGIC_INIT;
@@ -120,10 +141,30 @@ main(void)
 	   vdbe.aOp[before_descending].opcode == OP_Last &&
 	   vdbe.aOp[before_descending + 4].opcode == OP_Prev,
 	   "descending scan uses last/previous cursor operations");
+	int before_limit = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan(limit_one_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_limit].opcode == OP_Integer &&
+	   vdbe.aOp[before_limit].p1 == 1 &&
+	   vdbe.aOp[before_limit + 5].opcode == OP_DecrJumpZero &&
+	   vdbe.aOp[before_limit + 5].p2 == before_limit + 7 &&
+	   vdbe.aOp[before_limit + 6].opcode == OP_Next,
+	   "literal LIMIT decrements after result and exits after its final row");
+	int before_zero_limit = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan(limit_zero_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_zero_limit].opcode == OP_Goto &&
+	   vdbe.aOp[before_zero_limit].p2 == before_zero_limit + 1,
+	   "LIMIT 0 skips scan emission and reaches cursor close");
+	int before_offset_limit = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan(offset_limit_desc, &vdbe, 4, 20) == -1 &&
+	   vdbe.nOp == before_offset_limit,
+	   "unsupported offset descriptor is rejected before VDBE mutation");
 
 	sql_plan_descriptor_delete(plan_desc);
 	sql_plan_descriptor_delete(filtered_desc);
 	sql_plan_descriptor_delete(descending_desc);
+	sql_plan_descriptor_delete(limit_one_desc);
+	sql_plan_descriptor_delete(limit_zero_desc);
+	sql_plan_descriptor_delete(offset_limit_desc);
 	sql_xfree(vdbe.aOp);
 	footer();
 	int rc = check_plan();

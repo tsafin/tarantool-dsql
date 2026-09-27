@@ -117,7 +117,7 @@ Ascending scans use `OP_Rewind`/`OP_Next`; descending scans use
 `OP_Last`/`OP_Prev`. The caller remains responsible for opening the cursor,
 allocating the output register range, and setting SQL result metadata. Shape
 and integer-range validation happen before emission; codegen failures roll
-back the opcode suffix through the checkpoint. Eight unit checks inspect the
+back the opcode suffix through the checkpoint. Eleven unit checks inspect the
 actual opcode sequence and reject unsupported shapes without VDBE mutation.
 This backend has no active SQL caller and has not been validated by executing
 the generated loop against storage, so it does not establish SQL result
@@ -128,7 +128,8 @@ parity or close M3.4.
 `sql_select_preflight_table_scan()` is a side-effect-free predicate for the
 narrow producer class: a resolved one-base-table SELECT, direct column
 references bound to that source cursor, and `SRT_Output` destination, with no
-filter/order/limit/offset or other unsupported shape. It runs at `sqlSelect()`
+filter/order/offset or other unsupported shape. Literal nonnegative LIMIT is
+passed to the producer for its narrower range check. It runs at `sqlSelect()`
 entry before the select ID is advanced or that function emits preamble VDBE.
 Explicit reject values distinguish unresolved input, destination, relation,
 shape, projection, and column-binding failures. The unit test asserts accepted
@@ -144,7 +145,9 @@ completion.
 
 `sql_physical_table_scan_from_select()` now derives a table-full-scan
 descriptor for resolved `SELECT column[, ...] FROM t` statements with no
-predicate, ordering, limit, or offset. It validates every projected column's
+predicate, ordering, or offset. It accepts a nonnegative integer-literal
+LIMIT up to `INT_MAX`, retaining it as a `Limit` finalizer; other LIMIT
+expressions and offsets fail closed. It validates every projected column's
 cursor binding and ordinal before creating the descriptor, and requires
 caller-supplied statement-time estimates. Unit coverage checks projection
 order, access kind, cursor binding, and rejection before descriptor creation
@@ -154,8 +157,9 @@ separate narrow `sqlSelect()` integration when
 estimate from the primary index size, allocates projection registers,
 opens/closes the cursor, invokes the VDBE table-scan lowering under a codegen
 checkpoint, and commits `SelectDest` metadata only after successful emission.
-Focused SQL execution passes for memtx and Vinyl, including NULL and
-empty-table cases. M3.4 remains open: estimates are coarse, only direct
+Focused SQL execution passes for memtx and Vinyl, including NULL,
+empty-table, `LIMIT 0`, and `LIMIT 1` cases. M3.4 remains open: estimates are
+coarse, only direct
 projection/table-full-scan is routed, error-injection and broader
 parity/capture coverage remain, and the checkpoint does not restore arbitrary
 AST/schema mutations. M1.4 remains non-replayable; this producer does not

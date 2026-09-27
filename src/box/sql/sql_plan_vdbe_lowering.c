@@ -20,7 +20,12 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 		sql_plan_descriptor_get_input(plan);
 	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != SQL_PLAN_TABLE_FULL_SCAN ||
-	    input->filter_count != 0 || input->finalize_count != 0 ||
+	    input->filter_count != 0 || input->finalize_count > 1 ||
+	    (input->finalize_count == 1 &&
+	     (input->finalize == NULL ||
+	      input->finalize[0].kind != SQL_PLAN_LIMIT ||
+	      input->finalize[0].offset != 0 ||
+	      input->finalize[0].limit > INT_MAX)) ||
 	    input->projection_columns == NULL ||
 	    input->projection_column_count == 0 ||
 	    input->projection_column_count > INT_MAX ||
@@ -34,13 +39,31 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 	struct vdbe_codegen_checkpoint checkpoint;
 	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
 		return -1;
-	int start = vdbe->nOp;
+	bool has_limit = input->finalize_count == 1;
+	int limit_reg = 0;
+	if (has_limit && input->finalize[0].limit == 0) {
+		int skip = sqlVdbeAddOp2(vdbe, OP_Goto, 0, 0);
+		if (skip != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+		sqlVdbeJumpHere(vdbe, skip);
+		vdbe_codegen_checkpoint_commit(&checkpoint);
+		return 0;
+	}
+	if (has_limit) {
+		limit_reg = ++parse->nMem;
+		int addr = sqlVdbeAddOp2(vdbe, OP_Integer,
+					 (int)input->finalize[0].limit, limit_reg);
+		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+	}
 	int rewind_op = input->access.direction == SQL_PLAN_DESC ? OP_Last :
 		OP_Rewind;
 	int step_op = input->access.direction == SQL_PLAN_DESC ? OP_Prev :
 		OP_Next;
 	int rewind = sqlVdbeAddOp2(vdbe, rewind_op, cursor, 0);
-	if (vdbe->nOp != start + 1 || parse->is_aborted ||
+	if (rewind != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	int body = sqlVdbeCurrentAddr(vdbe);
@@ -57,11 +80,20 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 	if (result != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
+	int limit_break = -1;
+	if (has_limit) {
+		limit_break = sqlVdbeAddOp2(vdbe, OP_DecrJumpZero, limit_reg, 0);
+		if (limit_break != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+	}
 	int next = sqlVdbeAddOp2(vdbe, step_op, cursor, body);
 	if (next != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	sqlVdbeJumpHere(vdbe, rewind);
+	if (limit_break >= 0)
+		sqlVdbeJumpHere(vdbe, limit_break);
 	vdbe_codegen_checkpoint_commit(&checkpoint);
 	return 0;
 error:
