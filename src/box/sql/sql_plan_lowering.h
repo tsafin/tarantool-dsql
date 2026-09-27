@@ -5,6 +5,8 @@
 
 #include "sql_plan_descriptor.h"
 
+struct Vdbe;
+
 /*
  * M3.4 boundary prototype. This is an ordered lowering contract, not a VDBE
  * program: expression lowering, cursor allocation, engine-specific seeks,
@@ -35,5 +37,16 @@ typedef int (*sql_plan_lowering_emit_f)(
 int
 sql_plan_lower(const struct sql_plan_descriptor *plan,
 	       sql_plan_lowering_emit_f emit, void *context);
+
+/*
+ * Emit an executable table-full-scan loop for a descriptor with direct
+ * projection columns and no filters/finalizers. The caller owns cursor
+ * opening, result metadata, and result-register allocation. Unsupported
+ * descriptors are rejected before any VDBE state is changed.
+ */
+int
+sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
+			       struct Vdbe *vdbe, int cursor,
+			       int result_first_reg);
 
 #endif /* TARANTOOL_SQL_PLAN_LOWERING_H */
