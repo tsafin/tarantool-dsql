@@ -75,6 +75,36 @@ open. The next independently testable step is a VDBE builder contract with
 preflight validation and explicit emission-failure semantics; live routing
 must wait until the producer and expression bindings exist.
 
+#### Smallest candidate and blocking VDBE primitive
+
+The smallest plausible single-table candidate is `SELECT c FROM t` with no
+predicate, ordering, or limit and an ordinary output destination. It would
+need to produce one complete VDBE loop: open the base-space primary index,
+rewind, load column `c`, return a row, advance, and halt. Existing equivalents
+are split across three owners: `sqlWhereBegin()` in `where.c` opens the table
+cursor via `vdbe_emit_open_cursor()` (`OP_OpenSpace` plus `OP_IteratorOpen`);
+`wherecode.c` emits the full-scan `OP_Rewind`/`OP_Next` loop; and
+`selectInnerLoop()` in `select.c` compiles the projection and
+`OP_ResultRow`. The cursor number, result register range, loop labels, and
+destination semantics come from `Parse`/`SrcList`/`WhereInfo`, not from the
+current descriptor. The descriptor also has no binding from canonical
+expression refs back to resolved `Expr` nodes, so even column `c` cannot yet
+be compiled from descriptor contents.
+
+The relevant failure-safety primitive is absent as well. VDBE has no
+code-generation mark/rollback API. `sqlVdbeDeletePriorOpcode()` only turns a
+last instruction into `OP_Noop`; `sqlVdbeTakeOpArray()` resolves labels and
+transfers the whole opcode array rather than checkpointing it. Truncating
+`Vdbe.nOp` alone would leak dynamically owned P4/comment payloads and leave
+`Parse` allocations (register/cursor numbers, labels, expression cache and
+temporary-register state) advanced. Consequently a safe attempt needs either
+a real checkpoint/rollback primitive covering VDBE op ownership and the
+associated `Parse` codegen state, or a builder whose full validation is
+provably complete before its first emit and whose only post-emit failures
+abort preparation rather than fall back. The current producer/expression
+binding gaps prevent the latter route today. This is the narrow blocker; it
+is not a claim that existing VDBE opcodes cannot express the scan.
+
 M3.5 now has a producer-contract prototype in `sql_plan_fallback.{h,c}`.
 It maps the existing logical and physical reject enums to append-only numeric
 `sql_plan_fallback_reason` values and stable names, and returns an observable

@@ -843,7 +843,10 @@ DML, triggers, subprograms, non-deterministic functions.
   table-full-scan-only implementation is therefore not isolated or all-or-
   nothing yet. Keep runtime routing and M3.7 off until producer, preflight,
   backend bindings, and parity coverage exist. Detailed audit:
-  `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
+  `docs/vdbe/physical_plan_descriptor.md`; the narrowest candidate is
+  `SELECT c FROM t`, but its scan/projection/result opcodes currently belong
+  to `sqlWhereBegin()`/`wherecode.c`/`selectInnerLoop()`, and no safe VDBE plus
+  `Parse` codegen checkpoint/rollback exists. *parallel: no* (shares
   SELECT/VDBE integration boundary).
 - [ ] **M3.5** Fallback gate — every unsupported shape emits stable
   `fallback_reason` and routes to current `where.c`. Producer-contract
