@@ -9,7 +9,7 @@
 static void
 test_preflight(void)
 {
-	plan(12);
+	plan(14);
 	header();
 	struct space_def *def = calloc(1, sizeof(*def) + sizeof("preflight_t"));
 	strcpy(def->name, "preflight_t");
@@ -59,6 +59,18 @@ test_preflight(void)
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
 	   SQL_SELECT_PREFLIGHT_SHAPE,
 	   "filtered SELECT is rejected explicitly");
+	struct Expr null_test_column = {
+		.op = TK_COLUMN_REF, .iTable = 4, .iColumn = 0,
+	};
+	struct Expr null_test = {.op = TK_ISNULL, .pLeft = &null_test_column};
+	select.pWhere = &null_test;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_OK,
+	   "unary IS NULL test reaches producer validation");
+	null_test.op = TK_NOTNULL;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_OK,
+	   "unary IS NOT NULL test reaches producer validation");
 	select.pWhere = NULL;
 	expr.op = TK_PLUS;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
@@ -80,11 +92,11 @@ test_preflight(void)
 	   SQL_SELECT_PREFLIGHT_SHAPE,
 	   "explicit access hint is rejected");
 	source.a[0].fg.notIndexed = false;
-	select.pOrderBy = &projection;
+	dest.pOrderBy = &projection;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_SHAPE,
+	   SQL_SELECT_PREFLIGHT_DESTINATION,
 	   "ordered SELECT is rejected");
-	select.pOrderBy = NULL;
+	dest.pOrderBy = NULL;
 	space.def->opts.is_view = true;
 	memcpy(&select_before, &select, sizeof(select));
 	memcpy(&dest_before, &dest, sizeof(dest));
