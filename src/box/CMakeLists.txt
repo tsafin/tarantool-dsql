@@ -772,6 +772,17 @@ if(ENABLE_MEMCS_ENGINE)
     list(APPEND box_sources ${MEMCS_ENGINE_SOURCES})
 endif()
 
+# These wrappers call internal SQL statistics and engine APIs which are not
+# exported from the server. Compile them into the server only for TEST_BUILD,
+# so live integration tests exercise the real in-process engine registry
+# without widening the production module ABI.
+if (TEST_BUILD)
+    list(APPEND box_sources
+        ${PROJECT_SOURCE_DIR}/test/box/sql_stats_snapshot_test.c
+        ${PROJECT_SOURCE_DIR}/test/box/sql_stats_tx_context_test.c
+    )
+endif()
+
 add_library(box STATIC ${box_sources})
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

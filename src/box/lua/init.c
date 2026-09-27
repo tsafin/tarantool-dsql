@@ -30,6 +30,8 @@
  */
 #include "box/lua/init.h"
 
+#include "trivia/config.h"
+
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
@@ -86,6 +88,13 @@
 #include "box/lua/integrity.h"
 
 #include "mpstream/mpstream.h"
+
+#ifdef TEST_BUILD
+extern int
+luaopen_sql_stats_snapshot_test(struct lua_State *L);
+extern int
+luaopen_sql_stats_tx_context_test(struct lua_State *L);
+#endif
 
 static uint32_t CTID_STRUCT_TXN_SAVEPOINT_PTR = 0;
 
@@ -907,6 +916,13 @@ box_lua_init(struct lua_State *L)
 	box_lua_trigger_init(L);
 	box_lua_integrity_init(L);
 	box_lua_expression_lexer_init(L);
+#ifdef TEST_BUILD
+	/* In-process wrappers keep private engine symbols out of module ABI. */
+	luaopen_sql_stats_snapshot_test(L);
+	lua_pop(L, 1);
+	luaopen_sql_stats_tx_context_test(L);
+	lua_pop(L, 1);
+#endif
 	luaopen_net_box(L);
 	lua_pop(L, 1);
 	tarantool_lua_console_init(L);

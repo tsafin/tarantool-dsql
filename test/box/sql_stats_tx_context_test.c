@@ -23,13 +23,28 @@ capture_tuple(void *arg, const char *tuple, size_t tuple_size,
 	(void)field_count;
 	struct tx_sample_capture *capture = arg;
 	const char *data = tuple;
-	if (mp_typeof(*data) != MP_ARRAY || mp_decode_array(&data) < 1 ||
-	    (mp_typeof(*data) != MP_UINT && mp_typeof(*data) != MP_INT)) {
+	if (mp_typeof(*data) != MP_ARRAY || mp_decode_array(&data) < 1) {
 		diag_set(ClientError, ER_ILLEGAL_PARAMS,
 			 "Unexpected tuple from SQL stats transaction sampler");
 		return -1;
 	}
-	lua_pushinteger(capture->L, mp_decode_int(&data));
+	int64_t id;
+	if (mp_typeof(*data) == MP_UINT) {
+		uint64_t value = mp_decode_uint(&data);
+		if (value > INT64_MAX) {
+			diag_set(ClientError, ER_ILLEGAL_PARAMS,
+				 "Sampled tuple key is outside Lua integer range");
+			return -1;
+		}
+		id = value;
+	} else if (mp_typeof(*data) == MP_INT) {
+		id = mp_decode_int(&data);
+	} else {
+		diag_set(ClientError, ER_ILLEGAL_PARAMS,
+			 "Unexpected tuple key type from SQL stats sampler");
+		return -1;
+	}
+	lua_pushinteger(capture->L, id);
 	lua_rawseti(capture->L, capture->ids, ++capture->calls);
 	capture->bytes += tuple_size;
 	return 0;
