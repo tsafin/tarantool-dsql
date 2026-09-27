@@ -7,7 +7,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(28);
+	plan(30);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
@@ -154,9 +154,14 @@ test_deep_copy_lookup_and_lifetime(void)
 		wrong_generation};
 	ok(sql_stats_snapshot_combine(wrong_parts, 2, 8192) == NULL,
 	   "combine rejects catalog-generation mismatch");
+	ok(sql_stats_snapshot_replace_relation(combined, wrong_generation, 42,
+						       8192) == NULL,
+	   "replacement rejects catalog-generation mismatch");
 	const struct sql_stats_snapshot *duplicate_parts[] = {snapshot, snapshot};
 	ok(sql_stats_snapshot_combine(duplicate_parts, 2, 8192) == NULL,
 	   "combine rejects duplicate relation ownership");
+	ok(sql_stats_snapshot_combine(parts, 2, 1) == NULL,
+	   "combined candidate allocation obeys caller budget");
 	sql_stats_snapshot_release(wrong_generation);
 	sql_stats_snapshot_release(replaced);
 	sql_stats_snapshot_release(replacement);
