@@ -75,7 +75,7 @@ box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 full_domain_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]]
 ---
 ...
-full_domain_disabled = capture_signed_boundary(full_domain_sql, 'fallback', 'UNSUPPORTED_EXPRESSION', 'off full domain')
+full_domain_disabled = capture_signed_boundary(full_domain_sql, 'current_where_c', nil, 'off full domain')
 ---
 ...
 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
@@ -111,10 +111,10 @@ max_inclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id >= 92
 max_exclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]
 ---
 ...
-min_inclusive_disabled = capture_signed_boundary(min_inclusive_sql, 'fallback', 'UNSUPPORTED_EXPRESSION', 'off min inclusive')
+min_inclusive_disabled = capture_signed_boundary(min_inclusive_sql, 'current_where_c', nil, 'off min inclusive')
 ---
 ...
-min_exclusive_disabled = capture_signed_boundary(min_exclusive_sql, 'fallback', 'UNSUPPORTED_EXPRESSION', 'off min exclusive')
+min_exclusive_disabled = capture_signed_boundary(min_exclusive_sql, 'current_where_c', nil, 'off min exclusive')
 ---
 ...
 max_inclusive_disabled = capture_signed_boundary(max_inclusive_sql, 'current_where_c', nil, 'off max inclusive')

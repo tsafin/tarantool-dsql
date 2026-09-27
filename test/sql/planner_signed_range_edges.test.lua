@@ -25,7 +25,7 @@ assert(enabled_cross[1][1] == -1 and enabled_cross[2][1] == 0 and enabled_cross[
 assert(enabled_cross[1][1] == disabled_cross[1][1] and enabled_cross[2][1] == disabled_cross[2][1] and enabled_cross[3][1] == disabled_cross[3][1])
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
 full_domain_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]]
-full_domain_disabled = capture_signed_boundary(full_domain_sql, 'fallback', 'UNSUPPORTED_EXPRESSION', 'off full domain')
+full_domain_disabled = capture_signed_boundary(full_domain_sql, 'current_where_c', nil, 'off full domain')
 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
 full_domain_enabled = capture_signed_boundary(full_domain_sql, 'new_planner', nil, 'on full domain')
 assert(#full_domain_disabled == 5, 'legacy full signed domain row count: '..#full_domain_disabled)
@@ -35,8 +35,8 @@ min_inclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id <= -9
 min_exclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id < -9223372036854775808]]
 max_inclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id >= 9223372036854775807]]
 max_exclusive_sql = [[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]
-min_inclusive_disabled = capture_signed_boundary(min_inclusive_sql, 'fallback', 'UNSUPPORTED_EXPRESSION', 'off min inclusive')
-min_exclusive_disabled = capture_signed_boundary(min_exclusive_sql, 'fallback', 'UNSUPPORTED_EXPRESSION', 'off min exclusive')
+min_inclusive_disabled = capture_signed_boundary(min_inclusive_sql, 'current_where_c', nil, 'off min inclusive')
+min_exclusive_disabled = capture_signed_boundary(min_exclusive_sql, 'current_where_c', nil, 'off min exclusive')
 max_inclusive_disabled = capture_signed_boundary(max_inclusive_sql, 'current_where_c', nil, 'off max inclusive')
 max_exclusive_disabled = capture_signed_boundary(max_exclusive_sql, 'current_where_c', nil, 'off max exclusive')
 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
