@@ -1426,11 +1426,14 @@ DML, triggers, subprograms, non-deterministic functions.
   passes locally. The same test now covers unordered and ordered TEXT primary-
   key scans in off/on/off phases, verifies descending LIMIT results, and checks
   fallback-reason absence plus exact counter deltas; it passes on memtx and
-  Vinyl. The signed INTEGER range-boundary regression now also asserts
-  `current_where_c` off / `new_planner` on for full-domain, minimum-inclusive,
-  minimum-exclusive, maximum-inclusive, and maximum-exclusive ranges, with
-  unchanged total and per-reason fallback counters across EXPLAIN and
-  execution; memtx and Vinyl pass.
+  Vinyl. The signed INTEGER range-boundary regression also checks the full
+  domain and strict/inclusive minimum/maximum bounds. All supported enabled
+  cases report `new_planner`; off, nonnegative-bound cases report
+  `current_where_c`, while negative-extreme predicates are explicitly
+  classified `fallback / UNSUPPORTED_EXPRESSION` by the current canonical
+  expression checker. The test asserts the corresponding exact total and
+  per-reason counter deltas across EXPLAIN plus execution and confirms row
+  parity; memtx and Vinyl pass.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
