@@ -494,25 +494,20 @@ them.
   verifies the embedded v5 input matches live candidates and the selected
   fingerprint equals strict-min selection. The M0 harness validates replayable
   and diagnostic-only v4 forms. The detached selector plus live capture slice
-  is complete; the standalone replay consumer remains M1.5.
+  is complete; the standalone selection replay consumer is tracked in M1.5.
   *parallel: yes; selector prototype is independent of live producer capture.*
-- [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs selection
-  from a replayable snapshot and diffs the selected fingerprint. Diagnostic-only
-  v4 envelopes still have no normalized predicates, relation/access-path
-  inputs, or statistics and keep `replayable=false`; the detached
-  M1.4 value prototype is not embedded in diagnostic-only envelopes.
-  Implementing a tool against v4 diagnostics without `replay_inputs`
-  would only relabel live-state planning, not replay.
-  The planner currently has no entry point that consumes normalized IR,
-  logical access-path metadata, and captured statistics without the SQL
-  compiler/catalog/storage dependencies; the replay contract requires that
-  API and a test replaying after source state is unavailable. The v5 input
-  prototype's readiness gate requires complete final-path capture: absent
-  paths are `INCOMPLETE`, while a known empty post-beam list is complete and
-  permits the selector to report `NO_PLAN`. Access-loop candidates alone are
-  insufficient. The selector is only a detached final reducer; M1.5 must add
-  the developer-facing artifact loader/consumer and verify replay after the
-  source SQL/catalog state is unavailable. M1.5 remains open.
+- [x] **M1.5** Developer-only `sql_replay` API consumes a v4 snapshot artifact,
+  validates its embedded v5 selector/version and final-path order against the
+  external diagnostics, applies the strict-min / first-on-tie selector, and
+  reports both the replayed fingerprint and whether it matches the captured
+  winner. The API does not inspect live schema, data, catalog, or statistics;
+  enumeration, dominance, and beam pruning remain explicitly out of scope per
+  the selection-only replay decision. Runtime coverage captures a snapshot,
+  drops the source table, replays from the saved artifact, and verifies the
+  captured winner; an internally inconsistent candidate list is rejected.
+  Internal selector tests cover input-cost changes and tie behavior.
+  Diagnostic-only v4 envelopes remain non-replayable. This closes the M1.5
+  selection-replay consumer slice, not full enumeration replay.
   *parallel: yes*.
 
 ---

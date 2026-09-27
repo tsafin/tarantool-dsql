@@ -522,16 +522,15 @@ features fail capture rather than being silently omitted. This contract does
 not select persistent system-space IDs or a storage format for collected
 statistics.
 
-A replay implementation must dispatch those embedded inputs directly to a
-planner API that has no SQL compiler, catalog, or storage dependency. A test
-must capture a fixture, make the source schema/data/statistics unavailable or
-change them, replay solely from the captured object, and verify the normalized
-selected-plan fingerprint and fallback reason. It must also show that changing
-an embedded planner input changes the replay result (or a documented reject
-outcome). Replanning the original SQL against live state, or comparing only
-the captured diagnostic fields to themselves, is not replay. Until this
-entry point and test exist, M1.5 remains open. M1.4 capture is limited to the
-supported selection-only subset; it does not re-enumerate access paths.
+For the supported selection-only subset, the developer-only `sql_replay`
+module dispatches the embedded final-path set directly to the selector with
+no SQL compiler, catalog, or storage dependency. Runtime coverage drops the
+source table before replay and verifies the selected fingerprint; an
+inconsistent candidate-list mutation is rejected. Replanning original SQL
+against live state, or comparing only captured diagnostics to themselves, is
+not replay. Broader replay classes must also preserve fallback outcomes. M1.4
+capture and M1.5 selection replay are implemented; access-path enumeration is
+explicitly out of scope.
 
 The `sql_replay_input` unit prototype is intentionally narrower than this
 acceptance contract. It owns a single-relation SELECT subset: normalized
@@ -667,7 +666,9 @@ and content and verifies the selected-plan fingerprint. `replayable` means
 selection-replayable, not enumeration-replayable. The v4 envelope sets it only
 when normalized input, exact final candidates, and selector/config identity
 are complete; otherwise it remains diagnostic-only with no `replay_inputs`.
-The standalone selection consumer remains M1.5.
+The developer-only `sql_replay` module consumes the artifact without live SQL
+state, cross-checks final-path order, and reports whether replay matches the
+captured winner.
 
 ```mermaid
 flowchart LR
@@ -707,9 +708,11 @@ and known-empty states differ, and unsupported selector versions fail closed.
 The active SQL planner captures final retained paths and emits a complete v5
 selection input for supported ordinary root single-relation queries. A runtime
 test verifies candidate order matches the input, and the live selected
-fingerprint is the strict-min result. Unsupported shapes remain
-non-replayable. M1.4 snapshot capture is implemented; M1.5 remains open for
-the standalone tool that consumes this artifact without live SQL state.
+fingerprint is the strict-min result. After dropping the source table, runtime
+coverage replays solely from the serialized v4 artifact; an inconsistent
+embedded candidate list is rejected. Unsupported shapes remain non-replayable.
+M1.4 capture and the M1.5 selection-only artifact consumer are implemented;
+enumeration replay remains explicitly outside scope.
 
 ## Testing Strategy
 
