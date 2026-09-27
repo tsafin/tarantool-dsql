@@ -640,6 +640,66 @@ ownership, and byte-budget rejection; `sql_stats_snapshot.test` passes.
 This does not depend on, or authorize, persistent schema IDs or payload
 formats; the schema remains DRAFT.
 
+### S1.2 SQL producer prerequisites audit (2026-09-27)
+
+The shared-view batch collector and atomic publisher are usable primitives,
+but there is not yet an SQL-catalog discovery/producer helper. The collector
+accepts an exact `sql_stats_collection_target[]` (space/index IDs), plus
+caller-built expected relation/index metadata and per-index requests. It
+validates exact target coverage and generation consistency; it deliberately
+does not decide which catalog spaces or indexes `ANALYZE` means. The existing
+`space_foreach()` visits both system and non-system spaces, while space
+metadata separately identifies views and temporary spaces. No current helper
+filters these into an `ANALYZE` target set, resolves the default bare-command
+scope, or translates catalog index definitions into collection specs.
+
+The production boundary should be one volatile producer operation, conceptually
+`sql_stats_analyze_collect(scope, target, budget, &candidate)`: resolve a
+named target (or enumerate the complete bare target set), derive expected
+metadata and index requests, open one shared-view context for the flattened
+targets, call `sql_stats_collection_context_build_sample_candidates()` once,
+then publish once. For named collection, combine the one-relation candidate
+with the currently installed snapshot using
+`sql_stats_snapshot_replace_relation()` before that one publication, preserving
+unrelated same-generation relations. For bare collection, publish the complete
+batch candidate directly. Every discovery, sampling, validation, merge, or
+publication failure must leave the exact installed snapshot unchanged; neither
+form may expose intermediate per-relation publications. This operation is
+volatile only and does not add a persistence dependency.
+
+Two production policies are not chosen by the current S1.2 contract and must
+be explicit before implementing that operation:
+
+1. **Target scope:** which bare-ANALYZE spaces are eligible (at minimum decide
+   system spaces, views, temporary spaces, and spaces with unsupported/no
+   indexes), and whether collection covers every supported index or a selected
+   subset. Named ANALYZE must state whether an ineligible target is a user
+   error or a successful no-op. The rule must make bare scope deterministic
+   for one pinned catalog generation.
+2. **Production budget defaults:** the API requires aggregate maxima for
+   index requests, staging bytes, candidate bytes, temporary bytes, and scan /
+   inversion work; sampler requests also require row, byte, tuple-examination,
+   and reservoir-buffer limits. The implementation plan says these are
+   configurable but does not define defaults, whether a bare job has a
+   database-wide aggregate cap in addition to per-relation caps, or whether
+   budget exhaustion aborts the whole command versus publishes a documented
+   lower-quality result. Since the current shared-view sampler fails closed on
+   incomplete scans, the safe initial contract is whole-command failure and
+   unchanged installed state; numeric limits and their configuration surface
+   still need a decision.
+
+Minimum SQL integration test matrix after these policies are chosen:
+
+| Form | Success assertion | Failure/preservation assertion |
+|------|-------------------|--------------------------------|
+| `ANALYZE name` | Exactly one relation is refreshed; unrelated prior relation rows survive same-generation replacement; exactly one publication occurs. | Force target scan/validation failure and verify installed snapshot identity and contents are unchanged. |
+| bare `ANALYZE` | The discovered eligible set is complete and unique; all relations appear together after exactly one publication. | Fail a later relation or exceed aggregate budget before publish; verify the exact prior snapshot remains installed. |
+| either form | Run on memtx and Vinyl; verify pinned visibility/catalog/schema and index-definition metadata are accepted. | Mutate catalog/schema or data visibility between discovery and publish; candidate is rejected and prior snapshot is preserved. |
+| named ineligible target / empty eligible database | Assert the chosen error/no-op semantics. | Assert no publication and unchanged prior snapshot. |
+
+Until target scope and numeric/default budget policy are recorded, SQL grammar
+and execution remain disabled. Keep S1.1's persistence schema DRAFT.
+
 ```mermaid
 flowchart LR
     A[One shared read view] --> B[Assemble all relation candidates]
