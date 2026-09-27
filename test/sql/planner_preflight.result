@@ -388,6 +388,69 @@ assert(#bounded_desc.rows == 2 and bounded_desc.rows[1][1] == 2 and bounded_desc
  | ---
  | - true
  | ...
+bounded_empty_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_preflight_t WHERE id > 2 AND id <= 2]])
+ | ---
+ | ...
+assert(err == nil and bounded_empty_summary.rows[1][3] == 'new_planner')
+ | ---
+ | - true
+ | ...
+bounded_empty = box.execute([[SELECT id FROM planner_preflight_t WHERE id > 2 AND id <= 2]])
+ | ---
+ | ...
+assert(#bounded_empty.rows == 0)
+ | ---
+ | - true
+ | ...
+bounded_singleton = box.execute([[SELECT id FROM planner_preflight_t WHERE id >= 2 AND id <= 2]])
+ | ---
+ | ...
+assert(#bounded_singleton.rows == 1 and bounded_singleton.rows[1][1] == 2)
+ | ---
+ | - true
+ | ...
+bounded_inverted = box.execute([[SELECT id FROM planner_preflight_t WHERE id > 3 AND id < 2]])
+ | ---
+ | ...
+assert(#bounded_inverted.rows == 0)
+ | ---
+ | - true
+ | ...
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+ | ---
+ | - row_count: 1
+ | ...
+bounded_empty_legacy = box.execute([[SELECT id FROM planner_preflight_t WHERE id > 2 AND id <= 2]])
+ | ---
+ | ...
+bounded_singleton_legacy = box.execute([[SELECT id FROM planner_preflight_t WHERE id >= 2 AND id <= 2]])
+ | ---
+ | ...
+bounded_inverted_legacy = box.execute([[SELECT id FROM planner_preflight_t WHERE id > 3 AND id < 2]])
+ | ---
+ | ...
+assert(#bounded_empty_legacy.rows == #bounded_empty.rows)
+ | ---
+ | - true
+ | ...
+assert(#bounded_singleton_legacy.rows == #bounded_singleton.rows and
+ | ---
+ | - error: '[string "assert(#bounded_singleton_legacy.rows == #bou..."]:1: unexpected
+ |     symbol near ''<eof>'''
+ | ...
+       bounded_singleton_legacy.rows[1][1] == bounded_singleton.rows[1][1])
+ | ---
+ | - error: '[string "       bounded_singleton_legacy.rows[1][1] ==..."]:1: ''='' expected
+ |     near ''=='''
+ | ...
+assert(#bounded_inverted_legacy.rows == #bounded_inverted.rows)
+ | ---
+ | - true
+ | ...
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+ | ---
+ | - row_count: 1
+ | ...
 unsupported_filter_before = box.stat.sql()
  | ---
  | ...
