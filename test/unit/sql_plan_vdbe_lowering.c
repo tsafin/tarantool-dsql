@@ -565,8 +565,8 @@ main(void)
 	ok(sql_plan_lower_vdbe_pk_range(range_gt_desc, &vdbe, 4, 20) == 0,
 	   "strict lower range descriptor lowers successfully");
 	ok(vdbe.aOp[before_range_gt].opcode == OP_Int64 &&
-	   vdbe.aOp[before_range_gt].p4type == P4_INT64 &&
-	   *vdbe.aOp[before_range_gt].p4.pI64 == INT64_MAX &&
+	   vdbe.aOp[before_range_gt].p4type == P4_UINT64 &&
+	   (uint64_t)*vdbe.aOp[before_range_gt].p4.pI64 == INT64_MAX &&
 	   vdbe.aOp[before_range_gt + 1].opcode == OP_SeekGT &&
 	   vdbe.aOp[before_range_gt + 1].p2 == before_range_gt + 6 &&
 	   vdbe.aOp[before_range_gt + 5].opcode == OP_Next,

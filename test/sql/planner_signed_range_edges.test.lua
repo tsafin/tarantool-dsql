@@ -1,0 +1,37 @@
+test_run = require('test_run').new()
+engine = test_run:get_cfg('engine')
+_ = box.space._session_settings:update('sql_default_engine', {{'=', 2, engine}})
+box.execute([[SET SESSION "sql_seq_scan" = true]])
+
+box.execute([[CREATE TABLE planner_signed_range_edges_t (id INTEGER PRIMARY KEY, v INTEGER)]])
+box.execute([[INSERT INTO planner_signed_range_edges_t VALUES (-9223372036854775808, 10), (-1, 20), (0, 30), (1, 40), (9223372036854775807, 50)]])
+
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+disabled_cross_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id >= -1 AND id <= 1]])
+assert(err == nil and disabled_cross_summary.rows[1][3] == 'current_where_c')
+disabled_cross = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= -1 AND id <= 1]]).rows
+
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+enabled_cross_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id >= -1 AND id <= 1]])
+assert(err == nil and enabled_cross_summary.rows[1][3] == 'new_planner')
+enabled_cross = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= -1 AND id <= 1]]).rows
+assert(#enabled_cross == 3 and #disabled_cross == 3)
+assert(enabled_cross[1][1] == -1 and enabled_cross[2][1] == 0 and enabled_cross[3][1] == 1)
+assert(enabled_cross[1][1] == disabled_cross[1][1] and enabled_cross[2][1] == disabled_cross[2][1] and enabled_cross[3][1] == disabled_cross[3][1])
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+full_domain_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]]).rows
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+full_domain_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]])
+assert(err == nil and full_domain_summary.rows[1][3] == 'new_planner')
+full_domain_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id >= -9223372036854775808 AND id <= 9223372036854775807]]).rows
+assert(#full_domain_disabled == 5, 'legacy full signed domain row count: '..#full_domain_disabled)
+assert(#full_domain_enabled == 5, 'new-planner full signed domain row count: '..#full_domain_enabled)
+box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+max_exclusive_disabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]).rows
+box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+max_exclusive_summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]])
+assert(err == nil and max_exclusive_summary.rows[1][3] == 'new_planner')
+max_exclusive_enabled = box.execute([[SELECT id FROM planner_signed_range_edges_t WHERE id > 9223372036854775807]]).rows
+assert(#max_exclusive_disabled == 0 and #max_exclusive_enabled == 0)
+
+box.execute([[DROP TABLE planner_signed_range_edges_t]])

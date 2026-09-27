@@ -244,10 +244,19 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 			int64_t key = use_lower_bound ?
 				input->access.integer_range_key :
 				input->access.integer_range_end_key;
-			end_op = key >= INT_MIN && key <= INT_MAX ?
-				sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, end_reg) :
-				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, end_reg, 0,
-						  (const u8 *)&key, P4_INT64);
+			if (key >= INT_MIN && key <= INT_MAX) {
+				end_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key,
+						       end_reg);
+			} else if (key < 0) {
+				end_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0,
+						   end_reg, 0, (const u8 *)&key,
+						   P4_INT64);
+			} else {
+				uint64_t value = (uint64_t)key;
+				end_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0,
+						   end_reg, 0,
+						   (const u8 *)&value, P4_UINT64);
+			}
 		}
 		if (end_op != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
@@ -282,10 +291,18 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 			int64_t key = start_at_end ?
 				input->access.integer_range_end_key :
 				input->access.integer_range_key;
-			key_op = key >= INT_MIN && key <= INT_MAX ?
-				sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, key_reg) :
-				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg, 0,
-						  (const u8 *)&key, P4_INT64);
+			if (key >= INT_MIN && key <= INT_MAX) {
+				key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key,
+						       key_reg);
+			} else if (key < 0) {
+				key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg,
+						   0, (const u8 *)&key, P4_INT64);
+			} else {
+				uint64_t value = (uint64_t)key;
+				key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, key_reg,
+						   0, (const u8 *)&value,
+						   P4_UINT64);
+			}
 		}
 		if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
