@@ -594,7 +594,9 @@ review of IDs and formats.
   hot-key versus unique-key fixture also report the corresponding higher vs
   lower estimated row counts through the live `where.c` path; a range EXPLAIN
   confirms `whereRangeScanEst()` scales down when snapshot relation
-  cardinality replaces the legacy default. This closes
+  cardinality replaces the legacy default. On a near-uniform three-key SQL
+  fixture, the measured equality estimate also lowers q-error against the
+  actual returned-row count relative to the legacy estimate. This closes
   planner-consumption validation only: no collection or SQL preparation path
   populates the provider, prepared statements do not own their own snapshot
   references, and estimates are not yet measured against actual SQL-corpus
@@ -625,7 +627,10 @@ review of IDs and formats.
   the separate skewed workload fixture checks each distinct CDF boundary
   (<= 1.06). Both remain algorithm-only probes. Closing S1.9 still requires a
   reviewed estimate/actual evidence shape, corpus workload integration through
-  a real stats provider, and an accepted q-error gate. *parallel: yes*.
+  a real stats provider, and an accepted q-error gate. The S1.7 test now also
+  supplies a narrow live SQL estimate/actual probe against a test-only stats
+  provider; it is not an M0 capture, workload corpus, or skewed MCV planner
+  integration. *parallel: yes*.
 
 ---
 

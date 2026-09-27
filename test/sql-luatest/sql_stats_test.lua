@@ -188,6 +188,11 @@ g.test_snapshot_estimate_adapter = function()
         adapter.install(space.id, index_id, 1000000, 1000000, 1000000, false)
         local unique_plan_estimate = explain_estimate('unique distribution',
                                                       'a = 1')
+        local actual_equality_rows = #box.execute(
+            [[SELECT id FROM sql_stats_adapter_t WHERE a = 1;]]).rows
+        adapter.install(space.id, index_id, 8, 8, 3, false)
+        local measured_plan_estimate = explain_estimate('measured uniform',
+                                                        'a = 1')
         local rows = box.execute([[SELECT id FROM sql_stats_adapter_t
                                    WHERE a = 1;]]).rows
         adapter.clear()
@@ -203,6 +208,8 @@ g.test_snapshot_estimate_adapter = function()
             range_estimate = range_estimate,
             hot_plan_estimate = hot_plan_estimate,
             unique_plan_estimate = unique_plan_estimate,
+            measured_plan_estimate = measured_plan_estimate,
+            actual_equality_rows = actual_equality_rows,
             rows = rows,
         }
     end)
@@ -216,6 +223,13 @@ g.test_snapshot_estimate_adapter = function()
     t.assert_lt(res.range_estimate, res.baseline_range_estimate)
     t.assert_gt(res.hot_plan_estimate, res.baseline_plan_estimate)
     t.assert_lt(res.unique_plan_estimate, res.baseline_plan_estimate)
+    local baseline_qerror = math.max(
+        res.baseline_plan_estimate / res.actual_equality_rows,
+        res.actual_equality_rows / res.baseline_plan_estimate)
+    local measured_qerror = math.max(
+        res.measured_plan_estimate / res.actual_equality_rows,
+        res.actual_equality_rows / res.measured_plan_estimate)
+    t.assert_lt(measured_qerror, baseline_qerror)
     t.assert_equals(res.rows, {{1}, {2}, {3}})
 end
 
