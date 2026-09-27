@@ -22,7 +22,13 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != SQL_PLAN_PK_POINT_LOOKUP ||
 	    !input->access.has_integer_point_key || input->filter_count != 0 ||
-	    input->finalize_count != 0 || input->projection_columns == NULL ||
+	    input->finalize_count > 1 ||
+	    (input->finalize_count == 1 &&
+	     (input->finalize == NULL ||
+	      input->finalize[0].kind != SQL_PLAN_LIMIT ||
+	      input->finalize[0].limit > INT64_MAX ||
+	      input->finalize[0].offset > INT64_MAX)) ||
+	    input->projection_columns == NULL ||
 	    input->projection_column_count == 0 ||
 	    input->projection_column_count > INT_MAX ||
 	    result_first_reg > INT_MAX - (int)input->projection_column_count + 1)
@@ -31,6 +37,16 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 	struct vdbe_codegen_checkpoint checkpoint;
 	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
 		return -1;
+	if (input->finalize_count == 1 &&
+	    (input->finalize[0].limit == 0 || input->finalize[0].offset != 0)) {
+		int skip = sqlVdbeAddOp2(vdbe, OP_Goto, 0, 0);
+		if (skip != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+		sqlVdbeJumpHere(vdbe, skip);
+		vdbe_codegen_checkpoint_commit(&checkpoint);
+		return 0;
+	}
 	int key_reg = ++parse->nMem;
 	int key_op;
 	int64_t key = input->access.integer_point_key;

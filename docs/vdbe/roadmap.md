@@ -932,7 +932,9 @@ DML, triggers, subprograms, non-deterministic functions.
   requested direction. A second route supports equality between the sole
   integer primary-key part and a nonnegative signed-64-bit integer literal; it emits a
   primary cursor NotFound seek and returns at most one row. The equality
-  route currently excludes ORDER BY and LIMIT/OFFSET. Nonnegative signed-64-bit integer-literal
+  route currently excludes ORDER BY; literal LIMIT/OFFSET are accepted because
+  equality can return at most one row (zero limit and positive offset emit no
+  result). Nonnegative signed-64-bit integer-literal
   `LIMIT` and optional `OFFSET` are retained in the descriptor; counters
   above `INT_MAX` use unsigned `OP_Int64` constants, and offset rows are
   skipped before projection and a result counter handles the limit. `LIMIT 0`
@@ -945,8 +947,9 @@ DML, triggers, subprograms, non-deterministic functions.
   legacy codegen; hard diagnostics propagate. The session flag is default-off.
   Focused SQL parity passes on memtx and Vinyl for one-/two-column projection,
   NULL and empty-table results, literal `LIMIT 0`/`LIMIT 1`/`LIMIT 1 OFFSET 1`,
-  descending primary-key order with LIMIT, primary-key point hit/miss, and
-  negative-literal/range-filter fallback. Fourteen emitter checks cover
+  descending primary-key order with LIMIT, primary-key point hit/miss with
+  LIMIT 1 / LIMIT 0 / OFFSET 1 semantics, and negative-literal/range-filter
+  fallback. Seventeen emitter checks cover
   unbounded, limited, offset, zero-limit,
   descending, signed-64-bit counter initialization, and out-of-range opcode
   shapes. SQL regressions verify `LIMIT 2147483648` and paired wide LIMIT / OFFSET

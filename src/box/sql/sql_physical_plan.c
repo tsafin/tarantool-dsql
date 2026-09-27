@@ -186,8 +186,7 @@ sql_physical_table_scan_from_select(
 			value = tmp;
 		}
 		const struct key_def *pk = source->space->index_map[0]->def->key_def;
-		if (select->pOrderBy != NULL || select->pLimit != NULL ||
-		    select->pOffset != NULL || select->pWhere->op != TK_EQ ||
+		if (select->pOrderBy != NULL || select->pWhere->op != TK_EQ ||
 		    column == NULL || value == NULL ||
 		    pk->part_count != 1 ||
 		    pk->parts[0].type != FIELD_TYPE_INTEGER ||
