@@ -1826,6 +1826,11 @@ DML, triggers, subprograms, non-deterministic functions.
   assert `new_planner`; disabled `fallback` outcomes must include a reason.
   Three-part point cases also verify LIMIT and OFFSET result parity and retain
   `new_planner` when enabled. Generated and CnP runs pass on memtx and Vinyl.
+  A further prefix-scan case verifies ascending ORDER BY on the unfixed
+  contiguous primary-key suffix and stable fallback for descending order; a
+  local executable smoke check confirms `new_planner`, ordered rows, and the
+  expected fallback reason. The integration test includes both memtx and
+  Vinyl.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
