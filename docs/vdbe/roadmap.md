@@ -166,9 +166,10 @@ that named full-corpus policy. A clean native build passed the full local
 generated/CnP/LLVM matrix (298 memtx tests / 49,535 queries and 290 Vinyl
 tests / 39,535 queries per mode), with zero hard or soft parity drift,
 identical manifests, and exact generated repeat captures. The post-provenance
-capture also matched exactly. The first hosted full-corpus CI result remains
-to be observed after publication; local workflow provisioning, including a
-detached baseline worktree and pinned test runner, passed. The older
+capture also matched exactly. Local exit criteria are satisfied; the first
+hosted full-corpus CI result is an informational post-publication check, not
+a reason to hold subsequent implementation work. Local workflow provisioning,
+including a detached baseline worktree and pinned test runner, passed. The older
 untracked 132,413-snapshot memtx-only tree is not the baseline. The
 classifier covers all 386 file identities, but its tags are file-level, not
 verified per-query feature coverage.
