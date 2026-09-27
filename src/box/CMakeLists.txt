@@ -109,6 +109,7 @@ set(sql_sources
     sql/sql_logical_plan.c
     sql/sql_select_preflight.c
     sql/sql_plan_descriptor.c
+    sql/sql_plan_component.c
     sql/sql_physical_plan.c
     sql/sql_plan_lowering.c
     sql/sql_plan_vdbe_lowering.c

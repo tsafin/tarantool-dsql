@@ -1522,6 +1522,28 @@ DML, triggers, subprograms, non-deterministic functions.
   enum alone resolves the scope ambiguity; keep current diagnostics and
   execution behavior unchanged meanwhile.
 
+  **Component-ledger model foundation (2026-09-27).** A bounded internal
+  ledger model now records unique SELECT component IDs, parent identity,
+  producer role, and one immutable route/reason result per component. It has
+  explicit direct VALUES / OP_Count and compound-dispatch route classes,
+  computes a uniform root summary or `mixed` with no fallback reason, and
+  fails closed for missing parents, duplicate IDs, conflicting route writes,
+  pending records, or capacity overflow. Focused unit coverage passes. This
+  is the data-model contract only: `sqlSelect()`/`where.c` do not yet populate
+  the ledger, no snapshot exposes it, and M3.5 remains open for producer
+  integration and mixed/direct/nested runtime evidence.
+
+  ```mermaid
+  flowchart TD
+    R[Root SELECT component] --> C[Child SELECT components]
+    R --> RR[Route + optional fallback reason]
+    C --> CR[Route + optional fallback reason]
+    RR --> S{All routes uniform?}
+    CR --> S
+    S -- yes --> U[Summary mirrors root route]
+    S -- no --> M[mixed; no statement fallback reason]
+  ```
+
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
   `EXPLAIN (planner = 'snapshot')` for SELECT statements and records its
