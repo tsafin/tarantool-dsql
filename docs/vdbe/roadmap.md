@@ -474,12 +474,14 @@ them.
   extractors still accept algorithm/config versions as caller arguments. A
   future prepare-owned capture must record that actual width and a maintained
   algorithm identity alongside detached candidates and immutable stats
-  provenance. This audit does not wire a producer or change v2. A further
-  contract gate is recorded in `planner_vm_migration.md`: decide whether M1.4
-  replays enumeration plus selection, or selection conditional on captured
-  candidates. The current v4 model can encode the latter input, but that does
-  not validate candidate discovery. No capture producer or replay-scope field
-  should be added until this distinction is resolved.
+  provenance. This audit does not wire a producer or change v2. Replay scope
+  is now fixed to **selection only**, conditional on a complete, ordered
+  candidate set captured by the live planner; M1.4 replay will not claim to
+  rerun or validate enumeration. The standalone consumer must bind to captured
+  selector identity/configuration, and the live producer still needs a
+  post-enumeration all-or-nothing completion boundary. Until both exist, the
+  v2 diagnostic envelope remains `replayable=false` with no replay inputs.
+  `planner_vm_migration.md` records the scope boundary and Mermaid flow.
   *parallel: yes*.
 - [ ] **M1.5** Snapshot replay tool (developer-only API). Re-runs planning
   from a snapshot, diffs fingerprint and fallback reason. The current v2
