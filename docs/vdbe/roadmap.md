@@ -933,6 +933,8 @@ DML, triggers, subprograms, non-deterministic functions.
   descending primary-key order with LIMIT, and filtered/computed controls.
   Twelve emitter checks cover unbounded,
   limited, offset, zero-limit, descending, and out-of-range opcode shapes.
+  A SQL regression verifies `LIMIT 2147483648` stays on the legacy path and
+  retains its full-result semantics.
   This does not cover all descriptor operators, secondary/range/point access,
   all storage edge cases, or corpus-wide parity; checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,

@@ -39,6 +39,10 @@ summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner
 assert(err == nil and summary.rows[1][3] == 'new_planner')
 summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t ORDER BY v]])
 assert(err == nil and summary.rows[1][3] == 'fallback')
+summary, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t LIMIT 2147483648]])
+assert(err == nil and summary.rows[1][3] == 'fallback')
+wide_limit_result, wide_limit_error = box.execute([[SELECT v FROM planner_preflight_t LIMIT 2147483648]])
+assert(wide_limit_error == nil and #wide_limit_result.rows == 3)
 
 filtered = box.execute([[SELECT v FROM planner_preflight_t WHERE id = 2]])
 assert(#filtered.rows == 1 and filtered.rows[1][1] == 20)
