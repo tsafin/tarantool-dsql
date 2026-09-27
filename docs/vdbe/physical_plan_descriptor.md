@@ -46,7 +46,12 @@ delivery are not implemented. It is a boundary prototype only; parity and
 production `where.c` routing remain mandatory before M3 can be considered
 integrated.
 
-#### M3.4 executable-lowering feasibility audit (2026-09-27)
+#### M3.4 executable-lowering feasibility audit (historical, 2026-09-27)
+
+This source audit predates the production SELECT route described below and is
+retained as implementation history, not current status. Its statement that no
+safe executable slice exists is superseded by the later producer/lowering
+sections.
 
 No safe executable-lowering slice can currently be added as an isolated
 consumer of the descriptor. The code-path boundary is concrete:
