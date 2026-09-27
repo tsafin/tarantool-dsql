@@ -181,6 +181,23 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 	if (expr->x.pList != NULL || expr->pLeft == NULL ||
 	    (unary ? expr->pRight != NULL : expr->pRight == NULL))
 		return SQL_EXPR_CANONICAL_MALFORMED;
+	/* The parser represents INT64_MIN as unary minus applied to the
+	 * otherwise out-of-range positive token 9223372036854775808. Canonicalize
+	 * that one valid signed value directly instead of rejecting its operand as
+	 * an unsupported positive integer literal.
+	 */
+	if (expr->op == TK_UMINUS && expr->pLeft->op == TK_INTEGER &&
+	    expr->pLeft->pLeft == NULL && expr->pLeft->pRight == NULL &&
+	    (expr->pLeft->flags & EP_Resolved) != 0 &&
+	    (expr->pLeft->flags & (EP_Reduced | EP_TokenOnly)) == 0 &&
+	    (expr->pLeft->flags & ~(EP_Resolved | EP_IntValue | EP_Leaf)) == 0 &&
+	    (expr->pLeft->flags & EP_IntValue) == 0 &&
+	    expr->pLeft->u.zToken != NULL &&
+	    strcmp(expr->pLeft->u.zToken, "9223372036854775808") == 0) {
+		static const char value[] = "int(-9223372036854775808)";
+		return append(b, value, sizeof(value) - 1) ?
+			SQL_EXPR_CANONICAL_OK : SQL_EXPR_CANONICAL_NOMEM;
+	}
 	if (!append(b, op, strlen(op)) || !append(b, "(", 1))
 		return SQL_EXPR_CANONICAL_NOMEM;
 	enum sql_expr_canonical_reject rc = encode(expr->pLeft, b, depth + 1,
