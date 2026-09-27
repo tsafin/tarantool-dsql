@@ -179,8 +179,9 @@ opens/closes the cursor, invokes the VDBE table-scan lowering under a codegen
 checkpoint, and commits `SelectDest` metadata only after successful emission.
 Focused SQL execution passes for memtx and Vinyl, including NULL,
 empty-table, `LIMIT 0`, `LIMIT 1`, `LIMIT 1 OFFSET 1`, and descending primary-
-key order with LIMIT cases. `primary_key IS NOT NULL` retains the full scan,
-while `primary_key IS NULL` lowers as a zero-row `Limit` finalizer; SQL tests
+key order with LIMIT cases. `primary_key_part IS NOT NULL` retains the full
+scan, while `primary_key_part IS NULL` lowers as a zero-row `Limit` finalizer;
+both invariants apply to non-leading parts of composite primary keys. SQL tests
 pin flag-off/on parity for both on memtx and Vinyl. Non-primary-key NULL
 predicates remain on legacy codegen. A TEXT primary key also uses the ordered
 new-planner scan path and preserves descending order with LIMIT on memtx and

@@ -1048,10 +1048,11 @@ DML, triggers, subprograms, non-deterministic functions.
   `SelectDest` result registers. It accepts only a resolved direct-column
   projection from one base table and requires a TREE primary index. The
   no-filter route supports optional primary-key ordering by scanning in the
-  requested direction. It also lowers `primary_key IS NOT NULL` as a full
-  scan, relying on the primary-key non-null invariant, and `primary_key IS
-  NULL` as an empty result using the same invariant. Other columns' IS NULL
-  and IS NOT NULL predicates remain on legacy codegen; dedicated SQL
+  requested direction. It also lowers `primary_key_part IS NOT NULL` as a full
+  scan, relying on the primary-key non-null invariant, and `primary_key_part
+  IS NULL` as an empty result using the same invariant, including secondary
+  parts of a composite primary key. Other columns' IS NULL and IS NOT NULL
+  predicates remain on legacy codegen; dedicated SQL
   regressions check empty-result/on-off parity and non-primary rejection on
   memtx and Vinyl. Direct-column full scans and primary-key ordering also pass
   off/on/off parity for a TEXT primary key on both engines; the enabled route
@@ -1203,7 +1204,10 @@ DML, triggers, subprograms, non-deterministic functions.
   on memtx and Vinyl. The complementary primary-key `IS NULL` predicate
   lowers to a zero-row result and reports `new_planner`; non-primary `IS NULL`
   remains `fallback / UNSUPPORTED_FILTER`, with row parity covered on both
-  engines. A text-primary-key descending scan is accepted by the new planner;
+  engines. The same null-predicate lowering now recognizes a non-leading part
+  of a composite primary key on both engines, with off/on result parity and
+  empty-result assertions. A text-primary-key descending scan is accepted by
+  the new planner;
   when disabled, it reports `fallback / UNSUPPORTED_EXPRESSION`. The enabled
   route carries no fallback reason, and its attempt adds no total or
   per-reason fallback count; the disabled EXPLAIN and execution each increment
