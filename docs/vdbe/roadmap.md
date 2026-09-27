@@ -670,7 +670,17 @@ review of IDs and formats.
   checks. The production target plus replay-input unit target pass. Full
   relation/index summary derivation from sampled values and live collection
   wiring remain open; `ANALYZE` stays disabled. See
-  `sql_stats_sampling.md` for the exact contract and local unit evidence.
+  `sql_stats_sampling.md` for the exact contract and local unit evidence. The
+  next bounded S1.3a slice is a transaction-driven single-relation assembler:
+  own one summary per expected index, bind each to its request and canonical
+  extractor, derive relation row/width facts from a designated sample among
+  those indexes, and build only after every sample/conversion succeeds. This
+  binding is not implemented today; the existing tx sampler and detached
+  candidate builder are separate APIs, and callers could otherwise mismatch
+  targets, definitions, summaries, and relation facts. The next integration
+  must discard all partial summaries on failure and retain the existing
+  finish-and-publish no-change-on-failure gate. Local READ_CONFIRMED and
+  vclock/catalog/schema checks are not a durable or cross-node snapshot claim.
 - [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
   This is the persistence half of S1.3 and must not start before human approval
   of system-space IDs and tuple/payload formats. *parallel: no*.
