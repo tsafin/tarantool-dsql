@@ -27,6 +27,7 @@ struct tx_unsigned_extract {
 	uint32_t field_id;
 	uint64_t calls;
 	uint64_t errors;
+	bool fail;
 };
 
 struct live_read_view_filter {
@@ -75,6 +76,10 @@ extract_unsigned(void *arg, const char *tuple, size_t tuple_size,
 		 struct sql_stats_hll_value *parts, size_t part_count)
 {
 	struct tx_unsigned_extract *state = arg;
+	if (state->fail) {
+		state->errors++;
+		return -1;
+	}
 	const char *data = tuple;
 	if (tuple_size == 0 || mp_typeof(*data) != MP_ARRAY) {
 		state->errors++;
@@ -501,6 +506,152 @@ lbox_visibility_open(lua_State *L)
 	return 1;
 }
 
+static double
+snapshot_relation_rows(const struct sql_stats_snapshot *snapshot,
+		       uint32_t space_id)
+{
+	const struct sql_stats_relation *relation = NULL;
+	if (sql_stats_snapshot_get_relation(snapshot, box_schema_version(),
+					     space_id, &relation) !=
+	    SQL_STATS_LOOKUP_AVAILABLE)
+		return -1;
+	return sql_stats_relation_row_count(relation);
+}
+
+static int
+lbox_collect_multirelation(lua_State *L)
+{
+	uint32_t space_ids[2] = {
+		(uint32_t)luaL_checkinteger(L, 1),
+		(uint32_t)luaL_checkinteger(L, 2),
+	};
+	struct sql_stats_collection_target targets[4];
+	struct sql_stats_expected_index expected_indexes[2][2];
+	struct tx_unsigned_extract extracts[4] = {};
+	struct sql_stats_tx_index_spec index_specs[4] = {};
+	struct sql_stats_collection_relation_spec relations[2] = {};
+	uint32_t field_ids[4] = {0, 1, 0, 1};
+	bool setup_ok = space_ids[0] != 0 && space_ids[1] != 0 &&
+		space_ids[0] != space_ids[1];
+	for (size_t r = 0; setup_ok && r < 2; r++) {
+		struct space *space = space_by_id_slow(space_ids[r]);
+		if (space == NULL) {
+			setup_ok = false;
+			break;
+		}
+		for (uint32_t i = 0; i < 2; i++) {
+			struct index *index = space_index(space, i);
+			if (index == NULL || index->def->key_def->part_count != 1) {
+				setup_ok = false;
+				break;
+			}
+			size_t flat = r * 2 + i;
+			targets[flat] = (struct sql_stats_collection_target) {
+				.space_id = space_ids[r], .index_id = i,
+			};
+			expected_indexes[r][i] = (struct sql_stats_expected_index) {
+				.index_id = i, .definition_version = index->unique_id,
+				.part_count = index->def->key_def->part_count,
+			};
+			extracts[flat].field_id = i;
+			index_specs[flat].target = targets[flat];
+			index_specs[flat].expected = &expected_indexes[r][i];
+			index_specs[flat].request = (struct sql_stats_sample_request) {
+				.index_id = i, .max_rows = 4, .max_bytes = 1024 * 1024,
+				.seed = 41 + flat, .max_buffer_bytes = 4096,
+				.max_tuples_examined = 10000, .max_disk_sources = 10000,
+				.max_page_reads = 10000, .max_iterator_keys = 10000,
+				.field_ids = &field_ids[flat], .field_count = 1,
+			};
+			index_specs[flat].hll_precision = 8;
+			index_specs[flat].hll_seed = 41 + flat;
+			index_specs[flat].summary_max_bytes = 4096;
+			index_specs[flat].extract = extract_unsigned;
+			index_specs[flat].extract_context = &extracts[flat];
+		}
+		relations[r] = (struct sql_stats_collection_relation_spec) {
+			.expected = NULL,
+			.indexes = &index_specs[r * 2], .index_count = 2,
+			.relation_index_id = 0, .relation_confidence = 0.5,
+			.confidence_source = "multi_live_test",
+		};
+	}
+	struct sql_stats_expected_relation expected_relations[2] = {};
+	for (size_t r = 0; setup_ok && r < 2; r++) {
+		expected_relations[r] = (struct sql_stats_expected_relation) {
+			.space_id = space_ids[r], .modification_epoch = 1,
+			.indexes = expected_indexes[r], .index_count = 2,
+		};
+		relations[r].expected = &expected_relations[r];
+	}
+	struct sql_stats_collection_build_budget budget = {
+		.max_index_requests = 4, .max_staging_bytes = 65536,
+		.max_candidate_bytes = 65536, .max_temp_bytes = 4096,
+		.max_work = 1000000,
+	};
+	struct sql_stats_collection_context *context = setup_ok ?
+		sql_stats_collection_context_new(targets, 4) : NULL;
+	struct sql_stats_snapshot *candidate = context != NULL ?
+		sql_stats_collection_context_build_sample_candidates(context,
+			relations, 2, &budget) : NULL;
+	int candidate_built = candidate != NULL;
+	struct sql_stats_snapshot *old_snapshot = sql_get()->stats_snapshot;
+	if (old_snapshot != NULL)
+		sql_stats_snapshot_retain(old_snapshot);
+	int publish_rc = candidate != NULL ?
+		sql_stats_collection_context_publish_candidate(&context, candidate) : -1;
+	if (context != NULL)
+		sql_stats_collection_context_delete(context);
+	double success_rows[2] = {
+		snapshot_relation_rows(sql_get()->stats_snapshot, space_ids[0]),
+		snapshot_relation_rows(sql_get()->stats_snapshot, space_ids[1]),
+	};
+	struct sql_stats_snapshot *published_snapshot = sql_get()->stats_snapshot;
+	bool published_two_relations = candidate_built && publish_rc == 0 &&
+		published_snapshot != NULL &&
+		sql_stats_snapshot_relation_count(published_snapshot) == 2 &&
+		published_snapshot != old_snapshot;
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+
+	/* Fail in the later (Vinyl) relation after the first relation has already
+	 * built a private part. No part may escape or replace the installed view. */
+	extracts[2].fail = true;
+	context = sql_stats_collection_context_new(targets, 4);
+	struct sql_stats_snapshot *failed_candidate = context != NULL ?
+		sql_stats_collection_context_build_sample_candidates(context,
+			relations, 2, &budget) : NULL;
+	bool failed_late = failed_candidate == NULL;
+	if (context != NULL)
+		sql_stats_collection_context_delete(context);
+	if (failed_candidate != NULL)
+		sql_stats_snapshot_release(failed_candidate);
+	bool preserved = failed_late &&
+		sql_get()->stats_snapshot == published_snapshot &&
+		snapshot_relation_rows(sql_get()->stats_snapshot, space_ids[0]) ==
+			success_rows[0] &&
+		snapshot_relation_rows(sql_get()->stats_snapshot, space_ids[1]) ==
+			success_rows[1];
+	sql_set_stats_snapshot(old_snapshot);
+	if (old_snapshot != NULL)
+		sql_stats_snapshot_release(old_snapshot);
+
+	lua_newtable(L);
+	lua_pushboolean(L, published_two_relations);
+	lua_setfield(L, -2, "published_two_relations");
+	lua_pushinteger(L, publish_rc);
+	lua_setfield(L, -2, "publish_rc");
+	lua_pushnumber(L, success_rows[0]);
+	lua_setfield(L, -2, "first_relation_rows");
+	lua_pushnumber(L, success_rows[1]);
+	lua_setfield(L, -2, "second_relation_rows");
+	lua_pushboolean(L, failed_late);
+	lua_setfield(L, -2, "later_relation_failed_closed");
+	lua_pushboolean(L, preserved);
+	lua_setfield(L, -2, "installed_snapshot_preserved");
+	return 1;
+}
+
 static void
 lbox_capture_read_view_index(lua_State *L, struct index_read_view *index_view)
 {
@@ -574,6 +725,7 @@ luaopen_sql_stats_tx_context_test(lua_State *L)
 		{"sample", lbox_sample},
 		{"collect_candidate", lbox_collect_candidate},
 		{"collect_view_candidate", lbox_collect_view_candidate},
+		{"collect_multirelation", lbox_collect_multirelation},
 		{"publish_held_candidate", lbox_publish_held_candidate},
 		{"visibility_open", lbox_visibility_open},
 		{"visibility_scan", lbox_visibility_scan},

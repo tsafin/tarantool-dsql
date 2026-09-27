@@ -59,6 +59,51 @@ g_budget.after_all(function()
     g_budget.server:stop()
 end)
 
+g.test_shared_view_multi_relation_candidate = function()
+    local res = g.server:exec(function()
+        local adapter = package.loaded.sql_stats_tx_context_test
+        if adapter == nil then
+            return {test_wrapper_unavailable = true}
+        end
+        local memtx = box.schema.space.create('sql_stats_multi_memtx', {
+            engine = 'memtx',
+        })
+        memtx:create_index('primary', {
+            parts = {{field = 1, type = 'unsigned'}},
+        })
+        memtx:create_index('by_value', {
+            parts = {{field = 2, type = 'unsigned'}},
+        })
+        local vinyl = box.schema.space.create('sql_stats_multi_vinyl', {
+            engine = 'vinyl',
+        })
+        vinyl:create_index('primary', {
+            parts = {{field = 1, type = 'unsigned'}},
+        })
+        vinyl:create_index('by_value', {
+            parts = {{field = 2, type = 'unsigned'}},
+        })
+        for i = 1, 8 do
+            memtx:insert({i, i % 3})
+            vinyl:insert({i, i % 3})
+        end
+        local result = adapter.collect_multirelation(memtx.id, vinyl.id)
+        memtx:drop()
+        vinyl:drop()
+        return result
+    end)
+
+    if res.test_wrapper_unavailable then
+        t.skip('SQL stats live wrapper requires a TEST_BUILD server')
+    end
+    t.assert_equals(res.published_two_relations, true)
+    t.assert_equals(res.publish_rc, 0)
+    t.assert_equals(res.first_relation_rows, 8)
+    t.assert_equals(res.second_relation_rows, 8)
+    t.assert_equals(res.later_relation_failed_closed, true)
+    t.assert_equals(res.installed_snapshot_preserved, true)
+end
+
 g.test_sql_stats_shape_and_growth = function()
     g.server:exec(function()
         local function sum_values(map)

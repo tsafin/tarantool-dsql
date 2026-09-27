@@ -119,7 +119,10 @@ advance_test_vclock(void)
 
 static struct space_def test_space_def = {.id = 42};
 static struct space test_space = {.def = &test_space_def};
-static struct index_def test_index_def = {.space_id = 42, .iid = 8};
+static struct key_def test_key_def = {.part_count = 1};
+static struct index_def test_index_def = {
+	.space_id = 42, .iid = 8, .key_def = &test_key_def,
+};
 static struct index test_index = {.def = &test_index_def};
 static struct index_def test_index2_def = {.space_id = 42, .iid = 9};
 static struct index test_index2 = {.def = &test_index2_def};
@@ -1111,6 +1114,7 @@ test_empty_relation_candidate(void)
 
 struct tx_extract_state {
 	bool fail;
+	uint64_t calls;
 };
 
 static int
@@ -1121,6 +1125,7 @@ test_tx_extract(void *arg, const char *tuple, size_t tuple_size,
 	(void)field_ids;
 	(void)field_count;
 	struct tx_extract_state *state = arg;
+	state->calls++;
 	if (state->fail && tuple_size == 2 && tuple[0] == 'b')
 		return -1;
 	if (part_count != 1 || tuple_size == 0)
@@ -1294,6 +1299,89 @@ test_transaction_owned_assembler(void)
 	check_plan();
 }
 
+static void
+test_shared_view_multi_candidate_preflight(void)
+{
+	plan(3);
+	header();
+	setup_test_indexes();
+	test_index_view.vtab = &test_index_view_vtab;
+	test_read_view_mode = 1;
+	test_schema_version = 12;
+	vclock_create(&test_vclock);
+	struct sql_stats_relation_input baseline_input = {
+		.space_id = 7, .row_count = 1, .confidence = 1,
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+	};
+	struct sql_stats_snapshot *baseline = sql_stats_snapshot_new(0, 12,
+		&baseline_input, 1, 4096);
+	assert(baseline != NULL);
+	sql_set_stats_snapshot(baseline);
+	struct sql_stats_expected_index expected_index = {
+		.index_id = 8, .definition_version = 808, .part_count = 1,
+	};
+	struct sql_stats_expected_relation expected = {
+		.space_id = 42, .modification_epoch = 1,
+		.indexes = &expected_index, .index_count = 1,
+	};
+	struct sql_stats_collection_target target = {.space_id = 42, .index_id = 8};
+	uint32_t field_id = 0;
+	struct tx_extract_state extract_state = {};
+	struct sql_stats_tx_index_spec index = {
+		.target = target, .expected = &expected_index,
+		.request = {
+			.index_id = 8, .max_rows = 2, .max_bytes = 16,
+			.max_buffer_bytes = 512, .max_tuples_examined = 3,
+			.field_ids = &field_id, .field_count = 1,
+		},
+		.hll_precision = 8, .summary_max_bytes = 512,
+		.extract = test_tx_extract, .extract_context = &extract_state,
+	};
+	struct sql_stats_collection_relation_spec relation = {
+		.expected = &expected, .indexes = &index, .index_count = 1,
+		.relation_index_id = 8, .relation_confidence = 0.5,
+		.confidence_source = "unit-test",
+	};
+	struct sql_stats_collection_build_budget budget = {
+		.max_index_requests = 1, .max_staging_bytes = 4096,
+		.max_candidate_bytes = 4096, .max_temp_bytes = 16,
+		.max_work = 1024,
+	};
+	struct sql_stats_collection_context *context =
+		sql_stats_collection_context_new(&target, 1);
+	struct sql_stats_snapshot *candidate = context != NULL ?
+		sql_stats_collection_context_build_sample_candidates(context,
+			&relation, 1, &budget) : NULL;
+	ok(candidate != NULL && sql_stats_snapshot_relation_count(candidate) == 1 &&
+	   test_installed_snapshot == baseline,
+	   "shared-view batch builds a detached single-relation candidate");
+	bool published = candidate != NULL &&
+		sql_stats_collection_context_publish_candidate(&context, candidate) == 0 &&
+		context == NULL && test_installed_snapshot == candidate;
+	ok(published,
+	   "batch candidate uses the existing one-shot publication boundary");
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+	uint64_t calls_before_reject = extract_state.calls;
+	context = sql_stats_collection_context_new(&target, 1);
+	budget.max_work = 1;
+	candidate = context != NULL ?
+		sql_stats_collection_context_build_sample_candidates(context,
+			&relation, 1, &budget) : NULL;
+	if (context != NULL)
+		sql_stats_collection_context_delete(context);
+	ok(candidate == NULL && extract_state.calls == calls_before_reject &&
+	   test_installed_snapshot != NULL &&
+	   sql_stats_snapshot_relation_count(test_installed_snapshot) == 1,
+	   "aggregate work rejection occurs before scanning and preserves installed state");
+	if (candidate != NULL)
+		sql_stats_snapshot_release(candidate);
+	sql_set_stats_snapshot(NULL);
+	sql_stats_snapshot_release(baseline);
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
@@ -1305,5 +1393,6 @@ main(void)
 	test_complete_result_and_rejections();
 	test_empty_relation_candidate();
 	test_transaction_owned_assembler();
+	test_shared_view_multi_candidate_preflight();
 	return 0;
 }
