@@ -169,9 +169,8 @@ g.test_unordered_hash_primary_scan_off_on_off = function()
         space:insert({2, 'two'})
         space:insert({3, 'three'})
 
-        local sql = [[SELECT id, value FROM planner_flag_hash_scan]]
-        local explain = [[EXPLAIN (planner = 'summary') ]] .. sql
-        local function run()
+        local function run(sql)
+            local explain = [[EXPLAIN (planner = 'summary') ]] .. sql
             local explain_result, explain_err = box.execute(explain)
             t.assert(explain_err == nil and explain_result ~= nil,
                      ('hash primary EXPLAIN failed: %s')
@@ -183,14 +182,19 @@ g.test_unordered_hash_primary_scan_off_on_off = function()
             return result.rows
         end
 
+        local sql = [[SELECT id, value FROM planner_flag_hash_scan]]
         box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
         local _, off_err = box.execute(sql)
         t.assert_equals(off_err.message,
                         'SQL does not support using non-TREE index type. ' ..
                         'Please, use INDEXED BY clause to force using proper index.')
         box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
-        local on_rows = run()
+        local on_rows = run(sql)
         t.assert_equals(on_rows, {{1, 'one'}, {2, 'two'}, {3, 'three'}})
+        t.assert_equals(run([[SELECT id, value FROM planner_flag_hash_scan
+                              WHERE id IS NOT NULL]]), on_rows)
+        t.assert_equals(run([[SELECT id, value FROM planner_flag_hash_scan
+                              WHERE id IS NULL]]), {})
         for _, unsupported in ipairs({
             [[SELECT id FROM planner_flag_hash_scan WHERE id = 2]],
             [[SELECT id FROM planner_flag_hash_scan ORDER BY id]],

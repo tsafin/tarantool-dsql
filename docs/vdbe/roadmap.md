@@ -1259,12 +1259,13 @@ DML, triggers, subprograms, non-deterministic functions.
   An additional storage route now supports unordered `ITER_ALL` scans over a
   HASH primary index when the experimental flag is on. The regular cursor
   opener still rejects non-TREE indexes; the planner-specific opener is
-  limited to the unfiltered/unordered full scan, and `Rewind` selects HASH's
+  limited to unordered full scans (including primary-key IS NULL/IS NOT NULL
+  identity predicates), and `Rewind` selects HASH's
   supported `ITER_ALL` rather than TREE's ordered `ITER_GE`. A memtx SQL
   regression checks the existing flag-off rejection and flag-on result/path;
   it passes under generated and CnP dispatch. HASH point/range/order routes
-  remain unsupported. This is a narrow extension, not general secondary-index
-  support.
+  remain unsupported and retain the legacy non-TREE error. This is a narrow
+  extension, not general secondary-index support.
   Do not infer rollback of AST, parser, or schema state.
   This does not cover all descriptor operators, secondary-index access,
   additional/multibound ranges, all storage edge cases, or corpus-wide parity;

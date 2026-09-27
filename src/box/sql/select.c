@@ -6034,6 +6034,28 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 	}
 }
 
+static bool
+sql_select_hash_pk_null_predicate(const Select *select,
+				 const struct SrcList_item *source,
+				 const struct index *primary)
+{
+	const struct Expr *where = select->pWhere;
+	if (where == NULL)
+		return true;
+	if ((where->op != TK_ISNULL && where->op != TK_NOTNULL) ||
+	    where->pLeft == NULL || where->pRight != NULL ||
+	    where->pLeft->op != TK_COLUMN_REF ||
+	    where->pLeft->pLeft != NULL || where->pLeft->pRight != NULL ||
+	    where->pLeft->iTable != source->iCursor || where->pLeft->iColumn < 0)
+		return false;
+	const struct key_def *key_def = primary->def->key_def;
+	for (uint32_t i = 0; i < key_def->part_count; ++i) {
+		if ((uint32_t)where->pLeft->iColumn == key_def->parts[i].fieldno)
+			return true;
+	}
+	return false;
+}
+
 /*
  * Route the first executable physical-plan slice: a resolved, direct-column
  * projection over one primary index with primary-key predicates, and an
@@ -6072,11 +6094,12 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	}
 	const struct index *primary = space->index_map[0];
 	/* HASH supports ITER_ALL but not the ordered or keyed operations emitted
-	 * by the other physical routes. Keep it to an unordered, unfiltered scan.
+	 * by the other physical routes. Keep it to unordered scans, optionally
+	 * guarded by a primary-key IS NULL/IS NOT NULL invariant.
 	 */
 	if (primary->def->type != TREE &&
-	    (primary->def->type != HASH || select->pWhere != NULL ||
-	     select->pOrderBy != NULL)) {
+	    (primary->def->type != HASH || select->pOrderBy != NULL ||
+	     !sql_select_hash_pk_null_predicate(select, source, primary))) {
 		sql_select_record_physical_fallback(parse,
 				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
 		return 0;
