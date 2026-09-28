@@ -1408,6 +1408,17 @@ DML, triggers, subprograms, non-deterministic functions.
   it passes under generated and CnP dispatch. HASH point/range/order routes
   remain unsupported and retain the legacy non-TREE error. This is a narrow
   extension, not general secondary-index support.
+  **BETWEEN range extension (2026-09-28):** the producer now normalizes a
+  direct `BETWEEN` on a supported primary-key part into the same inclusive
+  lower/upper bounds emitted by SQL expression codegen. Existing bound parsing
+  still rejects non-literal, non-key, and malformed bounds; the existing range
+  producer/lowerer then applies its prefix, endpoint, and ordering checks. The
+  composite-prefix regression now includes ascending and descending inclusive
+  ranges plus a full-width UNSIGNED interval. The changed planner source
+  compiled while building the `box` target, but runtime execution is pending:
+  this checkout's unit target fails to link unresolved `sql_atoi64` and
+  `sql_expr_canonicalize`, and the Debug server target lacks its expected
+  libunwind archive.
   Do not infer rollback of AST, parser, or schema state.
   This does not cover all descriptor operators, secondary-index access,
   additional/multibound ranges, all storage edge cases, or corpus-wide parity;
