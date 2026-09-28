@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture one SQL or single-child sql-luatest file through its normal runner."""
+"""Capture SQL or one-child sql-luatest, including observed prepared SQL."""
 
 import argparse
 import json
@@ -19,8 +19,6 @@ def unsupported_luatest_source(source):
         return "capture cannot preserve a restarted child's query sequence"
     if "net_box" in source and re.search(r":execute\s*\(", source):
         return "direct net.box SQL bypasses the child box.execute hook"
-    if re.search(r"\bbox\.prepare\s*\(", source):
-        return "prepared-statement execution bypasses the string SQL hook"
     return None
 
 
@@ -99,6 +97,7 @@ def capture(args):
        state.get("engine_mismatch") is not False or \
        state.get("planner_flag") != args.planner_flag or \
        state.get("planner_flag_mismatch") is not False or \
+       state.get("untracked_prepared_execs") != 0 or \
        not isinstance(state.get("captured_queries"), int) or \
        state["captured_queries"] < 1:
         raise RuntimeError("child capture identity or engine mismatch")
@@ -115,6 +114,7 @@ def capture(args):
         "native_compile_attempt_query_indices",
         "native_compile_success_query_indices",
         "native_participation_query_indices",
+        "prepared_query_indices",
         "eligible_query_indices",
         "mode_miss_queries",
     )
@@ -162,6 +162,7 @@ def capture(args):
         "eligible_query_indices": eligible_indices,
         "native_participation_queries": len(participation),
         "native_participation_query_indices": participation,
+        "prepared_query_indices": indices["prepared_query_indices"],
         "mode_miss_queries": misses,
         "runtime_engine": args.engine,
         "engine_mismatch": False,

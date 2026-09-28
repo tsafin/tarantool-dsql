@@ -24,12 +24,8 @@ EXCLUSIONS = {
                                     "EXPLAIN disassembly embeds process addresses; generated repeat drifts and native execution is unobserved"),
     "gh_5526_no_error_on_too_many_indexes_test.lua":
         ("no_native_execution", "normal runner passes, but CnP and LLVM produce no native execution event"),
-    "gh_6422_autoinc_ids_reset_test.lua":
-        ("partial_capture", "box.execute(prepared statement ID) bypasses the string SQL hook"),
     "gh_6766_mp_ext_via_netbox_test.lua":
         ("partial_capture", "all SQL uses direct net.box execute; no child box.execute statement is captured"),
-    "gh_7358_prepared_stmt_truncation_test.lua":
-        ("partial_capture", "box.execute(prepared statement ID) bypasses the string SQL hook"),
     "gh_8365_no_func_in_index_def_test.lua":
         ("no_native_execution", "normal runner passes, but CnP and LLVM produce no native execution event"),
     "gh_9469_too_big_decimals_test.lua":

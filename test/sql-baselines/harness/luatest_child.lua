@@ -1,5 +1,6 @@
 -- Install this before box.cfg via TARANTOOL_RUN_BEFORE_BOX_CFG in luatest's
--- default server_instance.lua. One child server is accepted per capture.
+-- default server_instance.lua. One child server is accepted per capture;
+-- box.prepare statement IDs are mapped back to their exact SQL text.
 local fio = require('fio')
 local json = require('json')
 
@@ -49,6 +50,11 @@ box.cfg = setmetatable({}, {
         box.space._session_settings:update('sql_default_engine', {{'=', 2, engine}})
         local before = box.stat.sql()
         local original_execute = box.execute
+        local original_prepare = box.prepare
+        local original_unprepare = box.unprepare
+        local prepared_sql = {}
+        local prepared_query_indices = {}
+        local untracked_prepared_execs = 0
         local count = 0
         local engine_mismatch = false
         local planner_flag_mismatch = false
@@ -62,14 +68,73 @@ box.cfg = setmetatable({}, {
         local eligible_query_indices = {}
         local mode_miss_queries = {}
         local planner_metrics = {}
+        local function pack(...)
+            return {n = select('#', ...), ...}
+        end
+        local unpack_values = table.unpack or unpack
+
+        box.prepare = function(sql, ...)
+            local statement = original_prepare(sql, ...)
+            if type(sql) == 'string' and type(statement) == 'table' and
+               type(statement.stmt_id) == 'number' then
+                prepared_sql[statement.stmt_id] = sql
+                local original_statement_execute = statement.execute
+                if type(original_statement_execute) == 'function' then
+                    statement.execute = function(...)
+                        local args = {n = select('#', ...), ...}
+                        if args[1] ~= statement then
+                            return original_statement_execute(
+                                unpack_values(args, 1, args.n))
+                        end
+                        return box.execute(statement.stmt_id,
+                                           unpack_values(args, 2, args.n))
+                    end
+                end
+                local original_statement_unprepare = statement.unprepare
+                if type(original_statement_unprepare) == 'function' then
+                    statement.unprepare = function(...)
+                        local args = {n = select('#', ...), ...}
+                        if args[1] ~= statement then
+                            return original_statement_unprepare(
+                                unpack_values(args, 1, args.n))
+                        end
+                        return box.unprepare(statement.stmt_id,
+                                             unpack_values(args, 2, args.n))
+                    end
+                end
+            end
+            return statement
+        end
+        if original_unprepare ~= nil then
+            box.unprepare = function(stmt_id, ...)
+                local id = type(stmt_id) == 'table' and stmt_id.stmt_id or stmt_id
+                local result = pack(original_unprepare(stmt_id, ...))
+                if type(id) == 'number' then prepared_sql[id] = nil end
+                return unpack_values(result, 1, result.n)
+            end
+        end
 
         box.execute = function(sql, bindings)
+            local capture_sql = sql
+            local is_prepared = false
             if type(sql) ~= 'string' then
-                if bindings ~= nil then
-                    return original_execute(sql, bindings)
+                local stmt_id = type(sql) == 'table' and sql.stmt_id or sql
+                if type(stmt_id) == 'number' and prepared_sql[stmt_id] ~= nil then
+                    capture_sql = prepared_sql[stmt_id]
+                    is_prepared = true
+                else
+                    untracked_prepared_execs = untracked_prepared_execs + 1
+                    local error_file = assert(io.open(
+                        out .. '/luatest-capture-error', 'w'))
+                    error_file:write('unobserved non-string box.execute SQL\n')
+                    error_file:close()
+                    if bindings ~= nil then
+                        return original_execute(sql, bindings)
+                    end
+                    return original_execute(sql)
                 end
-                return original_execute(sql)
             end
+            assert(type(capture_sql) == 'string', 'invalid captured prepared SQL')
             -- The test body runs in a net.box session, not the startup fiber.
             -- Set its default once; later test-initiated engine changes remain
             -- visible and reject the capture.
@@ -109,7 +174,10 @@ box.cfg = setmetatable({}, {
                 err = returned_err
             end
             count = count + 1
-            local trimmed = sql:match('^%s*(.-)%s*$')
+            if is_prepared then
+                prepared_query_indices[#prepared_query_indices + 1] = count
+            end
+            local trimmed = capture_sql:match('^%s*(.-)%s*$')
             assert(trimmed ~= '', 'empty SQL query in luatest capture')
             -- Take dispatcher counters before asking EXPLAIN for its planner
             -- snapshot, so observability work is not attributed to the test's
@@ -256,6 +324,8 @@ box.cfg = setmetatable({}, {
                     #native_participation_query_indices,
                 native_participation_query_indices =
                     native_participation_query_indices,
+                prepared_query_indices = prepared_query_indices,
+                untracked_prepared_execs = untracked_prepared_execs,
                 mode_miss_queries = mode_miss_queries,
                 planner_metrics = planner_metrics,
             }

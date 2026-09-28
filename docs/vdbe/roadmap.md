@@ -1847,10 +1847,27 @@ DML, triggers, subprograms, non-deterministic functions.
   nondeterministic current-time datetime result in CnP and repeat comparisons,
   and address-dependent `explain_modifiers` disassembly in repeat comparisons
   on both engines. LLVM is not observed with JIT disabled, and unsupported
-  multi-child/restarted/prepared/net.box topologies and long tests remain
+  multi-child/restarted/direct-net.box topologies and long tests remain
   explicitly unrun. This is expanded review evidence, not a clean full-suite
   parity decision; M3.5 remains open pending these dispositions and the SQL
   suite/corpus gate.
+
+  **Prepared SQL topology slice (2026-09-28).** The one-child adapter now
+  records SQL passed to `box.prepare`, maps returned statement IDs until
+  `box.unprepare`, and captures later `box.execute(stmt_id, bindings)` calls
+  and statement-handle `:execute()` methods under the original SQL text
+  without changing execution arguments or results. Prepared executions carry
+  explicit query indices in the manifest;
+  any non-string execution whose SQL cannot be recovered makes capture fail
+  closed after the normal test run. `gh_6422_autoinc_ids_reset_test.lua` and
+  `gh_7358_prepared_stmt_truncation_test.lua` each passed generated, CnP,
+  LLVM, and generated-repeat capture/parity on memtx and Vinyl (4 and 8 SQL
+  statements respectively, including the prepared executions). This closes
+  the prepared-statement hook gap for these source topologies only; it does
+  not accept the existing full-corpus exclusions or establish corpus-wide
+  parity, which still requires the normal review/anchor process. Direct
+  `net.box`, multiple/restarted children, and unobserved prepared IDs remain
+  excluded.
 
   ```mermaid
   flowchart TD

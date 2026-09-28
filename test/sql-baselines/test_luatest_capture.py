@@ -30,10 +30,20 @@ class SourceTopologyTest(unittest.TestCase):
         source = "a = server:new({})\nconn = a.net_box\nconn:execute('SELECT 1')"
         self.assertIn("net.box", capture.unsupported_luatest_source(source))
 
-    def test_prepared_sql_is_rejected(self):
+    def test_prepared_sql_through_box_execute_is_supported(self):
         source = "a = server:new({})\nid = box.prepare('SELECT 1').stmt_id\n" \
                  "box.execute(id)"
-        self.assertIn("prepared", capture.unsupported_luatest_source(source))
+        self.assertIsNone(capture.unsupported_luatest_source(source))
+
+    def test_prepared_statement_handle_methods_are_supported(self):
+        source = "a = server:new({})\nstmt = box.prepare('SELECT 1')\n" \
+                 "stmt:execute()\nstmt:unprepare()"
+        self.assertIsNone(capture.unsupported_luatest_source(source))
+
+    def test_prepared_sql_does_not_relax_other_topology_guards(self):
+        source = "a = server:new({})\nid = box.prepare('SELECT 1').stmt_id\n" \
+                 "box.execute(id)\na:restart()"
+        self.assertIn("restarted", capture.unsupported_luatest_source(source))
 
 
 if __name__ == "__main__":
