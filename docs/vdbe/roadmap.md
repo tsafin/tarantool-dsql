@@ -1769,9 +1769,13 @@ DML, triggers, subprograms, non-deterministic functions.
   understood; no unsupported route claim is made.
 
   The updated INSERT-SELECT/view-DML focused luatest also passes the typed
-  per-engine capture audit in generated mode and generated-repeat parity on
-  memtx and Vinyl. CnP and LLVM execution modes were not observed by this
-  Debug build, so this is not normal-runner or dispatch-mode parity evidence.
+  per-engine capture audit in generated, CnP, LLVM, and generated-repeat
+  modes on memtx and Vinyl: all 29 statements per run validate, with zero
+  snapshot differences and positive native participation in CnP/LLVM. Its
+  route assertions remain a diagnostic exclusion from immutable result
+  snapshots, now explicitly recorded in the full-corpus policy with normal
+  runner evidence for both engines. The reviewed inventory has 402 tests,
+  588 included pairs, 216 excluded pairs, and no pending engine decisions.
 
   **Extended timeout triage (2026-09-28).** A fresh standalone retry with a
   60-second per-file limit accepted `in2`, `select2`, and `select9` on both

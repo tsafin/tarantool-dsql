@@ -1,8 +1,8 @@
 # SQL parity corpus policy
 
-`corpus.json` is the accepted **full-corpus v2** policy. It covers all 386
+`corpus.json` is the accepted **full-corpus v2** policy. It covers all 402
 discovered tests across SQL TAP, SQL-language, and luatest: 588 test/engine
-pairs are included and 184 are explicitly excluded, with no pending pair.
+pairs are included and 216 are explicitly excluded, with no pending pair.
 The inventory command scans top-level `*.test.lua` and `*.test.sql` in
 `test/sql` and `test/sql-tap`, and `*_test.lua` in `test/sql-luatest`.
 An added test fails full-corpus inventory until both engine decisions are

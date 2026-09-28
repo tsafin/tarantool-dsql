@@ -26166,6 +26166,16 @@
       "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
     },
     {
+      "test": "sql-luatest/planner_insert_select_snapshot_test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor component-route regression for INSERT-SELECT and view DML; it asserts planner metadata and runtime row effects rather than frozen SQL result snapshots.",
+      "introduced_after_baseline": true,
+      "evidence": {
+        "memtx": {"normal_runner": {"status": "pass", "exit_code": 0}},
+        "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}
+      }
+    },
+    {
       "test": "sql-luatest/planner_scalar_filter_test.lua",
       "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
       "reason": "Post-anchor scalar-filter planner regression; it enables the experimental route and asserts planner metadata.",
