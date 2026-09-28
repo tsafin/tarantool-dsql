@@ -797,6 +797,10 @@ if(ENABLE_SQL_JIT)
         message(FATAL_ERROR "LLVM version 11 or higher is required for SQL JIT, found ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}")
     endif()
 
+    if(LLVM_VERSION_MAJOR LESS 19 AND ENABLE_SQL_CNP)
+        message(FATAL_ERROR "SQL JIT with CnP requires LLVM 19 or higher")
+    endif()
+
     if(LLVM_VERSION_MAJOR LESS 12)
         message(WARNING "LLVM version 12 or higher is recommended for SQL JIT, found ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}. Some features may not work correctly.")
     endif()

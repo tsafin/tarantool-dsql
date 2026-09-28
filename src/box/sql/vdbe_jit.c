@@ -52,8 +52,13 @@
 #include <stddef.h>
 
 /* LLVM's C API omits the IR PreserveNone calling-convention enum. */
-#if LLVM_VERSION_MAJOR >= 19
+#if LLVM_VERSION_MAJOR >= 19 && \
+	!defined(SQL_DISABLE_PRESERVE_NONE) && defined(__clang__) && \
+	defined(__x86_64__) && __has_attribute(preserve_none)
+#define SQL_JIT_HAS_PRESERVE_NONE 1
 #define LLVM_PRESERVE_NONE_CALL_CONV 21
+#else
+#define SQL_JIT_HAS_PRESERVE_NONE 0
 #endif
 #include <limits.h>
 
@@ -956,7 +961,7 @@ jit_handler_is_external(int opcode)
 	}
 }
 
-#if LLVM_VERSION_MAJOR >= 19
+#if SQL_JIT_HAS_PRESERVE_NONE
 static bool
 jit_handler_uses_preserve_none(int opcode)
 {
@@ -1006,7 +1011,7 @@ jit_declare_external_handler(LLVMModuleRef module, const char *handler_name,
 	LLVMTypeRef handler_type =
 		LLVMFunctionType(LLVMInt32Type(), arg_types, 3, 0);
 	handler_fn = LLVMAddFunction(module, handler_name, handler_type);
-#if LLVM_VERSION_MAJOR >= 19
+#if SQL_JIT_HAS_PRESERVE_NONE
 	if (jit_handler_uses_preserve_none(opcode))
 		LLVMSetFunctionCallConv(handler_fn,
 					LLVM_PRESERVE_NONE_CALL_CONV);

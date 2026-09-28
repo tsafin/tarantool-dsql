@@ -118,7 +118,8 @@
 #define GCC_VERSION 0
 #endif
 
-#if defined(__clang__) && defined(__x86_64__) && \
+#if !defined(SQL_DISABLE_PRESERVE_NONE) && defined(__clang__) && \
+	defined(__x86_64__) && \
 	__has_attribute(preserve_none)
 #define SQL_PRESERVE_NONE __attribute__((preserve_none))
 #else

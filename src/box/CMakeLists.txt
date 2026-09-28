@@ -215,6 +215,9 @@ if(ENABLE_SQL_JIT)
         -DSQL_TEST=1
         -DENABLE_SQL_JIT=1
     )
+    if(LLVM_VERSION_MAJOR LESS 19)
+        list(APPEND sql_jit_handler_defs -DSQL_DISABLE_PRESERVE_NONE=1)
+    endif()
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         list(APPEND sql_jit_handler_defs -DSQL_DEBUG=1)
     else()
@@ -909,6 +912,9 @@ if(ENABLE_SQL_JIT)
         ENABLE_SQL_JIT
         SQL_JIT_BITCODE_DIR="${PROJECT_BINARY_DIR}/src/box"
     )
+    if(LLVM_VERSION_MAJOR LESS 19)
+        target_compile_definitions(box PRIVATE SQL_DISABLE_PRESERVE_NONE=1)
+    endif()
 endif()
 if(ENABLE_SQL_CNP AND LLVM_CNP_LIBS)
     target_link_libraries(box ${LLVM_CNP_LIBS})
