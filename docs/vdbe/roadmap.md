@@ -1692,7 +1692,8 @@ DML, triggers, subprograms, non-deterministic functions.
   producer callsite; the runtime component matrix checks that role and its
   `direct_values` route. The component tests pass under generated and CnP
   dispatch; syntax and diff checks passed before integration, and the
-  integrated Debug build passed.
+  integrated Debug build passed. The typed SQL-TAP capture fixture also
+  captures and validates the recursive-anchor role in a complete manifest.
   The capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.
