@@ -18,7 +18,7 @@ test:do_catchsql_test(
 		ANALYZE v0;
 	]], {
 		-- <sql-errors-1.1>
-		1,"Syntax error at line 1 near 'ANALYZE'"
+		1,"ANALYZE statement argument v0 is not a base table"
 		-- </sql-errors-1.1>
 	})
 

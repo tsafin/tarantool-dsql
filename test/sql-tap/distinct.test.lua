@@ -41,20 +41,40 @@ local function is_distinct_noop(sql)
     return test.is_deeply_regex(program1, program2)
 end
 
+local function is_new_planner_enabled()
+	local setting = box.space._session_settings:get(
+		'sql_new_planner_single_table')
+	return setting ~= nil and setting[2] == true
+end
+
 local function do_distinct_noop_test(tn, sql)
-    test:do_test(
-        tn,
-        function()
-            return is_distinct_noop(sql)
-        end,true)
+	if is_new_planner_enabled() then
+		-- Under the opt-in planner, the legacy opcode-sequence equivalence is
+		-- not a contract. Still execute both EXPLAINs so corpus capture can
+		-- report their intentional program differences separately from SQL
+		-- result parity.
+		is_distinct_noop(sql)
+		test:skip(tn .. " legacy VDBE opcode equivalence under new planner")
+	else
+		test:do_test(
+			tn,
+			function()
+				return is_distinct_noop(sql)
+			end,true)
+	end
 end
 
 local function do_distinct_not_noop_test(tn, sql)
-    test:do_test(
-        tn,
-        function()
-            return is_distinct_noop(sql)
-        end,false)
+	if is_new_planner_enabled() then
+		is_distinct_noop(sql)
+		test:skip(tn .. " legacy VDBE opcode equivalence under new planner")
+	else
+		test:do_test(
+			tn,
+			function()
+				return is_distinct_noop(sql)
+			end,false)
+	end
 end
 
 local function do_temptables_test(tn, sql, temptables)

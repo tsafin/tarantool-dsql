@@ -695,9 +695,6 @@ predicate_parsed:
 		};
 	}
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
-	if (has_range_key && !has_prefix_range_scan)
-		direction = range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE ?
-			SQL_PLAN_DESC : SQL_PLAN_ASC;
 	struct sql_plan_order_term *order_terms = NULL;
 	size_t order_term_count = 0;
 	if (select->pOrderBy != NULL) {

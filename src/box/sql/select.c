@@ -6091,6 +6091,12 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 {
 	if ((parse->sql_flags & SQL_NewPlannerSingleTable) == 0 || dest == NULL)
 		return 0;
+	/* The route currently fixes unordered scans to forward key order. The
+	 * legacy planner honors sql_reverse_unordered_selects, so keep that session
+	 * mode on the legacy path until reverse-order intent is in the descriptor.
+	 */
+	if ((parse->sql_flags & SQL_ReverseOrder) != 0)
+		return 0;
 	/* Structural classification may have happened before normalization or
 	 * flattening erased this component's rejected source shape. Do not let a
 	 * later physical attempt overwrite that component. A different nested
@@ -6168,6 +6174,28 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	}
 	int result_first_reg = parse->nMem + 1;
 	parse->nMem += select->pEList->nExpr;
+	if (parse->explain == 2) {
+		char *message;
+		if (sql_plan_descriptor_access_kind(plan) ==
+		    SQL_PLAN_TABLE_FULL_SCAN) {
+			LogEst log_rows = sql_space_tuple_log_count(space);
+			u64 rows = log_rows == 0 ? DEFAULT_TUPLE_COUNT :
+				sqlLogEstToInt(log_rows);
+			message = sqlMPrintf("SCAN TABLE %s (~%llu rows)",
+					      space->def->name,
+					      (unsigned long long)rows);
+		} else {
+			uint32_t fieldno = primary->def->key_def->parts[0].fieldno;
+			const char *field_name = space->def->fields[fieldno].name;
+			message = sqlMPrintf("SEARCH TABLE %s USING PRIMARY KEY "
+					      "(%s=?) (~1 row)",
+					      space->def->name, field_name);
+		}
+		if (message == NULL ||
+		    sqlVdbeAddOp4(vdbe, OP_Explain, parse->iSelectId, 0, 0,
+				  message, P4_DYNAMIC) < 0)
+			goto emission_error;
+	}
 	if (primary->def->type == TREE)
 		vdbe_emit_open_cursor(parse, source->iCursor, 0, space);
 	else
