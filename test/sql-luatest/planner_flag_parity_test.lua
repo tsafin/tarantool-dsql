@@ -322,13 +322,16 @@ g.test_scalar_projection_off_on_off = function()
             box.execute(('INSERT INTO %s VALUES (1, 10), (2, NULL), (3, -4)')
                         :format(name))
             local queries = {
-                ('SELECT value + 1, id * 2 FROM %s ORDER BY id ASC'):format(name),
+                ("SELECT value + 1, id * 2, 7, 'tag', NULL FROM %s " ..
+                 'ORDER BY id ASC'):format(name),
                 ('SELECT id, value * 2 + 3 FROM %s WHERE id <= 2 ' ..
                  'ORDER BY id DESC'):format(name),
                 ('SELECT value * 2 FROM %s WHERE id = 1'):format(name),
             }
             local expected = {
-                {{11, 2}, {box.NULL, 4}, {-3, 6}},
+                {{11, 2, 7, 'tag', box.NULL},
+                 {box.NULL, 4, 7, 'tag', box.NULL},
+                 {-3, 6, 7, 'tag', box.NULL}},
                 {{2, box.NULL}, {1, 23}},
                 {{20}},
             }
