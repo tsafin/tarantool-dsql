@@ -1800,8 +1800,12 @@ DML, triggers, subprograms, non-deterministic functions.
   parent linkage under an INSERT-SELECT root, route classification, and
   successful DML execution; `sql_plan_component.test` passed 40 assertions
   and the typed-capture validator suite passed 4 tests. The changes apply
-  cleanly on top of M3.4 commit `5e63c83fe4`, but a fresh build/test of the
-  integrated tree is still required. This implementation is committed as
+  cleanly on top of M3.4 commit `5e63c83fe4`. A fresh integrated-tree Debug
+  build passed for `box` and `tarantool`; the component unit test passed all
+  40 assertions, the focused luatest file passed, and generated-mode typed
+  capture plus manifest validation passed with 41 snapshots each on memtx and
+  Vinyl. CnP and LLVM were disabled in this build, so their integrated-tree
+  capture remains unverified. This implementation is committed as
   `2a02e93e67` in the temporary shared-memory integration checkout because the
   main filesystem has no free blocks; it still must be transferred to the
   canonical branch. M3.5 remains open for full reviewed-corpus inclusion of
