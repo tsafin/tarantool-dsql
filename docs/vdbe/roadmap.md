@@ -2174,8 +2174,9 @@ DML, triggers, subprograms, non-deterministic functions.
   exact siblings. The previously failing ordinary CnP `boundary3.test.lua`
   passes on memtx and Vinyl, and the full CnP corpus retry passes. Its report
   is `/tmp/sql-tap-cnp-flag-review.24Sc0V/report.json` at source
-  `562ee7a09d870bc704b0d789c31f789ab364e0bf`. LLVM corpus validation and
-  M3.7 feature acceptance remain open.
+  `562ee7a09d870bc704b0d789c31f789ab364e0bf`. LLVM corpus validation is
+  recorded below; M3.7 feature acceptance remains open pending M3.5's
+  producer gate and the remaining flag-acceptance criteria.
   The LLVM-mode attempt originally exposed API/build blockers, not a parity
   result. The server now builds with Clang 19 / LLVM 19 / CnP enabled in a
   `/dev/shm` build directory, avoiding the full root filesystem. JIT calls and
