@@ -506,6 +506,11 @@ them.
   legacy planner loops may carry an invalid nested key-definition pointer, and
   that field is not owned by the replay capture record. Focused
   `colname.test.lua` capture passes on both engines after this change.
+  Final-path storage is now allocated only when snapshot EXPLAIN captures a
+  candidate list, rather than reserving 64 records in every VDBE; cache-size
+  estimation includes the dynamically allocated capacity. This restores the
+  prepared-statement footprint for ordinary statements while retaining exact
+  replay capture. Both local and remote `prepared.test.lua` variants pass.
   *parallel: yes; selector prototype is independent of live producer capture.*
 - [x] **M1.5** Developer-only `sql_replay` API consumes a v5 snapshot artifact
   (and retains v4 read compatibility),
@@ -1306,6 +1311,12 @@ DML, triggers, subprograms, non-deterministic functions.
   evaluate UNKNOWN and are rejected) and an OR of two IN leaves. It passes on
   memtx and Vinyl; generated/CnP/LLVM/repeat captures compare exactly at 655
   snapshots per engine.
+  The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
+  residuals, mixed primary-key/residual predicates, and bounded boolean
+  filters, while parameterized predicates remain an explicit
+  `fallback / UNSUPPORTED_FILTER` counter case. A full local Debug SQL-suite
+  run passes 136 tests with 2 disabled and no failures; both memtx and Vinyl
+  preflight variants pass.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
