@@ -2815,6 +2815,7 @@ sqlVdbeClearObject(struct Vdbe *p)
 	sql_xfree(p->zSql);
 	sql_xfree(p->planner_replay_inputs);
 	sql_xfree(p->planner_components);
+	sql_xfree(p->planner_final_paths);
 }
 
 /*

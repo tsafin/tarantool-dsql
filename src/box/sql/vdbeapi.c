@@ -253,6 +253,8 @@ size_t
 sql_stmt_est_size(const struct Vdbe *v)
 {
 	size_t size = sizeof(*v);
+	size += sizeof(*v->planner_final_paths) *
+		v->planner_final_path_capacity;
 	/* Names and types of result set columns */
 	for (int i = 0; i < v->nResColumn; ++i)
 		size += sql_metadata_size(&v->metadata[i]);

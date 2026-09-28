@@ -133,6 +133,15 @@ sql_path_capture_final_candidates(WherePath *paths, int count,
 	vdbe->planner_selected_final_path_fingerprint[0] = '\0';
 	if (count <= 0 || count > SQL_PLANNER_FINAL_PATH_MAX)
 		return;
+	if ((uint32_t)count > vdbe->planner_final_path_capacity) {
+		size_t size = (size_t)count * sizeof(*vdbe->planner_final_paths);
+		struct sql_planner_final_path_capture *paths =
+			sql_xrealloc(vdbe->planner_final_paths, size);
+		if (paths == NULL)
+			return;
+		vdbe->planner_final_paths = paths;
+		vdbe->planner_final_path_capacity = count;
+	}
 	for (int i = 0; i < count; i++) {
 		struct sql_planner_final_path_capture *dest =
 			&vdbe->planner_final_paths[i];

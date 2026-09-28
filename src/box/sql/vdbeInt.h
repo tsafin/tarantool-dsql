@@ -344,9 +344,10 @@ struct Vdbe {
 	/* generated, dominated, truncated, and retained candidate paths. */
 	uint64_t planner_path_metrics[4];
 	/* Complete post-beam one-relation paths from the final solver pass. */
-	struct sql_planner_final_path_capture
-		planner_final_paths[SQL_PLANNER_FINAL_PATH_MAX];
+	/* Allocated only for snapshot EXPLAINs that capture final paths. */
+	struct sql_planner_final_path_capture *planner_final_paths;
 	uint32_t planner_final_path_count;
+	uint32_t planner_final_path_capacity;
 	enum sql_planner_final_path_status planner_final_path_status;
 	char planner_selected_final_path_fingerprint[17];
 	/* Serialized detached SQL input, set only when the whole capture validates. */
