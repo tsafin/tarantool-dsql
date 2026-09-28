@@ -27,7 +27,7 @@ assert(err == nil and mixed_summary.rows[1][3] ~= 'new_planner')
 assert(mixed_summary.rows[2][3] == 'UNSUPPORTED_EXPRESSION')
 nonprefix_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]] .. nonprefix_sql)
 assert(err == nil and nonprefix_summary.rows[1][3] ~= 'new_planner')
-assert(nonprefix_summary.rows[2][3] == 'UNSUPPORTED_EXPRESSION')
+assert(nonprefix_summary.rows[2][3] == 'INVALID_LOGICAL_PLAN')
 asc_prefix_on = box.execute(asc_prefix_sql).rows
 asc_full_on = box.execute(asc_full_sql).rows
 desc_full_on = box.execute(desc_full_sql).rows

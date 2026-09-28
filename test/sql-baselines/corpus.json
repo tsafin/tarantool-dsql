@@ -25639,6 +25639,39 @@
       }
     },
     {
+      "test": "sql/planner_composite_pk_order.test.lua",
+      "engines": ["memtx", "vinyl"],
+      "category": "planner_diagnostic",
+      "reason": "Post-anchor feature regression asserts planner route and off/on row parity in one test; it intentionally mutates the planner session setting and is not a fixed-mode corpus capture.",
+      "introduced_after_baseline": true,
+      "evidence": {
+        "memtx": {
+          "normal_runner": {
+            "status": "pass",
+            "exit_code": 0,
+            "runner": "test/test-run.py",
+            "binary": "build-clang19/src/tarantool"
+          },
+          "classification": {
+            "status": "reviewed_exclusion",
+            "reason": "The fixture is dedicated route/flag acceptance coverage and mutates sql_new_planner_single_table; it cannot run in one fixed-mode capture."
+          }
+        },
+        "vinyl": {
+          "normal_runner": {
+            "status": "pass",
+            "exit_code": 0,
+            "runner": "test/test-run.py",
+            "binary": "build-clang19/src/tarantool"
+          },
+          "classification": {
+            "status": "reviewed_exclusion",
+            "reason": "The fixture is dedicated route/flag acceptance coverage and mutates sql_new_planner_single_table; it cannot run in one fixed-mode capture."
+          }
+        }
+      }
+    },
+    {
       "test": "sql/persistency.test.lua",
       "engines": [
         "memtx"
