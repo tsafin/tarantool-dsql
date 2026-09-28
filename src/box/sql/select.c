@@ -5768,6 +5768,8 @@ static bool sql_select_has_nondeterministic_func(Select *select);
 static bool sql_select_has_func(Select *select);
 static bool sql_select_has_collation(Select *select);
 static bool sql_select_has_unsupported_expr(Parse *parse, Select *select);
+static bool sql_select_has_unsupported_projection_expr(Parse *parse,
+						       Select *select);
 
 static void
 sql_select_record_fallback(Parse *parse, Select *select, SelectDest *dest,
@@ -6019,6 +6021,37 @@ sql_select_has_unsupported_expr(Parse *parse, Select *select)
 	return !supported;
 }
 
+static bool
+sql_select_has_unsupported_projection_expr(Parse *parse, Select *select)
+{
+	if (parse->nTab <= 0 || select->pSrc == NULL ||
+	    select->pSrc->nSrc != 1 || select->pEList == NULL)
+		return false;
+	size_t cursor_count = (size_t)parse->nTab;
+	uint32_t *cursor_to_relation = malloc(cursor_count *
+					      sizeof(*cursor_to_relation));
+	if (cursor_to_relation == NULL)
+		return false;
+	for (size_t i = 0; i < cursor_count; ++i)
+		cursor_to_relation[i] = UINT32_MAX;
+	int cursor = select->pSrc->a[0].iCursor;
+	if (cursor < 0 || (size_t)cursor >= cursor_count) {
+		free(cursor_to_relation);
+		return true;
+	}
+	cursor_to_relation[cursor] = 0;
+	bool supported = true;
+	for (int i = 0; i < select->pEList->nExpr; ++i) {
+		if (!sql_expr_is_canonical(select->pEList->a[i].pExpr,
+					   cursor_to_relation, cursor_count)) {
+			supported = false;
+			break;
+		}
+	}
+	free(cursor_to_relation);
+	return !supported;
+}
+
 static void
 sql_select_record_preopt_fallback(Parse *parse, Select *select)
 {
@@ -6185,7 +6218,7 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		sql_physical_table_scan_from_select(select, &estimate, &reason);
 	if (plan == NULL) {
 		if (reason == SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN &&
-		    sql_select_has_unsupported_expr(parse, select)) {
+		    sql_select_has_unsupported_projection_expr(parse, select)) {
 			sql_select_record_fallback_reason(parse,
 						  SQL_LOGICAL_REJECT_EXPRESSION);
 			return 0;
