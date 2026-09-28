@@ -2132,9 +2132,18 @@ DML, triggers, subprograms, non-deterministic functions.
   results remain on the legacy executor when rejected, and strict semantic
   parity passes. The last two classes combine multiple unsupported features;
   choosing filter over aggregate/expression is a fallback-reason precedence
-  change, not a result change. Keep those reason-only classes review-gated
-  until M3.5 defines and tests precedence for queries with multiple rejection
-  causes. The report is `/tmp/sql-tap-flag-review.BVkQf6/report.json`; this is
+  change, not a result change. `planner_flag_fallback_parity_test.lua` now
+  pins that precedence for representative `COUNT(*)` + unsupported-filter and
+  SCALAR/BLOB-filter queries: flag-off retains the legacy aggregate or
+  expression reason, while flag-on reports the physical producer's
+  `UNSUPPORTED_FILTER`; both retain legacy execution and identical rows.
+  Exact per-reason counter deltas pass on memtx and Vinyl under generated and
+  CnP dispatch. A separate arithmetic-filter case also pins the off
+  `current_where_c` versus on `fallback / UNSUPPORTED_FILTER` transition and
+  counter behavior. This dispositions the observed reason-only classes at
+  representative runtime boundaries, not every query in those corpus counts
+  or the universal M3.5 gate. The report is
+  `/tmp/sql-tap-flag-review.BVkQf6/report.json`; this is
   generated-mode inventory, not by itself CnP/LLVM corpus acceptance. A full
   CnP fixed-flag off/on/off run now has matching route counts and the same
   transition totals, with 47,946 memtx / 37,990 Vinyl queries, zero semantic
@@ -2144,8 +2153,8 @@ DML, triggers, subprograms, non-deterministic functions.
   exact siblings. The previously failing ordinary CnP `boundary3.test.lua`
   passes on memtx and Vinyl, and the full CnP corpus retry passes. Its report
   is `/tmp/sql-tap-cnp-flag-review.24Sc0V/report.json` at source
-  `562ee7a09d870bc704b0d789c31f789ab364e0bf`. LLVM corpus validation, the two
-  reason-only precedence classes, and M3.7 feature acceptance remain open.
+  `562ee7a09d870bc704b0d789c31f789ab364e0bf`. LLVM corpus validation and
+  M3.7 feature acceptance remain open.
   The LLVM-mode attempt exposed two build issues, neither a parity result.
   With `ENABLE_SQL_JIT=ON` and CnP off, `sql_jit_bitcode` now compiles and the
   sorter template translation unit compiles in both CnP-on and CnP-off
