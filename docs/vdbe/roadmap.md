@@ -2046,13 +2046,13 @@ DML, triggers, subprograms, non-deterministic functions.
   entries; ordinary M0 capture/inventory remains unchanged. Both engines
   passed semantic off/on parity and exact off/off repeatability across all
   accepted SQL-TAP tests: 47,946 memtx queries and 37,990 Vinyl queries.
-  Enabled captures reported 1,710 / 1,682 `new_planner` statements. The
-  comparison isolated 24 / 23 EXPLAIN-row-only differences from executed
-  result parity. Eight route/reason transition classes remain explicitly
-  review-gated (6,078 memtx / 4,044 Vinyl query transitions), including
-  supported adoption, newly explicit filter/relation fallback reasons, and
-  multi-component summary changes; see the emitted `planner_flag_ab.py`
-  report for representative query identities. `sql_reverse_unordered_selects`
+  A fresh generated-mode audit at source `3d9429c3e9e370da26bf65b2d62ba97d5c8dc741`
+  reports 1,719 / 1,691 enabled `new_planner` statements and 24 EXPLAIN-row-
+  only differences per engine. Its seven route/reason transition classes
+  total 6,078 memtx / 4,044 Vinyl query transitions: five classes now have
+  evidence-backed structural dispositions, while two reason-only shifts
+  remain gated on fallback precedence; the detailed inventory follows below.
+  `sql_reverse_unordered_selects`
   stays on legacy codegen until reverse-order intent is represented in the
   descriptor. Upper-only ascending bounds now scan from the beginning and
   stop at the correct strict/inclusive boundary, covered by `in1.test.lua`.
@@ -2089,8 +2089,8 @@ DML, triggers, subprograms, non-deterministic functions.
   its asserted `box.stat().EXECUTE` count. Its ordinary reviewed M0 capture
   remains unchanged. Across the three suites, semantic off/on comparison and
   deterministic off/off repeatability passed wherever fixed-mode capture was
-  supported. Route transitions remain review-gated (not inferred safe from
-  result equality), and no CI parity gate consumes these reports yet.
+  supported. Generated SQL-TAP still needs CnP/LLVM corpus validation and no
+  CI parity gate consumes these reports yet.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
