@@ -129,13 +129,9 @@ box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
 ...
 min_inclusive_enabled = capture_signed_boundary(min_inclusive_sql, 'new_planner', nil, 'on min inclusive')
 ---
-- error: '[string "function capture_signed_boundary(sql, route, ..."]:1: on min inclusive:
-    unexpected route fallback'
 ...
 min_exclusive_enabled = capture_signed_boundary(min_exclusive_sql, 'new_planner', nil, 'on min exclusive')
 ---
-- error: '[string "function capture_signed_boundary(sql, route, ..."]:1: on min exclusive:
-    unexpected route fallback'
 ...
 max_inclusive_enabled = capture_signed_boundary(max_inclusive_sql, 'new_planner', nil, 'on max inclusive')
 ---
@@ -149,13 +145,11 @@ assert(#min_inclusive_disabled == 1 and min_inclusive_disabled[1][1] == -9223372
 ...
 assert(#min_inclusive_enabled == 1 and min_inclusive_enabled[1][1] == min_inclusive_disabled[1][1])
 ---
-- error: '[string "return assert(#min_inclusive_enabled == 1 and..."]:1: attempt to
-    get length of global ''min_inclusive_enabled'' (a nil value)'
+- true
 ...
 assert(#min_exclusive_disabled == 0 and #min_exclusive_enabled == 0)
 ---
-- error: '[string "return assert(#min_exclusive_disabled == 0 an..."]:1: attempt to
-    get length of global ''min_exclusive_enabled'' (a nil value)'
+- true
 ...
 assert(#max_inclusive_disabled == 1 and tostring(max_inclusive_disabled[1][1]) == '9223372036854775807ULL')
 ---

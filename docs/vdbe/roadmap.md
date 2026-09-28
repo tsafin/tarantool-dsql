@@ -1304,7 +1304,13 @@ DML, triggers, subprograms, non-deterministic functions.
   MsgPack key encoding (and an assertion for the max-exclusive seek). Both
   bounded-end and seek-key registers now encode nonnegative wide values as
   `P4_UINT64`, matching the existing point-key path; negative wide bounds
-  remain `P4_INT64`. The VDBE lowering unit and focused SQL regression pass.
+  remain `P4_INT64`. A follow-up endpoint specialization lowers
+  `id <= INT64_MIN` as a point lookup and `id < INT64_MIN` as an empty result
+  for a single-part signed primary key; it avoids requiring a descending scan
+  for unordered endpoint queries and leaves composite-prefix semantics
+  unchanged. The corrected SQL golden and test pass on memtx and Vinyl. Typed
+  generated/CnP/LLVM/repeat capture validates all 34 statements per engine;
+  every dispatcher and repeat comparison is exact (34/34).
   Leading INTEGER/UNSIGNED parts of composite TREE primary keys now support
   equality-prefix scans (returning every row with that prefix), one-sided and
   two-sided literal ranges, and compatible ASC/DESC key-prefix ordering. The
@@ -1650,9 +1656,11 @@ DML, triggers, subprograms, non-deterministic functions.
   assertions or infer a route class for VALUES.
 
   **Route-ledger scope decision (2026-09-27): resolved.** M3.5 uses every
-  SELECT component as its coverage unit: root, recursive compound/CTE/subquery,
-  direct multi-row VALUES, and direct OP_Count components. Each component
-  needs an identity, parent and producer role, and route result. Direct
+  SELECT component as its coverage unit across every `sqlSelect()` producer,
+  including top-level root, recursive compound/CTE/subquery, direct multi-row
+  VALUES, direct OP_Count, INSERT-SELECT, view-DML materialization, and trigger
+  program producers. Each component needs an identity, parent and producer
+  role, and route result. Direct
   emitters are explicit route classes, not fallback errors. Statement summary
   mirrors a uniform root route; if component routes are mixed it reports
   `mixed` with no fallback reason. Component records are authoritative. The
@@ -1776,6 +1784,17 @@ DML, triggers, subprograms, non-deterministic functions.
   snapshots, now explicitly recorded in the full-corpus policy with normal
   runner evidence for both engines. The reviewed inventory has 402 tests,
   588 included pairs, 216 excluded pairs, and no pending engine decisions.
+
+  **SQL-language capture sweep (2026-09-28).** The local single-child audit
+  attempted generated typed capture for all 66 `sql/*.test.lua` files across
+  both engines: 89 of 132 test/engine runs were accepted and 43 failed capture
+  or normal-runner verification, with failures concentrated in persistence,
+  DDL/protocol, multi-child, and specialized runner fixtures. The planner
+  signed-boundary fixture initially failed because its checked-in `.result`
+  still expected the earlier `INT64_MIN` fallback; after the endpoint route
+  fix and golden update it passes on both engines and in generated/CnP/LLVM/
+  repeat captures. This is a broad triage report, not a clean SQL-corpus
+  acceptance; it is retained locally at `/dev/shm/m3sql-normal-report.json`.
 
   **Extended timeout triage (2026-09-28).** A fresh standalone retry with a
   60-second per-file limit accepted `in2`, `select2`, and `select9` on both

@@ -688,6 +688,24 @@ invalid_predicate:
 	return NULL;
 predicate_parsed:
 	;
+	/* The signed minimum is a useful endpoint exception for one-sided
+	 * predicates. `key <= INT64_MIN` is exactly a point lookup and
+	 * `key < INT64_MIN` is empty. Treat these as such so an unordered query
+	 * does not need a descending scan solely to terminate at the minimum key.
+	 * Keep composite leading-part predicates as ranges: those can match more
+	 * than one tuple.
+	 */
+	if (pk->part_count == 1 && !range_unsigned && has_range_key &&
+	    !has_range_end_key && !has_prefix_scan) {
+		if (range_op == SQL_PLAN_LE && range_key == INT64_MIN) {
+			has_point_key = true;
+			point_key = INT64_MIN;
+			has_range_key = false;
+		} else if (range_op == SQL_PLAN_LT && range_key == INT64_MIN) {
+			force_empty = true;
+			has_range_key = false;
+		}
+	}
 	if (force_empty) {
 		finalize = (struct sql_plan_finalize) {
 			.kind = SQL_PLAN_LIMIT,
