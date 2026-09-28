@@ -1792,10 +1792,18 @@ DML, triggers, subprograms, non-deterministic functions.
   and the INSERT-SELECT producer hint is present before trigger compilation.
   Nevertheless the top-level snapshot has no planner ledger for a standalone
   trigger SELECT, and the combined INSERT-SELECT case lacks its expected root.
-  The parse-mode propagation hypothesis is therefore ruled out; attachment,
-  lifetime, or snapshot-finalization ownership remains unresolved. The
-  experimental implementation is uncommitted and unvalidated, so it is not
-  included in the branch. Trigger producers remain an explicit M3.5 blocker.
+  The parse-mode propagation hypothesis is therefore ruled out. The ownership
+  fix attaches registration and route updates to the top-level VDBE, uses one
+  monotonic SELECT ID sequence across trigger sub-parses, and assigns explicit
+  `trigger_select_root` / `trigger_select` roles. The focused INSERT-trigger
+  luatest verifies standalone trigger ownership, parent linkage under an
+  INSERT-SELECT root, route classification, and successful DML execution;
+  `sql_plan_component.test` passes 40 assertions and the typed-capture
+  validator suite passes 4 tests. This implementation is committed as
+  `2a02e93e67` in the temporary shared-memory integration checkout because the
+  main filesystem has no free blocks; it still must be transferred to the
+  canonical branch. M3.5 remains open for DELETE-view runtime/capture coverage
+  and the complete reviewed-corpus producer/route inventory.
 
   The updated INSERT-SELECT/view-DML focused luatest also passes the typed
   per-engine capture audit in generated, CnP, LLVM, and generated-repeat
