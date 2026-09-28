@@ -58,10 +58,14 @@ def capture(args):
     else:
         env["SQL_BASELINE_HOOK"] = str(hook)
     with tempfile.TemporaryDirectory(prefix="lt-") as vardir:
+        # test-run removes its --vardir on startup. Keep that disposable path
+        # below TemporaryDirectory's root so its cleanup still has a parent
+        # directory to remove after the runner exits.
+        test_run_vardir = Path(vardir) / "vardir"
         command = [sys.executable, str(runner_repo / "test/test-run.py"),
                    "--builddir", str(binary.parent.parent),
                    "--executable", str(binary),
-                   "--vardir", vardir, "--suite", args.suite,
+                   "--vardir", str(test_run_vardir), "--suite", args.suite,
                    "-j", "-1", "--force"]
         if args.suite == "sql":
             command += ["--conf", args.engine]
