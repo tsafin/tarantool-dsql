@@ -906,7 +906,8 @@ vdbe_op_column_typed_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem,
 	}
 	if (pDest->type == MEM_TYPE_NULL)
 		goto out;
-	assert(expected_type != FIELD_TYPE_NUMBER);
+	if (expected_type == FIELD_TYPE_NUMBER)
+		pDest->flags |= MEM_Number;
 out:
 	REGISTER_TRACE(p, pOp->p3, pDest);
 	return 0;
