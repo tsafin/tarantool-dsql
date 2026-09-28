@@ -2135,7 +2135,17 @@ DML, triggers, subprograms, non-deterministic functions.
   change, not a result change. Keep those reason-only classes review-gated
   until M3.5 defines and tests precedence for queries with multiple rejection
   causes. The report is `/tmp/sql-tap-flag-review.BVkQf6/report.json`; this is
-  generated-mode inventory, not CnP/LLVM corpus acceptance. M3.7 remains open.
+  generated-mode inventory, not by itself CnP/LLVM corpus acceptance. A full
+  CnP fixed-flag off/on/off run now has matching route counts and the same
+  transition totals, with 47,946 memtx / 37,990 Vinyl queries, zero semantic
+  or off-repeat diffs, and 24 / 23 EXPLAIN-row-only differences. It first
+  exposed a CnP-only `FIELD_TYPE_NUMBER` assertion in the column offset-slot
+  fast path; the fast path now applies `MEM_Number`, matching its typed and
+  exact siblings. The previously failing ordinary CnP `boundary3.test.lua`
+  passes on memtx and Vinyl, and the full CnP corpus retry passes. Its report
+  is `/tmp/sql-tap-cnp-flag-review.24Sc0V/report.json` at source
+  `562ee7a09d870bc704b0d789c31f789ab364e0bf`. LLVM corpus validation, the two
+  reason-only precedence classes, and M3.7 feature acceptance remain open.
   *parallel: no*.
 
 ---
