@@ -615,8 +615,10 @@ format approval is implied.
   `sql_stats_analyze_budget.h` and `sql_stats_sampling.md`; the production
   analyzer consumes these per-index and aggregate ceilings. The focused
   `analyze_volatile_test.lua` runtime suite and `sql_stats_collection.test`
-  unit target pass against the current build. The volatile SQL integration
-  test injects an
+  unit target pass against the current build. A TEST_BUILD regression now
+  exceeds the 256-index-request ceiling through bare discovery after first
+  installing a valid snapshot; ANALYZE fails before publication and the prior
+  snapshot remains unchanged. The volatile SQL integration test injects an
   unsupported R-tree index into both named and bare collection requests and
   verifies each failure leaves the installed snapshot unchanged; the TEST_BUILD
   runtime suite passes locally.

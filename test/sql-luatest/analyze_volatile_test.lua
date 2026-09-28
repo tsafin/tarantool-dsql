@@ -142,3 +142,73 @@ g.test_bare_and_named_analyze_publish_atomically = function()
     t.assert_equals(row_counts[result.memtx_id], 9)
     t.assert_equals(row_counts[result.vinyl_id], 8)
 end
+
+g.test_index_request_budget_failure_preserves_published_snapshot = function()
+    local result = g.server:exec(function()
+        local adapter = package.loaded.sql_stats_snapshot_test
+        if adapter == nil then
+            return {test_wrapper_unavailable = true}
+        end
+        adapter.clear()
+        local seed = box.schema.space.create('analyze_budget_seed', {
+            engine = 'memtx',
+        })
+        seed:format({{name = 'id', type = 'unsigned'}})
+        seed:create_index('primary', {
+            parts = {{field = 'id', type = 'unsigned'}},
+        })
+        seed:insert({1})
+        local seed_result, seed_error = box.execute(
+            [[ANALYZE analyze_budget_seed]])
+        assert(seed_error == nil and seed_result ~= nil,
+               seed_error and seed_error.message or 'seed ANALYZE failed')
+        local before = adapter.state()
+
+        -- The fixed production ceiling is 256 index requests. Create 257
+        -- one-index relations so the bare discovery phase exhausts it before
+        -- sampling or publishing any candidate.
+        local spaces = {}
+        for i = 1, 257 do
+            local name = string.format('analyze_budget_%03d', i)
+            local space = box.schema.space.create(name, {engine = 'memtx'})
+            space:format({{name = 'id', type = 'unsigned'}})
+            space:create_index('primary', {
+                parts = {{field = 'id', type = 'unsigned'}},
+            })
+            spaces[i] = space
+        end
+        local analyze_ok, analyze_result, analyze_error = pcall(box.execute,
+            [[ANALYZE]])
+        local after = adapter.state()
+        local unchanged = before.relation_count == after.relation_count
+        if unchanged then
+            for i, relation in ipairs(before.relations) do
+                local other = after.relations[i]
+                if other == nil or relation.space_id ~= other.space_id or
+                   relation.row_count ~= other.row_count then
+                    unchanged = false
+                    break
+                end
+            end
+        end
+        for _, space in ipairs(spaces) do
+            space:drop()
+        end
+        seed:drop()
+        adapter.clear()
+        return {
+            test_wrapper_unavailable = false,
+            failed = not analyze_ok or analyze_result == nil and
+                analyze_error ~= nil,
+            unchanged = unchanged,
+            relation_count = before.relation_count,
+        }
+    end)
+
+    if result.test_wrapper_unavailable then
+        t.skip('volatile ANALYZE runtime test requires a TEST_BUILD server')
+    end
+    t.assert_equals(result.failed, true)
+    t.assert_equals(result.unchanged, true)
+    t.assert_equals(result.relation_count, 1)
+end
