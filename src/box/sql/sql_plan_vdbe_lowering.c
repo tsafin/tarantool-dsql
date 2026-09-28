@@ -238,7 +238,7 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 	    in->access.kind != SQL_PLAN_PK_PREFIX_SCAN ||
 	    (in->access.direction != SQL_PLAN_ASC &&
 	     in->access.direction != SQL_PLAN_DESC) ||
-	    (descending && (!has_range_key || !has_upper)) ||
+	    (descending && !has_range_key) ||
 	    in->access.prefix_key_parts == NULL ||
 	    in->access.prefix_key_part_count == 0 ||
 	    in->access.prefix_key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
@@ -405,13 +405,17 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 	int seek_key_reg = key_reg;
 	int seek_key_count = key_count;
 	if (descending) {
-		/* Descending suffix ranges start at their upper endpoint. */
-		seek_op = has_range_end ?
+		/* Bounded/upper-only descending ranges start at their upper
+		 * endpoint. For a lower-only range, seek to the end of the
+		 * equality-prefix and let the prefix and lower-bound guards stop
+		 * the reverse walk. */
+		seek_op = !has_upper ? OP_SeekLE : has_range_end ?
 			(in->access.integer_range_end_op == SQL_PLAN_LT ?
 			 OP_SeekLT : OP_SeekLE) :
 			(in->access.integer_range_op == SQL_PLAN_LT ?
 			 OP_SeekLT : OP_SeekLE);
-		seek_key_count++;
+		if (has_upper)
+			seek_key_count++;
 	} else {
 		seek_op = has_lower ?
 			(in->access.integer_range_op == SQL_PLAN_GT ? OP_SeekGT :
