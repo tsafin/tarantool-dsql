@@ -82,6 +82,11 @@ is_supported_boolean_filter(const struct Expr *expr, int cursor,
 	if ((expr->op == TK_ISNULL || expr->op == TK_NOTNULL) &&
 	    expr->pRight == NULL)
 		return is_source_column(expr->pLeft, cursor, field_count);
+	if (expr->op == TK_BETWEEN && expr->pRight == NULL &&
+	    expr->x.pList != NULL && expr->x.pList->nExpr == 2 &&
+	    is_source_column(expr->pLeft, cursor, field_count))
+		return is_supported_filter_constant(expr->x.pList->a[0].pExpr) &&
+			is_supported_filter_constant(expr->x.pList->a[1].pExpr);
 	if (expr->op != TK_EQ && expr->op != TK_NE && expr->op != TK_GT &&
 	    expr->op != TK_GE && expr->op != TK_LT && expr->op != TK_LE)
 		return false;
@@ -465,6 +470,26 @@ sql_physical_table_scan_from_select(
 		size_t expr_count = 0;
 		for (size_t i = 0; i < term_count; ++i) {
 			const struct Expr *term = terms[i];
+			if (term->op == TK_BETWEEN &&
+			    is_supported_boolean_filter(term, source->iCursor,
+							source->space->def->field_count, 0) &&
+			    is_source_column(term->pLeft, source->iCursor,
+					     source->space->def->field_count)) {
+				bool is_pk_column = false;
+				for (uint32_t part = 0; part < pk->part_count; ++part)
+					is_pk_column |= (uint32_t)term->pLeft->iColumn ==
+						pk->parts[part].fieldno;
+				if (!is_pk_column) {
+					if (filter_count == SQL_PLAN_FILTER_MAX)
+						goto invalid_predicate;
+					filters[filter_count] = (struct sql_plan_filter) {
+						.op = SQL_PLAN_FILTER_EXPRESSION,
+						.selectivity = 0.5,
+					};
+					filter_expressions[filter_count++] = term;
+					continue;
+				}
+			}
 			if (term->op != TK_BETWEEN) {
 				if (expr_count == SQL_PLAN_POINT_KEY_PART_MAX)
 					goto invalid_predicate;

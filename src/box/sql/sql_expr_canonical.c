@@ -205,6 +205,31 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 		return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
 			SQL_EXPR_CANONICAL_NOMEM;
 	}
+	if (expr->op == TK_BETWEEN) {
+		if (expr->pLeft == NULL || expr->pRight != NULL ||
+		    expr->x.pList == NULL || expr->x.pList->nExpr != 2 ||
+		    expr->x.pList->a[0].pExpr == NULL ||
+		    expr->x.pList->a[1].pExpr == NULL ||
+		    ExprHasProperty(expr, EP_xIsSelect))
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		if (!append(b, "between(", 8))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		const struct Expr *parts[] = {
+			expr->pLeft,
+			expr->x.pList->a[0].pExpr,
+			expr->x.pList->a[1].pExpr,
+		};
+		for (size_t i = 0; i < sizeof(parts) / sizeof(parts[0]); ++i) {
+			if (i != 0 && !append(b, ",", 1))
+				return SQL_EXPR_CANONICAL_NOMEM;
+			enum sql_expr_canonical_reject rc = encode(parts[i], b,
+				depth + 1, cursor_to_relation, cursor_count);
+			if (rc != SQL_EXPR_CANONICAL_OK)
+				return rc;
+		}
+		return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
+			SQL_EXPR_CANONICAL_NOMEM;
+	}
 	/* Expr stores a source token, not a stable resolved function identity. */
 	const char *op = operator_name(expr->op);
 	if (op == NULL)

@@ -4,7 +4,7 @@
 #include "box/sql/sql_expr_canonical.h"
 #include "unit.h"
 static void test_supported(void) {
-	plan(11); header();
+	plan(12); header();
 	const uint32_t cursor_map[] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, 0};
 	struct Expr col = {.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=3,.iColumn=1};
 	struct Expr a = {.op=TK_INTEGER,.flags=EP_Resolved|EP_IntValue}; a.u.iValue=7;
@@ -41,6 +41,14 @@ static void test_supported(void) {
 	struct Expr f2={.op=TK_FLOAT,.flags=EP_Resolved,.u.zToken="1e0"};
 	struct Expr blob={.op=TK_BLOB,.flags=EP_Resolved,.u.zToken="X'A0Ff'"};
 	struct Expr boolean={.op=TK_TRUE,.flags=EP_Resolved};
+	struct Expr bound_low={.op=TK_STRING,.flags=EP_Resolved,.u.zToken="a"};
+	struct Expr bound_high={.op=TK_STRING,.flags=EP_Resolved,.u.zToken="z"};
+	struct ExprList_item between_items[] = {
+		{.pExpr = &bound_low}, {.pExpr = &bound_high},
+	};
+	struct ExprList between_list={.nExpr=2,.a=between_items};
+	struct Expr between={.op=TK_BETWEEN,.flags=EP_Resolved,
+		.pLeft=&col,.x.pList=&between_list};
 	char *ns=sql_expr_canonicalize(&nul,NULL,0,NULL), *ss=sql_expr_canonicalize(&str,NULL,0,NULL);
 	char *fs=sql_expr_canonicalize(&f,NULL,0,NULL), *fs2=sql_expr_canonicalize(&f2,NULL,0,NULL);
 	ok(ns && strcmp(ns,"null")==0,"NULL encoded");
@@ -50,11 +58,15 @@ static void test_supported(void) {
 	ok(bs && strcmp(bs,"blob(a0ff)")==0,"blob hex canonicalized case-insensitively");
 	char *bools=sql_expr_canonicalize(&boolean,NULL,0,NULL);
 	ok(bools && strcmp(bools,"bool(true)")==0,"boolean literal canonicalized");
-	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);
+	char *between_s=sql_expr_canonicalize(&between,cursor_map,4,NULL);
+	ok(between_s && strcmp(between_s,
+		"between(col(r0,c1),str(61),str(7a))")==0,
+	   "BETWEEN expression and bounds canonicalized");
+	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);free(between_s);
 	footer(); check_plan();
 }
 static void test_rejects(void) {
-	plan(8); header(); enum sql_expr_canonical_reject r;
+	plan(9); header(); enum sql_expr_canonical_reject r;
 	struct Expr fn={.op=TK_FUNCTION,.flags=EP_Resolved|EP_ConstFunc,.u.zToken="abs"};
 	ok(!sql_expr_canonicalize(&fn,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,"function identity/effects unproven");
 	struct Expr j={.op=TK_COLUMN_REF,.flags=EP_Resolved|EP_FromJoin,.iTable=0,.iColumn=1};
@@ -73,6 +85,9 @@ static void test_rejects(void) {
 	struct Expr bad_blob={.op=TK_BLOB,.flags=EP_Resolved,.u.zToken="X'0G'"};
 	ok(!sql_expr_canonicalize(&bad_blob,NULL,0,&r)&&
 	   r==SQL_EXPR_CANONICAL_MALFORMED,"malformed blob hex rejected");
+	struct Expr malformed_between={.op=TK_BETWEEN,.flags=EP_Resolved};
+	ok(!sql_expr_canonicalize(&malformed_between,NULL,0,&r)&&
+	   r==SQL_EXPR_CANONICAL_MALFORMED,"malformed BETWEEN rejected");
 	footer(); check_plan();
 }
 int main(void) { test_supported(); test_rejects(); return 0; }
