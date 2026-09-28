@@ -386,8 +386,7 @@ sql_physical_table_scan_from_select(
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
 			if (term->op == TK_ISNULL || term->op == TK_NOTNULL) {
-				if (null_filter_count == SQL_PLAN_FILTER_MAX ||
-				    term->pLeft == NULL ||
+				if (term->pLeft == NULL ||
 				    term->pRight != NULL ||
 				    term->pLeft->op != TK_COLUMN_REF ||
 				    term->pLeft->pLeft != NULL ||
@@ -401,7 +400,17 @@ sql_physical_table_scan_from_select(
 				for (uint32_t part = 0; part < pk->part_count; ++part)
 					is_pk_column |= (uint32_t)term->pLeft->iColumn ==
 						pk->parts[part].fieldno;
-				if (is_pk_column)
+				if (is_pk_column) {
+					/* Primary-key fields are never NULL, so IS NOT NULL is
+					 * redundant. Keep IS NULL fail-closed here: its empty-result
+					 * simplification is not represented by the conjunction's
+					 * candidate route yet. */
+					if (term->op == TK_ISNULL)
+						goto invalid_predicate;
+					primary_key_not_null = true;
+					continue;
+				}
+				if (null_filter_count == SQL_PLAN_FILTER_MAX)
 					goto invalid_predicate;
 				null_filters[null_filter_count++] =
 					(struct sql_plan_filter) {
@@ -416,7 +425,8 @@ sql_physical_table_scan_from_select(
 			exprs[bound_count++] = term;
 		}
 		expr_count = bound_count;
-		if (expr_count == 0 && null_filter_count == 0)
+		if (expr_count == 0 && null_filter_count == 0 &&
+		    !primary_key_not_null)
 			goto invalid_predicate;
 		if (expr_count == 0)
 			goto predicate_parsed;

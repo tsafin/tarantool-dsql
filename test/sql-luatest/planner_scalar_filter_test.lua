@@ -45,6 +45,31 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {},
                 },
                 {
+                    sql = ('SELECT a, b FROM %s WHERE a IS NOT NULL AND ' ..
+                           'a = 1 AND b = 10 AND v IS NULL')
+                          :format(composite_name),
+                    expected = {{1, 10}},
+                },
+                {
+                    sql = ('SELECT a, b FROM %s WHERE a IS NULL AND ' ..
+                           'a = 1 AND b = 10'):format(composite_name),
+                    expected = {},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FILTER',
+                },
+                {
+                    sql = ('SELECT a, b FROM %s WHERE a IS NOT NULL AND ' ..
+                           'b IS NOT NULL ORDER BY a, b'):format(composite_name),
+                    expected = {{1, 10}, {1, 11}, {2, 20}},
+                },
+                {
+                    sql = ("SELECT a, b FROM %s WHERE a IS NULL AND v = 'x'")
+                          :format(composite_name),
+                    expected = {},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FILTER',
+                },
+                {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b > 0 ' ..
                            'AND v IS NULL AND w IS NOT NULL')
                           :format(composite_name),

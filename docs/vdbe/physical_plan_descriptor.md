@@ -154,8 +154,11 @@ filters may be combined with a supported point, one-part range, or composite
 prefix scan/range. On a prefix scan, equality-prefix and range-end guards run
 before residual checks; a rejected in-range row jumps to the cursor step, not
 the loop exit. Compound predicates outside that bounded grammar remain
-unsupported. Literal nonnegative LIMIT and optional OFFSET are passed to the
-producer for range validation. It runs at
+unsupported. In an AND conjunction, `IS NOT NULL` on any composite primary-key
+part is redundant and is omitted; `IS NULL` on a composite key inside a
+conjunction remains a stable fallback rather than allowing the invariant to
+hide an unsupported sibling. Literal nonnegative LIMIT and optional OFFSET
+are passed to the producer for range validation. It runs at
 `sqlSelect()` entry before the select ID is advanced or that function emits
 preamble VDBE.
 Explicit reject values distinguish unresolved input, destination, relation,

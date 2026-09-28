@@ -1366,7 +1366,13 @@ DML, triggers, subprograms, non-deterministic functions.
   validates 216 snapshots per engine with exact 216/216 comparisons; CnP
   participation is observed. The VDBE unit target passes all 60 checks,
   including the prefix-range filter jump target. LLVM was not run because the
-  build has JIT disabled. The immutable descriptor now
+  build has JIT disabled. Composite-primary-key `IS NOT NULL` terms in a
+  bounded AND conjunction are now treated as redundant, including the case
+  where they are the only predicates; unsupported siblings still fall back.
+  `IS NULL` within a composite-key conjunction remains an explicit
+  `UNSUPPORTED_FILTER` fallback. The memtx/Vinyl off/on/off regression passes,
+  and generated/CnP capture validates 319 snapshots per engine with exact
+  319/319 parity. The immutable descriptor now
   also distinguishes direct projection columns from canonical scalar
   projection expressions by expression reference. The production route calls
   SQL's existing `sqlExprCode()` for those expression slots inside each row's
