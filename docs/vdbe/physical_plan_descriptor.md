@@ -154,7 +154,9 @@ references bound to that source cursor, and `SRT_Output` destination, with no
 unsupported shape. Its bounded filter grammar admits primary-key bounds,
 unary `IS NULL` / `IS NOT NULL` column tests, and direct comparison operators
 (`=`, `<>`, `<`, `<=`, `>`, `>=`) between a non-primary source column and a
-scalar integer, float, string, BLOB, boolean, or NULL literal. Reversed literal/column
+constant expression accepted by the canonicalizer and containing no column,
+variable, or function reference. This includes scalar literals and supported
+literal-only arithmetic/concatenation expressions. Reversed constant/column
 comparisons are preserved as expressions and evaluated by SQL expression
 codegen. The primary-key NULL tests use
 the schema invariant (identity or empty result); direct non-primary column
@@ -229,8 +231,8 @@ the `UNSUPPORTED_FILTER` fallback. Composite-prefix scan/range tests cover
 memtx and Vinyl with exact generated/CnP snapshots. Direct non-primary
 comparisons to scalar literals use the expression filter form; memtx/Vinyl
 coverage includes equality, inequality, ordered, reversed-operand, BLOB,
-boolean, and mixed primary-key-bound and composite-prefix access cases with
-exact generated/CnP parity (487 snapshots per
+boolean, constant-expression, and mixed primary-key-bound and composite-prefix
+access cases with exact generated/CnP parity (511 snapshots per
 engine). Compound/general boolean predicates and other scalar expressions
 remain on legacy codegen. A TEXT
 primary key also uses the ordered

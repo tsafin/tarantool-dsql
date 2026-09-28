@@ -1244,9 +1244,11 @@ DML, triggers, subprograms, non-deterministic functions.
   lowering.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
-  column and a scalar integer, float, string, BLOB, boolean, or NULL literal,
-  including
-  reversed literal/column operands. The immutable expression reference is
+  column and a constant expression accepted by the canonicalizer and free of
+  column, variable, and function references, including reversed
+  constant/column operands. This includes integer, float, string, BLOB,
+  boolean, NULL, and literal-only arithmetic/concatenation expressions. The
+  immutable expression reference is
   resolved to its original WHERE term only at lowering, and SQL expression
   bytecode plus `IfNot` preserves false/NULL rejection semantics.
   Column-to-column, collated, function, and arbitrary boolean expressions
@@ -1254,7 +1256,7 @@ DML, triggers, subprograms, non-deterministic functions.
   access-bound grammar. Regression coverage checks
   equality, inequality, ordered/reversed comparisons, and mixed primary-key
   bounds and primary/composite-point residuals on both engines; generated/CnP
-  captures match exactly (487 snapshots per engine), and the VDBE lowering
+  captures match exactly (511 snapshots per engine), and the VDBE lowering
   unit target passes all 62 assertions.
   M3.4 remains partial: this is a bounded direct scalar comparison extension,
   not general predicate lowering.
