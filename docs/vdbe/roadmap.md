@@ -2195,7 +2195,16 @@ DML, triggers, subprograms, non-deterministic functions.
   The report is `/dev/shm/llvm-flag-review.0e507/report.json`; it is temporary
   validation output, not a committed corpus artifact. M3.7 acceptance remains
   open until M3.5's producer gate and the remaining feature-flag acceptance
-  criteria are closed.
+  criteria are closed. Follow-up fix `3900b0c62a` came from a cross-version
+  runtime probe that found LLVM 16
+  does not define the PreserveNone calling convention: forcing its numeric
+  value produced a linked JIT that crashed during handler execution. The JIT
+  now uses the C ABI for LLVM before 19, and the handler attribute is enabled
+  only when Clang reports `preserve_none` support. Clang 16 / LLVM 16 builds
+  and passes the JIT-enabled `sql_stats_test`; Clang 19 / LLVM 19 also rebuilds
+  and passes the same test, retaining PreserveNone. The full LLVM corpus audit
+  above remains specifically LLVM 19 evidence; no LLVM 16 full-corpus claim is
+  made.
   *parallel: no*.
 
 ---
