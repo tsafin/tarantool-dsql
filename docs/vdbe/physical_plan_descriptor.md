@@ -243,9 +243,9 @@ memtx and Vinyl with exact generated/CnP snapshots. Direct non-primary
 comparisons to scalar literals or supported constant expressions use the
 expression filter form. Memtx/Vinyl coverage includes equality, inequality,
 ordered/reversed operands, BLOB and boolean literals, constant
-arithmetic/concatenation, BETWEEN/NOT BETWEEN, IN/NOT IN, bounded OR/NOT
-trees, and mixed primary-key-bound and composite-prefix access cases with exact
-generated/CnP parity (631 snapshots
+arithmetic/concatenation, BETWEEN/NOT BETWEEN, IN/NOT IN (including NULL list
+members and OR combinations), bounded OR/NOT trees, and mixed primary-key-bound
+and composite-prefix access cases with exact generated/CnP parity (655 snapshots
 per engine). Boolean trees with unsupported leaves and other scalar
 expressions remain on legacy codegen. A TEXT
 primary key also uses the ordered

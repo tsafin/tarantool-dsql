@@ -1302,6 +1302,10 @@ DML, triggers, subprograms, non-deterministic functions.
   CnP, LLVM, and generated-repeat captures each validate 631 snapshots per
   engine, with exact comparisons and observed native participation. The
   canonicalizer unit target passes all 23 assertions.
+  A follow-up SQL matrix pins `IN` with a NULL list member (non-matching rows
+  evaluate UNKNOWN and are rejected) and an OR of two IN leaves. It passes on
+  memtx and Vinyl; generated/CnP/LLVM/repeat captures compare exactly at 655
+  snapshots per engine.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
