@@ -1846,6 +1846,21 @@ DML, triggers, subprograms, non-deterministic functions.
   repeat captures. This is a broad triage report, not a clean SQL-corpus
   acceptance; it is retained locally at `/dev/shm/m3sql-normal-report.json`.
 
+  **Capture-harness recheck (2026-09-28).** Fixed a lifecycle bug in
+  `luatest_capture.py`: test-run deletes its `--vardir`, so that path must be
+  nested below (rather than equal to) `TemporaryDirectory`'s root. A fresh
+  complete run of `audit_sql_normal.py` against the fixed harness attempted
+  all 66 SQL-TAP Lua tests on both engines. It accepted 89/132 runs (44
+  memtx, 45 Vinyl), matching the previous aggregate count. One asymmetric
+  result is `transitive-transactions.test.lua`, which captures on Vinyl but
+  yields during capture on memtx. The remaining
+  failures now expose runner/capture outcomes rather than a temp-directory
+  cleanup exception: among them are tests with only remote/local configs,
+  runner restarts or secondary servers, transaction-yield capture failures,
+  and the 45-second `misc.test.lua` timeout. The audit is recorded at
+  `/dev/shm/sql-normal-fixed-report.json`; this generated-only pass does not
+  establish CnP/LLVM parity and leaves the M3.5 corpus gate open.
+
   **Extended timeout triage (2026-09-28).** A fresh standalone retry with a
   60-second per-file limit accepted `in2`, `select2`, and `select9` on both
   engines, with 6,001 / 30,073 / 21,313 captured statements respectively and
