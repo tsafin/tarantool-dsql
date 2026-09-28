@@ -117,6 +117,16 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{2}},
                 },
                 {
+                    sql = ("SELECT id FROM %s WHERE v IN ('x', 'y') " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{2}, {4}},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE w NOT IN ('a', 'b') " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{4}},
+                },
+                {
                     sql = ("SELECT id FROM %s WHERE v = 'x' OR w = 'z' " ..
                            'ORDER BY id ASC'):format(name),
                     expected = {{2}, {4}},

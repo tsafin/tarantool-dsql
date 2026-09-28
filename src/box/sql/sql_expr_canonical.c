@@ -230,6 +230,31 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 		return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
 			SQL_EXPR_CANONICAL_NOMEM;
 	}
+	if (expr->op == TK_IN) {
+		if (expr->pLeft == NULL || expr->pRight != NULL ||
+		    expr->x.pList == NULL || expr->x.pList->nExpr <= 0 ||
+		    ExprHasProperty(expr, EP_xIsSelect))
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		if (!append(b, "in(", 3))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		enum sql_expr_canonical_reject rc = encode(expr->pLeft, b,
+			depth + 1, cursor_to_relation, cursor_count);
+		if (rc != SQL_EXPR_CANONICAL_OK)
+			return rc;
+		for (int i = 0; i < expr->x.pList->nExpr; ++i) {
+			const struct Expr *item = expr->x.pList->a[i].pExpr;
+			if (item == NULL)
+				return SQL_EXPR_CANONICAL_MALFORMED;
+			if (!append(b, ",", 1))
+				return SQL_EXPR_CANONICAL_NOMEM;
+			rc = encode(item, b, depth + 1, cursor_to_relation,
+				    cursor_count);
+			if (rc != SQL_EXPR_CANONICAL_OK)
+				return rc;
+		}
+		return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
+			SQL_EXPR_CANONICAL_NOMEM;
+	}
 	/* Expr stores a source token, not a stable resolved function identity. */
 	const char *op = operator_name(expr->op);
 	if (op == NULL)

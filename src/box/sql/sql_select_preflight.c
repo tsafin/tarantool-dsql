@@ -28,6 +28,24 @@ is_between_predicate(const struct Expr *expr)
 }
 
 static bool
+is_in_predicate(const struct Expr *expr, int cursor, uint32_t field_count)
+{
+	if (expr == NULL || expr->op != TK_IN || expr->pRight != NULL ||
+	    ExprHasProperty(expr, EP_TokenOnly | EP_Reduced | EP_xIsSelect) ||
+	    expr->x.pList == NULL || expr->x.pList->nExpr <= 0 ||
+	    expr->pLeft == NULL || expr->pLeft->op != TK_COLUMN_REF ||
+	    expr->pLeft->pLeft != NULL || expr->pLeft->pRight != NULL ||
+	    expr->pLeft->iTable != cursor || expr->pLeft->iColumn < 0 ||
+	    (uint32_t)expr->pLeft->iColumn >= field_count)
+		return false;
+	for (int i = 0; i < expr->x.pList->nExpr; ++i) {
+		if (expr->x.pList->a[i].pExpr == NULL)
+			return false;
+	}
+	return true;
+}
+
+static bool
 is_supported_projection_expr(const struct Expr *expr, int cursor,
 			     uint32_t field_count,
 			     const uint32_t *cursor_to_relation,
@@ -77,6 +95,7 @@ is_filter_predicate_tree(const struct Expr *expr, int cursor,
 		return is_filter_predicate_tree(expr->pLeft, cursor, field_count,
 						term_count, depth + 1);
 	if (!is_comparison_predicate(expr) && !is_between_predicate(expr) &&
+	    !is_in_predicate(expr, cursor, field_count) &&
 	    !is_direct_null_predicate(expr, cursor, field_count))
 		return false;
 	if (*term_count == SQL_PLAN_POINT_KEY_PART_MAX)
