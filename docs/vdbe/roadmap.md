@@ -2322,6 +2322,13 @@ DML, triggers, subprograms, non-deterministic functions.
   SQL-luatest suite passes at this revision (54 passed, 1 skipped for volatile
   ANALYZE's TEST_BUILD requirement, 2 disabled). LLVM remains unavailable in
   this build.
+  The scalar-filter off/on/off matrix now also asserts route selection for
+  non-primary comparisons, BETWEEN/NOT BETWEEN, IN/NOT IN (including NULL
+  list semantics), bounded OR/NOT trees, and combinations with primary-key
+  bounds on both engines. All supported enabled cases report `new_planner`;
+  disabled cases preserve legacy route and results. Generated/CnP/LLVM/repeat
+  captures compare exactly at 655 snapshots per engine. This closes another
+  focused flag slice, not corpus-wide feature acceptance.
   Equality-prefix-plus-next-part suffix ranges now also report
   `new_planner` for lower-only, upper-only, bounded, high-UNSIGNED, and
   literal-left forms. Their isolated off/on/off fixture has 72 snapshots per
