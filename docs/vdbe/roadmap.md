@@ -2052,14 +2052,29 @@ DML, triggers, subprograms, non-deterministic functions.
   stays on legacy codegen until reverse-order intent is represented in the
   descriptor. Upper-only ascending bounds now scan from the beginning and
   stop at the correct strict/inclusive boundary, covered by `in1.test.lua`.
+  The route also preserves `sql_seq_scan`: when the session prohibits scans,
+  an otherwise supported full-scan descriptor falls back to the legacy
+  `ER_SQL_SEQ_SCAN` check, while keyed routes and explicit `SEQSCAN` remain
+  available. `seq_scan_test.lua` now passes in a fixed off/on/off capture on
+  both engines.
   EQP output for full scans and primary-key point lookups now matches legacy
   detail, covered by `eqp.test.lua` and `lua-tables.test.lua`. The corpus run
   also exposed and updated the volatile ANALYZE error expectation; legacy
   opcode-shape checks in `distinct.test.lua` are skipped only in fixed flag-on
   captures, while both EXPLAIN statements still run. This is a successful
-  SQL-TAP parity prototype, not feature acceptance: route transitions need
-  explicit disposition, SQL and SQL-luatest corpus coverage is not yet run
-  through this mode, and no CI parity gate consumes the report.
+  SQL-TAP parity prototype, not feature acceptance. The capture path now also
+  supports the normal `sql` and `sql-luatest` runners, pins planner mode per
+  child client session, and isolates exact test identities despite test-run's
+  substring selector. Off/on/off parity passed for 34/35 included SQL tests
+  (1,077 memtx / 1,085 Vinyl queries; 62 enabled routes and 99 route shifts
+  per engine) and all 32 included SQL-luatest tests (499 / 447 queries; 16
+  enabled routes and 22 route shifts per engine). `sql/iproto.test.lua` is the
+  sole omitted SQL entry: planner-snapshot EXPLAIN instrumentation changes
+  its asserted `box.stat().EXECUTE` count. Its ordinary reviewed M0 capture
+  remains unchanged. Across the three suites, semantic off/on comparison and
+  deterministic off/off repeatability passed wherever fixed-mode capture was
+  supported. Route transitions remain review-gated (not inferred safe from
+  result equality), and no CI parity gate consumes these reports yet.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

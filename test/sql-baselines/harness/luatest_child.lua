@@ -7,12 +7,14 @@ local out = assert(os.getenv('SQL_BASELINE_OUT'), 'missing SQL_BASELINE_OUT')
 local file = assert(os.getenv('SQL_BASELINE_TEST'), 'missing SQL_BASELINE_TEST')
 local engine = assert(os.getenv('SQL_BASELINE_ENGINE'), 'missing SQL_BASELINE_ENGINE')
 local mode = assert(os.getenv('SQL_BASELINE_MODE'), 'missing SQL_BASELINE_MODE')
+local planner_flag = os.getenv('SQL_BASELINE_PLANNER_FLAG')
 local suite, filename = file:match('^([^/]+)/([^/]+)$')
 assert(out:sub(1, 1) == '/' and
        ((suite == 'sql-luatest' and filename:match('^[%w_.-]+_test%.lua$')) or
         (suite == 'sql' and filename:match('^[%w_.-]+%.test%.lua$'))))
 assert(engine == 'memtx' or engine == 'vinyl')
 assert(mode == 'generated' or mode == 'cnp' or mode == 'llvm')
+assert(planner_flag == nil or planner_flag == 'off' or planner_flag == 'on')
 local basename = file:match('/([^/]+)%.test%.lua$') or
                  file:match('/([^/]+)%.lua$')
 
@@ -49,8 +51,10 @@ box.cfg = setmetatable({}, {
         local original_execute = box.execute
         local count = 0
         local engine_mismatch = false
+        local planner_flag_mismatch = false
         local observed_engines = {}
         local initialized_sessions = {}
+        local initialized_planner_sessions = {}
         local executed_query_indices = {}
         local native_compile_attempt_query_indices = {}
         local native_compile_success_query_indices = {}
@@ -75,9 +79,22 @@ box.cfg = setmetatable({}, {
                                                    {{'=', 2, engine}})
                 initialized_sessions[session] = true
             end
+            if planner_flag ~= nil and not initialized_planner_sessions[session] then
+                box.space._session_settings:update(
+                    'sql_new_planner_single_table',
+                    {{'=', 2, planner_flag == 'on'}})
+                initialized_planner_sessions[session] = true
+            end
             local setting = box.space._session_settings:get('sql_default_engine')
             observed_engines[#observed_engines + 1] = setting and setting[2] or 'missing'
             engine_mismatch = engine_mismatch or not setting or setting[2] ~= engine
+            if planner_flag ~= nil then
+                local planner_setting = box.space._session_settings:get(
+                    'sql_new_planner_single_table')
+                planner_flag_mismatch = planner_flag_mismatch or
+                    planner_setting == nil or
+                    planner_setting[2] ~= (planner_flag == 'on')
+            end
             local query_before = box.stat.sql()
             local ok, res, returned_err
             if bindings ~= nil then
@@ -225,6 +242,8 @@ box.cfg = setmetatable({}, {
                 cnp_exec_delta = cnp_delta,
                 llvm_exec_delta = llvm_delta,
                 engine_mismatch = engine_mismatch,
+                planner_flag = planner_flag,
+                planner_flag_mismatch = planner_flag_mismatch,
                 observed_engines = observed_engines,
                 executed_query_indices = executed_query_indices,
                 native_compile_attempt_query_indices =

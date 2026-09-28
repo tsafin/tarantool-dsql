@@ -35,6 +35,21 @@ class CorpusPolicyTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unreviewed corpus engine"):
             corpus.inventory(self.repo, self.policy())
 
+    def test_selected_inventory_checks_only_requested_reviewed_tests(self):
+        policy = self.policy(excluded=[{
+            "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
+            "reason": "not applicable", "category": "no_engine_variant",
+            "evidence": {"runner": "reviewed"}}])
+        (self.repo / "test/sql-tap/new.test.lua").touch()
+        rows = corpus.inventory(
+            self.repo, policy, suites=("sql-tap",),
+            tests={"sql-tap/example.test.lua"})
+        self.assertEqual([row["test"] for row in rows],
+                         ["sql-tap/example.test.lua"])
+        with self.assertRaisesRegex(ValueError, "unknown corpus test selection"):
+            corpus.inventory(self.repo, policy, suites=("sql-tap",),
+                             tests={"sql-tap/not-present.test.lua"})
+
     def test_full_policy_accepts_explicit_engine_exclusion(self):
         policy = self.policy(excluded=[{
             "test": "sql-tap/example.test.lua", "engines": ["vinyl"],

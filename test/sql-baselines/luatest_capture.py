@@ -53,6 +53,8 @@ def capture(args):
         "SQL_BASELINE_ENGINE": args.engine,
         "SQL_BASELINE_MODE": args.mode,
     })
+    if args.planner_flag is not None:
+        env["SQL_BASELINE_PLANNER_FLAG"] = args.planner_flag
     if args.suite == "sql-luatest":
         env["TARANTOOL_RUN_BEFORE_BOX_CFG"] = f"dofile({str(hook)!r})"
     else:
@@ -60,10 +62,22 @@ def capture(args):
     with tempfile.TemporaryDirectory(prefix="lt-") as vardir:
         command = [sys.executable, str(runner_repo / "test/test-run.py"),
                    "--builddir", str(binary.parent.parent),
+                   "--executable", str(binary),
                    "--vardir", vardir, "--suite", args.suite,
                    "-j", "-1", "--force"]
         if args.suite == "sql":
             command += ["--conf", args.engine]
+        # test-run's positional selector is a substring, not an exact test
+        # identity. Exclude matching siblings so, for example, `collation`
+        # does not also execute `planner_fallback_collation` and restart the
+        # capture-owned server.
+        test_stem = test[:-len(suffix)]
+        patterns = ("*_test.lua",) if args.suite == "sql-luatest" else \
+                   ("*.test.lua", "*.test.sql")
+        for pattern in patterns:
+            for sibling in sorted((runner_repo / "test" / args.suite).glob(pattern)):
+                if sibling.name != test and test_stem in sibling.name:
+                    command.extend(("--exclude", sibling.name))
         command += [test]
         completed = subprocess.run(command, cwd=runner_repo, env=env,
                                    text=True, stdout=subprocess.PIPE,
@@ -83,6 +97,8 @@ def capture(args):
     if state.get("test_file") != identity or state.get("engine") != args.engine or \
        state.get("execution_mode") != args.mode or \
        state.get("engine_mismatch") is not False or \
+       state.get("planner_flag") != args.planner_flag or \
+       state.get("planner_flag_mismatch") is not False or \
        not isinstance(state.get("captured_queries"), int) or \
        state["captured_queries"] < 1:
         raise RuntimeError("child capture identity or engine mismatch")
@@ -133,6 +149,7 @@ def capture(args):
         "dispatcher_requested": env["VDBE_DISPATCHER"],
         "sql_jit_enable": args.mode == "llvm",
         "execution_mode": args.mode,
+        "planner_flag": args.planner_flag,
         "mode_executed": True,
         "cnp_exec_delta": cnp,
         "llvm_exec_delta": llvm,
@@ -185,6 +202,7 @@ def main():
     parser.add_argument("--engine", choices=("memtx", "vinyl"), required=True)
     parser.add_argument("--mode", choices=("generated", "cnp", "llvm"),
                         required=True)
+    parser.add_argument("--planner-flag", choices=("off", "on"))
     args = parser.parse_args()
     try:
         capture(args)

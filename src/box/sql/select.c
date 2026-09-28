@@ -6164,6 +6164,15 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		sql_select_record_physical_fallback(parse, reason);
 		return 0;
 	}
+	if (source->fg.disallow_scan &&
+	    (parse->sql_flags & SQL_SeqScan) == 0 &&
+	    sql_plan_descriptor_access_kind(plan) == SQL_PLAN_TABLE_FULL_SCAN) {
+		/* Preserve the legacy ER_SQL_SEQ_SCAN diagnostic. The new executor
+		 * must not turn a prohibited table scan into a successful route.
+		 */
+		sql_plan_descriptor_delete(plan);
+		return 0;
+	}
 	struct vdbe_codegen_checkpoint checkpoint;
 	bool hard_error;
 	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0) {

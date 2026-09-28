@@ -26,7 +26,7 @@ POLICY = json.loads((HERE / "corpus.json").read_text())
 
 
 def inventory(repo, policy=POLICY, allow_post_baseline_absent=False,
-              suites=SUITES):
+              suites=SUITES, tests=None):
     if policy.get("scope") not in ("seed-smoke", "full-corpus") or \
        type(policy.get("policy_version")) is not int or \
        policy["policy_version"] < 1:
@@ -43,10 +43,17 @@ def inventory(repo, policy=POLICY, allow_post_baseline_absent=False,
                    else ("*_test.lua",)
         for pattern in patterns:
             discovered.update(f"{suite}/{path.name}" for path in suite_dir.glob(pattern))
+    if tests is not None:
+        requested = set(tests)
+        if not requested or requested - discovered:
+            raise ValueError(f"unknown corpus test selection: "
+                             f"{sorted(requested - discovered)}")
+        discovered.intersection_update(requested)
     included = {}
     for entry in policy["included"]:
         test = entry["test"]
-        if test.split("/", 1)[0] not in suites:
+        if test.split("/", 1)[0] not in suites or \
+           (tests is not None and test not in tests):
             continue
         if test in included or test not in discovered:
             raise ValueError(f"duplicate or absent corpus test: {test}")
@@ -69,7 +76,8 @@ def inventory(repo, policy=POLICY, allow_post_baseline_absent=False,
     excluded = {}
     for entry in policy.get("excluded", []):
         test, engines = entry["test"], entry["engines"]
-        if test.split("/", 1)[0] not in suites:
+        if test.split("/", 1)[0] not in suites or \
+           (tests is not None and test not in tests):
             continue
         introduced_after_baseline = entry.get("introduced_after_baseline", False)
         if type(introduced_after_baseline) is not bool or \
@@ -110,7 +118,8 @@ def inventory(repo, policy=POLICY, allow_post_baseline_absent=False,
                      "pending_engines": pending_engines,
                      "reason": included[test]["reason"] if engines else
                                policy.get("pending_reason", "reviewed exclusion")})
-    if policy["scope"] == "full-corpus" and tuple(suites) == SUITES and any(
+    if policy["scope"] == "full-corpus" and tests is None and \
+       tuple(suites) == SUITES and any(
             not any(engine in row["engines"] for row in rows)
             for engine in ENGINES):
         raise ValueError("full corpus must include tests on both engines")
@@ -236,7 +245,10 @@ def main():
     cap.add_argument("--allow-post-baseline-absent", action="store_true",
                      help="allow reviewed post-baseline exclusions absent here")
     cap.add_argument("--planner-flag", choices=("off", "on"),
-                     help="capture the reviewed SQL-TAP corpus with a fixed planner flag")
+                     help="capture a reviewed SQL suite with a fixed planner flag")
+    cap.add_argument("--suite", choices=("sql", "sql-tap", "sql-luatest"),
+                     default="sql-tap",
+                     help="suite used by fixed planner-flag capture")
     cap.add_argument("--test", action="append",
                      help="capture only this reviewed suite/test identity; repeatable")
     cmp = sub.add_parser("compare-coverage")
@@ -247,10 +259,14 @@ def main():
     cmp.add_argument("--base-mode", choices=("generated", "cnp", "llvm"), default="generated")
     cmp.add_argument("--candidate-mode", choices=("generated", "cnp", "llvm"), default="generated")
     args = parser.parse_args()
-    inventory_suites = ("sql-tap",) if args.command == "capture" and \
+    inventory_suites = (args.suite,) if args.command == "capture" and \
         args.planner_flag is not None else SUITES
+    inventory_tests = None
+    if args.command == "capture" and args.planner_flag is not None and args.test:
+        inventory_tests = args.test
     rows = inventory(args.repo.resolve(), allow_post_baseline_absent=getattr(
-        args, "allow_post_baseline_absent", False), suites=inventory_suites)
+        args, "allow_post_baseline_absent", False), suites=inventory_suites,
+        tests=inventory_tests)
     if args.command == "inventory":
         report = {"policy_version": POLICY["policy_version"],
                   "scope": POLICY["scope"], "tests": rows,
@@ -272,9 +288,10 @@ def main():
         out.mkdir(parents=True, exist_ok=True)
         capture_rows = rows
         if args.planner_flag is not None:
-            capture_rows = [r for r in rows if r["test"].startswith("sql-tap/")]
+            capture_rows = [r for r in rows if r["test"].startswith(
+                args.suite + "/")]
             if not capture_rows:
-                raise ValueError("no SQL-TAP tests in reviewed corpus")
+                raise ValueError(f"no {args.suite} tests in reviewed corpus")
         if args.test:
             requested = set(args.test)
             reviewed = {r["test"] for r in capture_rows
@@ -310,7 +327,8 @@ def main():
                         name = Path(row["test"]).name
                         stem = name[:-len(".test.lua")] if suite == "sql" else \
                                name[:-len(".lua")]
-                        run(sys.executable, HERE / "luatest_capture.py",
+                        child_command = [
+                            sys.executable, HERE / "luatest_capture.py",
                             "--repo", HERE.parent.parent,
                             "--runner-repo", repo,
                             "--binary", binary,
@@ -318,7 +336,11 @@ def main():
                             "--test", name,
                             "--suite", suite,
                             "--engine", args.engine,
-                            "--mode", args.mode, env=env)
+                            "--mode", args.mode]
+                        if args.planner_flag is not None:
+                            child_command.extend(("--planner-flag",
+                                                  args.planner_flag))
+                        run(*child_command, env=env)
                         child_snap = child_out / "snapshots" / suite / stem
                         target_snap = out / "snapshots" / suite / stem
                         target_snap.parent.mkdir(parents=True, exist_ok=True)

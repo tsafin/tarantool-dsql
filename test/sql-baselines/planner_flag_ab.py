@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run reviewed SQL-TAP corpus parity with the single-table planner off/on/off."""
+"""Run a reviewed SQL-suite parity audit with the planner off/on/off."""
 
 import argparse
 from collections import Counter
@@ -77,11 +77,11 @@ def explain_output_diffs(records, candidate_root):
     return explain, semantic
 
 
-def capture(binary, repo, out, engine, mode, flag, tests, env):
+def capture(binary, repo, out, engine, mode, flag, suite, tests, env):
     out.mkdir(parents=True)
     command = ["python3", CORPUS, "capture", "--repo", repo,
                "--binary", binary, "--out", out, "--engine", engine,
-               "--mode", mode, "--planner-flag", flag]
+               "--mode", mode, "--planner-flag", flag, "--suite", suite]
     for test in tests:
         command.extend(("--test", test))
     result = invoke(command, env=env)
@@ -99,6 +99,8 @@ def main():
     parser.add_argument("--engine", action="append", choices=("memtx", "vinyl"))
     parser.add_argument("--mode", choices=("generated", "cnp", "llvm"),
                         default="generated")
+    parser.add_argument("--suite", choices=("sql", "sql-tap", "sql-luatest"),
+                        default="sql-tap")
     parser.add_argument("--test", action="append",
                         help="reviewed SQL-TAP test identity; repeat to select a subset")
     args = parser.parse_args()
@@ -119,35 +121,38 @@ def main():
     env["TMPDIR"] = env.get("TMPDIR", "/dev/shm")
     source_commit = subprocess.check_output(
         ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+    suite_tests = {item["test"] for item in policy["included"]
+                   if item["test"].startswith(args.suite + "/")}
+    unknown = set(selected) - suite_tests
+    if unknown:
+        raise ValueError(f"not reviewed for {args.suite}: {sorted(unknown)}")
 
     report = {"evaluation_version": 1, "source_commit": source_commit,
-              "binary": str(binary), "suite": "sql-tap",
+              "binary": str(binary), "suite": args.suite,
               "mode": args.mode, "engines": {},
-              "scope": "all reviewed SQL-TAP tests per engine" if not selected
-                       else "selected reviewed SQL-TAP tests",
+              "scope": f"all reviewed {args.suite} tests per engine" if not selected
+                       else f"selected reviewed {args.suite} tests",
               "route_review_required": True}
     with tempfile.TemporaryDirectory(prefix="planner-flag-ab-",
                                      dir=env["TMPDIR"]) as temp_name:
         temp_root = Path(temp_name)
         for engine in engines:
             eligible = [item for item in policy["included"]
-                        if item["test"].startswith("sql-tap/") and
+                        if item["test"].startswith(args.suite + "/") and
                         engine in item["engines"]]
             tests = sorted(item["test"] for item in eligible)
             if selected:
-                unknown = set(selected) - set(tests)
-                if unknown:
-                    raise ValueError(f"not reviewed for {engine}: {sorted(unknown)}")
-                tests = selected
+                tests = sorted(set(selected) & set(tests))
                 eligible = [item for item in eligible if item["test"] in tests]
             if not tests:
-                raise ValueError(f"empty SQL-TAP corpus for {engine}")
+                raise ValueError(f"empty {args.suite} corpus for {engine}")
             captures = {}
             for flag, label in (("off", "off"), ("on", "on"),
                                 ("off", "off-repeat")):
                 path = temp_root / engine / label
                 path.parent.mkdir(parents=True, exist_ok=True)
-                capture(binary, repo, path, engine, args.mode, flag, tests, env)
+                capture(binary, repo, path, engine, args.mode, flag,
+                        args.suite, tests, env)
                 captures[label] = path
             off_on = diff(binary, captures["off"], captures["on"],
                           ignore_path_class=True)
@@ -167,19 +172,21 @@ def main():
                 raise RuntimeError(f"parity failure for {engine}; "
                                    f"semantic examples={json.dumps(details)}")
             metrics = []
+            query_count = 0
             for manifest_path in sorted(
-                    (captures["on"] / "manifests/sql-tap").glob(f"*.{engine}.json")):
+                    (captures["on"] / f"manifests/{args.suite}").glob(
+                        f"*.{engine}.json")):
                 manifest = json.loads(manifest_path.read_text())
                 if manifest.get("planner_flag") != "on":
                     raise ValueError(f"enabled capture lacks flag proof: {manifest_path}")
+                query_count += manifest.get("captured_queries", 0)
                 metrics.extend(manifest.get("planner_metrics", []))
             route_counts = Counter(item.get("path_class") for item in metrics)
             if not selected and route_counts.get("new_planner", 0) == 0:
                 raise ValueError(f"planner flag did not select any new_planner route on {engine}")
             report["engines"][engine] = {
                 "tests": len(tests),
-                "queries": sum(item["evidence"][engine]["captured_queries"]
-                               for item in eligible),
+                "queries": query_count,
                 "off_on_semantic_parity": {
                     "passed": not semantic_diffs,
                     "semantic_diffs": len(semantic_diffs),
