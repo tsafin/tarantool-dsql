@@ -51,8 +51,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/* LLVM's C API currently omits the IR PreserveNone calling-convention enum. */
+/* LLVM's C API omits the IR PreserveNone calling-convention enum. */
+#if LLVM_VERSION_MAJOR >= 19
 #define LLVM_PRESERVE_NONE_CALL_CONV 21
+#endif
 #include <limits.h>
 
 extern int64_t sql_jit_compile_count;
@@ -954,6 +956,7 @@ jit_handler_is_external(int opcode)
 	}
 }
 
+#if LLVM_VERSION_MAJOR >= 19
 static bool
 jit_handler_uses_preserve_none(int opcode)
 {
@@ -984,6 +987,12 @@ jit_handler_uses_preserve_none(int opcode)
 		return false;
 	}
 }
+#else
+/* PreserveNone is not available before LLVM 19. The opcode handlers are
+ * compiled without that ABI on those toolchains, so their JIT declarations
+ * and calls must retain the C convention too.
+ */
+#endif
 
 static LLVMValueRef
 jit_declare_external_handler(LLVMModuleRef module, const char *handler_name,
@@ -997,9 +1006,13 @@ jit_declare_external_handler(LLVMModuleRef module, const char *handler_name,
 	LLVMTypeRef handler_type =
 		LLVMFunctionType(LLVMInt32Type(), arg_types, 3, 0);
 	handler_fn = LLVMAddFunction(module, handler_name, handler_type);
+#if LLVM_VERSION_MAJOR >= 19
 	if (jit_handler_uses_preserve_none(opcode))
 		LLVMSetFunctionCallConv(handler_fn,
 					LLVM_PRESERVE_NONE_CALL_CONV);
+#else
+	UNUSED_PARAMETER(opcode);
+#endif
 	return handler_fn;
 }
 
