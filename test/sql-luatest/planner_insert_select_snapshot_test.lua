@@ -4,7 +4,7 @@ local t = require('luatest')
 local g = t.group('planner_insert_select_snapshot')
 
 g.before_all(function()
-    g.server = server:new({alias = 'planner_insert_select_snapshot'})
+    g.server = server:new({alias = 'm35_ins_sel'})
     g.server:start()
 end)
 
@@ -15,6 +15,7 @@ end)
 g.test_insert_select_has_embedded_root_route = function()
     local result = g.server:exec(function()
         local msgpack = require('msgpack')
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
         box.execute([[CREATE TABLE planner_insert_source (
             id INTEGER PRIMARY KEY, value INTEGER)]])
         box.execute([[CREATE TABLE planner_insert_target (
@@ -40,8 +41,10 @@ g.test_insert_select_has_embedded_root_route = function()
             planner_insert_target
             SELECT id, value FROM planner_insert_source WHERE id > 0]])
         assert(insert_err == nil, insert_err and insert_err.message)
-        local rows = box.execute([[SELECT * FROM planner_insert_target
-            ORDER BY id]])
+        local rows, rows_err = box.execute([[SELECT * FROM
+            planner_insert_target ORDER BY id]])
+        assert(rows_err == nil and rows ~= nil,
+               rows_err and rows_err.message or 'SELECT returned no result')
         assert(#rows.rows == 2)
         box.execute([[DROP TABLE planner_insert_target]])
         box.execute([[DROP TABLE planner_insert_source]])
