@@ -1802,8 +1802,8 @@ DML, triggers, subprograms, non-deterministic functions.
   validator suite passes 4 tests. This implementation is committed as
   `2a02e93e67` in the temporary shared-memory integration checkout because the
   main filesystem has no free blocks; it still must be transferred to the
-  canonical branch. M3.5 remains open for DELETE-view runtime/capture coverage
-  and the complete reviewed-corpus producer/route inventory.
+  canonical branch. M3.5 remains open for full reviewed-corpus inclusion of
+  embedded DML and trigger producers and the complete producer/route inventory.
 
   The updated INSERT-SELECT/view-DML focused luatest also passes the typed
   per-engine capture audit in generated, CnP, LLVM, and generated-repeat
