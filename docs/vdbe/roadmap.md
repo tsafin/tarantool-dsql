@@ -1331,7 +1331,15 @@ DML, triggers, subprograms, non-deterministic functions.
   comparisons each have exact 72/72 parity. LLVM was not observed because this
   build has JIT disabled. Descriptor and VDBE lowering unit targets pass.
   Other range predicates, gaps in the equality prefix, duplicate bounds, and
-  descending suffix ranges remain fail-closed.
+  descending suffix ranges remain fail-closed. The immutable descriptor now
+  also distinguishes direct projection columns from canonical scalar
+  projection expressions by expression reference. The production route calls
+  SQL's existing `sqlExprCode()` for those expression slots inside each row's
+  VDBE loop; direct columns retain `OP_Column`. Off/on/off SQL parity on
+  memtx and Vinyl covers arithmetic projections, NULL propagation, and a
+  compatible primary-key range/order. This is a bounded canonical-expression
+  projection slice, not arbitrary scalar/function support; the broader M3.4
+  producer, operator, parity, and capture gates remain open.
   Descriptor values
   above the signed-64-bit counter range are rejected before VDBE mutation.
   Rollback coverage is specifically post-emission validation rejection, not
