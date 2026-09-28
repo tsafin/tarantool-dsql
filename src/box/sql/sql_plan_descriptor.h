@@ -134,6 +134,8 @@ struct sql_plan_descriptor_input {
 	size_t filter_count;
 	const uint32_t *projection_columns;
 	size_t projection_column_count;
+	/* Optional parallel refs: 0 means direct column, otherwise expression id. */
+	const uint32_t *projection_expr_refs;
 	const struct sql_plan_finalize *finalize;
 	size_t finalize_count;
 	const struct sql_plan_expression *expressions;

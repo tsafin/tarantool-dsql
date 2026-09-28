@@ -560,7 +560,7 @@ new_invalid_point_descriptor(void)
 static struct sql_plan_descriptor *
 new_late_invalid_point_descriptor(int64_t key)
 {
-	static const uint32_t columns[] = {UINT32_MAX};
+	static const uint32_t columns[] = {UINT32_MAX - 1};
 	static const struct sql_plan_bound bound = {
 		.side = SQL_PLAN_LOWER,
 		.op = SQL_PLAN_EQ,
@@ -632,6 +632,85 @@ new_point_limit_descriptor(int64_t key, uint64_t limit, uint64_t offset)
 	return sql_plan_descriptor_new(&input);
 }
 
+static struct sql_plan_descriptor *
+new_expression_projection_descriptor(enum sql_plan_access_kind kind)
+{
+	static const uint32_t columns[] = {2, UINT32_MAX, 0};
+	static const uint32_t refs[] = {0, 9, 0};
+	static const struct sql_plan_expression expressions[] = {
+		{1, "access-key"}, {9, "literal(42)"},
+	};
+	static const struct sql_plan_bound table_bound = {
+		.side = SQL_PLAN_LOWER, .op = SQL_PLAN_GE, .expr_ref = 1,
+	};
+	static const struct sql_plan_bound point_bound = {
+		.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1,
+	};
+	static const struct sql_plan_point_key_part prefix = {
+		.column = 0, .integer_value = 1,
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1, .planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.access = {.kind = kind, .direction = SQL_PLAN_ASC},
+		.projection_columns = columns, .projection_column_count = 3,
+		.projection_expr_refs = refs,
+		.expressions = expressions,
+		.expression_count = sizeof(expressions) / sizeof(expressions[0]),
+	};
+	switch (kind) {
+	case SQL_PLAN_TABLE_FULL_SCAN:
+		break;
+	case SQL_PLAN_INDEX_RANGE_SCAN:
+		input.access.has_integer_range_key = true;
+		input.access.integer_range_key = 1;
+		input.access.integer_range_op = SQL_PLAN_GE;
+		input.access.bounds = &table_bound;
+		input.access.bound_count = 1;
+		break;
+	case SQL_PLAN_PK_POINT_LOOKUP:
+		input.access.has_integer_point_key = true;
+		input.access.integer_point_key = 1;
+		input.access.bounds = &point_bound;
+		input.access.bound_count = 1;
+		break;
+	case SQL_PLAN_PK_PREFIX_SCAN: {
+		static const struct sql_plan_bound prefix_bound = {
+			.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1,
+		};
+		input.access.prefix_key_parts = &prefix;
+		input.access.prefix_key_part_count = 1;
+		input.access.bounds = &prefix_bound;
+		input.access.bound_count = 1;
+		break;
+	}
+	default:
+		return NULL;
+	}
+	return sql_plan_descriptor_new(&input);
+}
+
+struct projection_projector_ctx {
+	struct Vdbe *vdbe;
+	int count;
+	uint32_t refs[3];
+	int regs[3];
+	int addrs[3];
+};
+
+static int
+emit_projection_literal(void *context, uint32_t expr_ref, int result_reg)
+{
+	struct projection_projector_ctx *ctx = context;
+	int slot = ctx->count++;
+	assert(slot < 3);
+	ctx->refs[slot] = expr_ref;
+	ctx->regs[slot] = result_reg;
+	ctx->addrs[slot] = sqlVdbeAddOp2(ctx->vdbe, OP_Integer, 42,
+						 result_reg);
+	return ctx->addrs[slot] == ctx->vdbe->nOp - 1 ? 0 : -1;
+}
+
 int
 main(void)
 {
@@ -641,7 +720,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(51);
+	plan(56);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1236,6 +1315,61 @@ main(void)
 	   vdbe.nOp == before_point_offset + 1 &&
 	   vdbe.aOp[before_point_offset].opcode == OP_Goto,
 	   "positive OFFSET suppresses the single matching row");
+	struct sql_plan_descriptor *expr_scan =
+		new_expression_projection_descriptor(SQL_PLAN_TABLE_FULL_SCAN);
+	int before_missing_projector = vdbe.nOp;
+	ok(expr_scan != NULL && sql_plan_lower_vdbe_table_scan(expr_scan,
+		&vdbe, 4, 20) == -1 && vdbe.nOp == before_missing_projector,
+	   "expression projections without a projector are rejected atomically");
+	const enum sql_plan_access_kind projection_kinds[] = {
+		SQL_PLAN_TABLE_FULL_SCAN, SQL_PLAN_PK_POINT_LOOKUP,
+		SQL_PLAN_INDEX_RANGE_SCAN, SQL_PLAN_PK_PREFIX_SCAN,
+	};
+	for (size_t i = 0; i < sizeof(projection_kinds) /
+	     sizeof(projection_kinds[0]); ++i) {
+		struct sql_plan_descriptor *projection_desc = i == 0 ? expr_scan :
+			new_expression_projection_descriptor(projection_kinds[i]);
+		struct projection_projector_ctx projector_ctx = {
+			.vdbe = &vdbe,
+		};
+		int rc;
+		switch (projection_kinds[i]) {
+		case SQL_PLAN_TABLE_FULL_SCAN:
+			rc = sql_plan_lower_vdbe_table_scan_with_projector(
+				projection_desc, &vdbe, 4, 20,
+				emit_projection_literal, &projector_ctx);
+			break;
+		case SQL_PLAN_PK_POINT_LOOKUP:
+			rc = sql_plan_lower_vdbe_pk_point_with_projector(
+				projection_desc, &vdbe, 4, 20,
+				emit_projection_literal, &projector_ctx);
+			break;
+		case SQL_PLAN_INDEX_RANGE_SCAN:
+			rc = sql_plan_lower_vdbe_pk_range_with_projector(
+				projection_desc, &vdbe, 4, 20,
+				emit_projection_literal, &projector_ctx);
+			break;
+		case SQL_PLAN_PK_PREFIX_SCAN:
+			rc = sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
+				projection_desc, &vdbe, 4, 20,
+				emit_projection_literal, &projector_ctx);
+			break;
+		default:
+			unreachable();
+		}
+		int expr_addr = projector_ctx.addrs[0];
+		ok(projection_desc != NULL && rc == 0 &&
+		   projector_ctx.count == 1 && projector_ctx.refs[0] == 9 &&
+		   projector_ctx.regs[0] == 21 &&
+		   vdbe.aOp[expr_addr - 1].opcode == OP_Column &&
+		   vdbe.aOp[expr_addr].opcode == OP_Integer &&
+		   vdbe.aOp[expr_addr + 1].opcode == OP_Column &&
+		   vdbe.aOp[expr_addr + 2].opcode == OP_ResultRow,
+		   "projector emits expression opcode in its ordered projection slot");
+		if (i != 0)
+			sql_plan_descriptor_delete(projection_desc);
+	}
+	sql_plan_descriptor_delete(expr_scan);
 
 	sql_plan_descriptor_delete(plan_desc);
 	sql_plan_descriptor_delete(filtered_desc);

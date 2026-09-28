@@ -12,7 +12,7 @@ struct sql_plan_descriptor {
 	struct sql_plan_bound *bounds;
 	struct sql_plan_point_key_part *point_key_parts;
 	struct sql_plan_point_key_part *prefix_key_parts;
-	uint32_t *access_columns, *projection_columns;
+	uint32_t *access_columns, *projection_columns, *projection_expr_refs;
 	struct sql_plan_order_term *order;
 	struct sql_plan_filter *filters;
 	struct sql_plan_finalize *finalize;
@@ -100,7 +100,8 @@ free_descriptor(struct sql_plan_descriptor *d)
 	     i < d->value.expression_count; ++i)
 		free((void *)d->expressions[i].canonical);
 	free(d->expressions); free(d->finalize); free(d->filters);
-	free(d->order); free(d->projection_columns); free(d->access_columns);
+	free(d->order); free(d->projection_expr_refs);
+	free(d->projection_columns); free(d->access_columns);
 	free(d->prefix_key_parts); free(d->point_key_parts); free(d->bounds);
 	free(d->space_name); free(d);
 }
@@ -298,6 +299,17 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		for (size_t j = 0; j < i; ++j)
 			if (in->expressions[i].id == in->expressions[j].id) return NULL;
 	}
+	for (size_t i = 0; i < in->projection_column_count; ++i) {
+		uint32_t expr_ref = in->projection_expr_refs == NULL ? 0 :
+			in->projection_expr_refs[i];
+		if (expr_ref == 0) {
+			if (in->projection_columns[i] == UINT32_MAX)
+				return NULL;
+		} else if (in->projection_columns[i] != UINT32_MAX ||
+			   !has_expr(in, expr_ref)) {
+			return NULL;
+		}
+	}
 	for (size_t i = 0; i < in->finalize_count; ++i) {
 		const struct sql_plan_finalize *f = &in->finalize[i];
 		if (f->kind < SQL_PLAN_SORT || f->kind > SQL_PLAN_LIMIT ||
@@ -338,6 +350,10 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	COPY_FIELD(d->projection_columns, in->projection_columns,
 		   in->projection_column_count);
 	d->value.projection_columns = d->projection_columns;
+	if (in->projection_expr_refs != NULL)
+		COPY_FIELD(d->projection_expr_refs, in->projection_expr_refs,
+			   in->projection_column_count);
+	d->value.projection_expr_refs = d->projection_expr_refs;
 	if (in->finalize_count != 0) {
 		d->finalize = calloc(in->finalize_count, sizeof(*d->finalize));
 		if (d->finalize == NULL) goto error;

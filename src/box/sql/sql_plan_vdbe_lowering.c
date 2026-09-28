@@ -9,10 +9,37 @@
 #include "vdbe.h"
 #include "vdbeInt.h"
 
+static int
+sql_plan_emit_projection(const struct sql_plan_descriptor_input *input,
+			 struct Vdbe *vdbe, Parse *parse,
+			 const struct vdbe_codegen_checkpoint *checkpoint,
+			 int cursor, size_t slot, int result_reg,
+			 sql_plan_projection_projector_f projector,
+			 void *projector_ctx)
+{
+	uint32_t expr_ref = input->projection_expr_refs == NULL ? 0 :
+		input->projection_expr_refs[slot];
+	int addr;
+	if (expr_ref != 0) {
+		if (projector == NULL || projector(projector_ctx, expr_ref,
+						    result_reg) != 0)
+			return -1;
+		addr = vdbe->nOp - 1;
+	} else {
+		addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
+				     input->projection_columns[slot], result_reg);
+	}
+	return addr == vdbe->nOp - 1 && !parse->is_aborted &&
+		diag_last_error(diag_get()) == checkpoint->diag_error ? 0 : -1;
+}
+
 int
-sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
+sql_plan_lower_vdbe_pk_point_with_projector(
+			     const struct sql_plan_descriptor *plan,
 			     struct Vdbe *vdbe, int cursor,
-			     int result_first_reg)
+			     int result_first_reg,
+			     sql_plan_projection_projector_f projector,
+			     void *projector_ctx)
 {
 	if (plan == NULL || vdbe == NULL || vdbe->pParse == NULL || cursor < 0 ||
 	    result_first_reg < 1 || vdbe->magic != VDBE_MAGIC_INIT)
@@ -134,13 +161,14 @@ sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 		}
 	}
 	for (size_t i = 0; i < input->projection_column_count; ++i) {
-		if (input->projection_columns[i] > INT_MAX)
+		uint32_t expr_ref = input->projection_expr_refs == NULL ? 0 :
+			input->projection_expr_refs[i];
+		if ((expr_ref == 0 && input->projection_columns[i] > INT_MAX) ||
+		    (expr_ref != 0 && projector == NULL))
 			goto error;
-		int addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
-					 input->projection_columns[i],
-					 result_first_reg + (int)i);
-		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
+		if (sql_plan_emit_projection(input, vdbe, parse, &checkpoint, cursor,
+					     i, result_first_reg + (int)i,
+					     projector, projector_ctx) != 0)
 			goto error;
 	}
 	int result = sqlVdbeAddOp2(vdbe, OP_ResultRow, result_first_reg,
@@ -180,9 +208,12 @@ sql_plan_emit_integer_constant(struct Vdbe *vdbe, int reg, bool is_unsigned,
 }
 
 int
-sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
+sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
+				   const struct sql_plan_descriptor *plan,
 				   struct Vdbe *vdbe, int cursor,
-				   int result_first_reg)
+				   int result_first_reg,
+				   sql_plan_projection_projector_f projector,
+				   void *projector_ctx)
 {
 	if (plan == NULL || vdbe == NULL || vdbe->pParse == NULL || cursor < 0 ||
 	    result_first_reg < 1 || vdbe->magic != VDBE_MAGIC_INIT)
@@ -239,9 +270,13 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 		if (in->access.produced_order[i].direction != SQL_PLAN_ASC ||
 		    in->access.produced_order[i].column > INT_MAX)
 			return -1;
-	for (size_t i = 0; i < in->projection_column_count; ++i)
-		if (in->projection_columns[i] > INT_MAX)
+	for (size_t i = 0; i < in->projection_column_count; ++i) {
+		uint32_t expr_ref = in->projection_expr_refs == NULL ? 0 :
+			in->projection_expr_refs[i];
+		if ((expr_ref == 0 && in->projection_columns[i] > INT_MAX) ||
+		    (expr_ref != 0 && projector == NULL))
 			return -1;
+	}
 	Parse *parse = vdbe->pParse;
 	bool has_limit = in->finalize_count == 1;
 	bool has_offset = has_limit && in->finalize[0].offset != 0;
@@ -400,11 +435,9 @@ sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 	    diag_last_error(diag_get()) != checkpoint.diag_error))
 		goto prefix_error;
 	for (size_t i = 0; i < in->projection_column_count; ++i) {
-		int addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
-					 in->projection_columns[i],
-					 result_first_reg + (int)i);
-		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
+		if (sql_plan_emit_projection(in, vdbe, parse, &checkpoint, cursor,
+					     i, result_first_reg + (int)i,
+					     projector, projector_ctx) != 0)
 			goto prefix_error;
 	}
 	int result = sqlVdbeAddOp2(vdbe, OP_ResultRow, result_first_reg,
@@ -440,7 +473,9 @@ prefix_error:
 static int
 sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 			 struct Vdbe *vdbe, int cursor,
-			 int result_first_reg, bool range)
+			 int result_first_reg, bool range,
+			 sql_plan_projection_projector_f projector,
+			 void *projector_ctx)
 {
 	if (plan == NULL || vdbe == NULL || vdbe->pParse == NULL || cursor < 0 ||
 	    result_first_reg < 1 || vdbe->magic != VDBE_MAGIC_INIT)
@@ -496,7 +531,10 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 			return -1;
 	}
 	for (size_t i = 0; i < input->projection_column_count; i++) {
-		if (input->projection_columns[i] > INT_MAX)
+		uint32_t expr_ref = input->projection_expr_refs == NULL ? 0 :
+			input->projection_expr_refs[i];
+		if ((expr_ref == 0 && input->projection_columns[i] > INT_MAX) ||
+		    (expr_ref != 0 && projector == NULL))
 			return -1;
 	}
 	Parse *parse = vdbe->pParse;
@@ -723,11 +761,9 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 			goto error;
 	}
 	for (size_t i = 0; i < input->projection_column_count; i++) {
-		int addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
-					 input->projection_columns[i],
-					 result_first_reg + (int)i);
-		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
+		if (sql_plan_emit_projection(input, vdbe, parse, &checkpoint, cursor,
+					     i, result_first_reg + (int)i,
+					     projector, projector_ctx) != 0)
 			goto error;
 	}
 	int result = sqlVdbeAddOp2(vdbe, OP_ResultRow, result_first_reg,
@@ -768,8 +804,18 @@ sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 			       struct Vdbe *vdbe, int cursor,
 			       int result_first_reg)
 {
+	return sql_plan_lower_vdbe_table_scan_with_projector(plan, vdbe,
+		cursor, result_first_reg, NULL, NULL);
+}
+
+int
+sql_plan_lower_vdbe_table_scan_with_projector(
+	const struct sql_plan_descriptor *plan, struct Vdbe *vdbe, int cursor,
+	int result_first_reg, sql_plan_projection_projector_f projector,
+	void *projector_ctx)
+{
 	return sql_plan_lower_vdbe_scan(plan, vdbe, cursor, result_first_reg,
-					 false);
+					false, projector, projector_ctx);
 }
 
 int
@@ -777,6 +823,34 @@ sql_plan_lower_vdbe_pk_range(const struct sql_plan_descriptor *plan,
 			     struct Vdbe *vdbe, int cursor,
 			     int result_first_reg)
 {
+	return sql_plan_lower_vdbe_pk_range_with_projector(plan, vdbe,
+		cursor, result_first_reg, NULL, NULL);
+}
+
+int
+sql_plan_lower_vdbe_pk_range_with_projector(
+	const struct sql_plan_descriptor *plan, struct Vdbe *vdbe, int cursor,
+	int result_first_reg, sql_plan_projection_projector_f projector,
+	void *projector_ctx)
+{
 	return sql_plan_lower_vdbe_scan(plan, vdbe, cursor, result_first_reg,
-					 true);
+					true, projector, projector_ctx);
+}
+
+int
+sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
+			     struct Vdbe *vdbe, int cursor, int result_first_reg)
+{
+	return sql_plan_lower_vdbe_pk_point_with_projector(plan, vdbe, cursor,
+							result_first_reg,
+							NULL, NULL);
+}
+
+int
+sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
+				   struct Vdbe *vdbe, int cursor,
+				   int result_first_reg)
+{
+	return sql_plan_lower_vdbe_pk_prefix_scan_with_projector(plan, vdbe,
+		cursor, result_first_reg, NULL, NULL);
 }

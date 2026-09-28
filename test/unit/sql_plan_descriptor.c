@@ -173,11 +173,53 @@ test_composite_prefix_range_contract(void)
 	check_plan();
 }
 
+static void
+test_expression_projection_contract(void)
+{
+	plan(4);
+	header();
+	static const uint32_t columns[] = {2, UINT32_MAX};
+	static const uint32_t refs[] = {0, 7};
+	static const struct sql_plan_expression expressions[] = {
+		{7, "literal(9)"},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1, .planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.access = {.kind = SQL_PLAN_TABLE_FULL_SCAN},
+		.projection_columns = columns, .projection_column_count = 2,
+		.projection_expr_refs = refs,
+		.expressions = expressions, .expression_count = 1,
+	};
+	struct sql_plan_descriptor *d = sql_plan_descriptor_new(&input);
+	const struct sql_plan_descriptor_input *copy =
+		sql_plan_descriptor_get_input(d);
+	ok(copy != NULL && copy->projection_expr_refs != refs &&
+	   copy->projection_expr_refs[0] == 0 &&
+	   copy->projection_expr_refs[1] == 7,
+	   "projection expression refs are copied with direct/expression slots");
+	sql_plan_descriptor_delete(d);
+	uint32_t bad_refs[] = {7, 0};
+	input.projection_expr_refs = bad_refs;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "expression reference requires UINT32_MAX projection sentinel");
+	uint32_t missing_refs[] = {0, 8};
+	input.projection_expr_refs = missing_refs;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "projection expression reference must resolve in descriptor table");
+	input.projection_expr_refs = NULL;
+	ok(sql_plan_descriptor_new(&input) == NULL,
+	   "sentinel cannot be used without expression reference array");
+	footer();
+	check_plan();
+}
+
 int
 main(void)
 {
 	test_descriptor_owns_input();
 	test_rejects_invalid_contract();
 	test_composite_prefix_range_contract();
+	test_expression_projection_contract();
 	return 0;
 }

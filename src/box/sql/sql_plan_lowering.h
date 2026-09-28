@@ -33,6 +33,10 @@ struct sql_plan_lowering_event {
 typedef int (*sql_plan_lowering_emit_f)(
 	void *context, const struct sql_plan_lowering_event *event);
 
+/* Emit expression bytecode into the assigned result register. */
+typedef int (*sql_plan_projection_projector_f)(void *ctx, uint32_t expr_ref,
+						       int result_reg);
+
 /* Emits scan, filters, projection, finalizers, then result in that order. */
 int
 sql_plan_lower(const struct sql_plan_descriptor *plan,
@@ -48,20 +52,40 @@ int
 sql_plan_lower_vdbe_table_scan(const struct sql_plan_descriptor *plan,
 			       struct Vdbe *vdbe, int cursor,
 			       int result_first_reg);
+int
+sql_plan_lower_vdbe_table_scan_with_projector(
+	const struct sql_plan_descriptor *plan, struct Vdbe *vdbe, int cursor,
+	int result_first_reg, sql_plan_projection_projector_f projector,
+	void *projector_ctx);
 
 int
 sql_plan_lower_vdbe_pk_range(const struct sql_plan_descriptor *plan,
 			     struct Vdbe *vdbe, int cursor,
 			     int result_first_reg);
+int
+sql_plan_lower_vdbe_pk_range_with_projector(
+	const struct sql_plan_descriptor *plan, struct Vdbe *vdbe, int cursor,
+	int result_first_reg, sql_plan_projection_projector_f projector,
+	void *projector_ctx);
 
 int
 sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 			     struct Vdbe *vdbe, int cursor,
 			     int result_first_reg);
+int
+sql_plan_lower_vdbe_pk_point_with_projector(
+	const struct sql_plan_descriptor *plan, struct Vdbe *vdbe, int cursor,
+	int result_first_reg, sql_plan_projection_projector_f projector,
+	void *projector_ctx);
 
 int
 sql_plan_lower_vdbe_pk_prefix_scan(const struct sql_plan_descriptor *plan,
 				   struct Vdbe *vdbe, int cursor,
 				   int result_first_reg);
+int
+sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
+	const struct sql_plan_descriptor *plan, struct Vdbe *vdbe, int cursor,
+	int result_first_reg, sql_plan_projection_projector_f projector,
+	void *projector_ctx);
 
 #endif /* TARANTOOL_SQL_PLAN_LOWERING_H */
