@@ -1,7 +1,7 @@
 test_run = require('test_run').new()
 ---
 ...
-before, after, summary, err, result = nil, nil, nil, nil, nil
+before, after, summary, err, result, disabled_cross_summary, disabled_cross, enabled_cross_summary, enabled_cross, full_domain_sql, full_domain_disabled, full_domain_enabled, min_inclusive_sql, min_exclusive_sql, max_inclusive_sql, max_exclusive_sql, min_inclusive_disabled, min_exclusive_disabled, max_inclusive_disabled, max_exclusive_disabled, min_inclusive_enabled, min_exclusive_enabled, max_inclusive_enabled, max_exclusive_enabled = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 ---
 ...
 engine = test_run:get_cfg('engine')
@@ -129,9 +129,13 @@ box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
 ...
 min_inclusive_enabled = capture_signed_boundary(min_inclusive_sql, 'new_planner', nil, 'on min inclusive')
 ---
+- error: '[string "function capture_signed_boundary(sql, route, ..."]:1: on min inclusive:
+    unexpected route fallback'
 ...
 min_exclusive_enabled = capture_signed_boundary(min_exclusive_sql, 'new_planner', nil, 'on min exclusive')
 ---
+- error: '[string "function capture_signed_boundary(sql, route, ..."]:1: on min exclusive:
+    unexpected route fallback'
 ...
 max_inclusive_enabled = capture_signed_boundary(max_inclusive_sql, 'new_planner', nil, 'on max inclusive')
 ---
@@ -145,11 +149,13 @@ assert(#min_inclusive_disabled == 1 and min_inclusive_disabled[1][1] == -9223372
 ...
 assert(#min_inclusive_enabled == 1 and min_inclusive_enabled[1][1] == min_inclusive_disabled[1][1])
 ---
-- true
+- error: '[string "return assert(#min_inclusive_enabled == 1 and..."]:1: attempt to
+    get length of global ''min_inclusive_enabled'' (a nil value)'
 ...
 assert(#min_exclusive_disabled == 0 and #min_exclusive_enabled == 0)
 ---
-- true
+- error: '[string "return assert(#min_exclusive_disabled == 0 an..."]:1: attempt to
+    get length of global ''min_exclusive_enabled'' (a nil value)'
 ...
 assert(#max_inclusive_disabled == 1 and tostring(max_inclusive_disabled[1][1]) == '9223372036854775807ULL')
 ---

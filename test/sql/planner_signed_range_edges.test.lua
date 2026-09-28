@@ -1,5 +1,5 @@
 test_run = require('test_run').new()
-before, after, summary, err, result = nil, nil, nil, nil, nil
+before, after, summary, err, result, disabled_cross_summary, disabled_cross, enabled_cross_summary, enabled_cross, full_domain_sql, full_domain_disabled, full_domain_enabled, min_inclusive_sql, min_exclusive_sql, max_inclusive_sql, max_exclusive_sql, min_inclusive_disabled, min_exclusive_disabled, max_inclusive_disabled, max_exclusive_disabled, min_inclusive_enabled, min_exclusive_enabled, max_inclusive_enabled, max_exclusive_enabled = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 engine = test_run:get_cfg('engine')
 _ = box.space._session_settings:update('sql_default_engine', {{'=', 2, engine}})
 box.execute([[SET SESSION "sql_seq_scan" = true]])
