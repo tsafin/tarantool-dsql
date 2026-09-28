@@ -672,7 +672,7 @@ sql_physical_table_scan_from_select(
 				else
 					range_end_key = upper.signed_key;
 			}
-		} else if (expr_count <= 2) {
+		} else {
 			for (size_t i = 0; i < expr_count; ++i) {
 				if (!parse_pk_bound(exprs[i], source->iCursor,
 						    primary_field,
@@ -709,44 +709,47 @@ sql_physical_table_scan_from_select(
 							parsed[0].signed_key;
 					}
 				}
-			} else if (expr_count == 1) {
-				has_range_key = true;
-				range_op = parsed[0].op;
-				if (unsigned_point)
-					unsigned_range_key =
-						parsed[0].unsigned_key;
-				else
-					range_key = parsed[0].signed_key;
 			} else {
-				if (parsed[0].op == SQL_PLAN_EQ ||
-				    parsed[1].op == SQL_PLAN_EQ)
+				bool has_lower = false;
+				bool has_upper = false;
+				struct parsed_pk_bound lower = {0};
+				struct parsed_pk_bound upper = {0};
+				for (size_t i = 0; i < expr_count; ++i) {
+					if (parsed[i].op == SQL_PLAN_EQ)
+						goto invalid_predicate;
+					if (parsed[i].op == SQL_PLAN_GT ||
+					    parsed[i].op == SQL_PLAN_GE) {
+						if (!has_lower || pk_bound_is_stricter(
+							    &parsed[i], &lower, true))
+							lower = parsed[i];
+						has_lower = true;
+					} else {
+						if (!has_upper || pk_bound_is_stricter(
+							    &parsed[i], &upper, false))
+							upper = parsed[i];
+						has_upper = true;
+					}
+				}
+				if (!has_lower && !has_upper)
 					goto invalid_predicate;
-				int lower = (parsed[0].op == SQL_PLAN_GT ||
-					     parsed[0].op == SQL_PLAN_GE) ?
-						    0 :
-						    1;
-				int upper = 1 - lower;
-				if ((parsed[lower].op != SQL_PLAN_GT &&
-				     parsed[lower].op != SQL_PLAN_GE) ||
-				    (parsed[upper].op != SQL_PLAN_LT &&
-				     parsed[upper].op != SQL_PLAN_LE))
-					goto invalid_predicate;
-				has_range_key = has_range_end_key = true;
-				range_op = parsed[lower].op;
-				range_end_op = parsed[upper].op;
+				has_range_key = true;
+				has_range_end_key = has_lower && has_upper;
+				range_op = has_lower ? lower.op : upper.op;
+				if (has_range_end_key)
+					range_end_op = upper.op;
 				if (unsigned_point) {
-					unsigned_range_key =
-						parsed[lower].unsigned_key;
-					unsigned_range_end_key =
-						parsed[upper].unsigned_key;
+					unsigned_range_key = has_lower ?
+						lower.unsigned_key : upper.unsigned_key;
+					if (has_range_end_key)
+						unsigned_range_end_key =
+							upper.unsigned_key;
 				} else {
-					range_key = parsed[lower].signed_key;
-					range_end_key =
-						parsed[upper].signed_key;
+					range_key = has_lower ? lower.signed_key :
+						upper.signed_key;
+					if (has_range_end_key)
+						range_end_key = upper.signed_key;
 				}
 			}
-		} else {
-			goto invalid_predicate;
 		}
 		if (null_filter_count != 0 && has_point_key &&
 		    !has_composite_point && pk->part_count != 1)
