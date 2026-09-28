@@ -2176,14 +2176,18 @@ DML, triggers, subprograms, non-deterministic functions.
   is `/tmp/sql-tap-cnp-flag-review.24Sc0V/report.json` at source
   `562ee7a09d870bc704b0d789c31f789ab364e0bf`. LLVM corpus validation and
   M3.7 feature acceptance remain open.
-  The LLVM-mode attempt exposed two build issues, neither a parity result.
-  With `ENABLE_SQL_JIT=ON` and CnP off, `sql_jit_bitcode` now compiles and the
-  sorter template translation unit compiles in both CnP-on and CnP-off
-  configurations; the CnP-off sorter path retains static C++ templates and
-  returns no stitched fragment. A fresh Clang 19 / LLVM 19 / CnP-enabled Debug
-  configuration completed, but the full build ran out of root-filesystem
-  space while writing `vdbeaux.c.o`. No LLVM server or corpus comparison was
-  produced; retry when local disk space is available.
+  The LLVM-mode attempt originally exposed API/build blockers, not a parity
+  result. The server now builds with Clang 19 / LLVM 19 / CnP enabled in a
+  `/dev/shm` build directory, avoiding the full root filesystem. JIT calls and
+  pointer loads now use the explicit-type LLVM C APIs; LLVM 13+ uses the new
+  PassBuilder pipeline and links `LLVMPasses`, while older supported LLVM uses
+  the legacy pass manager. External opcode declarations retain their actual
+  calling convention: `SQL_PRESERVE_NONE` handlers use preserve-none, while
+  ordinary handlers such as `ResultRow` retain the C ABI. The local
+  `sql_stats_test` luatest passes with `SQL_JIT_ENABLE=1`, including compile,
+  execution, and result-row coverage. Full LLVM SQL-TAP off/on/off parity is
+  being rerun from the committed source; M3.7 acceptance remains open until
+  that corpus result and M3.5's producer gate are closed.
   *parallel: no*.
 
 ---

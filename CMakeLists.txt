@@ -822,6 +822,10 @@ if(ENABLE_SQL_JIT)
         PerfJITEvents
         ${LLVM_NATIVE_TARGET}
     )
+    if(LLVM_VERSION_MAJOR GREATER_EQUAL 13)
+        llvm_map_components_to_libnames(LLVM_PASS_BUILDER_LIBS Passes)
+        list(APPEND LLVM_LIBS ${LLVM_PASS_BUILDER_LIBS})
+    endif()
 
     message(STATUS "LLVM native target: ${LLVM_NATIVE_TARGET}")
     message(STATUS "LLVM libraries: ${LLVM_LIBS}")

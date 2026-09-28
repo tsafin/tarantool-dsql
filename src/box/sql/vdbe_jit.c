@@ -40,12 +40,19 @@
 #include <llvm-c/Transforms/Utils.h>
 #include <llvm-c/OrcBindings.h>
 #include <llvm-c/Linker.h>
+#include <llvm/Config/llvm-config.h>
+#if LLVM_VERSION_MAJOR >= 13
+#include <llvm-c/Transforms/PassBuilder.h>
+#endif
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include <stddef.h>
+
+/* LLVM's C API currently omits the IR PreserveNone calling-convention enum. */
+#define LLVM_PRESERVE_NONE_CALL_CONV 21
 #include <limits.h>
 
 extern int64_t sql_jit_compile_count;
@@ -947,8 +954,40 @@ jit_handler_is_external(int opcode)
 	}
 }
 
+static bool
+jit_handler_uses_preserve_none(int opcode)
+{
+	switch (opcode) {
+	case OP_Ne:
+	case OP_Eq:
+	case OP_Gt:
+	case OP_Le:
+	case OP_Lt:
+	case OP_Ge:
+	case OP_Compare:
+	case OP_MustBeInt:
+	case OP_Cast:
+	case OP_Integer:
+	case OP_Bool:
+	case OP_Int64:
+	case OP_Real:
+	case OP_String:
+	case OP_Blob:
+	case OP_Move:
+	case OP_OffsetLimit:
+	case OP_Concat:
+	case OP_ApplyType:
+	case OP_MakeRecord:
+	case OP_RowData:
+		return true;
+	default:
+		return false;
+	}
+}
+
 static LLVMValueRef
-jit_declare_external_handler(LLVMModuleRef module, const char *handler_name)
+jit_declare_external_handler(LLVMModuleRef module, const char *handler_name,
+			     int opcode)
 {
 	LLVMValueRef handler_fn = LLVMGetNamedFunction(module, handler_name);
 	if (handler_fn != NULL)
@@ -957,7 +996,11 @@ jit_declare_external_handler(LLVMModuleRef module, const char *handler_name)
 	LLVMTypeRef arg_types[3] = {ptr_type, ptr_type, ptr_type};
 	LLVMTypeRef handler_type =
 		LLVMFunctionType(LLVMInt32Type(), arg_types, 3, 0);
-	return LLVMAddFunction(module, handler_name, handler_type);
+	handler_fn = LLVMAddFunction(module, handler_name, handler_type);
+	if (jit_handler_uses_preserve_none(opcode))
+		LLVMSetFunctionCallConv(handler_fn,
+					LLVM_PRESERVE_NONE_CALL_CONV);
+	return handler_fn;
 }
 
 static LLVMValueRef
@@ -993,13 +1036,14 @@ jit_load_ptr_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 	LLVMValueRef offset_val =
 		LLVMConstInt(LLVMInt32Type(), (unsigned)offset, 0);
 	LLVMValueRef field_addr =
-		LLVMBuildGEP(builder, base_ptr, &offset_val, 1, "field_addr");
+		LLVMBuildGEP2(builder, LLVMInt8Type(), base_ptr, &offset_val, 1,
+			      "field_addr");
 	/* Cast to pointer-to-pointer so we can load the contained pointer */
 	LLVMTypeRef ptr_ptr_type = LLVMPointerType(ptr_type, 0);
 	LLVMValueRef field_ptr =
 		LLVMBuildBitCast(builder, field_addr, ptr_ptr_type,
 				 "field_ptr");
-	return LLVMBuildLoad(builder, field_ptr, name);
+	return LLVMBuildLoad2(builder, ptr_type, field_ptr, name);
 }
 
 static LLVMValueRef
@@ -1009,11 +1053,12 @@ jit_load_int_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 	LLVMValueRef offset_val =
 		LLVMConstInt(LLVMInt32Type(), (unsigned)offset, 0);
 	LLVMValueRef field_addr =
-		LLVMBuildGEP(builder, base_ptr, &offset_val, 1, "field_addr");
+		LLVMBuildGEP2(builder, LLVMInt8Type(), base_ptr, &offset_val, 1,
+			      "field_addr");
 	LLVMTypeRef int_ptr_type = LLVMPointerType(LLVMInt32Type(), 0);
 	LLVMValueRef field_ptr =
 		LLVMBuildBitCast(builder, field_addr, int_ptr_type, "field_ptr");
-	return LLVMBuildLoad(builder, field_ptr, name);
+	return LLVMBuildLoad2(builder, LLVMInt32Type(), field_ptr, name);
 }
 
 static void
@@ -1053,7 +1098,8 @@ jit_array_element_ptr(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 	LLVMValueRef byte_offset =
 		LLVMConstInt(LLVMInt32Type(),
 			     (unsigned)(index * elem_size), 0);
-	return LLVMBuildGEP(builder, base_ptr, &byte_offset, 1, name);
+	return LLVMBuildGEP2(builder, LLVMInt8Type(), base_ptr, &byte_offset,
+			     1, name);
 }
 
 /**
@@ -1073,7 +1119,8 @@ jit_store_int_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 	LLVMValueRef offset_val =
 		LLVMConstInt(LLVMInt32Type(), (unsigned)offset, 0);
 	LLVMValueRef field_addr =
-		LLVMBuildGEP(builder, base_ptr, &offset_val, 1, "field_addr");
+		LLVMBuildGEP2(builder, LLVMInt8Type(), base_ptr, &offset_val, 1,
+			      "field_addr");
 	LLVMTypeRef int_ptr_type = LLVMPointerType(LLVMInt32Type(), 0);
 	LLVMValueRef field_ptr =
 		LLVMBuildBitCast(builder, field_addr, int_ptr_type,
@@ -1169,14 +1216,16 @@ jit_emit_profile_record(LLVMModuleRef module, LLVMBuilderRef builder, int opcode
 	LLVMValueRef record_fn = jit_get_profile_record_function(module);
 	LLVMValueRef now_fn = jit_get_i64_function(module, "fiber_clock64");
 	LLVMValueRef now_us =
-		LLVMBuildCall(builder, now_fn, NULL, 0, "jit_profile_now");
+		LLVMBuildCall2(builder, LLVMGlobalGetValueType(now_fn), now_fn,
+			       NULL, 0, "jit_profile_now");
 	LLVMValueRef elapsed_us =
 		LLVMBuildSub(builder, now_us, start_us, "jit_profile_elapsed");
 	LLVMValueRef record_args[2] = {
 		LLVMConstInt(LLVMInt32Type(), (uint64_t)opcode, 0),
 		elapsed_us,
 	};
-	LLVMBuildCall(builder, record_fn, record_args, 2, "");
+	LLVMBuildCall2(builder, LLVMGlobalGetValueType(record_fn), record_fn,
+		       record_args, 2, "");
 #else
 	(void)module;
 	(void)builder;
@@ -1601,9 +1650,11 @@ vdbe_jit_compile(struct Vdbe *p)
 
 		if (opcode == OP_Init) {
 #if SQL_VDBE_OP_PROFILE
-			profile_start_us = LLVMBuildCall(builder,
-				jit_get_i64_function(module, "fiber_clock64"),
-				NULL, 0, "jit_profile_start");
+			LLVMValueRef clock_fn =
+				jit_get_i64_function(module, "fiber_clock64");
+			profile_start_us = LLVMBuildCall2(builder,
+				LLVMGlobalGetValueType(clock_fn), clock_fn, NULL, 0,
+				"jit_profile_start");
 #else
 			profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
 #endif
@@ -1620,9 +1671,9 @@ vdbe_jit_compile(struct Vdbe *p)
 							  "sql_vdbe_prepare",
 							  prep_type);
 			LLVMValueRef prep_args[1] = {param_vdbe};
-			LLVMValueRef prep_rc =
-				LLVMBuildCall(builder, prep_fn, prep_args, 1,
-					      "init_rc");
+			LLVMValueRef prep_rc = LLVMBuildCall2(builder,
+				LLVMGlobalGetValueType(prep_fn), prep_fn,
+				prep_args, 1, "init_rc");
 			LLVMValueRef prep_failed =
 				LLVMBuildICmp(builder, LLVMIntNE, prep_rc,
 					      LLVMConstInt(LLVMInt32Type(), 0, 0),
@@ -1650,9 +1701,11 @@ vdbe_jit_compile(struct Vdbe *p)
 
 		if (opcode == OP_Goto) {
 #if SQL_VDBE_OP_PROFILE
-			profile_start_us = LLVMBuildCall(builder,
-				jit_get_i64_function(module, "fiber_clock64"),
-				NULL, 0, "jit_profile_start");
+			LLVMValueRef clock_fn =
+				jit_get_i64_function(module, "fiber_clock64");
+			profile_start_us = LLVMBuildCall2(builder,
+				LLVMGlobalGetValueType(clock_fn), clock_fn, NULL, 0,
+				"jit_profile_start");
 #else
 			profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
 #endif
@@ -1668,9 +1721,11 @@ vdbe_jit_compile(struct Vdbe *p)
 
 		if (opcode == OP_Jump) {
 #if SQL_VDBE_OP_PROFILE
-			profile_start_us = LLVMBuildCall(builder,
-				jit_get_i64_function(module, "fiber_clock64"),
-				NULL, 0, "jit_profile_start");
+			LLVMValueRef clock_fn =
+				jit_get_i64_function(module, "fiber_clock64");
+			profile_start_us = LLVMBuildCall2(builder,
+				LLVMGlobalGetValueType(clock_fn), clock_fn, NULL, 0,
+				"jit_profile_start");
 #else
 			profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
 #endif
@@ -1736,7 +1791,8 @@ vdbe_jit_compile(struct Vdbe *p)
 				LLVMGetNamedFunction(module, special_handler);
 			if (handler_fn == NULL)
 				handler_fn = jit_declare_external_handler(module,
-								  special_handler);
+								  special_handler,
+								  opcode);
 			LLVMValueRef handler_callee = handler_fn;
 			if (handler_fn != NULL) {
 				handler_callee =
@@ -1749,9 +1805,11 @@ vdbe_jit_compile(struct Vdbe *p)
 				continue;
 			}
 #if SQL_VDBE_OP_PROFILE
-			profile_start_us = LLVMBuildCall(builder,
-				jit_get_i64_function(module, "fiber_clock64"),
-				NULL, 0, "jit_profile_start");
+			LLVMValueRef clock_fn =
+				jit_get_i64_function(module, "fiber_clock64");
+			profile_start_us = LLVMBuildCall2(builder,
+				LLVMGlobalGetValueType(clock_fn), clock_fn, NULL, 0,
+				"jit_profile_start");
 #else
 			profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
 #endif
@@ -1765,7 +1823,7 @@ vdbe_jit_compile(struct Vdbe *p)
 				jit_load_ptr_field(builder, param_vdbe,
 						   VDBE_OFFSET_AMEM, "aMem");
 			LLVMTypeRef handler_type =
-				LLVMGetElementType(LLVMTypeOf(handler_fn));
+				LLVMGlobalGetValueType(handler_fn);
 			assert(LLVMCountParamTypes(handler_type) == 3);
 			LLVMTypeRef handler_param_types[3];
 			LLVMGetParamTypes(handler_type, handler_param_types);
@@ -1779,9 +1837,10 @@ vdbe_jit_compile(struct Vdbe *p)
 						 handler_param_types[2],
 						 "aMem_arg"),
 			};
-			LLVMValueRef target_pc =
-				LLVMBuildCall(builder, handler_callee, call_args, 3,
-					      "target_pc");
+			LLVMValueRef target_pc = LLVMBuildCall2(builder, handler_type,
+				handler_callee, call_args, 3, "target_pc");
+			LLVMSetInstructionCallConv(target_pc,
+					LLVMGetFunctionCallConv(handler_fn));
 			LLVMValueRef is_error =
 				LLVMBuildICmp(builder, LLVMIntSLT, target_pc,
 					      LLVMConstInt(LLVMInt32Type(), 0, 0),
@@ -1848,7 +1907,7 @@ vdbe_jit_compile(struct Vdbe *p)
 			LLVMGetNamedFunction(module, handler_name);
 		if (handler_fn == NULL && jit_handler_is_external(opcode))
 			handler_fn = jit_declare_external_handler(module,
-								  handler_name);
+								  handler_name, opcode);
 		LLVMValueRef handler_callee = handler_fn;
 		if (handler_fn != NULL && jit_handler_is_external(opcode)) {
 			handler_callee = jit_resolve_external_handler_addr(
@@ -1864,9 +1923,11 @@ vdbe_jit_compile(struct Vdbe *p)
 			continue;
 		}
 #if SQL_VDBE_OP_PROFILE
-		profile_start_us = LLVMBuildCall(builder,
-			jit_get_i64_function(module, "fiber_clock64"),
-			NULL, 0, "jit_profile_start");
+		LLVMValueRef clock_fn =
+			jit_get_i64_function(module, "fiber_clock64");
+		profile_start_us = LLVMBuildCall2(builder,
+			LLVMGlobalGetValueType(clock_fn), clock_fn, NULL, 0,
+			"jit_profile_start");
 #else
 		profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
 #endif
@@ -1891,8 +1952,7 @@ vdbe_jit_compile(struct Vdbe *p)
 		LLVMValueRef aMem_ptr =
 			jit_load_ptr_field(builder, param_vdbe,
 					   VDBE_OFFSET_AMEM, "aMem");
-		LLVMTypeRef handler_type =
-			LLVMGetElementType(LLVMTypeOf(handler_fn));
+		LLVMTypeRef handler_type = LLVMGlobalGetValueType(handler_fn);
 		assert(LLVMCountParamTypes(handler_type) == 3);
 		LLVMTypeRef handler_param_types[3];
 		LLVMGetParamTypes(handler_type, handler_param_types);
@@ -1904,9 +1964,10 @@ vdbe_jit_compile(struct Vdbe *p)
 			LLVMBuildBitCast(builder, aMem_ptr,
 					 handler_param_types[2], "aMem_arg"),
 		};
-		LLVMValueRef ret_val =
-			LLVMBuildCall(builder, handler_callee, call_args, 3,
-				      "handler_rc");
+		LLVMValueRef ret_val = LLVMBuildCall2(builder, handler_type,
+			handler_callee, call_args, 3, "handler_rc");
+		LLVMSetInstructionCallConv(ret_val,
+					  LLVMGetFunctionCallConv(handler_fn));
 
 		/*
 		 * Check handler return value:
@@ -2004,6 +2065,24 @@ vdbe_jit_compile(struct Vdbe *p)
 	 * This is critical for performance: without inlining, each
 	 * handler call has function-call overhead.
 	 */
+#if LLVM_VERSION_MAJOR >= 13
+	LLVMPassBuilderOptionsRef pass_options = LLVMCreatePassBuilderOptions();
+	LLVMErrorRef pass_error = LLVMRunPasses(module,
+		"function(mem2reg,instcombine,reassociate,gvn,simplifycfg),"
+		"cgscc(inline),globaldce,function(instcombine,simplifycfg)",
+		NULL, pass_options);
+	LLVMDisposePassBuilderOptions(pass_options);
+	if (pass_error != NULL) {
+		char *pass_error_msg = LLVMGetErrorMessage(pass_error);
+		say_error("JIT: failed to run optimization passes: %s",
+			  pass_error_msg != NULL ? pass_error_msg : "unknown");
+		if (pass_error_msg != NULL)
+			LLVMDisposeErrorMessage(pass_error_msg);
+		LLVMDisposeModule(module);
+		free(op_blocks);
+		return -1;
+	}
+	#else
 	LLVMPassManagerRef fpm = LLVMCreateFunctionPassManagerForModule(module);
 	/* Promote allocas to registers */
 	LLVMAddPromoteMemoryToRegisterPass(fpm);
@@ -2038,6 +2117,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	LLVMAddCFGSimplificationPass(mpm);
 	LLVMRunPassManager(mpm, module);
 	LLVMDisposePassManager(mpm);
+	#endif
 
 	jit_add_external_mappings(module);
 	/* Add module to execution engine and compile */
