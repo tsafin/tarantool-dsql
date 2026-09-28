@@ -79,8 +79,8 @@ class TypedCaptureTest(unittest.TestCase):
             manifest = json.loads((out / "manifests/sql-tap/fallback_sql.memtx.json").read_text())
             self.assertEqual(manifest["planner_metrics_version"], 2)
             self.assertEqual(manifest["component_ledger_version"], 1)
-            self.assertEqual(manifest["captured_queries"], 14)
-            self.assertEqual(len(manifest["planner_metrics"]), 11)
+            self.assertEqual(manifest["captured_queries"], 15)
+            self.assertEqual(len(manifest["planner_metrics"]), 12)
             self.assertEqual(manifest["planner_metrics"][0]["path_class"], "fallback")
             self.assertEqual(manifest["planner_metrics"][0]["fallback_count"], 1)
             self.assertGreater(manifest["planner_metrics"][0]["generated"], 0)
@@ -112,12 +112,26 @@ class TypedCaptureTest(unittest.TestCase):
                 else:
                     self.assertNotIn("reason:", snapshot)
                     self.assertNotIn("fallback_to:", snapshot)
-            enabled_route = manifest["planner_metrics"][-1]
+            enabled_routes = [
+                metric for metric in manifest["planner_metrics"]
+                if metric["path_class"] == "new_planner"
+            ]
+            self.assertTrue(enabled_routes)
+            enabled_route = enabled_routes[-1]
             self.assertEqual(enabled_route["path_class"], "new_planner")
             self.assertEqual(enabled_route["fallback_reason"], None)
             self.assertEqual(enabled_route["component_status"], "complete")
             self.assertEqual(enabled_route["component_routes"][0]["route"],
                              "new_planner")
+
+            recursive_anchors = [
+                component
+                for metric in manifest["planner_metrics"]
+                for component in metric["component_routes"]
+                if component["role"] == "recursive_anchor"
+            ]
+            self.assertEqual(len(recursive_anchors), 1)
+            self.assertEqual(recursive_anchors[0]["route"], "direct_values")
 
             path = out / "snapshots/sql-tap/fallback_sql/q01.memtx.yaml"
             valid_snapshot = path.read_text()
