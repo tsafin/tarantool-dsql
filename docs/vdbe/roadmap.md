@@ -2198,7 +2198,13 @@ DML, triggers, subprograms, non-deterministic functions.
   (7 contract assertions, 61 lowering assertions). The expanded isolated
   fixture captures 240 snapshots per engine in generated, CnP, and repeated-
   generated modes; both comparison runs are exact, and CnP participation is
-  observed. LLVM remains unavailable in this build.
+  observed. The feature-flag matrix now asserts `new_planner` and exact rows
+  for descending single- and multi-column suffix ordering over an equality
+  prefix; the scalar-filter matrix likewise expects the already-supported
+  composite suffix-range plus residual-filter route. The full local
+  SQL-luatest suite passes at this revision (54 passed, 1 skipped for volatile
+  ANALYZE's TEST_BUILD requirement, 2 disabled). LLVM remains unavailable in
+  this build.
   Equality-prefix-plus-next-part suffix ranges now also report
   `new_planner` for lower-only, upper-only, bounded, high-UNSIGNED, and
   literal-left forms. Their isolated off/on/off fixture has 72 snapshots per

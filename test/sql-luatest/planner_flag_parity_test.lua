@@ -661,7 +661,11 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             explain, err = box.execute(
                 [[EXPLAIN (planner = 'summary') ]] .. descending)
             t.assert(err == nil, err and err.message)
-            t.assert_equals(explain.rows[1][3], 'fallback')
+            t.assert_equals(explain.rows[1][3], 'new_planner')
+            local descending_on, descending_err = box.execute(descending)
+            t.assert(descending_err == nil,
+                     descending_err and descending_err.message)
+            t.assert_equals(descending_on.rows, {{4, 'b'}, {2, 'a'}})
 
             local suffix_name = 'planner_composite_suffix2_' .. engine
             box.execute(('CREATE TABLE %s (a INTEGER, b UNSIGNED, ' ..
@@ -695,7 +699,12 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
             explain, err = box.execute(
                 [[EXPLAIN (planner = 'summary') ]] .. suffix_desc)
             t.assert(err == nil, err and err.message)
-            t.assert_equals(explain.rows[1][3], 'fallback')
+            t.assert_equals(explain.rows[1][3], 'new_planner')
+            local suffix_desc_on
+            suffix_desc_on, err = box.execute(suffix_desc)
+            t.assert(err == nil, err and err.message)
+            t.assert_equals(suffix_desc_on.rows,
+                {{3, 0, 'next'}, {2, 9, 'late'}, {2, 1, 'early'}})
             box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
             box.execute(('DROP TABLE %s'):format(suffix_name))
             box.execute([[SET SESSION "sql_new_planner_single_table" = true]])

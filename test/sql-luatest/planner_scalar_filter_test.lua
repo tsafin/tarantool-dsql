@@ -74,8 +74,7 @@ g.test_non_primary_null_filters_off_on_off = function()
                            'AND v IS NULL AND w IS NOT NULL')
                           :format(composite_name),
                     expected = {{1, 10}},
-                    enabled_route = 'fallback',
-                    enabled_reason = 'UNSUPPORTED_FILTER',
+                    enabled_route = 'new_planner',
                 },
                 {
                     sql = ('SELECT id FROM %s WHERE v IS NULL ' ..
