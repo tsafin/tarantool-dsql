@@ -497,6 +497,11 @@ them.
   fingerprint equals strict-min selection. The M0 harness validates replayable
   and diagnostic-only v5 forms. The detached selector plus live capture slice
   is complete; the standalone selection replay consumer is tracked in M1.5.
+  The live fingerprint now uses schema-scoped `(space_id, index_id, type,
+  uniqueness)` identity without dereferencing `index_def->key_def`: transient
+  legacy planner loops may carry an invalid nested key-definition pointer, and
+  that field is not owned by the replay capture record. Focused
+  `colname.test.lua` capture passes on both engines after this change.
   *parallel: yes; selector prototype is independent of live producer capture.*
 - [x] **M1.5** Developer-only `sql_replay` API consumes a v5 snapshot artifact
   (and retains v4 read compatibility),
@@ -2030,6 +2035,31 @@ DML, triggers, subprograms, non-deterministic functions.
   focused SQL and broader flag/component matrices pass under generated and CnP
   dispatch. This adds bounded route evidence only; broader M3.4 operators,
   producers, and reviewed-corpus acceptance remain open.
+  **Reviewed SQL-TAP flag capture (2026-09-28).** The new fixed-mode capture
+  option (`--planner-flag=off|on`) pins the session setting before test load,
+  rejects tests that mutate it, and records the mode in each manifest. The
+  off/on/off corpus runner currently scopes this path to reviewed SQL-TAP
+  entries; ordinary M0 capture/inventory remains unchanged. Both engines
+  passed semantic off/on parity and exact off/off repeatability across all
+  accepted SQL-TAP tests: 47,946 memtx queries and 37,990 Vinyl queries.
+  Enabled captures reported 1,710 / 1,682 `new_planner` statements. The
+  comparison isolated 24 / 23 EXPLAIN-row-only differences from executed
+  result parity. Eight route/reason transition classes remain explicitly
+  review-gated (6,078 memtx / 4,044 Vinyl query transitions), including
+  supported adoption, newly explicit filter/relation fallback reasons, and
+  multi-component summary changes; see the emitted `planner_flag_ab.py`
+  report for representative query identities. `sql_reverse_unordered_selects`
+  stays on legacy codegen until reverse-order intent is represented in the
+  descriptor. Upper-only ascending bounds now scan from the beginning and
+  stop at the correct strict/inclusive boundary, covered by `in1.test.lua`.
+  EQP output for full scans and primary-key point lookups now matches legacy
+  detail, covered by `eqp.test.lua` and `lua-tables.test.lua`. The corpus run
+  also exposed and updated the volatile ANALYZE error expectation; legacy
+  opcode-shape checks in `distinct.test.lua` are skipped only in fixed flag-on
+  captures, while both EXPLAIN statements still run. This is a successful
+  SQL-TAP parity prototype, not feature acceptance: route transitions need
+  explicit disposition, SQL and SQL-luatest corpus coverage is not yet run
+  through this mode, and no CI parity gate consumes the report.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this

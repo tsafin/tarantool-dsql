@@ -55,6 +55,26 @@ class TypedCaptureTest(unittest.TestCase):
             self.assertEqual(manifest["planner_metrics"][0]["path_class"], "fallback")
             self.assertEqual(manifest["planner_metrics"][0]["fallback_count"], 1)
 
+    def test_fixed_planner_flag_capture(self):
+        if not BINARY.is_file():
+            self.skipTest(f"Tarantool binary not found: {BINARY}")
+        with tempfile.TemporaryDirectory(prefix="sql-planner-flag-capture-") as temp:
+            temp = Path(temp)
+            work = temp / "work"
+            work.mkdir()
+            out = temp / "capture"
+            env = os.environ.copy()
+            env["VDBE_DISPATCHER"] = "generated"
+            env["SQL_JIT_ENABLE"] = "0"
+            subprocess.run([str(BINARY), str(HARNESS), str(FIXTURE),
+                            "--suite=sql-tap", "--engine=memtx",
+                            "--planner-flag=on", f"--out={out}",
+                            f"--work-dir={work}"],
+                           check=True, env=env, stdout=subprocess.DEVNULL)
+            manifest = json.loads((out / "manifests/sql-tap/typed_sql.memtx.json").read_text())
+            self.assertEqual(manifest["planner_flag"], "on")
+            self.assertTrue(manifest["accepted"])
+
     def test_fallback_reason_survives_sql_snapshot_capture(self):
         if not BINARY.is_file():
             self.skipTest(f"Tarantool binary not found: {BINARY}")

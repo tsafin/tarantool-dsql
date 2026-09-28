@@ -5,6 +5,7 @@
 --   tarantool run.lua <test_file> [--engine=memtx|vinyl] [--out=<baselines_dir>]
 --                          [--work-dir=<empty_database_dir>]
 --                                 [--forensic] [--suite=<name>]
+--                                 [--planner-flag=off|on]
 --
 -- Example:
 --   cd /path/to/build && rm -f *.snap *.xlog
@@ -56,6 +57,7 @@ local function parse_args(args)
         forensic = false,
         suite = nil,
         work_dir = nil,
+        planner_flag = nil,
     }
     for _, a in ipairs(args) do
         if a:sub(1,1) ~= '-' then
@@ -68,6 +70,8 @@ local function parse_args(args)
             result.suite = a:match('^%-%-suite=(.+)')
         elseif a:match('^%-%-work%-dir=(.+)') then
             result.work_dir = a:match('^%-%-work%-dir=(.+)')
+        elseif a:match('^%-%-planner%-flag=(.+)$') then
+            result.planner_flag = a:match('=(.+)$')
         elseif a == '--forensic' then
             result.forensic = true
         end
@@ -84,6 +88,11 @@ if cfg.test_file == nil then
 end
 if cfg.engine ~= 'memtx' and cfg.engine ~= 'vinyl' then
     io.stderr:write('Invalid engine: ' .. tostring(cfg.engine) .. '\n')
+    os.exit(2)
+end
+if cfg.planner_flag ~= nil and cfg.planner_flag ~= 'off' and
+   cfg.planner_flag ~= 'on' then
+    io.stderr:write('Invalid --planner-flag; expected off or on\n')
     os.exit(2)
 end
 local dispatcher_requested = os.getenv('VDBE_DISPATCHER') or 'generated'
@@ -147,6 +156,10 @@ box.cfg {
 -- Enable seq_scan so tests that don't have explicit indexes still work
 box.execute("SET SESSION \"sql_seq_scan\" = true")
 box.space._session_settings:update('sql_default_engine', {{'=', 2, cfg.engine}})
+if cfg.planner_flag ~= nil then
+    box.execute('SET SESSION "sql_new_planner_single_table" = ' ..
+                (cfg.planner_flag == 'on' and 'true' or 'false'))
+end
 local stat_before = box.stat.sql()
 local execution_mode = llvm_requested and 'llvm' or dispatcher_requested
 
@@ -174,6 +187,15 @@ local function intercepted_execute(sql, bindings)
     -- Only intercept plain string SQL calls (not prepared statements)
     if type(sql) ~= 'string' then
         return _real_box_execute(sql, bindings)
+    end
+    if cfg.planner_flag ~= nil then
+        local setting = box.space._session_settings:get(
+            'sql_new_planner_single_table')
+        local expected = cfg.planner_flag == 'on'
+        if setting == nil or setting[2] ~= expected then
+            error('test changed sql_new_planner_single_table during a ' ..
+                  'fixed-mode planner capture', 0)
+        end
     end
     local setting = box.space._session_settings:get('sql_default_engine')
     if not setting or setting[2] ~= cfg.engine then
@@ -498,6 +520,17 @@ if not ok_load and not exited then
         tostring(load_err) .. '\n')
 end
 if exited then ok_load = true end
+local planner_flag_mismatch = false
+if cfg.planner_flag ~= nil then
+    local setting = box.space._session_settings:get(
+        'sql_new_planner_single_table')
+    planner_flag_mismatch = setting == nil or
+        setting[2] ~= (cfg.planner_flag == 'on')
+    if planner_flag_mismatch then
+        io.stderr:write('[harness] Test changed sql_new_planner_single_table ' ..
+                        'during a fixed-mode planner capture\n')
+    end
+end
 local engine_tuple = box.space._session_settings:get('sql_default_engine')
 local runtime_engine = engine_tuple and engine_tuple[2] or 'unknown'
 local stat_after = box.stat.sql()
@@ -563,6 +596,7 @@ local test_ok = ok_load and cfg_errors == 0 and test_exit_code == 0 and
                 test_finished and
                 #captured_queries > 0 and runtime_engine == cfg.engine and
                 not engine_mismatch and mode_executed and
+                not planner_flag_mismatch and
                 #mode_miss_queries == 0
 
 for seq, q in ipairs(test_ok and captured_queries or {}) do
@@ -674,6 +708,7 @@ local manifest = {
     skipped_queries = skipped,
     snapshot_errors = errors_seen,
     planner_metrics_version = 2,
+    planner_flag = cfg.planner_flag,
     component_ledger_version = 1,
     planner_metrics = planner_measurements,
     accepted = rc == 0,

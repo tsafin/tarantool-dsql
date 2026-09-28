@@ -25,7 +25,8 @@ HERE = Path(__file__).resolve().parent
 POLICY = json.loads((HERE / "corpus.json").read_text())
 
 
-def inventory(repo, policy=POLICY, allow_post_baseline_absent=False):
+def inventory(repo, policy=POLICY, allow_post_baseline_absent=False,
+              suites=SUITES):
     if policy.get("scope") not in ("seed-smoke", "full-corpus") or \
        type(policy.get("policy_version")) is not int or \
        policy["policy_version"] < 1:
@@ -34,7 +35,9 @@ def inventory(repo, policy=POLICY, allow_post_baseline_absent=False):
             r"[0-9a-f]{40}", policy.get("baseline_commit", "")):
         raise ValueError("full corpus requires a 40-character baseline commit")
     discovered = set()
-    for suite in SUITES:
+    if not suites or any(suite not in SUITES for suite in suites):
+        raise ValueError("invalid corpus inventory suite scope")
+    for suite in suites:
         suite_dir = repo / "test" / suite
         patterns = ("*.test.lua", "*.test.sql") if suite != "sql-luatest" \
                    else ("*_test.lua",)
@@ -43,6 +46,8 @@ def inventory(repo, policy=POLICY, allow_post_baseline_absent=False):
     included = {}
     for entry in policy["included"]:
         test = entry["test"]
+        if test.split("/", 1)[0] not in suites:
+            continue
         if test in included or test not in discovered:
             raise ValueError(f"duplicate or absent corpus test: {test}")
         engines = entry["engines"]
@@ -64,6 +69,8 @@ def inventory(repo, policy=POLICY, allow_post_baseline_absent=False):
     excluded = {}
     for entry in policy.get("excluded", []):
         test, engines = entry["test"], entry["engines"]
+        if test.split("/", 1)[0] not in suites:
+            continue
         introduced_after_baseline = entry.get("introduced_after_baseline", False)
         if type(introduced_after_baseline) is not bool or \
            (introduced_after_baseline and policy["scope"] != "full-corpus"):
@@ -103,7 +110,7 @@ def inventory(repo, policy=POLICY, allow_post_baseline_absent=False):
                      "pending_engines": pending_engines,
                      "reason": included[test]["reason"] if engines else
                                policy.get("pending_reason", "reviewed exclusion")})
-    if policy["scope"] == "full-corpus" and any(
+    if policy["scope"] == "full-corpus" and tuple(suites) == SUITES and any(
             not any(engine in row["engines"] for row in rows)
             for engine in ENGINES):
         raise ValueError("full corpus must include tests on both engines")
@@ -187,7 +194,7 @@ def check_mode_proof(manifest):
         raise ValueError(f"native mode has no attributed query in {manifest['test_file']}")
 
 
-def check_coverage(root, rows, engine, mode):
+def check_coverage(root, rows, engine, mode, planner_flag=None):
     expected = {(row["test"], engine) for row in rows
                 if row["status"] == "included" and engine in row["engines"]}
     if not expected:
@@ -201,6 +208,8 @@ def check_coverage(root, rows, engine, mode):
            manifest.get("execution_mode") != mode or \
            manifest.get("mode_executed") is not True:
             raise ValueError(f"rejected or wrong-mode manifest: {key}")
+        if planner_flag is not None and manifest.get("planner_flag") != planner_flag:
+            raise ValueError(f"wrong planner flag in manifest: {key}")
         counter = {"cnp": "cnp_exec_delta", "llvm": "llvm_exec_delta"}.get(mode)
         if counter and (not isinstance(manifest.get(counter), (int, float)) or
                         manifest[counter] <= 0):
@@ -226,6 +235,10 @@ def main():
     cap.add_argument("--mode", choices=("generated", "cnp", "llvm"), required=True)
     cap.add_argument("--allow-post-baseline-absent", action="store_true",
                      help="allow reviewed post-baseline exclusions absent here")
+    cap.add_argument("--planner-flag", choices=("off", "on"),
+                     help="capture the reviewed SQL-TAP corpus with a fixed planner flag")
+    cap.add_argument("--test", action="append",
+                     help="capture only this reviewed suite/test identity; repeatable")
     cmp = sub.add_parser("compare-coverage")
     cmp.add_argument("--base", type=Path, required=True)
     cmp.add_argument("--candidate", type=Path, required=True)
@@ -234,8 +247,10 @@ def main():
     cmp.add_argument("--base-mode", choices=("generated", "cnp", "llvm"), default="generated")
     cmp.add_argument("--candidate-mode", choices=("generated", "cnp", "llvm"), default="generated")
     args = parser.parse_args()
+    inventory_suites = ("sql-tap",) if args.command == "capture" and \
+        args.planner_flag is not None else SUITES
     rows = inventory(args.repo.resolve(), allow_post_baseline_absent=getattr(
-        args, "allow_post_baseline_absent", False))
+        args, "allow_post_baseline_absent", False), suites=inventory_suites)
     if args.command == "inventory":
         report = {"policy_version": POLICY["policy_version"],
                   "scope": POLICY["scope"], "tests": rows,
@@ -255,7 +270,22 @@ def main():
         if out.exists() and any(out.iterdir()):
             raise ValueError(f"capture output must be empty: {out}")
         out.mkdir(parents=True, exist_ok=True)
-        selected = [r for r in rows if r["status"] == "included" and
+        capture_rows = rows
+        if args.planner_flag is not None:
+            capture_rows = [r for r in rows if r["test"].startswith("sql-tap/")]
+            if not capture_rows:
+                raise ValueError("no SQL-TAP tests in reviewed corpus")
+        if args.test:
+            requested = set(args.test)
+            reviewed = {r["test"] for r in capture_rows
+                        if r["status"] == "included" and
+                        args.engine in r["engines"]}
+            unknown = requested - reviewed
+            if unknown:
+                raise ValueError(f"tests are not included in this reviewed capture: "
+                                 f"{sorted(unknown)}")
+            capture_rows = [r for r in capture_rows if r["test"] in requested]
+        selected = [r for r in capture_rows if r["status"] == "included" and
                     args.engine in r["engines"]]
         if not selected:
             raise ValueError(f"empty reviewed corpus for engine {args.engine}")
@@ -306,12 +336,16 @@ def main():
                 # connect through LISTEN. Give each test its own Unix socket;
                 # no shared TCP port or database directory is involved.
                 test_env["LISTEN"] = f"unix/:{work}/listen.sock"
-                run(binary, harness, repo / "test" / row["test"],
-                    f"--engine={args.engine}", f"--out={out}",
-                    f"--work-dir={work}", env=test_env, cwd=build_dir,
-                    timeout=300)
+                command = [binary, harness, repo / "test" / row["test"],
+                           f"--engine={args.engine}", f"--out={out}",
+                           f"--work-dir={work}"]
+                if args.planner_flag is not None:
+                    command.append(f"--planner-flag={args.planner_flag}")
+                timeout = 600 if args.planner_flag is not None else 300
+                run(*command, env=test_env, cwd=build_dir, timeout=timeout)
         run(binary, HERE / "validate.lua", out, cwd=build_dir)
-        check_coverage(out, rows, args.engine, args.mode)
+        check_coverage(out, capture_rows, args.engine, args.mode,
+                       planner_flag=args.planner_flag)
     else:
         base = check_coverage(args.base, rows, args.engine, args.base_mode)
         candidate = check_coverage(args.candidate, rows, args.engine,
