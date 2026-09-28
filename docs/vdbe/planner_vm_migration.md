@@ -495,6 +495,14 @@ harness rejects incomplete successful SELECT captures. M3.5 remains open until
 the reviewed corpus producer inventory is covered and broader mixed/direct/
 nested runtime evidence closes the route matrix.
 
+The 2026-09-28 caller inventory also finds `sqlSelect()` producers outside
+`select.c`: INSERT-from-SELECT in `insert.c`, view materialization for DELETE
+in `delete.c`, and SELECT trigger steps in `trigger.c`. They compile SELECT
+components into DML or trigger VDBEs rather than an ordinary top-level SELECT
+statement. The component-scope policy for these embedded producers and their
+runtime/capture coverage must be made explicit before M3.5 can be called
+complete; no producer role is inferred solely from the C call site.
+
 ```mermaid
 flowchart TD
   S[Prepared statement VDBE] --> L[Component route ledger]
