@@ -34,6 +34,7 @@
  * to handle INSERT statements in sql.
  */
 #include "sqlInt.h"
+#include "sql_plan_component.h"
 #include "tarantoolInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
@@ -400,7 +401,12 @@ sqlInsert(Parse * pParse,	/* Parser context */
 		sqlSelectDestInit(&dest, SRT_Coroutine, regYield, -1);
 		dest.iSdst = bIdListInOrder ? regData : 0;
 		dest.nSdst = space_def->field_count;
+		int old_component_role = pParse->planner_component_role;
+		if (pParse->explain == 4)
+			pParse->planner_component_role =
+				SQL_PLAN_COMPONENT_INSERT_SELECT_ROOT;
 		rc = sqlSelect(pParse, pSelect, &dest);
+		pParse->planner_component_role = old_component_role;
 		regFromSelect = dest.iSdst;
 		if (rc != 0 || pParse->is_aborted)
 			goto insert_cleanup;

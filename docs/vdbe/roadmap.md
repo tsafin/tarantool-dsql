@@ -1741,6 +1741,15 @@ DML, triggers, subprograms, non-deterministic functions.
   entries. M3.5 remains open until those reviewed-corpus producers and route
   changes are dispositioned.
 
+  **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
+  its snapshot-mode `sqlSelect()` producer as the explicit root role
+  `insert_select_root`; ledger validation and statement-summary selection treat
+  that role as a root while retaining the normal root identity/parent
+  invariants. A focused luatest checks the snapshot records one complete
+  non-fallback embedded route and that executing the INSERT populates target
+  rows. DELETE view materialization and SELECT trigger-step producers remain
+  open, and this slice does not close M3.5's broader reviewed-corpus gate.
+
   **Extended timeout triage (2026-09-28).** A fresh standalone retry with a
   60-second per-file limit accepted `in2`, `select2`, and `select9` on both
   engines, with 6,001 / 30,073 / 21,313 captured statements respectively and

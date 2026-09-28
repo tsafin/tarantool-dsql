@@ -5663,7 +5663,8 @@ sql_select_component_register(Parse *parse, Select *select,
 	uint32_t id = (uint32_t)parse->iSelectId + 1;
 	uint32_t parent_id = parse->iSelectId == 0 ? 0 :
 		(uint32_t)parent_select_id + 1;
-	enum sql_plan_component_role role = SQL_PLAN_COMPONENT_ROOT;
+	enum sql_plan_component_role role = parse->iSelectId == 0 &&
+		producer_role != 0 ? producer_role : SQL_PLAN_COMPONENT_ROOT;
 	if (parse->iSelectId != 0) {
 		/* The recursive call site is authoritative when it knows the
 		 * producer. SELECT flags fill in relationships recorded by codegen,

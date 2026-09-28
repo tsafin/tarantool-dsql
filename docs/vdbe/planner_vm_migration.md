@@ -503,15 +503,19 @@ statement. The component-scope policy for these embedded producers and their
 runtime/capture coverage must be made explicit before M3.5 can be called
 complete; no producer role is inferred solely from the C call site.
 
-A focused runtime probe of
-`EXPLAIN (planner = 'snapshot') INSERT INTO target SELECT ... FROM source`
-confirms that this boundary is not merely undocumented: the returned snapshot
-currently contains zero `component_routes`. The INSERT source does compile via
-`sqlSelect()` in ordinary DML, but the snapshot probe does not establish that
-the DML explain path preserves the planner-snapshot mode through that call.
-Do not add an `insert_source` role based only on the compiler call site; first
-make the DML snapshot behavior observable, then decide whether the embedded
-SELECT belongs in M3.5's ledger contract or remains an explicit DML exclusion.
+INSERT-from-SELECT is now included in the component ledger when captured with
+`EXPLAIN (planner = 'snapshot')`. Its embedded SELECT is the component root,
+with the explicit `insert_select_root` role; nested SELECT producers remain
+children using their ordinary roles. Root summary semantics include this role,
+so the statement summary reflects the embedded SELECT route rather than an
+arbitrary component or a blanket DML fallback. A focused runtime test verifies
+that the root route is captured without classifying the INSERT itself as a
+fallback and separately executes the DML to check row production.
+
+This closes only the INSERT-from-SELECT ledger slice. DELETE view
+materialization and SELECT trigger steps remain open producer boundaries, and
+the broader reviewed-corpus producer inventory is still required before M3.5
+can close.
 
 ```mermaid
 flowchart TD
