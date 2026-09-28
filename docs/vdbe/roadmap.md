@@ -1768,6 +1768,11 @@ DML, triggers, subprograms, non-deterministic functions.
   coverage remains open until the producer lifecycle/ledger ownership is
   understood; no unsupported route claim is made.
 
+  The updated INSERT-SELECT/view-DML focused luatest also passes the typed
+  per-engine capture audit in generated mode and generated-repeat parity on
+  memtx and Vinyl. CnP and LLVM execution modes were not observed by this
+  Debug build, so this is not normal-runner or dispatch-mode parity evidence.
+
   **Extended timeout triage (2026-09-28).** A fresh standalone retry with a
   60-second per-file limit accepted `in2`, `select2`, and `select9` on both
   engines, with 6,001 / 30,073 / 21,313 captured statements respectively and
