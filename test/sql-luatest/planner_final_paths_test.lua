@@ -251,6 +251,7 @@ end
 g.test_snapshot_component_ledger_covers_producer_matrix = function()
     local snapshots = g.server:exec(function()
         local msgpack = require('msgpack')
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
         box.execute([[CREATE TABLE planner_component_matrix (
             id INTEGER PRIMARY KEY, v INTEGER)]])
         box.execute([[INSERT INTO planner_component_matrix VALUES

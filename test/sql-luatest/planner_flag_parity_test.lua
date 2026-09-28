@@ -124,6 +124,8 @@ g.test_feature_flag_is_session_local = function()
     local table_name = 'planner_flag_session_local'
     first:execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY)'):format(table_name))
     first:execute(('INSERT INTO %s VALUES (1)'):format(table_name))
+    first:execute([[SET SESSION "sql_seq_scan" = true]])
+    second:execute([[SET SESSION "sql_seq_scan" = true]])
     local query = ('SELECT id FROM %s'):format(table_name)
     local explain = [[EXPLAIN (planner = 'summary') ]] .. query
 
@@ -136,6 +138,9 @@ g.test_feature_flag_is_session_local = function()
     t.assert_equals(route(first), 'current_where_c')
     t.assert_equals(route(second), 'current_where_c')
     first:execute([[SET SESSION "sql_new_planner_single_table" = true]])
+    t.assert_equals(first:execute([[SELECT value FROM _session_settings
+                                     WHERE name = 'sql_new_planner_single_table']]
+                                 ).rows[1][1], true)
     t.assert_equals(route(first), 'new_planner')
     t.assert_equals(route(second), 'current_where_c')
 
