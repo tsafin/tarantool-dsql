@@ -1231,7 +1231,7 @@ DML, triggers, subprograms, non-deterministic functions.
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
   not reviewed-corpus feature acceptance.
-  Compound/general boolean predicates, filtered composite-prefix ranges, and
+  Compound/general boolean predicates, filtered composite suffix ranges, and
   other scalar operators remain outside this route. Direct-column full
   scans and primary-key ordering also pass
   off/on/off parity for a TEXT primary key on both engines; the enabled route
@@ -2020,21 +2020,16 @@ DML, triggers, subprograms, non-deterministic functions.
   `new_planner` on enabled execution. Multiple residuals now also pass through
   supported scans and single-part ranges. Composite suffix ranges remain
   fail-closed; leading-part equality uses the existing bounded-range route.
-  A material lowering extension admits up to eight direct non-primary `IS NULL`
-  or `IS NOT NULL` predicates alongside a single-part INTEGER/UNSIGNED
-  primary-key equality. The point lowerer evaluates all residuals after
-  `NotFound` and before projection, with each miss/filter branch joining after
-  `ResultRow`. SQL off/on/off parity cases cover both predicates together,
-  reversed predicate order, a matching row, residual rejection, and a missing
-  key on memtx and Vinyl; the VDBE unit pins both opcodes and the shared branch
-  target. Multiple residuals remain rejected on range and scan-only shapes;
-  incomplete composite equality remains fail-closed, and the descriptor
-  rejects filter lists above the fixed bound of eight. The integrated Debug
-  build passed; the VDBE unit passes all 47 assertions and the focused
-  memtx/Vinyl luatest passes under generated and CnP dispatch. The earlier
-  single-filter route's incremental Debug build and 45-assertion VDBE unit plus
-  memtx/Vinyl luatest also passed. The broader M3.4 operator
-  and producer coverage remains open.
+  Bounded residual lowering now spans full scans, supported single-part
+  primary-key ranges, and complete single-/composite-key points. Up to eight
+  direct non-primary NULL / NOT NULL checks run before projection; unsupported
+  composite suffix ranges and filter-list overflow remain fail-closed. The
+  memtx/Vinyl off/on/off matrix covers conjunction-only scans, one-/two-sided
+  ranges, point hit/reject/miss, contradictory filters, and composite point
+  equality. The integrated Debug build and all 49 VDBE assertions pass; the
+  focused SQL and broader flag/component matrices pass under generated and CnP
+  dispatch. This adds bounded route evidence only; broader M3.4 operators,
+  producers, and reviewed-corpus acceptance remain open.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
