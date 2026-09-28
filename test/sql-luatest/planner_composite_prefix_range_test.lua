@@ -17,14 +17,15 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do
             local name = 'planner_prefix_range_' .. engine
             box.execute(('CREATE TABLE %s (a INTEGER, b UNSIGNED, c INTEGER, ' ..
-                         'v STRING, PRIMARY KEY (a, b, c)) WITH ENGINE = \'%s\'')
+                         'v STRING, n STRING, PRIMARY KEY (a, b, c)) ' ..
+                         'WITH ENGINE = \'%s\'')
                         :format(name, engine))
             box.execute(('INSERT INTO %s VALUES ' ..
-                         '(1, 10, 2, \'a\'), (1, 20, 3, \'b\'), ' ..
-                         '(1, 20, 1, \'c\'), (1, 30, 2, \'d\'), ' ..
-                         '(1, 40, 1, \'e\'), (2, 20, 1, \'f\'), ' ..
-                         '(1, 9223372036854775808, 2, \'g\'), ' ..
-                         '(1, 18446744073709551615, 1, \'max\')')
+                         '(1, 10, 2, \'a\', \'x\'), (1, 20, 3, \'b\', NULL), ' ..
+                         '(1, 20, 1, \'c\', \'x\'), (1, 30, 2, \'d\', NULL), ' ..
+                         '(1, 40, 1, \'e\', NULL), (2, 20, 1, \'f\', NULL), ' ..
+                         '(1, 9223372036854775808, 2, \'g\', NULL), ' ..
+                         '(1, 18446744073709551615, 1, \'max\', NULL)')
                         :format(name))
             local queries = {
                 ('SELECT v FROM %s WHERE a = 1 AND b >= 20 ' ..
@@ -55,6 +56,15 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                     :format(name),
                 ('SELECT v FROM %s WHERE a = 3 AND b >= 20 ' ..
                  'ORDER BY b DESC, c DESC'):format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND b >= 20 AND b < 40 ' ..
+                 'AND n IS NULL ORDER BY a ASC, b ASC, c ASC'):format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND b >= 20 AND b < 40 ' ..
+                 'AND n IS NOT NULL ORDER BY b DESC, c DESC'):format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND b >= 10 AND b < 40 ' ..
+                 'AND n IS NULL ORDER BY b ASC, c ASC LIMIT 1 OFFSET 1')
+                    :format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND b = 20 AND n IS NULL ' ..
+                 'ORDER BY c ASC'):format(name),
             }
             local expected = {
                 {{'c'}, {'b'}, {'d'}, {'e'}, {'g'}, {'max'}},
@@ -70,6 +80,10 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                 {{'max'}, {'g'}, {'e'}, {'d'}},
                 {{'max'}},
                 {},
+                {{'b'}, {'d'}},
+                {{'c'}},
+                {{'d'}},
+                {{'b'}},
             }
             local function capture(enabled)
                 local rows = {}

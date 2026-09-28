@@ -1355,7 +1355,18 @@ DML, triggers, subprograms, non-deterministic functions.
   missing equality-prefix case that must stop at the prefix guard; generated
   and CnP focused runs pass on memtx and Vinyl. LLVM was not run for this
   change. Other range predicates, gaps in
-  the equality prefix, and duplicate bounds remain fail-closed. The immutable descriptor now
+  the equality prefix, and duplicate bounds remain fail-closed. Composite
+  equality-prefix scans/ranges now also accept up to eight direct non-primary
+  `IS NULL` / `IS NOT NULL` residual filters. The lowerer checks prefix and
+  range termination before the residual, then branches rejected rows to the
+  next cursor step; LIMIT/OFFSET count only accepted rows. The regression adds
+  prefix-equality filtering, bounded ASC filtering, DESC `IS NOT NULL`, and
+  filtered LIMIT/OFFSET, with
+  exact off/on/off row parity on memtx and Vinyl. Typed generated/CnP capture
+  validates 216 snapshots per engine with exact 216/216 comparisons; CnP
+  participation is observed. The VDBE unit target passes all 60 checks,
+  including the prefix-range filter jump target. LLVM was not run because the
+  build has JIT disabled. The immutable descriptor now
   also distinguishes direct projection columns from canonical scalar
   projection expressions by expression reference. The production route calls
   SQL's existing `sqlExprCode()` for those expression slots inside each row's

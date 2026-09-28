@@ -243,7 +243,8 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 	    in->access.prefix_key_part_count == 0 ||
 	    in->access.prefix_key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
 	    in->access.prefix_key_part_count > INT_MAX || in->access.bounds == NULL ||
-	    in->filter_count != 0 ||
+	    in->filter_count > SQL_PLAN_FILTER_MAX ||
+	    (in->filter_count != 0 && in->filters == NULL) ||
 	    in->finalize_count > 1 ||
 	    (in->finalize_count == 1 &&
 	     (in->finalize == NULL ||
@@ -266,6 +267,11 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 			 in->access.has_unsigned_range_key !=
 			 in->access.has_unsigned_range_end_key)))))
 		return -1;
+	for (size_t i = 0; i < in->filter_count; ++i)
+		if ((in->filters[i].op != SQL_PLAN_FILTER_IS_NULL &&
+		     in->filters[i].op != SQL_PLAN_FILTER_IS_NOT_NULL) ||
+		    in->filters[i].column > INT_MAX)
+			return -1;
 	for (size_t i = 0; i < in->access.prefix_key_part_count; ++i)
 		if (in->access.bounds[i].op != SQL_PLAN_EQ ||
 		    in->access.prefix_key_parts[i].column > INT_MAX)
@@ -302,7 +308,7 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 	int key_count = (int)in->access.prefix_key_part_count;
 	int extra_regs = key_count + 1 + (has_lower ? 1 : 0) +
 		(has_upper ? 1 : 0) + (has_limit ? 1 : 0) +
-		(has_offset ? 1 : 0);
+		(has_offset ? 1 : 0) + (in->filter_count != 0 ? 1 : 0);
 	if (parse->nMem > INT_MAX - extra_regs)
 		return -1;
 	struct vdbe_codegen_checkpoint checkpoint;
@@ -322,6 +328,7 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 		range_end_reg = has_upper ? ++parse->nMem : 0;
 	}
 	int current_reg = ++parse->nMem;
+	int filter_reg = in->filter_count == 0 ? 0 : ++parse->nMem;
 	int limit_reg = has_limit ? ++parse->nMem : 0;
 	int offset_reg = has_offset ? ++parse->nMem : 0;
 	for (int i = 0; i < key_count; ++i) {
@@ -468,6 +475,21 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto prefix_error;
 	}
+	int filter_breaks[SQL_PLAN_FILTER_MAX];
+	for (size_t i = 0; i < in->filter_count; ++i) {
+		const struct sql_plan_filter *filter = &in->filters[i];
+		int addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
+					 filter->column, filter_reg);
+		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto prefix_error;
+		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
+			OP_IsNull;
+		filter_breaks[i] = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
+		if (filter_breaks[i] != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto prefix_error;
+	}
 	int offset_skip = has_offset ?
 		sqlVdbeAddOp2(vdbe, OP_IfNotZero, offset_reg, 0) : -1;
 	if (has_offset && (offset_skip != vdbe->nOp - 1 || parse->is_aborted ||
@@ -491,6 +513,9 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 		goto prefix_error;
 	if (offset_skip >= 0)
 		sqlVdbeJumpHere(vdbe, offset_skip);
+	/* Residual rejection keeps scanning inside the matching prefix range. */
+	for (size_t i = 0; i < in->filter_count; ++i)
+		sqlVdbeJumpHere(vdbe, filter_breaks[i]);
 	int next = sqlVdbeAddOp2(vdbe, descending ? OP_Prev : OP_Next,
 				  cursor, body);
 	if (next != vdbe->nOp - 1 || parse->is_aborted ||

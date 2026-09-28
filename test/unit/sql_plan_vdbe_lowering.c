@@ -356,7 +356,8 @@ new_composite_prefix_descriptor(bool with_limit, uint64_t limit,
 static struct sql_plan_descriptor *
 new_composite_prefix_range_descriptor(bool bounded,
 				      enum sql_plan_direction direction,
-				      enum sql_plan_bound_op lower_op)
+				      enum sql_plan_bound_op lower_op,
+				      bool with_null_filter)
 {
 	static const uint32_t columns[] = {2};
 	static const struct sql_plan_point_key_part prefix[] = {
@@ -366,6 +367,12 @@ new_composite_prefix_range_descriptor(bool bounded,
 		{.id = 1, .canonical = "prefix-key-part"},
 		{.id = 2, .canonical = "unsigned-range-lower"},
 		{.id = 3, .canonical = "unsigned-range-upper"},
+		{.id = 4, .canonical = "direct-column-null-filter"},
+	};
+	static const struct sql_plan_filter filter = {
+		.expr_ref = 4,
+		.column = 3,
+		.op = SQL_PLAN_FILTER_IS_NULL,
 	};
 	struct sql_plan_bound bounds[] = {
 		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1},
@@ -393,10 +400,12 @@ new_composite_prefix_range_descriptor(bool bounded,
 			.range_key_column = 1,
 			.direction = direction,
 		},
+		.filters = with_null_filter ? &filter : NULL,
+		.filter_count = with_null_filter ? 1 : 0,
 		.projection_columns = columns,
 		.projection_column_count = 1,
 		.expressions = expressions,
-		.expression_count = bounded ? 3 : 2,
+		.expression_count = (bounded ? 3 : 2) + with_null_filter,
 	};
 	return sql_plan_descriptor_new(&input);
 }
@@ -722,7 +731,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(57);
+	plan(60);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -802,13 +811,16 @@ main(void)
 		new_composite_prefix_descriptor(true, 0, 0);
 	struct sql_plan_descriptor *composite_prefix_range_desc =
 		new_composite_prefix_range_descriptor(false, SQL_PLAN_ASC,
-						      SQL_PLAN_GT);
+						      SQL_PLAN_GT, false);
 	struct sql_plan_descriptor *composite_prefix_bounded_range_desc =
 		new_composite_prefix_range_descriptor(true, SQL_PLAN_ASC,
-						      SQL_PLAN_GT);
+						      SQL_PLAN_GT, false);
 	struct sql_plan_descriptor *composite_prefix_desc_lower_only_desc =
 		new_composite_prefix_range_descriptor(false, SQL_PLAN_DESC,
-						      SQL_PLAN_GE);
+						      SQL_PLAN_GE, false);
+	struct sql_plan_descriptor *composite_prefix_range_filter_desc =
+		new_composite_prefix_range_descriptor(true, SQL_PLAN_ASC,
+						      SQL_PLAN_GE, true);
 	struct sql_plan_descriptor *range_gt_desc =
 		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false, SQL_PLAN_ASC,
 				     NULL);
@@ -866,6 +878,7 @@ main(void)
 	   composite_point_desc != NULL &&
 	   composite_point_filter_desc != NULL &&
 	   composite_prefix_desc != NULL &&
+	   composite_prefix_range_filter_desc != NULL &&
 	   composite_prefix_limit_desc != NULL &&
 	   composite_prefix_offset_desc != NULL &&
 	   composite_prefix_zero_desc != NULL &&
@@ -1219,6 +1232,34 @@ main(void)
 	   vdbe.aOp[before_prefix_desc_lower_only + 8].opcode == OP_ResultRow &&
 	   vdbe.aOp[before_prefix_desc_lower_only + 9].opcode == OP_Prev,
 	   "descending lower-only prefix range seeks on prefix and guards suffix");
+	int before_prefix_range_filter = vdbe.nOp;
+	int prefix_filter_rc = sql_plan_lower_vdbe_pk_prefix_scan(
+		composite_prefix_range_filter_desc, &vdbe, 4, 20);
+	int filter_seek = -1, filter_range_end = -1, filter_null_check = -1;
+	int filter_result = -1, filter_next = -1;
+	if (prefix_filter_rc == 0) {
+		for (int i = before_prefix_range_filter; i < vdbe.nOp; ++i) {
+			if (vdbe.aOp[i].opcode == OP_SeekGE)
+				filter_seek = i;
+			if (vdbe.aOp[i].opcode == OP_Le)
+				filter_range_end = i;
+			if (vdbe.aOp[i].opcode == OP_NotNull)
+				filter_null_check = i;
+			if (vdbe.aOp[i].opcode == OP_ResultRow)
+				filter_result = i;
+			if (vdbe.aOp[i].opcode == OP_Next)
+				filter_next = i;
+		}
+	}
+	ok(prefix_filter_rc == 0,
+	   "bounded prefix range accepts a null residual filter");
+	ok(filter_seek >= before_prefix_range_filter &&
+	   filter_range_end > filter_seek &&
+	   filter_null_check > filter_range_end &&
+	   filter_result > filter_null_check && filter_next > filter_result,
+	   "bounded prefix range tests range end and residual before projection");
+	ok(filter_null_check >= 0 && vdbe.aOp[filter_null_check].p2 == filter_next,
+	   "prefix residual rejection jumps directly to the next cursor row");
 	int before_range_gt = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(range_gt_desc, &vdbe, 4, 20) == 0,
 	   "strict lower range descriptor lowers successfully");
@@ -1415,6 +1456,7 @@ main(void)
 	sql_plan_descriptor_delete(composite_prefix_range_desc);
 	sql_plan_descriptor_delete(composite_prefix_bounded_range_desc);
 	sql_plan_descriptor_delete(composite_prefix_desc_lower_only_desc);
+	sql_plan_descriptor_delete(composite_prefix_range_filter_desc);
 	sql_plan_descriptor_delete(range_gt_desc);
 	sql_plan_descriptor_delete(range_le_desc);
 	sql_plan_descriptor_delete(range_ge_desc);

@@ -149,9 +149,13 @@ unsupported shape. Its bounded filter grammar admits primary-key bounds and
 unary `IS NULL` / `IS NOT NULL` column tests. The primary-key NULL tests use
 the schema invariant (identity or empty result); direct non-primary column
 tests on a full scan are represented as typed residual filters and lowered
-with `Column` plus a null-branch opcode. Compound predicates and NULL filters
-combined with an index range remain unsupported. Literal nonnegative LIMIT
-and optional OFFSET are passed to the producer for range validation. It runs at
+with `Column` plus a null-branch opcode. Up to eight such non-primary residual
+filters may be combined with a supported point, one-part range, or composite
+prefix scan/range. On a prefix scan, equality-prefix and range-end guards run
+before residual checks; a rejected in-range row jumps to the cursor step, not
+the loop exit. Compound predicates outside that bounded grammar remain
+unsupported. Literal nonnegative LIMIT and optional OFFSET are passed to the
+producer for range validation. It runs at
 `sqlSelect()` entry before the select ID is advanced or that function emits
 preamble VDBE.
 Explicit reject values distinguish unresolved input, destination, relation,
@@ -199,9 +203,10 @@ terminate the walk; rejected in-range rows skip to `Next`. SQL tests pin exact
 flag-off/on/off parity on memtx and Vinyl, with exact generated/CnP snapshot
 parity (85 snapshots per engine). Literal LIMIT/OFFSET is applied only after
 the key-range and NULL predicates; a duplicate residual NULL test stays on
-the `UNSUPPORTED_FILTER` fallback. Compound/general boolean predicates,
-filtered composite-prefix ranges, and other scalar expressions remain on
-legacy codegen. A TEXT
+the `UNSUPPORTED_FILTER` fallback. Composite-prefix scan/range tests cover
+`IS NULL` and `IS NOT NULL`, including descending scans and LIMIT/OFFSET, on
+memtx and Vinyl with exact generated/CnP snapshots. Compound/general boolean
+predicates and other scalar expressions remain on legacy codegen. A TEXT
 primary key also uses the ordered
 new-planner scan path and preserves descending order with LIMIT on memtx and
 Vinyl. The disabled route currently classifies this ordered scan as
