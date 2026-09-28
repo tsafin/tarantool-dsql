@@ -2109,9 +2109,34 @@ DML, triggers, subprograms, non-deterministic functions.
   supported route adoptions. The earlier `seq_scan_test/q14` transition to
   `INVALID_CANDIDATE` is absent after the upper-only range fix. The report is
   `/tmp/upper-range-commit-flag-review/report.json`. This dispositions the
-  SQL-luatest route transitions only; the SQL-TAP transition inventory, the
-  `sql/iproto.test.lua` observer-counter incompatibility, and corpus-wide
+  SQL-luatest route transitions only; reason-precedence review for SQL-TAP,
+  the `sql/iproto.test.lua` observer-counter incompatibility, and corpus-wide
   feature acceptance remain open. *parallel: no*.
+  **Reviewed SQL-TAP route-transition inventory (2026-09-28, source
+  `3d9429c3e9e370da26bf65b2d62ba97d5c8dc741`).** A fresh generated-mode
+  fixed-flag off/on/off run passed executed-result parity and off-repeat
+  checks: 232 tests / 47,946 queries on memtx and 232 / 37,990 on Vinyl,
+  with zero semantic diffs and 24 EXPLAIN-row-only differences on each
+  engine. The current report groups the transitions into seven classes (the
+  earlier estimate of eight was not backed by a retained report):
+  `current_where_c → new_planner` (1,552 / 1,538),
+  `fallback / UNSUPPORTED_EXPRESSION → new_planner` (167 / 153),
+  `current_where_c → fallback / UNSUPPORTED_FILTER` (2,173 / 2,172),
+  `mixed → fallback / UNSUPPORTED_RELATION_COUNT` (2,059 / 60),
+  `mixed → fallback / UNSUPPORTED_SUBQUERY` (26 / 25), and two reason-only
+  changes to `UNSUPPORTED_FILTER` from `UNSUPPORTED_AGGREGATE` (44 / 44) or
+  `UNSUPPORTED_EXPRESSION` (57 / 52). The first five classes have coherent
+  structural explanations in representative SQL: supported scan/order
+  adoption, a previously rejected but now canonical expression, fail-closed
+  residual filters, multi-relation rejection, and subquery rejection. Their
+  results remain on the legacy executor when rejected, and strict semantic
+  parity passes. The last two classes combine multiple unsupported features;
+  choosing filter over aggregate/expression is a fallback-reason precedence
+  change, not a result change. Keep those reason-only classes review-gated
+  until M3.5 defines and tests precedence for queries with multiple rejection
+  causes. The report is `/tmp/sql-tap-flag-review.BVkQf6/report.json`; this is
+  generated-mode inventory, not CnP/LLVM corpus acceptance. M3.7 remains open.
+  *parallel: no*.
 
 ---
 
