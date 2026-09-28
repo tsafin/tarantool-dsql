@@ -73,6 +73,9 @@ is_filter_predicate_tree(const struct Expr *expr, int cursor,
 						term_count, depth + 1) &&
 			is_filter_predicate_tree(expr->pRight, cursor, field_count,
 						  term_count, depth + 1);
+	if (expr->op == TK_NOT && expr->pLeft != NULL && expr->pRight == NULL)
+		return is_filter_predicate_tree(expr->pLeft, cursor, field_count,
+						term_count, depth + 1);
 	if (!is_comparison_predicate(expr) && !is_between_predicate(expr) &&
 	    !is_direct_null_predicate(expr, cursor, field_count))
 		return false;

@@ -76,6 +76,9 @@ is_supported_boolean_filter(const struct Expr *expr, int cursor,
 						   depth + 1) &&
 			is_supported_boolean_filter(expr->pRight, cursor, field_count,
 						     depth + 1);
+	if (expr->op == TK_NOT && expr->pLeft != NULL && expr->pRight == NULL)
+		return is_supported_boolean_filter(expr->pLeft, cursor, field_count,
+						   depth + 1);
 	if ((expr->op == TK_ISNULL || expr->op == TK_NOTNULL) &&
 	    expr->pRight == NULL)
 		return is_source_column(expr->pLeft, cursor, field_count);
@@ -496,7 +499,7 @@ sql_physical_table_scan_from_select(
 		size_t bound_count = 0;
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
-			if (term->op == TK_OR &&
+			if ((term->op == TK_OR || term->op == TK_NOT) &&
 			    is_supported_boolean_filter(term, source->iCursor,
 							source->space->def->field_count, 0)) {
 				if (filter_count == SQL_PLAN_FILTER_MAX)
