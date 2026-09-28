@@ -3,8 +3,10 @@
 #include "mem.h"
 
 extern "C" {
+#ifdef ENABLE_SQL_CNP
 #include "generated/vdbe_sorter_cnp_fragments.h"
 #include "generated/vdbe_sorter_writer_cnp_fragments.h"
+#endif
 #include "msgpuck.h"
 }
 
@@ -489,6 +491,7 @@ vdbeSorterCompareCnpFieldIntLike(const char **field1, const char **field2)
 						mp_typeof(**field2), field2);
 }
 
+#ifdef ENABLE_SQL_CNP
 enum {
 	VDBE_SORTER_CNP_ARENA_SIZE = 128 * 1024,
 	CNP_R_X86_64_64 = 1,
@@ -776,6 +779,7 @@ vdbeSorterWriterCnpCompile(uint32_t part_count, const uint8_t *part_kind,
 	__builtin___clear_cache((char *)code, (char *)(code + total_size));
 	return code;
 }
+#endif /* ENABLE_SQL_CNP */
 
 template <uint32_t Count, std::size_t... ShapeBits>
 static constexpr std::array<VdbeSorterCompareTemplate, (1U << Count)>
@@ -843,6 +847,7 @@ extern "C" void *
 vdbeSorterCompareCnpCodeGet(uint32_t part_count, uint16_t desc_mask,
 			    const uint8_t *part_kind)
 {
+#ifdef ENABLE_SQL_CNP
 	/*
 	 * The stitched tier only covers the long tail beyond the small static
 	 * template matrix. Shorter hot shapes stay on direct C++ template
@@ -876,6 +881,12 @@ vdbeSorterCompareCnpCodeGet(uint32_t part_count, uint16_t desc_mask,
 	shape->next = g_sorter_cnp_shapes;
 	g_sorter_cnp_shapes = shape;
 	return code;
+#else
+	(void)part_count;
+	(void)desc_mask;
+	(void)part_kind;
+	return nullptr;
+#endif
 }
 
 extern "C" VdbeSorterWriteTemplate
@@ -904,6 +915,7 @@ vdbeSorterWriterCnpCodeGet(uint32_t part_count, const uint8_t *part_kind,
 {
 	*out_measure_code = nullptr;
 	*out_encode_code = nullptr;
+#ifdef ENABLE_SQL_CNP
 	if (part_count <= 4 || part_count > VDBE_SORTER_FAST_CMP_MAX_PARTS)
 		return;
 	for (uint32_t i = 0; i < part_count; ++i) {
@@ -935,9 +947,13 @@ vdbeSorterWriterCnpCodeGet(uint32_t part_count, const uint8_t *part_kind,
 	g_sorter_writer_cnp_shapes = shape;
 	*out_measure_code = measure_code;
 	*out_encode_code = encode_code;
+#else
+	(void)part_count;
+	(void)part_kind;
+#endif
 }
 
-#if defined(__x86_64__)
+#if defined(__x86_64__) && defined(ENABLE_SQL_CNP)
 /*
  * Tiny terminal entries used as relocation targets for the last fragment.
  *
