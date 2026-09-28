@@ -40,8 +40,8 @@ g.test_unsupported_routes_preserve_rows_and_reasons = function()
             {
                 sql = [[SELECT * FROM planner_fallback_parity
                         WHERE a = X'123456']],
-                off_reason = 'UNSUPPORTED_EXPRESSION',
-                on_reason = 'UNSUPPORTED_FILTER',
+                off_route = 'current_where_c',
+                on_route = 'new_planner',
             },
             {
                 sql = [[SELECT id FROM planner_fallback_parity

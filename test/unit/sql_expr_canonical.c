@@ -4,7 +4,7 @@
 #include "box/sql/sql_expr_canonical.h"
 #include "unit.h"
 static void test_supported(void) {
-	plan(9); header();
+	plan(10); header();
 	const uint32_t cursor_map[] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, 0};
 	struct Expr col = {.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=3,.iColumn=1};
 	struct Expr a = {.op=TK_INTEGER,.flags=EP_Resolved|EP_IntValue}; a.u.iValue=7;
@@ -39,16 +39,19 @@ static void test_supported(void) {
 	struct Expr str={.op=TK_STRING,.flags=EP_Resolved,.u.zToken="a\"b"};
 	struct Expr f={.op=TK_FLOAT,.flags=EP_Resolved,.u.zToken="1.0"};
 	struct Expr f2={.op=TK_FLOAT,.flags=EP_Resolved,.u.zToken="1e0"};
+	struct Expr blob={.op=TK_BLOB,.flags=EP_Resolved,.u.zToken="X'A0Ff'"};
 	char *ns=sql_expr_canonicalize(&nul,NULL,0,NULL), *ss=sql_expr_canonicalize(&str,NULL,0,NULL);
 	char *fs=sql_expr_canonicalize(&f,NULL,0,NULL), *fs2=sql_expr_canonicalize(&f2,NULL,0,NULL);
 	ok(ns && strcmp(ns,"null")==0,"NULL encoded");
 	ok(ss && strcmp(ss,"str(612262)")==0,"string bytes hex encoded");
 	ok(fs && fs2 && strcmp(fs,fs2)==0,"float spelling normalized");
-	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);
+	char *bs=sql_expr_canonicalize(&blob,NULL,0,NULL);
+	ok(bs && strcmp(bs,"blob(a0ff)")==0,"blob hex canonicalized case-insensitively");
+	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);
 	footer(); check_plan();
 }
 static void test_rejects(void) {
-	plan(7); header(); enum sql_expr_canonical_reject r;
+	plan(8); header(); enum sql_expr_canonical_reject r;
 	struct Expr fn={.op=TK_FUNCTION,.flags=EP_Resolved|EP_ConstFunc,.u.zToken="abs"};
 	ok(!sql_expr_canonicalize(&fn,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,"function identity/effects unproven");
 	struct Expr j={.op=TK_COLUMN_REF,.flags=EP_Resolved|EP_FromJoin,.iTable=0,.iColumn=1};
@@ -64,6 +67,9 @@ static void test_rejects(void) {
 	struct Expr col={.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=0,.iColumn=0};
 	ok(!sql_expr_canonicalize(&col,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,
 	   "column without cursor binding rejected");
+	struct Expr bad_blob={.op=TK_BLOB,.flags=EP_Resolved,.u.zToken="X'0G'"};
+	ok(!sql_expr_canonicalize(&bad_blob,NULL,0,&r)&&
+	   r==SQL_EXPR_CANONICAL_MALFORMED,"malformed blob hex rejected");
 	footer(); check_plan();
 }
 int main(void) { test_supported(); test_rejects(); return 0; }

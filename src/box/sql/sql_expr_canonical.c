@@ -171,6 +171,32 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 		return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
 			SQL_EXPR_CANONICAL_NOMEM;
 	}
+	if (expr->op == TK_BLOB) {
+		const char *token = expr->u.zToken;
+		if (expr->pLeft != NULL || expr->pRight != NULL || token == NULL ||
+		    (token[0] != 'x' && token[0] != 'X') || token[1] != '\'')
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		size_t token_len = strlen(token);
+		if (token_len < 3 || token[token_len - 1] != '\'')
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		size_t hex_len = token_len - 3;
+		if (hex_len % 2 != 0)
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		if (!append(b, "blob(", 5))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		for (size_t i = 0; i < hex_len; ++i) {
+			char c = token[i + 2];
+			if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
+			      (c >= 'A' && c <= 'F')))
+				return SQL_EXPR_CANONICAL_MALFORMED;
+			if (c >= 'A' && c <= 'F')
+				c = (char)(c - 'A' + 'a');
+			if (!append(b, &c, 1))
+				return SQL_EXPR_CANONICAL_NOMEM;
+		}
+		return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
+			SQL_EXPR_CANONICAL_NOMEM;
+	}
 	/* Expr stores a source token, not a stable resolved function identity. */
 	const char *op = operator_name(expr->op);
 	if (op == NULL)

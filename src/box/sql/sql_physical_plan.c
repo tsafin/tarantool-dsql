@@ -503,7 +503,8 @@ sql_physical_table_scan_from_select(
 				}
 				bool simple_literal = literal != NULL &&
 					(literal->op == TK_INTEGER || literal->op == TK_STRING ||
-					 literal->op == TK_FLOAT || literal->op == TK_NULL);
+					 literal->op == TK_FLOAT || literal->op == TK_BLOB ||
+					 literal->op == TK_NULL);
 				if (column != NULL && simple_literal &&
 				    column->pLeft == NULL && column->pRight == NULL &&
 				    column->iTable == source->iCursor &&
