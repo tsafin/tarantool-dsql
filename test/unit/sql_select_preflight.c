@@ -12,7 +12,7 @@
 static void
 test_preflight(void)
 {
-	plan(20);
+	plan(21);
 	header();
 	struct space_def *def = calloc(1, sizeof(*def) + sizeof("preflight_t"));
 	strcpy(def->name, "preflight_t");
@@ -96,6 +96,13 @@ test_preflight(void)
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
 	   SQL_SELECT_PREFLIGHT_OK,
 	   "null residual plus primary-key bound conjunction reaches producer");
+	struct Expr disjunctive_filter = {
+		.op = TK_OR, .pLeft = &range_test, .pRight = &null_test,
+	};
+	select.pWhere = &disjunctive_filter;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+	   SQL_SELECT_PREFLIGHT_OK,
+	   "bounded comparison/null disjunction reaches producer validation");
 	select.pWhere = NULL;
 	struct Expr order_expr = {
 		.op = TK_COLUMN_REF, .iTable = 4, .iColumn = 0,

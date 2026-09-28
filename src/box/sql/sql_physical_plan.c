@@ -55,6 +55,41 @@ is_supported_filter_constant(const struct Expr *expr)
 	return reason == SQL_EXPR_CANONICAL_OK;
 }
 
+static bool
+is_source_column(const struct Expr *expr, int cursor, uint32_t field_count)
+{
+	return expr != NULL && expr->op == TK_COLUMN_REF &&
+		expr->pLeft == NULL && expr->pRight == NULL &&
+		expr->iTable == cursor && expr->iColumn >= 0 &&
+		(uint32_t)expr->iColumn < field_count;
+}
+
+static bool
+is_supported_boolean_filter(const struct Expr *expr, int cursor,
+			    uint32_t field_count, size_t depth)
+{
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	if ((expr->op == TK_AND || expr->op == TK_OR) &&
+	    expr->pLeft != NULL && expr->pRight != NULL)
+		return is_supported_boolean_filter(expr->pLeft, cursor, field_count,
+						   depth + 1) &&
+			is_supported_boolean_filter(expr->pRight, cursor, field_count,
+						     depth + 1);
+	if ((expr->op == TK_ISNULL || expr->op == TK_NOTNULL) &&
+	    expr->pRight == NULL)
+		return is_source_column(expr->pLeft, cursor, field_count);
+	if (expr->op != TK_EQ && expr->op != TK_NE && expr->op != TK_GT &&
+	    expr->op != TK_GE && expr->op != TK_LT && expr->op != TK_LE)
+		return false;
+	if (expr->pLeft == NULL || expr->pRight == NULL)
+		return false;
+	return (is_source_column(expr->pLeft, cursor, field_count) &&
+		is_supported_filter_constant(expr->pRight)) ||
+	       (is_source_column(expr->pRight, cursor, field_count) &&
+		is_supported_filter_constant(expr->pLeft));
+}
+
 struct parsed_pk_bound {
 	enum sql_plan_bound_op op;
 	bool is_unsigned;
@@ -461,6 +496,18 @@ sql_physical_table_scan_from_select(
 		size_t bound_count = 0;
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
+			if (term->op == TK_OR &&
+			    is_supported_boolean_filter(term, source->iCursor,
+							source->space->def->field_count, 0)) {
+				if (filter_count == SQL_PLAN_FILTER_MAX)
+					goto invalid_predicate;
+				filters[filter_count] = (struct sql_plan_filter) {
+					.op = SQL_PLAN_FILTER_EXPRESSION,
+					.selectivity = 0.5,
+				};
+				filter_expressions[filter_count++] = term;
+				continue;
+			}
 			if (term->op == TK_ISNULL || term->op == TK_NOTNULL) {
 				if (term->pLeft == NULL ||
 				    term->pRight != NULL ||

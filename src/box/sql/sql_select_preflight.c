@@ -60,18 +60,19 @@ is_direct_null_predicate(const struct Expr *expr, int cursor,
 }
 
 static bool
-is_comparison_conjunction(const struct Expr *expr, int cursor,
-			  uint32_t field_count, size_t *term_count,
-			  size_t depth)
+is_filter_predicate_tree(const struct Expr *expr, int cursor,
+			 uint32_t field_count, size_t *term_count,
+			 size_t depth)
 {
 	if (expr == NULL || term_count == NULL ||
 	    depth >= SQL_PLAN_POINT_KEY_PART_MAX)
 		return false;
-	if (expr->op == TK_AND && expr->pLeft != NULL && expr->pRight != NULL)
-		return is_comparison_conjunction(expr->pLeft, cursor, field_count,
-						 term_count, depth + 1) &&
-			is_comparison_conjunction(expr->pRight, cursor, field_count,
-						   term_count, depth + 1);
+	if ((expr->op == TK_AND || expr->op == TK_OR) &&
+	    expr->pLeft != NULL && expr->pRight != NULL)
+		return is_filter_predicate_tree(expr->pLeft, cursor, field_count,
+						term_count, depth + 1) &&
+			is_filter_predicate_tree(expr->pRight, cursor, field_count,
+						  term_count, depth + 1);
 	if (!is_comparison_predicate(expr) && !is_between_predicate(expr) &&
 	    !is_direct_null_predicate(expr, cursor, field_count))
 		return false;
@@ -165,18 +166,15 @@ sql_select_preflight_table_scan(const struct Select *select,
 			source->space->def->field_count) {
 			/* The producer validates that this is the primary-key column.
 			 * Only that column is guaranteed non-null by the schema. */
-		} else if (where->op == TK_AND) {
+		} else {
 			size_t term_count = 0;
-			if (!is_comparison_conjunction(where, source->iCursor,
+			if (!is_filter_predicate_tree(where, source->iCursor,
 						       source->space->def->field_count,
 						       &term_count, 0)) {
 				/* Validate the mixed conjunction below without allowing
 				 * arbitrary expression terms. */
 				return SQL_SELECT_PREFLIGHT_SHAPE;
 			}
-		} else if (!is_comparison_predicate(where) &&
-			   !is_between_predicate(where)) {
-			return SQL_SELECT_PREFLIGHT_SHAPE;
 		}
 	}
 	if (source->iCursor < 0 || select->pEList == NULL ||
@@ -192,18 +190,23 @@ sql_select_preflight_table_scan(const struct Select *select,
 		cursor_to_relation[i] = UINT32_MAX;
 	cursor_to_relation[source->iCursor] = 0;
 	bool supported_projection = true;
+	bool column_binding_failure = false;
 	for (int i = 0; i < select->pEList->nExpr; ++i) {
 		const struct Expr *expr = select->pEList->a[i].pExpr;
 		if (!is_supported_projection_expr(expr, source->iCursor,
 					  source->space->def->field_count,
 					  cursor_to_relation, cursor_count)) {
 			supported_projection = false;
+			column_binding_failure = expr != NULL &&
+				expr->op == TK_COLUMN_REF;
 			break;
 		}
 	}
 	free(cursor_to_relation);
 	if (!supported_projection)
-		return SQL_SELECT_PREFLIGHT_PROJECTION;
+		return column_binding_failure ?
+			SQL_SELECT_PREFLIGHT_COLUMN_BINDING :
+			SQL_SELECT_PREFLIGHT_PROJECTION;
 	return supported_destination ? SQL_SELECT_PREFLIGHT_OK :
 		SQL_SELECT_PREFLIGHT_DESTINATION;
 }
