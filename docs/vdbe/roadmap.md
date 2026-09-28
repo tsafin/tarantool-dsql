@@ -1942,6 +1942,25 @@ DML, triggers, subprograms, non-deterministic functions.
   capture, not SQL-luatest coverage, planner off/on parity, or route-transition
   disposition. M3.5 remains open for those gates.
 
+  **Current SQL-TAP ledger re-audit (2026-09-29, generated mode).** Re-ran all
+  275 standalone SQL-TAP files against the current integrated Debug binary on
+  memtx and Vinyl, then retried each default-timeout file with a 60-second
+  per-file cap. The combined accepted results match the preceding broad audit:
+  memtx accepted 250 files (148,637 snapshots / 120,857 components), rejected
+  23, and left two timed out; Vinyl accepted 249 (148,008 / 120,853), rejected
+  24, and left the same two timed out (`sort.test.lua` and
+  `gh-3332-tuple-format-leak.test.lua`). All accepted manifests validate as
+  component ledger v1, with zero incomplete ledgers. The 249 files accepted on
+  both engines have identical per-file component route and role histograms;
+  the only acceptance difference is `gh-2723-concurrency.test.lua`, the known
+  concurrency-attribution fixture. The fresh default-cap sweeps and 60-second
+  retry reports are under `/dev/shm/m35-sqltap-current-20260929-{memtx,vinyl}.json`,
+  `/dev/shm/m35-sqltap-current-memtx-retry60-20260929.json`, and
+  `/dev/shm/m35-sqltap-current-vinyl-retry60-20260929.json`. This confirms
+  standalone generated-mode ledger completeness only; it does not close the
+  SQL/SQL-luatest corpus, off/on route-transition, or remaining M3.5 disposition
+  gates.
+
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
   `insert_select_root`; ledger validation and statement-summary selection treat
