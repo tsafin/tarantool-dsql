@@ -13,6 +13,7 @@ import tempfile
 
 HERE = Path(__file__).resolve().parent
 POLICY = HERE / "corpus.json"
+ROUTE_CLASSES = HERE / "planner_flag_route_classes.json"
 CORPUS = HERE / "corpus.py"
 DIFF = HERE / "diff.lua"
 
@@ -54,6 +55,18 @@ def route_summary(records):
              "to": {"route": key[1], "reason": key[3]},
              "queries": count, "examples": examples[key]}
             for key, count in sorted(transitions.items(), key=lambda row: str(row[0]))]
+
+
+def classify_route_transitions(transitions, route_policy):
+    """Mark known transition classes; this is not feature acceptance."""
+    known = {tuple(item) for item in route_policy.get("classes", [])}
+    result = []
+    for item in transitions:
+        key = (item["from"]["route"], item["from"]["reason"],
+               item["to"]["route"], item["to"]["reason"])
+        result.append({**item, "class_review":
+                       "documented" if key in known else "unreviewed"})
+    return result
 
 
 def explain_output_diffs(records, candidate_root):
@@ -111,6 +124,7 @@ def main():
         raise ValueError(f"output must be empty: {out}")
     out.mkdir(parents=True, exist_ok=True)
     policy = json.loads(POLICY.read_text())
+    route_policy = json.loads(ROUTE_CLASSES.read_text())
     if policy.get("scope") != "full-corpus":
         raise ValueError("planner flag evaluation requires reviewed full-corpus policy")
     selected = sorted(set(args.test or []))
@@ -162,7 +176,9 @@ def main():
                 off_on.get("diffs", []), captures["on"])
             repeat_explain_diffs, repeat_semantic_diffs = explain_output_diffs(
                 off_repeat.get("diffs", []), captures["off-repeat"])
-            transitions = route_summary(route_diff.get("diffs", []))
+            transitions = classify_route_transitions(
+                route_summary(route_diff.get("diffs", [])),
+                route_policy.get(args.suite, {}))
             if semantic_diffs or repeat_semantic_diffs:
                 source_diffs = semantic_diffs or repeat_semantic_diffs
                 details = [{"query_id": item.get("query_id"),
@@ -208,10 +224,19 @@ def main():
                 "route_transitions": transitions,
                 "route_transition_count": sum(item["queries"] for item in transitions),
             }
-            report["engines"][engine]["route_review_required"] = bool(transitions)
+            report["engines"][engine]["unreviewed_route_transition_count"] = sum(
+                item["queries"] for item in transitions
+                if item["class_review"] == "unreviewed")
+            report["engines"][engine]["route_review_required"] = any(
+                item["class_review"] == "unreviewed" for item in transitions)
             (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
     passed = all(not row["route_review_required"] for row in report["engines"].values())
     report["route_review_required"] = not passed
+    report["feature_acceptance_passed"] = False
+    report["feature_acceptance_blockers"] = [
+        "M3.5 producer/classification closure remains open",
+        "LLVM-mode reviewed-corpus parity has not passed",
+    ]
     report["semantic_parity_passed"] = True
     (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps({"report": str(out / "report.json"),

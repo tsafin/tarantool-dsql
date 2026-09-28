@@ -2054,6 +2054,25 @@ DML, triggers, subprograms, non-deterministic functions.
   now pin the two reason-only precedence shifts. This does not disposition
   every query in those class counts or close M3.5's universal producer gate;
   the detailed inventory follows below.
+  The route audit now matches transition classes against
+  `test/sql-baselines/planner_flag_route_classes.json`: known classes are
+  labeled `documented`, while any newly observed class is marked
+  `unreviewed` and keeps `route_review_required=true`. This is a drift alarm,
+  not blanket approval: `feature_acceptance_passed` remains false until the
+  M3.5 producer gate and LLVM reviewed-corpus parity close. Unit tests cover
+  both exact policy matches and unknown-class rejection.
+
+  ```mermaid
+  flowchart LR
+    A[off/on/off capture] --> B[semantic and repeat parity]
+    B --> C[route transition inventory]
+    C --> D{class listed in reviewed policy?}
+    D -->|no| E[unreviewed: require disposition]
+    D -->|yes| F[documented class; no blanket acceptance]
+    E --> G[M3.5 + LLVM gates still required]
+    F --> G
+  ```
+
   `sql_reverse_unordered_selects`
   stays on legacy codegen until reverse-order intent is represented in the
   descriptor. Upper-only ascending bounds now scan from the beginning and

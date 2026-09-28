@@ -1,0 +1,21 @@
+{
+  "sql-luatest": {
+    "classes": [
+      ["current_where_c", null, "new_planner", null],
+      ["current_where_c", null, "fallback", "UNSUPPORTED_FILTER"]
+    ],
+    "note": "Matches the reviewed SQL-luatest route inventory; does not close M3.5 or accept M3.7."
+  },
+  "sql-tap": {
+    "classes": [
+      ["current_where_c", null, "new_planner", null],
+      ["fallback", "UNSUPPORTED_EXPRESSION", "new_planner", null],
+      ["current_where_c", null, "fallback", "UNSUPPORTED_FILTER"],
+      ["mixed", null, "fallback", "UNSUPPORTED_RELATION_COUNT"],
+      ["mixed", null, "fallback", "UNSUPPORTED_SUBQUERY"],
+      [null, "UNSUPPORTED_AGGREGATE", null, "UNSUPPORTED_FILTER"],
+      [null, "UNSUPPORTED_EXPRESSION", null, "UNSUPPORTED_FILTER"]
+    ],
+    "note": "Matches the reviewed SQL-TAP route inventory; representative runtime checks cover reason precedence, not every query in each class."
+  }
+}
