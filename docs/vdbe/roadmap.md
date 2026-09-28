@@ -1217,15 +1217,16 @@ DML, triggers, subprograms, non-deterministic functions.
   (85/85 snapshots each, zero capture errors or diffs); generated-repeat also
   matches both engines exactly. A duplicate residual NULL-filter conjunction
   is explicitly retained as `fallback / UNSUPPORTED_FILTER`.
-  Point-lookup residual lowering now accepts up to eight direct non-primary
-  `IS NULL`/`IS NOT NULL` checks on a single-part INTEGER/UNSIGNED primary-key
-  equality, and complete composite INTEGER/UNSIGNED primary-key equality.
+  Residual lowering now accepts up to eight direct non-primary `IS NULL` /
+  `IS NOT NULL` checks on full scans, supported single-part primary-key ranges,
+  and complete INTEGER/UNSIGNED primary-key points (single-part and composite).
   All checks execute before projection and share the reject/result exit;
-  overflow and other access shapes remain fail-closed. The VDBE unit target
-  passes all 47 assertions, and the rebuilt Debug runtime passes
-  `planner_scalar_filter_test.lua` across its memtx/Vinyl matrix under generated
-  and CnP dispatch. This remains a bounded M3.4 extension, not general
-  predicate lowering.
+  overflow and unsupported composite suffix-range shapes remain fail-closed.
+  The VDBE unit target passes all 49 assertions. Rebuilt Debug runtime passes
+  `planner_scalar_filter_test.lua`, `planner_final_paths_test.lua`, and
+  `planner_flag_parity_test.lua` across memtx/Vinyl under generated and CnP
+  dispatch. This remains bounded null-filter lowering, not general predicate
+  lowering.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
@@ -1687,9 +1688,11 @@ DML, triggers, subprograms, non-deterministic functions.
   appended role. M3.5's reviewed-corpus producer gate remains open.
   CTE-expanded FROM sources now retain their `cte` identity instead of being
   mislabeled as ordinary `from_subquery` producers at coroutine/materialized
-  codegen. The runtime component matrix asserts the recursive CTE role and
-  passes under generated and CnP dispatch; syntax and diff checks passed before
-  integration, and the integrated Debug build passed.
+  codegen. Recursive CTE setup SELECTs now receive `recursive_anchor` at their
+  producer callsite; the runtime component matrix checks that role and its
+  `direct_values` route. The component tests pass under generated and CnP
+  dispatch; syntax and diff checks passed before integration, and the
+  integrated Debug build passed.
   The capture extension now preserves component records in manifest
   `component_ledger_version: 1`; its validator checks parent ordering and
   references, unique identities, stable routes/reasons, and summary agreement.
@@ -2013,9 +2016,9 @@ DML, triggers, subprograms, non-deterministic functions.
   Complete composite INTEGER/UNSIGNED primary-key equality now also accepts
   the bounded residual list. The memtx/Vinyl off/on/off matrix verifies mixed
   NULL/NOT NULL predicates, reversed order, hit/reject/miss behavior, and
-  `new_planner` on enabled execution. Incomplete composite equality with
-  multiple residuals and multiple-filter ranges remain fail-closed; a single
-  residual on leading-part equality remains the existing bounded-range route.
+  `new_planner` on enabled execution. Multiple residuals now also pass through
+  supported scans and single-part ranges. Composite suffix ranges remain
+  fail-closed; leading-part equality uses the existing bounded-range route.
   A material lowering extension admits up to eight direct non-primary `IS NULL`
   or `IS NOT NULL` predicates alongside a single-part INTEGER/UNSIGNED
   primary-key equality. The point lowerer evaluates all residuals after
