@@ -1,6 +1,7 @@
 #include "sql_select_preflight.h"
 
 #include "sqlInt.h"
+#include "sql_expr_canonical.h"
 #include "sql_plan_descriptor.h"
 #include "box/index.h"
 #include "box/index_def.h"
@@ -13,6 +14,26 @@ is_comparison_predicate(const struct Expr *expr)
 	return expr != NULL && expr->pLeft != NULL && expr->pRight != NULL &&
 		(expr->op == TK_EQ || expr->op == TK_GT || expr->op == TK_GE ||
 		 expr->op == TK_LT || expr->op == TK_LE);
+}
+
+static bool
+is_supported_projection_expr(const struct Expr *expr, int cursor,
+			     uint32_t field_count,
+			     const uint32_t *cursor_to_relation,
+			     size_t cursor_count)
+{
+	if (expr == NULL || ExprHasProperty(expr, EP_TokenOnly | EP_Reduced))
+		return false;
+	if (expr->op == TK_COLUMN_REF)
+		return expr->pLeft == NULL && expr->pRight == NULL &&
+			expr->iTable == cursor && expr->iColumn >= 0 &&
+			(uint32_t)expr->iColumn < field_count;
+	enum sql_expr_canonical_reject reason;
+	char *canonical = sql_expr_canonicalize(expr, cursor_to_relation,
+						cursor_count, &reason);
+	free(canonical);
+	return reason == SQL_EXPR_CANONICAL_OK ||
+		reason == SQL_EXPR_CANONICAL_NOMEM;
 }
 
 static bool
@@ -149,16 +170,28 @@ sql_select_preflight_table_scan(const struct Select *select,
 	if (source->iCursor < 0 || select->pEList == NULL ||
 	    select->pEList->nExpr <= 0)
 		return SQL_SELECT_PREFLIGHT_PROJECTION;
+	size_t cursor_count = (size_t)source->iCursor + 1;
+	if (cursor_count > SIZE_MAX / sizeof(uint32_t))
+		return SQL_SELECT_PREFLIGHT_PROJECTION;
+	uint32_t *cursor_to_relation = malloc(cursor_count * sizeof(uint32_t));
+	if (cursor_to_relation == NULL)
+		return SQL_SELECT_PREFLIGHT_PROJECTION;
+	for (size_t i = 0; i < cursor_count; ++i)
+		cursor_to_relation[i] = UINT32_MAX;
+	cursor_to_relation[source->iCursor] = 0;
+	bool supported_projection = true;
 	for (int i = 0; i < select->pEList->nExpr; ++i) {
 		const struct Expr *expr = select->pEList->a[i].pExpr;
-		if (expr == NULL || ExprHasProperty(expr, EP_TokenOnly | EP_Reduced) ||
-		    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
-		    expr->pRight != NULL)
-			return SQL_SELECT_PREFLIGHT_PROJECTION;
-		if (expr->iTable != source->iCursor || expr->iColumn < 0 ||
-		    (uint32_t)expr->iColumn >= source->space->def->field_count)
-			return SQL_SELECT_PREFLIGHT_COLUMN_BINDING;
+		if (!is_supported_projection_expr(expr, source->iCursor,
+					  source->space->def->field_count,
+					  cursor_to_relation, cursor_count)) {
+			supported_projection = false;
+			break;
+		}
 	}
+	free(cursor_to_relation);
+	if (!supported_projection)
+		return SQL_SELECT_PREFLIGHT_PROJECTION;
 	return supported_destination ? SQL_SELECT_PREFLIGHT_OK :
 		SQL_SELECT_PREFLIGHT_DESTINATION;
 }

@@ -312,6 +312,49 @@ g.test_composite_primary_key_prefix_ranges_off_on_off = function()
     end)
 end
 
+g.test_scalar_projection_off_on_off = function()
+    g.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_scalar_projection_' .. engine
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, value INTEGER) ' ..
+                         "WITH ENGINE = '%s'"):format(name, engine))
+            box.execute(('INSERT INTO %s VALUES (1, 10), (2, NULL), (3, -4)')
+                        :format(name))
+            local queries = {
+                ('SELECT value + 1, id * 2 FROM %s ORDER BY id ASC'):format(name),
+                ('SELECT id, value * 2 + 3 FROM %s WHERE id >= 2 ' ..
+                 'ORDER BY id DESC'):format(name),
+            }
+            local expected = {
+                {{11, 2}, {box.NULL, 4}, {-3, 6}},
+                {{3, -5}, {2, box.NULL}},
+            }
+            local function capture(enabled)
+                box.execute(('SET SESSION "sql_new_planner_single_table" = %s')
+                            :format(enabled and 'true' or 'false'))
+                local results = {}
+                for i, sql in ipairs(queries) do
+                    local explain = box.execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. sql)
+                    if enabled then
+                        t.assert_equals(explain.rows[1][3], 'new_planner')
+                    end
+                    results[i] = box.execute(sql).rows
+                end
+                return results
+            end
+            local off_before = capture(false)
+            local enabled = capture(true)
+            local off_after = capture(false)
+            t.assert_equals(enabled, expected)
+            t.assert_equals(off_before, expected)
+            t.assert_equals(off_after, expected)
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
+
 g.test_upper_only_ascending_range_with_seqscan_disabled = function()
     g.server:exec(function()
         box.execute([[SET SESSION "sql_seq_scan" = false]])

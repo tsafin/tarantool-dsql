@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "sqlInt.h"
+#include "sql_expr_canonical.h"
 #include "sql_logical_plan.h"
 #include "box/index.h"
 #include "box/index_def.h"
@@ -793,26 +794,64 @@ predicate_parsed:
 		order_term_count = (size_t)order_by->nExpr;
 	}
 	uint32_t *columns = calloc(select->pEList->nExpr, sizeof(*columns));
-	if (columns == NULL) {
+	uint32_t *projection_expr_refs = calloc(select->pEList->nExpr,
+						 sizeof(*projection_expr_refs));
+	char **projection_canonical = calloc(select->pEList->nExpr,
+					      sizeof(*projection_canonical));
+	if (columns == NULL || projection_expr_refs == NULL ||
+	    projection_canonical == NULL) {
+		free(columns);
+		free(projection_expr_refs);
+		free(projection_canonical);
 		if (reason != NULL)
 			*reason = SQL_PHYSICAL_REJECT_INVALID_CANDIDATE;
 		return NULL;
 	}
+	uint32_t *cursor_to_relation = NULL;
+	size_t cursor_count = (size_t)source->iCursor + 1;
+	if (source->iCursor < 0 ||
+	    cursor_count > SIZE_MAX / sizeof(*cursor_to_relation)) {
+		if (reason != NULL)
+			*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+		goto invalid_projection;
+	}
+	cursor_to_relation = malloc(cursor_count * sizeof(*cursor_to_relation));
+	if (cursor_to_relation == NULL) {
+		if (reason != NULL)
+			*reason = SQL_PHYSICAL_REJECT_INVALID_CANDIDATE;
+		goto invalid_projection;
+	}
+	for (size_t i = 0; i < cursor_count; ++i)
+		cursor_to_relation[i] = UINT32_MAX;
+	cursor_to_relation[source->iCursor] = 0;
+	size_t projection_expression_count = 0;
 	for (int i = 0; i < select->pEList->nExpr; ++i) {
 		const struct Expr *expr = select->pEList->a[i].pExpr;
-		if (expr == NULL || ExprHasProperty(expr, EP_TokenOnly | EP_Reduced) ||
-		    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
-		    expr->pRight != NULL ||
-		    expr->iTable != source->iCursor || expr->iColumn < 0 ||
-		    (uint32_t)expr->iColumn >= source->space->def->field_count) {
-			free(columns);
-			free(order_terms);
-			if (reason != NULL)
-				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-			return NULL;
+		if (expr != NULL && expr->op == TK_COLUMN_REF &&
+		    !ExprHasProperty(expr, EP_TokenOnly | EP_Reduced) &&
+		    expr->pLeft == NULL && expr->pRight == NULL &&
+		    expr->iTable == source->iCursor && expr->iColumn >= 0 &&
+		    (uint32_t)expr->iColumn < source->space->def->field_count) {
+			columns[i] = (uint32_t)expr->iColumn;
+			continue;
 		}
-		columns[i] = (uint32_t)expr->iColumn;
+		enum sql_expr_canonical_reject canonical_reason;
+		projection_canonical[i] = sql_expr_canonicalize(expr,
+			cursor_to_relation, cursor_count, &canonical_reason);
+		if (projection_canonical[i] == NULL) {
+			if (reason != NULL)
+				*reason = canonical_reason == SQL_EXPR_CANONICAL_NOMEM ?
+					SQL_PHYSICAL_REJECT_INVALID_CANDIDATE :
+					SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			free(cursor_to_relation);
+			cursor_to_relation = NULL;
+			goto invalid_projection;
+		}
+		columns[i] = UINT32_MAX;
+		++projection_expression_count;
 	}
+	free(cursor_to_relation);
+	cursor_to_relation = NULL;
 	struct sql_plan_expression point_expressions[2] = {
 		{
 			.id = 1,
@@ -910,18 +949,38 @@ predicate_parsed:
 			&point_expression;
 		base_expression_count = has_range_end_key ? 2 : 1;
 	}
-	struct sql_plan_expression filter_expressions[
-		SQL_PLAN_POINT_KEY_PART_MAX + SQL_PLAN_FILTER_MAX + 3];
+	struct sql_plan_expression *expressions = NULL;
+	size_t expression_count = base_expression_count + null_filter_count +
+		projection_expression_count;
+	if (expression_count != 0) {
+		expressions = calloc(expression_count, sizeof(*expressions));
+		if (expressions == NULL) {
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_CANDIDATE;
+			goto invalid_projection;
+		}
+	}
 	for (size_t i = 0; i < base_expression_count; ++i)
-		filter_expressions[i] = base_expressions[i];
+		expressions[i] = base_expressions[i];
+	size_t next_expression = base_expression_count;
 	for (size_t i = 0; i < null_filter_count; ++i) {
-		null_filters[i].expr_ref = (uint32_t)base_expression_count + 1;
+		null_filters[i].expr_ref = (uint32_t)next_expression + 1;
 		null_filters[i].confidence = 0;
-		filter_expressions[base_expression_count++] =
+		expressions[next_expression++] =
 			(struct sql_plan_expression) {
 				.id = null_filters[i].expr_ref,
 				.canonical = "direct-column-null-filter",
 			};
+	}
+	for (int i = 0; i < select->pEList->nExpr; ++i) {
+		if (projection_canonical[i] == NULL)
+			continue;
+		uint32_t id = (uint32_t)next_expression + 1;
+		projection_expr_refs[i] = id;
+		expressions[next_expression++] = (struct sql_plan_expression) {
+			.id = id,
+			.canonical = projection_canonical[i],
+		};
 	}
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
@@ -984,10 +1043,10 @@ predicate_parsed:
 		.filters = null_filter_count == 0 ? NULL : null_filters,
 		.filter_count = null_filter_count,
 		.projection_columns = columns,
+		.projection_expr_refs = projection_expr_refs,
 		.projection_column_count = select->pEList->nExpr,
-		.expressions = base_expression_count == 0 ? NULL :
-			filter_expressions,
-		.expression_count = base_expression_count,
+		.expressions = expression_count == 0 ? NULL : expressions,
+		.expression_count = expression_count,
 		.cost_startup = estimate->startup_cost,
 		.cost_total = has_point_key ? 1 : has_range_key ?
 			estimate->total_cost / 2 : estimate->total_cost,
@@ -997,9 +1056,24 @@ predicate_parsed:
 		.cost_confidence = estimate->confidence,
 	};
 	struct sql_plan_descriptor *plan = sql_plan_descriptor_new(&input);
+	free(expressions);
+	for (int i = 0; i < select->pEList->nExpr; ++i)
+		free(projection_canonical[i]);
+	free(projection_canonical);
+	free(projection_expr_refs);
 	free(columns);
 	free(order_terms);
 	if (plan == NULL && reason != NULL)
 		*reason = SQL_PHYSICAL_REJECT_INVALID_CANDIDATE;
 	return plan;
+
+invalid_projection:
+	for (int i = 0; i < select->pEList->nExpr; ++i)
+		free(projection_canonical[i]);
+	free(cursor_to_relation);
+	free(projection_canonical);
+	free(projection_expr_refs);
+	free(columns);
+	free(order_terms);
+	return NULL;
 }

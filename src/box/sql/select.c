@@ -6076,6 +6076,32 @@ sql_select_hash_pk_null_predicate(const Select *select,
 	return false;
 }
 
+struct sql_select_projection_context {
+	Parse *parse;
+	const Select *select;
+	const uint32_t *expression_refs;
+	int expression_count;
+};
+
+static int
+sql_select_emit_projection(void *context, uint32_t expression_ref,
+			   int result_reg)
+{
+	struct sql_select_projection_context *projection = context;
+	if (projection == NULL || projection->parse == NULL ||
+	    projection->select == NULL || projection->select->pEList == NULL ||
+	    projection->expression_refs == NULL)
+		return -1;
+	for (int i = 0; i < projection->expression_count; ++i) {
+		if (projection->expression_refs[i] != expression_ref)
+			continue;
+		sqlExprCode(projection->parse,
+			    projection->select->pEList->a[i].pExpr, result_reg);
+		return projection->parse->is_aborted ? -1 : 0;
+	}
+	return -1;
+}
+
 /*
  * Route the first executable physical-plan slice: a resolved, direct-column
  * projection over one primary index with primary-key predicates, and an
@@ -6158,6 +6184,12 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	struct sql_plan_descriptor *plan =
 		sql_physical_table_scan_from_select(select, &estimate, &reason);
 	if (plan == NULL) {
+		if (reason == SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN &&
+		    sql_select_has_unsupported_expr(parse, select)) {
+			sql_select_record_fallback_reason(parse,
+						  SQL_LOGICAL_REJECT_EXPRESSION);
+			return 0;
+		}
 		if (select->pWhere != NULL && reason ==
 		    SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN)
 			reason = SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER;
@@ -6211,19 +6243,33 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		vdbe_emit_open_hash_cursor_for_all(parse, source->iCursor, 0, space);
 	if (parse->is_aborted)
 		goto emission_error;
+	const struct sql_plan_descriptor_input *plan_input =
+		sql_plan_descriptor_get_input(plan);
+	if (plan_input == NULL)
+		goto emission_error;
+	struct sql_select_projection_context projection = {
+		.parse = parse,
+		.select = select,
+		.expression_refs = plan_input->projection_expr_refs,
+		.expression_count = select->pEList->nExpr,
+	};
 	enum sql_plan_access_kind access_kind =
 		sql_plan_descriptor_access_kind(plan);
 	int lower_rc = access_kind == SQL_PLAN_PK_PREFIX_SCAN ?
-		sql_plan_lower_vdbe_pk_prefix_scan(plan, vdbe, source->iCursor,
-						   result_first_reg) :
+		sql_plan_lower_vdbe_pk_prefix_scan_with_projector(plan, vdbe,
+				source->iCursor, result_first_reg,
+				sql_select_emit_projection, &projection) :
 		access_kind == SQL_PLAN_PK_POINT_LOOKUP ?
-		sql_plan_lower_vdbe_pk_point(plan, vdbe, source->iCursor,
-					      result_first_reg) :
+		sql_plan_lower_vdbe_pk_point_with_projector(plan, vdbe,
+				source->iCursor, result_first_reg,
+				sql_select_emit_projection, &projection) :
 		access_kind == SQL_PLAN_INDEX_RANGE_SCAN ?
-		sql_plan_lower_vdbe_pk_range(plan, vdbe, source->iCursor,
-					     result_first_reg) :
-		sql_plan_lower_vdbe_table_scan(plan, vdbe, source->iCursor,
-					       result_first_reg);
+		sql_plan_lower_vdbe_pk_range_with_projector(plan, vdbe,
+				source->iCursor, result_first_reg,
+				sql_select_emit_projection, &projection) :
+		sql_plan_lower_vdbe_table_scan_with_projector(plan, vdbe,
+				source->iCursor, result_first_reg,
+				sql_select_emit_projection, &projection);
 	if (lower_rc != 0)
 		goto emission_error;
 	int close_op = sqlVdbeAddOp1(vdbe, OP_Close, source->iCursor);
