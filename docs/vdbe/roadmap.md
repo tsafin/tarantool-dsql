@@ -2050,8 +2050,10 @@ DML, triggers, subprograms, non-deterministic functions.
   reports 1,719 / 1,691 enabled `new_planner` statements and 24 EXPLAIN-row-
   only differences per engine. Its seven route/reason transition classes
   total 6,078 memtx / 4,044 Vinyl query transitions: five classes now have
-  evidence-backed structural dispositions, while two reason-only shifts
-  remain gated on fallback precedence; the detailed inventory follows below.
+  evidence-backed structural dispositions, and representative runtime cases
+  now pin the two reason-only precedence shifts. This does not disposition
+  every query in those class counts or close M3.5's universal producer gate;
+  the detailed inventory follows below.
   `sql_reverse_unordered_selects`
   stays on legacy codegen until reverse-order intent is represented in the
   descriptor. Upper-only ascending bounds now scan from the beginning and
