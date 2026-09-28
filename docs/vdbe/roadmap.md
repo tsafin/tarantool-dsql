@@ -1801,11 +1801,15 @@ DML, triggers, subprograms, non-deterministic functions.
   successful DML execution; `sql_plan_component.test` passed 40 assertions
   and the typed-capture validator suite passed 4 tests. The changes apply
   cleanly on top of M3.4 commit `5e63c83fe4`. A fresh integrated-tree Debug
-  build passed for `box` and `tarantool`; the component unit test passed all
-  40 assertions, the focused luatest file passed, and generated-mode typed
-  capture plus manifest validation passed with 41 snapshots each on memtx and
-  Vinyl. CnP and LLVM were disabled in this build, so their integrated-tree
-  capture remains unverified. This implementation is committed as
+  build with Clang 19 and SQL CnP enabled passed for `box` and `tarantool`; the
+  component unit test passed all 40 assertions and the focused luatest file
+  passed. The full SQL-luatest suite passed in both generated and CnP modes:
+  54 passed, 1 skipped because volatile ANALYZE requires a TEST_BUILD server,
+  and 2 disabled in each mode. Focused generated and CnP typed captures plus
+  manifest validation passed with 41 snapshots per engine (memtx and Vinyl);
+  CnP observed 39 native executions per engine. LLVM is not enabled in this
+  build, and the reviewed SQL-TAP corpus remains unverified for this integrated
+  revision. This implementation is committed as
   `2a02e93e67` in the temporary shared-memory integration checkout because the
   main filesystem has no free blocks; it still must be transferred to the
   canonical branch. M3.5 remains open for full reviewed-corpus inclusion of
