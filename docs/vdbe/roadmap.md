@@ -1686,6 +1686,32 @@ DML, triggers, subprograms, non-deterministic functions.
   cases verify this contract. See `planner_vm_migration.md` for the Mermaid
   flow. Do not infer closure from the current reason-mapping table.
 
+  **Live `sqlSelect()` producer inventory (2026-09-29).** A source audit of
+  every direct call site in `src/box/sql` confirms the following producer
+  families. In planner-snapshot mode, each successful invocation registers a
+  component on the top-level VDBE;
+  recursive and embedded producers are not collapsed into the enclosing
+  statement route.
+
+  | Call-site family | Source sites | Component role / route contract |
+  | --- | --- | --- |
+  | SQL statement root | `parse.y` SELECT command; `select.c` `sqlSelect()` entry | Root role by default; one route record for the component. |
+  | Plain multi-row VALUES | `select.c` `sqlSelect()` VALUES dispatch and legacy VALUES row chain | `values` component with `direct_values` when emitted directly; compound-dispatch record for the legacy chain. |
+  | Compound branches | `select.c` `multiSelect()` UNION/INTERSECT/EXCEPT branch calls | `compound_branch` components; dispatcher and each branch retain independent routes. |
+  | Recursive CTE | `select.c` recursive setup and recursive-term calls | `recursive_anchor` / `recursive_term`; direct queue/row routes remain distinct from WHERE fallback. |
+  | FROM subquery and CTE source | `select.c` coroutine and materialization calls | `from_subquery` or `cte`, linked to the enclosing SELECT component. |
+  | Expression subquery | `expr.c` scalar, EXISTS, and IN-with-SELECT codegen calls | `scalar_subquery` or shared `expression_subquery`, linked to its containing component. |
+  | Direct count | `select.c` simple `COUNT(*)` fast path | `count` component with `direct_op_count`; not a legacy-WHERE fallback. |
+  | INSERT-SELECT | `insert.c` SELECT input producer | `insert_select_root`, rooted independently in the statement ledger. |
+  | View DML materialization | `delete.c` shared DELETE/UPDATE view helper | `dml_view_materialization_root`, with its actual fallback/new-planner route. |
+  | Trigger SELECT step | `trigger.c` trigger-program SELECT compiler | `trigger_select_root` for the first component and `trigger_select` children, owned by the enclosing top-level VDBE. |
+
+  This inventory is source-level coverage, not proof that every reviewed SQL
+  corpus topology has passed typed capture. Focused runtime tests now cover
+  all listed direct/nested producer families, including mixed roots and
+  children and trigger ownership. Full reviewed-corpus inclusion and route
+  dispositions remain the M3.5 acceptance gate.
+
   ```mermaid
   flowchart TD
     S[SELECT entry] --> V{Plain multi-row VALUES?}
