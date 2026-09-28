@@ -157,7 +157,9 @@ unary `IS NULL` / `IS NOT NULL` column tests, and direct comparison operators
 expression accepted by the canonicalizer and containing no column, variable,
 or function reference. This includes scalar literals and supported
 literal-only arithmetic/concatenation expressions. Direct `BETWEEN` and
-`NOT BETWEEN` use two such bounds. Reversed constant/column comparisons are
+`NOT BETWEEN` use two such bounds. Direct `IN` / `NOT IN` lists contain one
+or more canonical constant expressions; `IN (SELECT ...)` remains unsupported.
+Reversed constant/column comparisons are
 preserved as expressions and evaluated by SQL expression codegen. The
 primary-key NULL tests use
 the schema invariant (identity or empty result); direct non-primary column
@@ -167,8 +169,9 @@ filters may be combined with a supported point, one-part range, or composite
 prefix scan/range. Up to eight scalar-comparison residuals may likewise be
 combined with supported access bounds. A compound `AND`/`OR` tree, or unary
 `NOT` over that tree, is admitted as one expression filter only when each leaf
-is a direct source-column comparison or BETWEEN with supported constant
-expression bounds, or a direct `IS NULL` / `IS NOT NULL` test. Expression
+is a direct source-column comparison, BETWEEN with supported constant
+expression bounds, IN with canonical constant-list members, or a direct
+`IS NULL` / `IS NOT NULL` test. Expression
 filters are referenced by
 the immutable descriptor and resolved against the original WHERE tree only
 when lowering; their bytecode executes before projection, and `IfNot` rejects
@@ -179,9 +182,9 @@ collated expressions, function calls, and boolean trees with unsupported
 leaves are not admitted.
 On a prefix scan, equality-prefix and range-end guards run before residual
 checks; a rejected in-range row jumps to the cursor step, not
-the loop exit. `IN`, BETWEEN forms outside the direct-column/two-constant
-contract, and compound predicates outside that bounded boolean grammar remain
-unsupported. In an AND
+the loop exit. IN forms outside the direct-column/constant-list contract,
+BETWEEN forms outside the direct-column/two-constant contract, and compound
+predicates outside that bounded boolean grammar remain unsupported. In an AND
 conjunction, `IS NOT NULL` on any composite primary-key
 part is redundant and is omitted; `IS NULL` on a composite key inside a
 conjunction remains a stable fallback rather than allowing the invariant to
@@ -240,9 +243,9 @@ memtx and Vinyl with exact generated/CnP snapshots. Direct non-primary
 comparisons to scalar literals or supported constant expressions use the
 expression filter form. Memtx/Vinyl coverage includes equality, inequality,
 ordered/reversed operands, BLOB and boolean literals, constant
-arithmetic/concatenation, BETWEEN/NOT BETWEEN, bounded OR/NOT trees, and mixed
-primary-key-bound and composite-prefix access cases with exact generated/CnP
-parity (607 snapshots
+arithmetic/concatenation, BETWEEN/NOT BETWEEN, IN/NOT IN, bounded OR/NOT
+trees, and mixed primary-key-bound and composite-prefix access cases with exact
+generated/CnP parity (631 snapshots
 per engine). Boolean trees with unsupported leaves and other scalar
 expressions remain on legacy codegen. A TEXT
 primary key also uses the ordered

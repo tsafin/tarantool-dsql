@@ -1294,6 +1294,14 @@ DML, triggers, subprograms, non-deterministic functions.
   and focused generated/CnP captures compare exactly (607 snapshots per
   engine). Canonicalizer unit coverage includes valid and malformed BETWEEN
   nodes. Other BETWEEN operand shapes remain unsupported.
+  **2026-09 IN residual extension:** direct non-primary-column `IN` and `NOT
+  IN` over non-empty lists of canonical constant expressions are retained as
+  expression filters, including their use as leaves in bounded boolean trees.
+  Subquery IN, empty/malformed lists, and noncanonical list members remain
+  unsupported. The focused regression passes on memtx and Vinyl; generated,
+  CnP, LLVM, and generated-repeat captures each validate 631 snapshots per
+  engine, with exact comparisons and observed native participation. The
+  canonicalizer unit target passes all 23 assertions.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
