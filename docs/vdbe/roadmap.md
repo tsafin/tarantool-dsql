@@ -2014,6 +2014,24 @@ DML, triggers, subprograms, non-deterministic functions.
   parity decision; M3.5 remains open pending these dispositions and the SQL
   suite/corpus gate.
 
+  **Current full SQL-luatest ledger capture audit (2026-09-28, source
+  `0dcfbd92a3bab76e48f28b2ed2387f73003e42ba`).** The current resumable audit
+  enumerated 57 files; 9 were explicitly not run because of multiple-child,
+  restart, net.box bypass, or long-run topology. Generated capture passed on
+  46 memtx and 44 Vinyl files (1,642 / 1,224 statements). Across all modes,
+  256 accepted manifests contain ledger v1 and 8,572 validated snapshots.
+  Exact CnP parity passed for 38 memtx and 37 Vinyl files; one additional
+  memtx datetime case differs only at volatile `NOW()`. Exact generated-repeat
+  parity passed for 44 memtx and 43 Vinyl files; remaining drifts are the same
+  volatile datetime result plus address-dependent `explain_modifiers`
+  disassembly. The known TEST_BUILD-only ANALYZE test and forced-Vinyl
+  `datetime` / hard-coded-memtx `show_create_table` captures still fail;
+  seven CnP runs per engine are not observed, and LLVM is unavailable in this
+  build. Report: `/dev/shm/m35-luatest-ledger-current.json`. This strengthens
+  component-ledger coverage but preserves M3.5 open for unsupported topology,
+  engine-scoped inclusion, volatile/repeat dispositions, LLVM, and full
+  reviewed-corpus coverage.
+
   **Prepared SQL topology slice (2026-09-28).** The one-child adapter now
   records SQL passed to `box.prepare`, maps returned statement IDs until
   `box.unprepare`, and captures later `box.execute(stmt_id, bindings)` calls
