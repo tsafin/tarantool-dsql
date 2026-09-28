@@ -1426,8 +1426,17 @@ DML, triggers, subprograms, non-deterministic functions.
   weaker/stronger pair, strictness ties on both ends, and a contradictory
   interval, with off/on parity on memtx and Vinyl. Generated/CnP capture
   validates 312 statements per engine with exact 312/312 parity and observed
-  CnP execution. The single-part range producer and ranges split across
-  different key parts retain their existing limits.
+  CnP execution. Ranges split across different key parts retain their existing
+  limits.
+  **Leading-part range extension (2026-09-29):** the same bound reducer now
+  handles ranges over a single-part primary key and the leading part of a
+  composite primary key, including multiple one-sided bounds and bounded
+  intersections. New single-part and composite-leading regressions cover
+  strongest-bound selection, strictness, DESC upper-only behavior, empty
+  intersections, and off/on/off parity on memtx and Vinyl. The focused test
+  passes; generated/CnP capture validates 408 statements per engine with exact
+  408/408 parity and observed CnP execution. Range predicates split across
+  multiple key parts remain unsupported.
   Do not infer rollback of AST, parser, or schema state.
   This does not cover all descriptor operators, secondary-index access,
   arbitrary ranges split across multiple key parts, all storage edge cases, or

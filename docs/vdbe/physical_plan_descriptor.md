@@ -293,14 +293,20 @@ endpoint, with strictness taking precedence at equal values. Focused
 memtx/Vinyl off/on tests cover stronger/weaker lower and upper bounds, mixed
 strict/inclusive duplicates, and an empty intersection. Generated/CnP capture
 validates 312 statements per engine with exact 312/312 parity and observed CnP
-execution. This does not extend the single-part range producer's bound limit,
-or allow range predicates on multiple key parts.
+execution. The same bound reducer now handles single-part primary-key ranges
+and ranges on the leading part of a composite key. Additional memtx/Vinyl tests
+cover lower/upper intersections, strongest-bound selection, strictness,
+descending upper-only scans, and empty intersections; generated/CnP capture
+validates 408 statements per engine with exact 408/408 parity and observed CnP
+execution. Range predicates split across multiple key parts remain unsupported.
 
 The production route also supports one-sided and two-sided INTEGER and
 UNSIGNED primary-key literal ranges (`>`, `>=`, `<`, `<=`), including reversed
 operand order. A two-sided range must be a conjunction of one lower and one
-upper literal bound on the same single-part primary key; other conjunctions
-fall back. It seeks from the endpoint matching scan direction and checks the
+upper literal bound on the same primary-key part; repeated bounds on that part
+are intersected by retaining the strongest endpoint. Bounds split across
+different key parts and equality/range mixtures on one part fall back. It seeks
+from the endpoint matching scan direction and checks the
 opposite endpoint before projecting each row. One-sided scans emit
 `OP_SeekGT`/`OP_SeekGE`/`OP_SeekLT`/`OP_SeekLE` followed by `Next` or `Prev`;
 an explicit primary-key order must agree with the natural one-sided direction.
@@ -308,8 +314,8 @@ UNSIGNED keys retain their full uint64 representation in the seek register,
 including values above `INT64_MAX`. Negative UNSIGNED values fail closed to
 legacy codegen; a literal above `UINT64_MAX` is rejected by SQL parsing before
 planning. LIMIT and OFFSET share the scan-loop implementation. Parameters,
-expressions, other/nested conjunctions, redundant/overlapping bounds, and
-non-primary columns remain fallback cases. Focused memtx/Vinyl SQL regressions
+expressions, bounds split across multiple key parts, equality/range mixtures,
+and non-primary columns remain fallback cases. Focused memtx/Vinyl SQL regressions
 cover strict/inclusive one- and two-sided bounds, reversed operands, ascending
 and descending output, mixed-filter fallback, and LIMIT/OFFSET. M3.4 remains
 open pending broader range semantics, injected opcode-failure coverage, and
