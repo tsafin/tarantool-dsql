@@ -6,12 +6,16 @@
 #include "vdbe_ops_cnp_impl.h"
 #include "opcodes.h"
 
+typedef int (*arith_const_fn)(int64_t lhs, bool lhs_signed, int64_t rhs,
+			      bool rhs_signed, int64_t *res, bool *is_signed);
+
 static inline bool
 mem_is_plain_int(const struct Mem *mem)
 {
 	return mem_is_int(mem) && !mem_is_metatype(mem);
 }
 
+#ifdef ENABLE_SQL_CNP
 static inline const struct cnp_arith_imm *
 cnp_arith_imm(const Vdbe *p, const Op *pOp)
 {
@@ -50,9 +54,6 @@ cnp_arith_mem_input(const Mem *mem, int64_t *value, bool *is_signed)
 	*is_signed = mem->type == MEM_TYPE_INT;
 	return true;
 }
-
-typedef int (*arith_const_fn)(int64_t lhs, bool lhs_signed, int64_t rhs,
-			      bool rhs_signed, int64_t *res, bool *is_signed);
 
 static inline int
 vdbe_op_arith_const_fast(Vdbe *p, Op *pOp, Mem *aMem, uint8_t opcode,
@@ -95,6 +96,17 @@ set_null:
 	mem_set_null(pOut);
 	return 0;
 }
+#else
+static inline int
+vdbe_op_arith_const_fast(Vdbe *p, Op *pOp, Mem *aMem, uint8_t opcode,
+			 arith_const_fn arith_fn,
+			 int (*fallback)(Vdbe *, Op *, Mem *))
+{
+	(void)opcode;
+	(void)arith_fn;
+	return fallback(p, pOp, aMem);
+}
+#endif
 
 /* No-op handler */
 int SQL_PRESERVE_NONE vdbe_op_noop(Vdbe *p, Op *pOp, Mem *aMem)
