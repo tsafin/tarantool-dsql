@@ -264,10 +264,11 @@ Memtx/Vinyl tests cover reordered
 equalities, empty and non-empty prefixes, UINT64_MAX, LIMIT/OFFSET, and
 non-leading fallback.
 
-A contiguous equality prefix may also be followed by one lower bound, one
-upper bound, or both on the next INTEGER/UNSIGNED primary-key part. The
-descriptor retains prefix equalities separately from suffix bounds. Lower
-bounds extend the composite `SeekGT` / `SeekGE` key; an upper bound stops the
+A contiguous equality prefix may also be followed by one or more lower bounds,
+one or more upper bounds, or both on the next INTEGER/UNSIGNED primary-key
+part. Same-side bounds are intersected to retain the strongest endpoint. The
+descriptor retains prefix equalities separately from suffix bounds. The lower
+endpoint extends the composite `SeekGT` / `SeekGE` key; an upper bound stops the
 ascending walk after the equality-prefix guard. Descending ordering is also
 supported when the suffix has an upper endpoint: the producer seeks from that
 endpoint and walks with `Prev`, stopping at the lower endpoint for a bounded
@@ -371,7 +372,8 @@ preflight. Supported access paths are a TREE primary-index full scan, an
 INTEGER/UNSIGNED primary-key point lookup, one-sided primary-key literal
 ranges, complete composite INTEGER/UNSIGNED primary-key point lookups through
 255 parts, multi-part equality scans over a proper leading prefix of a longer
-composite key, and one lower-plus-upper bound on a single-part key. Direct projections,
+composite key, and intersected lower/upper bounds on one primary-key part.
+Direct projections,
 compatible primary-key ordering, and literal LIMIT/OFFSET are supported in
 the applicable paths. The descriptor estimate and checkpointed VDBE lowering
 must succeed before the statement reports `new_planner`.

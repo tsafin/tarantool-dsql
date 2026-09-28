@@ -1276,8 +1276,8 @@ DML, triggers, subprograms, non-deterministic functions.
   INT64_MIN/MAX, UNSIGNED point keys through UINT64_MAX, and INTEGER/UNSIGNED
   one- and two-sided primary-key literal ranges (`>`, `>=`, `<`, `<=`) with
   reversed operands, ascending/descending ordering, and LIMIT/OFFSET. A
-  two-sided route accepts one lower and one upper literal on the same key and
-  terminates at the opposite endpoint; mixed filters and duplicate-side bounds
+  two-sided route intersects one or more lower and/or upper literals on the
+  same key, then terminates at the strongest opposite endpoint; mixed filters
   remain on legacy codegen. Additional memtx/Vinyl SQL assertions pin a
   singleton inclusive interval, an empty interval sharing an exclusive
   endpoint, and an inverted interval; all three preserve flag-off/on results.
@@ -2152,7 +2152,7 @@ DML, triggers, subprograms, non-deterministic functions.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
   A default-off session setting now gates the narrow direct-column table scan,
   sole INTEGER/UNSIGNED primary-key point lookups, one-sided primary-key
-  literal ranges, a single lower-plus-upper bound on one primary-key part, and
+  literal ranges, intersected lower/upper bounds on one primary-key part, and
   ranges on the next key part after a contiguous equality prefix in
   `sqlSelect()`. When enabled, only the supported
   single-table shape with a TREE primary index can report `new_planner`: direct
