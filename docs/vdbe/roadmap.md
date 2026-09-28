@@ -1714,7 +1714,9 @@ DML, triggers, subprograms, non-deterministic functions.
   INSERT-SELECT, view-DML, and trigger producer fixture validates 41 snapshots
   per engine in generated, CnP, LLVM, and generated-repeat modes; all three
   comparisons are exact, with 39 observed CnP and 32 observed LLVM executions
-  per engine.
+  per engine. A fresh full Debug `sql-luatest` normal run also passes 54 tests,
+  with 2 disabled and the volatile ANALYZE test skipped because this build is
+  not `TEST_BUILD`.
 
   ```mermaid
   flowchart TD
