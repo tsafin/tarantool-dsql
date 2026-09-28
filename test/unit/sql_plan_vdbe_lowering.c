@@ -354,7 +354,9 @@ new_composite_prefix_descriptor(bool with_limit, uint64_t limit,
 }
 
 static struct sql_plan_descriptor *
-new_composite_prefix_range_descriptor(bool bounded)
+new_composite_prefix_range_descriptor(bool bounded,
+				      enum sql_plan_direction direction,
+				      enum sql_plan_bound_op lower_op)
 {
 	static const uint32_t columns[] = {2};
 	static const struct sql_plan_point_key_part prefix[] = {
@@ -367,7 +369,7 @@ new_composite_prefix_range_descriptor(bool bounded)
 	};
 	struct sql_plan_bound bounds[] = {
 		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1},
-		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_GT, .expr_ref = 2},
+		{.side = SQL_PLAN_LOWER, .op = lower_op, .expr_ref = 2},
 		{.side = SQL_PLAN_UPPER, .op = SQL_PLAN_LT, .expr_ref = 3},
 	};
 	struct sql_plan_descriptor_input input = {
@@ -384,12 +386,12 @@ new_composite_prefix_range_descriptor(bool bounded)
 			.prefix_key_part_count = 1,
 			.has_unsigned_range_key = true,
 			.unsigned_range_key = 20,
-			.integer_range_op = SQL_PLAN_GT,
+			.integer_range_op = lower_op,
 			.has_unsigned_range_end_key = bounded,
 			.unsigned_range_end_key = 40,
 			.integer_range_end_op = SQL_PLAN_LT,
 			.range_key_column = 1,
-			.direction = SQL_PLAN_ASC,
+			.direction = direction,
 		},
 		.projection_columns = columns,
 		.projection_column_count = 1,
@@ -799,9 +801,14 @@ main(void)
 	struct sql_plan_descriptor *composite_prefix_zero_desc =
 		new_composite_prefix_descriptor(true, 0, 0);
 	struct sql_plan_descriptor *composite_prefix_range_desc =
-		new_composite_prefix_range_descriptor(false);
+		new_composite_prefix_range_descriptor(false, SQL_PLAN_ASC,
+						      SQL_PLAN_GT);
 	struct sql_plan_descriptor *composite_prefix_bounded_range_desc =
-		new_composite_prefix_range_descriptor(true);
+		new_composite_prefix_range_descriptor(true, SQL_PLAN_ASC,
+						      SQL_PLAN_GT);
+	struct sql_plan_descriptor *composite_prefix_desc_lower_only_desc =
+		new_composite_prefix_range_descriptor(false, SQL_PLAN_DESC,
+						      SQL_PLAN_GE);
 	struct sql_plan_descriptor *range_gt_desc =
 		new_range_descriptor(SQL_PLAN_GT, INT64_MAX, false, SQL_PLAN_ASC,
 				     NULL);
@@ -1199,6 +1206,19 @@ main(void)
 	   vdbe.aOp[before_prefix_bounded_range + 7].opcode == OP_Le &&
 	   vdbe.aOp[before_prefix_bounded_range + 10].opcode == OP_Next,
 	   "bounded prefix range stops at its exclusive unsigned upper endpoint");
+	int before_prefix_desc_lower_only = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_prefix_scan(
+		   composite_prefix_desc_lower_only_desc, &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 2].opcode == OP_SeekLE &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 2].p4.i == 1 &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 3].opcode == OP_Column &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 4].opcode == OP_Ne &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 5].opcode == OP_Column &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 6].opcode == OP_Gt &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 7].opcode == OP_Column &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 8].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_prefix_desc_lower_only + 9].opcode == OP_Prev,
+	   "descending lower-only prefix range seeks on prefix and guards suffix");
 	int before_range_gt = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(range_gt_desc, &vdbe, 4, 20) == 0,
 	   "strict lower range descriptor lowers successfully");
@@ -1394,6 +1414,7 @@ main(void)
 	sql_plan_descriptor_delete(composite_prefix_zero_desc);
 	sql_plan_descriptor_delete(composite_prefix_range_desc);
 	sql_plan_descriptor_delete(composite_prefix_bounded_range_desc);
+	sql_plan_descriptor_delete(composite_prefix_desc_lower_only_desc);
 	sql_plan_descriptor_delete(range_gt_desc);
 	sql_plan_descriptor_delete(range_le_desc);
 	sql_plan_descriptor_delete(range_ge_desc);
