@@ -1351,8 +1351,10 @@ DML, triggers, subprograms, non-deterministic functions.
   VDBE lowering unit target passes all 57 assertions, including an opcode-level
   check that the DESC lower-only seek uses just the prefix arity and executes
   the lower-bound guard before projection. The SQL fixture adds both strict and
-  inclusive lower-only DESC cases; generated and CnP focused runs pass on memtx
-  and Vinyl. LLVM was not run for this change. Other range predicates, gaps in
+  inclusive lower-only DESC cases, an inclusive `UINT64_MAX` endpoint, and a
+  missing equality-prefix case that must stop at the prefix guard; generated
+  and CnP focused runs pass on memtx and Vinyl. LLVM was not run for this
+  change. Other range predicates, gaps in
   the equality prefix, and duplicate bounds remain fail-closed. The immutable descriptor now
   also distinguishes direct projection columns from canonical scalar
   projection expressions by expression reference. The production route calls
