@@ -1336,8 +1336,9 @@ DML, triggers, subprograms, non-deterministic functions.
   projection expressions by expression reference. The production route calls
   SQL's existing `sqlExprCode()` for those expression slots inside each row's
   VDBE loop; direct columns retain `OP_Column`. Off/on/off SQL parity on
-  memtx and Vinyl covers arithmetic projections, NULL propagation, and a
-  compatible primary-key range/order. This is a bounded canonical-expression
+  memtx and Vinyl covers arithmetic projections, NULL propagation, a primary-
+  key point lookup, a compatible range/order, and a composite prefix scan.
+  This is a bounded canonical-expression
   projection slice, not arbitrary scalar/function support; the broader M3.4
   producer, operator, parity, and capture gates remain open.
   Descriptor values

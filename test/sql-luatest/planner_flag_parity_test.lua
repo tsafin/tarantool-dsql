@@ -353,6 +353,32 @@ g.test_scalar_projection_off_on_off = function()
             t.assert_equals(off_before, expected)
             t.assert_equals(off_after, expected)
             box.execute(('DROP TABLE %s'):format(name))
+
+            local prefix_name = 'planner_scalar_prefix_' .. engine
+            box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, ' ..
+                         'PRIMARY KEY (a, b)) WITH ENGINE = \'%s\'')
+                        :format(prefix_name, engine))
+            box.execute(('INSERT INTO %s VALUES (1, 10), (1, 20), ' ..
+                         '(2, 30)'):format(prefix_name))
+            local prefix_query = ('SELECT b + 1 FROM %s WHERE a = 1 ' ..
+                                  'ORDER BY a ASC, b ASC'):format(prefix_name)
+            local function capture_prefix(enabled)
+                box.execute(('SET SESSION "sql_new_planner_single_table" = %s')
+                            :format(enabled and 'true' or 'false'))
+                local explain = box.execute(
+                    [[EXPLAIN (planner = 'summary') ]] .. prefix_query)
+                if enabled then
+                    t.assert_equals(explain.rows[1][3], 'new_planner')
+                end
+                return box.execute(prefix_query).rows
+            end
+            local prefix_off = capture_prefix(false)
+            local prefix_on = capture_prefix(true)
+            local prefix_off_again = capture_prefix(false)
+            t.assert_equals(prefix_off, {{11}, {21}})
+            t.assert_equals(prefix_on, prefix_off)
+            t.assert_equals(prefix_off_again, prefix_off)
+            box.execute(('DROP TABLE %s'):format(prefix_name))
         end
     end)
 end
