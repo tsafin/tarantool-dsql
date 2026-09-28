@@ -1258,7 +1258,7 @@ DML, triggers, subprograms, non-deterministic functions.
   Regression coverage checks
   equality, inequality, ordered/reversed comparisons, and mixed primary-key
   bounds and primary/composite-point residuals on both engines; generated/CnP
-  captures match exactly (559 snapshots per engine), and the VDBE lowering
+  captures match exactly (583 snapshots per engine), and the VDBE lowering
   unit target passes all 62 assertions.
   M3.4 remains partial: this is a bounded direct scalar comparison extension,
   not general predicate lowering.
@@ -1275,16 +1275,17 @@ DML, triggers, subprograms, non-deterministic functions.
   Direct residual comparisons also accept SQL `TRUE` and `FALSE` literals,
   canonically distinct from integer 1/0. The memtx/Vinyl scalar-filter
   regression checks both values with off/on/off result parity; generated/CnP
-  captures compare exactly at 559 snapshots per engine.
+  captures compare exactly at 583 snapshots per engine.
   The scalar-filter matrix also covers bounded boolean residual trees:
-  `OR` across non-primary comparisons, NULL-test disjunctions, a nested OR
-  combined with a primary-key range, and a disjunction containing a primary-
-  key equality. The original boolean subtree is retained as one immutable
+  `OR` across non-primary comparisons, NULL-test disjunctions, unary `NOT`
+  with SQL NULL behavior, a nested OR combined with a primary-key range, and a
+  disjunction containing a primary-key equality. The original boolean subtree
+  is retained as one immutable
   expression reference and evaluated with SQL's existing expression bytecode;
   false and NULL results reject the row. Preflight admits only comparison,
   NULL, AND, and OR structure, while the physical producer further requires
   single-source columns and canonical supported constants. Runtime off/on/off
-  checks and generated/CnP captures pass on memtx and Vinyl (559 snapshots per
+  checks and generated/CnP captures pass on memtx and Vinyl (583 snapshots per
   engine, exact parity). Arbitrary boolean trees remain outside the contract.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug

@@ -164,10 +164,10 @@ tests on a full scan are represented as typed residual filters and lowered
 with `Column` plus a null-branch opcode. Up to eight such non-primary residual
 filters may be combined with a supported point, one-part range, or composite
 prefix scan/range. Up to eight scalar-comparison residuals may likewise be
-combined with supported access bounds. A compound `AND`/`OR` filter tree is
-admitted as one expression filter only when each leaf is a direct source-
-column comparison with a supported constant expression, or a direct `IS
-NULL` / `IS NOT NULL` test. Expression filters are referenced by
+combined with supported access bounds. A compound `AND`/`OR` tree, or unary
+`NOT` over that tree, is admitted as one expression filter only when each leaf
+is a direct source-column comparison with a supported constant expression, or
+a direct `IS NULL` / `IS NOT NULL` test. Expression filters are referenced by
 the immutable descriptor and resolved against the original WHERE tree only
 when lowering; their bytecode executes before projection, and `IfNot` rejects
 both false and NULL results. Simple primary-key conjuncts continue through the
@@ -177,8 +177,8 @@ collated expressions, function calls, and boolean trees with unsupported
 leaves are not admitted.
 On a prefix scan, equality-prefix and range-end guards run before residual
 checks; a rejected in-range row jumps to the cursor step, not
-the loop exit. `NOT`, `IN`, unsupported `BETWEEN`, and compound predicates
-outside that bounded boolean grammar remain unsupported. In an AND
+the loop exit. `IN`, unsupported `BETWEEN`, and compound predicates outside
+that bounded boolean grammar remain unsupported. In an AND
 conjunction, `IS NOT NULL` on any composite primary-key
 part is redundant and is omitted; `IS NULL` on a composite key inside a
 conjunction remains a stable fallback rather than allowing the invariant to
@@ -237,8 +237,8 @@ memtx and Vinyl with exact generated/CnP snapshots. Direct non-primary
 comparisons to scalar literals or supported constant expressions use the
 expression filter form. Memtx/Vinyl coverage includes equality, inequality,
 ordered/reversed operands, BLOB and boolean literals, constant
-arithmetic/concatenation, bounded OR trees, and mixed primary-key-bound and
-composite-prefix access cases with exact generated/CnP parity (559 snapshots
+arithmetic/concatenation, bounded OR/NOT trees, and mixed primary-key-bound and
+composite-prefix access cases with exact generated/CnP parity (583 snapshots
 per engine). Boolean trees with unsupported leaves and other scalar
 expressions remain on legacy codegen. A TEXT
 primary key also uses the ordered
