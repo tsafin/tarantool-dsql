@@ -2146,6 +2146,13 @@ DML, triggers, subprograms, non-deterministic functions.
   is `/tmp/sql-tap-cnp-flag-review.24Sc0V/report.json` at source
   `562ee7a09d870bc704b0d789c31f789ab364e0bf`. LLVM corpus validation, the two
   reason-only precedence classes, and M3.7 feature acceptance remain open.
+  The local LLVM-mode attempt is currently blocked by build configuration and
+  storage, not by a parity result: with `ENABLE_SQL_JIT=ON` and CnP off,
+  `sql_jit_bitcode` compiles, but the existing full-server build lacks the
+  generated sorter CnP headers required by current sources. A fresh Clang 19 /
+  LLVM 19 / CnP-enabled Debug configuration completed, but compilation ran
+  out of root-filesystem space while writing `vdbeaux.c.o`; no LLVM server or
+  corpus comparison was produced. Retry when local disk space is available.
   *parallel: no*.
 
 ---
