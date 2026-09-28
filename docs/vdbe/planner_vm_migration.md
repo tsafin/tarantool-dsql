@@ -512,10 +512,14 @@ arbitrary component or a blanket DML fallback. A focused runtime test verifies
 that the root route is captured without classifying the INSERT itself as a
 fallback and separately executes the DML to check row production.
 
-This closes only the INSERT-from-SELECT ledger slice. DELETE view
-materialization and SELECT trigger steps remain open producer boundaries, and
-the broader reviewed-corpus producer inventory is still required before M3.5
-can close.
+The shared view-DML materialization helper now assigns the embedded SELECT an
+explicit `dml_view_materialization_root` role. A focused DELETE-from-view
+snapshot test verifies a complete root route with the stable
+`UNSUPPORTED_SUBQUERY` fallback reason, then executes the INSTEAD OF trigger
+and checks the underlying row change. This role is also applied to UPDATE's
+use of the shared helper; that execution form is not yet separately tested.
+SELECT trigger steps and the broader reviewed-corpus producer inventory remain
+open before M3.5 can close.
 
 ```mermaid
 flowchart TD

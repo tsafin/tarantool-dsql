@@ -32,6 +32,7 @@
 #include "box/box.h"
 #include "box/schema.h"
 #include "sqlInt.h"
+#include "sql_plan_component.h"
 #include "tarantoolInt.h"
 
 struct space *
@@ -77,7 +78,12 @@ sql_materialize_view(struct Parse *parse, const char *name, struct Expr *where,
 						 NULL, NULL, 0, NULL, NULL);
 	struct SelectDest dest;
 	sqlSelectDestInit(&dest, SRT_EphemTab, cursor, ++parse->nMem);
+	int old_component_role = parse->planner_component_role;
+	if (parse->explain == 4)
+		parse->planner_component_role =
+			SQL_PLAN_COMPONENT_DML_VIEW_MATERIALIZATION_ROOT;
 	sqlSelect(parse, select, &dest);
+	parse->planner_component_role = old_component_role;
 	sql_select_delete(select);
 }
 

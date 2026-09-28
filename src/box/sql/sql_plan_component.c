@@ -30,7 +30,8 @@ sql_plan_component_add(struct sql_plan_component_ledger *ledger, uint32_t id,
 	if (find_component(ledger, id) != NULL)
 		return SQL_PLAN_COMPONENT_DUPLICATE_ID;
 	bool is_root = role == SQL_PLAN_COMPONENT_ROOT ||
-		role == SQL_PLAN_COMPONENT_INSERT_SELECT_ROOT;
+		role == SQL_PLAN_COMPONENT_INSERT_SELECT_ROOT ||
+		role == SQL_PLAN_COMPONENT_DML_VIEW_MATERIALIZATION_ROOT;
 	if ((parent_id == 0) != is_root)
 		return SQL_PLAN_COMPONENT_INVALID;
 	if (parent_id == 0 && ledger->count != 0)
@@ -107,7 +108,9 @@ sql_plan_component_finalize(const struct sql_plan_component_ledger *ledger,
 		if (record->route == SQL_PLAN_COMPONENT_PENDING)
 			return SQL_PLAN_COMPONENT_INCOMPLETE;
 		if (record->role == SQL_PLAN_COMPONENT_ROOT ||
-		    record->role == SQL_PLAN_COMPONENT_INSERT_SELECT_ROOT)
+		    record->role == SQL_PLAN_COMPONENT_INSERT_SELECT_ROOT ||
+		    record->role ==
+		    SQL_PLAN_COMPONENT_DML_VIEW_MATERIALIZATION_ROOT)
 			root = record;
 	}
 	if (root == NULL) {
@@ -144,6 +147,7 @@ sql_plan_component_role_name(enum sql_plan_component_role role)
 		"recursive_term", "from_subquery", "scalar_subquery",
 		"subquery", "values", "count", "cte",
 		"expression_subquery", "insert_select_root",
+		"dml_view_materialization_root",
 	};
 	return role >= SQL_PLAN_COMPONENT_ROOT &&
 		role < SQL_PLAN_COMPONENT_ROLE_COUNT ? names[role] : NULL;

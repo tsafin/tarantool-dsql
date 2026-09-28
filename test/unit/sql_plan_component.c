@@ -81,6 +81,36 @@ test_component_routes_and_mixed_summary(void)
 }
 
 static void
+test_embedded_dml_view_component_is_root(void)
+{
+	plan(5);
+	header();
+	struct sql_plan_component_ledger ledger;
+	sql_plan_component_ledger_create(&ledger);
+	ok(sql_plan_component_add(&ledger, 1, 0,
+		SQL_PLAN_COMPONENT_DML_VIEW_MATERIALIZATION_ROOT) ==
+	   SQL_PLAN_COMPONENT_OK, "DML view materialization root accepted");
+	ok(sql_plan_component_add(&ledger, 2, 1,
+		SQL_PLAN_COMPONENT_FROM_SUBQUERY) == SQL_PLAN_COMPONENT_OK,
+	   "nested SELECT retains its child relationship");
+	ok(sql_plan_component_set_route(&ledger, 1,
+		SQL_PLAN_COMPONENT_CURRENT_WHERE_C,
+		SQL_PLAN_FALLBACK_NONE) == SQL_PLAN_COMPONENT_OK,
+	   "embedded DML route recorded");
+	ok(sql_plan_component_set_route(&ledger, 2,
+		SQL_PLAN_COMPONENT_CURRENT_WHERE_C,
+		SQL_PLAN_FALLBACK_NONE) == SQL_PLAN_COMPONENT_OK,
+	   "nested route recorded");
+	struct sql_plan_component_summary summary;
+	ok(sql_plan_component_finalize(&ledger, &summary) ==
+	   SQL_PLAN_COMPONENT_OK &&
+	   summary.route == SQL_PLAN_COMPONENT_CURRENT_WHERE_C,
+	   "summary resolves the embedded DML root route");
+	footer();
+	check_plan();
+}
+
+static void
 test_incomplete_and_bounded_ledger(void)
 {
 	plan(9);
@@ -123,6 +153,7 @@ main(void)
 {
 	test_uniform_fallback_uses_root_reason();
 	test_component_routes_and_mixed_summary();
+	test_embedded_dml_view_component_is_root();
 	test_incomplete_and_bounded_ledger();
 	return 0;
 }

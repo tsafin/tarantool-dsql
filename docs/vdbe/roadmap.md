@@ -1750,6 +1750,15 @@ DML, triggers, subprograms, non-deterministic functions.
   rows. DELETE view materialization and SELECT trigger-step producers remain
   open, and this slice does not close M3.5's broader reviewed-corpus gate.
 
+  **View-DML materialization route slice (2026-09-28).** The shared helper
+  used by DELETE and UPDATE against a view now records its embedded SELECT
+  root as `dml_view_materialization_root`; the ledger accepts that role as a
+  root and uses it for the statement summary. A DELETE-from-view snapshot test
+  verifies the route, stable `UNSUPPORTED_SUBQUERY` reason, and actual
+  INSTEAD-OF-trigger row change. UPDATE's use of the helper is wired but not
+  separately tested. SELECT trigger-step producers and the full reviewed
+  producer inventory remain open.
+
   **Extended timeout triage (2026-09-28).** A fresh standalone retry with a
   60-second per-file limit accepted `in2`, `select2`, and `select9` on both
   engines, with 6,001 / 30,073 / 21,313 captured statements respectively and
