@@ -44,6 +44,17 @@ extract_literal_limit(const struct Expr *expr, uint64_t *value)
 	return true;
 }
 
+static bool
+is_supported_filter_constant(const struct Expr *expr)
+{
+	if (expr == NULL || !sqlExprIsConstant((struct Expr *)expr))
+		return false;
+	enum sql_expr_canonical_reject reason;
+	char *canonical = sql_expr_canonicalize(expr, NULL, 0, &reason);
+	free(canonical);
+	return reason == SQL_EXPR_CANONICAL_OK;
+}
+
 struct parsed_pk_bound {
 	enum sql_plan_bound_op op;
 	bool is_unsigned;
@@ -501,12 +512,7 @@ sql_physical_table_scan_from_select(
 					column = term->pRight;
 					literal = term->pLeft;
 				}
-				bool simple_literal = literal != NULL &&
-					(literal->op == TK_INTEGER || literal->op == TK_STRING ||
-					 literal->op == TK_FLOAT || literal->op == TK_BLOB ||
-					 literal->op == TK_TRUE || literal->op == TK_FALSE ||
-					 literal->op == TK_NULL);
-				if (column != NULL && simple_literal &&
+				if (column != NULL && is_supported_filter_constant(literal) &&
 				    column->pLeft == NULL && column->pRight == NULL &&
 				    column->iTable == source->iCursor &&
 				    column->iColumn >= 0 &&
