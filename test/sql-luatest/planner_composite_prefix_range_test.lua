@@ -79,6 +79,14 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                  'ORDER BY c DESC'):format(name),
                 ('SELECT v FROM %s WHERE a = 1 AND b = 20 ' ..
                  'ORDER BY c DESC LIMIT 1 OFFSET 1'):format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND b >= 10 AND b > 20 ' ..
+                 'AND b <= 40 AND b < 50 ORDER BY b ASC, c ASC')
+                    :format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND b >= 20 AND b > 20 ' ..
+                 'AND b <= 40 AND b < 40 ORDER BY b DESC, c DESC')
+                    :format(name),
+                ('SELECT v FROM %s WHERE a = 1 AND b > 50 AND b >= 40 ' ..
+                 'AND b <= 40 ORDER BY b ASC, c ASC'):format(name),
             }
             local expected = {
                 {{'c'}, {'b'}, {'d'}, {'e'}, {'g'}, {'max'}},
@@ -104,6 +112,9 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                 {{'b'}},
                 {{'b'}, {'c'}},
                 {{'c'}},
+                {{'d'}, {'e'}},
+                {{'d'}},
+                {},
             }
             local function capture(enabled)
                 local rows = {}

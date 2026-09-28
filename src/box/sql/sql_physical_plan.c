@@ -160,6 +160,33 @@ parse_pk_bound(const struct Expr *expr, int cursor, uint32_t fieldno,
 	return true;
 }
 
+static int
+compare_pk_bound_value(const struct parsed_pk_bound *a,
+		       const struct parsed_pk_bound *b)
+{
+	if (a->is_unsigned) {
+		if (a->unsigned_key < b->unsigned_key)
+			return -1;
+		return a->unsigned_key > b->unsigned_key ? 1 : 0;
+	}
+	if (a->signed_key < b->signed_key)
+		return -1;
+	return a->signed_key > b->signed_key ? 1 : 0;
+}
+
+static bool
+pk_bound_is_stricter(const struct parsed_pk_bound *candidate,
+		     const struct parsed_pk_bound *current, bool lower)
+{
+	int comparison = compare_pk_bound_value(candidate, current);
+	if (lower && comparison != 0)
+		return comparison > 0;
+	if (!lower && comparison != 0)
+		return comparison < 0;
+	return lower ? candidate->op == SQL_PLAN_GT && current->op == SQL_PLAN_GE :
+		candidate->op == SQL_PLAN_LT && current->op == SQL_PLAN_LE;
+}
+
 static bool
 candidate_is_better(const struct sql_physical_candidate *a,
 		    const struct sql_physical_candidate *b)
@@ -588,14 +615,14 @@ sql_physical_table_scan_from_select(
 				bound_part = part;
 				if (parsed[i].op == SQL_PLAN_GT ||
 				    parsed[i].op == SQL_PLAN_GE) {
-					if (has_lower)
-						valid = false;
-					lower = parsed[i];
+					if (!has_lower || pk_bound_is_stricter(&parsed[i],
+								       &lower, true))
+						lower = parsed[i];
 					has_lower = true;
 				} else {
-					if (has_upper)
-						valid = false;
-					upper = parsed[i];
+					if (!has_upper || pk_bound_is_stricter(&parsed[i],
+								       &upper, false))
+						upper = parsed[i];
 					has_upper = true;
 				}
 			}
