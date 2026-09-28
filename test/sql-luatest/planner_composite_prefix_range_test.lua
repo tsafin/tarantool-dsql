@@ -174,3 +174,66 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
         end
     end)
 end
+
+g.test_single_part_multibound_range_off_on_off = function()
+    g.server:exec(function()
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_single_multibound_' .. engine
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, v STRING) ' ..
+                         'WITH ENGINE = \'%s\''):format(name, engine))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         '(-1, \'minus\'), (0, \'zero\'), (1, \'one\'), ' ..
+                         '(2, \'two\'), (3, \'three\')'):format(name))
+            local queries = {
+                ('SELECT v FROM %s WHERE id >= 0 AND id > 0 ' ..
+                 'AND id <= 2 AND id < 3 ORDER BY id ASC'):format(name),
+                ('SELECT v FROM %s WHERE id >= 1 AND id > 1 ' ..
+                 'ORDER BY id ASC'):format(name),
+                ('SELECT v FROM %s WHERE id <= 2 AND id < 2 ' ..
+                 'ORDER BY id DESC'):format(name),
+                ('SELECT v FROM %s WHERE id > 2 AND id <= 2 ' ..
+                 'ORDER BY id ASC'):format(name),
+            }
+            local expected = {
+                {{'one'}, {'two'}},
+                {{'two'}, {'three'}},
+                {{'one'}, {'zero'}, {'minus'}},
+                {},
+            }
+            local function capture(enabled)
+                local rows = {}
+                for i, sql in ipairs(queries) do
+                    local explain, err = box.execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. sql)
+                    t.assert(err == nil, err and err.message)
+                    if enabled then
+                        t.assert_equals(explain.rows[1][3], 'new_planner',
+                                        ('single-part multibound query %d: %s')
+                                        :format(i,
+                                                tostring(explain.rows[2][3])))
+                    else
+                        t.assert_equals(explain.rows[1][3], 'current_where_c')
+                    end
+                    local result
+                    result, err = box.execute(sql)
+                    t.assert(err == nil and result ~= nil,
+                             ('query %d on %s: %s')
+                             :format(i, engine, tostring(err)))
+                    rows[i] = result.rows
+                    t.assert_equals(rows[i], expected[i],
+                                    ('query %d on %s')
+                                    :format(i, engine))
+                end
+                return rows
+            end
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            local off = capture(false)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            local on = capture(true)
+            t.assert_equals(on, off)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+            t.assert_equals(capture(false), off)
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
