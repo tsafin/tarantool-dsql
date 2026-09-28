@@ -102,3 +102,52 @@ g.test_delete_view_materialization_has_embedded_root_route = function()
     end)
     t.assert_equals(result, 'dml_view_materialization_root')
 end
+
+g.test_update_view_materialization_has_embedded_root_route = function()
+    local result = g.server:exec(function()
+        local msgpack = require('msgpack')
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        box.execute([[CREATE TABLE planner_update_view_source (
+            id INTEGER PRIMARY KEY, value INTEGER)]])
+        box.execute([[INSERT INTO planner_update_view_source VALUES (1, 10),
+            (2, 20)]])
+        box.execute([[CREATE VIEW planner_update_view AS
+            SELECT id, value FROM planner_update_view_source]])
+        box.execute([[CREATE TRIGGER planner_update_view_update
+            INSTEAD OF UPDATE ON planner_update_view FOR EACH ROW BEGIN
+                UPDATE planner_update_view_source SET value = NEW.value
+                WHERE id = OLD.id;
+            END]])
+
+        local explain, err = box.execute([[EXPLAIN (planner = 'snapshot')
+            UPDATE planner_update_view SET value = 25 WHERE id = 2]])
+        assert(err == nil, err and err.message)
+        local snapshot = msgpack.decode(tostring(explain.rows[1][1]))
+        local matching = nil
+        for _, route in ipairs(snapshot.planner.component_routes) do
+            if route.role == 'dml_view_materialization_root' then
+                matching = route
+            end
+        end
+        assert(snapshot.planner.component_status == 'complete')
+        assert(matching ~= nil, 'missing embedded view materialization route')
+        assert(matching.parent_id == 0)
+        assert(matching.route == 'fallback')
+        assert(matching.fallback_reason == 'UNSUPPORTED_SUBQUERY')
+
+        local updated, update_err = box.execute(
+            [[UPDATE planner_update_view SET value = 25 WHERE id = 2]])
+        assert(update_err == nil and updated ~= nil,
+               update_err and update_err.message or 'UPDATE returned no result')
+        local rows, rows_err = box.execute(
+            [[SELECT id, value FROM planner_update_view_source ORDER BY id]])
+        assert(rows_err == nil and rows ~= nil,
+               rows_err and rows_err.message or 'SELECT returned no result')
+        assert(#rows.rows == 2)
+        assert(rows.rows[1][2] == 10 and rows.rows[2][2] == 25)
+        box.execute([[DROP VIEW planner_update_view]])
+        box.execute([[DROP TABLE planner_update_view_source]])
+        return matching.role
+    end)
+    t.assert_equals(result, 'dml_view_materialization_root')
+end

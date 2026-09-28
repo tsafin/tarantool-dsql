@@ -1755,9 +1755,18 @@ DML, triggers, subprograms, non-deterministic functions.
   root as `dml_view_materialization_root`; the ledger accepts that role as a
   root and uses it for the statement summary. A DELETE-from-view snapshot test
   verifies the route, stable `UNSUPPORTED_SUBQUERY` reason, and actual
-  INSTEAD-OF-trigger row change. UPDATE's use of the helper is wired but not
-  separately tested. SELECT trigger-step producers and the full reviewed
-  producer inventory remain open.
+  INSTEAD-OF-trigger row change. A matching UPDATE-from-view snapshot/runtime
+  test now verifies the same route and that the INSTEAD-OF trigger updates the
+  underlying row. SELECT trigger-step producers and the full reviewed producer
+  inventory remain open.
+
+  **Trigger-step producer probe (2026-09-28).** Attempted to expose SELECT
+  steps in INSERT trigger bodies as independent component roots. The snapshot
+  did not contain a trigger-body component even when `sqlSelect()` was invoked
+  during trigger compilation; only the enclosing INSERT-SELECT root was
+  recorded. The speculative role and test were reverted. Trigger-step route
+  coverage remains open until the producer lifecycle/ledger ownership is
+  understood; no unsupported route claim is made.
 
   **Extended timeout triage (2026-09-28).** A fresh standalone retry with a
   60-second per-file limit accepted `in2`, `select2`, and `select9` on both
