@@ -1244,7 +1244,8 @@ DML, triggers, subprograms, non-deterministic functions.
   lowering.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
-  column and a scalar integer, float, string, BLOB, or NULL literal, including
+  column and a scalar integer, float, string, BLOB, boolean, or NULL literal,
+  including
   reversed literal/column operands. The immutable expression reference is
   resolved to its original WHERE term only at lowering, and SQL expression
   bytecode plus `IfNot` preserves false/NULL rejection semantics.
@@ -1253,7 +1254,7 @@ DML, triggers, subprograms, non-deterministic functions.
   access-bound grammar. Regression coverage checks
   equality, inequality, ordered/reversed comparisons, and mixed primary-key
   bounds and primary/composite-point residuals on both engines; generated/CnP
-  captures match exactly (463 snapshots per engine), and the VDBE lowering
+  captures match exactly (487 snapshots per engine), and the VDBE lowering
   unit target passes all 62 assertions.
   M3.4 remains partial: this is a bounded direct scalar comparison extension,
   not general predicate lowering.
@@ -1264,9 +1265,13 @@ DML, triggers, subprograms, non-deterministic functions.
   filter fallback now transitions from `current_where_c` to `new_planner`;
   the route/result regression passes on memtx and Vinyl, and focused
   generated/CnP captures compare exactly (107 snapshots per engine). The
-  canonicalizer unit target passes all 18 assertions, including malformed-hex
+  canonicalizer unit target passes all 19 assertions, including malformed-hex
   rejection. This is focused evidence, not a refreshed reviewed-corpus route
   report.
+  Direct residual comparisons also accept SQL `TRUE` and `FALSE` literals,
+  canonically distinct from integer 1/0. The memtx/Vinyl scalar-filter
+  regression checks both values with off/on/off result parity; generated/CnP
+  captures compare exactly at 487 snapshots per engine.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
