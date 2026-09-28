@@ -1795,11 +1795,13 @@ DML, triggers, subprograms, non-deterministic functions.
   The parse-mode propagation hypothesis is therefore ruled out. The ownership
   fix attaches registration and route updates to the top-level VDBE, uses one
   monotonic SELECT ID sequence across trigger sub-parses, and assigns explicit
-  `trigger_select_root` / `trigger_select` roles. The focused INSERT-trigger
-  luatest verifies standalone trigger ownership, parent linkage under an
-  INSERT-SELECT root, route classification, and successful DML execution;
-  `sql_plan_component.test` passes 40 assertions and the typed-capture
-  validator suite passes 4 tests. This implementation is committed as
+  `trigger_select_root` / `trigger_select` roles. On the pre-integration draft,
+  the focused INSERT-trigger luatest verified standalone trigger ownership,
+  parent linkage under an INSERT-SELECT root, route classification, and
+  successful DML execution; `sql_plan_component.test` passed 40 assertions
+  and the typed-capture validator suite passed 4 tests. The changes apply
+  cleanly on top of M3.4 commit `5e63c83fe4`, but a fresh build/test of the
+  integrated tree is still required. This implementation is committed as
   `2a02e93e67` in the temporary shared-memory integration checkout because the
   main filesystem has no free blocks; it still must be transferred to the
   canonical branch. M3.5 remains open for full reviewed-corpus inclusion of
