@@ -1778,6 +1778,17 @@ DML, triggers, subprograms, non-deterministic functions.
   coverage remains open until the producer lifecycle/ledger ownership is
   understood; no unsupported route claim is made.
 
+  **Trigger ledger ownership follow-up (2026-09-28).** Instrumented diagnosis
+  confirms `sql_row_trigger_program()` is reached for snapshot EXPLAIN with
+  both the sub-parse and top-level parse in snapshot mode (`explain == 4`),
+  and the INSERT-SELECT producer hint is present before trigger compilation.
+  Nevertheless the top-level snapshot has no planner ledger for a standalone
+  trigger SELECT, and the combined INSERT-SELECT case lacks its expected root.
+  The parse-mode propagation hypothesis is therefore ruled out; attachment,
+  lifetime, or snapshot-finalization ownership remains unresolved. The
+  experimental implementation is uncommitted and unvalidated, so it is not
+  included in the branch. Trigger producers remain an explicit M3.5 blocker.
+
   The updated INSERT-SELECT/view-DML focused luatest also passes the typed
   per-engine capture audit in generated, CnP, LLVM, and generated-repeat
   modes on memtx and Vinyl: all 29 statements per run validate, with zero
