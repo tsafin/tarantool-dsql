@@ -1242,12 +1242,28 @@ DML, triggers, subprograms, non-deterministic functions.
   `planner_flag_parity_test.lua` across memtx/Vinyl under generated and CnP
   dispatch. This remains bounded null-filter lowering, not general predicate
   lowering.
+  **2026-09 scalar-comparison extension:** direct comparison residuals now
+  also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
+  column and a scalar integer, float, string, or NULL literal, including
+  reversed literal/column operands. The immutable expression reference is
+  resolved to its original WHERE term only at lowering, and SQL expression
+  bytecode plus `IfNot` preserves false/NULL rejection semantics.
+  Column-to-column, collated, function, and arbitrary boolean expressions
+  remain fail-closed; primary-key comparisons remain bounded to the existing
+  access-bound grammar. Regression coverage checks
+  equality, inequality, ordered/reversed comparisons, and mixed primary-key
+  bounds and primary/composite-point residuals on both engines; generated/CnP
+  captures match exactly (463 snapshots per engine), and the VDBE lowering
+  unit target passes all 62 assertions.
+  M3.4 remains partial: this is a bounded direct scalar comparison extension,
+  not general predicate lowering.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
   not reviewed-corpus feature acceptance.
   Compound/general boolean predicates, filtered composite suffix ranges, and
-  other scalar operators remain outside this route. Direct-column full
+  scalar operators outside the direct-column/literal comparison contract
+  remain outside this route. Direct-column full
   scans and primary-key ordering also pass
   off/on/off parity for a TEXT primary key on both engines; the enabled route
   preserves descending order and LIMIT. A second

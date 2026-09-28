@@ -145,14 +145,26 @@ metadata are outside that rollback contract.
 `sql_select_preflight_table_scan()` is a side-effect-free predicate for the
 narrow producer class: a resolved one-base-table SELECT, direct column
 references bound to that source cursor, and `SRT_Output` destination, with no
-unsupported shape. Its bounded filter grammar admits primary-key bounds and
-unary `IS NULL` / `IS NOT NULL` column tests. The primary-key NULL tests use
+unsupported shape. Its bounded filter grammar admits primary-key bounds,
+unary `IS NULL` / `IS NOT NULL` column tests, and direct comparison operators
+(`=`, `<>`, `<`, `<=`, `>`, `>=`) between a non-primary source column and a
+scalar integer, float, string, or NULL literal. Reversed literal/column
+comparisons are preserved as expressions and evaluated by SQL expression
+codegen. The primary-key NULL tests use
 the schema invariant (identity or empty result); direct non-primary column
 tests on a full scan are represented as typed residual filters and lowered
 with `Column` plus a null-branch opcode. Up to eight such non-primary residual
 filters may be combined with a supported point, one-part range, or composite
-prefix scan/range. On a prefix scan, equality-prefix and range-end guards run
-before residual checks; a rejected in-range row jumps to the cursor step, not
+prefix scan/range. Up to eight scalar-comparison residuals may likewise be
+combined with supported access bounds. Expression filters are referenced by
+the immutable descriptor and resolved against the original WHERE tree only
+when lowering; their bytecode executes before projection, and `IfNot` rejects
+both false and NULL results. Primary-key comparisons are admitted only through
+the separately supported key-bound grammar; they are not scalar residual
+filters. Column-to-column comparisons, collated expressions, and arbitrary
+function or boolean expressions are not admitted as scalar residual filters.
+On a prefix scan, equality-prefix and range-end guards run before residual
+checks; a rejected in-range row jumps to the cursor step, not
 the loop exit. Compound predicates outside that bounded grammar remain
 unsupported. In an AND conjunction, `IS NOT NULL` on any composite primary-key
 part is redundant and is omitted; `IS NULL` on a composite key inside a
@@ -208,8 +220,13 @@ parity (85 snapshots per engine). Literal LIMIT/OFFSET is applied only after
 the key-range and NULL predicates; a duplicate residual NULL test stays on
 the `UNSUPPORTED_FILTER` fallback. Composite-prefix scan/range tests cover
 `IS NULL` and `IS NOT NULL`, including descending scans and LIMIT/OFFSET, on
-memtx and Vinyl with exact generated/CnP snapshots. Compound/general boolean
-predicates and other scalar expressions remain on legacy codegen. A TEXT
+memtx and Vinyl with exact generated/CnP snapshots. Direct non-primary
+comparisons to scalar literals use the expression filter form; memtx/Vinyl
+coverage includes equality, inequality, ordered, reversed-operand, and mixed
+primary-key-bound and composite-prefix access cases with exact generated/CnP
+parity (463 snapshots per
+engine). Compound/general boolean predicates and other scalar expressions
+remain on legacy codegen. A TEXT
 primary key also uses the ordered
 new-planner scan path and preserves descending order with LIMIT on memtx and
 Vinyl. The disabled route currently classifies this ordered scan as
