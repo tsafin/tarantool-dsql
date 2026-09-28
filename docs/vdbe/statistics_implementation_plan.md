@@ -141,13 +141,21 @@ importer may preserve useful old data if the audit finds any.
 
 ### Sampling
 
-Initial target:
+Persistence-era design target (still DRAFT; not approved for implementation):
 
-- configurable maximum sampled rows and bytes per relation;
+- bounded maximum sampled rows and bytes per relation; the specific runtime
+  configurability policy is not approved for persistent collection;
 - reservoir/systematic sampling for memtx;
 - Vinyl-provided sampling that avoids forcing pathological full LSM reads;
-- full scan only for small relations below a configurable threshold;
+- full scan only for small relations below a bounded threshold;
 - deterministic seed option for tests/replay.
+
+The implemented volatile SQL `ANALYZE` path has a separate, approved initial
+policy: conservative compile-time work and memory ceilings, no session-level
+configuration, and atomic failure without publication on exhaustion. See
+`sql_stats_sampling.md` and `sql_stats_analyze_budget.h`. That choice does not
+approve persistent schema, budgets for future background jobs, or on-disk
+formats.
 
 MsgPack field extraction is performed once per sampled tuple into a temporary
 column-oriented buffer. This avoids rescanning each tuple independently for
@@ -294,10 +302,10 @@ measurement remain open.
 Initial policy is explicit `ANALYZE`; background refresh is not required for
 the first production candidate.
 
-Each relation statistic records:
+The eventual persistent design may record, subject to schema review:
 
 - collection time and catalog generation;
-- sampled rows/bytes and configured limits;
+- sampled rows/bytes and the applicable collection-budget version;
 - modification epoch/count since collection where available;
 - confidence/error metadata.
 
@@ -306,7 +314,10 @@ synchronously recollect during prepare.
 
 ## Memory And Time Budgets
 
-Configuration must bound:
+Every collection path must have explicit bounds. The current volatile SQL
+`ANALYZE` ceilings are fixed compile-time defaults and fail atomically; this
+does not decide future persistent-collection configuration. The DRAFT
+persistent design must still specify bounds for:
 
 - sampled rows and bytes per relation;
 - collection arena bytes;
@@ -315,8 +326,10 @@ Configuration must bound:
 - MCV entries, histogram buckets, and multicolumn groups;
 - collection elapsed time.
 
-When a budget is exceeded, collection emits a lower-quality summary with
-explicit confidence rather than failing ordinary query preparation.
+Persistent collection exhaustion behavior remains unapproved. The current
+volatile SQL `ANALYZE` path fails the whole command without publication; it
+does not publish a lower-quality summary. Ordinary query preparation never
+performs collection.
 
 ## Engine Interface
 
