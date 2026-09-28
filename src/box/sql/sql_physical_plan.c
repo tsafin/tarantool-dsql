@@ -810,17 +810,6 @@ predicate_parsed:
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
-		/* A descending suffix-range walk must have an upper endpoint from
-		 * which it can seek backwards. Without one there is no bounded
-		 * starting key inside the equality prefix.
-		 */
-		if (has_prefix_range_scan && direction == SQL_PLAN_DESC &&
-		    !prefix_range_has_upper) {
-			free(order_terms);
-			if (reason != NULL)
-				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
-			return NULL;
-		}
 		order_term_count = (size_t)order_by->nExpr;
 	}
 	uint32_t *columns = calloc(select->pEList->nExpr, sizeof(*columns));
