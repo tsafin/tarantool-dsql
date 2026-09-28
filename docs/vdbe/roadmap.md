@@ -2185,9 +2185,16 @@ DML, triggers, subprograms, non-deterministic functions.
   calling convention: `SQL_PRESERVE_NONE` handlers use preserve-none, while
   ordinary handlers such as `ResultRow` retain the C ABI. The local
   `sql_stats_test` luatest passes with `SQL_JIT_ENABLE=1`, including compile,
-  execution, and result-row coverage. Full LLVM SQL-TAP off/on/off parity is
-  being rerun from the committed source; M3.7 acceptance remains open until
-  that corpus result and M3.5's producer gate are closed.
+  execution, and result-row coverage. Full LLVM SQL-TAP fixed-flag off/on/off
+  parity now passes from committed source `23fa56eeffd996815255cc6de70902d42f9a8224`:
+  47,946 memtx and 37,990 Vinyl queries, zero semantic diffs with LLVM on,
+  zero off-repeat semantic diffs, and zero unreviewed route transitions.
+  Raw hard diffs are limited to 24/23 EXPLAIN-row-only changes (on vs off)
+  and 5/4 EXPLAIN-row-only changes (off repeat) for memtx/Vinyl respectively.
+  The report is `/dev/shm/llvm-flag-review.0e507/report.json`; it is temporary
+  validation output, not a committed corpus artifact. M3.7 acceptance remains
+  open until M3.5's producer gate and the remaining feature-flag acceptance
+  criteria are closed.
   *parallel: no*.
 
 ---
