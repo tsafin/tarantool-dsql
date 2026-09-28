@@ -323,12 +323,12 @@ g.test_scalar_projection_off_on_off = function()
                         :format(name))
             local queries = {
                 ('SELECT value + 1, id * 2 FROM %s ORDER BY id ASC'):format(name),
-                ('SELECT id, value * 2 + 3 FROM %s WHERE id >= 2 ' ..
+                ('SELECT id, value * 2 + 3 FROM %s WHERE id <= 2 ' ..
                  'ORDER BY id DESC'):format(name),
             }
             local expected = {
                 {{11, 2}, {box.NULL, 4}, {-3, 6}},
-                {{3, -5}, {2, box.NULL}},
+                {{2, box.NULL}, {1, 23}},
             }
             local function capture(enabled)
                 box.execute(('SET SESSION "sql_new_planner_single_table" = %s')
