@@ -1330,8 +1330,11 @@ DML, triggers, subprograms, non-deterministic functions.
   the prefix guard. Descending order now uses an upper endpoint as the seek
   key and walks with `Prev`; bounded ranges stop at the lower endpoint, while
   upper-only ranges stop at the prefix boundary. A descending lower-only range
-  remains fail-closed because it has no bounded starting key. The route
-  preserves signed/unsigned key encodings and uniform compatible key order.
+  seeks with `OP_SeekLE` using only the equality-prefix key, then walks backward;
+  the prefix guard and lower-bound check stop before projection when the walk
+  leaves the prefix or crosses its lower endpoint. This avoids a synthetic
+  maximum suffix value. The route preserves signed/unsigned key encodings and
+  uniform compatible key order.
   The isolated
   `planner_composite_prefix_range_test.lua` checks exact rows and off/on/off
   parity for the ascending range shapes and descending upper-only/bounded
@@ -1345,9 +1348,12 @@ DML, triggers, subprograms, non-deterministic functions.
   with zero capture errors; CnP and repeated-generated comparisons each have
   exact 126/126 parity on memtx and Vinyl, and CnP execution is observed.
   LLVM was not observed because this build has JIT disabled. Descriptor and
-  VDBE lowering unit targets pass.
-  Other range predicates, gaps in the equality prefix, duplicate bounds, and
-  descending lower-only suffix ranges remain fail-closed. The immutable descriptor now
+  VDBE lowering unit target passes all 57 assertions, including an opcode-level
+  check that the DESC lower-only seek uses just the prefix arity and executes
+  the lower-bound guard before projection. The SQL fixture adds both strict and
+  inclusive lower-only DESC cases; generated and CnP focused runs pass on memtx
+  and Vinyl. LLVM was not run for this change. Other range predicates, gaps in
+  the equality prefix, and duplicate bounds remain fail-closed. The immutable descriptor now
   also distinguishes direct projection columns from canonical scalar
   projection expressions by expression reference. The production route calls
   SQL's existing `sqlExprCode()` for those expression slots inside each row's
