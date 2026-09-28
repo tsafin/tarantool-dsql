@@ -1189,8 +1189,9 @@ DML, triggers, subprograms, non-deterministic functions.
   leading key prefix with uniform ASC or DESC direction; mixed directions and
   non-prefix terms remain on legacy codegen with stable
   `UNSUPPORTED_EXPRESSION` fallback metadata. Memtx/Vinyl off/on result parity
-  covers ascending prefix order and complete ascending/descending composite
-  key order, while preflight unit tests reject mixed and non-prefix shapes. It
+  covers ascending prefix order, complete ascending/descending composite key
+  order, and descending order over an equality-only composite prefix, while
+  preflight unit tests reject mixed and non-prefix shapes. It
   now recognizes complete equality predicates over composite INTEGER/UNSIGNED
   primary keys through the supported 255-part key bound, independent of
   predicate order, as a true point lookup. Preflight and producer flatten
@@ -1208,9 +1209,12 @@ DML, triggers, subprograms, non-deterministic functions.
   prefix component. Literal LIMIT/OFFSET (including zero LIMIT and positive
   OFFSET) retain `new_planner` and off/on result parity; ascending ordering on
   either the unfixed contiguous suffix or a leading key prefix (including
-  equality-fixed parts) uses that same walk, while descending and unrelated
-  orderings remain stable fallbacks. The VDBE unit pins the
-  multi-part seek, mismatch checks, and limit/offset placement.
+  equality-fixed parts) uses that same walk. Descending ordering on the
+  contiguous suffix is supported for both equality-only and ranged prefixes by
+  seeking on the prefix/bound and walking with `Prev` until the prefix guard
+  fails. Mixed-direction and unrelated orderings remain stable fallbacks. The
+  VDBE unit pins the multi-part seek, mismatch checks, reverse direction, and
+  limit/offset placement.
   *parallel: no (extends the existing producer/descriptor/lowering chain)*.
   The route also lowers `primary_key_part IS NOT NULL` as a full
   scan, relying on the primary-key non-null invariant, and `primary_key_part
