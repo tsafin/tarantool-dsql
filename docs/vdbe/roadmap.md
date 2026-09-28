@@ -2251,8 +2251,10 @@ DML, triggers, subprograms, non-deterministic functions.
   emitter already had a `Rewind` plus bound-check path for ascending upper
   bounds, but validation rejected that direction and its strict/inclusive
   comparison opcodes were reversed. The emitter now accepts upper-only
-  ascending scans (while retaining the unsafe lower-only descending reject)
-  and exits on `bound <= current` for `<` or `bound < current` for `<=`.
+  ascending scans and exits on `bound <= current` for `<` or
+  `bound < current` for `<=`. A later composite-prefix extension also supports
+  descending lower-only ranges by seeking on the prefix and checking the
+  suffix lower bound while walking backward (see the M3.4 evidence above).
   Unit checks pin both operators and branch placement. A live memtx/Vinyl
   off/on/off regression with `sql_seq_scan=false` asserts `new_planner` on the
   enabled route and exact `SELECT * ... WHERE id < 2` rows; the focused

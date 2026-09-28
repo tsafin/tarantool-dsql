@@ -268,16 +268,18 @@ ascending walk after the equality-prefix guard. Descending ordering is also
 supported when the suffix has an upper endpoint: the producer seeks from that
 endpoint and walks with `Prev`, stopping at the lower endpoint for a bounded
 range or at the equality-prefix boundary for an upper-only range. A descending
-lower-only range remains unsupported because it has no bounded starting key
-inside the prefix. The isolated `planner_composite_prefix_range_test.lua`
+lower-only range seeks with `OP_SeekLE` using only the equality-prefix key,
+then walks backward. The prefix and lower-bound guards stop before projection
+when the cursor leaves the prefix or crosses the bound; no synthetic maximum
+suffix key is needed. The isolated `planner_composite_prefix_range_test.lua`
 covers each bound form off/on/off on memtx and Vinyl, including descending
-upper-only and bounded ranges, inclusive/exclusive endpoints, unsigned values
-above `INT64_MAX`, a three-part suffix range, and a literal-left comparison
-whose resolved expression is commuted by the parser. The expanded fixture
-passes generated, CnP, and repeated-generated capture on both engines with
-exact 126/126 snapshot parity for each comparison; CnP execution was observed.
-LLVM was not run because this build has JIT disabled. Gaps in the equality
-prefix and duplicate same-side bounds remain unsupported.
+upper-only, lower-only, and bounded ranges, inclusive/exclusive endpoints,
+unsigned values above `INT64_MAX`, a three-part suffix range, and a literal-left
+comparison whose resolved expression is commuted by the parser. The expanded
+fixture passes generated, CnP, and repeated-generated capture on both engines
+with exact 126/126 snapshot parity for each comparison; CnP execution was
+observed. LLVM was not run because this build has JIT disabled. Gaps in the
+equality prefix and duplicate same-side bounds remain unsupported.
 
 The production route also supports one-sided and two-sided INTEGER and
 UNSIGNED primary-key literal ranges (`>`, `>=`, `<`, `<=`), including reversed
