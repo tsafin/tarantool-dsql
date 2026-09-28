@@ -94,30 +94,19 @@ sql_path_fingerprint(const WherePath *path, char fingerprint[17])
 	hash = sql_path_fingerprint_add(hash, loop->nSkip);
 	hash = sql_path_fingerprint_add(hash, loop->nLTerm);
 	if (loop->index_def != NULL) {
-		if (loop->index_def->key_def == NULL)
-			return false;
+		hash = sql_path_fingerprint_add(hash, loop->index_def->space_id);
+		hash = sql_path_fingerprint_add(hash, loop->index_def->iid);
 		hash = sql_path_fingerprint_add(hash, loop->index_def->type);
 		hash = sql_path_fingerprint_add(hash,
 						 loop->index_def->opts.is_unique);
 	}
-	const struct key_def *key_def = loop->index_def != NULL ?
-		loop->index_def->key_def : NULL;
-	hash = sql_path_fingerprint_add(hash,
-					 key_def == NULL ? UINT64_MAX :
-					 key_def->part_count);
-	if (key_def != NULL) {
-		for (uint32_t i = 0; i < key_def->part_count; i++) {
-			const struct key_part *part = &key_def->parts[i];
-			hash = sql_path_fingerprint_add(hash, part->fieldno);
-			hash = sql_path_fingerprint_add(hash, part->type);
-			hash = sql_path_fingerprint_add(hash, part->sort_order);
-			hash = sql_path_fingerprint_add(hash, part->path_len);
-			for (uint32_t j = 0; j < part->path_len; j++) {
-				hash ^= (uint8_t)part->path[j];
-				hash *= UINT64_C(1099511628211);
-			}
-		}
-	}
+	/* Space/index identity is schema-scoped by the surrounding replay
+	 * contract. Do not traverse index_def->key_def here: this producer sees
+	 * transient/legacy planner loops too, where the nested key definition is
+	 * not part of the replay-owned capture record.
+	 */
+	hash = sql_path_fingerprint_add(hash, loop->index_def == NULL ?
+					 UINT64_MAX : 0);
 	int rc = snprintf(fingerprint, 17, "%016llx",
 			  (unsigned long long)hash);
 	return rc == 16;
