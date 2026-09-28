@@ -38,6 +38,14 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                     :format(name),
                 ('SELECT v FROM %s WHERE a = 1 AND ' ..
                  '20 < b ORDER BY a ASC, b ASC, c ASC'):format(name),
+                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b < 30 ' ..
+                 'ORDER BY b DESC, c DESC'):format(name),
+                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b >= 20 ' ..
+                 'AND b < 40 ORDER BY b DESC, c DESC'):format(name),
+                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b <= 20 ' ..
+                 'ORDER BY b DESC, c DESC'):format(name),
+                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b > 20 ' ..
+                 'AND b <= 40 ORDER BY b DESC, c DESC'):format(name),
             }
             local expected = {
                 {{'c'}, {'b'}, {'d'}, {'e'}, {'g'}, {'max'}},
@@ -45,6 +53,10 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                 {{1, 20, 1, 'c'}, {1, 20, 3, 'b'}, {1, 30, 2, 'd'}},
                 {{'g'}, {'max'}},
                 {{'d'}, {'e'}, {'g'}, {'max'}},
+                {{1, 20, 3, 'b'}, {1, 20, 1, 'c'}, {1, 10, 2, 'a'}},
+                {{1, 30, 2, 'd'}, {1, 20, 3, 'b'}, {1, 20, 1, 'c'}},
+                {{1, 20, 3, 'b'}, {1, 20, 1, 'c'}, {1, 10, 2, 'a'}},
+                {{1, 40, 1, 'e'}, {1, 30, 2, 'd'}},
             }
             local function capture(enabled)
                 local rows = {}
@@ -91,6 +103,28 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
             local off_again = capture(false)
             t.assert_equals(off_again, off,
                             'second disabled run changed results on ' .. engine)
+            local descending_without_upper = ('SELECT v FROM %s ' ..
+                'WHERE a = 1 AND b >= 20 ORDER BY b DESC, c DESC')
+                :format(name)
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            local explain, err = box.execute(
+                [[EXPLAIN (planner = 'summary') ]] ..
+                descending_without_upper)
+            t.assert(err == nil, err and err.message)
+            t.assert_not_equals(explain.rows[1][3], 'new_planner',
+                'descending suffix scan without upper endpoint was accepted')
+            if explain.rows[1][3] == 'fallback' then
+                t.assert(type(explain.rows[2][3]) == 'string' and
+                         #explain.rows[2][3] > 0,
+                         'descending unbounded-start fallback lacks a reason')
+            end
+            local result
+            result, err = box.execute(descending_without_upper)
+            t.assert(err == nil and result ~= nil,
+                     err and err.message or 'descending fallback query failed')
+            t.assert_equals(result.rows,
+                {{'max'}, {'g'}, {'e'}, {'d'}, {'b'}, {'c'}},
+                'descending fallback result changed on ' .. engine)
             box.execute(('DROP TABLE %s'):format(name))
         end
     end)

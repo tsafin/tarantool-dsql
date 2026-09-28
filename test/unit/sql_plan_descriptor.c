@@ -104,7 +104,7 @@ test_rejects_invalid_contract(void)
 static void
 test_composite_prefix_range_contract(void)
 {
-	plan(5);
+	plan(6);
 	header();
 	struct sql_plan_expression expr[] = {
 		{1, "prefix-equality"}, {2, "lower-bound"}, {3, "upper-bound"},
@@ -169,6 +169,10 @@ test_composite_prefix_range_contract(void)
 	input.access.has_unsigned_range_end_key = false;
 	ok(sql_plan_descriptor_new(&input) != NULL,
 	   "one-sided unsigned suffix upper bound descriptor accepted");
+	input.access.direction = SQL_PLAN_DESC;
+	d = sql_plan_descriptor_new(&input);
+	ok(d != NULL, "descending suffix range descriptor accepted");
+	sql_plan_descriptor_delete(d);
 	footer();
 	check_plan();
 }

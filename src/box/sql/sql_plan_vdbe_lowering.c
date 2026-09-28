@@ -231,10 +231,14 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 	bool has_upper = has_range_end || (has_range_key &&
 		(in->access.integer_range_op == SQL_PLAN_LT ||
 		 in->access.integer_range_op == SQL_PLAN_LE));
+	bool descending = in != NULL &&
+		in->access.direction == SQL_PLAN_DESC;
 	size_t range_bounds = has_range_key ? (has_range_end ? 2 : 1) : 0;
 	if (in == NULL || in->path_class != SQL_PLAN_NEW_PLANNER ||
 	    in->access.kind != SQL_PLAN_PK_PREFIX_SCAN ||
-	    in->access.direction != SQL_PLAN_ASC ||
+	    (in->access.direction != SQL_PLAN_ASC &&
+	     in->access.direction != SQL_PLAN_DESC) ||
+	    (descending && (!has_range_key || !has_upper)) ||
 	    in->access.prefix_key_parts == NULL ||
 	    in->access.prefix_key_part_count == 0 ||
 	    in->access.prefix_key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
@@ -267,7 +271,8 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 		    in->access.prefix_key_parts[i].column > INT_MAX)
 			return -1;
 	for (size_t i = 0; i < in->access.produced_order_count; ++i)
-		if (in->access.produced_order[i].direction != SQL_PLAN_ASC ||
+		if (in->access.produced_order[i].direction !=
+			    in->access.direction ||
 		    in->access.produced_order[i].column > INT_MAX)
 			return -1;
 	for (size_t i = 0; i < in->projection_column_count; ++i) {
@@ -305,8 +310,17 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 		return -1;
 	int key_reg = parse->nMem + 1;
 	parse->nMem += key_count;
-	int range_key_reg = has_lower ? ++parse->nMem : 0;
-	int range_end_reg = has_upper ? ++parse->nMem : 0;
+	int range_key_reg;
+	int range_end_reg;
+	if (descending && has_range_end) {
+		/* The upper endpoint is the seek key for a descending bounded scan,
+		 * so keep it adjacent to the equality-prefix registers. */
+		range_end_reg = ++parse->nMem;
+		range_key_reg = ++parse->nMem;
+	} else {
+		range_key_reg = has_lower ? ++parse->nMem : 0;
+		range_end_reg = has_upper ? ++parse->nMem : 0;
+	}
 	int current_reg = ++parse->nMem;
 	int limit_reg = has_limit ? ++parse->nMem : 0;
 	int offset_reg = has_offset ? ++parse->nMem : 0;
@@ -387,11 +401,26 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto prefix_error;
 	}
-	int seek_op = has_lower ?
-		(in->access.integer_range_op == SQL_PLAN_GT ? OP_SeekGT : OP_SeekGE) :
-		OP_SeekGE;
-	int seek = sqlVdbeAddOp4Int(vdbe, seek_op, cursor, 0, key_reg,
-				    key_count + (has_lower ? 1 : 0));
+	int seek_op;
+	int seek_key_reg = key_reg;
+	int seek_key_count = key_count;
+	if (descending) {
+		/* Descending suffix ranges start at their upper endpoint. */
+		seek_op = has_range_end ?
+			(in->access.integer_range_end_op == SQL_PLAN_LT ?
+			 OP_SeekLT : OP_SeekLE) :
+			(in->access.integer_range_op == SQL_PLAN_LT ?
+			 OP_SeekLT : OP_SeekLE);
+		seek_key_count++;
+	} else {
+		seek_op = has_lower ?
+			(in->access.integer_range_op == SQL_PLAN_GT ? OP_SeekGT :
+			 OP_SeekGE) : OP_SeekGE;
+		if (has_lower)
+			seek_key_count++;
+	}
+	int seek = sqlVdbeAddOp4Int(vdbe, seek_op, cursor, 0, seek_key_reg,
+				    seek_key_count);
 	if (seek != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto prefix_error;
@@ -411,20 +440,26 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 			goto prefix_error;
 	}
 	int range_break = -1;
-	if (has_upper) {
+	if ((!descending && has_upper) || (descending && has_lower)) {
 		int addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
 					 in->access.range_key_column, current_reg);
 		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto prefix_error;
-		enum sql_plan_bound_op upper_op = has_range_end ?
-			in->access.integer_range_end_op : in->access.integer_range_op;
-		/* VDBE comparison opcodes compare P3 against P1, so an upper
-		 * exclusive bound exits when bound <= current, while an inclusive
-		 * bound exits when bound < current. */
-		int check_op = upper_op == SQL_PLAN_LT ? OP_Le : OP_Lt;
+		enum sql_plan_bound_op range_stop_op = descending ?
+			in->access.integer_range_op : (has_range_end ?
+			in->access.integer_range_end_op :
+			in->access.integer_range_op);
+		int stop_reg = descending ? range_key_reg : range_end_reg;
+		/* VDBE comparisons compare P3 against P1. For ascending walks an
+		 * upper-exclusive bound exits at current >= upper; for descending
+		 * walks a lower-exclusive bound exits at current <= lower.
+		 */
+		int check_op = descending ?
+			(range_stop_op == SQL_PLAN_GT ? OP_Ge : OP_Gt) :
+			(range_stop_op == SQL_PLAN_LT ? OP_Le : OP_Lt);
 		range_break = sqlVdbeAddOp3(vdbe, check_op, current_reg, 0,
-					    range_end_reg);
+					    stop_reg);
 		if (range_break != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto prefix_error;
@@ -452,7 +487,8 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 		goto prefix_error;
 	if (offset_skip >= 0)
 		sqlVdbeJumpHere(vdbe, offset_skip);
-	int next = sqlVdbeAddOp2(vdbe, OP_Next, cursor, body);
+	int next = sqlVdbeAddOp2(vdbe, descending ? OP_Prev : OP_Next,
+				  cursor, body);
 	if (next != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto prefix_error;

@@ -1327,19 +1327,27 @@ DML, triggers, subprograms, non-deterministic functions.
   equality prefix followed by lower-only, upper-only, or bounded integer-range
   predicates on the next primary-key part. The lower bound participates in a
   composite `SeekGT`/`SeekGE`; upper bounds terminate the ascending walk after
-  the prefix guard. The route preserves signed/unsigned key encodings and only
-  accepts ascending compatible key order. The isolated
+  the prefix guard. Descending order now uses an upper endpoint as the seek
+  key and walks with `Prev`; bounded ranges stop at the lower endpoint, while
+  upper-only ranges stop at the prefix boundary. A descending lower-only range
+  remains fail-closed because it has no bounded starting key. The route
+  preserves signed/unsigned key encodings and uniform compatible key order.
+  The isolated
   `planner_composite_prefix_range_test.lua` checks exact rows and off/on/off
-  parity for all three range shapes on memtx and Vinyl, including
-  an UNSIGNED suffix above `INT64_MAX` and a literal-left bound whose resolved
-  comparison expression is commuted by the parser. The earlier three-part point fixture
+  parity for the ascending range shapes and descending upper-only/bounded
+  shapes on memtx and Vinyl, including an UNSIGNED suffix above `INT64_MAX`
+  and a literal-left bound whose resolved comparison expression is commuted
+  by the parser. The earlier three-part point fixture
   now confirms equality on the first two parts plus a range on the third uses
-  `new_planner`. Generated, CnP, and repeated-generated captures each record
-  72 snapshots per engine with zero capture errors; CnP and repeated-generated
-  comparisons each have exact 72/72 parity. LLVM was not observed because this
-  build has JIT disabled. Descriptor and VDBE lowering unit targets pass.
+  `new_planner`. Before the descending extension, generated, CnP, and
+  repeated-generated captures each recorded 72 snapshots per engine with exact
+  parity. After the extension, all three modes record 126 snapshots per engine
+  with zero capture errors; CnP and repeated-generated comparisons each have
+  exact 126/126 parity on memtx and Vinyl, and CnP execution is observed.
+  LLVM was not observed because this build has JIT disabled. Descriptor and
+  VDBE lowering unit targets pass.
   Other range predicates, gaps in the equality prefix, duplicate bounds, and
-  descending suffix ranges remain fail-closed. The immutable descriptor now
+  descending lower-only suffix ranges remain fail-closed. The immutable descriptor now
   also distinguishes direct projection columns from canonical scalar
   projection expressions by expression reference. The production route calls
   SQL's existing `sqlExprCode()` for those expression slots inside each row's

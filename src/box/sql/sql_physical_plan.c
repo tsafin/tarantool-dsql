@@ -780,7 +780,8 @@ predicate_parsed:
 					key_def->parts[first_order_part + (uint32_t)i].fieldno ||
 			    (term_direction != SORT_ORDER_ASC &&
 				term_direction != SORT_ORDER_DESC) ||
-			    (has_prefix_scan && term_direction != SORT_ORDER_ASC) ||
+			    (has_prefix_scan && !has_prefix_range_scan &&
+			     term_direction != SORT_ORDER_ASC) ||
 			    (i > 0 && term_direction !=
 				(order_direction == SQL_PLAN_DESC ? SORT_ORDER_DESC :
 				 SORT_ORDER_ASC))) {
@@ -804,6 +805,17 @@ predicate_parsed:
 		    direction != (range_op == SQL_PLAN_LT ||
 				  range_op == SQL_PLAN_LE ? SQL_PLAN_DESC :
 				  SQL_PLAN_ASC)) {
+			free(order_terms);
+			if (reason != NULL)
+				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			return NULL;
+		}
+		/* A descending suffix-range walk must have an upper endpoint from
+		 * which it can seek backwards. Without one there is no bounded
+		 * starting key inside the equality prefix.
+		 */
+		if (has_prefix_range_scan && direction == SQL_PLAN_DESC &&
+		    !prefix_range_has_upper) {
 			free(order_terms);
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
