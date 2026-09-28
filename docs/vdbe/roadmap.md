@@ -1287,6 +1287,13 @@ DML, triggers, subprograms, non-deterministic functions.
   single-source columns and canonical supported constants. Runtime off/on/off
   checks and generated/CnP captures pass on memtx and Vinyl (583 snapshots per
   engine, exact parity). Arbitrary boolean trees remain outside the contract.
+  **2026-09 BETWEEN residual extension:** direct non-primary-column `BETWEEN`
+  and `NOT BETWEEN` with two canonical constant-expression bounds are retained
+  as one expression filter; primary-key `BETWEEN` continues to normalize into
+  inclusive access bounds. Runtime off/on/off checks pass on memtx and Vinyl,
+  and focused generated/CnP captures compare exactly (607 snapshots per
+  engine). Canonicalizer unit coverage includes valid and malformed BETWEEN
+  nodes. Other BETWEEN operand shapes remain unsupported.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
