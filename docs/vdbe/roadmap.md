@@ -1244,7 +1244,7 @@ DML, triggers, subprograms, non-deterministic functions.
   lowering.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
-  column and a scalar integer, float, string, or NULL literal, including
+  column and a scalar integer, float, string, BLOB, or NULL literal, including
   reversed literal/column operands. The immutable expression reference is
   resolved to its original WHERE term only at lowering, and SQL expression
   bytecode plus `IfNot` preserves false/NULL rejection semantics.
@@ -1257,6 +1257,16 @@ DML, triggers, subprograms, non-deterministic functions.
   unit target passes all 62 assertions.
   M3.4 remains partial: this is a bounded direct scalar comparison extension,
   not general predicate lowering.
+  **2026-09 BLOB literal extension:** canonical expressions now encode
+  resolved `X'…'` literals as lowercase hex without changing their byte
+  identity, and the direct residual producer accepts them alongside other
+  scalar literals. The SCALAR/BLOB probe previously classified as a physical
+  filter fallback now transitions from `current_where_c` to `new_planner`;
+  the route/result regression passes on memtx and Vinyl, and focused
+  generated/CnP captures compare exactly (107 snapshots per engine). The
+  canonicalizer unit target passes all 18 assertions, including malformed-hex
+  rejection. This is focused evidence, not a refreshed reviewed-corpus route
+  report.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
