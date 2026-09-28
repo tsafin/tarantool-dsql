@@ -2665,7 +2665,7 @@ sqlCodeSubselect(Parse * pParse,	/* Parsing context */
 		char *zMsg = sqlMPrintf("EXECUTE %s%s SUBQUERY %d",
 					jmpIfDynamic >= 0 ? "" : "CORRELATED ",
 					pExpr->op == TK_IN ? "LIST" : "SCALAR",
-					pParse->iNextSelectId);
+					sqlParseToplevel(pParse)->iNextSelectId);
 		sqlVdbeAddOp4(v, OP_Explain, pParse->iSelectId, 0, 0, zMsg,
 				  P4_DYNAMIC);
 	}

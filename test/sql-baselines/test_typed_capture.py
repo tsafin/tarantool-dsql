@@ -186,6 +186,21 @@ class TypedCaptureTest(unittest.TestCase):
 
             manifest_path = out / "manifests/sql-tap/fallback_sql.memtx.json"
             valid_manifest = manifest_path.read_text()
+            for root_role in ("trigger_select_root", "insert_select_root",
+                              "dml_view_materialization_root"):
+                role_manifest = json.loads(valid_manifest)
+                routes = role_manifest["planner_metrics"][2]["component_routes"]
+                self.assertGreaterEqual(len(routes), 2)
+                routes[0]["role"] = root_role
+                routes[1]["role"] = "trigger_select"
+                manifest_path.write_text(json.dumps(role_manifest))
+                result = subprocess.run(
+                    [str(BINARY), str(VALIDATE), str(out)],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                self.assertEqual(result.returncode, 0,
+                                 f"validator rejected component roles {root_role}/trigger_select: "
+                                 f"{result.stderr}")
+
             inconsistent_manifest = json.loads(valid_manifest)
             inconsistent_manifest["planner_metrics"][0]["fallback_reason"] = \
                 "UNSUPPORTED_SUBQUERY"

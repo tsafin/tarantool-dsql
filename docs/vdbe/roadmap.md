@@ -1798,14 +1798,35 @@ DML, triggers, subprograms, non-deterministic functions.
   and the INSERT-SELECT producer hint is present before trigger compilation.
   Nevertheless the top-level snapshot has no planner ledger for a standalone
   trigger SELECT, and the combined INSERT-SELECT case lacks its expected root.
-  The parse-mode propagation hypothesis is therefore ruled out; attachment,
-  lifetime, or snapshot-finalization ownership remains unresolved. The
-  experimental implementation is uncommitted and unvalidated, so it is not
-  included in the branch. Trigger producers remain an explicit M3.5 blocker.
+  The parse-mode propagation hypothesis is therefore ruled out. The ownership
+  fix attaches registration and route updates to the top-level VDBE, uses one
+  monotonic SELECT ID sequence across trigger sub-parses, and assigns explicit
+  `trigger_select_root` / `trigger_select` roles. The focused INSERT-trigger
+  luatest verifies standalone trigger ownership, parent linkage under an
+  INSERT-SELECT root, route classification, and successful DML execution.
+  The `sql_plan_component.test` target passes 40 route-ledger assertions and
+  the typed-capture validator suite passes 4 tests. The integrated Clang-19
+  Debug build with SQL CnP enabled passes for `box` and `tarantool`; the
+  focused luatest passes under generated and CnP dispatch, and
+  `sql_plan_component.test` passes all 40 assertions. The full SQL-luatest
+  suite passed in both generated and CnP modes:
+  54 passed, 1 skipped because volatile ANALYZE requires a TEST_BUILD server,
+  and 2 disabled in each mode. Focused generated and CnP typed captures plus
+  manifest validation passed with 41 snapshots per engine (memtx and Vinyl);
+  CnP observed 39 native executions per engine. LLVM is not enabled in this
+  build, and the reviewed SQL-TAP corpus remains unverified for this integrated
+  revision. The implementation commits `2a02e93e67` through `95a93e83a7` are
+  now integrated into the canonical branch. Focused generated and CnP captures
+  each validate 41 snapshots on memtx and Vinyl, with 39 observed native CnP
+  executions per run; strict generated-vs-CnP comparisons are exact (41/41)
+  on both engines, and the typed-capture validator passes 4/4. LLVM is not
+  enabled in this build, and the reviewed SQL-TAP corpus remains unverified
+  for this integrated revision. M3.5 remains open for full reviewed-corpus
+  inclusion and the complete producer/route inventory.
 
   The updated INSERT-SELECT/view-DML focused luatest also passes the typed
   per-engine capture audit in generated, CnP, LLVM, and generated-repeat
-  modes on memtx and Vinyl: all 29 statements per run validate, with zero
+  modes on memtx and Vinyl: all 41 statements per run validate, with zero
   snapshot differences and positive native participation in CnP/LLVM. Its
   route assertions remain a diagnostic exclusion from immutable result
   snapshots, now explicitly recorded in the full-corpus policy with normal

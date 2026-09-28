@@ -2956,7 +2956,7 @@ multiSelect(Parse * pParse,	/* Parsing context */
 				pPrior->iOffset = p->iOffset;
 				pPrior->pLimit = p->pLimit;
 				pPrior->pOffset = p->pOffset;
-				iSub1 = pParse->iNextSelectId;
+				iSub1 = sqlParseToplevel(pParse)->iNextSelectId;
 				rc = sqlSelect(pParse, pPrior, &dest);
 				p->pLimit = 0;
 				p->pOffset = 0;
@@ -2983,7 +2983,7 @@ multiSelect(Parse * pParse,	/* Parsing context */
 								  p->iOffset);
 					}
 				}
-				iSub2 = pParse->iNextSelectId;
+				iSub2 = sqlParseToplevel(pParse)->iNextSelectId;
 				rc = sqlSelect(pParse, p, &dest);
 				pDelete = p->pPrior;
 				p->pPrior = pPrior;
@@ -3046,7 +3046,7 @@ multiSelect(Parse * pParse,	/* Parsing context */
 				assert(!pPrior->pOrderBy);
 				sqlSelectDestInit(&uniondest, priorOp,
 						      unionTab, reg_union);
-				iSub1 = pParse->iNextSelectId;
+				iSub1 = sqlParseToplevel(pParse)->iNextSelectId;
 				rc = sqlSelect(pParse, pPrior, &uniondest);
 				if (rc) {
 					goto multi_select_end;
@@ -3066,7 +3066,7 @@ multiSelect(Parse * pParse,	/* Parsing context */
 				pOffset = p->pOffset;
 				p->pOffset = 0;
 				uniondest.eDest = op;
-				iSub2 = pParse->iNextSelectId;
+				iSub2 = sqlParseToplevel(pParse)->iNextSelectId;
 				rc = sqlSelect(pParse, p, &uniondest);
 				/* Query flattening in sqlSelect() might refill p->pOrderBy.
 				 * Be sure to delete p->pOrderBy, therefore, to avoid a memory leak.
@@ -3154,7 +3154,7 @@ multiSelect(Parse * pParse,	/* Parsing context */
 				 */
 				sqlSelectDestInit(&intersectdest, SRT_Union,
 						      tab1, reg_eph1);
-				iSub1 = pParse->iNextSelectId;
+				iSub1 = sqlParseToplevel(pParse)->iNextSelectId;
 				rc = sqlSelect(pParse, pPrior,
 						   &intersectdest);
 				if (rc) {
@@ -3175,7 +3175,7 @@ multiSelect(Parse * pParse,	/* Parsing context */
 				p->pOffset = 0;
 				intersectdest.iSDParm = tab2;
 				intersectdest.reg_eph = reg_eph2;
-				iSub2 = pParse->iNextSelectId;
+				iSub2 = sqlParseToplevel(pParse)->iNextSelectId;
 				rc = sqlSelect(pParse, p, &intersectdest);
 				pDelete = p->pPrior;
 				p->pPrior = pPrior;
@@ -3677,7 +3677,7 @@ multiSelectOrderBy(Parse * pParse,	/* Parsing context */
 	    sqlVdbeAddOp3(v, OP_InitCoroutine, regAddrA, 0, addrSelectA);
 	VdbeComment((v, "left SELECT"));
 	pPrior->iLimit = regLimitA;
-	iSub1 = pParse->iNextSelectId;
+	iSub1 = sqlParseToplevel(pParse)->iNextSelectId;
 	sqlSelect(pParse, pPrior, &destA);
 	sqlVdbeEndCoroutine(v, regAddrA);
 	sqlVdbeJumpHere(v, addr1);
@@ -3693,7 +3693,7 @@ multiSelectOrderBy(Parse * pParse,	/* Parsing context */
 	savedOffset = p->iOffset;
 	p->iLimit = regLimitB;
 	p->iOffset = 0;
-	iSub2 = pParse->iNextSelectId;
+	iSub2 = sqlParseToplevel(pParse)->iNextSelectId;
 	sqlSelect(pParse, p, &destB);
 	p->iLimit = savedLimit;
 	p->iOffset = savedOffset;
@@ -5652,8 +5652,9 @@ static void
 sql_select_component_register(Parse *parse, Select *select,
 			      int parent_select_id, int producer_role)
 {
-	Vdbe *vdbe = parse->pVdbe;
-	if (vdbe == NULL || parse->explain != 4)
+	Parse *top = sqlParseToplevel(parse);
+	Vdbe *vdbe = top->pVdbe;
+	if (vdbe == NULL || top->explain != 4)
 		return;
 	if (vdbe->planner_components == NULL) {
 		vdbe->planner_components = sql_xmalloc(
@@ -5698,7 +5699,7 @@ sql_select_component_route(Parse *parse,
 			   enum sql_plan_component_route route,
 			   enum sql_plan_fallback_reason fallback_reason)
 {
-	Vdbe *vdbe = parse->pVdbe;
+	Vdbe *vdbe = sqlParseToplevel(parse)->pVdbe;
 	if (vdbe == NULL || vdbe->planner_components == NULL)
 		return false;
 	uint32_t id = (uint32_t)parse->iSelectId + 1;
@@ -5729,7 +5730,10 @@ sql_select_record_fallback_reason(Parse *parse,
 	const char *reason = sql_plan_fallback_reason_name(fallback_reason);
 	if (reason == NULL)
 		return;
-	bool first_component_fallback = v->planner_components != NULL ?
+	Vdbe *root_vdbe = sqlParseToplevel(parse)->pVdbe;
+	bool has_component_ledger = root_vdbe != NULL &&
+		root_vdbe->planner_components != NULL;
+	bool first_component_fallback = has_component_ledger ?
 		sql_select_component_route(parse, SQL_PLAN_COMPONENT_FALLBACK,
 					   fallback_reason) :
 		v->planner_fallback_reason == NULL;
@@ -5753,7 +5757,10 @@ sql_select_record_physical_fallback(Parse *parse,
 	const char *name = sql_plan_fallback_reason_name(fallback_reason);
 	if (name == NULL)
 		return;
-	bool first_component_fallback = vdbe->planner_components != NULL ?
+	Vdbe *root_vdbe = sqlParseToplevel(parse)->pVdbe;
+	bool has_component_ledger = root_vdbe != NULL &&
+		root_vdbe->planner_components != NULL;
+	bool first_component_fallback = has_component_ledger ?
 		sql_select_component_route(parse, SQL_PLAN_COMPONENT_FALLBACK,
 					   fallback_reason) :
 		vdbe->planner_fallback_reason == NULL;
@@ -6163,9 +6170,10 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	 * component may still be classified independently.
 	 */
 	Vdbe *vdbe = parse->pVdbe;
-	if (vdbe != NULL && vdbe->planner_components != NULL) {
+	Vdbe *root_vdbe = sqlParseToplevel(parse)->pVdbe;
+	if (root_vdbe != NULL && root_vdbe->planner_components != NULL) {
 		uint32_t id = (uint32_t)parse->iSelectId + 1;
-		if (!sql_plan_component_route_is_pending(vdbe->planner_components,
+		if (!sql_plan_component_route_is_pending(root_vdbe->planner_components,
 							 id))
 			return 0;
 	} else if (vdbe != NULL && vdbe->planner_fallback_reason != NULL) {
@@ -6432,6 +6440,7 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	AggInfo sAggInfo;	/* Information used by aggregate queries */
 	int iEnd;		/* Address of the end of the query */
 	int iRestoreSelectId = pParse->iSelectId;
+	Parse *topParse = sqlParseToplevel(pParse);
 	int producer_role = pParse->planner_component_role;
 	pParse->planner_component_role = 0;
 	/* This pure check runs before parser/VDBE mutation. Its positive
@@ -6439,7 +6448,7 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	 * outcomes still use the legacy code generator until M3.4 is complete. */
 	enum sql_select_preflight_reject scan_preflight =
 		sql_select_preflight_table_scan(p, pDest);
-	pParse->iSelectId = pParse->iNextSelectId++;
+	pParse->iSelectId = topParse->iNextSelectId++;
 
 	if (p == NULL || pParse->is_aborted)
 		return 1;
@@ -6718,7 +6727,7 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			pItem->addrFillSub = addrTop;
 			sqlSelectDestInit(&dest, SRT_Coroutine,
 					      pItem->regReturn, -1);
-			pItem->iSelectId = pParse->iNextSelectId;
+			pItem->iSelectId = sqlParseToplevel(pParse)->iNextSelectId;
 			pParse->planner_component_role = pItem->fg.isCte ?
 				SQL_PLAN_COMPONENT_CTE :
 				SQL_PLAN_COMPONENT_FROM_SUBQUERY;
@@ -6764,7 +6773,7 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			}
 			sqlSelectDestInit(&dest, SRT_EphemTab,
 					      pItem->iCursor, ++pParse->nMem);
-			pItem->iSelectId = pParse->iNextSelectId;
+			pItem->iSelectId = sqlParseToplevel(pParse)->iNextSelectId;
 			pParse->planner_component_role = pItem->fg.isCte ?
 				SQL_PLAN_COMPONENT_CTE :
 				SQL_PLAN_COMPONENT_FROM_SUBQUERY;
