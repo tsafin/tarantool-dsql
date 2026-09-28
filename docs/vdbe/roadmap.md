@@ -1251,12 +1251,14 @@ DML, triggers, subprograms, non-deterministic functions.
   immutable expression reference is
   resolved to its original WHERE term only at lowering, and SQL expression
   bytecode plus `IfNot` preserves false/NULL rejection semantics.
-  Column-to-column, collated, function, and arbitrary boolean expressions
-  remain fail-closed; primary-key comparisons remain bounded to the existing
-  access-bound grammar. Regression coverage checks
+  Column-to-column comparisons, collated expressions, and function calls
+  remain fail-closed; simple primary-key conjuncts remain bounded to the
+  existing access-bound grammar. Compound `AND`/`OR` trees are admitted only
+  when every leaf is a supported direct-column comparison or NULL test.
+  Regression coverage checks
   equality, inequality, ordered/reversed comparisons, and mixed primary-key
   bounds and primary/composite-point residuals on both engines; generated/CnP
-  captures match exactly (511 snapshots per engine), and the VDBE lowering
+  captures match exactly (559 snapshots per engine), and the VDBE lowering
   unit target passes all 62 assertions.
   M3.4 remains partial: this is a bounded direct scalar comparison extension,
   not general predicate lowering.
@@ -1273,14 +1275,24 @@ DML, triggers, subprograms, non-deterministic functions.
   Direct residual comparisons also accept SQL `TRUE` and `FALSE` literals,
   canonically distinct from integer 1/0. The memtx/Vinyl scalar-filter
   regression checks both values with off/on/off result parity; generated/CnP
-  captures compare exactly at 487 snapshots per engine.
+  captures compare exactly at 559 snapshots per engine.
+  The scalar-filter matrix also covers bounded boolean residual trees:
+  `OR` across non-primary comparisons, NULL-test disjunctions, a nested OR
+  combined with a primary-key range, and a disjunction containing a primary-
+  key equality. The original boolean subtree is retained as one immutable
+  expression reference and evaluated with SQL's existing expression bytecode;
+  false and NULL results reject the row. Preflight admits only comparison,
+  NULL, AND, and OR structure, while the physical producer further requires
+  single-source columns and canonical supported constants. Runtime off/on/off
+  checks and generated/CnP captures pass on memtx and Vinyl (559 snapshots per
+  engine, exact parity). Arbitrary boolean trees remain outside the contract.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
   not reviewed-corpus feature acceptance.
-  Compound/general boolean predicates, filtered composite suffix ranges, and
-  scalar operators outside the direct-column/literal comparison contract
-  remain outside this route. Direct-column full
+  Boolean trees outside the bounded comparison/NULL-leaf grammar, filtered
+  composite suffix ranges, and scalar operators outside the direct-column/
+  constant-expression contract remain outside this route. Direct-column full
   scans and primary-key ordering also pass
   off/on/off parity for a TEXT primary key on both engines; the enabled route
   preserves descending order and LIMIT. A second

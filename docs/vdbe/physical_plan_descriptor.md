@@ -164,17 +164,22 @@ tests on a full scan are represented as typed residual filters and lowered
 with `Column` plus a null-branch opcode. Up to eight such non-primary residual
 filters may be combined with a supported point, one-part range, or composite
 prefix scan/range. Up to eight scalar-comparison residuals may likewise be
-combined with supported access bounds. Expression filters are referenced by
+combined with supported access bounds. A compound `AND`/`OR` filter tree is
+admitted as one expression filter only when each leaf is a direct source-
+column comparison with a supported constant expression, or a direct `IS
+NULL` / `IS NOT NULL` test. Expression filters are referenced by
 the immutable descriptor and resolved against the original WHERE tree only
 when lowering; their bytecode executes before projection, and `IfNot` rejects
-both false and NULL results. Primary-key comparisons are admitted only through
-the separately supported key-bound grammar; they are not scalar residual
-filters. Column-to-column comparisons, collated expressions, and arbitrary
-function or boolean expressions are not admitted as scalar residual filters.
+both false and NULL results. Simple primary-key conjuncts continue through the
+bound grammar; comparisons inside an admitted compound boolean filter tree
+are evaluated as residual expressions. Column-to-column comparisons,
+collated expressions, function calls, and boolean trees with unsupported
+leaves are not admitted.
 On a prefix scan, equality-prefix and range-end guards run before residual
 checks; a rejected in-range row jumps to the cursor step, not
-the loop exit. Compound predicates outside that bounded grammar remain
-unsupported. In an AND conjunction, `IS NOT NULL` on any composite primary-key
+the loop exit. `NOT`, `IN`, unsupported `BETWEEN`, and compound predicates
+outside that bounded boolean grammar remain unsupported. In an AND
+conjunction, `IS NOT NULL` on any composite primary-key
 part is redundant and is omitted; `IS NULL` on a composite key inside a
 conjunction remains a stable fallback rather than allowing the invariant to
 hide an unsupported sibling. Literal nonnegative LIMIT and optional OFFSET
@@ -229,12 +234,13 @@ the key-range and NULL predicates; a duplicate residual NULL test stays on
 the `UNSUPPORTED_FILTER` fallback. Composite-prefix scan/range tests cover
 `IS NULL` and `IS NOT NULL`, including descending scans and LIMIT/OFFSET, on
 memtx and Vinyl with exact generated/CnP snapshots. Direct non-primary
-comparisons to scalar literals use the expression filter form; memtx/Vinyl
-coverage includes equality, inequality, ordered, reversed-operand, BLOB,
-boolean, constant-expression, and mixed primary-key-bound and composite-prefix
-access cases with exact generated/CnP parity (511 snapshots per
-engine). Compound/general boolean predicates and other scalar expressions
-remain on legacy codegen. A TEXT
+comparisons to scalar literals or supported constant expressions use the
+expression filter form. Memtx/Vinyl coverage includes equality, inequality,
+ordered/reversed operands, BLOB and boolean literals, constant
+arithmetic/concatenation, bounded OR trees, and mixed primary-key-bound and
+composite-prefix access cases with exact generated/CnP parity (559 snapshots
+per engine). Boolean trees with unsupported leaves and other scalar
+expressions remain on legacy codegen. A TEXT
 primary key also uses the ordered
 new-planner scan path and preserves descending order with LIMIT on memtx and
 Vinyl. The disabled route currently classifies this ordered scan as
