@@ -2,10 +2,13 @@
 
 ## Expression normalization prerequisite
 
-sql_expr_canonicalize() is an isolated M3 prerequisite prototype. It returns
-an owned structural encoding for resolved columns, NULL/integer/finite-float/
-string constants, and a fixed scalar operator set. It rejects function calls,
-reduced/token-only nodes, flags outside its allowlist, and unknown operators.
+`sql_expr_canonicalize()` returns an owned structural encoding for resolved
+columns, NULL/integer/finite-float/string/BLOB/boolean constants, and a fixed
+scalar operator set. The narrow executable single-table route uses it to own
+projection and residual-filter expression references and to resolve those
+references back to the original SELECT expressions during VDBE lowering. It
+rejects function calls, reduced/token-only nodes, flags outside its allowlist,
+and unknown operators.
 For resolved column references only, `EP_Lookup2` and `EP_NoReduce` are
 accepted because they retain no semantic effect after name resolution; the
 same bits remain rejected on other operators.
@@ -14,16 +17,18 @@ function identity or absence of side effects. The helper is not wired into
 descriptor expression references, resolver routing, or lowering. Column
 encoding requires a caller-supplied cursor-to-logical-relation ordinal map
 and emits that ordinal, not Expr.iTable. Stability therefore holds only
-under the same relation binding; this is not yet a replay or cross-statement
-fingerprint.
+under the same relation binding; this is not a universal cross-statement
+fingerprint and does not by itself prove that arbitrary expression evaluation
+is safe for planner execution.
 
 ## Status
 
-`PROTOTYPE` — an internal immutable C descriptor API now validates and
-deep-copies the single-table v1 shape. It is not connected to planner
-resolution, VDBE lowering, MsgPack/YAML serialization, or fingerprinting;
-those remain later M3 subtasks. Joins, aggregates, and subqueries extend the
-schema in later versions.
+`PROTOTYPE` — the immutable C descriptor API validates and deep-copies the
+single-table v1 shape and is connected to a feature-gated producer/lowering
+route for a bounded subset of SELECTs. Complete producer coverage, broader
+operator and access-path support, full parity acceptance, and general
+MsgPack/YAML plan serialization remain open. Joins, aggregates, and subqueries
+extend the schema in later versions.
 
 M3.3 adds a separately testable physical selector: given a supported logical
 chain and access candidates supplied by fixed/current estimates, it chooses
@@ -124,9 +129,10 @@ allocating the output register range, and setting SQL result metadata. Shape
 and integer-range validation happen before emission; codegen failures roll
 back the opcode suffix through the checkpoint. Twelve unit checks inspect the
 actual opcode sequence and reject unsupported shapes without VDBE mutation.
-This backend has no active SQL caller and has not been validated by executing
-the generated loop against storage, so it does not establish SQL result
-parity or close M3.4.
+At this initial backend checkpoint it had no active SQL caller and had not
+been validated against storage. Later sections record the feature-gated
+producer integration and subsequent result-parity evidence; this original
+unit evidence is not itself the parity or M3.4 closure gate.
 
 The point-lookup lowerer also has a deterministic recoverable rejection after
 emission: a descriptor with a `UINT32_MAX` projection column emits its key
