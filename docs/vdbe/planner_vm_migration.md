@@ -503,6 +503,16 @@ statement. The component-scope policy for these embedded producers and their
 runtime/capture coverage must be made explicit before M3.5 can be called
 complete; no producer role is inferred solely from the C call site.
 
+A focused runtime probe of
+`EXPLAIN (planner = 'snapshot') INSERT INTO target SELECT ... FROM source`
+confirms that this boundary is not merely undocumented: the returned snapshot
+currently contains zero `component_routes`. The INSERT source does compile via
+`sqlSelect()` in ordinary DML, but the snapshot probe does not establish that
+the DML explain path preserves the planner-snapshot mode through that call.
+Do not add an `insert_source` role based only on the compiler call site; first
+make the DML snapshot behavior observable, then decide whether the embedded
+SELECT belongs in M3.5's ledger contract or remains an explicit DML exclusion.
+
 ```mermaid
 flowchart TD
   S[Prepared statement VDBE] --> L[Component route ledger]
