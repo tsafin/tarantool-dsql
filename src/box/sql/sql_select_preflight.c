@@ -12,8 +12,19 @@ static bool
 is_comparison_predicate(const struct Expr *expr)
 {
 	return expr != NULL && expr->pLeft != NULL && expr->pRight != NULL &&
-		(expr->op == TK_EQ || expr->op == TK_GT || expr->op == TK_GE ||
+		 (expr->op == TK_EQ || expr->op == TK_GT || expr->op == TK_GE ||
 		 expr->op == TK_LT || expr->op == TK_LE);
+}
+
+static bool
+is_between_predicate(const struct Expr *expr)
+{
+	return expr != NULL && expr->op == TK_BETWEEN && expr->pLeft != NULL &&
+		expr->pRight == NULL &&
+		!ExprHasProperty(expr, EP_TokenOnly | EP_Reduced | EP_xIsSelect) &&
+		expr->x.pList != NULL && expr->x.pList->nExpr == 2 &&
+		expr->x.pList->a[0].pExpr != NULL &&
+		expr->x.pList->a[1].pExpr != NULL;
 }
 
 static bool
@@ -61,7 +72,7 @@ is_comparison_conjunction(const struct Expr *expr, int cursor,
 						 term_count, depth + 1) &&
 			is_comparison_conjunction(expr->pRight, cursor, field_count,
 						   term_count, depth + 1);
-	if (!is_comparison_predicate(expr) &&
+	if (!is_comparison_predicate(expr) && !is_between_predicate(expr) &&
 	    !is_direct_null_predicate(expr, cursor, field_count))
 		return false;
 	if (*term_count == SQL_PLAN_POINT_KEY_PART_MAX)
@@ -163,7 +174,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 				 * arbitrary expression terms. */
 				return SQL_SELECT_PREFLIGHT_SHAPE;
 			}
-		} else if (!is_comparison_predicate(where)) {
+		} else if (!is_comparison_predicate(where) &&
+			   !is_between_predicate(where)) {
 			return SQL_SELECT_PREFLIGHT_SHAPE;
 		}
 	}
