@@ -2266,6 +2266,16 @@ DML, triggers, subprograms, non-deterministic functions.
   this closes neither the SQL-luatest route inventory nor LLVM parity nor the
   universal M3.5 producer gate.
 
+  **Current reviewed SQL-luatest flag audit (2026-09-28, source
+  `0dcfbd92a3bab76e48f28b2ed2387f73003e42ba`).** The same generated-mode
+  off/on/off audit covered all 32 reviewed memtx tests (499 queries) and 31
+  reviewed Vinyl tests (447 queries). Both semantic and repeat comparisons
+  passed with zero diffs, including EXPLAIN output. Each engine had 31 route
+  transitions and 26 enabled `new_planner` queries; all transitions matched
+  the reviewed policy (`route_review_required=false`). This is the reviewed
+  subset only, not all SQL-luatests; it does not close M3.5's producer
+  inventory or the LLVM acceptance gate.
+
   ```mermaid
   flowchart LR
     A[off/on/off capture] --> B[semantic and repeat parity]
