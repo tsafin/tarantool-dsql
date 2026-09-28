@@ -1358,8 +1358,8 @@ DML, triggers, subprograms, non-deterministic functions.
   inclusive lower-only DESC cases, an inclusive `UINT64_MAX` endpoint, and a
   missing equality-prefix case that must stop at the prefix guard; generated
   and CnP focused runs pass on memtx and Vinyl. LLVM was not run for this
-  change. Other range predicates, gaps in
-  the equality prefix, and duplicate bounds remain fail-closed. Composite
+  change. Other range predicates and gaps in
+  the equality prefix remain fail-closed. Composite
   equality-prefix scans/ranges now also accept up to eight direct non-primary
   `IS NULL` / `IS NOT NULL` residual filters. The lowerer checks prefix and
   range termination before the residual, then branches rejected rows to the
@@ -1419,9 +1419,19 @@ DML, triggers, subprograms, non-deterministic functions.
   UNSIGNED interval. The focused test passes; generated/CnP capture validates
   all 276 statements on both memtx and Vinyl with exact 276/276 parity and
   observed CnP execution. Validation used the local Clang scratch build.
+  **Same-side bound intersection (2026-09-28):** composite suffix-range
+  planning now accepts multiple lower and/or upper literal bounds on that same
+  suffix part and keeps the strongest bound; a strict bound wins when equal
+  endpoints are repeated with mixed inclusivity. The regression covers a
+  weaker/stronger pair, strictness ties on both ends, and a contradictory
+  interval, with off/on parity on memtx and Vinyl. Generated/CnP capture
+  validates 312 statements per engine with exact 312/312 parity and observed
+  CnP execution. The single-part range producer and ranges split across
+  different key parts retain their existing limits.
   Do not infer rollback of AST, parser, or schema state.
   This does not cover all descriptor operators, secondary-index access,
-  additional/multibound ranges, all storage edge cases, or corpus-wide parity;
+  arbitrary ranges split across multiple key parts, all storage edge cases, or
+  corpus-wide parity;
   checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
   parity, and capture coverage. Details:

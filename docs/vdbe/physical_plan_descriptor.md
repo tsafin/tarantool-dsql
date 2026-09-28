@@ -285,7 +285,16 @@ LIMIT/OFFSET, on both engines. The expanded
 fixture passes generated, CnP, and repeated-generated capture on both engines
 with exact 240/240 snapshot parity for both comparisons; CnP execution was
 observed. LLVM was not run because this build has JIT disabled. Gaps in the
-equality prefix and duplicate same-side bounds remain unsupported.
+equality prefix remain unsupported.
+
+The composite suffix-range producer also accepts multiple literal bounds on
+the same suffix part. It intersects same-side bounds by retaining the strongest
+endpoint, with strictness taking precedence at equal values. Focused
+memtx/Vinyl off/on tests cover stronger/weaker lower and upper bounds, mixed
+strict/inclusive duplicates, and an empty intersection. Generated/CnP capture
+validates 312 statements per engine with exact 312/312 parity and observed CnP
+execution. This does not extend the single-part range producer's bound limit,
+or allow range predicates on multiple key parts.
 
 The production route also supports one-sided and two-sided INTEGER and
 UNSIGNED primary-key literal ranges (`>`, `>=`, `<`, `<=`), including reversed
