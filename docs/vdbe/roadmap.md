@@ -2061,6 +2061,18 @@ DML, triggers, subprograms, non-deterministic functions.
   `ER_SQL_SEQ_SCAN` check, while keyed routes and explicit `SEQSCAN` remain
   available. `seq_scan_test.lua` now passes in a fixed off/on/off capture on
   both engines.
+  A reviewed SQL-luatest route audit found an upper-only INTEGER range
+  (`SELECT * FROM t WHERE i < 2`) transitioning to
+  `fallback / INVALID_CANDIDATE` when `sql_seq_scan` was disabled. The range
+  emitter already had a `Rewind` plus bound-check path for ascending upper
+  bounds, but validation rejected that direction and its strict/inclusive
+  comparison opcodes were reversed. The emitter now accepts upper-only
+  ascending scans (while retaining the unsafe lower-only descending reject)
+  and exits on `bound <= current` for `<` or `bound < current` for `<=`.
+  Unit checks pin both operators and branch placement. A live memtx/Vinyl
+  off/on/off regression with `sql_seq_scan=false` asserts `new_planner` on the
+  enabled route and exact `SELECT * ... WHERE id < 2` rows; the focused
+  planner-flag suite passes.
   EQP output for full scans and primary-key point lookups now matches legacy
   detail, covered by `eqp.test.lua` and `lua-tables.test.lua`. The corpus run
   also exposed and updated the volatile ANALYZE error expectation; legacy
@@ -2082,7 +2094,24 @@ DML, triggers, subprograms, non-deterministic functions.
   Complete fallback
   classification, wider parity/corpus validation, runtime observability, and
   feature acceptance remain open. Scope is explicitly session-local for this
-  prototype, not an unresolved instance/session decision. *parallel: no*.
+  prototype, not an unresolved instance/session decision.
+  **Post-fix reviewed SQL-luatest route review (2026-09-28, source
+  `f0eb8bde1bd004fd15ce365b0ee497e98bba6cca`).** A full generated-mode
+  off/on/off run over the accepted SQL-luatest scope passed semantic parity
+  and exact off-repeat comparisons: 32 memtx / 31 Vinyl tests, 499 / 447
+  statements, zero semantic diffs. On each engine, all 22 route transitions
+  now reduce to 17 `current_where_c` → `new_planner` adoptions for supported
+  scan/point/range forms and five `current_where_c` → `fallback /
+  UNSUPPORTED_FILTER` transitions for filters not represented by the current
+  descriptor (one `_space.owner` predicate and non-primary/arithmetic filter
+  queries in `seq_scan_test.lua`). The latter execute on the legacy path and
+  preserve the captured results; the former are the focused feature's
+  supported route adoptions. The earlier `seq_scan_test/q14` transition to
+  `INVALID_CANDIDATE` is absent after the upper-only range fix. The report is
+  `/tmp/upper-range-commit-flag-review/report.json`. This dispositions the
+  SQL-luatest route transitions only; the SQL-TAP transition inventory, the
+  `sql/iproto.test.lua` observer-counter incompatibility, and corpus-wide
+  feature acceptance remain open. *parallel: no*.
 
 ---
 
