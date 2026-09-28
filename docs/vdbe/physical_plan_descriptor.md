@@ -254,8 +254,12 @@ seeks with the entire prefix key and compares each prefix column on every row,
 exiting at the first mismatch. Literal LIMIT/OFFSET are supported, including
 zero LIMIT (no seek) and positive OFFSET. The same ascending key walk satisfies
 an ascending ORDER BY over either the unfixed contiguous suffix or a contiguous
-leading key prefix (including the equality-fixed parts). Descending and
-unrelated orderings remain on legacy codegen with a stable fallback reason.
+leading key prefix (including the equality-fixed parts). For a prefix scan with
+at least one unfixed key part, descending order over the contiguous suffix is
+also supported: it seeks with `OP_SeekLE` on the equality prefix, walks with
+`Prev`, and exits at the first prefix mismatch. Literal LIMIT/OFFSET apply to
+the reverse walk. Mixed directions and unrelated orderings remain on legacy
+codegen with a stable fallback reason.
 Memtx/Vinyl tests cover reordered
 equalities, empty and non-empty prefixes, UINT64_MAX, LIMIT/OFFSET, and
 non-leading fallback.
@@ -275,9 +279,11 @@ suffix key is needed. The isolated `planner_composite_prefix_range_test.lua`
 covers each bound form off/on/off on memtx and Vinyl, including descending
 upper-only, lower-only, and bounded ranges, inclusive/exclusive endpoints,
 unsigned values above `INT64_MAX`, a three-part suffix range, and a literal-left
-comparison whose resolved expression is commuted by the parser. The expanded
+comparison whose resolved expression is commuted by the parser. The same
+fixture checks descending suffix order over an equality-only prefix, including
+LIMIT/OFFSET, on both engines. The expanded
 fixture passes generated, CnP, and repeated-generated capture on both engines
-with exact 126/126 snapshot parity for each comparison; CnP execution was
+with exact 240/240 snapshot parity for both comparisons; CnP execution was
 observed. LLVM was not run because this build has JIT disabled. Gaps in the
 equality prefix and duplicate same-side bounds remain unsupported.
 

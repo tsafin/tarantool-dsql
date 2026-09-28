@@ -196,7 +196,7 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		      in->access.has_unsigned_range_key) && has_prefix_range) ||
 		    in->access.point_key_part_count != 0 ||
 		    (in->access.direction != SQL_PLAN_ASC &&
-		     (in->access.direction != SQL_PLAN_DESC || !has_prefix_range)) ||
+		     in->access.direction != SQL_PLAN_DESC) ||
 		    in->access.bound_count != expected_bounds ||
 		    (has_prefix_range && in->access.range_key_column > INT_MAX))
 			return NULL;

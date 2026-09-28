@@ -2175,8 +2175,14 @@ DML, triggers, subprograms, non-deterministic functions.
   `new_planner` when enabled. Generated and CnP runs pass on memtx and Vinyl.
   Prefix-scan cases verify ascending ORDER BY over single- and multi-column
   unfixed contiguous primary-key suffixes, plus a key-order prefix including
-  equality-fixed columns; descending order remains a stable fallback. The
-  focused memtx/Vinyl luatest and local executable smoke checks pass.
+  equality-fixed columns. Descending suffix order over an equality-only prefix
+  now uses `SeekLE` on the prefix and `Prev` until the prefix guard fails;
+  off/on/off coverage includes LIMIT/OFFSET and passes on memtx and Vinyl.
+  Descriptor and VDBE unit tests pin acceptance and opcode/guard placement
+  (7 contract assertions, 61 lowering assertions). The expanded isolated
+  fixture captures 240 snapshots per engine in generated, CnP, and repeated-
+  generated modes; both comparison runs are exact, and CnP participation is
+  observed. LLVM remains unavailable in this build.
   Equality-prefix-plus-next-part suffix ranges now also report
   `new_planner` for lower-only, upper-only, bounded, high-UNSIGNED, and
   literal-left forms. Their isolated off/on/off fixture has 72 snapshots per

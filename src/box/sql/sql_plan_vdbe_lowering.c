@@ -238,7 +238,6 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 	    in->access.kind != SQL_PLAN_PK_PREFIX_SCAN ||
 	    (in->access.direction != SQL_PLAN_ASC &&
 	     in->access.direction != SQL_PLAN_DESC) ||
-	    (descending && !has_range_key) ||
 	    in->access.prefix_key_parts == NULL ||
 	    in->access.prefix_key_part_count == 0 ||
 	    in->access.prefix_key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||

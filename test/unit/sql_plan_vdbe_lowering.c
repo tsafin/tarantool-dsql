@@ -309,7 +309,7 @@ new_composite_point_filter_descriptor(void)
 
 static struct sql_plan_descriptor *
 new_composite_prefix_descriptor(bool with_limit, uint64_t limit,
-				uint64_t offset)
+				uint64_t offset, enum sql_plan_direction direction)
 {
 	static const uint32_t columns[] = {2};
 	static const struct sql_plan_bound bounds[] = {
@@ -341,7 +341,7 @@ new_composite_prefix_descriptor(bool with_limit, uint64_t limit,
 			.bound_count = 2,
 			.prefix_key_parts = parts,
 			.prefix_key_part_count = 2,
-			.direction = SQL_PLAN_ASC,
+			.direction = direction,
 		},
 		.finalize = with_limit ? &finalize : NULL,
 		.finalize_count = with_limit ? 1 : 0,
@@ -731,7 +731,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(60);
+	plan(61);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -802,13 +802,15 @@ main(void)
 	struct sql_plan_descriptor *composite_point_filter_desc =
 		new_composite_point_filter_descriptor();
 	struct sql_plan_descriptor *composite_prefix_desc =
-		new_composite_prefix_descriptor(false, 0, 0);
+		new_composite_prefix_descriptor(false, 0, 0, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *composite_prefix_limit_desc =
-		new_composite_prefix_descriptor(true, 1, 0);
+		new_composite_prefix_descriptor(true, 1, 0, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *composite_prefix_offset_desc =
-		new_composite_prefix_descriptor(true, 1, 1);
+		new_composite_prefix_descriptor(true, 1, 1, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *composite_prefix_zero_desc =
-		new_composite_prefix_descriptor(true, 0, 0);
+		new_composite_prefix_descriptor(true, 0, 0, SQL_PLAN_ASC);
+	struct sql_plan_descriptor *composite_prefix_desc_reverse_desc =
+		new_composite_prefix_descriptor(false, 0, 0, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *composite_prefix_range_desc =
 		new_composite_prefix_range_descriptor(false, SQL_PLAN_ASC,
 						      SQL_PLAN_GT, false);
@@ -1180,6 +1182,19 @@ main(void)
 	   vdbe.aOp[before_prefix_scan + 8].opcode == OP_ResultRow &&
 	   vdbe.aOp[before_prefix_scan + 9].opcode == OP_Next,
 	   "composite prefix scan seeks by two fields and stops on prefix mismatch");
+	int before_prefix_reverse = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_prefix_scan(composite_prefix_desc_reverse_desc,
+						      &vdbe, 4, 20) == 0 &&
+	   vdbe.aOp[before_prefix_reverse + 2].opcode == OP_SeekLE &&
+	   vdbe.aOp[before_prefix_reverse + 2].p4.i == 2 &&
+	   vdbe.aOp[before_prefix_reverse + 3].opcode == OP_Column &&
+	   vdbe.aOp[before_prefix_reverse + 4].opcode == OP_Ne &&
+	   vdbe.aOp[before_prefix_reverse + 5].opcode == OP_Column &&
+	   vdbe.aOp[before_prefix_reverse + 6].opcode == OP_Ne &&
+	   vdbe.aOp[before_prefix_reverse + 7].opcode == OP_Column &&
+	   vdbe.aOp[before_prefix_reverse + 8].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_prefix_reverse + 9].opcode == OP_Prev,
+	   "descending composite prefix scan seeks backward and guards prefix");
 	int before_prefix_limit = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_prefix_scan(composite_prefix_limit_desc, &vdbe,
 						      4, 20) == 0 &&

@@ -788,8 +788,6 @@ predicate_parsed:
 					key_def->parts[first_order_part + (uint32_t)i].fieldno ||
 			    (term_direction != SORT_ORDER_ASC &&
 				term_direction != SORT_ORDER_DESC) ||
-			    (has_prefix_scan && !has_prefix_range_scan &&
-			     term_direction != SORT_ORDER_ASC) ||
 			    (i > 0 && term_direction !=
 				(order_direction == SQL_PLAN_DESC ? SORT_ORDER_DESC :
 				 SORT_ORDER_ASC))) {
