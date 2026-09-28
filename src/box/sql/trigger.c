@@ -553,7 +553,15 @@ codeTriggerProgram(Parse * pParse,	/* The parser context */
 				struct Select *pSelect =
 					sqlSelectDup(pStep->pSelect, 0);
 				sqlSelectDestInit(&sDest, SRT_Discard, 0, -1);
+				int old_component_role =
+					pParse->planner_component_role;
+				if (pParse->explain == 4)
+					pParse->planner_component_role =
+					sqlParseToplevel(pParse)->iNextSelectId == 0 ?
+					SQL_PLAN_COMPONENT_TRIGGER_SELECT_ROOT :
+					SQL_PLAN_COMPONENT_TRIGGER_SELECT;
 				sqlSelect(pParse, pSelect, &sDest);
+				pParse->planner_component_role = old_component_role;
 				sql_select_delete(pSelect);
 				break;
 			}
@@ -646,6 +654,8 @@ sql_row_trigger_program(struct Parse *parser, struct sql_trigger *trigger,
 	sNC.pParse = pSubParse;
 	pSubParse->triggered_space = space;
 	pSubParse->pToplevel = pTop;
+	pSubParse->explain = pTop->explain;
+	pSubParse->iSelectId = parser->iSelectId;
 	pSubParse->eTriggerOp = trigger->op;
 	pSubParse->nQueryLoop = parser->nQueryLoop;
 

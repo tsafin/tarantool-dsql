@@ -177,6 +177,17 @@ local valid_component_roles = {
     values = true,
     count = true,
     cte = true,
+    insert_select_root = true,
+    dml_view_materialization_root = true,
+    trigger_select_root = true,
+    trigger_select = true,
+}
+
+local valid_component_root_roles = {
+    root = true,
+    insert_select_root = true,
+    dml_view_materialization_root = true,
+    trigger_select_root = true,
 }
 
 local valid_component_routes = {
@@ -218,7 +229,7 @@ local function valid_component_ledger(metric)
         end
         by_id[component.id] = component
         if component.parent_id == 0 then
-            if root ~= nil or component.role ~= 'root' then
+            if root ~= nil or not valid_component_root_roles[component.role] then
                 return false
             end
             root = component

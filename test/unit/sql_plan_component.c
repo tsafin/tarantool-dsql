@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <string.h>
 
 #include "unit.h"
 #include "box/sql/sql_plan_component.h"
@@ -111,6 +112,49 @@ test_embedded_dml_view_component_is_root(void)
 }
 
 static void
+test_trigger_component_roles(void)
+{
+	plan(9);
+	header();
+	struct sql_plan_component_ledger ledger;
+	sql_plan_component_ledger_create(&ledger);
+	ok(sql_plan_component_add(&ledger, 1, 0,
+		SQL_PLAN_COMPONENT_TRIGGER_SELECT_ROOT) == SQL_PLAN_COMPONENT_OK,
+	   "trigger SELECT root accepted");
+	ok(sql_plan_component_add(&ledger, 2, 1,
+		SQL_PLAN_COMPONENT_TRIGGER_SELECT) == SQL_PLAN_COMPONENT_OK,
+	   "trigger SELECT child accepted");
+	ok(ledger.records[0].id == 1 && ledger.records[0].parent_id == 0 &&
+	   ledger.records[0].role == SQL_PLAN_COMPONENT_TRIGGER_SELECT_ROOT,
+	   "trigger root identity and role are retained");
+	ok(ledger.records[1].id == 2 && ledger.records[1].parent_id == 1 &&
+	   ledger.records[1].role == SQL_PLAN_COMPONENT_TRIGGER_SELECT,
+	   "trigger child retains its parent edge");
+	ok(strcmp(sql_plan_component_role_name(
+		SQL_PLAN_COMPONENT_TRIGGER_SELECT_ROOT), "trigger_select_root") == 0,
+	   "trigger root role has a stable name");
+	ok(strcmp(sql_plan_component_role_name(
+		SQL_PLAN_COMPONENT_TRIGGER_SELECT), "trigger_select") == 0,
+	   "trigger child role has a stable name");
+	ok(sql_plan_component_set_route(&ledger, 1,
+		SQL_PLAN_COMPONENT_CURRENT_WHERE_C,
+		SQL_PLAN_FALLBACK_NONE) == SQL_PLAN_COMPONENT_OK,
+	   "trigger root route is recorded");
+	ok(sql_plan_component_set_route(&ledger, 2,
+		SQL_PLAN_COMPONENT_CURRENT_WHERE_C,
+		SQL_PLAN_FALLBACK_NONE) == SQL_PLAN_COMPONENT_OK,
+	   "trigger child route is recorded");
+	struct sql_plan_component_summary summary;
+	ok(sql_plan_component_finalize(&ledger, &summary) ==
+	   SQL_PLAN_COMPONENT_OK &&
+	   summary.route == SQL_PLAN_COMPONENT_CURRENT_WHERE_C &&
+	   summary.component_count == 2,
+	   "trigger root and child finalize as a complete ledger");
+	footer();
+	check_plan();
+}
+
+static void
 test_incomplete_and_bounded_ledger(void)
 {
 	plan(9);
@@ -154,6 +198,7 @@ main(void)
 	test_uniform_fallback_uses_root_reason();
 	test_component_routes_and_mixed_summary();
 	test_embedded_dml_view_component_is_root();
+	test_trigger_component_roles();
 	test_incomplete_and_bounded_ledger();
 	return 0;
 }

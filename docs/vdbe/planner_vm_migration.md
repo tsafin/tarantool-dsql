@@ -497,11 +497,12 @@ nested runtime evidence closes the route matrix.
 
 The 2026-09-28 caller inventory also finds `sqlSelect()` producers outside
 `select.c`: INSERT-from-SELECT in `insert.c`, view materialization for DELETE
-in `delete.c`, and SELECT trigger steps in `trigger.c`. They compile SELECT
-components into DML or trigger VDBEs rather than an ordinary top-level SELECT
-statement. The component-scope policy for these embedded producers and their
-runtime/capture coverage must be made explicit before M3.5 can be called
-complete; no producer role is inferred solely from the C call site.
+in `delete.c`, and SELECT trigger steps in `trigger.c`. The M3.5 scope decision
+includes every such producer, not only top-level SELECT statements. Embedded
+producer roles identify ownership while route results remain per component;
+the enclosing DML statement itself is not mislabeled as a planner fallback.
+Runtime and reviewed-corpus capture coverage for each producer remains part of
+the M3.5 completion gate.
 
 INSERT-from-SELECT is now included in the component ledger when captured with
 `EXPLAIN (planner = 'snapshot')`. Its embedded SELECT is the component root,
@@ -518,8 +519,13 @@ snapshot test verifies a complete root route with the stable
 `UNSUPPORTED_SUBQUERY` fallback reason, then executes the INSTEAD OF trigger
 and checks the underlying row change. This role is also applied to UPDATE's
 use of the shared helper; that execution form is not yet separately tested.
-SELECT trigger steps and the broader reviewed-corpus producer inventory remain
-open before M3.5 can close.
+SELECT trigger steps are included in the ledger by the trigger-program
+integration: the first trigger SELECT is `trigger_select_root` when it owns the
+ledger, and `trigger_select` with a parent edge when another SELECT already
+owns the statement ledger. A focused INSERT-trigger test covers standalone and
+INSERT-SELECT ownership plus execution. DELETE/UPDATE view materialization and
+the broader reviewed-corpus producer inventory still require corpus coverage
+before M3.5 can close.
 
 ```mermaid
 flowchart TD
