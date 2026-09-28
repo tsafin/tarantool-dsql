@@ -159,8 +159,8 @@ gated on "no result regression, no diagnostic regression, and reviewed
 planner-path changes."
 
 **State:** `COMPLETE` for the M0-A/M0-B parity gate in this branch. Manifest
-v1 capture is fail-closed. Policy v2 reviews all 386 tests / 772 engine
-pairs: 588 included, 184 excluded with evidence, none pending. The accepted
+v1 capture is fail-closed. Policy v2 reviews all 401 tests / 802 engine
+pairs: 588 included, 214 excluded with evidence, none pending. The accepted
 anchor is `d8fc1e339b0bb8579c8b08e39d062e20edf66666`; the CI jobs use
 that named full-corpus policy. A clean native build passed the full local
 generated/CnP/LLVM matrix (298 memtx tests / 49,535 queries and 290 Vinyl
@@ -171,8 +171,12 @@ hosted full-corpus CI result is an informational post-publication check, not
 a reason to hold subsequent implementation work. Local workflow provisioning,
 including a detached baseline worktree and pinned test runner, passed. The older
 untracked 132,413-snapshot memtx-only tree is not the baseline. The
-classifier covers all 386 file identities, but its tags are file-level, not
-verified per-query feature coverage.
+classifier covers all 401 current file identities, but its tags are file-level,
+not verified per-query feature coverage. A post-anchor policy refresh records
+15 new planner/volatile-ANALYZE regression files as evidence-backed exclusions
+from immutable M0 snapshots; their dedicated memtx/Vinyl normal-runner tests
+pass, while their mode-changing/diagnostic scope remains covered by focused
+M3/S1 tests. No historical baseline was recaptured or broadened.
 
 **Scope (B-light):** capture L1 result rows, L2 diagnostic, L3 path_class
 per (test × engine), plus an external run manifest proving coverage and
@@ -197,8 +201,8 @@ are deferred to M3 when the descriptor exists naturally.
 - [x] **M0.1** Test auto-classifier — `test/sql-baselines/classify.lua`.
   Scans `*.test.lua` across sql / sql-tap / sql-luatest, regex-detects
   feature markers per `docs/vdbe/current_sql_feature_matrix.md`, writes
-  `test/sql-baselines/classification.yaml` (386 entries on nextgen_sql
-  HEAD). Landed at nextgen_sql `f8ae5a0ddd`, expanded at `02fdfbe2d3`
+  `test/sql-baselines/classification.yaml` (401 entries on current HEAD).
+  Landed at nextgen_sql `f8ae5a0ddd`, expanded at `02fdfbe2d3`
   (canonical_yaml.lua scalar coverage).
 - [x] **M0.2** Snapshot harness — `test/sql-baselines/harness/run.lua`
   monkey-patches `box.execute`, dofiles the test file, writes one snapshot

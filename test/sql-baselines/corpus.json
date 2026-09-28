@@ -26080,6 +26080,104 @@
           "audit_status": "not_run"
         }
       }
+    },
+    {
+      "test": "sql/planner_fallback_access_hint.test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner fallback/reason regression; its route assertions are dedicated coverage rather than frozen SQL result snapshots.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql/planner_fallback_collation.test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner fallback/reason regression; its route assertions are dedicated coverage rather than frozen SQL result snapshots.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql/planner_fallback_expression.test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner fallback/reason regression; its route assertions are dedicated coverage rather than frozen SQL result snapshots.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql/planner_fallback_function.test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner fallback/reason regression; its route assertions are dedicated coverage rather than frozen SQL result snapshots.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql/planner_fallback_recursive_cte.test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner producer/fallback regression; its route assertions are dedicated coverage rather than frozen SQL result snapshots.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql/planner_pk_not_null.test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner invariant regression; dedicated route and result assertions are retained in the ordinary SQL runner.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql/planner_preflight.test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner preflight regression; its route assertions are dedicated coverage rather than frozen SQL result snapshots.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql/planner_signed_range_edges.test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner signed-boundary regression; its route and integer-boundary assertions are dedicated coverage rather than frozen SQL result snapshots.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql-luatest/planner_composite_prefix_range_test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner off/on/off feature regression; it mutates the planner session setting and asserts route behavior.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql-luatest/planner_flag_fallback_parity_test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner off/on/off feature regression; it mutates the planner session setting and asserts route behavior.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql-luatest/planner_flag_parity_test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor planner off/on/off feature regression; it mutates the planner session setting and asserts route behavior.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql-luatest/planner_final_paths_test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor final-path and component-ledger regression; it enables the experimental planner for selected producer shapes.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql-luatest/planner_scalar_filter_test.lua",
+      "engines": ["memtx", "vinyl"], "category": "planner_diagnostic",
+      "reason": "Post-anchor scalar-filter planner regression; it enables the experimental route and asserts planner metadata.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
+    },
+    {
+      "test": "sql-luatest/analyze_volatile_test.lua",
+      "engines": ["memtx", "vinyl"], "category": "volatile_analyze",
+      "reason": "Post-anchor volatile ANALYZE behavioral test; statistics are intentionally session-local and are not part of the immutable result baseline.",
+      "introduced_after_baseline": true,
+      "evidence": {"memtx": {"normal_runner": {"status": "pass", "exit_code": 0}}, "vinyl": {"normal_runner": {"status": "pass", "exit_code": 0}}}
     }
   ]
 }

@@ -3,7 +3,7 @@
 # Schema: test/sql-baselines/SCHEMA.md
 #
 classification_version: 1
-generated_at: '2026-09-26T18:12:16Z'
+generated_at: '2026-09-28T02:02:24Z'
 tests:
   - feature_tags: [ddl]
     file: autoincrement.test.lua
@@ -221,6 +221,7 @@ tests:
       - limit
       - nondeterministic
       - offset
+      - order_by
       - projection
       - scalar_subquery
       - single_table_select
@@ -264,8 +265,53 @@ tests:
       - values
     file: persistency.test.lua
     suite: sql
+  - feature_tags: [ddl, explain, insert, order_by, projection, values]
+    file: planner_composite_pk_order.test.lua
+    suite: sql
+  - feature_tags: [ddl, explain, index_hint, projection, single_table_select]
+    file: planner_fallback_access_hint.test.lua
+    suite: sql
+  - feature_tags: [collation, ddl, explain, projection, single_table_select]
+    file: planner_fallback_collation.test.lua
+    suite: sql
+  - feature_tags: [cast, ddl, explain, filter, limit, offset, projection, single_table_select]
+    file: planner_fallback_expression.test.lua
+    suite: sql
+  - feature_tags: [aggregate, ddl, explain, filter, order_by, projection, single_table_select]
+    file: planner_fallback_function.test.lua
+    suite: sql
   - feature_tags: [explain, projection, single_table_select]
     file: planner_fallback_no_from.test.lua
+    suite: sql
+  - feature_tags:
+      - cte
+      - explain
+      - filter
+      - projection
+      - recursive_cte
+      - single_table_select
+      - union
+      - values
+    file: planner_fallback_recursive_cte.test.lua
+    suite: sql
+  - feature_tags: [ddl, explain, filter, insert, order_by, projection, single_table_select, values]
+    file: planner_pk_not_null.test.lua
+    suite: sql
+  - feature_tags:
+      - ddl
+      - explain
+      - filter
+      - insert
+      - limit
+      - offset
+      - order_by
+      - projection
+      - single_table_select
+      - values
+    file: planner_preflight.test.lua
+    suite: sql
+  - feature_tags: [ddl, explain, filter, insert, projection, single_table_select, values]
+    file: planner_signed_range_edges.test.lua
     suite: sql
   - feature_tags:
       - aggregate
@@ -3756,6 +3802,9 @@ tests:
       - view
     file: with2.test.lua
     suite: sql-tap
+  - feature_tags: [analyze, projection, single_table_select, view]
+    file: analyze_volatile_test.lua
+    suite: sql-luatest
   - feature_tags: []
     file: bind_test.lua
     suite: sql-luatest
@@ -3977,6 +4026,52 @@ tests:
   - feature_tags: [cast, correlated_subquery, derived_table, projection, scalar_subquery]
     file: map_test.lua
     suite: sql-luatest
+  - feature_tags: [ddl, explain, filter, insert, order_by, projection]
+    file: planner_composite_prefix_range_test.lua
+    suite: sql-luatest
+  - feature_tags:
+      - aggregate
+      - correlated_subquery
+      - cte
+      - ddl
+      - derived_table
+      - distinct
+      - exists
+      - explain
+      - filter
+      - group_by
+      - in_subquery
+      - inner_join
+      - insert
+      - intersect
+      - order_by
+      - projection
+      - recursive_cte
+      - scalar_subquery
+      - single_table_select
+      - union
+      - values
+    file: planner_final_paths_test.lua
+    suite: sql-luatest
+  - feature_tags: [ddl, explain, filter, index_hint, insert, projection, values]
+    file: planner_flag_fallback_parity_test.lua
+    suite: sql-luatest
+  - feature_tags:
+      - ddl
+      - explain
+      - filter
+      - index_hint
+      - insert
+      - limit
+      - offset
+      - order_by
+      - projection
+      - values
+    file: planner_flag_parity_test.lua
+    suite: sql-luatest
+  - feature_tags: [ddl, explain, filter, insert, limit, offset, order_by, projection]
+    file: planner_scalar_filter_test.lua
+    suite: sql-luatest
   - feature_tags:
       - aggregate
       - cross_join
@@ -4004,6 +4099,7 @@ tests:
       - ddl
       - derived_table
       - exists
+      - explain
       - filter
       - insert
       - limit
@@ -4019,4 +4115,4 @@ tests:
       - values
     file: sql_stats_test.lua
     suite: sql-luatest
-total_tests: 386
+total_tests: 401
