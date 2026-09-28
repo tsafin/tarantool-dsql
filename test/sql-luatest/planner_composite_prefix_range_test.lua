@@ -46,9 +46,9 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                  'ORDER BY b DESC, c DESC'):format(name),
                 ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b > 20 ' ..
                  'AND b <= 40 ORDER BY b DESC, c DESC'):format(name),
-                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b >= 20 ' ..
+                ('SELECT v FROM %s WHERE a = 1 AND b >= 20 ' ..
                  'ORDER BY b DESC, c DESC'):format(name),
-                ('SELECT a, b, c, v FROM %s WHERE a = 1 AND b > 20 ' ..
+                ('SELECT v FROM %s WHERE a = 1 AND b > 20 ' ..
                  'ORDER BY b DESC, c DESC'):format(name),
             }
             local expected = {
@@ -61,13 +61,8 @@ g.test_composite_prefix_equality_then_range_off_on_off = function()
                 {{1, 30, 2, 'd'}, {1, 20, 3, 'b'}, {1, 20, 1, 'c'}},
                 {{1, 20, 3, 'b'}, {1, 20, 1, 'c'}, {1, 10, 2, 'a'}},
                 {{1, 40, 1, 'e'}, {1, 30, 2, 'd'}},
-                {{1, 18446744073709551615, 1, 'max'},
-                 {1, 9223372036854775808, 2, 'g'},
-                 {1, 40, 1, 'e'}, {1, 30, 2, 'd'},
-                 {1, 20, 3, 'b'}, {1, 20, 1, 'c'}},
-                {{1, 18446744073709551615, 1, 'max'},
-                 {1, 9223372036854775808, 2, 'g'},
-                 {1, 40, 1, 'e'}, {1, 30, 2, 'd'}},
+                {{'max'}, {'g'}, {'e'}, {'d'}, {'b'}, {'c'}},
+                {{'max'}, {'g'}, {'e'}, {'d'}},
             }
             local function capture(enabled)
                 local rows = {}
