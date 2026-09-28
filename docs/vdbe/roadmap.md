@@ -2253,6 +2253,19 @@ DML, triggers, subprograms, non-deterministic functions.
   M3.5 producer gate and LLVM reviewed-corpus parity close. Unit tests cover
   both exact policy matches and unknown-class rejection.
 
+  **Current reviewed SQL-TAP flag audit (2026-09-28, source
+  `fe76fc128907bd33f3aaadb884176228ccac0d38`).** Re-ran all reviewed tests in
+  generated mode; report: `/dev/shm/m35-current-route-audit/report.json`.
+  Memtx covered 232 tests / 47,946 queries and Vinyl 224 tests / 37,990
+  queries. Off/on semantic parity and off-repeat semantic parity both passed
+  with zero semantic diffs on both engines. The remaining hard diffs are
+  EXPLAIN-only (24 memtx / 23 Vinyl off/on; 5 / 4 repeat). The audit observed
+  1,776 / 1,737 enabled `new_planner` routes and 6,130 / 4,085 route
+  transitions; every transition matched the reviewed route-class policy, so
+  `route_review_required=false`. `feature_acceptance_passed` remains false:
+  this closes neither the SQL-luatest route inventory nor LLVM parity nor the
+  universal M3.5 producer gate.
+
   ```mermaid
   flowchart LR
     A[off/on/off capture] --> B[semantic and repeat parity]
