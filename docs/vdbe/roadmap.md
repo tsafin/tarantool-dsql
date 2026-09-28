@@ -1710,7 +1710,11 @@ DML, triggers, subprograms, non-deterministic functions.
   corpus topology has passed typed capture. Focused runtime tests now cover
   all listed direct/nested producer families, including mixed roots and
   children and trigger ownership. Full reviewed-corpus inclusion and route
-  dispositions remain the M3.5 acceptance gate.
+  dispositions remain the M3.5 acceptance gate. A fresh focused capture of the
+  INSERT-SELECT, view-DML, and trigger producer fixture validates 41 snapshots
+  per engine in generated, CnP, LLVM, and generated-repeat modes; all three
+  comparisons are exact, with 39 observed CnP and 32 observed LLVM executions
+  per engine.
 
   ```mermaid
   flowchart TD
