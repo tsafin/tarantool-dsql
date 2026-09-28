@@ -4,7 +4,7 @@
 #include "box/sql/sql_expr_canonical.h"
 #include "unit.h"
 static void test_supported(void) {
-	plan(10); header();
+	plan(11); header();
 	const uint32_t cursor_map[] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, 0};
 	struct Expr col = {.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=3,.iColumn=1};
 	struct Expr a = {.op=TK_INTEGER,.flags=EP_Resolved|EP_IntValue}; a.u.iValue=7;
@@ -40,6 +40,7 @@ static void test_supported(void) {
 	struct Expr f={.op=TK_FLOAT,.flags=EP_Resolved,.u.zToken="1.0"};
 	struct Expr f2={.op=TK_FLOAT,.flags=EP_Resolved,.u.zToken="1e0"};
 	struct Expr blob={.op=TK_BLOB,.flags=EP_Resolved,.u.zToken="X'A0Ff'"};
+	struct Expr boolean={.op=TK_TRUE,.flags=EP_Resolved};
 	char *ns=sql_expr_canonicalize(&nul,NULL,0,NULL), *ss=sql_expr_canonicalize(&str,NULL,0,NULL);
 	char *fs=sql_expr_canonicalize(&f,NULL,0,NULL), *fs2=sql_expr_canonicalize(&f2,NULL,0,NULL);
 	ok(ns && strcmp(ns,"null")==0,"NULL encoded");
@@ -47,7 +48,9 @@ static void test_supported(void) {
 	ok(fs && fs2 && strcmp(fs,fs2)==0,"float spelling normalized");
 	char *bs=sql_expr_canonicalize(&blob,NULL,0,NULL);
 	ok(bs && strcmp(bs,"blob(a0ff)")==0,"blob hex canonicalized case-insensitively");
-	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);
+	char *bools=sql_expr_canonicalize(&boolean,NULL,0,NULL);
+	ok(bools && strcmp(bools,"bool(true)")==0,"boolean literal canonicalized");
+	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);
 	footer(); check_plan();
 }
 static void test_rejects(void) {

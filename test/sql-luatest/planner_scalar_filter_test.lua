@@ -18,11 +18,11 @@ g.test_non_primary_null_filters_off_on_off = function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do
             local name = 'planner_null_filter_' .. engine
             box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, v STRING, ' ..
-                         'w STRING) ' ..
+                         'w STRING, s SCALAR) ' ..
                          "WITH ENGINE = '%s'"):format(name, engine))
             box.execute(('INSERT INTO %s VALUES ' ..
-                         "(1, NULL, 'a'), (2, 'x', NULL), " ..
-                         "(3, NULL, NULL), (4, 'y', 'z')")
+                         "(1, NULL, 'a', true), (2, 'x', NULL, false), " ..
+                         "(3, NULL, NULL, NULL), (4, 'y', 'z', true)")
                         :format(name))
             local composite_name = name .. '_composite'
             box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, v STRING, ' ..
@@ -93,6 +93,16 @@ g.test_non_primary_null_filters_off_on_off = function()
                 },
                 {
                     sql = ("SELECT id FROM %s WHERE v = 'x' " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE s = true ' ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{1}, {4}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE s = false ' ..
                            'ORDER BY id ASC'):format(name),
                     expected = {{2}},
                 },

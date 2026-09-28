@@ -116,6 +116,14 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 		return append(b, "null", 4) ? SQL_EXPR_CANONICAL_OK :
 			SQL_EXPR_CANONICAL_NOMEM;
 	}
+	if (expr->op == TK_TRUE || expr->op == TK_FALSE) {
+		if (expr->pLeft != NULL || expr->pRight != NULL)
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		const char *value = expr->op == TK_TRUE ? "bool(true)" :
+			"bool(false)";
+		return append(b, value, strlen(value)) ? SQL_EXPR_CANONICAL_OK :
+			SQL_EXPR_CANONICAL_NOMEM;
+	}
 	if (expr->op == TK_INTEGER) {
 		if (expr->pLeft != NULL || expr->pRight != NULL)
 			return SQL_EXPR_CANONICAL_MALFORMED;
