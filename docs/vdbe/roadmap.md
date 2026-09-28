@@ -1784,6 +1784,22 @@ DML, triggers, subprograms, non-deterministic functions.
   entries. M3.5 remains open until those reviewed-corpus producers and route
   changes are dispositioned.
 
+  **Current SQL-TAP ledger re-audit (2026-09-28, generated mode).** Re-ran all
+  275 standalone SQL-TAP files on both engines against the integrated
+  component-ledger implementation; reports are in
+  `/dev/shm/m35-current-ledger-audit/{memtx,vinyl}-generated.json`. Memtx had
+  250 accepted, 23 rejected, and 2 timed-out files; Vinyl had 249 accepted,
+  24 rejected, and 2 timeouts. Accepted captures contain 148,637 memtx and
+  148,008 Vinyl statements and 120,857 / 120,853 component records,
+  respectively. Every accepted manifest uses ledger v1 and validates with
+  zero incomplete ledgers. All 249 files accepted on both engines have exact
+  per-file component route- and role-histogram agreement. The one additional
+  memtx acceptance is the known concurrency-attribution fixture. Rejections
+  and timeouts remain explicit audit outcomes, not approvals. This strengthens
+  SQL-TAP ledger completeness evidence only; it is generated-mode standalone
+  capture, not SQL-luatest coverage, planner off/on parity, or route-transition
+  disposition. M3.5 remains open for those gates.
+
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
   `insert_select_root`; ledger validation and statement-summary selection treat
