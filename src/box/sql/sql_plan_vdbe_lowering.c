@@ -469,12 +469,9 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		    input->access.integer_range_end_op != SQL_PLAN_LE))) ||
 		 (has_range_end && input->access.range_key_column > INT_MAX) ||
 		 (!has_range_end &&
-		  (((input->access.integer_range_op == SQL_PLAN_LT ||
-		     input->access.integer_range_op == SQL_PLAN_LE) &&
-		    input->access.direction != SQL_PLAN_DESC) ||
-		   ((input->access.integer_range_op == SQL_PLAN_GT ||
-		     input->access.integer_range_op == SQL_PLAN_GE) &&
-		    input->access.direction != SQL_PLAN_ASC))));
+		  (input->access.integer_range_op == SQL_PLAN_GT ||
+		   input->access.integer_range_op == SQL_PLAN_GE) &&
+		  input->access.direction != SQL_PLAN_ASC));
 	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != (range ? SQL_PLAN_INDEX_RANGE_SCAN :
 				   SQL_PLAN_TABLE_FULL_SCAN) ||
@@ -688,7 +685,7 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		int check_op;
 		if (upper_only_ascending)
 			check_op = input->access.integer_range_op == SQL_PLAN_LT ?
-				OP_Ge : OP_Gt;
+				OP_Le : OP_Lt;
 		else if (input->access.direction == SQL_PLAN_ASC)
 			check_op = (bounded_range ?
 				input->access.integer_range_end_op :

@@ -641,7 +641,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(49);
+	plan(51);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -733,6 +733,10 @@ main(void)
 				     NULL);
 	struct sql_plan_descriptor *range_lt_desc =
 		new_range_descriptor(SQL_PLAN_LT, 7, false, SQL_PLAN_DESC, NULL);
+	struct sql_plan_descriptor *range_lt_ascending_desc =
+		new_range_descriptor(SQL_PLAN_LT, 7, false, SQL_PLAN_ASC, NULL);
+	struct sql_plan_descriptor *range_le_ascending_desc =
+		new_range_descriptor(SQL_PLAN_LE, 7, false, SQL_PLAN_ASC, NULL);
 	struct sql_plan_descriptor *unsigned_range_desc =
 		new_range_descriptor(SQL_PLAN_GT, (int64_t)UINT64_MAX, true,
 				     SQL_PLAN_ASC, NULL);
@@ -781,6 +785,8 @@ main(void)
 	   composite_prefix_zero_desc != NULL &&
 	   range_gt_desc != NULL && range_le_desc != NULL &&
 	   unsigned_range_desc != NULL && bounded_range_desc != NULL &&
+	   range_lt_ascending_desc != NULL &&
+	   range_le_ascending_desc != NULL &&
 	   wide_bounded_range_desc != NULL && filtered_bounded_range_desc != NULL &&
 	   invalid_direction_range_desc != NULL &&
 	   invalid_point_desc != NULL && late_invalid_point_desc != NULL &&
@@ -1142,6 +1148,27 @@ main(void)
 	   vdbe.aOp[before_range_lt + 1].p2 == before_range_lt + 6 &&
 	   vdbe.aOp[before_range_lt + 5].opcode == OP_Prev,
 	   "strict upper range emits SeekLT and scans descending");
+	int before_range_lt_ascending = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(range_lt_ascending_desc, &vdbe, 4,
+					20) == 0 &&
+	   vdbe.aOp[before_range_lt_ascending].opcode == OP_Integer &&
+	   vdbe.aOp[before_range_lt_ascending + 1].opcode == OP_Rewind &&
+	   vdbe.aOp[before_range_lt_ascending + 2].opcode == OP_Column &&
+	   vdbe.aOp[before_range_lt_ascending + 3].opcode == OP_Le &&
+	   vdbe.aOp[before_range_lt_ascending + 3].p2 ==
+		before_range_lt_ascending + 8 &&
+	   vdbe.aOp[before_range_lt_ascending + 6].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_range_lt_ascending + 7].opcode == OP_Next,
+	   "strict upper range scans ascending from the first key and stops at its bound");
+	int before_range_le_ascending = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(range_le_ascending_desc, &vdbe, 4,
+					20) == 0 &&
+	   vdbe.aOp[before_range_le_ascending + 1].opcode == OP_Rewind &&
+	   vdbe.aOp[before_range_le_ascending + 3].opcode == OP_Lt &&
+	   vdbe.aOp[before_range_le_ascending + 3].p2 ==
+		before_range_le_ascending + 8 &&
+	   vdbe.aOp[before_range_le_ascending + 7].opcode == OP_Next,
+	   "inclusive upper range scans ascending through its bound");
 	int before_unsigned_range = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(unsigned_range_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_unsigned_range].opcode == OP_Int64 &&
@@ -1237,6 +1264,8 @@ main(void)
 	sql_plan_descriptor_delete(range_le_desc);
 	sql_plan_descriptor_delete(range_ge_desc);
 	sql_plan_descriptor_delete(range_lt_desc);
+	sql_plan_descriptor_delete(range_lt_ascending_desc);
+	sql_plan_descriptor_delete(range_le_ascending_desc);
 	sql_plan_descriptor_delete(unsigned_range_desc);
 	sql_plan_descriptor_delete(invalid_direction_range_desc);
 	sql_plan_descriptor_delete(bounded_range_desc);

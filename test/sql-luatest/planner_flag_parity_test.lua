@@ -312,6 +312,43 @@ g.test_composite_primary_key_prefix_ranges_off_on_off = function()
     end)
 end
 
+g.test_upper_only_ascending_range_with_seqscan_disabled = function()
+    g.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = false]])
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'planner_upper_range_seqscan_' .. engine
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, value INT) ' ..
+                         'WITH ENGINE = \'%s\''):format(name, engine))
+            box.execute(('INSERT INTO %s VALUES (1, 10), (2, 20), ' ..
+                         '(3, 30)'):format(name))
+            local query = ('SELECT * FROM %s WHERE id < 2'):format(name)
+            local observed = {}
+            for _, flag in ipairs({false, true, false}) do
+                box.execute(('SET SESSION "sql_new_planner_single_table" = %s')
+                    :format(flag and 'true' or 'false'))
+                local explain, err = box.execute(
+                    [[EXPLAIN (planner = 'summary') ]] .. query)
+                t.assert(err == nil, err and err.message)
+                local expected_route = flag and 'new_planner' or
+                    'current_where_c'
+                t.assert_equals(explain.rows[1][3], expected_route,
+                                ('flag=%s engine=%s')
+                                :format(tostring(flag), engine))
+                local result
+                result, err = box.execute(query)
+                t.assert(err == nil and result ~= nil,
+                         ('flag=%s engine=%s: %s')
+                         :format(tostring(flag), engine, tostring(err)))
+                observed[#observed + 1] = result.rows
+            end
+            t.assert_equals(observed[1], {{1, 10}})
+            t.assert_equals(observed[2], observed[1])
+            t.assert_equals(observed[3], observed[1])
+            box.execute(('DROP TABLE %s'):format(name))
+        end
+    end)
+end
+
 g.test_composite_primary_key_point_lookup_off_on_off = function()
     g.server:exec(function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do
