@@ -325,8 +325,10 @@ sql_physical_table_scan_from_select(
 	bool has_range_end_key = false;
 	bool primary_key_not_null = false;
 	bool primary_key_is_null = false;
-	struct sql_plan_filter null_filters[SQL_PLAN_FILTER_MAX] = {{0}};
-	size_t null_filter_count = 0;
+	struct sql_plan_filter filters[SQL_PLAN_FILTER_MAX] = {{0}};
+	const struct Expr *filter_expressions[SQL_PLAN_FILTER_MAX] = {0};
+	char *filter_canonical[SQL_PLAN_FILTER_MAX] = {0};
+	size_t filter_count = 0;
 	int64_t point_key = 0;
 	int64_t range_key = 0;
 	int64_t range_end_key = 0;
@@ -396,7 +398,7 @@ sql_physical_table_scan_from_select(
 		    where->pLeft->iColumn >= 0 &&
 		    (uint32_t)where->pLeft->iColumn <
 			source->space->def->field_count) {
-			null_filters[null_filter_count++] = (struct sql_plan_filter) {
+			filters[filter_count++] = (struct sql_plan_filter) {
 				.column = (uint32_t)where->pLeft->iColumn,
 				.op = where->op == TK_ISNULL ? SQL_PLAN_FILTER_IS_NULL :
 					SQL_PLAN_FILTER_IS_NOT_NULL,
@@ -473,9 +475,9 @@ sql_physical_table_scan_from_select(
 					primary_key_not_null = true;
 					continue;
 				}
-				if (null_filter_count == SQL_PLAN_FILTER_MAX)
+				if (filter_count == SQL_PLAN_FILTER_MAX)
 					goto invalid_predicate;
-				null_filters[null_filter_count++] =
+				filters[filter_count++] =
 					(struct sql_plan_filter) {
 						.column = (uint32_t)term->pLeft->iColumn,
 						.op = term->op == TK_ISNULL ?
@@ -485,10 +487,48 @@ sql_physical_table_scan_from_select(
 					};
 				continue;
 			}
+			if (term->op == TK_EQ || term->op == TK_NE ||
+			    term->op == TK_GT || term->op == TK_GE ||
+			    term->op == TK_LT || term->op == TK_LE) {
+				if (term->pLeft == NULL || term->pRight == NULL)
+					goto invalid_predicate;
+				const struct Expr *column = NULL;
+				const struct Expr *literal = NULL;
+				if (term->pLeft->op == TK_COLUMN_REF) {
+					column = term->pLeft;
+					literal = term->pRight;
+				} else if (term->pRight->op == TK_COLUMN_REF) {
+					column = term->pRight;
+					literal = term->pLeft;
+				}
+				bool simple_literal = literal != NULL &&
+					(literal->op == TK_INTEGER || literal->op == TK_STRING ||
+					 literal->op == TK_FLOAT || literal->op == TK_NULL);
+				if (column != NULL && simple_literal &&
+				    column->pLeft == NULL && column->pRight == NULL &&
+				    column->iTable == source->iCursor &&
+				    column->iColumn >= 0 &&
+				    (uint32_t)column->iColumn < source->space->def->field_count) {
+					bool is_pk_column = false;
+					for (uint32_t part = 0; part < pk->part_count; ++part)
+						is_pk_column |= (uint32_t)column->iColumn ==
+							pk->parts[part].fieldno;
+					if (!is_pk_column) {
+						if (filter_count == SQL_PLAN_FILTER_MAX)
+							goto invalid_predicate;
+						filters[filter_count] = (struct sql_plan_filter) {
+							.op = SQL_PLAN_FILTER_EXPRESSION,
+							.selectivity = 0.5,
+						};
+						filter_expressions[filter_count++] = term;
+						continue;
+					}
+				}
+			}
 			exprs[bound_count++] = term;
 		}
 		expr_count = bound_count;
-		if (expr_count == 0 && null_filter_count == 0 &&
+		if (expr_count == 0 && filter_count == 0 &&
 		    !primary_key_not_null)
 			goto invalid_predicate;
 		if (expr_count == 0)
@@ -751,7 +791,7 @@ sql_physical_table_scan_from_select(
 				}
 			}
 		}
-		if (null_filter_count != 0 && has_point_key &&
+		if (filter_count != 0 && has_point_key &&
 		    !has_composite_point && pk->part_count != 1)
 			goto invalid_predicate;
 	}
@@ -941,6 +981,20 @@ predicate_parsed:
 		columns[i] = UINT32_MAX;
 		++projection_expression_count;
 	}
+	for (size_t i = 0; i < filter_count; ++i) {
+		if (filters[i].op != SQL_PLAN_FILTER_EXPRESSION)
+			continue;
+		enum sql_expr_canonical_reject canonical_reason;
+		filter_canonical[i] = sql_expr_canonicalize(filter_expressions[i],
+			cursor_to_relation, cursor_count, &canonical_reason);
+		if (filter_canonical[i] == NULL) {
+			if (reason != NULL)
+				*reason = canonical_reason == SQL_EXPR_CANONICAL_NOMEM ?
+					SQL_PHYSICAL_REJECT_INVALID_CANDIDATE :
+					SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
+			goto invalid_projection;
+		}
+	}
 	free(cursor_to_relation);
 	cursor_to_relation = NULL;
 	struct sql_plan_expression point_expressions[2] = {
@@ -1041,7 +1095,7 @@ predicate_parsed:
 		base_expression_count = has_range_end_key ? 2 : 1;
 	}
 	struct sql_plan_expression *expressions = NULL;
-	size_t expression_count = base_expression_count + null_filter_count +
+	size_t expression_count = base_expression_count + filter_count +
 		projection_expression_count;
 	if (expression_count != 0) {
 		expressions = calloc(expression_count, sizeof(*expressions));
@@ -1054,13 +1108,14 @@ predicate_parsed:
 	for (size_t i = 0; i < base_expression_count; ++i)
 		expressions[i] = base_expressions[i];
 	size_t next_expression = base_expression_count;
-	for (size_t i = 0; i < null_filter_count; ++i) {
-		null_filters[i].expr_ref = (uint32_t)next_expression + 1;
-		null_filters[i].confidence = 0;
+	for (size_t i = 0; i < filter_count; ++i) {
+		filters[i].expr_ref = (uint32_t)next_expression + 1;
+		filters[i].confidence = 0;
 		expressions[next_expression++] =
 			(struct sql_plan_expression) {
-				.id = null_filters[i].expr_ref,
-				.canonical = "direct-column-null-filter",
+				.id = filters[i].expr_ref,
+				.canonical = filter_canonical[i] == NULL ?
+					"direct-column-null-filter" : filter_canonical[i],
 			};
 	}
 	for (int i = 0; i < select->pEList->nExpr; ++i) {
@@ -1131,8 +1186,8 @@ predicate_parsed:
 				estimate->rows / 2 : estimate->rows,
 			.est_rows_confidence = estimate->confidence,
 		},
-		.filters = null_filter_count == 0 ? NULL : null_filters,
-		.filter_count = null_filter_count,
+		.filters = filter_count == 0 ? NULL : filters,
+		.filter_count = filter_count,
 		.projection_columns = columns,
 		.projection_expr_refs = projection_expr_refs,
 		.projection_column_count = select->pEList->nExpr,
@@ -1148,6 +1203,8 @@ predicate_parsed:
 	};
 	struct sql_plan_descriptor *plan = sql_plan_descriptor_new(&input);
 	free(expressions);
+	for (size_t i = 0; i < filter_count; ++i)
+		free(filter_canonical[i]);
 	for (int i = 0; i < select->pEList->nExpr; ++i)
 		free(projection_canonical[i]);
 	free(projection_canonical);
@@ -1159,6 +1216,8 @@ predicate_parsed:
 	return plan;
 
 invalid_projection:
+	for (size_t i = 0; i < SQL_PLAN_FILTER_MAX; ++i)
+		free(filter_canonical[i]);
 	for (int i = 0; i < select->pEList->nExpr; ++i)
 		free(projection_canonical[i]);
 	free(cursor_to_relation);

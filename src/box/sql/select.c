@@ -6122,7 +6122,46 @@ struct sql_select_projection_context {
 	const Select *select;
 	const uint32_t *expression_refs;
 	int expression_count;
+	const struct sql_plan_descriptor_input *plan_input;
 };
+
+static const char *
+sql_select_expression_canonical(const struct sql_plan_descriptor_input *input,
+			       uint32_t expression_ref)
+{
+	for (size_t i = 0; input != NULL && i < input->expression_count; ++i)
+		if (input->expressions[i].id == expression_ref)
+			return input->expressions[i].canonical;
+	return NULL;
+}
+
+static bool
+sql_select_where_has_canonical(const struct Expr *expr, const char *canonical,
+			       int cursor)
+{
+	if (expr == NULL || canonical == NULL)
+		return false;
+	if (expr->op == TK_AND)
+		return sql_select_where_has_canonical(expr->pLeft, canonical, cursor) ||
+			sql_select_where_has_canonical(expr->pRight, canonical, cursor);
+	size_t cursor_count = (size_t)cursor + 1;
+	if (cursor < 0 || cursor_count > SIZE_MAX / sizeof(uint32_t))
+		return false;
+	uint32_t *cursor_to_relation = malloc(cursor_count *
+					      sizeof(*cursor_to_relation));
+	if (cursor_to_relation == NULL)
+		return false;
+	for (size_t i = 0; i < cursor_count; ++i)
+		cursor_to_relation[i] = UINT32_MAX;
+	cursor_to_relation[cursor] = 0;
+	enum sql_expr_canonical_reject reason;
+	char *candidate = sql_expr_canonicalize(expr, cursor_to_relation,
+						cursor_count, &reason);
+	free(cursor_to_relation);
+	bool matches = candidate != NULL && strcmp(candidate, canonical) == 0;
+	free(candidate);
+	return matches;
+}
 
 static int
 sql_select_emit_projection(void *context, uint32_t expression_ref,
@@ -6138,6 +6177,30 @@ sql_select_emit_projection(void *context, uint32_t expression_ref,
 			continue;
 		sqlExprCode(projection->parse,
 			    projection->select->pEList->a[i].pExpr, result_reg);
+		return projection->parse->is_aborted ? -1 : 0;
+	}
+	for (size_t i = 0; projection->plan_input != NULL &&
+	     i < projection->plan_input->filter_count; ++i) {
+		if (projection->plan_input->filters[i].expr_ref != expression_ref)
+			continue;
+		const char *canonical = sql_select_expression_canonical(
+			projection->plan_input, expression_ref);
+		const struct SrcList *src = projection->select->pSrc;
+		if (src == NULL || src->nSrc != 1 ||
+		    !sql_select_where_has_canonical(projection->select->pWhere,
+						 canonical, src->a[0].iCursor))
+			return -1;
+		const struct Expr *where = projection->select->pWhere;
+		while (where != NULL && where->op == TK_AND) {
+			if (sql_select_where_has_canonical(where->pLeft, canonical,
+						   src->a[0].iCursor))
+				where = where->pLeft;
+			else
+				where = where->pRight;
+		}
+		if (where == NULL)
+			return -1;
+		sqlExprCode(projection->parse, (Expr *)where, result_reg);
 		return projection->parse->is_aborted ? -1 : 0;
 	}
 	return -1;
@@ -6294,6 +6357,7 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		.select = select,
 		.expression_refs = plan_input->projection_expr_refs,
 		.expression_count = select->pEList->nExpr,
+		.plan_input = plan_input,
 	};
 	enum sql_plan_access_kind access_kind =
 		sql_plan_descriptor_access_kind(plan);

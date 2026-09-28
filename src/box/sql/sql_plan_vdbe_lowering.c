@@ -33,6 +33,53 @@ sql_plan_emit_projection(const struct sql_plan_descriptor_input *input,
 		diag_last_error(diag_get()) == checkpoint->diag_error ? 0 : -1;
 }
 
+static bool
+sql_plan_filter_is_valid(const struct sql_plan_filter *filter,
+			 sql_plan_projection_projector_f projector)
+{
+	if (filter->op == SQL_PLAN_FILTER_EXPRESSION)
+		return filter->expr_ref != 0 && projector != NULL;
+	return (filter->op == SQL_PLAN_FILTER_IS_NULL ||
+		filter->op == SQL_PLAN_FILTER_IS_NOT_NULL) &&
+		filter->column <= INT_MAX;
+}
+
+static int
+sql_plan_emit_filter(const struct sql_plan_filter *filter,
+		     struct Vdbe *vdbe, Parse *parse,
+		     const struct vdbe_codegen_checkpoint *checkpoint,
+		     int cursor, int filter_reg,
+		     sql_plan_projection_projector_f projector,
+		     void *projector_ctx)
+{
+	int addr;
+	if (filter->op == SQL_PLAN_FILTER_EXPRESSION) {
+		if (projector == NULL || projector(projector_ctx, filter->expr_ref,
+						   filter_reg) != 0)
+			return -1;
+		addr = vdbe->nOp - 1;
+	} else {
+		addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
+				     (int)filter->column, filter_reg);
+		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint->diag_error)
+			return -1;
+		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
+			OP_IsNull;
+		addr = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
+	}
+	if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint->diag_error)
+		return -1;
+	if (filter->op == SQL_PLAN_FILTER_EXPRESSION) {
+		addr = sqlVdbeAddOp3(vdbe, OP_IfNot, filter_reg, 0, 1);
+		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint->diag_error)
+			return -1;
+	}
+	return addr;
+}
+
 int
 sql_plan_lower_vdbe_pk_point_with_projector(
 			     const struct sql_plan_descriptor *plan,
@@ -73,9 +120,7 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 	    result_first_reg > INT_MAX - (int)input->projection_column_count + 1)
 		return -1;
 	for (size_t i = 0; i < input->filter_count; ++i) {
-		if ((input->filters[i].op != SQL_PLAN_FILTER_IS_NULL &&
-		     input->filters[i].op != SQL_PLAN_FILTER_IS_NOT_NULL) ||
-		    input->filters[i].column > INT_MAX)
+		if (!sql_plan_filter_is_valid(&input->filters[i], projector))
 			return -1;
 	}
 	Parse *parse = vdbe->pParse;
@@ -145,18 +190,10 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 			goto error;
 		int filter_reg = ++parse->nMem;
 		for (size_t i = 0; i < input->filter_count; ++i) {
-			const struct sql_plan_filter *filter = &input->filters[i];
-			int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
-						   (int)filter->column, filter_reg);
-			if (column != vdbe->nOp - 1 || parse->is_aborted ||
-			    diag_last_error(diag_get()) != checkpoint.diag_error)
-				goto error;
-			int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
-				OP_IsNull;
-			filter_breaks[i] = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
-			if (filter_breaks[i] != vdbe->nOp - 1 ||
-			    parse->is_aborted ||
-			    diag_last_error(diag_get()) != checkpoint.diag_error)
+			filter_breaks[i] = sql_plan_emit_filter(&input->filters[i],
+				vdbe, parse, &checkpoint, cursor, filter_reg,
+				projector, projector_ctx);
+			if (filter_breaks[i] < 0)
 				goto error;
 		}
 	}
@@ -267,9 +304,7 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 			 in->access.has_unsigned_range_end_key)))))
 		return -1;
 	for (size_t i = 0; i < in->filter_count; ++i)
-		if ((in->filters[i].op != SQL_PLAN_FILTER_IS_NULL &&
-		     in->filters[i].op != SQL_PLAN_FILTER_IS_NOT_NULL) ||
-		    in->filters[i].column > INT_MAX)
+		if (!sql_plan_filter_is_valid(&in->filters[i], projector))
 			return -1;
 	for (size_t i = 0; i < in->access.prefix_key_part_count; ++i)
 		if (in->access.bounds[i].op != SQL_PLAN_EQ ||
@@ -476,17 +511,10 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 	}
 	int filter_breaks[SQL_PLAN_FILTER_MAX];
 	for (size_t i = 0; i < in->filter_count; ++i) {
-		const struct sql_plan_filter *filter = &in->filters[i];
-		int addr = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
-					 filter->column, filter_reg);
-		if (addr != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
-			goto prefix_error;
-		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
-			OP_IsNull;
-		filter_breaks[i] = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
-		if (filter_breaks[i] != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
+		filter_breaks[i] = sql_plan_emit_filter(&in->filters[i], vdbe,
+			parse, &checkpoint, cursor, filter_reg, projector,
+			projector_ctx);
+		if (filter_breaks[i] < 0)
 			goto prefix_error;
 	}
 	int offset_skip = has_offset ?
@@ -589,9 +617,7 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	    result_first_reg > INT_MAX - (int)input->projection_column_count + 1)
 		return -1;
 	for (size_t i = 0; i < input->filter_count; ++i) {
-		if ((input->filters[i].op != SQL_PLAN_FILTER_IS_NULL &&
-		     input->filters[i].op != SQL_PLAN_FILTER_IS_NOT_NULL) ||
-		    input->filters[i].column > INT_MAX)
+		if (!sql_plan_filter_is_valid(&input->filters[i], projector))
 			return -1;
 	}
 	for (size_t i = 0; i < input->projection_column_count; i++) {
@@ -804,17 +830,10 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	}
 	int filter_breaks[SQL_PLAN_FILTER_MAX];
 	for (size_t i = 0; i < input->filter_count; ++i) {
-		const struct sql_plan_filter *filter = &input->filters[i];
-		int column = sqlVdbeAddOp3(vdbe, OP_Column, cursor,
-					   filter->column, filter_reg);
-		if (column != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
-			goto error;
-		int op = filter->op == SQL_PLAN_FILTER_IS_NULL ? OP_NotNull :
-			OP_IsNull;
-		filter_breaks[i] = sqlVdbeAddOp2(vdbe, op, filter_reg, 0);
-		if (filter_breaks[i] != vdbe->nOp - 1 || parse->is_aborted ||
-		    diag_last_error(diag_get()) != checkpoint.diag_error)
+		filter_breaks[i] = sql_plan_emit_filter(&input->filters[i], vdbe,
+			parse, &checkpoint, cursor, filter_reg, projector,
+			projector_ctx);
+		if (filter_breaks[i] < 0)
 			goto error;
 	}
 	int offset_skip = -1;

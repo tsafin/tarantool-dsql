@@ -731,7 +731,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(61);
+	plan(62);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -928,6 +928,19 @@ main(void)
 	ok(sql_plan_lower_vdbe_table_scan(plan_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.nOp == op_count + 5,
 	   "table scan emits a complete VDBE loop");
+	struct projection_projector_ctx filter_projector_ctx = {
+		.vdbe = &vdbe,
+	};
+	int before_expression_filter = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_table_scan_with_projector(filtered_desc, &vdbe,
+		4, 20, emit_projection_literal, &filter_projector_ctx) == 0 &&
+	   filter_projector_ctx.count == 1 &&
+	   filter_projector_ctx.refs[0] == 1 &&
+	   vdbe.aOp[filter_projector_ctx.addrs[0] + 1].opcode == OP_IfNot &&
+	   vdbe.aOp[filter_projector_ctx.addrs[0] + 1].p3 == 1 &&
+	   vdbe.aOp[filter_projector_ctx.addrs[0] + 2].opcode == OP_Column,
+	   "expression filters project then reject false and NULL before output");
+	vdbe.nOp = before_expression_filter;
 	const struct VdbeOp *ops = vdbe.aOp;
 	ok(ops[1].opcode == OP_Rewind && ops[1].p1 == 4 &&
 	   ops[1].p2 == 6 && ops[2].opcode == OP_Column &&

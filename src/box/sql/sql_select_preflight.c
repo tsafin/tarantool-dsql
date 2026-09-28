@@ -12,8 +12,8 @@ static bool
 is_comparison_predicate(const struct Expr *expr)
 {
 	return expr != NULL && expr->pLeft != NULL && expr->pRight != NULL &&
-		 (expr->op == TK_EQ || expr->op == TK_GT || expr->op == TK_GE ||
-		 expr->op == TK_LT || expr->op == TK_LE);
+		(expr->op == TK_EQ || expr->op == TK_NE || expr->op == TK_GT ||
+		 expr->op == TK_GE || expr->op == TK_LT || expr->op == TK_LE);
 }
 
 static bool

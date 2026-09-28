@@ -92,6 +92,67 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{2}, {4}},
                 },
                 {
+                    sql = ("SELECT id FROM %s WHERE v = 'x' " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE v = NULL')
+                          :format(name),
+                    expected = {},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE v <> 'x' " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{4}},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE v > 'x' " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{4}},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE 'x' < v " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{4}},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE id > 1 AND v = 'x' " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE id > 2 AND v = 'x' " ..
+                           'ORDER BY id ASC'):format(name),
+                    expected = {},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE id = 2 AND v = 'x'")
+                          :format(name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE id = 2 AND v = 'y'")
+                          :format(name),
+                    expected = {},
+                },
+                {
+                    sql = ("SELECT a, b FROM %s WHERE a = 1 AND b = 11 " ..
+                           "AND v = 'x'"):format(composite_name),
+                    expected = {{1, 11}},
+                },
+                {
+                    sql = ("SELECT a, b FROM %s WHERE a = 1 AND b > 10 " ..
+                           "AND v = 'x' ORDER BY a, b")
+                          :format(composite_name),
+                    expected = {{1, 11}},
+                },
+                {
+                    sql = ("SELECT a, b FROM %s WHERE a = 1 AND v = 'x' " ..
+                           'ORDER BY a, b'):format(composite_name),
+                    expected = {{1, 11}},
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE v IS NULL AND id > 1 ' ..
                            'ORDER BY id ASC'):format(name),
                     expected = {{3}},
