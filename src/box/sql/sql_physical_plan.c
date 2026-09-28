@@ -377,11 +377,47 @@ sql_physical_table_scan_from_select(
 			};
 			goto predicate_parsed;
 		}
+		const struct Expr *terms[SQL_PLAN_POINT_KEY_PART_MAX];
 		const struct Expr *exprs[SQL_PLAN_POINT_KEY_PART_MAX];
-		size_t expr_count = 0;
-		if (!collect_and_terms(select->pWhere, exprs,
-				       SQL_PLAN_POINT_KEY_PART_MAX, &expr_count, 0))
+		struct Expr between_bounds[SQL_PLAN_POINT_KEY_PART_MAX];
+		size_t term_count = 0;
+		if (!collect_and_terms(select->pWhere, terms,
+				       SQL_PLAN_POINT_KEY_PART_MAX, &term_count, 0))
 			goto invalid_predicate;
+		size_t expr_count = 0;
+		for (size_t i = 0; i < term_count; ++i) {
+			const struct Expr *term = terms[i];
+			if (term->op != TK_BETWEEN) {
+				if (expr_count == SQL_PLAN_POINT_KEY_PART_MAX)
+					goto invalid_predicate;
+				exprs[expr_count++] = term;
+				continue;
+			}
+			/* BETWEEN is represented as x >= low AND x <= high by the
+			 * SQL expression code generator. Normalize the same shape here;
+			 * only literal bounds on a primary-key part will pass the existing
+			 * bound parser below. Negated and malformed forms stay fail-closed.
+			 */
+			if (ExprHasProperty(term, EP_TokenOnly | EP_Reduced | EP_xIsSelect) ||
+			    term->pLeft == NULL || term->x.pList == NULL ||
+			    term->x.pList->nExpr != 2 ||
+			    expr_count > SQL_PLAN_POINT_KEY_PART_MAX - 2)
+				goto invalid_predicate;
+			struct Expr *lower = &between_bounds[expr_count];
+			struct Expr *upper = &between_bounds[expr_count + 1];
+			*lower = (struct Expr) {
+				.op = TK_GE,
+				.pLeft = term->pLeft,
+				.pRight = term->x.pList->a[0].pExpr,
+			};
+			*upper = (struct Expr) {
+				.op = TK_LE,
+				.pLeft = term->pLeft,
+				.pRight = term->x.pList->a[1].pExpr,
+			};
+			exprs[expr_count++] = lower;
+			exprs[expr_count++] = upper;
+		}
 		size_t bound_count = 0;
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
