@@ -25,6 +25,8 @@ g.test_unsupported_routes_preserve_rows_and_reasons = function()
                 sql = [[SELECT abs(v) FROM planner_fallback_parity
                         WHERE id > 0]],
                 reason = 'UNSUPPORTED_FUNCTION',
+                on_route = 'new_planner',
+                on_reason_none = true,
             },
             {
                 sql = [[SELECT id FROM planner_fallback_parity NOT INDEXED
@@ -69,6 +71,9 @@ g.test_unsupported_routes_preserve_rows_and_reasons = function()
             for _, query in ipairs(queries) do
                 local sql = query.sql:gsub('planner_fallback_parity', name)
                 local function reason_for(flag)
+                    if flag and query.on_reason_none then
+                        return nil
+                    end
                     return flag and (query.on_reason or query.reason) or
                         (query.off_reason or query.reason)
                 end
