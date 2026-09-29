@@ -213,6 +213,14 @@ g.test_snapshot_estimate_adapter = function()
                       (1, 1), (2, 1), (3, 1), (4, 1),
                       (5, 1), (6, 1), (7, 1), (8, 1),
                       (9, 2), (10, 3), (11, 4);]])
+        box.execute([[CREATE TABLE sql_stats_skew_vinyl_t
+                      (id INT PRIMARY KEY, a INT) WITH ENGINE = 'vinyl';]])
+        box.execute([[CREATE INDEX sql_stats_skew_vinyl_ix
+                      ON sql_stats_skew_vinyl_t (a);]])
+        box.execute([[INSERT INTO sql_stats_skew_vinyl_t VALUES
+                      (1, 1), (2, 1), (3, 1), (4, 1),
+                      (5, 1), (6, 1), (7, 1), (8, 1),
+                      (9, 2), (10, 3), (11, 4);]])
         local space = box.space.sql_stats_adapter_t
         local index_id = space.index.sql_stats_adapter_ix.id
         local baseline = adapter.estimates(space.id, index_id)
@@ -252,6 +260,14 @@ g.test_snapshot_estimate_adapter = function()
                 'INSERT INTO sql_stats_skew_t VALUES ' ..
                 '(1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), ' ..
                 '(9, 2), (10, 3), (11, 4);'
+            fixture_material = fixture_material ..
+                '\nCREATE TABLE sql_stats_skew_vinyl_t ' ..
+                '(id INT PRIMARY KEY, a INT) WITH ENGINE = \'vinyl\';\n' ..
+                'CREATE INDEX sql_stats_skew_vinyl_ix ' ..
+                'ON sql_stats_skew_vinyl_t (a);\n' ..
+                'INSERT INTO sql_stats_skew_vinyl_t VALUES ' ..
+                '(1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), ' ..
+                '(9, 2), (10, 3), (11, 4);'
             local digest = require('digest')
             assert(string.hex(digest.sha256(fixture_material)) ==
                    metadata.data_sha256,
@@ -267,6 +283,22 @@ g.test_snapshot_estimate_adapter = function()
                 {id = 'skew-tail', table = 'sql_stats_skew_t', predicate = 'a = 2'},
                 {id = 'skew-range', table = 'sql_stats_skew_t', predicate = 'a >= 3'},
                 {id = 'skew-empty', table = 'sql_stats_skew_t', predicate = 'a = 99'},
+                {
+                    id = 'skew-vinyl-hot', table = 'sql_stats_skew_vinyl_t',
+                    engine = 'vinyl', predicate = 'a = 1',
+                },
+                {
+                    id = 'skew-vinyl-tail', table = 'sql_stats_skew_vinyl_t',
+                    engine = 'vinyl', predicate = 'a = 2',
+                },
+                {
+                    id = 'skew-vinyl-range', table = 'sql_stats_skew_vinyl_t',
+                    engine = 'vinyl', predicate = 'a >= 3',
+                },
+                {
+                    id = 'skew-vinyl-empty', table = 'sql_stats_skew_vinyl_t',
+                    engine = 'vinyl', predicate = 'a = 99',
+                },
             }
             for _, query in ipairs(queries) do
                 local table_name = query.table or 'sql_stats_adapter_t'
@@ -287,7 +319,7 @@ g.test_snapshot_estimate_adapter = function()
                         schema_version = 1,
                         workload_id = metadata.workload_id,
                         query_id = query.id,
-                        engine = 'memtx',
+                        engine = query.engine or 'memtx',
                         dispatcher = 'generated',
                         configuration = configuration,
                         source_commit = metadata.source_commit,
@@ -345,11 +377,13 @@ g.test_snapshot_estimate_adapter = function()
             adapter.clear()
             box.execute('ANALYZE sql_stats_adapter_t')
             box.execute('ANALYZE sql_stats_skew_t')
+            box.execute('ANALYZE sql_stats_skew_vinyl_t')
             capture_e1_observations('live-analyze', 'volatile-analyze-v1')
         end
         local rows = box.execute([[SELECT id FROM sql_stats_adapter_t
                                    WHERE a = 1;]]).rows
         adapter.clear()
+        box.execute([[DROP TABLE sql_stats_skew_vinyl_t;]])
         box.execute([[DROP TABLE sql_stats_skew_t;]])
         box.execute([[DROP TABLE sql_stats_adapter_t;]])
         return {

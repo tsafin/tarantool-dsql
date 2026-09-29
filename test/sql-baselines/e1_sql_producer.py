@@ -3,7 +3,7 @@
 
 This is an S1.9 pilot producer, not the reviewed M0 analytical workload. It
 executes the TEST_BUILD volatile ANALYZE fixture in sql_stats_test.lua and
-records planner estimates and actual SELECT output cardinalities for ten
+records planner estimates and actual SELECT output cardinalities for fourteen
 prepared single-table predicates.
 """
 
@@ -25,6 +25,12 @@ FIXTURE_MATERIAL = (
     "CREATE TABLE sql_stats_skew_t (id INT PRIMARY KEY, a INT);\n"
     "CREATE INDEX sql_stats_skew_ix ON sql_stats_skew_t (a);\n"
     "INSERT INTO sql_stats_skew_t VALUES "
+    "(1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), "
+    "(9, 2), (10, 3), (11, 4);\n"
+    "CREATE TABLE sql_stats_skew_vinyl_t (id INT PRIMARY KEY, a INT) "
+    "WITH ENGINE = 'vinyl';\n"
+    "CREATE INDEX sql_stats_skew_vinyl_ix ON sql_stats_skew_vinyl_t (a);\n"
+    "INSERT INTO sql_stats_skew_vinyl_t VALUES "
     "(1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), "
     "(9, 2), (10, 3), (11, 4);"
 ).encode()
