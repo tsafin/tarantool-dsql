@@ -228,9 +228,9 @@ static struct sql_plan_descriptor *
 new_secondary_full_scan_descriptor(enum sql_plan_direction direction)
 {
 	static const uint32_t columns[] = {0};
-	const struct sql_plan_order_term order = {
-		.column = 3,
-		.direction = direction,
+	const struct sql_plan_order_term order[] = {
+		{.column = 3, .direction = direction},
+		{.column = 4, .direction = direction},
 	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
@@ -242,8 +242,8 @@ new_secondary_full_scan_descriptor(enum sql_plan_direction direction)
 			.kind = SQL_PLAN_INDEX_FULL_SCAN,
 			.index_id = 1,
 			.direction = direction,
-			.produced_order = &order,
-			.produced_order_count = 1,
+			.produced_order = order,
+			.produced_order_count = sizeof(order) / sizeof(order[0]),
 		},
 		.projection_columns = columns,
 		.projection_column_count = sizeof(columns) / sizeof(columns[0]),

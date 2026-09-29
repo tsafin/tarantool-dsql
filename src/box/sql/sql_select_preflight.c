@@ -236,14 +236,12 @@ sql_select_preflight_table_scan(const struct Select *select,
 			return SQL_SELECT_PREFLIGHT_SHAPE;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
-		/* With no predicate, a single leading column of an ascending TREE
-		 * secondary index is also a valid full-scan order. Keep this shape
-		 * narrow: secondary traversal is not combined with a filter or a
-		 * multi-term ORDER BY yet.
+		/* With no predicate, a leading prefix of an ascending TREE secondary
+		 * index is also a valid full-scan order. Secondary traversal is not
+		 * combined with filters or non-prefix orderings.
 		 */
-		if (select->pWhere == NULL && order->nExpr == 1 &&
+		if (select->pWhere == NULL &&
 		    order->a[0].pExpr->iTable == source->iCursor) {
-			uint32_t column = (uint32_t)order->a[0].pExpr->iColumn;
 			for (uint32_t index_no = 1;
 			     index_no < source->space->index_count; ++index_no) {
 				const struct index *index =
@@ -252,9 +250,27 @@ sql_select_preflight_table_scan(const struct Select *select,
 				    index->def->type != TREE ||
 				    index->def->key_def == NULL ||
 				    index->def->key_def->part_count == 0 ||
-				    index->def->key_def->parts[0].sort_order !=
-					SORT_ORDER_ASC ||
-				    index->def->key_def->parts[0].fieldno != column)
+				    (uint32_t)order->nExpr >
+					index->def->key_def->part_count)
+					continue;
+				bool matches_prefix = true;
+				for (int term = 0; term < order->nExpr; ++term) {
+					const struct Expr *expr = order->a[term].pExpr;
+					const struct key_def *candidate =
+						index->def->key_def;
+					if (candidate->parts[term].sort_order !=
+						SORT_ORDER_ASC || expr == NULL ||
+					    expr->op != TK_COLUMN_REF ||
+					    expr->pLeft != NULL || expr->pRight != NULL ||
+					    expr->iTable != source->iCursor ||
+					    expr->iColumn < 0 ||
+					    candidate->parts[term].fieldno !=
+						(uint32_t)expr->iColumn) {
+						matches_prefix = false;
+						break;
+					}
+				}
+				if (!matches_prefix)
 					continue;
 				key_def = index->def->key_def;
 				break;

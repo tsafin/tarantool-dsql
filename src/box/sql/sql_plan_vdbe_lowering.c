@@ -978,11 +978,10 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		 input->access.has_unsigned_range_key ||
 		 input->access.has_integer_range_end_key ||
 		 input->access.has_unsigned_range_end_key ||
-		 input->access.produced_order_count != 1 ||
+		 input->access.produced_order_count == 0 ||
+		 input->access.produced_order_count > index->key_part_count ||
 		 input->access.produced_order == NULL ||
-		 input->access.produced_order[0].column != index->key_columns[0] ||
-		 input->access.produced_order[0].direction !=
-			input->access.direction);
+		 input->access.direction > SQL_PLAN_DESC);
 	bool invalid_equality = input == NULL ||
 		input->access.kind != SQL_PLAN_INDEX_EQUALITY_SCAN ||
 		input->access.range_key_column != (index->key_part_count == 0 ?
@@ -1012,6 +1011,16 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 	    input->projection_column_count > INT_MAX ||
 	    result_first_reg > INT_MAX - (int)input->projection_column_count + 1)
 		return -1;
+	if (full) {
+		for (size_t i = 0; i < input->access.produced_order_count; ++i) {
+			if (index->key_parts_descending[i] ||
+			    input->access.produced_order[i].column !=
+				index->key_columns[i] ||
+			    input->access.produced_order[i].direction !=
+				input->access.direction)
+				return -1;
+		}
+	}
 	for (size_t i = 0; i < input->access.bound_count; ++i) {
 		if (range || full)
 			continue;

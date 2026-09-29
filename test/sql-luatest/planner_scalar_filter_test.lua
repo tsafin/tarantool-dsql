@@ -120,6 +120,25 @@ g.test_non_primary_null_filters_off_on_off = function()
                     unordered = true,
                 },
                 {
+                    sql = ('SELECT x, y, tenant, id FROM %s ' ..
+                           'ORDER BY x ASC, y ASC'):format(secondary_name),
+                    expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_columns = {1, 2},
+                    expected_result_columns = {1, 3, 4},
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, y, tenant, id FROM %s ' ..
+                           'ORDER BY x DESC, y DESC'):format(secondary_name),
+                    expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_columns = {1, 2},
+                    expected_result_columns = {1, 3, 4},
+                    expected_order_desc = true,
+                    unordered = true,
+                },
+                {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b = 10 ' ..
                            'AND v IS NULL AND w IS NOT NULL')
                           :format(composite_name),
@@ -644,6 +663,23 @@ g.test_non_primary_null_filters_off_on_off = function()
                             end
                         end
                     end
+                    if query.expected_order_columns ~= nil then
+                        local columns = query.expected_order_columns
+                        for row_no = 2, #result.rows do
+                            local prev = result.rows[row_no - 1]
+                            local current = result.rows[row_no]
+                            for _, column in ipairs(columns) do
+                                if prev[column] ~= current[column] then
+                                    if query.expected_order_desc then
+                                        t.assert(prev[column] > current[column])
+                                    else
+                                        t.assert(prev[column] < current[column])
+                                    end
+                                    break
+                                end
+                            end
+                        end
+                    end
                     if query.unordered then
                         table.sort(result.rows, function(a, b)
                             for column = 1, #a do
@@ -654,7 +690,18 @@ g.test_non_primary_null_filters_off_on_off = function()
                             return false
                         end)
                     end
-                    results[i] = result.rows
+                    if query.expected_result_columns ~= nil then
+                        local projected = {}
+                        for row_no, row in ipairs(result.rows) do
+                            projected[row_no] = {}
+                            for _, column in ipairs(query.expected_result_columns) do
+                                table.insert(projected[row_no], row[column])
+                            end
+                        end
+                        results[i] = projected
+                    else
+                        results[i] = result.rows
+                    end
                     t.assert_equals(results[i], query.expected,
                                     ('query %d result on %s'):format(i, engine))
                 end
