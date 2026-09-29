@@ -244,6 +244,8 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
                             {id, value, 'tail' .. value, value ~= 2})
             end
         end
+        box.execute([[INSERT INTO analyze_mcv_plan_t VALUES
+                      (201, -1, 'negative', FALSE)]])
         local function estimate(value)
             local plan = box.execute(('EXPLAIN QUERY PLAN SELECT id FROM '
                 ..'analyze_mcv_plan_t WHERE value = %d'):format(value)).rows
@@ -257,6 +259,7 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
         box.execute([[ANALYZE analyze_mcv_plan_t]])
         local after_hot = estimate(1)
         local after_tail = estimate(2)
+        local after_negative = estimate(-1)
         local parameter_plan = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
             analyze_mcv_plan_t WHERE value = ?]], {1}).rows
         local parameter_estimate = assert(tonumber(
@@ -285,6 +288,7 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
             before_tail = before_tail,
             after_hot = after_hot,
             after_tail = after_tail,
+            after_negative = after_negative,
             parameter_estimate = parameter_estimate,
             after_label_hot = after_label_hot,
             after_label_tail = after_label_tail,
@@ -294,6 +298,7 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
     end)
     t.assert_equals(estimates.before_hot, estimates.before_tail)
     t.assert_gt(estimates.after_hot, estimates.after_tail * 5)
+    t.assert_gt(estimates.after_hot, estimates.after_negative * 5)
     t.assert_gt(estimates.after_hot, estimates.parameter_estimate * 3)
     t.assert_gt(estimates.after_label_hot, estimates.after_label_tail * 5)
     t.assert_gt(estimates.after_flag_true, estimates.after_flag_false * 5)
