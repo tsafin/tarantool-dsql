@@ -7,6 +7,17 @@
     ],
     "note": "The NO_ACCESS_PATH transitions in gh_5183_fix_index_field_missing and gh_8418_select_lead_to_assertion preserve the legacy secondary-index route when the primary-only executor cannot represent it. Zero semantic drift is required; this does not close M3.5 or accept M3.7."
   },
+  "sql": {
+    "classes": [
+      ["current_where_c", null, "new_planner", null],
+      ["current_where_c", null, "fallback", "NO_ACCESS_PATH"],
+      ["current_where_c", null, "fallback", "UNSUPPORTED_FILTER"],
+      [null, "UNSUPPORTED_AGGREGATE", null, "UNSUPPORTED_FILTER"],
+      [null, "UNSUPPORTED_EXPRESSION", null, "NO_ACCESS_PATH"],
+      [null, "UNSUPPORTED_EXPRESSION", null, "UNSUPPORTED_FILTER"]
+    ],
+    "note": "The reviewed SQL suite exercises the same primary-only no-access-path boundary, residual-filter rejection, and precise reason refinements as SQL-TAP, plus supported planner adoptions. Off/on and off-repeat semantic parity must remain exact; iproto.test.lua is excluded because snapshot EXPLAIN changes its asserted EXECUTE counter."
+  },
   "sql-tap": {
     "classes": [
       ["current_where_c", null, "new_planner", null],

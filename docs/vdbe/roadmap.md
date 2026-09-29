@@ -1980,8 +1980,9 @@ DML, triggers, subprograms, non-deterministic functions.
   `eqp` / `whereG` and reverse-singleton-IN cases also pass focused off/on/off
   checks. Reports are under `/dev/shm/m35-planner-flags-sqltap-current-20260929-reviewed`
   and its `-vinyl` counterpart. This closes route disposition for this
-  reviewed SQL-TAP slice only; standalone SQL and SQL-luatest reviewed-corpus
-  coverage and the full M3.5 producer gate remain open.
+  reviewed SQL-TAP slice only; the separate SQL and SQL-luatest audits below
+  disposition their selected suites, while the full M3.5 producer gate remains
+  open.
 
   **Reviewed SQL-luatest planner-flag audit (2026-09-29, generated mode).**
   The reviewed selection passes off/on/off semantic parity with zero diffs on
@@ -1993,9 +1994,24 @@ DML, triggers, subprograms, non-deterministic functions.
   index) and `gh_8418_select_lead_to_assertion` (`_space.owner = 1`). They
   retain exact result parity. Reports are under
   `/dev/shm/m35-planner-flags-sql-luatest-current-20260929-reviewed-{memtx,vinyl}`.
-  This is the reviewed SQL-luatest selection, not a claim that every luatest
-  topology or the standalone `sql` suite is covered; those remain open for
-  M3.5.
+  This dispositions the reviewed SQL-luatest selection, not every luatest
+  topology; the standalone `sql` audit follows below, and the full M3.5
+  producer gate remains open.
+
+  **Reviewed `sql` planner-flag audit (2026-09-29, generated mode).** The
+  documented fixed-mode selection excludes only `sql/iproto.test.lua`, whose
+  `box.stat().EXECUTE` assertion observes snapshot-EXPLAIN instrumentation.
+  The remaining reviewed SQL cases pass off/on/off semantic parity with zero
+  diffs: 33 tests / 1,077 snapshots on memtx and 34 / 1,085 on Vinyl. All 106
+  route transitions per engine fall into six reviewed classes: supported
+  `current_where_c` to `new_planner` adoptions, conservative `NO_ACCESS_PATH`
+  and `UNSUPPORTED_FILTER` fallbacks, and precise no-path/filter reason
+  refinements for unsupported expression or aggregate shapes. There are no
+  unreviewed route classes. Reports are under
+  `/dev/shm/m35-planner-flags-sql-current-20260929-reviewed-{memtx,vinyl}`.
+  This closes generated-mode route disposition for the reviewed `sql`
+  selection; the explicitly incompatible iproto observer and multi-mode/full
+  producer acceptance remain open.
 
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
