@@ -1311,8 +1311,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `UINT64_MAX` suffix order, and both directions. The focused
   `planner_scalar_filter_test.lua` runner passes, and VDBE unit tests pin the
   direction-specific cursor operations, multi-term order metadata, and base-row
-  lookup (71 assertions total). Filters, non-prefix ordering, and descending
-  index definitions remain unsupported. This is a bounded M3.4 increment, not
+  lookup (72 assertions total). Off/on/off result coverage also verifies
+  LIMIT/OFFSET on full scans and ascending/descending range traversals, with
+  selected-index plans. Filters, non-prefix ordering, and descending index
+  definitions remain unsupported. This is a bounded M3.4 increment, not
   closure.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source

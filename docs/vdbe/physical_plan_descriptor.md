@@ -337,10 +337,11 @@ index key part in order, and all terms must request the same direction. The
 full-scan access descriptor carries the selected index ID and produced-order
 terms; its direction chooses `Rewind`/`Next` or `Last`/`Prev`. Each secondary
 entry is resolved through its complete primary key before projection. The
-route does not combine secondary traversal with filters or non-prefix order,
-and does not claim support for a descending index definition. Memtx/Vinyl
-tests cover one- and two-term orders in both directions, duplicate key values,
-and an unsigned maximum suffix.
+route applies literal LIMIT/OFFSET to the ordered stream, but does not combine
+secondary traversal with filters or non-prefix order, and does not claim
+support for a descending index definition. Memtx/Vinyl tests cover one- and
+two-term orders in both directions, duplicate key values, an unsigned maximum
+suffix, and LIMIT/OFFSET.
 
 For a composite key with at least three parts, equality on a proper leading
 prefix of two or more INTEGER/UNSIGNED parts uses a dedicated prefix scan. It
