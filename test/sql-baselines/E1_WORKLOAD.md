@@ -86,9 +86,9 @@ The tool deliberately sets no “good enough” q-error or latency threshold. Th
 workload, metric thresholds, unacceptable regressions, and trade-off for any
 planner-time increase require review before collecting decision-grade results.
 
-`e1_sql_producer.py` is a reproducible TEST_BUILD pilot for the volatile
-snapshot adapter, not the production ANALYZE collector or reviewed M0
-analytical corpus. Reconfigure and build `tarantool` and
+`e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
+`ANALYZE table`, not the reviewed M0 analytical corpus. Reconfigure and build
+`tarantool` and
 `sql_stats_snapshot_test` from a clean SQL/test source tree, then capture:
 The runner refuses dirty SQL/test sources and verifies the binary's embedded
 revision matches `HEAD` before recording its source commit and SHA-256.
@@ -107,8 +107,9 @@ The pilot measures six prepared single-table predicates five times per
 configuration, records a warmup for each query, and pairs the planner's EXPLAIN
 estimate with the actual rows from that same SELECT output. Its explicit
 `--allow-statistics-change` analysis compares no installed snapshot against a
-TEST_BUILD volatile snapshot and records both statistics IDs. The pilot spans
+named SQL `ANALYZE` collection and records both statistics IDs. The pilot spans
 three equality values, an empty equality, and selective/non-selective ranges;
-its uniform eight-row fixture, single engine, and test-only supplied summary
-are smoke evidence for the JSONL producer and stage contract only. They do not
-establish skewed MCV quality, corpus q-error improvement, or E1 acceptance.
+its uniform eight-row fixture and single engine are smoke evidence for the
+JSONL producer and stage contract, and a narrow validation of the volatile
+collection path. They do not establish skewed MCV quality, corpus q-error
+improvement, or E1 acceptance.

@@ -321,7 +321,11 @@ g.test_snapshot_estimate_adapter = function()
         adapter.install(space.id, index_id, 8, 8, 3, false)
         local measured_plan_estimate = explain_estimate('measured uniform',
                                                         'a = 1')
-        capture_e1_observations('live-stats', 'volatile-snapshot-v1')
+        if os.getenv('E1_SQL_OUTPUT') ~= nil then
+            adapter.clear()
+            box.execute('ANALYZE sql_stats_adapter_t')
+            capture_e1_observations('live-analyze', 'volatile-analyze-v1')
+        end
         local rows = box.execute([[SELECT id FROM sql_stats_adapter_t
                                    WHERE a = 1;]]).rows
         adapter.clear()

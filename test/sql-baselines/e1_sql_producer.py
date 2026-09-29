@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Capture a stage-matched live SQL statistics-provider comparison.
+"""Capture a stage-matched live SQL ANALYZE comparison.
 
-This is an S1.7/S1.9 pilot producer, not the reviewed analytical workload or
-production ANALYZE path. It executes the TEST_BUILD live snapshot-adapter
-fixture in sql_stats_test.lua and records planner estimates and actual SELECT
-output cardinalities for six prepared single-table predicates.
+This is an S1.9 pilot producer, not the reviewed M0 analytical workload. It
+executes the TEST_BUILD volatile ANALYZE fixture in sql_stats_test.lua and
+records planner estimates and actual SELECT output cardinalities for six
+prepared single-table predicates.
 """
 
 import argparse
@@ -107,7 +107,7 @@ def main(argv=None):
 
     analyzer = [sys.executable, "-B", str(ROOT / "test/sql-baselines/e1_measure.py"),
                 str(output), "--baseline", "no-stats", "--candidate",
-                "live-stats", "--allow-statistics-change", "--out", str(report)]
+                "live-analyze", "--allow-statistics-change", "--out", str(report)]
     subprocess.run(analyzer, cwd=ROOT, check=True)
     print(f"observations: {output}")
     print(f"report: {report}")
