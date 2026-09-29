@@ -31,15 +31,28 @@ def complete_matrix():
             for mode in gate.REQUIRED_MODES]
 
 
+def passing_producer_matrix(commit="current"):
+    return {"source_commit": commit, "cases": [
+        {"test": test, "mode": mode, "engine": engine,
+         "status": "passed", "component_ledger_version": 1,
+         "captured_queries": 1,
+         "cnp_exec_delta": 1 if mode == "cnp" else 0,
+         "llvm_exec_delta": 1 if mode == "llvm" else 0}
+        for test in gate.PRODUCER_CASES
+        for mode in gate.REQUIRED_MODES
+        for engine in gate.ENGINES]}
+
+
 class PlannerFlagAcceptanceTest(unittest.TestCase):
     def test_complete_current_matrix_passes(self):
-        result = gate.evaluate(complete_matrix(), "current")
+        result = gate.evaluate(complete_matrix(), "current",
+                               passing_producer_matrix())
         self.assertTrue(result["feature_acceptance_passed"],
                         result["feature_acceptance_blockers"])
 
     def test_missing_report_blocks(self):
         reports = complete_matrix()[:-1]
-        result = gate.evaluate(reports, "current")
+        result = gate.evaluate(reports, "current", passing_producer_matrix())
         self.assertFalse(result["feature_acceptance_passed"])
         self.assertTrue(any("missing suite/mode" in item
                             for item in result["feature_acceptance_blockers"]))
@@ -47,16 +60,16 @@ class PlannerFlagAcceptanceTest(unittest.TestCase):
     def test_stale_source_blocks(self):
         reports = complete_matrix()
         reports[0]["source_commit"] = "stale"
-        result = gate.evaluate(reports, "current")
+        result = gate.evaluate(reports, "current", passing_producer_matrix())
         self.assertFalse(result["feature_acceptance_passed"])
-        self.assertTrue(any("stale source" in item
+        self.assertTrue(any("inconsistent suite-report source" in item
                             for item in result["feature_acceptance_blockers"]))
 
     def test_semantic_or_route_failure_blocks(self):
         reports = complete_matrix()
         reports[0]["engines"]["memtx"]["off_repeat_semantic_parity"] = {
             "passed": False, "semantic_diffs": 1}
-        result = gate.evaluate(reports, "current")
+        result = gate.evaluate(reports, "current", passing_producer_matrix())
         self.assertFalse(result["feature_acceptance_passed"])
 
     def test_missing_producer_case_blocks(self):
@@ -64,10 +77,11 @@ class PlannerFlagAcceptanceTest(unittest.TestCase):
         report = next(item for item in reports
                       if item["suite"] == "sql-luatest" and
                       item["mode"] == "llvm")
-        report["engines"]["vinyl"]["test_ids"].clear()
-        result = gate.evaluate(reports, "current")
+        producer_report = passing_producer_matrix()
+        producer_report["cases"].pop()
+        result = gate.evaluate(reports, "current", producer_report)
         self.assertFalse(result["feature_acceptance_passed"])
-        self.assertTrue(any("producer cases missing" in item
+        self.assertTrue(any("missing focused producer case" in item
                             for item in result["feature_acceptance_blockers"]))
 
 
