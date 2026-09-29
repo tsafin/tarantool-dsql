@@ -1263,8 +1263,20 @@ DML, triggers, subprograms, non-deterministic functions.
   runner passes.
   VDBE unit coverage also pins the secondary seek, equality-run guard,
   composite primary-key extraction, base-table lookup arity, and next-row
-  target; mismatched index IDs and key columns reject atomically (65
-  assertions total).
+  target; mismatched index IDs and key columns reject atomically.
+  **Composite secondary equality extension:** complete equality keys on
+  composite TREE secondary indexes are now selected when every INTEGER or
+  UNSIGNED part has a compatible literal equality, independent of predicate
+  order. The immutable descriptor carries each typed key part in index order;
+  the lowerer validates every part against live index metadata and emits
+  `SeekGE`/`IdxGT` with the full key arity. Partial composite predicates remain
+  `NO_ACCESS_PATH` fallbacks. Memtx/Vinyl off/on/off coverage checks duplicate
+  hits, reversed predicate order, a miss, an additional residual predicate,
+  an unsigned maximum component, and fail-closed partial keys. The focused
+  Debug luatest passes; VDBE unit coverage additionally checks two-part seek
+  arity, atomic rejection of mismatched key-part metadata, and `UINT64_MAX`
+  encoding (67 assertions total). Broader mixed-type, collation, range, and
+  corpus parity remain outside this bounded extension.
   This does not claim general secondary-index access or close M3.4.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
