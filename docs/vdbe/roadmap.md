@@ -1323,6 +1323,15 @@ DML, triggers, subprograms, non-deterministic functions.
   OR/NOT, and a primary-key point plus a residual comparison; it passes on
   memtx and Vinyl under generated, CnP, and LLVM dispatch. This extends residual
   coverage only; broader access-path and expression support remain open.
+  **Expression NULL-test residual extension (2026-09-29):** `IS NULL` and
+  `IS NOT NULL` now also accept canonical scalar expressions whose column
+  references all resolve to the same source (for example, `a + b IS NULL`).
+  The expression is evaluated by the existing SQL bytecode path; function
+  calls remain fail-closed as `UNSUPPORTED_FUNCTION`. Memtx/Vinyl off/on/off
+  coverage includes both null and non-null arithmetic results and confirms
+  function fallback. The focused regression passes under generated, CnP, and
+  LLVM dispatch. This does not broaden the accepted canonical-expression
+  grammar or enable cross-source expressions.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit
