@@ -1008,7 +1008,36 @@ sql_physical_table_scan_from_select(
 							   source->space->def->field_count, 0) ||
 					 has_source_column(term->pRight, source->iCursor,
 							   source->space->def->field_count, 0));
-				if (direct_column_comparison || computed_comparison) {
+				bool computed_primary_comparison = false;
+				if (computed_comparison) {
+					for (uint32_t part = 0; part < pk->part_count; ++part) {
+						computed_primary_comparison |=
+							(is_source_column(term->pLeft,
+							 source->iCursor,
+							 source->space->def->field_count) &&
+							 !has_source_column(term->pRight,
+							 source->iCursor,
+							 source->space->def->field_count, 0) &&
+							 (uint32_t)term->pLeft->iColumn ==
+							 pk->parts[part].fieldno) ||
+							(is_source_column(term->pRight,
+							 source->iCursor,
+							 source->space->def->field_count) &&
+							 !has_source_column(term->pLeft,
+							 source->iCursor,
+							 source->space->def->field_count, 0) &&
+							 (uint32_t)term->pRight->iColumn ==
+							 pk->parts[part].fieldno);
+					}
+				}
+				/* Keep primary-key terms for typed access-path extraction even
+				 * when the generic scalar-filter canonicalizer rejects a wide
+				 * integer literal. parse_pk_bound() handles the full unsigned
+				 * range directly.
+				 */
+				if (direct_column_comparison ||
+				    (computed_comparison &&
+				     !computed_primary_comparison)) {
 					if (filter_count == SQL_PLAN_FILTER_MAX)
 						goto invalid_predicate;
 					filters[filter_count] = (struct sql_plan_filter) {
@@ -1353,7 +1382,10 @@ predicate_parsed:
 	}
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	bool secondary_range_order = false;
-	if (has_secondary_range_scan && select->pOrderBy != NULL &&
+	if (has_secondary_range_scan && !has_secondary_equality_scan &&
+	    !has_point_key && !has_range_key && !has_prefix_scan &&
+	    !has_prefix_range_scan &&
+	    select->pOrderBy != NULL &&
 	    select->pOrderBy->nExpr == 1 &&
 	    select->pOrderBy->a[0].pExpr != NULL &&
 	    select->pOrderBy->a[0].pExpr->op == TK_COLUMN_REF &&
@@ -1383,7 +1415,7 @@ predicate_parsed:
 		select->pOrderBy == NULL;
 	bool use_secondary_range_scan = has_secondary_range_scan &&
 		!has_secondary_equality_scan && !has_point_key && !has_range_key &&
-		!has_prefix_scan &&
+		!has_prefix_scan && !has_prefix_range_scan &&
 		(select->pOrderBy == NULL || secondary_range_order);
 	bool use_secondary_full_scan = has_secondary_full_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
