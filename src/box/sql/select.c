@@ -6428,8 +6428,17 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 				}
 			if (idx == NULL)
 				goto emission_error;
-			message = sqlMPrintf("SCAN TABLE %s USING INDEX %s",
-					      space->def->name, idx->def->name);
+			/* Tarantool secondary indexes retain the full tuple. With no
+			 * predicate selectivity input, use the legacy default estimate
+			 * rather than reporting storage-layer tuple population.
+			 */
+			u64 rows = DEFAULT_TUPLE_COUNT;
+			message = sqlMPrintf("SCAN TABLE %s USING %sINDEX %s "
+					      "(~%llu rows)",
+					      space->def->name,
+					      "COVERING ",
+					      idx->def->name,
+					      (unsigned long long)rows);
 		} else if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ||
 			   selected_access == SQL_PLAN_INDEX_PREFIX_SCAN ||
 			   (selected_access == SQL_PLAN_INDEX_RANGE_SCAN &&
@@ -6450,14 +6459,35 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			const char *op = selected_access ==
 				SQL_PLAN_INDEX_EQUALITY_SCAN || selected_access ==
 				SQL_PLAN_INDEX_PREFIX_SCAN ? "=?" :
-				plan_input->access.integer_range_op == SQL_PLAN_GT ? ">?" :
-				plan_input->access.integer_range_op == SQL_PLAN_GE ? ">=?" :
-				plan_input->access.integer_range_op == SQL_PLAN_LT ? "<?" :
-				"<=?";
-			message = sqlMPrintf("SEARCH TABLE %s USING INDEX %s "
-					      "(%s%s) (~%llu rows)", space->def->name,
-					      idx->def->name, field_name, op,
-					      (unsigned long long)plan_input->cost_rows);
+				plan_input->access.integer_range_op == SQL_PLAN_GT ||
+				plan_input->access.integer_range_op == SQL_PLAN_GE ? ">?" :
+				"<?";
+			u64 rows = (u64)plan_input->cost_rows;
+			/* Preserve legacy EQP defaults for unknown index selectivity.
+			 * A concrete small-space equality estimate remains more useful;
+			 * unbounded default estimates fall back to ten rows. A single range
+			 * without an equality prefix estimates a quarter of default rows.
+			 */
+			if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ||
+			    selected_access == SQL_PLAN_INDEX_PREFIX_SCAN) {
+				if (sql_space_tuple_log_count(space) == 0 && rows < 10)
+					rows = 10;
+			}
+			if (selected_access == SQL_PLAN_INDEX_RANGE_SCAN) {
+				if (plan_input->access.prefix_key_part_count != 0) {
+					if (rows < 2)
+						rows = 2;
+				} else {
+					rows = DEFAULT_TUPLE_COUNT / 4;
+					for (size_t i = 0; i < plan_input->filter_count; ++i)
+						rows = rows * 15 / 16;
+				}
+			}
+			message = sqlMPrintf("SEARCH TABLE %s USING %sINDEX %s "
+					      "(%s%s) (~%llu %s)", space->def->name,
+					      "COVERING ", idx->def->name, field_name, op,
+					      (unsigned long long)rows,
+					      rows == 1 ? "row" : "rows");
 		} else {
 			uint32_t fieldno = primary->def->key_def->parts[0].fieldno;
 			const char *field_name = space->def->fields[fieldno].name;
