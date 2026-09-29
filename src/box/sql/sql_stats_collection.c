@@ -212,6 +212,10 @@ sql_stats_collection_build_candidate(
 			    collected_index->prefix_count !=
 			    expected_index->part_count || (collected_index->prefix_count != 0 &&
 			    collected_index->distinct_prefixes == NULL) ||
+			    (collected_index->part_count != 0 &&
+			     (collected_index->parts == NULL ||
+			      collected_index->part_count !=
+					collected_index->prefix_count)) ||
 			    !valid_tag(collected_index->population_basis) ||
 			    !valid_tag(collected_index->ndv_basis) ||
 			    !valid_cardinality_semantics(
@@ -233,6 +237,8 @@ sql_stats_collection_build_candidate(
 				.definition_version = collected_index->definition_version,
 				.distinct_prefixes = collected_index->distinct_prefixes,
 				.prefix_count = collected_index->prefix_count,
+				.parts = collected_index->parts,
+				.part_count = collected_index->part_count,
 			};
 		}
 		if (valid) {

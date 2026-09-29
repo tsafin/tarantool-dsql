@@ -321,6 +321,13 @@ sql_stats_index_summary_prefix_ndv(
 	return 0;
 }
 
+bool
+sql_stats_index_summary_has_mcv(
+	const struct sql_stats_index_summary *summary)
+{
+	return summary != NULL && !summary->failed && summary->mcv != NULL;
+}
+
 uint32_t
 sql_stats_index_summary_mcv_count(
 	const struct sql_stats_index_summary *summary, size_t part)

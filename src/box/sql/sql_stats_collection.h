@@ -40,6 +40,9 @@ struct sql_stats_collected_index {
 	const char *ndv_basis;
 	const uint64_t *distinct_prefixes;
 	size_t prefix_count;
+	/* Optional volatile per-part MCV candidates, borrowed for this call. */
+	const struct sql_stats_index_part_input *parts;
+	size_t part_count;
 };
 
 struct sql_stats_index_summary;

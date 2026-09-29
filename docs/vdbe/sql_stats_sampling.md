@@ -434,6 +434,15 @@ caller-provided generation tokens but cannot prove they identify one read
 view. Producers must therefore go through a collector context rather than
 minting a visibility token around unrelated samples.
 
+When a callback-backed `sql_stats_index_summary` was created with MCV enabled,
+the sample candidate builder now copies its per-part typed candidates and
+non-NULL denominator into the immutable snapshot. The intermediate input
+arrays are included in its temporary byte ceiling and are released after the
+snapshot deep-copy. The native index-hash adapter remains NDV-only: hashes
+cannot recover canonical values, so SQL `ANALYZE` still produces no MCV
+payload. This plumbing is volatile API coverage, not planner or persistence
+integration.
+
 The transaction context now provides
 `sql_stats_tx_context_finish_and_publish()`. It matches the expected
 relation/index set and definition identities to the owned transaction's

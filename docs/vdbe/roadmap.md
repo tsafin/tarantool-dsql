@@ -1073,8 +1073,14 @@ the `where.c` selectivity adapter wait for that interface.
   per-part candidates (snapshot API version 3), validates their typed bytes,
   denominator and conservative error intervals, and deep-copies them. Snapshot
   combine/replace retain the payload and remain byte-budgeted. This is only a
-  volatile data-contract step: no current collector populates it, and there is
-  still no `ANALYZE`, planner, or persistence integration.
+  volatile data-contract step: the callback-based sampled candidate builder
+  now propagates summary MCV candidates into snapshots under its temporary
+  byte budget, but SQL `ANALYZE` uses the native hash-only adapter and does not
+  populate MCVs. There is still no planner or persistence integration. The
+  candidate handoff also exposed and fixed a SpaceSaving eviction-error bug:
+  replacement now resets error to the evicted counter floor instead of adding
+  the evicted entry's stale error; a repeated-eviction regression checks every
+  interval and the `N / capacity` bound.
 - [x] **S2.4** Equi-depth histogram builder from sampled ordered values.
   *parallel: yes*. In-memory API at
   `src/box/sql/sql_stats_histogram.{h,c}` validates sorted caller-encoded

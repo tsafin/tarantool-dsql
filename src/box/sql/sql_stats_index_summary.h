@@ -1,6 +1,8 @@
 #ifndef TARANTOOL_SQL_STATS_INDEX_SUMMARY_H
 #define TARANTOOL_SQL_STATS_INDEX_SUMMARY_H
 
+#include <stdbool.h>
+
 #include "sql_stats_sample.h"
 #include "sql_stats_hll.h"
 #include "sql_stats_spacesaving.h"
@@ -97,6 +99,10 @@ sql_stats_index_summary_prefix_ndv(
 	double *estimates, size_t estimate_count);
 
 /* Per-part MCV candidate count and borrowed slot access, if enabled. */
+bool
+sql_stats_index_summary_has_mcv(
+	const struct sql_stats_index_summary *summary);
+
 uint32_t
 sql_stats_index_summary_mcv_count(
 	const struct sql_stats_index_summary *summary, size_t part);

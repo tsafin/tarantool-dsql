@@ -102,22 +102,42 @@ sql_stats_collection_build_sample_candidate(
 	if (prefix_bytes > max_bytes || index_bytes > max_bytes - prefix_bytes ||
 	    confidence_bytes > max_bytes - prefix_bytes - index_bytes)
 		return NULL;
+	size_t scratch_bytes = prefix_bytes + index_bytes + confidence_bytes;
+	if (index_count > SIZE_MAX / sizeof(struct sql_stats_index_part_input *) ||
+	    index_count > SIZE_MAX / sizeof(struct sql_stats_mcv_input **))
+		return NULL;
 	struct sql_stats_collected_index *collected = index_count == 0 ? NULL :
 		calloc(index_count, sizeof(*collected));
 	double *confidences = index_count == 0 ? NULL :
 		calloc(index_count, sizeof(*confidences));
 	uint64_t *prefixes = prefix_count == 0 ? NULL :
 		calloc(prefix_count, sizeof(*prefixes));
+	struct sql_stats_index_part_input **part_storage = index_count == 0 ? NULL :
+		calloc(index_count, sizeof(*part_storage));
+	struct sql_stats_mcv_input ***mcv_storage = index_count == 0 ? NULL :
+		calloc(index_count, sizeof(*mcv_storage));
 	if ((index_count != 0 && (collected == NULL || confidences == NULL)) ||
-	    (prefix_count != 0 && prefixes == NULL)) {
+	    (prefix_count != 0 && prefixes == NULL) ||
+	    (index_count != 0 && (part_storage == NULL || mcv_storage == NULL))) {
 		free(collected);
 		free(confidences);
 		free(prefixes);
+		free(part_storage);
+		free(mcv_storage);
 		return NULL;
 	}
-	size_t offset = 0;
 	bool valid = true;
-	for (size_t i = 0; i < index_count; i++) {
+	struct sql_stats_snapshot *candidate = NULL;
+	if (index_count != 0) {
+		if (index_count > (max_bytes - scratch_bytes) /
+		    (2 * sizeof(void *))) {
+			valid = false;
+		} else {
+			scratch_bytes += 2 * index_count * sizeof(void *);
+		}
+	}
+	size_t offset = 0;
+	for (size_t i = 0; valid && i < index_count; i++) {
 		size_t parts = indexes[i].expected->part_count;
 		double index_confidence;
 		if (sql_stats_collection_index_from_sample(indexes[i].expected,
@@ -130,9 +150,80 @@ sql_stats_collection_build_sample_candidate(
 		}
 		confidences[i] = index_confidence;
 		collected[i].distinct_prefixes = prefixes + offset;
+		if (sql_stats_index_summary_has_mcv(indexes[i].summary)) {
+			if (parts > SIZE_MAX / sizeof(*part_storage[i]) ||
+			    parts > SIZE_MAX / sizeof(*mcv_storage[i]) ||
+			    parts > (max_bytes - scratch_bytes) /
+				    (sizeof(struct sql_stats_index_part_input) +
+				     sizeof(struct sql_stats_mcv_input *))) {
+				valid = false;
+				break;
+			}
+			part_storage[i] = calloc(parts, sizeof(*part_storage[i]));
+			mcv_storage[i] = calloc(parts, sizeof(*mcv_storage[i]));
+			if (part_storage[i] == NULL || mcv_storage[i] == NULL) {
+				valid = false;
+				break;
+			}
+			scratch_bytes += parts *
+				(sizeof(struct sql_stats_index_part_input) +
+				 sizeof(struct sql_stats_mcv_input *));
+			for (size_t p = 0; p < parts; p++) {
+				uint32_t count = sql_stats_index_summary_mcv_count(
+					indexes[i].summary, p);
+				size_t mcv_bytes;
+				if (__builtin_mul_overflow((size_t)count,
+						sizeof(struct sql_stats_mcv_input),
+						&mcv_bytes) ||
+				    mcv_bytes > max_bytes - scratch_bytes) {
+					valid = false;
+					break;
+				}
+				struct sql_stats_mcv_input *values = count == 0 ? NULL :
+					calloc(count, sizeof(*values));
+				if (count != 0 && values == NULL) {
+					valid = false;
+					break;
+				}
+				mcv_storage[i][p] = values;
+				scratch_bytes += mcv_bytes;
+				for (uint32_t n = 0; n < count; n++) {
+					uint8_t type_tag;
+					const void *value;
+					size_t value_size;
+					struct sql_stats_spacesaving_entry entry;
+					if (sql_stats_index_summary_mcv_at(indexes[i].summary,
+						p, n, &type_tag, &value, &value_size,
+						&entry) != 0) {
+						valid = false;
+						break;
+					}
+					values[n] = (struct sql_stats_mcv_input) {
+						.type_tag = type_tag,
+						.value = value,
+						.value_size = value_size,
+						.estimate = entry.estimate,
+						.error = entry.error,
+					};
+				}
+				if (!valid)
+					break;
+				part_storage[i][p] =
+					(struct sql_stats_index_part_input) {
+					.sample_nonnull_rows =
+						sql_stats_index_summary_mcv_sample_nonnull_rows(
+							indexes[i].summary, p),
+					.mcv = values,
+					.mcv_count = count,
+				};
+			}
+			if (!valid)
+				break;
+			collected[i].parts = part_storage[i];
+			collected[i].part_count = parts;
+		}
 		offset += parts;
 	}
-	struct sql_stats_snapshot *candidate = NULL;
 	if (valid) {
 		static const char population_basis[] =
 			"visible-engine-index-count-v1";
@@ -170,5 +261,17 @@ sql_stats_collection_build_sample_candidate(
 	free(prefixes);
 	free(confidences);
 	free(collected);
+	for (size_t i = 0; i < index_count; i++) {
+		if (mcv_storage != NULL && mcv_storage[i] != NULL) {
+			for (size_t p = 0; p < indexes[i].expected->part_count; p++)
+				free(mcv_storage[i][p]);
+		}
+		if (mcv_storage != NULL)
+			free(mcv_storage[i]);
+		if (part_storage != NULL)
+			free(part_storage[i]);
+	}
+	free(mcv_storage);
+	free(part_storage);
 	return candidate;
 }

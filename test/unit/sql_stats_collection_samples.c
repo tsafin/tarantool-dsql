@@ -24,10 +24,11 @@ extract_index_value(void *context, const char *tuple, size_t tuple_size,
 static void
 test_sample_to_candidate(void)
 {
-	plan(6);
+	plan(7);
 	header();
-	struct sql_stats_index_summary *summary = sql_stats_index_summary_new(
-		1, 12, 23, 8192, extract_index_value, NULL);
+	struct sql_stats_index_summary *summary =
+		sql_stats_index_summary_new_with_mcv(1, 12, 23, 8192,
+			extract_index_value, NULL, 4, 16);
 	ok(summary != NULL, "sample-to-candidate index sketch allocates");
 	fail_if(summary == NULL);
 	char values[63][4];
@@ -97,12 +98,16 @@ test_sample_to_candidate(void)
 	double per_index_confidences[] = {-1.0, -1.0};
 	struct sql_stats_snapshot *candidate = second_consumed ?
 		sql_stats_collection_build_sample_candidate(&generation,
-			&expected_relation, sampled_indexes, 2, &sample,
+		&expected_relation, sampled_indexes, 2, &sample,
 			index_confidence, SQL_STATS_INDEX_NDV_CONFIDENCE_SOURCE,
 			per_index_confidences, 4096, 64, 1000000) : NULL;
 	const struct sql_stats_relation *saved_relation = NULL;
 	const struct sql_stats_index *saved_index = NULL;
 	const struct sql_stats_index *saved_index2 = NULL;
+	uint8_t saved_mcv_tag = 0;
+	const void *saved_mcv_value = NULL;
+	size_t saved_mcv_size = 0;
+	uint64_t saved_mcv_estimate = 0, saved_mcv_error = 0;
 	bool built = candidate != NULL && sql_stats_snapshot_get_relation(
 		candidate, 7, 42, &saved_relation) == SQL_STATS_LOOKUP_AVAILABLE &&
 		sql_stats_relation_get_index(saved_relation, 8, &saved_index) ==
@@ -117,6 +122,15 @@ test_sample_to_candidate(void)
 		per_index_confidences[1] > 0;
 	ok(built,
 	   "multiple sampled indexes become one complete detached candidate");
+	bool mcv_built = built &&
+		sql_stats_index_part_sample_nonnull_rows(saved_index, 0) == 100 &&
+		sql_stats_index_part_mcv_count(saved_index, 0) != 0 &&
+		sql_stats_index_part_mcv_at(saved_index, 0, 0, &saved_mcv_tag,
+			&saved_mcv_value, &saved_mcv_size, &saved_mcv_estimate,
+			&saved_mcv_error) == SQL_STATS_LOOKUP_AVAILABLE &&
+		saved_mcv_tag == 1 && saved_mcv_size != 0 &&
+		saved_mcv_estimate >= saved_mcv_error;
+	ok(mcv_built, "sampled MCV bounds reach the immutable candidate snapshot");
 	struct sql_stats_sample_result empty_sample = {
 		.population_known = true, .visible_population = 0,
 		.with_replacement = true,

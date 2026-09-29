@@ -105,6 +105,48 @@ sql_stats_index_summary_hash_bits(
 	return 0;
 }
 
+bool
+sql_stats_index_summary_has_mcv(
+	const struct sql_stats_index_summary *summary)
+{
+	(void)summary;
+	return false;
+}
+
+uint32_t
+sql_stats_index_summary_mcv_count(
+	const struct sql_stats_index_summary *summary, size_t part)
+{
+	(void)summary;
+	(void)part;
+	return 0;
+}
+
+int
+sql_stats_index_summary_mcv_at(
+	const struct sql_stats_index_summary *summary, size_t part,
+	uint32_t slot, uint8_t *type_tag, const void **value, size_t *value_size,
+	struct sql_stats_spacesaving_entry *entry)
+{
+	(void)summary;
+	(void)part;
+	(void)slot;
+	(void)type_tag;
+	(void)value;
+	(void)value_size;
+	(void)entry;
+	return -1;
+}
+
+uint64_t
+sql_stats_index_summary_mcv_sample_nonnull_rows(
+	const struct sql_stats_index_summary *summary, size_t part)
+{
+	(void)summary;
+	(void)part;
+	return 0;
+}
+
 void
 sql_stats_index_summary_delete(struct sql_stats_index_summary *summary)
 {
