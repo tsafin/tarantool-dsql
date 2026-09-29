@@ -280,9 +280,10 @@ sql_stats_spacesaving_storage_bytes(uint32_t capacity, size_t max_key_size,
 	if (capacity == 0 || bytes == NULL)
 		return -1;
 	size_t key_bytes = max_key_size == 0 ? 1 : max_key_size;
-	if (capacity > SIZE_MAX / sizeof(struct ss_entry))
+	size_t entries;
+	if (__builtin_mul_overflow((size_t)capacity, sizeof(struct ss_entry),
+				   &entries))
 		return -1;
-	size_t entries = (size_t)capacity * sizeof(struct ss_entry);
 	if (entries > SIZE_MAX - sizeof(struct sql_stats_spacesaving))
 		return -1;
 	size_t base = sizeof(struct sql_stats_spacesaving) + entries;
