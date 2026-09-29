@@ -254,6 +254,11 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
         box.execute([[ANALYZE analyze_mcv_plan_t]])
         local after_hot = estimate(1)
         local after_tail = estimate(2)
+        local parameter_plan = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+            analyze_mcv_plan_t WHERE value = ?]], {1}).rows
+        local parameter_estimate = assert(tonumber(
+            parameter_plan[1][4]:match('~([0-9]+) row')),
+            'missing parameter query-plan estimate')
         local function label_estimate(label)
             local plan = box.execute(([[EXPLAIN QUERY PLAN SELECT id FROM
                 analyze_mcv_plan_t WHERE label = '%s']]):format(label)).rows
@@ -268,11 +273,13 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
             before_tail = before_tail,
             after_hot = after_hot,
             after_tail = after_tail,
+            parameter_estimate = parameter_estimate,
             after_label_hot = after_label_hot,
             after_label_tail = after_label_tail,
         }
     end)
     t.assert_equals(estimates.before_hot, estimates.before_tail)
     t.assert_gt(estimates.after_hot, estimates.after_tail * 5)
+    t.assert_gt(estimates.after_hot, estimates.parameter_estimate * 3)
     t.assert_gt(estimates.after_label_hot, estimates.after_label_tail * 5)
 end
