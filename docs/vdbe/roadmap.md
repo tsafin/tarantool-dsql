@@ -989,11 +989,21 @@ format approval is implied.
   corpus workload integration through a real stats provider and an accepted
   q-error gate. The stage-matched estimate/actual JSONL sidecar and analyzer
   contract are now specified in `test/sql-baselines/E1_WORKLOAD.md`; they
-  remain separate from M0 snapshot v1 and await an integrated producer. The
-  S1.7 test now also
-  supplies a narrow live SQL estimate/actual probe against a test-only stats
-  provider; it is not an M0 capture, workload corpus, or skewed MCV planner
-  integration. *parallel: yes*.
+  remain separate from M0 snapshot v1. A reproducible TEST_BUILD sidecar
+  producer is now available at `test/sql-baselines/e1_sql_producer.py`; it
+  executes a prepared single-table SELECT before and after installing the
+  volatile snapshot adapter and records the matching `select-output`
+  estimate/actual cardinality with source, binary, data, and per-configuration
+  statistics provenance. The local pilot at
+  `/tmp/e1-s1pilot-20260930.jsonl` contains 12 rows (warmup plus five measured
+  executions for each state); q-error is 3.33 without the snapshot and 1.0
+  with it. The companion report shows all elapsed times at the 1 us floor, so
+  these values do not constitute latency evidence. Reproduce with the command
+  in `test/sql-baselines/E1_WORKLOAD.md`. This narrows the producer gap but
+  does not close S1.9: the fixture is uniform and tiny, uses the TEST_BUILD
+  adapter rather than collected ANALYZE statistics, and is not integrated into
+  the reviewed M0 corpus. Skewed MCV planner validation and a reviewed q-error
+  criterion remain open. *parallel: yes*.
 
 ---
 
