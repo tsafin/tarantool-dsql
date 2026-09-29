@@ -233,6 +233,19 @@ or overflow failure. The API defines no SQL value encoding, persistence
 format, confidence metadata, or system-space ID; those remain integration and
 schema-review work.
 
+The sampled index-summary API also offers a callback-driven MCV composition
+path in `sql_stats_index_summary_new_with_mcv()`. It maintains one bounded
+SpaceSaving sketch per ordered index part alongside prefix HLLs. The callback
+supplies canonical SQL bytes and a type tag (zero is reserved for NULL); NULL
+is excluded from the MCV denominator. The explicit total byte budget accounts
+for HLL storage, candidate slots, each slot's maximum key copy, and a reusable
+tagged-key scratch buffer. Values
+above the configured maximum fail the summary closed. The legacy HLL-only
+constructor remains unchanged, and the native tuple/index-hash adapter remains
+NDV-only because hashes cannot recover canonical candidate values. This
+composition is still a standalone in-memory API: SQL `ANALYZE`, snapshot
+normalization/persistence, and planner selectivity do not consume it yet.
+
 ### Equi-depth histogram prototype contract (S2.4)
 
 The in-memory builder is `src/box/sql/sql_stats_histogram.{h,c}`. Its caller

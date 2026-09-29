@@ -3,6 +3,7 @@
 
 #include "sql_stats_sample.h"
 #include "sql_stats_hll.h"
+#include "sql_stats_spacesaving.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,8 +34,24 @@ struct tuple_format;
 struct sql_stats_index_summary *
 sql_stats_index_summary_new(size_t part_count, uint8_t precision,
 			    uint64_t seed, size_t max_bytes,
-			    sql_stats_index_value_extract_f *extract,
-			    void *extract_context);
+				sql_stats_index_value_extract_f *extract,
+				void *extract_context);
+
+/*
+ * As above, and retain a bounded SpaceSaving candidate set for each scalar
+ * index part. The caller's extractor must return canonical SQL value bytes,
+ * and reserves type tag zero to mark NULL (NULL is excluded from MCVs).
+ * Values larger than max_mcv_value_bytes fail the whole summary closed. The
+ * total max_bytes budget includes HLL storage, SpaceSaving slots, each slot's
+ * maximum key copy, and the reusable tagged-key scratch buffer.
+ */
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_with_mcv(size_t part_count, uint8_t precision,
+				     uint64_t seed, size_t max_bytes,
+				     sql_stats_index_value_extract_f *extract,
+				     void *extract_context,
+				     uint32_t mcv_capacity,
+				     size_t max_mcv_value_bytes);
 
 /*
  * Native tuple/key-definition adapter. It copies the key definition and
@@ -78,6 +95,21 @@ int
 sql_stats_index_summary_prefix_ndv(
 	const struct sql_stats_index_summary *summary, size_t prefix_count,
 	double *estimates, size_t estimate_count);
+
+/* Per-part MCV candidate count and borrowed slot access, if enabled. */
+uint32_t
+sql_stats_index_summary_mcv_count(
+	const struct sql_stats_index_summary *summary, size_t part);
+
+int
+sql_stats_index_summary_mcv_at(
+	const struct sql_stats_index_summary *summary, size_t part,
+	uint32_t slot, uint8_t *type_tag, const void **value, size_t *value_size,
+	struct sql_stats_spacesaving_entry *entry);
+
+uint64_t
+sql_stats_index_summary_mcv_sample_nonnull_rows(
+	const struct sql_stats_index_summary *summary, size_t part);
 
 /*
  * Estimate population prefix NDVs by inverting the uniform-occupancy model

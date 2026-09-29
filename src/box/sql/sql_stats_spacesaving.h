@@ -50,4 +50,19 @@ sql_stats_spacesaving_query(const struct sql_stats_spacesaving *summary,
 uint32_t
 sql_stats_spacesaving_capacity(const struct sql_stats_spacesaving *summary);
 
+/* Number of currently retained candidates. */
+uint32_t
+sql_stats_spacesaving_count(const struct sql_stats_spacesaving *summary);
+
+/* Borrow a retained key by slot; key storage remains summary-owned. */
+int
+sql_stats_spacesaving_at(const struct sql_stats_spacesaving *summary,
+			 uint32_t slot, const void **data, size_t *size,
+			 struct sql_stats_spacesaving_entry *entry);
+
+/* Worst-case owned bytes for capacity entries with keys up to max_key_size. */
+int
+sql_stats_spacesaving_storage_bytes(uint32_t capacity, size_t max_key_size,
+				    size_t *bytes);
+
 #endif /* TARANTOOL_SQL_STATS_SPACESAVING_H */

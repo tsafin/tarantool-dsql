@@ -1058,6 +1058,17 @@ the `where.c` selectivity adapter wait for that interface.
   intervals, and single-stream `N / capacity` error bound. Unit tests cover
   heavy-hitter bounds, deterministic ties, and merge. Contract is documented
   in `statistics_implementation_plan.md`; no persistence or system-space IDs.
+  A callback-driven index-summary constructor now composes bounded per-part
+  SpaceSaving candidates with the existing sampled prefix-HLL summary. Its
+  caller supplies canonical typed SQL bytes (type tag zero denotes NULL, which
+  is excluded from MCV counts); candidate storage, maximum value size, and a
+  reusable tagged-key scratch buffer are charged to the explicit summary byte
+  budget, and oversize values poison the
+  summary rather than exposing partial output. Focused tests cover budget
+  boundaries, NULL exclusion, candidate/error access, and fail-closed bounds.
+  This is not yet wired to SQL `ANALYZE`, snapshot persistence, or the planner;
+  the native index-hash adapter remains NDV-only because hashes cannot recover
+  canonical MCV values. No persistent format or ID is defined.
 - [x] **S2.4** Equi-depth histogram builder from sampled ordered values.
   *parallel: yes*. In-memory API at
   `src/box/sql/sql_stats_histogram.{h,c}` validates sorted caller-encoded

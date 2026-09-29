@@ -50,6 +50,93 @@ extract_scalar(void *context, const char *tuple, size_t tuple_size,
 	return 0;
 }
 
+static int
+extract_tagged_scalar(void *context, const char *tuple, size_t tuple_size,
+		      const uint32_t *field_ids, size_t field_count,
+		      struct sql_stats_hll_value *parts, size_t part_count)
+{
+	(void)context;
+	(void)field_ids;
+	(void)field_count;
+	if (tuple_size == 0 || part_count != 1)
+		return -1;
+	parts[0] = (struct sql_stats_hll_value){
+		.type_tag = tuple[0] == 'N' ? 0 : 1,
+		.data = tuple + 1,
+		.size = tuple_size - 1,
+	};
+	return 0;
+}
+
+static void
+test_mcv_index_summaries(void)
+{
+	plan(9);
+	header();
+	size_t hll_bytes = 0, mcv_bytes = 0;
+	ok(sql_stats_hll_storage_bytes(8, &hll_bytes) &&
+	   sql_stats_spacesaving_storage_bytes(2, 9, &mcv_bytes) == 0,
+	   "HLL and MCV report bounded storage");
+	size_t budget = hll_bytes + sizeof(void *) + sizeof(void *) +
+		sizeof(uint64_t) + mcv_bytes + 9;
+	struct sql_stats_index_summary *summary =
+		sql_stats_index_summary_new_with_mcv(1, 8, 31, budget,
+			extract_tagged_scalar, NULL, 2, 8);
+	ok(summary != NULL, "MCV summary allocates within explicit total budget");
+	ok(sql_stats_index_summary_new_with_mcv(1, 8, 31, budget - 1,
+		extract_tagged_scalar, NULL, 2, 8) == NULL,
+	   "MCV summary rejects a budget one byte below its allocation");
+	fail_if(summary == NULL);
+	bool consumed = true;
+	for (int i = 0; i < 4; i++)
+		consumed &= sql_stats_index_summary_consume(summary, "Ihot", 4,
+							 NULL, 0) == 0;
+	consumed &= sql_stats_index_summary_consume(summary, "Itail", 5,
+							 NULL, 0) == 0;
+	consumed &= sql_stats_index_summary_consume(summary, "N", 1,
+							 NULL, 0) == 0;
+	ok(consumed && sql_stats_index_summary_mcv_sample_nonnull_rows(summary,
+									   0) == 5,
+	   "MCV population counts non-NULL sampled values only");
+	ok(sql_stats_index_summary_mcv_count(summary, 0) == 2,
+	   "bounded SpaceSaving retains at most configured candidate capacity");
+	bool found_hot = false;
+	for (uint32_t i = 0; i < sql_stats_index_summary_mcv_count(summary, 0); i++) {
+		uint8_t type_tag;
+		const void *value;
+		size_t value_size;
+		struct sql_stats_spacesaving_entry entry;
+		if (sql_stats_index_summary_mcv_at(summary, 0, i, &type_tag, &value,
+							 &value_size, &entry) == 0 &&
+		    type_tag == 1 && value_size == 3 &&
+		    memcmp(value, "hot", 3) == 0 &&
+		    entry.estimate == 4 && entry.error == 0)
+			found_hot = true;
+	}
+	ok(found_hot, "MCV exposes canonical value bytes and SpaceSaving bounds");
+	ok(sql_stats_index_summary_mcv_at(summary, 0, 0, NULL, NULL, NULL,
+						   NULL) == -1,
+	   "MCV accessor rejects missing output pointers");
+	sql_stats_index_summary_delete(summary);
+	struct sql_stats_index_summary *bounded =
+		sql_stats_index_summary_new_with_mcv(1, 8, 31, budget,
+			extract_tagged_scalar, NULL, 2, 3);
+	fail_if(bounded == NULL);
+	ok(sql_stats_index_summary_consume(bounded, "Ioversize", 9, NULL, 0) == -1 &&
+	   sql_stats_index_summary_sample_rows(bounded) == 0,
+	   "oversize canonical values fail closed without publishing partial summary");
+	sql_stats_index_summary_delete(bounded);
+	struct sql_stats_index_summary *without_mcv =
+		sql_stats_index_summary_new(1, 8, 31, 10000,
+			extract_tagged_scalar, NULL);
+	fail_if(without_mcv == NULL);
+	ok(sql_stats_index_summary_mcv_count(without_mcv, 0) == 0,
+	   "existing HLL-only constructor remains MCV-free");
+	sql_stats_index_summary_delete(without_mcv);
+	footer();
+	check_plan();
+}
+
 static void
 test_sample_prefix_summaries(void)
 {
@@ -190,6 +277,7 @@ int
 main(void)
 {
 	test_sample_prefix_summaries();
+	test_mcv_index_summaries();
 	test_population_prefix_estimation();
 	return 0;
 }

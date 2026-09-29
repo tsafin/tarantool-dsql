@@ -248,3 +248,46 @@ sql_stats_spacesaving_capacity(const struct sql_stats_spacesaving *s)
 {
 	return s == NULL ? 0 : s->capacity;
 }
+
+uint32_t
+sql_stats_spacesaving_count(const struct sql_stats_spacesaving *s)
+{
+	return s == NULL ? 0 : s->count;
+}
+
+int
+sql_stats_spacesaving_at(const struct sql_stats_spacesaving *s, uint32_t slot,
+			 const void **data, size_t *size,
+			 struct sql_stats_spacesaving_entry *entry)
+{
+	if (s == NULL || data == NULL || size == NULL || entry == NULL ||
+	    slot >= s->count)
+		return -1;
+	const struct ss_entry *e = &s->entries[slot];
+	*data = e->key;
+	*size = e->size;
+	*entry = (struct sql_stats_spacesaving_entry) {
+		.estimate = e->count,
+		.error = e->error,
+	};
+	return 0;
+}
+
+int
+sql_stats_spacesaving_storage_bytes(uint32_t capacity, size_t max_key_size,
+				    size_t *bytes)
+{
+	if (capacity == 0 || bytes == NULL)
+		return -1;
+	size_t key_bytes = max_key_size == 0 ? 1 : max_key_size;
+	if (capacity > SIZE_MAX / sizeof(struct ss_entry))
+		return -1;
+	size_t entries = (size_t)capacity * sizeof(struct ss_entry);
+	if (entries > SIZE_MAX - sizeof(struct sql_stats_spacesaving))
+		return -1;
+	size_t base = sizeof(struct sql_stats_spacesaving) + entries;
+	if (capacity > (SIZE_MAX - base) / key_bytes)
+		return -1;
+	*bytes = base + (size_t)capacity * key_bytes;
+	return 0;
+}
