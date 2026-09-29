@@ -28,12 +28,13 @@
       ["fallback", "UNSUPPORTED_EXPRESSION", "current_where_c", null],
       ["current_where_c", null, "fallback", "NO_ACCESS_PATH"],
       ["current_where_c", null, "fallback", "UNSUPPORTED_FILTER"],
+      [null, "UNSUPPORTED_FUNCTION", null, "UNSUPPORTED_FILTER"],
       ["mixed", null, "fallback", "UNSUPPORTED_RELATION_COUNT"],
       ["mixed", null, "fallback", "UNSUPPORTED_SUBQUERY"],
       [null, "UNSUPPORTED_AGGREGATE", null, "UNSUPPORTED_FILTER"],
       [null, "UNSUPPORTED_EXPRESSION", null, "UNSUPPORTED_FILTER"],
       [null, "UNSUPPORTED_EXPRESSION", null, "NO_ACCESS_PATH"]
     ],
-    "note": "Reviewed SQL-TAP transitions include conservative fallback when the primary-only executor would displace a matching secondary-index path, and refinement from unsupported expression to no access path when the primary-only physical route has no candidate. Deterministic scalar residuals (including GREATEST/LEAST in comparisons and IN, TYPEOF comparisons) and LIKE/NOT LIKE are accepted only through the bounded expression contract; indexed LIKE and collated-key access remain on the legacy path. This disposition covers the reviewed unsupported-function-to-new-planner transitions in in1, like3, select1, and tkt-3998683a16; generated-mode off/on and repeat semantic comparisons are exact. ORDER BY cases that cannot form the new physical route remain on current_where_c. Focused tests pin the residual grammar and index guard."
+    "note": "Reviewed SQL-TAP transitions include conservative fallback when the primary-only executor would displace a matching secondary-index path, and refinement from unsupported expression to no access path when the primary-only physical route has no candidate. Deterministic scalar residuals (including GREATEST/LEAST in comparisons and IN, TYPEOF comparisons) and LIKE/NOT LIKE are accepted only through the bounded expression contract; indexed LIKE and collated-key access remain on the legacy path. This disposition covers the reviewed unsupported-function-to-new-planner transitions in in1, like3, select1, and tkt-3998683a16; generated-mode off/on and repeat semantic comparisons are exact. Deterministic functions in supported SELECT-list projections now use the new route; function-based ORDER BY remains legacy. Alias-bound predicates in alias.test.lua remain on the legacy path because the test's deterministic UDF has side effects; the reason-only UNSUPPORTED_FUNCTION to UNSUPPORTED_FILTER refinement for q06-q10 preserves their exact results. ORDER BY cases that cannot form the new physical route remain on current_where_c. Focused tests pin the residual grammar and index guard."
   }
 }
