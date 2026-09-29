@@ -1340,6 +1340,13 @@ DML, triggers, subprograms, non-deterministic functions.
   primary-key predicates retain their existing bound behavior. Boolean OR
   coverage includes computed and direct-column leaves. The focused memtx/Vinyl
   off/on/off regression passes under generated, CnP, and LLVM dispatch.
+  **Computed BETWEEN/IN residual extension (2026-09-29):** canonical,
+  same-source scalar expressions are also accepted as the left operand of
+  `BETWEEN`/`NOT BETWEEN` and `IN`/`NOT IN`; list members and BETWEEN bounds
+  retain the existing constant-expression validation. The focused regression
+  checks arithmetic operands for inclusive BETWEEN and IN, including NULL
+  propagation from source rows. It passes on memtx and Vinyl under generated,
+  CnP, and LLVM dispatch. Subqueries and noncanonical operands remain rejected.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit
