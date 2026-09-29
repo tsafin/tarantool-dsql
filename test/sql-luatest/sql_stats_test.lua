@@ -221,7 +221,7 @@ g.test_snapshot_estimate_adapter = function()
                 return
             end
             local json = require('json')
-            local fiber = require('fiber')
+            local clock = require('clock')
             local metadata = {
                 workload_id = os.getenv('E1_WORKLOAD_ID'),
                 source_commit = os.getenv('E1_SOURCE_COMMIT'),
@@ -247,10 +247,10 @@ g.test_snapshot_estimate_adapter = function()
             local stmt = box.prepare(query)
             local function record(repeat_no, warmup)
                 local estimate = explain_estimate('E1 live capture', 'a = 1')
-                local started = fiber.clock()
+                local started = clock.monotonic()
                 local result = box.execute(stmt.stmt_id)
                 local elapsed_us = math.max(1,
-                    math.floor((fiber.clock() - started) * 1000000))
+                    math.floor((clock.monotonic() - started) * 1000000))
                 local row = {
                     schema_version = 1,
                     workload_id = metadata.workload_id,
