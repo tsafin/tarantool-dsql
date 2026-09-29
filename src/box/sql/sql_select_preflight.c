@@ -90,6 +90,64 @@ is_like_filter(const struct Expr *expr, int cursor, uint32_t field_count)
 }
 
 static bool
+is_indexed_column(const struct Expr *expr, const struct space *space,
+		  int cursor)
+{
+	if (expr == NULL || expr->op != TK_COLUMN_REF ||
+	    expr->iTable != cursor || expr->iColumn < 0 ||
+	    space->index_map == NULL)
+		return false;
+	for (uint32_t i = 0; i < space->index_count; ++i) {
+		const struct index *index = space->index_map[i];
+		if (index == NULL || index->def == NULL ||
+		    index->def->key_def == NULL)
+			continue;
+		for (uint32_t j = 0; j < index->def->key_def->part_count; ++j) {
+			if (index->def->key_def->parts[j].fieldno ==
+			    (uint32_t)expr->iColumn)
+				return true;
+		}
+	}
+	return false;
+}
+
+static bool
+has_index_sensitive_collation_or_like(const struct Expr *expr,
+				      const struct space *space,
+				      int cursor, uint32_t field_count,
+				      size_t depth)
+{
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	if (expr->op == TK_COLLATE &&
+	    is_indexed_column(expr->pLeft, space, cursor))
+		return true;
+	bool comparison = expr->op == TK_EQ || expr->op == TK_NE ||
+		expr->op == TK_LT || expr->op == TK_LE ||
+		expr->op == TK_GT || expr->op == TK_GE;
+	if (comparison && ExprHasProperty(expr, EP_Collate) &&
+	    (is_indexed_column(expr->pLeft, space, cursor) ||
+	     is_indexed_column(expr->pRight, space, cursor)))
+		return true;
+	if (is_like_filter(expr, cursor, field_count) &&
+	    expr->x.pList->nExpr >= 2 &&
+	    is_indexed_column(expr->x.pList->a[1].pExpr, space, cursor))
+		return true;
+	if (has_index_sensitive_collation_or_like(expr->pLeft, space, cursor,
+						  field_count, depth + 1) ||
+	    has_index_sensitive_collation_or_like(expr->pRight, space, cursor,
+						  field_count, depth + 1))
+		return true;
+	for (int i = 0; !ExprHasProperty(expr, EP_xIsSelect) &&
+	     expr->x.pList != NULL && i < expr->x.pList->nExpr; ++i)
+		if (has_index_sensitive_collation_or_like(
+			expr->x.pList->a[i].pExpr, space, cursor, field_count,
+			depth + 1))
+			return true;
+	return false;
+}
+
+static bool
 is_in_predicate(const struct Expr *expr, int cursor, uint32_t field_count)
 {
 	if (expr == NULL || expr->op != TK_IN || expr->pRight != NULL ||
@@ -545,6 +603,11 @@ sql_select_preflight_table_scan(const struct Select *select,
 	}
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;
+		if (has_index_sensitive_collation_or_like(where, source->space,
+							  source->iCursor,
+							  source->space->def->field_count,
+							  0))
+			return SQL_SELECT_PREFLIGHT_FILTER;
 		if (has_unsupported_in_operand(where, source->iCursor,
 					       source->space->def->field_count, 0))
 			return SQL_SELECT_PREFLIGHT_FILTER;

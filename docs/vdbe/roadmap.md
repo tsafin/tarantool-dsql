@@ -1507,8 +1507,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `MATCH` and other standalone function predicates stay rejected. Existing SQL
   bytecode preserves pattern, escape, and NULL semantics. Focused memtx/Vinyl
   off/on/off coverage passes generated, CnP, and LLVM dispatch for LIKE and
-  NOT LIKE, including NULL rows. This remains residual-only and does not close
-  M3.4.
+  NOT LIKE, including NULL rows. Indexed LIKE and collated-key predicates
+  retain legacy access paths until their range/index requirements are modeled;
+  SQL-TAP collation coverage confirms the indexed LIKE EQP/result contract.
+  This remains residual-only and does not close M3.4.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit

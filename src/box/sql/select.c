@@ -5773,7 +5773,10 @@ sql_select_record_physical_fallback(Parse *parse,
 }
 
 static bool sql_select_has_nondeterministic_func(Select *select);
+static int sql_select_has_func_expr(Walker *walker, Expr *expr);
+static bool sql_select_has_func(Select *select);
 static bool sql_select_has_func_outside_where(Select *select);
+static bool sql_select_has_collation(Select *select);
 static bool sql_select_has_collation_outside_where(Select *select);
 static bool sql_select_has_unsupported_expr(Parse *parse, Select *select);
 static bool sql_select_has_unsupported_projection_expr(Parse *parse,
@@ -5834,7 +5837,13 @@ sql_select_record_fallback(Parse *parse, Select *select, SelectDest *dest,
 				(parse->sql_flags & SQL_NewPlannerSingleTable) != 0 &&
 				(preflight == SQL_SELECT_PREFLIGHT_OK ||
 				 preflight == SQL_SELECT_PREFLIGHT_DESTINATION);
-			if (sql_select_has_unsupported_expr(parse, select) &&
+			if (!physical_attempt && sql_select_has_func(select))
+				sql_select_record_fallback_reason(parse,
+						SQL_LOGICAL_REJECT_FUNCTION);
+			else if (!physical_attempt && sql_select_has_collation(select))
+				sql_select_record_fallback_reason(parse,
+						SQL_LOGICAL_REJECT_COLLATION);
+			else if (sql_select_has_unsupported_expr(parse, select) &&
 			    !physical_attempt)
 				sql_select_record_fallback_reason(parse,
 						SQL_LOGICAL_REJECT_EXPRESSION);
@@ -5908,6 +5917,17 @@ sql_select_has_nondeterministic_func(Select *select)
 	return walker.eCode != 0;
 }
 
+static bool
+sql_select_has_func(Select *select)
+{
+	Walker walker;
+	memset(&walker, 0, sizeof(walker));
+	walker.xExprCallback = sql_select_has_func_expr;
+	walker.xSelectCallback = sql_select_walk_subquery;
+	(void)sqlWalkSelect(&walker, select);
+	return walker.eCode != 0;
+}
+
 static int
 sql_select_has_func_expr(Walker *walker, Expr *expr)
 {
@@ -5944,6 +5964,17 @@ sql_select_has_collation_expr(Walker *walker, Expr *expr)
 		return WRC_Abort;
 	}
 	return WRC_Continue;
+}
+
+static bool
+sql_select_has_collation(Select *select)
+{
+	Walker walker;
+	memset(&walker, 0, sizeof(walker));
+	walker.xExprCallback = sql_select_has_collation_expr;
+	walker.xSelectCallback = sql_select_walk_subquery;
+	(void)sqlWalkSelect(&walker, select);
+	return walker.eCode != 0;
 }
 
 static bool

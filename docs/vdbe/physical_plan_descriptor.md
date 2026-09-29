@@ -186,7 +186,10 @@ expression bounds, IN with canonical constant-list members, a resolved
 `LIKE` call with two or three canonical same-source/constant arguments, or a
 direct `IS NULL` / `IS NOT NULL` test. `NOT LIKE` is represented as unary
 `NOT` over that LIKE leaf; `MATCH` and other boolean-returning functions are
-not admitted. Expression
+not admitted. Preflight keeps collated expressions and LIKE predicates over
+indexed columns on the legacy route until their access-path requirements can
+be represented; an unindexed residual scan cannot replace a legacy index
+range. Expression
 filters are referenced by
 the immutable descriptor and resolved against the original WHERE tree only
 when lowering; their bytecode executes before projection, and `IfNot` rejects
