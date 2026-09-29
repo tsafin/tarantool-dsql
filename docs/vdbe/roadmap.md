@@ -1338,7 +1338,14 @@ DML, triggers, subprograms, non-deterministic functions.
   the prefix changes, enforces the opposite range endpoint, resolves the
   primary key, and applies residual predicates. An `ORDER BY` over a contiguous
   prefix beginning with the ranged suffix is accepted only when the available
-  one-way traversal satisfies every requested term. Focused
+  one-way traversal satisfies every requested term. Equality-fixed leading
+  key columns may also appear in `ORDER BY`; they are dropped from produced
+  order metadata, while all varying suffix terms must still match the same
+  forward or reverse walk. The off/on/off regression verifies
+  `ORDER BY x ASC, y DESC, z DESC` over an equality-fixed `x` and ranged `y`,
+  including exact order and selected-index evidence on memtx and Vinyl;
+  preflight unit tests reject a varying suffix that mixes incompatible walk
+  directions. Focused
   memtx/Vinyl off/on/off tests cover bounded and upper-only ranges, duplicate
   prefix matches, a two-part mixed-type equality prefix, suffix ordering, and
   ascending/descending composite indexes;

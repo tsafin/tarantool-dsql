@@ -17,6 +17,37 @@ is_comparison_predicate(const struct Expr *expr)
 }
 
 static bool
+has_literal_equality(const struct Expr *expr, int cursor, uint32_t column,
+		     size_t depth)
+{
+	/* Only AND-conjoined column = constant terms make an ORDER BY column
+	 * invariant for every row surviving the filter. In particular, do not
+	 * infer constancy across OR branches or column-to-column equalities.
+	 */
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	if (expr->op == TK_AND)
+		return has_literal_equality(expr->pLeft, cursor, column,
+					    depth + 1) ||
+		       has_literal_equality(expr->pRight, cursor, column,
+					    depth + 1);
+	if (expr->op != TK_EQ || expr->pLeft == NULL || expr->pRight == NULL)
+		return false;
+	const struct Expr *left = expr->pLeft;
+	const struct Expr *right = expr->pRight;
+	bool left_column = left->op == TK_COLUMN_REF && left->pLeft == NULL &&
+			   left->pRight == NULL && left->iTable == cursor &&
+			   left->iColumn >= 0 &&
+			   (uint32_t)left->iColumn == column;
+	bool right_column = right->op == TK_COLUMN_REF &&
+			    right->pLeft == NULL && right->pRight == NULL &&
+			    right->iTable == cursor && right->iColumn >= 0 &&
+			    (uint32_t)right->iColumn == column;
+	return (left_column && sqlExprIsConstant((struct Expr *)right)) ||
+	       (right_column && sqlExprIsConstant((struct Expr *)left));
+}
+
+static bool
 is_between_predicate(const struct Expr *expr)
 {
 	return expr != NULL && expr->op == TK_BETWEEN && expr->pLeft != NULL &&
@@ -241,7 +272,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 		 */
 		if (order->a[0].pExpr->iTable == source->iCursor) {
 			for (uint32_t index_no = 1;
-			     index_no < source->space->index_count; ++index_no) {
+			     index_no < source->space->index_count;
+			     ++index_no) {
 				const struct index *index =
 					source->space->index_map[index_no];
 				if (index == NULL || index->def == NULL ||
@@ -249,53 +281,109 @@ sql_select_preflight_table_scan(const struct Select *select,
 				    index->def->key_def == NULL ||
 				    index->def->key_def->part_count == 0 ||
 				    (uint32_t)order->nExpr >
-					index->def->key_def->part_count)
+					    index->def->key_def->part_count)
 					continue;
 				uint32_t first_candidate_part = UINT32_MAX;
-				for (uint32_t part = 0;
-				     part < index->def->key_def->part_count; ++part) {
-					if (index->def->key_def->parts[part].fieldno ==
-					    (uint32_t)order->a[0].pExpr->iColumn) {
-						first_candidate_part = part;
-						break;
+				for (int term = 0;
+				     term < order->nExpr &&
+				     first_candidate_part == UINT32_MAX;
+				     ++term) {
+					const struct Expr *expr =
+						order->a[term].pExpr;
+					if (expr == NULL)
+						return SQL_SELECT_PREFLIGHT_SHAPE;
+					for (uint32_t part = 0;
+					     part <
+					     index->def->key_def->part_count;
+					     ++part) {
+						uint32_t fieldno =
+							index->def->key_def
+								->parts[part]
+								.fieldno;
+						if (expr->iColumn ==
+							    (int)fieldno &&
+						    !has_literal_equality(
+							    select->pWhere,
+							    source->iCursor,
+							    fieldno, 0)) {
+							first_candidate_part =
+								part;
+							break;
+						}
 					}
 				}
 				if (first_candidate_part == UINT32_MAX ||
-				    (select->pWhere == NULL && first_candidate_part != 0) ||
-				    (uint32_t)order->nExpr >
-					index->def->key_def->part_count -
-					first_candidate_part)
+				    (select->pWhere == NULL &&
+				     first_candidate_part != 0))
 					continue;
 				bool matches_prefix = true;
 				bool natural_order = true;
 				bool reverse_order = true;
-				for (int term = 0; term < order->nExpr; ++term) {
-					const struct Expr *expr = order->a[term].pExpr;
-					const struct key_def *candidate =
-						index->def->key_def;
-					enum sort_order index_order =
-						candidate->parts[first_candidate_part +
-							(uint32_t)term].sort_order;
-					enum sort_order requested_order =
-						order->a[term].sort_order;
-					if (requested_order == SORT_ORDER_UNDEF)
-						requested_order = SORT_ORDER_ASC;
-					bool invalid_index_order =
-						index_order != SORT_ORDER_ASC &&
-						index_order != SORT_ORDER_DESC;
-					if (invalid_index_order || expr == NULL ||
-					    expr->op != TK_COLUMN_REF ||
-					    expr->pLeft != NULL || expr->pRight != NULL ||
-					    expr->iTable != source->iCursor ||
-					    expr->iColumn < 0 ||
-						candidate->parts[first_candidate_part +
-							(uint32_t)term].fieldno !=
-							(uint32_t)expr->iColumn) {
+				uint32_t ordered_part_count = 0;
+				for (int term = 0; term < order->nExpr;
+				     ++term) {
+					const struct Expr *expr =
+						order->a[term].pExpr;
+					if (expr == NULL) {
 						matches_prefix = false;
 						break;
 					}
-					natural_order &= requested_order == index_order;
-					reverse_order &= requested_order != index_order;
+					const struct key_def *candidate =
+						index->def->key_def;
+					bool fixed_by_equality = false;
+					for (uint32_t part = 0;
+					     part < candidate->part_count;
+					     ++part) {
+						fixed_by_equality |=
+							expr->iColumn ==
+								(int)candidate
+									->parts[part]
+									.fieldno &&
+							has_literal_equality(
+								select->pWhere,
+								source->iCursor,
+								candidate
+									->parts[part]
+									.fieldno,
+								0);
+					}
+					if (fixed_by_equality)
+						continue;
+					uint32_t part_no =
+						first_candidate_part +
+						ordered_part_count;
+					if (part_no >= candidate->part_count) {
+						matches_prefix = false;
+						break;
+					}
+					enum sort_order index_order =
+						candidate->parts[part_no]
+							.sort_order;
+					enum sort_order requested_order =
+						order->a[term].sort_order;
+					if (requested_order == SORT_ORDER_UNDEF)
+						requested_order =
+							SORT_ORDER_ASC;
+					bool invalid_index_order =
+						index_order != SORT_ORDER_ASC &&
+						index_order != SORT_ORDER_DESC;
+					if (invalid_index_order ||
+					    expr == NULL ||
+					    expr->op != TK_COLUMN_REF ||
+					    expr->pLeft != NULL ||
+					    expr->pRight != NULL ||
+					    expr->iTable != source->iCursor ||
+					    expr->iColumn < 0 ||
+					    candidate->parts[part_no].fieldno !=
+						    (uint32_t)expr->iColumn) {
+						matches_prefix = false;
+						break;
+					}
+					natural_order &=
+						requested_order == index_order;
+					reverse_order &=
+						requested_order != index_order;
+					++ordered_part_count;
 				}
 				if (!matches_prefix ||
 				    (!natural_order && !reverse_order))
@@ -305,41 +393,107 @@ sql_select_preflight_table_scan(const struct Select *select,
 			}
 		}
 		uint32_t first_part = UINT32_MAX;
-		for (uint32_t part = 0; part < key_def->part_count; ++part) {
-			if (key_def->parts[part].fieldno ==
-			    (uint32_t)order->a[0].pExpr->iColumn) {
-				first_part = part;
-				break;
+		for (int term = 0;
+		     term < order->nExpr && first_part == UINT32_MAX; ++term) {
+			const struct Expr *expr = order->a[term].pExpr;
+			if (expr == NULL)
+				return SQL_SELECT_PREFLIGHT_SHAPE;
+			for (uint32_t part = 0; part < key_def->part_count;
+			     ++part) {
+				uint32_t fieldno = key_def->parts[part].fieldno;
+				if (expr->iColumn == (int)fieldno &&
+				    !has_literal_equality(select->pWhere,
+							  source->iCursor,
+							  fieldno, 0)) {
+					first_part = part;
+					break;
+				}
 			}
 		}
-		if (first_part == UINT32_MAX ||
-		    (uint32_t)order->nExpr > key_def->part_count - first_part)
-			return SQL_SELECT_PREFLIGHT_SHAPE;
-		bool reverse_walk = false;
-		for (int i = 0; i < order->nExpr; ++i) {
-			const struct Expr *expr = order->a[i].pExpr;
-			enum sort_order direction = order->a[i].sort_order;
-			if (direction == SORT_ORDER_UNDEF)
-				direction = SORT_ORDER_ASC;
-			const struct key_part *part =
-				&key_def->parts[first_part + (uint32_t)i];
-			enum sort_order key_direction = part->sort_order ==
-				SORT_ORDER_DESC ? SORT_ORDER_DESC : SORT_ORDER_ASC;
-			if (i == 0)
-				reverse_walk = direction != key_direction;
-			enum sort_order expected_direction = reverse_walk ?
-				(key_direction == SORT_ORDER_ASC ? SORT_ORDER_DESC :
-				 SORT_ORDER_ASC) : key_direction;
-			if (expr == NULL || ExprHasProperty(expr,
-							EP_TokenOnly | EP_Reduced) ||
-			    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
-			    expr->pRight != NULL || expr->iTable != source->iCursor ||
-			    expr->iColumn < 0 ||
-			    (uint32_t)expr->iColumn !=
-				key_def->parts[first_part + (uint32_t)i].fieldno ||
-			    (direction != SORT_ORDER_ASC && direction != SORT_ORDER_DESC) ||
-			    direction != expected_direction)
-				return SQL_SELECT_PREFLIGHT_SHAPE;
+		if (first_part == UINT32_MAX) {
+			for (int i = 0; i < order->nExpr; ++i) {
+				const struct Expr *expr = order->a[i].pExpr;
+				bool fixed_by_equality = false;
+				if (expr == NULL || expr->op != TK_COLUMN_REF ||
+				    expr->pLeft != NULL ||
+				    expr->pRight != NULL ||
+				    expr->iTable != source->iCursor ||
+				    expr->iColumn < 0)
+					return SQL_SELECT_PREFLIGHT_SHAPE;
+				for (uint32_t part = 0;
+				     part < key_def->part_count; ++part) {
+					uint32_t fieldno =
+						key_def->parts[part].fieldno;
+					fixed_by_equality |=
+						expr->iColumn == (int)fieldno &&
+						has_literal_equality(
+							select->pWhere,
+							source->iCursor,
+							fieldno, 0);
+				}
+				if (!fixed_by_equality)
+					return SQL_SELECT_PREFLIGHT_SHAPE;
+			}
+		} else {
+			bool reverse_walk = false;
+			uint32_t ordered_part_count = 0;
+			for (int i = 0; i < order->nExpr; ++i) {
+				const struct Expr *expr = order->a[i].pExpr;
+				if (expr == NULL)
+					return SQL_SELECT_PREFLIGHT_SHAPE;
+				bool fixed_by_equality = false;
+				for (uint32_t part = 0;
+				     part < key_def->part_count; ++part) {
+					uint32_t fieldno =
+						key_def->parts[part].fieldno;
+					fixed_by_equality |=
+						expr->iColumn == (int)fieldno &&
+						has_literal_equality(
+							select->pWhere,
+							source->iCursor,
+							fieldno, 0);
+				}
+				if (fixed_by_equality)
+					continue;
+				uint32_t part_no =
+					first_part + ordered_part_count;
+				if (part_no >= key_def->part_count)
+					return SQL_SELECT_PREFLIGHT_SHAPE;
+				enum sort_order direction =
+					order->a[i].sort_order;
+				if (direction == SORT_ORDER_UNDEF)
+					direction = SORT_ORDER_ASC;
+				const struct key_part *part =
+					&key_def->parts[part_no];
+				enum sort_order key_direction =
+					part->sort_order == SORT_ORDER_DESC ?
+						SORT_ORDER_DESC :
+						SORT_ORDER_ASC;
+				if (ordered_part_count == 0)
+					reverse_walk =
+						direction != key_direction;
+				enum sort_order expected_direction =
+					reverse_walk ?
+						(key_direction ==
+								 SORT_ORDER_ASC ?
+							 SORT_ORDER_DESC :
+							 SORT_ORDER_ASC) :
+						key_direction;
+				if (expr == NULL ||
+				    ExprHasProperty(expr, EP_TokenOnly |
+								  EP_Reduced) ||
+				    expr->op != TK_COLUMN_REF ||
+				    expr->pLeft != NULL ||
+				    expr->pRight != NULL ||
+				    expr->iTable != source->iCursor ||
+				    expr->iColumn < 0 ||
+				    (uint32_t)expr->iColumn != part->fieldno ||
+				    (direction != SORT_ORDER_ASC &&
+				     direction != SORT_ORDER_DESC) ||
+				    direction != expected_direction)
+					return SQL_SELECT_PREFLIGHT_SHAPE;
+				++ordered_part_count;
+			}
 		}
 	}
 	if (select->pWhere != NULL) {

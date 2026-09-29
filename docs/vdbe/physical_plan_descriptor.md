@@ -358,7 +358,10 @@ guards both the equality prefix and the bounded endpoint. A one-sided range
 walk is accepted only when its effective SQL direction proceeds into the
 qualifying interval. An `ORDER BY` over a contiguous key prefix beginning at
 the ranged suffix is supported when every term matches the available
-traversal. Incomplete prefixes,
+traversal. It may also include equality-fixed leading key columns; these
+constant terms are omitted from the descriptor's produced-order list, while
+the varying suffix terms must still match one forward or reverse index walk.
+Incomplete prefixes,
 unsupported key types, and ranges that skip an index part remain on legacy
 codegen. Focused memtx/Vinyl coverage checks bounded and upper-only suffix
 ranges, duplicate prefix matches, suffix ordering, and both ascending and
@@ -367,6 +370,10 @@ bounded ascending and descending multi-term suffix order with LIMIT/OFFSET.
 A three-part `(INTEGER, UNSIGNED,
 INTEGER)` index fixture also exercises two equality-prefix values before the
 ranged suffix. The VDBE unit pins seek arity and prefix/range guards.
+An `ORDER BY` containing an equality-fixed leading term before a
+reverse-ordered ranged suffix is accepted by preflight and physical planning;
+the SQL regression checks the selected index and exact result order on memtx
+and Vinyl.
 
 #### Secondary-index ordered full scan
 

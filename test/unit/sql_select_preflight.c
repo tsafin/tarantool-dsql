@@ -9,10 +9,16 @@
 #include "box/space.h"
 #include "unit.h"
 
+int
+sqlExprIsConstant(Expr *expr)
+{
+	return expr != NULL && expr->op == TK_INTEGER;
+}
+
 static void
 test_preflight(void)
 {
-	plan(22);
+	plan(24);
 	header();
 	struct space_def *def = calloc(1, sizeof(*def) + sizeof("preflight_t"));
 	strcpy(def->name, "preflight_t");
@@ -23,10 +29,26 @@ test_preflight(void)
 	key_def->part_count = 2;
 	key_def->parts[0].fieldno = 0;
 	key_def->parts[1].fieldno = 2;
-	struct index_def index_def = {.type = TREE, .key_def = key_def};
+	struct index_def index_def = {.iid = 0, .type = TREE,
+				      .key_def = key_def};
 	struct index index = {.def = &index_def};
-	struct index *indexes[] = {&index};
-	struct space space = {.def = def, .index_map = indexes};
+	struct key_def *secondary_key_def = calloc(1, sizeof(*secondary_key_def) +
+						 3 * sizeof(key_def->parts[0]));
+	secondary_key_def->part_count = 3;
+	secondary_key_def->parts[0].fieldno = 0;
+	secondary_key_def->parts[0].sort_order = SORT_ORDER_ASC;
+	secondary_key_def->parts[1].fieldno = 1;
+	secondary_key_def->parts[1].sort_order = SORT_ORDER_ASC;
+	secondary_key_def->parts[2].fieldno = 2;
+	secondary_key_def->parts[2].sort_order = SORT_ORDER_ASC;
+	struct index_def secondary_index_def = {
+		.iid = 1, .type = TREE, .key_def = secondary_key_def,
+	};
+	struct index secondary_index = {.def = &secondary_index_def};
+	struct index *indexes[] = {&index, &secondary_index};
+	struct space space = {
+		.def = def, .index_map = indexes, .index_count = 2,
+	};
 	struct SrcList source = {.nSrc = 1};
 	source.a[0].space = &space;
 	source.a[0].iCursor = 4;
@@ -139,7 +161,7 @@ test_preflight(void)
 	order_expr.iColumn = 2;
 	order_expr2.iColumn = 0;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_SHAPE,
+		   SQL_SELECT_PREFLIGHT_SHAPE,
 	   "non-prefix composite primary-key ordering is rejected");
 	order_expr.iColumn = 0;
 	order_expr2.iColumn = 2;
@@ -147,33 +169,69 @@ test_preflight(void)
 	order_list.a = &order_item;
 	order_expr.iColumn = 1;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_SHAPE,
+		   SQL_SELECT_PREFLIGHT_SHAPE,
 	   "non-primary ordering is rejected before physical attempt");
+	struct Expr equality_column = {
+		.op = TK_COLUMN_REF,
+		.iTable = 4,
+		.iColumn = 0,
+	};
+	struct Expr equality_value = { .op = TK_INTEGER };
+	struct Expr equality = {
+		.op = TK_EQ,
+		.pLeft = &equality_column,
+		.pRight = &equality_value,
+	};
 	order_expr.iColumn = 0;
+	order_expr2.iColumn = 1;
+	struct Expr third_order_expr = {
+		.op = TK_COLUMN_REF,
+		.iTable = 4,
+		.iColumn = 2,
+	};
+	struct ExprList_item full_suffix_order_items[] = {
+		{ .pExpr = &order_expr, .sort_order = SORT_ORDER_ASC },
+		{ .pExpr = &order_expr2, .sort_order = SORT_ORDER_DESC },
+		{ .pExpr = &third_order_expr, .sort_order = SORT_ORDER_DESC },
+	};
+	struct ExprList full_suffix_order = {
+		.nExpr = 3,
+		.a = full_suffix_order_items,
+	};
+	select.pWhere = &equality;
+	select.pOrderBy = &full_suffix_order;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+		   SQL_SELECT_PREFLIGHT_OK,
+	   "equality-fixed ORDER BY prefix is ignored for reverse suffix order");
+	full_suffix_order_items[2].sort_order = SORT_ORDER_ASC;
+	ok(sql_select_preflight_table_scan(&select, &dest) ==
+		   SQL_SELECT_PREFLIGHT_SHAPE,
+	   "varying suffix terms must match one index walk despite fixed terms");
+	select.pWhere = NULL;
 	select.pOrderBy = NULL;
 	expr.op = TK_PLUS;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_PROJECTION,
+		   SQL_SELECT_PREFLIGHT_PROJECTION,
 	   "computed projection is rejected explicitly");
 	expr.op = TK_COLUMN_REF;
 	expr.iTable = 5;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_COLUMN_BINDING,
+		   SQL_SELECT_PREFLIGHT_COLUMN_BINDING,
 	   "projection bound to another cursor is rejected");
 	expr.iTable = 4;
 	expr.iColumn = 3;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_COLUMN_BINDING,
+		   SQL_SELECT_PREFLIGHT_COLUMN_BINDING,
 	   "out-of-range projection column is rejected");
 	expr.iColumn = 2;
 	source.a[0].fg.notIndexed = true;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_SHAPE,
+		   SQL_SELECT_PREFLIGHT_SHAPE,
 	   "explicit access hint is rejected");
 	source.a[0].fg.notIndexed = false;
 	dest.pOrderBy = &projection;
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_DESTINATION,
+		   SQL_SELECT_PREFLIGHT_DESTINATION,
 	   "ordered SELECT is rejected");
 	dest.pOrderBy = NULL;
 	space.def->opts.is_view = true;
@@ -182,15 +240,16 @@ test_preflight(void)
 	memcpy(&source_before, &source, sizeof(source));
 	memcpy(&expr_before, &expr, sizeof(expr));
 	ok(sql_select_preflight_table_scan(&select, &dest) ==
-	   SQL_SELECT_PREFLIGHT_RELATION,
+		   SQL_SELECT_PREFLIGHT_RELATION,
 	   "view source is rejected as non-base relation");
 	ok(memcmp(&select, &select_before, sizeof(select)) == 0 &&
-	   memcmp(&dest, &dest_before, sizeof(dest)) == 0 &&
-	   memcmp(&source, &source_before, sizeof(source)) == 0 &&
-	   memcmp(&expr, &expr_before, sizeof(expr)) == 0,
+		   memcmp(&dest, &dest_before, sizeof(dest)) == 0 &&
+		   memcmp(&source, &source_before, sizeof(source)) == 0 &&
+		   memcmp(&expr, &expr_before, sizeof(expr)) == 0,
 	   "rejected preflight also leaves all caller inputs unchanged");
 	free(def);
 	free(key_def);
+	free(secondary_key_def);
 	footer();
 	check_plan();
 }

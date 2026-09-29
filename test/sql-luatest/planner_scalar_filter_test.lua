@@ -180,6 +180,17 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected_order_desc = true,
                 },
                 {
+                    sql = ('SELECT x, y, z, tenant, id FROM %s WHERE x = 7 ' ..
+                           'AND y >= 10 AND y < 11 ' ..
+                           'ORDER BY x ASC, y DESC, z DESC')
+                          :format(secondary_tertiary_name),
+                    expected = {{7, 10, 3, 1, 2}, {7, 10, 2, 2, 1},
+                                {7, 10, 1, 1, 1}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_order_columns = {2, 3},
+                    expected_order_desc = true,
+                },
+                {
                     sql = ('SELECT tenant, id FROM %s WHERE x = 7 ' ..
                            'AND y >= 10 AND y < 11 ORDER BY y ASC')
                           :format(secondary_name),
