@@ -103,6 +103,41 @@ g.test_non_primary_null_filters_off_on_off = function()
                     unordered = true,
                 },
                 {
+                    sql = ('SELECT x, tenant, id FROM %s WHERE x >= 7 ' ..
+                           'ORDER BY x ASC'):format(secondary_name),
+                    expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, tenant, id FROM %s WHERE x <= 7 ' ..
+                           'ORDER BY x DESC'):format(secondary_name),
+                    expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, tenant, id FROM %s WHERE x >= 7 ' ..
+                           'AND x < 9 ORDER BY x ASC'):format(secondary_name),
+                    expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, tenant, id FROM %s WHERE x >= 7 ' ..
+                           'AND x < 9 ORDER BY x DESC'):format(secondary_name),
+                    expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FILTER',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    unordered = true,
+                },
+                {
                     sql = ('SELECT x, tenant, id FROM %s ORDER BY x ASC')
                           :format(secondary_name),
                     expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},

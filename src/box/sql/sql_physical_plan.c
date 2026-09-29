@@ -1352,12 +1352,39 @@ predicate_parsed:
 		};
 	}
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
+	bool secondary_range_order = false;
+	if (has_secondary_range_scan && select->pOrderBy != NULL &&
+	    select->pOrderBy->nExpr == 1 &&
+	    select->pOrderBy->a[0].pExpr != NULL &&
+	    select->pOrderBy->a[0].pExpr->op == TK_COLUMN_REF &&
+	    select->pOrderBy->a[0].pExpr->pLeft == NULL &&
+	    select->pOrderBy->a[0].pExpr->pRight == NULL &&
+	    select->pOrderBy->a[0].pExpr->iTable == source->iCursor &&
+	    select->pOrderBy->a[0].pExpr->iColumn >= 0 &&
+	    (uint32_t)select->pOrderBy->a[0].pExpr->iColumn ==
+		secondary_range_key_column && source->space->index_map != NULL) {
+		for (uint32_t index_no = 1;
+		     index_no < source->space->index_count; ++index_no) {
+			const struct index *index = source->space->index_map[index_no];
+			if (index != NULL && index->def != NULL &&
+			    index->def->iid == secondary_range_index_id &&
+			    index->def->type == TREE && index->def->key_def != NULL &&
+			    index->def->key_def->part_count > 0 &&
+			    index->def->key_def->parts[0].sort_order == SORT_ORDER_ASC &&
+			    index->def->key_def->parts[0].fieldno ==
+				secondary_range_key_column) {
+				secondary_range_order = true;
+				break;
+			}
+		}
+	}
 	bool use_secondary_equality_scan = has_secondary_equality_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
 		select->pOrderBy == NULL;
 	bool use_secondary_range_scan = has_secondary_range_scan &&
 		!has_secondary_equality_scan && !has_point_key && !has_range_key &&
-		!has_prefix_scan && select->pOrderBy == NULL;
+		!has_prefix_scan &&
+		(select->pOrderBy == NULL || secondary_range_order);
 	bool use_secondary_full_scan = has_secondary_full_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
 		!has_secondary_equality_scan && select->pWhere == NULL;
@@ -1475,6 +1502,18 @@ predicate_parsed:
 				}
 			}
 		}
+		if (secondary_range_order) {
+			for (uint32_t index_no = 1;
+			     index_no < source->space->index_count; ++index_no) {
+				const struct index *index =
+					source->space->index_map[index_no];
+				if (index != NULL && index->def != NULL &&
+				    index->def->iid == secondary_range_index_id) {
+					key_def = index->def->key_def;
+					break;
+				}
+			}
+		}
 		if (order_by->nExpr <= 0 ||
 		    (uint32_t)order_by->nExpr > key_def->part_count) {
 			if (reason != NULL)
@@ -1562,6 +1601,11 @@ predicate_parsed:
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
+		}
+		if (use_secondary_range_scan && has_range_end_key &&
+		    direction == SQL_PLAN_DESC) {
+			free(order_terms);
+			goto invalid_predicate;
 		}
 		order_term_count = (size_t)order_by->nExpr;
 	}

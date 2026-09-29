@@ -965,7 +965,13 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		 input->access.has_integer_range_key ==
 		 input->access.has_unsigned_range_key ||
 		 input->access.has_unsigned_range_key != index->key_unsigned ||
-		 input->access.bound_count != (bounded_range ? 2 : 1));
+		 input->access.bound_count != (bounded_range ? 2 : 1) ||
+		 (input->access.produced_order_count != 0 &&
+		  (input->access.produced_order_count != 1 ||
+		   input->access.produced_order == NULL ||
+		   input->access.produced_order[0].column != index->key_column ||
+		   input->access.produced_order[0].direction !=
+			input->access.direction)));
 	bool invalid_full = full &&
 		(index->key_part_count == 0 || index->key_columns == NULL ||
 		 index->key_parts_descending == NULL ||

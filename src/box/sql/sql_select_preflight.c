@@ -236,12 +236,11 @@ sql_select_preflight_table_scan(const struct Select *select,
 			return SQL_SELECT_PREFLIGHT_SHAPE;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
-		/* With no predicate, a leading prefix of an ascending TREE secondary
-		 * index is also a valid full-scan order. Secondary traversal is not
-		 * combined with filters or non-prefix orderings.
+		/* A leading prefix of an ascending TREE secondary index may provide
+		 * order for an unordered full scan or a compatible leading-key range.
+		 * The physical producer validates which access actually applies.
 		 */
-		if (select->pWhere == NULL &&
-		    order->a[0].pExpr->iTable == source->iCursor) {
+		if (order->a[0].pExpr->iTable == source->iCursor) {
 			for (uint32_t index_no = 1;
 			     index_no < source->space->index_count; ++index_no) {
 				const struct index *index =
