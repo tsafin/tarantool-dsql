@@ -14,8 +14,12 @@ end)
 
 g.test_bare_and_named_analyze_publish_atomically = function()
     local result = g.server:exec(function()
-        local adapter = package.loaded.sql_stats_snapshot_test
-        if adapter == nil then
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
             return {test_wrapper_unavailable = true}
         end
         adapter.clear()
@@ -145,8 +149,12 @@ end
 
 g.test_index_request_budget_failure_preserves_published_snapshot = function()
     local result = g.server:exec(function()
-        local adapter = package.loaded.sql_stats_snapshot_test
-        if adapter == nil then
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
             return {test_wrapper_unavailable = true}
         end
         adapter.clear()
