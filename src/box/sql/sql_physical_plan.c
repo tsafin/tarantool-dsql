@@ -1634,11 +1634,6 @@ predicate_parsed:
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
 			return NULL;
 		}
-		if (use_secondary_range_scan && has_range_end_key &&
-		    direction == SQL_PLAN_DESC) {
-			free(order_terms);
-			goto invalid_predicate;
-		}
 		order_term_count = (size_t)order_by->nExpr;
 	}
 	/* Secondary full-scan eligibility is discovered while resolving ORDER BY

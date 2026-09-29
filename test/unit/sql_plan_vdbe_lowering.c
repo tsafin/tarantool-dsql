@@ -177,7 +177,8 @@ new_composite_secondary_equality_descriptor(void)
 }
 
 static struct sql_plan_descriptor *
-new_secondary_range_descriptor(bool bounded)
+new_secondary_range_descriptor(bool bounded,
+			       enum sql_plan_direction direction)
 {
 	static const uint32_t columns[] = {0};
 	struct sql_plan_bound bounds[2] = {
@@ -206,7 +207,7 @@ new_secondary_range_descriptor(bool bounded)
 			.integer_range_end_key = 10,
 			.integer_range_end_op = SQL_PLAN_LT,
 			.range_key_column = 3,
-			.direction = bounded ? SQL_PLAN_ASC : SQL_PLAN_DESC,
+			.direction = direction,
 		},
 		.projection_columns = columns,
 		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
@@ -881,7 +882,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(71);
+	plan(72);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -942,9 +943,11 @@ main(void)
 	struct sql_plan_descriptor *composite_secondary_equality_desc =
 		new_composite_secondary_equality_descriptor();
 	struct sql_plan_descriptor *secondary_bounded_range_desc =
-		new_secondary_range_descriptor(true);
+		new_secondary_range_descriptor(true, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *secondary_upper_range_desc =
-		new_secondary_range_descriptor(false);
+		new_secondary_range_descriptor(false, SQL_PLAN_DESC);
+	struct sql_plan_descriptor *secondary_bounded_reverse_range_desc =
+		new_secondary_range_descriptor(true, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *secondary_full_asc_desc =
 		new_secondary_full_scan_descriptor(SQL_PLAN_ASC);
 	struct sql_plan_descriptor *secondary_full_desc_desc =
@@ -1389,6 +1392,19 @@ main(void)
 	   vdbe.aOp[before_secondary_upper_range + 3].opcode == OP_IsNull &&
 	   vdbe.aOp[before_secondary_upper_range + 9].opcode == OP_Prev,
 	   "upper-only secondary range scans backward and terminates at nullable keys");
+	int before_secondary_bounded_reverse = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_bounded_reverse_range_desc, &vdbe, 4, 5,
+		&secondary_index, 20, NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_bounded_reverse].opcode == OP_Integer &&
+	   vdbe.aOp[before_secondary_bounded_reverse].p1 == 10 &&
+	   vdbe.aOp[before_secondary_bounded_reverse + 1].opcode == OP_Integer &&
+	   vdbe.aOp[before_secondary_bounded_reverse + 1].p1 == 7 &&
+	   vdbe.aOp[before_secondary_bounded_reverse + 2].opcode == OP_SeekLT &&
+	   vdbe.aOp[before_secondary_bounded_reverse + 4].opcode == OP_IsNull &&
+	   vdbe.aOp[before_secondary_bounded_reverse + 5].opcode == OP_Gt &&
+	   vdbe.aOp[before_secondary_bounded_reverse + 11].opcode == OP_Prev,
+	   "descending bounded secondary range seeks upper, stops below lower, and terminates at NULL");
 	int before_secondary_full_asc = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		secondary_full_asc_desc, &vdbe, 4, 5, &secondary_full_index, 20,
