@@ -1088,9 +1088,10 @@ the `where.c` selectivity adapter wait for that interface.
   scales its SpaceSaving estimate/error interval to the index tuple
   population; an absent candidate stays explicitly unknown. `where.c` now
   consumes that interval midpoint for literal equality on the leading
-  INTEGER/UNSIGNED part of a non-unique index. Parameters, computed constants,
-  non-leading parts, and unsupported types preserve legacy estimates. Generic
-  selectivity-API and histogram consumption remain open. The
+  INTEGER/UNSIGNED part of a non-unique index, plus binary-collated STRING
+  literals. Parameters, computed constants, non-leading parts, and unsupported
+  types preserve legacy estimates. Generic selectivity-API and histogram
+  consumption remain open. The
   candidate handoff also exposed and fixed a SpaceSaving eviction-error bug:
   replacement now resets error to the evicted counter floor instead of adding
   the evicted entry's stale error; a repeated-eviction regression checks every

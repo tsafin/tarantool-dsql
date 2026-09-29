@@ -449,10 +449,10 @@ and shared-read-view collectors may opt in with `mcv_capacity` and
 per-part candidate-copy arrays are charged in aggregate staging preflight.
 This remains volatile collection only: a stale-checked snapshot lookup scales
 tracked candidate/error bounds to the index population, and `where.c` uses
-their midpoint for literal equality on the leading INTEGER/UNSIGNED part of a
-non-unique index. Unknown candidates and parameters/computed constants retain
-the legacy estimate; broader selectivity/histogram and persistence integration
-are not implemented.
+their midpoint for literal equality on the leading INTEGER/UNSIGNED part or a
+binary-collated STRING part of a non-unique index. Unknown candidates and
+parameters/computed constants retain the legacy estimate; broader
+selectivity/histogram and persistence integration are not implemented.
 
 The transaction context now provides
 `sql_stats_tx_context_finish_and_publish()`. It matches the expected
