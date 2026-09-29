@@ -728,7 +728,7 @@ g.test_composite_primary_key_multi_part_prefix_scan = function()
     end)
 end
 
-g.test_one_sided_range_wrong_order_falls_back = function()
+g.test_one_sided_range_order_supported = function()
     g.server:exec(function()
         for _, engine in ipairs({'memtx', 'vinyl'}) do
             local name = 'planner_flag_range_direction_' .. engine
@@ -751,15 +751,13 @@ g.test_one_sided_range_wrong_order_falls_back = function()
             local function capture(enabled)
                 box.execute(('SET SESSION "sql_new_planner_single_table" = %s')
                             :format(enabled and 'true' or 'false'))
-                local rows = {}
-                for i, item in ipairs(queries) do
-                    local explain = box.execute(
-                        [[EXPLAIN (planner = 'summary') ]] .. item[1])
-                    if enabled then
-                        t.assert_equals(explain.rows[1][3], 'fallback')
-                        t.assert_equals(explain.rows[2][3],
-                                        'UNSUPPORTED_FILTER')
-                    else
+				local rows = {}
+				for i, item in ipairs(queries) do
+					local explain = box.execute(
+						[[EXPLAIN (planner = 'summary') ]] .. item[1])
+					if enabled then
+						t.assert_equals(explain.rows[1][3], 'new_planner')
+					else
                         t.assert_equals(explain.rows[1][3], 'fallback')
                         t.assert_equals(explain.rows[2][3],
                                         'UNSUPPORTED_EXPRESSION')
