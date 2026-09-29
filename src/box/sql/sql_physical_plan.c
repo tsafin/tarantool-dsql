@@ -1485,7 +1485,11 @@ predicate_parsed:
 		const struct ExprList *order_by = select->pOrderBy;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
-		if (select->pWhere == NULL && order_by->nExpr > 0) {
+		bool can_use_secondary_full_scan = select->pWhere == NULL ||
+			(!has_point_key && !has_range_key && !has_prefix_scan &&
+			 !has_prefix_range_scan && !has_secondary_equality_scan &&
+			 !has_secondary_range_scan);
+		if (can_use_secondary_full_scan && order_by->nExpr > 0) {
 			const struct Expr *order_expr = order_by->a[0].pExpr;
 			if (order_expr != NULL && order_expr->op == TK_COLUMN_REF &&
 			    order_expr->pLeft == NULL && order_expr->pRight == NULL &&
@@ -1641,7 +1645,8 @@ predicate_parsed:
 	 */
 	use_secondary_full_scan = has_secondary_full_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
-		!has_secondary_equality_scan && select->pWhere == NULL;
+		!has_prefix_range_scan && !has_secondary_equality_scan &&
+		!has_secondary_range_scan;
 	uint32_t *columns = calloc(select->pEList->nExpr, sizeof(*columns));
 	uint32_t *projection_expr_refs = calloc(select->pEList->nExpr,
 						 sizeof(*projection_expr_refs));
