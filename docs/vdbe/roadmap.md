@@ -2398,7 +2398,9 @@ DML, triggers, subprograms, non-deterministic functions.
   checkpoint, new planner implementation, M3.5 classification closure, and
   M3.7 remained open.
   *parallel: yes*.
-- [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
+- [x] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — accepted for
+  the current production route scope. The flag is default-off and session-local;
+  every executable SELECT path in the current bounded planner is gated.
   A default-off session setting now gates the narrow direct-column table scan,
   sole INTEGER/UNSIGNED primary-key point lookups, one-sided primary-key
   literal ranges, intersected lower/upper bounds on one primary-key part, and
@@ -2410,8 +2412,9 @@ DML, triggers, subprograms, non-deterministic functions.
   physical descriptor creation and VDBE lowering succeed; tested physical
   rejection (including non-primary ordering) and recoverable codegen rejection
   retain legacy codegen with a reason. The
-  setting does not yet govern general physical candidate selection or other
-  supported query classes. Default-off behavior and off/on/off summary route
+  General physical candidate selection is not yet wired into production
+  (M3.4 scope); this does not leave any currently executable new-planner route
+  outside the flag. Default-off behavior and off/on/off summary route
   checks for scan and point routes pass in the focused memtx/Vinyl
   regression. A two-sided INTEGER primary-key range now also has explicit
   flag-on `new_planner` and flag-off `fallback` route assertions plus result
@@ -2717,9 +2720,9 @@ DML, triggers, subprograms, non-deterministic functions.
   Raw hard diffs are limited to 24/23 EXPLAIN-row-only changes (on vs off)
   and 5/4 EXPLAIN-row-only changes (off repeat) for memtx/Vinyl respectively.
   The report is `/dev/shm/llvm-flag-review.0e507/report.json`; it is temporary
-  validation output, not a committed corpus artifact. M3.7 acceptance remains
-  open until M3.5's producer gate and the remaining feature-flag acceptance
-  criteria are closed. Follow-up fixes `3900b0c62a` and `aad0ae0440` came from
+  validation output, not a committed corpus artifact. At that report's source
+  M3.7 acceptance remained open pending M3.5's producer gate and the remaining
+  feature-flag acceptance criteria. Follow-up fixes `3900b0c62a` and `aad0ae0440` came from
   a cross-version runtime probe: LLVM 16 does not define the PreserveNone
   calling convention, and forcing its numeric value produced a JIT that
   crashed during handler execution. For LLVM before 19, CMake now disables
@@ -2730,6 +2733,20 @@ DML, triggers, subprograms, non-deterministic functions.
   the explicit cross-version C ABI; and Clang 19 / LLVM 19 rebuilds and passes
   with PreserveNone. The full LLVM corpus audit above remains specifically
   LLVM 19 evidence; no LLVM 16 full-corpus claim is made.
+
+  **M3.7 current-source acceptance (2026-09-29).** The default-off,
+  session-local flag now gates every executable new-planner route in the
+  bounded production implementation. The 12-case `planner_flag_parity` suite
+  passes on current Debug and explicitly verifies fresh-session default-off,
+  independent-connection isolation, HASH scan opt-in, typed/composite key
+  routes, and off/on/off row parity; `seq_scan_test` and the composite-order
+  TAP regression also pass. Reviewed SQL, SQL-TAP, and SQL-luatest selections
+  pass off/on/off semantic and off-repeat parity in generated, CnP, and LLVM
+  modes with zero unreviewed route transitions. The explicit `iproto` observer
+  and native direct-VALUES exclusions remain as documented under M3.5; both
+  queries are included in generated-mode coverage. This closes the flag gate
+  for the routes that exist today, not general physical candidate selection,
+  secondary-index execution, or the broader operator scope tracked by M3.4.
   *parallel: no*.
 
 ---
