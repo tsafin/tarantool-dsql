@@ -1311,6 +1311,18 @@ DML, triggers, subprograms, non-deterministic functions.
   evaluate UNKNOWN and are rejected) and an OR of two IN leaves. It passes on
   memtx and Vinyl; generated/CnP/LLVM/repeat captures compare exactly at 655
   snapshots per engine.
+  **Same-source column-comparison residual extension (2026-09-29):** direct
+  `=`, `<>`, `<`, `<=`, `>`, and `>=` comparisons between two resolved columns
+  of the same single-table source now lower as residual expressions, not key
+  bounds. The original expression bytecode preserves SQL NULL behavior; the
+  existing bounded boolean grammar admits these comparisons as leaves under
+  AND/OR/NOT, including conjunction with primary-key access bounds. Column
+  references from other sources, computed operands, and explicit collation
+  expressions remain fail-closed. The off/on/off regression covers integer and
+  text comparisons, NULL operands, boolean OR, and a primary-key point plus a
+  residual comparison; it passes on memtx and Vinyl under generated, CnP, and
+  LLVM dispatch. This extends residual coverage only; broader access-path and
+  expression support remain open.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit
