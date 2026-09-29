@@ -1314,8 +1314,12 @@ DML, triggers, subprograms, non-deterministic functions.
   lookup (72 assertions total). Off/on/off result coverage also verifies
   LIMIT/OFFSET on full scans and ascending/descending range traversals, with
   selected-index plans. Nullable-index fixtures verify NULL placement for
-  ascending and descending full traversal. Filters, non-prefix ordering, and
-  descending index definitions remain unsupported. This is a bounded M3.4
+  ascending and descending full traversal. A direct equality residual can
+  accompany ordered full traversal when no more selective key access path
+  applies; the executor resolves the base row before filtering, and the
+  focused scalar-filter fixture checks the selected secondary index and result.
+  Arbitrary predicates, non-prefix ordering, and descending index definitions
+  remain unsupported. This is a bounded M3.4
   increment, not closure.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
