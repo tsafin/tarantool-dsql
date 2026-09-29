@@ -995,7 +995,7 @@ format approval is implied.
   volatile snapshot adapter and records the matching `select-output`
   estimate/actual cardinality with source, binary, data, and per-configuration
   statistics provenance. The local pilot at
-  `/tmp/e1-s1pilot-verified-20260930.jsonl` contains 12 rows (warmup plus five
+  `/tmp/e1-s1pilot-head-20260930.jsonl` contains 12 rows (warmup plus five
   measured executions for each state); q-error is 3.33 without the snapshot
   and 1.0 with it. The companion report shows all elapsed times at the 1 us
   floor, so these values do not constitute latency evidence. Reproduce with the command

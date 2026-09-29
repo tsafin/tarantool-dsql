@@ -90,6 +90,8 @@ planner-time increase require review before collecting decision-grade results.
 snapshot adapter, not the production ANALYZE collector or reviewed M0
 analytical corpus. Reconfigure and build `tarantool` and
 `sql_stats_snapshot_test` from a clean SQL/test source tree, then capture:
+The runner refuses dirty SQL/test sources and verifies the binary's embedded
+revision matches `HEAD` before recording its source commit and SHA-256.
 
 ```sh
 cmake -S . -B build-jit-clang19-debug
