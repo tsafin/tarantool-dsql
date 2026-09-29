@@ -7,6 +7,7 @@
 #include "box/sql.h"
 #include "box/sql/sql_stats_snapshot.h"
 #include "box/sql/sqlInt.h"
+#include "box/sql/vdbeInt.h"
 
 static int
 lbox_install_snapshot(lua_State *L)
@@ -17,6 +18,8 @@ lbox_install_snapshot(lua_State *L)
 	uint64_t index_rows = luaL_checkinteger(L, 4);
 	uint64_t distinct_prefix = luaL_checkinteger(L, 5);
 	bool stale = lua_toboolean(L, 6);
+	uint64_t catalog_version = lua_isnoneornil(L, 7) ? 1 :
+		luaL_checkinteger(L, 7);
 	struct sql_stats_index_input index = {
 		.index_id = index_id,
 		.tuple_count = index_rows,
@@ -48,11 +51,48 @@ lbox_install_snapshot(lua_State *L)
 	if (stale && schema_version > 0)
 		schema_version--;
 	struct sql_stats_snapshot *snapshot = sql_stats_snapshot_new(
-		1, schema_version, &relation, 1, 64 * 1024);
+		catalog_version, schema_version, &relation, 1, 64 * 1024);
 	if (snapshot == NULL)
 		return luaL_error(L, "failed to create SQL stats test snapshot");
 	sql_set_stats_snapshot(snapshot);
 	sql_stats_snapshot_release(snapshot);
+	return 0;
+}
+
+static int
+lbox_prepare_snapshot_stmt(lua_State *L)
+{
+	const char *sql = luaL_checkstring(L, 1);
+	struct Vdbe *stmt = NULL;
+	const char *tail = NULL;
+	if (sql_stmt_compile(sql, -1, NULL, &stmt, &tail, true) != 0 ||
+	    stmt == NULL)
+		return luaL_error(L, "failed to compile SQL stats ownership fixture");
+	lua_pushlightuserdata(L, stmt);
+	return 1;
+}
+
+static int
+lbox_stmt_snapshot_catalog_version(lua_State *L)
+{
+	struct Vdbe *stmt = lua_touserdata(L, 1);
+	if (stmt == NULL)
+		return luaL_error(L, "invalid SQL statement handle");
+	if (stmt->stats_snapshot == NULL) {
+		lua_pushnil(L);
+		return 1;
+	}
+	lua_pushnumber(L, sql_stats_snapshot_catalog_version(stmt->stats_snapshot));
+	return 1;
+}
+
+static int
+lbox_delete_snapshot_stmt(lua_State *L)
+{
+	struct Vdbe *stmt = lua_touserdata(L, 1);
+	if (stmt == NULL)
+		return luaL_error(L, "invalid SQL statement handle");
+	sqlVdbeDelete(stmt);
 	return 0;
 }
 
@@ -72,9 +112,11 @@ lbox_snapshot_state(lua_State *L)
 		lua_pushnil(L);
 		return 1;
 	}
-	lua_createtable(L, 0, 2);
+	lua_createtable(L, 0, 3);
 	lua_pushinteger(L, sql_stats_snapshot_relation_count(snapshot));
 	lua_setfield(L, -2, "relation_count");
+	lua_pushnumber(L, sql_stats_snapshot_catalog_version(snapshot));
+	lua_setfield(L, -2, "catalog_version");
 	lua_newtable(L);
 	size_t count = sql_stats_snapshot_relation_count(snapshot);
 	for (size_t i = 0; i < count; i++) {
@@ -121,6 +163,9 @@ luaopen_sql_stats_snapshot_test(lua_State *L)
 		{"clear", lbox_clear_snapshot},
 		{"state", lbox_snapshot_state},
 		{"estimates", lbox_estimates},
+		{"prepare", lbox_prepare_snapshot_stmt},
+		{"stmt_catalog_version", lbox_stmt_snapshot_catalog_version},
+		{"delete_stmt", lbox_delete_snapshot_stmt},
 		{NULL, NULL},
 	};
 	luaL_register(L, "sql_stats_snapshot_test", methods);

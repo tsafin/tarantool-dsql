@@ -945,12 +945,17 @@ format approval is implied.
   fixture, the measured equality estimate also lowers q-error against the
   actual returned-row count relative to the legacy estimate. Replacing the
   snapshot also expires cached VDBEs so the same SQL text is recompiled using
-  the new estimates. This closes
-  planner-consumption validation only: no collection or SQL preparation path
-  populates the provider, prepared statements do not own their own snapshot
-  references, and estimates are not yet measured against actual SQL-corpus
-  cardinalities. *parallel: no* (touches
-  `where.c` integration surface).
+  the new estimates. Every VDBE now retains the immutable snapshot generation
+  present at VDBE creation and releases it with VDBE destruction; a reprepare
+  receives the then-current generation. A TEST_BUILD-only adapter compiles
+  statements against catalog generations 101 and 202, replaces the installed
+  provider between prepares, and verifies the older statement still owns
+  generation 101 while the new statement owns 202. The focused runtime test
+  passes. This establishes statement-lifetime ownership, but the estimator
+  still reads the installed provider during compilation rather than an
+  explicit VDBE-pinned accessor; no collection path populates the provider,
+  and estimates are not yet measured against actual SQL-corpus cardinalities.
+  *parallel: no* (touches `where.c` integration surface).
 - [ ] **S1.8** Re-enable disabled `analyze*.test.lua` tests, validate they
   pass. The volatile execution contract is now implemented under S1.2, but
   these compatibility suites also assert legacy `_sql_stat1` / `_sql_stat4`

@@ -284,6 +284,51 @@ g.test_snapshot_estimate_adapter = function()
     t.assert_equals(res.rows, {{1}, {2}, {3}})
 end
 
+g.test_prepared_statement_retains_stats_generation = function()
+    local res = g.server:exec(function()
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
+            return {test_wrapper_unavailable = true}
+        end
+        adapter.clear()
+        box.execute([[CREATE TABLE sql_stats_stmt_owner_t
+                      (id INT PRIMARY KEY);]])
+        local space = box.space.sql_stats_stmt_owner_t
+        adapter.install(space.id, space.index[0].id, 32, 32, 0, false, 101)
+        local old_stmt = adapter.prepare(
+            'SELECT id FROM sql_stats_stmt_owner_t WHERE id = 1')
+        local old_generation = adapter.stmt_catalog_version(old_stmt)
+        adapter.install(space.id, space.index[0].id, 64, 64, 0, false, 202)
+        local retained_generation = adapter.stmt_catalog_version(old_stmt)
+        local installed_generation = adapter.state().catalog_version
+        local new_stmt = adapter.prepare(
+            'SELECT id FROM sql_stats_stmt_owner_t WHERE id = 1')
+        local new_generation = adapter.stmt_catalog_version(new_stmt)
+        adapter.delete_stmt(old_stmt)
+        adapter.delete_stmt(new_stmt)
+        adapter.clear()
+        box.execute([[DROP TABLE sql_stats_stmt_owner_t;]])
+        return {
+            old_generation = old_generation,
+            retained_generation = retained_generation,
+            installed_generation = installed_generation,
+            new_generation = new_generation,
+        }
+    end)
+
+    if res.test_wrapper_unavailable then
+        t.skip('SQL stats live wrapper requires a TEST_BUILD server')
+    end
+    t.assert_equals(res.old_generation, 101)
+    t.assert_equals(res.retained_generation, 101)
+    t.assert_equals(res.installed_generation, 202)
+    t.assert_equals(res.new_generation, 202)
+end
+
 g.test_transaction_sampler_memtx_and_vinyl = function()
     local res = g.server:exec(function()
         local sampler = package.loaded.sql_stats_tx_context_test

@@ -49,6 +49,7 @@
 typedef struct VdbeOp Op;
 
 struct func;
+struct sql_stats_snapshot;
 
 /*
  * Boolean values
@@ -272,6 +273,8 @@ struct Vdbe {
 	i64 iCurrentTime;	/* Value of julianday('now') for this statement */
 	i64 nFkConstraint;	/* Number of imm. FK constraints this VM */
 	uint64_t schema_ver;	/* Schema version at the moment of VDBE creation. */
+	/** Immutable statistics generation used while compiling this statement. */
+	struct sql_stats_snapshot *stats_snapshot;
 
 	/*
 	 * In recursive triggers we can execute INSERT/UPDATE OR IGNORE

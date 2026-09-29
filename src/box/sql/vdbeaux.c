@@ -42,6 +42,7 @@
 #include "box/txn.h"
 #include "msgpuck/msgpuck.h"
 #include "sqlInt.h"
+#include "sql_stats_snapshot.h"
 #include "mem.h"
 #include "vdbeInt.h"
 #include "tarantoolInt.h"
@@ -268,6 +269,7 @@ sqlVdbeCreate(Parse * pParse)
 	p->magic = VDBE_MAGIC_INIT;
 	p->pParse = pParse;
 	p->schema_ver = box_schema_version();
+	p->stats_snapshot = sql_get_stats_snapshot();
 	assert(pParse->aLabel == 0);
 	assert(pParse->nLabel == 0);
 	assert(pParse->nOpAlloc == 0);
@@ -2816,6 +2818,7 @@ sqlVdbeClearObject(struct Vdbe *p)
 	sql_xfree(p->planner_replay_inputs);
 	sql_xfree(p->planner_components);
 	sql_xfree(p->planner_final_paths);
+	sql_stats_snapshot_release(p->stats_snapshot);
 }
 
 /*
