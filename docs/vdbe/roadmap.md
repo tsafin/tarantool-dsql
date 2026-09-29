@@ -977,36 +977,38 @@ format approval is implied.
   in `test/unit/sql_stats_selectivity.c`). These validate estimator behavior
   with supplied summaries, but do not collect statistics from the M0 SQL
   corpus or establish planner q-error improvement; S1.9 remains open pending
-  corpus integration and a reviewed q-error acceptance criterion. The M0
+  reviewed-corpus integration and an accepted q-error criterion. The M0
   snapshot contract captures executed SQL results and planner path diagnostics;
-  it has no field for estimated cardinalities or actual-vs-estimated rows, and
-  the standalone estimator has no SQL collection/provider path. Writing its
-  synthetic values as ordinary M0 snapshots would falsely imply execution and
-  planner evidence. As a bounded validation improvement, the uniform unit
+  it has no field for estimated cardinalities or actual-vs-estimated rows.
+  The standalone selectivity unit probes still use supplied summaries and are
+  not SQL collection evidence. Writing their synthetic values as ordinary M0
+  snapshots would falsely imply executed planner measurements. As a bounded
+  validation improvement, the uniform unit
   fixture now checks q-error at all 20 histogram bucket edges (<= 1.05), while
   the separate skewed workload fixture checks each distinct CDF boundary
   (<= 1.06). Both remain algorithm-only probes. Closing S1.9 still requires a
-  corpus workload integration through a real stats provider and an accepted
-  q-error gate. The stage-matched estimate/actual JSONL sidecar and analyzer
+  reviewed corpus workload integration through a real stats provider, skewed
+  MCV planner validation, and an accepted q-error gate. The stage-matched
+  estimate/actual JSONL sidecar and analyzer
   contract are now specified in `test/sql-baselines/E1_WORKLOAD.md`; they
   remain separate from M0 snapshot v1. A reproducible TEST_BUILD sidecar
   producer is now available at `test/sql-baselines/e1_sql_producer.py`; it
-  executes six prepared single-table predicates before and after installing
-  the volatile snapshot adapter and records matching `select-output`
+  executes six prepared single-table predicates before and after named SQL
+  `ANALYZE` collection and records matching `select-output`
   estimate/actual cardinalities with source, binary, data, and per-configuration
-  statistics provenance. The local pilot at
-  `/tmp/e1-s1-workload-20260930.jsonl` contains 72 rows (warmup plus five
+  statistics provenance. Its candidate uses the actual volatile ANALYZE
+  collector, not the snapshot test adapter. The local pilot at
+  `/tmp/e1-s1-analyze-20260930.jsonl` contains 72 rows (warmup plus five
   measured executions for six queries under each state). Across its 25 finite
-  cardinality samples, median q-error is 5.0 without the snapshot and 1.5 with
-  it; the empty-result equality contributes five unbounded errors in each
+  cardinality samples, median q-error is 5.0 without statistics and 1.5 after
+  ANALYZE; the empty-result equality contributes five unbounded errors in each
   state. Per-query distributions are in the sidecar report. The pilot records
-  median times of 11 us / 11.5 us, with only five repetitions and tiny local
+  median times of 8 us / 8.5 us, with only five repetitions and tiny local
   statements; this is not latency acceptance evidence. Reproduce with the command
   in `test/sql-baselines/E1_WORKLOAD.md`. This narrows the producer gap but
-  does not close S1.9: the fixture is uniform and tiny, uses the TEST_BUILD
-  adapter rather than collected ANALYZE statistics, and is not integrated into
-  the reviewed M0 corpus. Skewed MCV planner validation and a reviewed q-error
-  criterion remain open. *parallel: yes*.
+  does not close S1.9: the fixture is uniform and tiny and is not integrated
+  into the reviewed M0 corpus. Skewed MCV planner validation and a reviewed
+  q-error criterion remain open. *parallel: yes*.
 
 ---
 
