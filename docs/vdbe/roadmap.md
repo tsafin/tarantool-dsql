@@ -2238,15 +2238,20 @@ DML, triggers, subprograms, non-deterministic functions.
   correction exposed a lowerer's declared-type check that rejected unsigned
   probes on an `INT` index; equality lowering metadata now validates the
   encoded probe representation. Focused generated and LLVM off/on/off captures
-  of the full `sql/types.test.lua` file pass on memtx and Vinyl (395 queries per
-  engine and mode; zero semantic or repeat diffs). The observed
+  of the full `sql/types.test.lua` file pass on memtx and Vinyl on
+  `4d3cba0e6b` (395 queries per engine and mode; zero semantic or repeat diffs,
+  zero unreviewed route transitions). Reports are
+  `/dev/shm/types-ab-current-generated-1790672690/report.json` and
+  `/dev/shm/types-ab-current-llvm-1790672690/report.json`. The observed
   `fallback/UNSUPPORTED_EXPRESSION` to `new_planner` adoption is now explicitly
   included in the SQL route policy because this file exercises the supported
   wide-integer equality and range cases. The attempted full reviewed SQL LLVM
   rerun cannot be counted as passing: its initial run hit the documented
   `iproto.test.lua` observer-counter mismatch, and its retry stopped at the
   now-fixed equality regression. Full reviewed SQL LLVM and M3.5 remain open
-  pending current-source corpus reruns.
+  pending current-source corpus reruns. These selected-test reports are not a
+  substitute for the full reviewed SQL suite; their overall acceptance bit
+  remains false because this command intentionally ran one test only.
 
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
