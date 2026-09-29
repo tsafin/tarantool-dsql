@@ -102,6 +102,9 @@ is_supported_boolean_filter(const struct Expr *expr, int cursor,
 		return false;
 	if (expr->pLeft == NULL || expr->pRight == NULL)
 		return false;
+	if (is_source_column(expr->pLeft, cursor, field_count) &&
+	    is_source_column(expr->pRight, cursor, field_count))
+		return true;
 	return (is_source_column(expr->pLeft, cursor, field_count) &&
 		is_supported_filter_constant(expr->pRight)) ||
 	       (is_source_column(expr->pRight, cursor, field_count) &&
@@ -608,6 +611,19 @@ sql_physical_table_scan_from_select(
 			    term->op == TK_LT || term->op == TK_LE) {
 				if (term->pLeft == NULL || term->pRight == NULL)
 					goto invalid_predicate;
+				if (is_source_column(term->pLeft, source->iCursor,
+						     source->space->def->field_count) &&
+				    is_source_column(term->pRight, source->iCursor,
+						     source->space->def->field_count)) {
+					if (filter_count == SQL_PLAN_FILTER_MAX)
+						goto invalid_predicate;
+					filters[filter_count] = (struct sql_plan_filter) {
+						.op = SQL_PLAN_FILTER_EXPRESSION,
+						.selectivity = 0.5,
+					};
+					filter_expressions[filter_count++] = term;
+					continue;
+				}
 				const struct Expr *column = NULL;
 				const struct Expr *literal = NULL;
 				if (term->pLeft->op == TK_COLUMN_REF) {

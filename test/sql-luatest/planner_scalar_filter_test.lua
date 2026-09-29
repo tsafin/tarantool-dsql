@@ -24,6 +24,15 @@ g.test_non_primary_null_filters_off_on_off = function()
                          "(1, NULL, 'a', true), (2, 'x', NULL, false), " ..
                          "(3, NULL, NULL, NULL), (4, 'y', 'z', true)")
                         :format(name))
+            local comparison_name = name .. '_comparison'
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
+                         'a INTEGER, b INTEGER, s STRING, t STRING) ' ..
+                         "WITH ENGINE = '%s'")
+                        :format(comparison_name, engine))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         "(1, 1, 1, 'a', 'a'), (2, 1, 2, 'a', 'b'), " ..
+                         "(3, 2, 1, 'b', 'a'), (4, NULL, 1, NULL, 'a'), " ..
+                         "(5, 1, NULL, 'a', NULL)"):format(comparison_name))
             local composite_name = name .. '_composite'
             box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, v STRING, ' ..
                          'w STRING, PRIMARY KEY (a, b)) ' ..
@@ -307,6 +316,36 @@ g.test_non_primary_null_filters_off_on_off = function()
                            'v IS NOT NULL'):format(name),
                     expected = {},
                 },
+                {
+                    sql = ('SELECT id FROM %s WHERE a = b ORDER BY id')
+                          :format(comparison_name),
+                    expected = {{1}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE a <> b ORDER BY id')
+                          :format(comparison_name),
+                    expected = {{2}, {3}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE a < b ORDER BY id')
+                          :format(comparison_name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE t > s ORDER BY id')
+                          :format(comparison_name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE a = b OR s = t ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{1}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id = 2 AND a < b')
+                          :format(comparison_name),
+                    expected = {{2}},
+                },
             }
             local function capture(enabled)
                 local results = {}
@@ -347,6 +386,7 @@ g.test_non_primary_null_filters_off_on_off = function()
             t.assert_equals(off_again, off)
             box.execute(('DROP TABLE %s'):format(name))
             box.execute(('DROP TABLE %s'):format(composite_name))
+            box.execute(('DROP TABLE %s'):format(comparison_name))
         end
     end)
 end
