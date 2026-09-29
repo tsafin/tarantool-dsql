@@ -100,6 +100,34 @@ g.test_non_primary_null_filters_off_on_off = function()
                         :format(descending_secondary_name))
             local queries = {
                 {
+                    sql = ('SELECT tenant, id FROM %s WHERE x = 7 ' ..
+                           'AND y >= 10 AND y < 11 ORDER BY y ASC')
+                          :format(secondary_name),
+                    expected = {{1, 1}, {1, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT tenant, id FROM %s WHERE x = 7 ' ..
+                           'AND y < 11 ORDER BY y DESC')
+                          :format(secondary_name),
+                    expected = {{1, 1}, {1, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, y FROM %s WHERE x = 7 ' ..
+                           'AND y >= 10 AND y < 12 ORDER BY y DESC')
+                          :format(descending_secondary_name),
+                    expected = {{7, 11}, {7, 10}},
+                    expected_index = descending_secondary_name .. '_xy',
+                    expected_order_column = 2,
+                    expected_order_desc = true,
+                },
+                {
                     sql = ('SELECT x, note, tenant, id FROM %s ' ..
                            'ORDER BY x ASC, note DESC'):format(secondary_name),
                     expected = {{7, 'a', 1, 1}, {7, 'b', 1, 2},

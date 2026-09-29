@@ -6514,9 +6514,18 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			 selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN) &&
 			(selected_access == SQL_PLAN_INDEX_FULL_SCAN ||
 			 secondary_part_count > 1) ?
+			secondary_part_count :
+			selected_access == SQL_PLAN_INDEX_RANGE_SCAN &&
+			plan_input->access.prefix_key_part_count != 0 ?
 			secondary_part_count : 0;
-		secondary_info.key_column = secondary_key_columns[0];
-		secondary_info.key_unsigned = secondary_key_unsigned[0];
+		secondary_info.key_column =
+			selected_access == SQL_PLAN_INDEX_RANGE_SCAN ?
+			plan_input->access.range_key_column :
+			secondary_key_columns[0];
+		secondary_info.key_unsigned =
+			selected_access == SQL_PLAN_INDEX_RANGE_SCAN ?
+			plan_input->access.has_unsigned_range_key :
+			secondary_key_unsigned[0];
 		secondary_info.primary_key_count = primary->def->key_def->part_count;
 		if (secondary_info.primary_key_count >
 		    SQL_PLAN_POINT_KEY_PART_MAX)

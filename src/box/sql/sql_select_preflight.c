@@ -251,6 +251,21 @@ sql_select_preflight_table_scan(const struct Select *select,
 				    (uint32_t)order->nExpr >
 					index->def->key_def->part_count)
 					continue;
+				uint32_t first_candidate_part = UINT32_MAX;
+				for (uint32_t part = 0;
+				     part < index->def->key_def->part_count; ++part) {
+					if (index->def->key_def->parts[part].fieldno ==
+					    (uint32_t)order->a[0].pExpr->iColumn) {
+						first_candidate_part = part;
+						break;
+					}
+				}
+				if (first_candidate_part == UINT32_MAX ||
+				    (select->pWhere == NULL && first_candidate_part != 0) ||
+				    (uint32_t)order->nExpr >
+					index->def->key_def->part_count -
+					first_candidate_part)
+					continue;
 				bool matches_prefix = true;
 				bool natural_order = true;
 				bool reverse_order = true;
@@ -259,7 +274,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 					const struct key_def *candidate =
 						index->def->key_def;
 					enum sort_order index_order =
-						candidate->parts[term].sort_order;
+						candidate->parts[first_candidate_part +
+							(uint32_t)term].sort_order;
 					enum sort_order requested_order =
 						order->a[term].sort_order;
 					if (requested_order == SORT_ORDER_UNDEF)
@@ -272,7 +288,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 					    expr->pLeft != NULL || expr->pRight != NULL ||
 					    expr->iTable != source->iCursor ||
 					    expr->iColumn < 0 ||
-					    candidate->parts[term].fieldno !=
+						candidate->parts[first_candidate_part +
+							(uint32_t)term].fieldno !=
 							(uint32_t)expr->iColumn) {
 						matches_prefix = false;
 						break;

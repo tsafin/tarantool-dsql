@@ -1311,6 +1311,19 @@ DML, triggers, subprograms, non-deterministic functions.
   index plans. Bounded and upper-only walks terminate at NULL keys before
   filtering/projection. This does not claim general secondary-index access or
   close M3.4.
+  **Composite secondary prefix-range extension (2026-09):** the producer now
+  recognizes complete equality predicates on leading INTEGER/UNSIGNED key
+  parts followed by one-sided or bounded literal bounds on the immediately
+  following key part. The descriptor carries typed prefix values and suffix
+  range endpoints; lowering seeks with prefix-plus-suffix arity, stops when
+  the prefix changes, enforces the opposite range endpoint, resolves the
+  primary key, and applies residual predicates. A suffix `ORDER BY` is
+  accepted only when the available one-way traversal satisfies it. Focused
+  memtx/Vinyl off/on/off tests cover bounded and upper-only ranges, duplicate
+  prefix matches, suffix ordering, and ascending/descending composite indexes;
+  VDBE unit coverage pins key arity and both guards. Unsupported/incomplete
+  prefixes and skipped index parts remain on the legacy path. This is another
+  bounded M3.4 increment, not M3.4 closure or broad corpus parity.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now
   order by a leading prefix of an ascending TREE secondary index with uniform
   ASC or DESC direction. The descriptor records the selected index and every

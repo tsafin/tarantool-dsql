@@ -268,6 +268,52 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 			   in->access.has_unsigned_range_end_key) {
 			return NULL;
 		}
+	} else if (in->access.kind == SQL_PLAN_INDEX_RANGE_SCAN &&
+		   in->access.prefix_key_part_count != 0) {
+		size_t prefix_count = in->access.prefix_key_part_count;
+		bool has_range_key = in->access.has_integer_range_key ||
+			in->access.has_unsigned_range_key;
+		bool has_range_end = in->access.has_integer_range_end_key ||
+			in->access.has_unsigned_range_end_key;
+		if (in->access.index_id == 0 ||
+		    prefix_count >= SQL_PLAN_POINT_KEY_PART_MAX ||
+		    in->access.prefix_key_parts == NULL ||
+		    in->access.point_key_part_count != 0 || !has_range_key ||
+		    in->access.has_integer_range_key ==
+			in->access.has_unsigned_range_key ||
+		    in->access.range_key_column > INT_MAX ||
+		    in->access.bound_count != prefix_count +
+			(has_range_end ? 2 : 1))
+			return NULL;
+		for (size_t i = 0; i < prefix_count; ++i) {
+			if (in->access.prefix_key_parts[i].column > INT_MAX ||
+			    in->access.bounds[i].side != SQL_PLAN_LOWER ||
+			    in->access.bounds[i].op != SQL_PLAN_EQ)
+				return NULL;
+		}
+		size_t range_bound = prefix_count;
+		if (has_range_end) {
+			if ((in->access.integer_range_op != SQL_PLAN_GT &&
+			     in->access.integer_range_op != SQL_PLAN_GE) ||
+			    (in->access.integer_range_end_op != SQL_PLAN_LT &&
+			     in->access.integer_range_end_op != SQL_PLAN_LE) ||
+			    in->access.bounds[range_bound].side != SQL_PLAN_LOWER ||
+			    in->access.bounds[range_bound].op !=
+				in->access.integer_range_op ||
+			    in->access.bounds[range_bound + 1].side != SQL_PLAN_UPPER ||
+			    in->access.bounds[range_bound + 1].op !=
+				in->access.integer_range_end_op)
+				return NULL;
+		} else {
+			enum sql_plan_bound_op op = in->access.integer_range_op;
+			if ((op != SQL_PLAN_GT && op != SQL_PLAN_GE &&
+			     op != SQL_PLAN_LT && op != SQL_PLAN_LE) ||
+			    in->access.bounds[range_bound].op != op ||
+			    in->access.bounds[range_bound].side !=
+				((op == SQL_PLAN_GT || op == SQL_PLAN_GE) ?
+				 SQL_PLAN_LOWER : SQL_PLAN_UPPER))
+				return NULL;
+		}
 	} else if (in->access.prefix_key_part_count != 0) {
 		return NULL;
 	}
@@ -276,12 +322,15 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	    in->access.bound_count != 0)
 		return NULL;
 	if (in->access.kind == SQL_PLAN_INDEX_RANGE_SCAN &&
-	    (in->access.bound_count == 0 || in->access.bound_count > 2))
+	    (in->access.bound_count == 0 ||
+	     in->access.bound_count > SQL_PLAN_POINT_KEY_PART_MAX + 2))
 		return NULL;
 	bool has_range_end = in->access.has_integer_range_end_key ||
 		in->access.has_unsigned_range_end_key;
 	if (has_range_end) {
-		size_t prefix_bounds = in->access.kind == SQL_PLAN_PK_PREFIX_SCAN ?
+		size_t prefix_bounds =
+			(in->access.kind == SQL_PLAN_PK_PREFIX_SCAN ||
+			 in->access.kind == SQL_PLAN_INDEX_RANGE_SCAN) ?
 			in->access.prefix_key_part_count : 0;
 		if ((in->access.kind != SQL_PLAN_INDEX_RANGE_SCAN &&
 		     in->access.kind != SQL_PLAN_PK_PREFIX_SCAN) ||
