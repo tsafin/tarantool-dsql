@@ -993,22 +993,26 @@ format approval is implied.
   contract are now specified in `test/sql-baselines/E1_WORKLOAD.md`; they
   remain separate from M0 snapshot v1. A reproducible TEST_BUILD sidecar
   producer is now available at `test/sql-baselines/e1_sql_producer.py`; it
-  executes six prepared single-table predicates before and after named SQL
+  executes ten prepared single-table predicates before and after named SQL
   `ANALYZE` collection and records matching `select-output`
   estimate/actual cardinalities with source, binary, data, and per-configuration
   statistics provenance. Its candidate uses the actual volatile ANALYZE
-  collector, not the snapshot test adapter. The local pilot at
-  `/tmp/e1-s1-analyze-20260930.jsonl` contains 72 rows (warmup plus five
-  measured executions for six queries under each state). Across its 25 finite
-  cardinality samples, median q-error is 5.0 without statistics and 1.5 after
-  ANALYZE; the empty-result equality contributes five unbounded errors in each
-  state. Per-query distributions are in the sidecar report. The pilot records
-  median times of 8 us / 8.5 us, with only five repetitions and tiny local
-  statements; this is not latency acceptance evidence. Reproduce with the command
-  in `test/sql-baselines/E1_WORKLOAD.md`. This narrows the producer gap but
-  does not close S1.9: the fixture is uniform and tiny and is not integrated
-  into the reviewed M0 corpus. Skewed MCV planner validation and a reviewed
-  q-error criterion remain open. *parallel: yes*.
+  collector, not the snapshot test adapter. The original uniform-only local
+  pilot is at `/tmp/e1-s1-analyze-20260930.jsonl`. The follow-up pilot at
+  `/tmp/e1-s1-skew-20260930-r2.jsonl` contains 120 rows (warmup plus five
+  measured executions for ten queries under each state), and its analyzer
+  report is `/tmp/e1-s1-skew-20260930-r2.report.json`. Across the combined
+  40 finite cardinality samples, median q-error is 7.5 without statistics and
+  2.0 after ANALYZE; ten empty-result executions have unbounded error in each
+  state. The skewed fixture shows why this is not an MCV result: hot equality
+  worsens from q-error 1.25 to 2.67, while a tail equality improves from 10 to
+  3 and a range improves from 131072 to 1. These are five-repeat, tiny,
+  single-engine observations, not acceptance evidence; median elapsed time is
+  9 us / 7.5 us overall and is not latency evidence. Reproduce with the
+  command in `test/sql-baselines/E1_WORKLOAD.md`. This narrows the producer gap
+  but does not close S1.9: the fixtures are tiny and are not integrated into
+  the reviewed M0 corpus. Skewed MCV planner integration/validation and a
+  reviewed q-error criterion remain open. *parallel: yes*.
 
 ---
 

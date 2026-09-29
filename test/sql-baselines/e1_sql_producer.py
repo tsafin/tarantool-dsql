@@ -3,7 +3,7 @@
 
 This is an S1.9 pilot producer, not the reviewed M0 analytical workload. It
 executes the TEST_BUILD volatile ANALYZE fixture in sql_stats_test.lua and
-records planner estimates and actual SELECT output cardinalities for six
+records planner estimates and actual SELECT output cardinalities for ten
 prepared single-table predicates.
 """
 
