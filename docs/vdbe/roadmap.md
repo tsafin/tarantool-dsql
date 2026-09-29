@@ -1527,8 +1527,13 @@ DML, triggers, subprograms, non-deterministic functions.
   remain rejected. A further off/on/off regression now covers a deterministic
   call nested over arithmetic source expressions and composed with an outer
   arithmetic operator (`ABS(a + b) * 2`); it passes for memtx and Vinyl and
-  verifies the new route. Function-based ORDER BY remains outside this
-  projection support. The SQL suite's generated audit identifies
+  verifies the new route. The scalar-filter fixture is included in the
+  producer matrix: all 30 fixture/engine/dispatcher cases pass at source
+  `f3592727a3`, including generated/CnP/LLVM for memtx and Vinyl; the scalar
+  fixture records observed CnP and LLVM executions. Report:
+  `/tmp/m34-nested-composed-projection-f359/producer-matrix/report.json`.
+  Function-based ORDER BY remains outside this projection support. The SQL
+  suite's generated audit identifies
   19 `fallback / UNSUPPORTED_FUNCTION` to `new_planner` transitions per engine
   in collation (`UPPER`/`LOWER`), `gh-4697-scalar-bool-sort-cmp` (`TYPEOF`),
   and `types.test.lua` (`ABS`, `TYPEOF`, `QUOTE`, `LEAST`) projections; off/on
