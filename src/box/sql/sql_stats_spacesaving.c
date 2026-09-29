@@ -105,16 +105,15 @@ add_weight(struct sql_stats_spacesaving *s, const void *key, size_t size,
 	}
 	uint32_t i = victim_index(s);
 	struct ss_entry *e = &s->entries[i];
-	if (UINT64_MAX - e->count < weight ||
-	    UINT64_MAX - e->error < e->count ||
-	    UINT64_MAX - e->error - e->count < inherited_error) {
+	uint64_t floor = e->count;
+	if (UINT64_MAX - floor < weight ||
+	    UINT64_MAX - floor < inherited_error) {
 		free(copy);
 		return -1;
 	}
-	uint64_t floor = e->count;
 	free(e->key);
 	*e = (struct ss_entry){copy, size, floor + weight,
-			       floor + e->error + inherited_error};
+			       floor + inherited_error};
 	return 0;
 }
 

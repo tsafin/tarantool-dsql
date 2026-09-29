@@ -44,6 +44,39 @@ test_bounds_and_ties(void)
 }
 
 static void
+test_eviction_error_bounds(void)
+{
+	plan(2);
+	header();
+	struct sql_stats_spacesaving *s = sql_stats_spacesaving_new(4);
+	ok(s != NULL, "small summary allocates for repeated evictions");
+	if (s != NULL) {
+		char key[8];
+		for (unsigned i = 0; i < 100; i++) {
+			int n = snprintf(key, sizeof(key), "v%02u", i % 63);
+			fail_if(n <= 0 || (size_t)n >= sizeof(key));
+			fail_if(sql_stats_spacesaving_add(s, key, (size_t)n) != 0);
+		}
+		int bounded = sql_stats_spacesaving_count(s) == 4;
+		for (uint32_t i = 0; bounded && i < 4; i++) {
+			const void *key;
+			size_t key_size;
+			struct sql_stats_spacesaving_entry entry;
+			bounded = sql_stats_spacesaving_at(s, i, &key, &key_size,
+						   &entry) == 0 &&
+				entry.error <= entry.estimate &&
+				entry.error <= 100 / 4 && key != NULL && key_size != 0;
+		}
+		ok(bounded, "every candidate has a valid N/capacity error interval");
+	} else {
+		ok(false, "every candidate has a valid N/capacity error interval");
+	}
+	sql_stats_spacesaving_delete(s);
+	footer();
+	check_plan();
+}
+
+static void
 test_merge(void)
 {
 	plan(5);
@@ -87,6 +120,7 @@ int
 main(void)
 {
 	test_bounds_and_ties();
+	test_eviction_error_bounds();
 	test_merge();
 	return 0;
 }
