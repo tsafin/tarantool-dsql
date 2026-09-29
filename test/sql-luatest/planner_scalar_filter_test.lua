@@ -667,6 +667,20 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE s IN (?, ?) ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    params = {'a', 'b'},
+                    expected = {{1}, {2}, {3}, {5}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE s BETWEEN ? AND ? ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    params = {'a', 'b'},
+                    expected = {{1}, {2}, {3}, {5}},
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE id = ?')
                           :format(comparison_name),
                     params = {1},

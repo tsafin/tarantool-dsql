@@ -1573,11 +1573,13 @@ DML, triggers, subprograms, non-deterministic functions.
   preflight variants pass.
   **Parameterized residual extension (2026-09-29):** canonical identities
   now represent resolved bind parameters by their 1-based variable ordinal,
-  independent of positional/named spelling. Non-primary scalar comparisons
-  can therefore retain a prepared parameter as a residual expression; runtime
-  values are still read by the existing SQL `OP_Variable` bytecode. A focused
-  memtx/Vinyl regression asserts the `new_planner` route, and executes the same
-  prepared statement with matching, nonmatching, and NULL values. A separate
+  independent of positional/named spelling. Non-primary scalar comparisons,
+  `IN`, and `BETWEEN` can therefore retain prepared parameters as residual
+  expressions; runtime values are still read by the existing SQL
+  `OP_Variable` bytecode. A focused memtx/Vinyl regression asserts the
+  `new_planner` route, checks parameterized `IN`/`BETWEEN` results, and executes
+  the same prepared equality statement with matching, nonmatching, and NULL
+  values. A separate
   primary-key `id = ?` assertion remains `fallback / UNSUPPORTED_FILTER`, since
   variable-valued seek-key emission is not implemented. The canonicalizer unit
   test passes 17 supported and 12 rejection assertions; the focused scalar
