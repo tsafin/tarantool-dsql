@@ -2538,8 +2538,9 @@ DML, triggers, subprograms, non-deterministic functions.
     S -- no --> M[mixed; no statement fallback reason]
   ```
 
-  **M3.5 acceptance audit and closure (2026-09-29).** The component ledger
-  contract, source inventory, focused producer matrix, and reviewed-corpus route
+  **M3.5 acceptance-scoped evidence audit (2026-09-29; milestone remains
+  open).** The component ledger contract, source inventory, focused producer
+  matrix, and reviewed-corpus route
   audits now agree. Current Debug off/on/off captures pass in generated, CnP,
   and LLVM modes with zero semantic diffs, exact off-repeat semantics, and no
   unreviewed route classes. SQL-TAP covers 232 memtx / 224 Vinyl tests and
@@ -2559,6 +2560,18 @@ DML, triggers, subprograms, non-deterministic functions.
   results; they do not claim broad execution support for additional logical
   shapes or close M3.4/M3.7. Detailed generated/CnP/LLVM reports are recorded
   above under `/dev/shm/m35-planner-flags-*`.
+
+  **Planner-flag runner exclusion fix (2026-09-29).** The runner now applies
+  the documented fixed-mode exclusions by default and records their reasons
+  per engine; an explicit request for an excluded test fails with the reason.
+  SQL LLVM off/on/off was rerun using the default selection on source
+  `a8960c388ff53da4ceff26e718906f0a3a9b846d`: 33/34 tests and 1,077/1,085
+  queries, zero semantic or repeat diffs, and zero unreviewed route classes.
+  The report is `/dev/shm/sql-llvm-default-reviewed-20260929/report.json`.
+  Six unit tests cover route classification and mode-specific selection.
+  This repairs an audit invocation trap, not the missing aggregate M3.5
+  acceptance verifier; individual reports therefore keep
+  `feature_acceptance_passed=false` and cannot certify M3.5 by themselves.
 
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
