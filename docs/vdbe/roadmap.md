@@ -1407,8 +1407,10 @@ DML, triggers, subprograms, non-deterministic functions.
   start at the required endpoint are also pinned to `fallback /
   UNSUPPORTED_FILTER` with result parity: lower-only DESC and upper-only ASC on
   an ascending composite index. This protects against emitting an unguarded
-  scan for an unsupported traversal. This is another bounded M3.4 increment,
-  not M3.4 closure or broad corpus parity.
+  scan for an unsupported traversal. Both fallback probes pass the focused
+  memtx/Vinyl off/on/off luatest under generated, CnP, and LLVM-19 dispatch.
+  This is another bounded M3.4 increment, not M3.4 closure or broad corpus
+  parity.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now
   order by a leading prefix of an ascending TREE secondary index with uniform
   ASC or DESC direction. The descriptor records the selected index and every
