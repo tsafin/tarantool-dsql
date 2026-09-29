@@ -254,10 +254,10 @@ Vinyl. The disabled route currently classifies this ordered scan as
 `fallback / UNSUPPORTED_EXPRESSION`; a successful enabled route has no
 fallback reason.
 M3.4 remains open: estimates are coarse, only direct projections over primary
-table scans and integer primary-key point/range paths are routed, broader
-storage/parity/capture coverage remains, and the checkpoint does not restore
-arbitrary AST/schema mutations. This producer does not alter replay-envelope
-completeness.
+table scans and bounded primary/secondary integer access paths are routed,
+broader storage/parity/capture coverage remains, and the checkpoint does not
+restore arbitrary AST/schema mutations. This producer does not alter
+replay-envelope completeness.
 
 #### Integer primary-key point lookup
 
@@ -283,8 +283,23 @@ fallback, and SQL rejection of literals above `UINT64_MAX`, LIMIT/OFFSET,
 primary-key ordering, and unsupported-filter fallback cases on both memtx and
 Vinyl. Composite point tests cover two- and three-part keys on both engines,
 including predicate reordering, an unsigned maximum, a hit/miss, and an
-incomplete-key fallback. Parameters, secondary indexes, and expression
-evaluation remain unsupported.
+incomplete-key fallback. Parameters and expression evaluation remain
+unsupported.
+
+#### Secondary-index equality scan
+
+The executable route supports equality on a single-part TREE secondary index
+whose indexed field is INTEGER or UNSIGNED. The predicate value must be a
+resolved integer literal in the field type's range. The descriptor identifies
+the index and typed equality bound; lowering seeks to the start of the equality
+run, stops when the indexed key changes, extracts the complete primary key for
+each secondary entry, and fetches the base tuple before evaluating residual
+filters or projecting columns. This is an equality *scan*, not a point lookup:
+non-unique indexes must return every matching tuple. Other predicates in an
+AND conjunction remain residual filters. Duplicate-key, reverse-operand,
+miss, residual-filter, and LIMIT/OFFSET cases are covered on memtx and Vinyl.
+Range, composite secondary keys, collation overrides, OR/IN access, and
+non-integer key values remain unsupported and use the legacy path.
 
 For a composite key with at least three parts, equality on a proper leading
 prefix of two or more INTEGER/UNSIGNED parts uses a dedicated prefix scan. It
@@ -422,7 +437,9 @@ off/on/off behavior and row parity on memtx and Vinyl. With the flag off,
 supported statements are classified as `current_where_c`, not as fallback.
 
 The flag does not govern the general physical candidate selector, secondary
-index access, joins, aggregates, or other descriptor operators.
+index ranges or composite secondary keys, joins, aggregates, or other
+descriptor operators. A single-part INTEGER/UNSIGNED secondary-index equality
+scan is supported as described above.
 Default-off compatibility, broad parity, capture/counter completeness, and
 acceptance remain open. Scope is session-local for this prototype; no
 instance-level configuration or rollout policy is implied.
@@ -589,6 +606,7 @@ The narrow set required by roadmap M3:
 |------|-------|-------|
 | `PkPointLookup` | `relations[].access` | Single-row equality on primary key. |
 | `IndexPointLookup` | `relations[].access` | Single-row equality on secondary index. |
+| `IndexEqualityScan` | `relations[].access` | Equality run on one secondary-index key; may return multiple rows. |
 | `IndexRangeScan` | `relations[].access` | Open or closed range; direction explicit. |
 | `IndexFullScan` | `relations[].access` | Full traversal in index order. |
 | `TableFullScan` | `relations[].access` | Full traversal in physical order (memtx) or LSM order (Vinyl). |

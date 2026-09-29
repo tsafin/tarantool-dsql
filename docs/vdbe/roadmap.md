@@ -1126,10 +1126,13 @@ emitter, plus bounded two-sided literal ranges on a single INTEGER/UNSIGNED
 primary-key part. Focused memtx/Vinyl parity and fallback tests cover this
 narrow slice;
 emitter unit checks pin all four range seek opcodes and signed/unsigned key
-encoding. M3.5's reviewed producer and route/reason gate is closed; M3.6
-capture/parity tooling is prototyped and M3.7's
-feature flag gates only the current narrow route. Secondary indexes,
-broader range shapes, broader expression parity, corpus-wide new-planner
+encoding. A one-part INTEGER/UNSIGNED TREE secondary-key equality-run path now
+seeks the secondary index, fetches each matching base tuple by its complete
+primary key, and applies residual filters before projection. M3.5's reviewed
+producer and route/reason gate is closed; M3.6 capture/parity tooling is
+prototyped and M3.7's feature flag gates only the current narrow route.
+Secondary ranges/composite keys, broader range shapes, broader expression
+parity, corpus-wide new-planner
 coverage, and acceptance latency evidence remain open. M3 consumes M1 diagnostic
 path-class/fallback reporting and the M0-A seed parity gate, but does not wait
 for replay or S2; use fixed/current estimates until real statistics are
@@ -1247,6 +1250,19 @@ DML, triggers, subprograms, non-deterministic functions.
   `planner_flag_parity_test.lua` across memtx/Vinyl under generated and CnP
   dispatch. This remains bounded null-filter lowering, not general predicate
   lowering.
+  **2026-09 secondary-index equality scan:** the producer recognizes a direct
+  INTEGER/UNSIGNED equality against a single-part TREE secondary index. The
+  equality run is walked with `SeekGE`/`IdxGT`/`Next`; each index hit resolves
+  the full primary key through the primary cursor, so duplicate secondary
+  values are all returned. Additional conjunction terms remain residual
+  filters and rejected entries advance to the next index row. The immutable
+  descriptor carries the selected index ID and typed key; unsupported
+  secondary shapes remain on legacy codegen. Memtx/Vinyl regression coverage
+  includes duplicate hits, reversed operands, a miss, equality plus text/NULL
+  residuals, and LIMIT/OFFSET. Focused generated, CnP, and LLVM captures each
+  contain 963 snapshots per engine; all four native-vs-generated comparisons
+  have zero diffs. The debug `planner_scalar_filter_test.lua` runner passes.
+  This does not claim general secondary-index access or close M3.4.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
   column and a constant expression accepted by the canonicalizer and free of
