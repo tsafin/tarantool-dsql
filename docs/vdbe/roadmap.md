@@ -1075,8 +1075,12 @@ the `where.c` selectivity adapter wait for that interface.
   combine/replace retain the payload and remain byte-budgeted. This is only a
   volatile data-contract step: the callback-based sampled candidate builder
   now propagates summary MCV candidates into snapshots under its temporary
-  byte budget, but SQL `ANALYZE` uses the native hash-only adapter and does not
-  populate MCVs. There is still no planner or persistence integration. The
+  byte budget. Owned transaction and shared-read-view callback collectors may
+  opt into bounded MCV summaries; preflight charges the worst-case candidate
+  arrays before sampling, and native hash mode rejects MCV because hashed
+  values cannot be recovered. SQL `ANALYZE` still uses the hash-only adapter
+  and does not populate MCVs. There is still no planner or persistence
+  integration. The
   candidate handoff also exposed and fixed a SpaceSaving eviction-error bug:
   replacement now resets error to the evicted counter floor instead of adding
   the evicted entry's stale error; a repeated-eviction regression checks every

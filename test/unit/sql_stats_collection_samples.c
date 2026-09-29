@@ -24,7 +24,7 @@ extract_index_value(void *context, const char *tuple, size_t tuple_size,
 static void
 test_sample_to_candidate(void)
 {
-	plan(7);
+	plan(10);
 	header();
 	struct sql_stats_index_summary *summary =
 		sql_stats_index_summary_new_with_mcv(1, 12, 23, 8192,
@@ -48,6 +48,24 @@ test_sample_to_candidate(void)
 	struct sql_stats_expected_index expected_index = {
 		.index_id = 8, .definition_version = 3, .part_count = 1,
 	};
+	struct sql_stats_tx_index_spec mcv_spec = {
+		.expected = &expected_index, .extract = extract_index_value,
+		.mcv_capacity = 4, .max_mcv_value_bytes = 16,
+	};
+	size_t mcv_staging = 0;
+	ok(sql_stats_tx_index_spec_mcv_staging_bytes(&mcv_spec,
+		&mcv_staging) && mcv_staging ==
+		sizeof(struct sql_stats_index_part_input) +
+		sizeof(struct sql_stats_mcv_input *) +
+		4 * sizeof(struct sql_stats_mcv_input),
+	   "MCV option reports bounded per-part candidate staging");
+	mcv_spec.use_native_index_hash = true;
+	ok(!sql_stats_tx_index_spec_mcv_staging_bytes(&mcv_spec,
+		&mcv_staging), "native hash adapter rejects unrecoverable MCV values");
+	mcv_spec.use_native_index_hash = false;
+	mcv_spec.max_mcv_value_bytes = 0;
+	ok(!sql_stats_tx_index_spec_mcv_staging_bytes(&mcv_spec,
+		&mcv_staging), "MCV capacity requires a positive value-size bound");
 	struct sql_stats_expected_index expected_indexes[] = {
 		expected_index,
 		{.index_id = 9, .definition_version = 4, .part_count = 1},

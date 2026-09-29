@@ -83,6 +83,20 @@ sql_stats_index_summary_new(size_t part_count, uint8_t precision,
 }
 
 struct sql_stats_index_summary *
+sql_stats_index_summary_new_with_mcv(size_t part_count, uint8_t precision,
+				     uint64_t seed, size_t max_bytes,
+				     sql_stats_index_value_extract_f *extract,
+				     void *extract_context,
+				     uint32_t mcv_capacity,
+				     size_t max_mcv_value_bytes)
+{
+	(void)mcv_capacity;
+	(void)max_mcv_value_bytes;
+	return sql_stats_index_summary_new(part_count, precision, seed,
+					   max_bytes, extract, extract_context);
+}
+
+struct sql_stats_index_summary *
 sql_stats_index_summary_new_for_index(struct tuple_format *format,
 				      const struct index_def *index_def,
 				      uint8_t precision, uint64_t seed,
@@ -1405,7 +1419,7 @@ test_transaction_owned_assembler(void)
 static void
 test_shared_view_multi_candidate_preflight(void)
 {
-	plan(4);
+	plan(5);
 	header();
 	setup_test_indexes();
 	test_index_view.vtab = &test_index_view_vtab;
@@ -1452,6 +1466,20 @@ test_shared_view_multi_candidate_preflight(void)
 	};
 	struct sql_stats_collection_context *context =
 		sql_stats_collection_context_new(&target, 1);
+	index.mcv_capacity = 1000;
+	index.max_mcv_value_bytes = 16;
+	struct sql_stats_collection_context *bounded_context = context;
+	struct sql_stats_snapshot *over_budget = bounded_context != NULL ?
+		sql_stats_collection_context_build_sample_candidates(
+			bounded_context, &relation, 1, &budget) : NULL;
+	ok(over_budget == NULL && extract_state.calls == 0,
+	   "MCV candidate-copy ceiling is enforced before index scanning");
+	if (over_budget != NULL)
+		sql_stats_snapshot_release(over_budget);
+	sql_stats_collection_context_delete(bounded_context);
+	index.mcv_capacity = 0;
+	index.max_mcv_value_bytes = 0;
+	context = sql_stats_collection_context_new(&target, 1);
 	struct sql_stats_snapshot *candidate = context != NULL ?
 		sql_stats_collection_context_build_sample_candidates(context,
 			&relation, 1, &budget) : NULL;

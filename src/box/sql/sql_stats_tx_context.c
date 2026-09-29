@@ -527,6 +527,11 @@ sql_stats_tx_context_build_sample_candidate(
 	if (metadata_bytes > max_staging_bytes)
 		goto fail;
 	size_t total_staging_bytes = metadata_bytes;
+	if (spec_count > (max_staging_bytes - total_staging_bytes) /
+			  (2 * sizeof(void *)))
+		goto fail;
+	total_staging_bytes += spec_count * 2 * sizeof(void *);
+	size_t prefix_count = 0;
 	for (size_t i = 0; i < spec_count; i++) {
 		for (size_t j = 0; j < i; j++) {
 			if (expected->indexes[i].index_id ==
@@ -534,6 +539,7 @@ sql_stats_tx_context_build_sample_candidate(
 				goto fail;
 		}
 		const struct sql_stats_tx_index_spec *spec = &specs[i];
+		size_t mcv_staging;
 		if (spec->expected == NULL || spec->extract == NULL ||
 		    spec->target.space_id != expected->space_id ||
 		    spec->target.index_id != spec->expected->index_id ||
@@ -541,8 +547,16 @@ sql_stats_tx_context_build_sample_candidate(
 		    spec->expected->part_count == 0 ||
 		    spec->expected->definition_version == 0 ||
 		    spec->summary_max_bytes == 0 ||
-		    spec->summary_max_bytes > max_staging_bytes -
-						      total_staging_bytes)
+		    !sql_stats_tx_index_spec_mcv_staging_bytes(spec, &mcv_staging) ||
+		    total_staging_bytes > max_staging_bytes ||
+		    mcv_staging > max_staging_bytes - total_staging_bytes)
+			goto fail;
+		if (spec->expected->part_count > SIZE_MAX - prefix_count)
+			goto fail;
+		prefix_count += spec->expected->part_count;
+		total_staging_bytes += mcv_staging;
+		if (spec->summary_max_bytes > max_staging_bytes -
+					      total_staging_bytes)
 			goto fail;
 		total_staging_bytes += spec->summary_max_bytes;
 		bool expected_match = false;
@@ -562,6 +576,19 @@ sql_stats_tx_context_build_sample_candidate(
 				goto fail;
 		}
 	}
+	if (spec_count > SIZE_MAX /
+		    (sizeof(struct sql_stats_collected_index) + sizeof(double)) ||
+	    prefix_count > SIZE_MAX / sizeof(uint64_t))
+		goto fail;
+	size_t candidate_input_bytes = spec_count *
+		(sizeof(struct sql_stats_collected_index) + sizeof(double));
+	if (total_staging_bytes > max_staging_bytes ||
+	    candidate_input_bytes > max_staging_bytes - total_staging_bytes ||
+	    prefix_count * sizeof(uint64_t) > max_staging_bytes -
+			(total_staging_bytes + candidate_input_bytes))
+		goto fail;
+	total_staging_bytes += candidate_input_bytes +
+		prefix_count * sizeof(uint64_t);
 	if (total_staging_bytes > max_staging_bytes)
 		goto fail;
 	staged = calloc(spec_count, sizeof(*staged));
@@ -572,10 +599,16 @@ sql_stats_tx_context_build_sample_candidate(
 	size_t relation_sample_index = spec_count;
 	for (size_t i = 0; i < spec_count; i++) {
 		const struct sql_stats_tx_index_spec *spec = &specs[i];
-		staged[i].summary = sql_stats_index_summary_new(
-			spec->expected->part_count, spec->hll_precision,
-			spec->hll_seed, spec->summary_max_bytes, spec->extract,
-			spec->extract_context);
+		staged[i].summary = spec->mcv_capacity == 0 ?
+			sql_stats_index_summary_new(spec->expected->part_count,
+				spec->hll_precision, spec->hll_seed,
+				spec->summary_max_bytes, spec->extract,
+				spec->extract_context) :
+			sql_stats_index_summary_new_with_mcv(
+				spec->expected->part_count, spec->hll_precision,
+				spec->hll_seed, spec->summary_max_bytes, spec->extract,
+				spec->extract_context, spec->mcv_capacity,
+				spec->max_mcv_value_bytes);
 		if (staged[i].summary == NULL)
 			goto fail;
 		struct sql_stats_sample_sink sink = {

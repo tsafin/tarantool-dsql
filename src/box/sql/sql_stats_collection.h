@@ -1,6 +1,10 @@
 #ifndef TARANTOOL_SQL_STATS_COLLECTION_H
 #define TARANTOOL_SQL_STATS_COLLECTION_H
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "sql_stats_snapshot.h"
 #include "sql_stats_sample.h"
 #include "sql_stats_index_summary.h"
@@ -176,7 +180,42 @@ struct sql_stats_tx_index_spec {
 	/* Shared-read-view collector only: use the engine's bounded index hash
 	 * adapter. Transaction collectors require an explicit canonical extractor. */
 	bool use_native_index_hash;
+	/* Optional bounded MCV sketch for callback-based canonical values only.
+	 * Both fields must be zero to disable MCV. Native hash mode rejects MCV. */
+	uint32_t mcv_capacity;
+	size_t max_mcv_value_bytes;
 };
+
+/* Worst-case candidate-copy staging for this spec's retained MCV entries. */
+static inline bool
+sql_stats_tx_index_spec_mcv_staging_bytes(
+	const struct sql_stats_tx_index_spec *spec, size_t *bytes)
+{
+	if (spec == NULL || spec->expected == NULL || bytes == NULL)
+		return false;
+	if (spec->mcv_capacity == 0) {
+		if (spec->max_mcv_value_bytes != 0)
+			return false;
+		*bytes = 0;
+		return true;
+	}
+	if (spec->use_native_index_hash || spec->extract == NULL ||
+	    spec->max_mcv_value_bytes == 0)
+		return false;
+	size_t part_count = spec->expected->part_count;
+	size_t per_part = sizeof(struct sql_stats_index_part_input) +
+		sizeof(struct sql_stats_mcv_input *);
+	if (part_count > SIZE_MAX / per_part ||
+	    part_count > SIZE_MAX / spec->mcv_capacity)
+		return false;
+	size_t total = part_count * per_part;
+	size_t candidate_count = part_count * spec->mcv_capacity;
+	if (candidate_count > (SIZE_MAX - total) /
+				      sizeof(struct sql_stats_mcv_input))
+		return false;
+	*bytes = total + candidate_count * sizeof(struct sql_stats_mcv_input);
+	return true;
+}
 
 /*
  * Build a detached single-relation candidate by scanning every requested

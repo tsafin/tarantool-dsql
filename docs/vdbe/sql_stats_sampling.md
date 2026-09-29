@@ -441,7 +441,11 @@ arrays are included in its temporary byte ceiling and are released after the
 snapshot deep-copy. The native index-hash adapter remains NDV-only: hashes
 cannot recover canonical values, so SQL `ANALYZE` still produces no MCV
 payload. This plumbing is volatile API coverage, not planner or persistence
-integration.
+integration. Both owned transaction and shared-read-view callback collectors
+can opt into this summary with `mcv_capacity` and
+`max_mcv_value_bytes`; these options must both be set (or both be zero), and
+native hash mode rejects them. Their worst-case per-part candidate-copy arrays
+are included in aggregate staging preflight before sampling begins.
 
 The transaction context now provides
 `sql_stats_tx_context_finish_and_publish()`. It matches the expected

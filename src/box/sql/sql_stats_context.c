@@ -119,10 +119,16 @@ collection_context_new_summary(struct sql_stats_collection_context *context,
 			       const struct sql_stats_tx_index_spec *spec)
 {
 	if (!spec->use_native_index_hash)
-		return sql_stats_index_summary_new(spec->expected->part_count,
-			spec->hll_precision, spec->hll_seed,
-			spec->summary_max_bytes, spec->extract,
-			spec->extract_context);
+		return spec->mcv_capacity == 0 ?
+			sql_stats_index_summary_new(spec->expected->part_count,
+				spec->hll_precision, spec->hll_seed,
+				spec->summary_max_bytes, spec->extract,
+				spec->extract_context) :
+			sql_stats_index_summary_new_with_mcv(
+				spec->expected->part_count, spec->hll_precision,
+				spec->hll_seed, spec->summary_max_bytes, spec->extract,
+				spec->extract_context, spec->mcv_capacity,
+				spec->max_mcv_value_bytes);
 	struct index_read_view *index_view =
 		context_get_index(context, &spec->target);
 	if (index_view == NULL || index_view->space == NULL ||
@@ -291,13 +297,20 @@ collection_context_build_relation_candidate(
 	if (metadata_bytes > max_staging_bytes)
 		goto fail;
 	size_t total_staging_bytes = metadata_bytes;
+	if (spec_count > (max_staging_bytes - total_staging_bytes) /
+			  (2 * sizeof(void *)))
+		goto fail;
+	total_staging_bytes += spec_count * 2 * sizeof(void *);
 	size_t max_reservoir_bytes = 0;
 	size_t relation_sample_index = spec_count;
+	size_t prefix_count = 0;
 	for (size_t i = 0; i < spec_count; i++) {
 		const struct sql_stats_tx_index_spec *spec = &specs[i];
+		size_t mcv_staging;
 		if (spec->expected == NULL ||
 		    (spec->use_native_index_hash && spec->extract != NULL) ||
 		    (!spec->use_native_index_hash && spec->extract == NULL) ||
+		    !sql_stats_tx_index_spec_mcv_staging_bytes(spec, &mcv_staging) ||
 		    spec->target.space_id != expected->space_id ||
 		    spec->target.index_id != spec->expected->index_id ||
 		    spec->request.index_id != spec->target.index_id ||
@@ -305,7 +318,13 @@ collection_context_build_relation_candidate(
 		    spec->expected->definition_version == 0 ||
 		    spec->expected->part_count == 0 ||
 		    spec->summary_max_bytes == 0 ||
-		    total_staging_bytes > max_staging_bytes ||
+		    mcv_staging > max_staging_bytes - total_staging_bytes)
+			goto fail;
+		if (spec->expected->part_count > SIZE_MAX - prefix_count)
+			goto fail;
+		prefix_count += spec->expected->part_count;
+		total_staging_bytes += mcv_staging;
+		if (total_staging_bytes > max_staging_bytes ||
 		    spec->summary_max_bytes > max_staging_bytes -
 						      total_staging_bytes)
 			goto fail;
@@ -340,6 +359,18 @@ collection_context_build_relation_candidate(
 		if (spec->target.index_id == relation_index_id)
 			relation_sample_index = i;
 	}
+	if (spec_count > SIZE_MAX /
+		    (sizeof(struct sql_stats_collected_index) + sizeof(double)) ||
+	    prefix_count > SIZE_MAX / sizeof(uint64_t))
+		goto fail;
+	size_t candidate_input_bytes = spec_count *
+		(sizeof(struct sql_stats_collected_index) + sizeof(double));
+	if (candidate_input_bytes > max_staging_bytes - total_staging_bytes ||
+	    prefix_count * sizeof(uint64_t) > max_staging_bytes -
+			(total_staging_bytes + candidate_input_bytes))
+		goto fail;
+	total_staging_bytes += candidate_input_bytes +
+		prefix_count * sizeof(uint64_t);
 	if (total_staging_bytes > max_staging_bytes ||
 	    max_reservoir_bytes > max_staging_bytes - total_staging_bytes ||
 	    relation_sample_index == spec_count)
@@ -477,13 +508,16 @@ collection_context_validate_relation_spec(
 	}
 	size_t relation_sample_index = relation->index_count;
 	size_t prefix_count = 0;
+	size_t mcv_candidate_bytes = 0;
 	for (size_t i = 0; i < relation->index_count; i++) {
 		const struct sql_stats_tx_index_spec *spec = &relation->indexes[i];
 		const struct sql_stats_expected_index *index = spec->expected;
+		size_t mcv_bytes;
 		if (index == NULL || index->definition_version == 0 ||
 		    index->part_count == 0 ||
 		    (spec->use_native_index_hash && spec->extract != NULL) ||
 		    (!spec->use_native_index_hash && spec->extract == NULL) ||
+		    !sql_stats_tx_index_spec_mcv_staging_bytes(spec, &mcv_bytes) ||
 		    spec->target.space_id != expected->space_id ||
 		    spec->target.index_id != index->index_id ||
 		    spec->request.index_id != spec->target.index_id ||
@@ -507,6 +541,8 @@ collection_context_validate_relation_spec(
 		if (index->part_count > SIZE_MAX - prefix_count)
 			return false;
 		prefix_count += index->part_count;
+		if (!add_size_checked(&mcv_candidate_bytes, mcv_bytes))
+			return false;
 		for (size_t j = 0; j < i; j++) {
 			if (relation->indexes[j].target.index_id ==
 			    spec->target.index_id)
@@ -562,7 +598,11 @@ collection_context_validate_relation_spec(
 		return false;
 	size_t candidate_staging = relation->index_count *
 		(sizeof(struct sql_stats_collected_index) + sizeof(double));
-	if (!add_size_checked(&candidate_staging,
+	if (relation->index_count > SIZE_MAX / (2 * sizeof(void *)) ||
+	    !add_size_checked(&candidate_staging,
+			      relation->index_count * 2 * sizeof(void *)) ||
+	    !add_size_checked(&candidate_staging, mcv_candidate_bytes) ||
+	    !add_size_checked(&candidate_staging,
 			      prefix_count * sizeof(uint64_t)))
 		return false;
 	if (candidate_staging > *max_candidate_staging_bytes)
