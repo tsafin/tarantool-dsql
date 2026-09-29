@@ -295,16 +295,34 @@ that field type's range, including `UINT64_MAX` for UNSIGNED fields. Composite
 predicates may appear in any order; partial composite keys are not access
 paths. The descriptor identifies the index and the typed equality bounds in
 index-part order. Lowering seeks to the start of the equality run using the
-complete key arity, stops when
-the indexed key changes, extracts the complete primary key for
-each secondary entry, and fetches the base tuple before evaluating residual
-filters or projecting columns. This is an equality *scan*, not a point lookup:
+complete key arity, stops when the indexed key changes, extracts the complete
+primary key for each secondary entry, then fetches the base tuple before
+evaluating residual filters or projecting columns. This is an equality *scan*,
+not a point lookup:
 non-unique indexes must return every matching tuple. Other predicates in an
 AND conjunction remain residual filters. Duplicate-key, reverse-operand,
 miss, SQL-NULL fail-closed, contradictory equality, primary-key conjunction,
 residual-filter, and LIMIT/OFFSET cases are covered on memtx and Vinyl.
-Secondary ranges, partial composite keys, collation overrides, OR/IN access,
-and non-integer key values remain unsupported and use the legacy path.
+Partial composite equality keys, collation overrides, OR/IN access, and
+non-integer key values remain unsupported and use the legacy path.
+
+#### Secondary-index range scan
+
+The range route supports one-sided or two-sided literal bounds on the first
+key part of an ascending TREE secondary index, including the leading part of
+a composite index. That part must be INTEGER or UNSIGNED; predicates may use
+either operand order, and multiple bounds on the same side are reduced to the
+strongest endpoint while the remaining predicates stay as residual filters.
+The lowerer seeks at the selected endpoint, walks in index order (or backward
+for an upper-only range), resolves the full primary key, fetches the base row,
+then applies residual filters and LIMIT/OFFSET. Upper-only reverse walks stop
+at NULL keys so SQL three-valued comparison semantics are preserved. Focused
+memtx/Vinyl off/on/off tests cover exclusive and inclusive endpoints, bounded
+and one-sided ranges, signed/unsigned keys including `UINT64_MAX`, duplicate
+values, residual bounds, LIMIT/OFFSET, and selected-index evidence from
+`EXPLAIN QUERY PLAN`. Descending secondary index definitions, collation
+overrides, non-integer key parts, and ranges on non-leading composite parts
+remain outside this route.
 
 For a composite key with at least three parts, equality on a proper leading
 prefix of two or more INTEGER/UNSIGNED parts uses a dedicated prefix scan. It
@@ -441,10 +459,11 @@ converted into fallback. The focused integration regression verifies
 off/on/off behavior and row parity on memtx and Vinyl. With the flag off,
 supported statements are classified as `current_where_c`, not as fallback.
 
-The flag does not govern the general physical candidate selector, secondary
-index ranges or partial composite secondary keys, joins, aggregates, or other
-descriptor operators. Single-part and complete composite INTEGER/UNSIGNED
-secondary-index equality scans are supported as described above.
+The flag does not govern the general physical candidate selector, remaining
+secondary range shapes, non-leading composite secondary ranges, joins,
+aggregates, or other descriptor operators. Single-part and complete composite
+INTEGER/UNSIGNED secondary equality scans and supported leading-part ranges
+are covered above.
 Default-off compatibility, broad parity, capture/counter completeness, and
 acceptance remain open. Scope is session-local for this prototype; no
 instance-level configuration or rollout policy is implied.
@@ -612,7 +631,7 @@ The narrow set required by roadmap M3:
 | `PkPointLookup` | `relations[].access` | Single-row equality on primary key. |
 | `IndexPointLookup` | `relations[].access` | Single-row equality on secondary index. |
 | `IndexEqualityScan` | `relations[].access` | Equality run on a full single-part or composite secondary key; may return multiple rows. |
-| `IndexRangeScan` | `relations[].access` | Open or closed range; direction explicit. |
+| `IndexRangeScan` | `relations[].access` | Open or closed primary-key range, or supported leading secondary-key range; direction explicit. |
 | `IndexFullScan` | `relations[].access` | Full traversal in index order. |
 | `TableFullScan` | `relations[].access` | Full traversal in physical order (memtx) or LSM order (Vinyl). |
 | `Filter` | `filters[]` | Residual predicate applied after access. |

@@ -1269,14 +1269,32 @@ DML, triggers, subprograms, non-deterministic functions.
   UNSIGNED part has a compatible literal equality, independent of predicate
   order. The immutable descriptor carries each typed key part in index order;
   the lowerer validates every part against live index metadata and emits
-  `SeekGE`/`IdxGT` with the full key arity. Partial composite predicates remain
-  `NO_ACCESS_PATH` fallbacks. Memtx/Vinyl off/on/off coverage checks duplicate
-  hits, reversed predicate order, a miss, an additional residual predicate,
+  `SeekGE`/`IdxGT` with the full key arity. Incomplete composite equality
+  predicates remain `NO_ACCESS_PATH` fallbacks. Memtx/Vinyl off/on/off
+  coverage checks duplicate hits, reversed predicate order, a miss, an
+  additional residual predicate,
   an unsigned maximum component, and fail-closed partial keys. The focused
   Debug luatest passes; VDBE unit coverage additionally checks two-part seek
   arity, atomic rejection of mismatched key-part metadata, and `UINT64_MAX`
-  encoding (67 assertions total). Broader mixed-type, collation, range, and
+  encoding (67 assertions total at that checkpoint). Broader mixed-type,
+  collation, and
   corpus parity remain outside this bounded extension.
+  **Secondary-index range extension:** one-sided and two-sided literal bounds
+  now use the first part of an ascending TREE secondary index, including the
+  leading part of a composite index, when it is INTEGER or UNSIGNED. The
+  producer intersects repeated same-side bounds, leaves additional predicates
+  residual, and preserves the chosen secondary index ID in the range
+  descriptor. VDBE lowering seeks at the direction-appropriate endpoint,
+  performs base-row lookup, enforces the opposite endpoint, skips NULLs on
+  upper-only reverse walks, and applies LIMIT/OFFSET after residual filtering.
+  Memtx/Vinyl off/on/off tests cover signed and unsigned endpoints, reversed
+  operands, duplicate values, residual bounds, upper-only and bounded ranges,
+  NULL keys, and LIMIT/OFFSET; `EXPLAIN QUERY PLAN` confirms the index is
+  selected. The `planner_scalar_filter_test.lua` Debug runner passes and the
+  VDBE unit target passes 69 assertions, including bounded endpoint and
+  upper-only NULL termination opcodes. Descending index definitions, ranges
+  on non-leading composite parts, and broad corpus parity remain open; this
+  does not close M3.4.
   This does not claim general secondary-index access or close M3.4.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
