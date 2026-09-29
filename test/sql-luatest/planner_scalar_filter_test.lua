@@ -38,6 +38,14 @@ g.test_non_primary_null_filters_off_on_off = function()
                          "(4, NULL, 1, NULL, 'a', NULL, NULL), " ..
                          "(5, 1, NULL, 'a', NULL, 7, 10)")
                         :format(comparison_name))
+            local pattern_name = name .. '_pattern'
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
+                         's STRING) WITH ENGINE = \'%s\'')
+                        :format(pattern_name, engine))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         "(1, 'a%%'), (2, 'a_'), (3, 'aX'), " ..
+                         "(4, '100%%'), (5, NULL)")
+                        :format(pattern_name))
             box.execute(('CREATE INDEX %s_k ON %s (k)')
                         :format(comparison_name, comparison_name))
             box.execute(('CREATE INDEX %s_uk ON %s (uk)')
@@ -112,6 +120,27 @@ g.test_non_primary_null_filters_off_on_off = function()
                          '(4, NULL, 12)')
                         :format(descending_secondary_name))
             local queries = {
+                {
+                    sql = ("SELECT id FROM %s WHERE s LIKE 'a!%%' " ..
+                           "ESCAPE '!' ORDER BY id")
+                          :format(pattern_name),
+                    expected = {{1}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE s NOT LIKE 'a!%%' " ..
+                           "ESCAPE '!' ORDER BY id")
+                          :format(pattern_name),
+                    expected = {{2}, {3}, {4}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE s LIKE '100!%%' " ..
+                           "ESCAPE '!' ORDER BY id")
+                          :format(pattern_name),
+                    expected = {{4}},
+                    enabled_route = 'new_planner',
+                },
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE y = 10 ' ..
                            'AND x = 7'):format(secondary_tertiary_name),
@@ -1262,6 +1291,7 @@ g.test_non_primary_null_filters_off_on_off = function()
             box.execute(('DROP TABLE %s'):format(secondary_tertiary_name))
             box.execute(('DROP TABLE %s'):format(nullable_secondary_name))
             box.execute(('DROP TABLE %s'):format(comparison_name))
+            box.execute(('DROP TABLE %s'):format(pattern_name))
             box.execute(('DROP TABLE %s'):format(unsigned_desc_name))
         end
     end)

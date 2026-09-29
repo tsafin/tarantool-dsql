@@ -1565,6 +1565,12 @@ DML, triggers, subprograms, non-deterministic functions.
   retain legacy access paths until their range/index requirements are modeled;
   SQL-TAP collation coverage confirms the indexed LIKE EQP/result contract.
   This remains residual-only and does not close M3.4.
+  **LIKE ESCAPE regression coverage (2026-09-30):** the scalar-filter fixture
+  now exercises positive and negated escaped-percent patterns, plus an escaped
+  percent occurring after a numeric prefix. The three queries require the
+  `new_planner` route and pass off/on/off result comparison on both memtx and
+  Vinyl; this pins the optional third `LIKE` argument's runtime semantics
+  without expanding the supported expression grammar.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters. A parameterized primary-key bound remains an explicit
