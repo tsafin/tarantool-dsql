@@ -1313,9 +1313,10 @@ DML, triggers, subprograms, non-deterministic functions.
   direction-specific cursor operations, multi-term order metadata, and base-row
   lookup (72 assertions total). Off/on/off result coverage also verifies
   LIMIT/OFFSET on full scans and ascending/descending range traversals, with
-  selected-index plans. Filters, non-prefix ordering, and descending index
-  definitions remain unsupported. This is a bounded M3.4 increment, not
-  closure.
+  selected-index plans. Nullable-index fixtures verify NULL placement for
+  ascending and descending full traversal. Filters, non-prefix ordering, and
+  descending index definitions remain unsupported. This is a bounded M3.4
+  increment, not closure.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
   column and a constant expression accepted by the canonicalizer and free of

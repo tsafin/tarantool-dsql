@@ -341,7 +341,7 @@ route applies literal LIMIT/OFFSET to the ordered stream, but does not combine
 secondary traversal with filters or non-prefix order, and does not claim
 support for a descending index definition. Memtx/Vinyl tests cover one- and
 two-term orders in both directions, duplicate key values, an unsigned maximum
-suffix, and LIMIT/OFFSET.
+suffix, NULL placement at both ends of the order, and LIMIT/OFFSET.
 
 For a composite key with at least three parts, equality on a proper leading
 prefix of two or more INTEGER/UNSIGNED parts uses a dedicated prefix scan. It
