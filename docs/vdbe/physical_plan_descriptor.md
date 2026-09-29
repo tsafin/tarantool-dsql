@@ -309,8 +309,8 @@ non-integer key values remain unsupported and use the legacy path.
 #### Secondary-index range scan
 
 The range route supports one-sided or two-sided literal bounds on the first
-key part of an ascending TREE secondary index, including the leading part of
-a composite index. That part must be INTEGER or UNSIGNED; predicates may use
+key part of an ascending or descending TREE secondary index, including the
+leading part of a composite index. That part must be INTEGER or UNSIGNED; predicates may use
 either operand order, and multiple bounds on the same side are reduced to the
 strongest endpoint while the remaining predicates stay as residual filters.
 The lowerer seeks at the selected endpoint, walks in index order (or backward
@@ -320,14 +320,18 @@ at NULL keys so SQL three-valued comparison semantics are preserved. Focused
 memtx/Vinyl off/on/off tests cover exclusive and inclusive endpoints, bounded
 and one-sided ranges, signed/unsigned keys including `UINT64_MAX`, duplicate
 values, residual bounds, LIMIT/OFFSET, and selected-index evidence from
-`EXPLAIN QUERY PLAN`. Descending secondary index definitions, collation
-overrides, non-integer key parts, and ranges on non-leading composite parts
-remain outside this route. A one-term `ORDER BY` on the indexed leading field
-is also satisfied when its direction matches the scan: ASC for lower-bound or
-bounded scans, DESC for upper-only or bounded scans. Descending bounded scans
-seek at the upper endpoint, walk backward, and stop at the lower endpoint or
-the first NULL key. Focused tests cover both range directions and ensure NULL
-keys do not leak through reverse traversal.
+`EXPLAIN QUERY PLAN`. Collation overrides, non-integer key parts, and ranges on
+non-leading composite parts remain outside this route. A one-term `ORDER BY`
+on the indexed leading field is also satisfied when the scan can start at its
+available endpoint: lower-only ranges support logical ASC, upper-only ranges
+support logical DESC, and bounded ranges support either direction. Physical
+cursor direction is mapped through the index key's declared ASC/DESC order;
+for DESC keys, seek comparison operators are inverted while strict/inclusive
+SQL endpoints and the opposite-bound guard retain their logical meaning.
+Bounded and upper-only scans stop at the opposite endpoint or a NULL key so
+SQL three-valued comparison semantics are preserved. Focused
+tests cover both logical range directions and ensure NULL keys do not leak
+through reverse traversal.
 
 #### Secondary-index ordered full scan
 

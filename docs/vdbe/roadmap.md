@@ -1292,16 +1292,19 @@ DML, triggers, subprograms, non-deterministic functions.
   NULL keys, and LIMIT/OFFSET; `EXPLAIN QUERY PLAN` confirms the index is
   selected. The `planner_scalar_filter_test.lua` Debug runner passes and the
   VDBE unit target passes 72 assertions, including both bounded directions,
-  endpoint guards, and NULL termination opcodes. Descending index definitions,
-  ranges on non-leading composite parts, and broad corpus parity remain open;
-  this does not close M3.4. An `ORDER BY` on the indexed leading field now reuses
-  the range traversal when the requested direction matches it: ASC for lower-
-  bound or bounded scans and DESC for upper-only or bounded scans. Descending
-  bounded scans seek at the upper endpoint, walk backward, and terminate at
-  the lower endpoint or NULL keys. Off/on/off SQL tests verify one-sided and
-  bounded traversal in both directions; VDBE unit coverage pins the reverse
-  seek, lower guard, NULL termination, and Prev walk.
-  This does not claim general secondary-index access or close M3.4.
+  endpoint guards, and NULL termination opcodes. Ranges on non-leading
+  composite parts and broad corpus parity remain open; this does not close
+  M3.4. The route now also accepts descending TREE secondary-key definitions.
+  Scan direction is physical: `Next`/`Prev` is combined with the declared key
+  direction to produce SQL order, and descending definitions invert the seek
+  comparison while preserving inclusive/exclusive endpoint meaning. Lower-only
+  ordered scans can produce ASC, upper-only scans DESC, and bounded scans
+  either direction when requested order matches the traversal. Focused
+  memtx/Vinyl off/on/off coverage exercises signed endpoints, descending
+  bounded and one-sided ranges, an UNSIGNED `UINT64_MAX` bound, and selected
+  index plans. Bounded and upper-only walks terminate at NULL keys before
+  filtering/projection. This does not claim general secondary-index access or
+  close M3.4.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now
   order by a leading prefix of an ascending TREE secondary index with uniform
   ASC or DESC direction. The descriptor records the selected index and every
