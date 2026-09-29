@@ -927,6 +927,18 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE id >= 3 ' ..
+                           'ORDER BY id DESC'):format(comparison_name),
+                    expected = {{5}, {4}, {3}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id > 3 ' ..
+                           'ORDER BY id DESC'):format(comparison_name),
+                    expected = {{5}, {4}},
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE id <= 3 ' ..
                            'ORDER BY ABS(a)'):format(comparison_name),
                     expected = {{1}, {2}, {3}},

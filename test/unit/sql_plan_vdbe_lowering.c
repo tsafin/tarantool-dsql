@@ -1142,7 +1142,7 @@ main(void)
 	struct sql_plan_descriptor *unsigned_range_desc =
 		new_range_descriptor(SQL_PLAN_GT, (int64_t)UINT64_MAX, true,
 				     SQL_PLAN_ASC, NULL);
-	struct sql_plan_descriptor *invalid_direction_range_desc =
+	struct sql_plan_descriptor *range_gt_descending_desc =
 		new_range_descriptor(SQL_PLAN_GT, 7, false, SQL_PLAN_DESC, NULL);
 	struct sql_plan_descriptor *bounded_range_desc =
 		new_bounded_range_descriptor(SQL_PLAN_LT, 1, 3, NULL);
@@ -1192,7 +1192,7 @@ main(void)
 	   range_lt_ascending_desc != NULL &&
 	   range_le_ascending_desc != NULL &&
 	   wide_bounded_range_desc != NULL && filtered_bounded_range_desc != NULL &&
-	   invalid_direction_range_desc != NULL &&
+	   range_gt_descending_desc != NULL &&
 	   invalid_point_desc != NULL && late_invalid_point_desc != NULL &&
 	   point_limit_desc != NULL && point_zero_limit_desc != NULL &&
 	   point_offset_desc != NULL,
@@ -1207,9 +1207,6 @@ main(void)
 	int old_op = sqlVdbeAddOp0(&vdbe, OP_Noop);
 	assert(old_op == 0);
 	int op_count = vdbe.nOp;
-	ok(sql_plan_lower_vdbe_pk_range(invalid_direction_range_desc, &vdbe, 4,
-					20) == -1 && vdbe.nOp == op_count,
-	   "one-sided lower range rejects descending scan before VDBE mutation");
 	ok(sql_plan_lower_vdbe_table_scan(filtered_desc, &vdbe, 4, 20) == -1 &&
 	   vdbe.nOp == op_count,
 	   "unsupported filter descriptor is rejected before VDBE mutation");
@@ -1972,6 +1969,18 @@ main(void)
 	   vdbe.aOp[before_range_ge + 1].p2 == before_range_ge + 6 &&
 	   vdbe.aOp[before_range_ge + 5].opcode == OP_Next,
 	   "inclusive lower range emits SeekGE and scans ascending");
+	int before_range_gt_descending = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_range(range_gt_descending_desc, &vdbe, 4,
+					20) == 0 &&
+	   vdbe.aOp[before_range_gt_descending].opcode == OP_Integer &&
+	   vdbe.aOp[before_range_gt_descending + 1].opcode == OP_Last &&
+	   vdbe.aOp[before_range_gt_descending + 2].opcode == OP_Column &&
+	   vdbe.aOp[before_range_gt_descending + 3].opcode == OP_Ge &&
+	   vdbe.aOp[before_range_gt_descending + 3].p2 ==
+		before_range_gt_descending + 8 &&
+	   vdbe.aOp[before_range_gt_descending + 6].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_range_gt_descending + 7].opcode == OP_Prev,
+	   "strict lower range scans backward from Last and stops at its guard");
 	int before_range_lt = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_range(range_lt_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_range_lt + 1].opcode == OP_SeekLT &&
@@ -2157,7 +2166,7 @@ main(void)
 	sql_plan_descriptor_delete(range_lt_ascending_desc);
 	sql_plan_descriptor_delete(range_le_ascending_desc);
 	sql_plan_descriptor_delete(unsigned_range_desc);
-	sql_plan_descriptor_delete(invalid_direction_range_desc);
+	sql_plan_descriptor_delete(range_gt_descending_desc);
 	sql_plan_descriptor_delete(bounded_range_desc);
 	sql_plan_descriptor_delete(wide_bounded_range_desc);
 	sql_plan_descriptor_delete(filtered_bounded_range_desc);

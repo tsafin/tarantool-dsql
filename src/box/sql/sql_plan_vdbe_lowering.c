@@ -594,11 +594,7 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		   input->access.has_unsigned_range_end_key ||
 		   (input->access.integer_range_end_op != SQL_PLAN_LT &&
 		    input->access.integer_range_end_op != SQL_PLAN_LE))) ||
-		 (has_range_end && input->access.range_key_column > INT_MAX) ||
-		 (!has_range_end &&
-		  (input->access.integer_range_op == SQL_PLAN_GT ||
-		   input->access.integer_range_op == SQL_PLAN_GE) &&
-		  input->access.direction != SQL_PLAN_ASC));
+		 (has_range_end && input->access.range_key_column > INT_MAX));
 	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != (range ? SQL_PLAN_INDEX_RANGE_SCAN :
 				   SQL_PLAN_TABLE_FULL_SCAN) ||
@@ -641,7 +637,12 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 		input->access.direction == SQL_PLAN_ASC &&
 		(input->access.integer_range_op == SQL_PLAN_LT ||
 		 input->access.integer_range_op == SQL_PLAN_LE);
-	bool has_range_guard = bounded_range || upper_only_ascending;
+	bool lower_only_descending = range && !bounded_range &&
+		input->access.direction == SQL_PLAN_DESC &&
+		(input->access.integer_range_op == SQL_PLAN_GT ||
+		 input->access.integer_range_op == SQL_PLAN_GE);
+	bool has_range_guard = bounded_range || upper_only_ascending ||
+		lower_only_descending;
 	if (has_range_guard)
 		registers_needed += 2;
 	if (has_null_filter)
@@ -745,7 +746,7 @@ sql_plan_lower_vdbe_scan(const struct sql_plan_descriptor *plan,
 	int step_op = input->access.direction == SQL_PLAN_DESC ? OP_Prev :
 		OP_Next;
 	int rewind;
-	if (!range || upper_only_ascending) {
+	if (!range || upper_only_ascending || lower_only_descending) {
 		rewind = sqlVdbeAddOp2(vdbe, rewind_op, cursor, 0);
 	} else {
 		if (parse->nMem == INT_MAX)

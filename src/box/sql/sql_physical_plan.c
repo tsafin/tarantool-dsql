@@ -2149,10 +2149,10 @@ predicate_parsed:
 						    SQL_PLAN_ASC;
 			}
 		}
-		/* An upper-only primary range may satisfy ASC by rewinding and
-		 * stopping at the upper guard, or DESC by seeking to the endpoint.
-		 * The VDBE range lowerer implements both traversals. A lower-only
-		 * range still requires the seekable forward direction here.
+		/* Upper-only ranges may satisfy ASC by rewinding and stopping at
+		 * the upper guard, or DESC by seeking to the endpoint. Lower-only
+		 * ranges may satisfy DESC by walking backward from Last and stopping
+		 * at the lower guard. The VDBE range lowerer implements these walks.
 		 */
 		if (has_range_key && !has_prefix_range_scan &&
 		    !has_secondary_range_scan &&
@@ -2161,7 +2161,9 @@ predicate_parsed:
 				  range_op == SQL_PLAN_LE ? SQL_PLAN_DESC :
 				  SQL_PLAN_ASC) &&
 		    !(direction == SQL_PLAN_ASC &&
-		      (range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE))) {
+		      (range_op == SQL_PLAN_LT || range_op == SQL_PLAN_LE)) &&
+		    !(direction == SQL_PLAN_DESC &&
+		      (range_op == SQL_PLAN_GT || range_op == SQL_PLAN_GE))) {
 			free(order_terms);
 			if (reason != NULL)
 				*reason = SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN;
