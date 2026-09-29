@@ -46,6 +46,27 @@ is_in_predicate(const struct Expr *expr, int cursor, uint32_t field_count)
 }
 
 static bool
+has_unsupported_in_operand(const struct Expr *expr, int cursor,
+			   uint32_t field_count, size_t depth)
+{
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	if (ExprHasProperty(expr, EP_SingletonIn))
+		return true;
+	if (expr->op == TK_IN)
+		return !is_in_predicate(expr, cursor, field_count);
+	if (expr->op == TK_AND || expr->op == TK_OR)
+		return has_unsupported_in_operand(expr->pLeft, cursor, field_count,
+						  depth + 1) ||
+			has_unsupported_in_operand(expr->pRight, cursor, field_count,
+						   depth + 1);
+	if (expr->op == TK_NOT)
+		return has_unsupported_in_operand(expr->pLeft, cursor, field_count,
+						  depth + 1);
+	return false;
+}
+
+static bool
 is_supported_projection_expr(const struct Expr *expr, int cursor,
 			     uint32_t field_count,
 			     const uint32_t *cursor_to_relation,
@@ -177,6 +198,9 @@ sql_select_preflight_table_scan(const struct Select *select,
 	}
 	if (select->pWhere != NULL) {
 		const struct Expr *where = select->pWhere;
+		if (has_unsupported_in_operand(where, source->iCursor,
+					       source->space->def->field_count, 0))
+			return SQL_SELECT_PREFLIGHT_FILTER;
 		if ((where->op == TK_NOTNULL || where->op == TK_ISNULL) &&
 		    where->pLeft != NULL &&
 		    where->pRight == NULL &&

@@ -50,6 +50,13 @@ g.test_unsupported_routes_preserve_rows_and_reasons = function()
                 on_route = 'fallback',
                 on_reason = 'UNSUPPORTED_FILTER',
             },
+            {
+                sql = [[SELECT id FROM planner_fallback_parity
+                        WHERE v = 0]],
+                off_route = 'current_where_c',
+                on_route = 'fallback',
+                on_reason = 'NO_ACCESS_PATH',
+            },
         }
 
         for _, engine in ipairs({'memtx', 'vinyl'}) do
@@ -58,6 +65,8 @@ g.test_unsupported_routes_preserve_rows_and_reasons = function()
                          "a SCALAR) WITH ENGINE = '%s'"):format(name, engine))
             box.execute(("INSERT INTO %s VALUES (1, -7, X'123456'), " ..
                          "(2, 0, X'CDEF12'), (3, 9, X'7890AB')"):format(name))
+            box.execute(('CREATE INDEX %s_v_idx ON %s (v)')
+                        :format(name, name))
             for _, query in ipairs(queries) do
                 local sql = query.sql:gsub('planner_fallback_parity', name)
                 local function reason_for(flag)

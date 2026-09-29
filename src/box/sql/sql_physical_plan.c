@@ -482,7 +482,9 @@ sql_physical_table_scan_from_select(
 			const struct Expr *term = terms[i];
 			if (term->op == TK_IN &&
 			    is_supported_boolean_filter(term, source->iCursor,
-							 source->space->def->field_count, 0)) {
+							 source->space->def->field_count, 0) &&
+			    is_source_column(term->pLeft, source->iCursor,
+					     source->space->def->field_count)) {
 				bool is_pk_column = false;
 				for (uint32_t part = 0; part < pk->part_count; ++part)
 					is_pk_column |= (uint32_t)term->pLeft->iColumn ==

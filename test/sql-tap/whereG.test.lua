@@ -438,12 +438,19 @@ test:do_execsql_test(
     ]],
     {"David","Jack","Patrick","Quiana","Xavier"})
 
+local planner_setting = box.space._session_settings:get(
+    'sql_new_planner_single_table')
+local use_new_planner = planner_setting ~= nil and planner_setting[2] == true
+local people_scan_rows = use_new_planner and box.space.people:len() or 983040
+local people_scan_plan = string.format(
+    "SCAN TABLE people (~%d rows)", people_scan_rows)
+
 test:do_execsql_test(
     "7.2",
     [[
         EXPLAIN QUERY PLAN SELECT name FROM people WHERE height>=180;
     ]],
-    {0,0,0,"SCAN TABLE people (~983040 rows)"})
+    {0,0,0,people_scan_plan})
 
 test:do_execsql_test(
     "7.3",
@@ -453,7 +460,7 @@ test:do_execsql_test(
     ]],
     -- {0,0,0,"SEARCH TABLE PEOPLE USING COVERING INDEX PEOPLE_IDX1" ..
     --     " (ANY(ROLE) AND HEIGHT>?)"}
-    {0,0,0,"SCAN TABLE people (~983040 rows)" }
+    {0,0,0,people_scan_plan }
     )
 
 test:finish_test()

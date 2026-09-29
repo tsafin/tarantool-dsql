@@ -6092,6 +6092,14 @@ sql_select_record_preopt_fallback(Parse *parse, Select *select)
 		sql_select_record_fallback_reason(parse, SQL_LOGICAL_REJECT_SUBQUERY);
 	} else if (sql_select_has_subquery(select)) {
 		sql_select_record_fallback_reason(parse, SQL_LOGICAL_REJECT_SUBQUERY);
+	} else if (sql_select_preflight_table_scan(select, NULL) ==
+		   SQL_SELECT_PREFLIGHT_FILTER) {
+		/* Reject unsupported filter syntax before normalization can rewrite it
+		 * into a superficially supported comparison and change evaluation
+		 * semantics (notably literal-left IN over a column).
+		 */
+		sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_UNSUPPORTED_FILTER);
 	}
 }
 
@@ -6112,6 +6120,68 @@ sql_select_hash_pk_null_predicate(const Select *select,
 	const struct key_def *key_def = primary->def->key_def;
 	for (uint32_t i = 0; i < key_def->part_count; ++i) {
 		if ((uint32_t)where->pLeft->iColumn == key_def->parts[i].fieldno)
+			return true;
+	}
+	return false;
+}
+
+static bool
+sql_select_is_indexed_column(const Expr *expr, int cursor, uint32_t fieldno)
+{
+	return expr != NULL && expr->op == TK_COLUMN_REF &&
+		expr->pLeft == NULL && expr->pRight == NULL &&
+		expr->iTable == cursor && expr->iColumn >= 0 &&
+		(uint32_t)expr->iColumn == fieldno;
+}
+
+static bool
+sql_select_predicate_uses_index(const Expr *expr, int cursor,
+				uint32_t fieldno, size_t depth)
+{
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	if (expr->op == TK_AND || expr->op == TK_OR)
+		return sql_select_predicate_uses_index(expr->pLeft, cursor, fieldno,
+						       depth + 1) ||
+			sql_select_predicate_uses_index(expr->pRight, cursor, fieldno,
+							 depth + 1);
+	if (expr->op == TK_IN)
+		return sql_select_is_indexed_column(expr->pLeft, cursor, fieldno);
+	if (expr->op == TK_BETWEEN || expr->op == TK_ISNULL ||
+	    expr->op == TK_NOTNULL)
+		return sql_select_is_indexed_column(expr->pLeft, cursor, fieldno);
+	if (expr->op != TK_EQ && expr->op != TK_GT && expr->op != TK_GE &&
+	    expr->op != TK_LT && expr->op != TK_LE)
+		return false;
+	return sql_select_is_indexed_column(expr->pLeft, cursor, fieldno) ||
+		sql_select_is_indexed_column(expr->pRight, cursor, fieldno);
+}
+
+/*
+ * This executable slice emits only primary-index access paths. If a WHERE
+ * predicate references the leading field of a secondary index, keep the
+ * statement on where.c rather than replacing its indexed search with a table
+ * scan. The general candidate selector will own this decision once it can
+ * supply secondary-index paths too.
+ */
+static bool
+sql_select_has_matching_secondary_index(const Select *select,
+						const struct SrcList_item *source)
+{
+	if (select->pWhere == NULL || source->space == NULL ||
+	    source->space->index_map == NULL)
+		return false;
+	struct space *space = source->space;
+	for (uint32_t i = 1; i < space->index_count; ++i) {
+		const struct index *index = space->index_map[i];
+		if (index == NULL || index->def == NULL ||
+		    index->def->key_def == NULL ||
+		    index->def->key_def->part_count == 0)
+			continue;
+		if (sql_select_predicate_uses_index(select->pWhere,
+						    source->iCursor,
+						    index->def->key_def->parts[0].fieldno,
+						    0))
 			return true;
 	}
 	return false;
@@ -6261,6 +6331,11 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		return 0;
 	}
 	const struct index *primary = space->index_map[0];
+	if (sql_select_has_matching_secondary_index(select, source)) {
+		sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
+		return 0;
+	}
 	/* HASH supports ITER_ALL but not the ordered or keyed operations emitted
 	 * by the other physical routes. Keep it to unordered scans, optionally
 	 * guarded by a primary-key IS NULL/IS NOT NULL invariant.
@@ -6320,13 +6395,18 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	}
 	int result_first_reg = parse->nMem + 1;
 	parse->nMem += select->pEList->nExpr;
+	const struct sql_plan_descriptor_input *plan_input =
+		sql_plan_descriptor_get_input(plan);
+	if (plan_input == NULL)
+		goto emission_error;
 	if (parse->explain == 2) {
 		char *message;
 		if (sql_plan_descriptor_access_kind(plan) ==
 		    SQL_PLAN_TABLE_FULL_SCAN) {
-			LogEst log_rows = sql_space_tuple_log_count(space);
-			u64 rows = log_rows == 0 ? DEFAULT_TUPLE_COUNT :
-				sqlLogEstToInt(log_rows);
+			u64 rows = plan_input->cost_rows > 0 ?
+				(u64)plan_input->cost_rows :
+				plan_input->filter_count > 0 ?
+				DEFAULT_TUPLE_COUNT / 2 : DEFAULT_TUPLE_COUNT;
 			message = sqlMPrintf("SCAN TABLE %s (~%llu rows)",
 					      space->def->name,
 					      (unsigned long long)rows);
@@ -6347,10 +6427,6 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	else
 		vdbe_emit_open_hash_cursor_for_all(parse, source->iCursor, 0, space);
 	if (parse->is_aborted)
-		goto emission_error;
-	const struct sql_plan_descriptor_input *plan_input =
-		sql_plan_descriptor_get_input(plan);
-	if (plan_input == NULL)
 		goto emission_error;
 	struct sql_select_projection_context projection = {
 		.parse = parse,

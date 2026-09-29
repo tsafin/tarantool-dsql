@@ -1488,6 +1488,7 @@ struct Expr {
 #define EP_ConstFunc 0x080000	/* A sql_FUNC_CONSTANT or _SLOCHNG function */
 #define EP_CanBeNull 0x100000	/* Can be null despite NOT NULL constraint */
 #define EP_Subquery  0x200000	/* Tree contains a TK_SELECT operator */
+#define EP_SingletonIn 0x400000 /* EQ/NE rewritten from singleton IN */
 #define EP_Leaf      0x800000	/* Expr.pLeft, .pRight, .u.pSelect all NULL */
 /** Expression is system-defined. */
 #define EP_System    0x1000000

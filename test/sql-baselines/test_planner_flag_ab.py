@@ -27,6 +27,21 @@ class PlannerFlagABTest(unittest.TestCase):
         result = ab.classify_route_transitions([transition], {"classes": []})
         self.assertEqual(result[0]["class_review"], "unreviewed")
 
+    def test_multiline_commented_explain_is_plan_output(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            snapshot = root / "snapshots/sql-tap/whereG/q108.memtx.yaml"
+            snapshot.parent.mkdir(parents=True)
+            snapshot.write_text(
+                "test:\n  query_sql: '-- ANALYZE;\n"
+                "        EXPLAIN QUERY PLAN SELECT 1;\n'\n")
+            record = {"query_id": "snapshots/sql-tap/whereG/q108.memtx",
+                      "fields": [{"name": "l1_result.rows"}]}
+            explain, semantic = ab.explain_output_diffs([record], root)
+            self.assertEqual(explain, [record])
+            self.assertEqual(semantic, [])
+
 
 if __name__ == "__main__":
     unittest.main()

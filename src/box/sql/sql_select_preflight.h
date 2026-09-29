@@ -13,6 +13,7 @@ enum sql_select_preflight_reject {
 	SQL_SELECT_PREFLIGHT_SHAPE,
 	SQL_SELECT_PREFLIGHT_PROJECTION,
 	SQL_SELECT_PREFLIGHT_COLUMN_BINDING,
+	SQL_SELECT_PREFLIGHT_FILTER,
 };
 
 /* Pure eligibility check for the narrow SELECT c[, ...] FROM t scan.

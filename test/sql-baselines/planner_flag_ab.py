@@ -83,6 +83,10 @@ def explain_output_diffs(records, candidate_root):
             continue
         is_explain = re.search(
             r"(?m)^\s*query_sql:\s*['\"]?\s*EXPLAIN\b", source) is not None
+        if not is_explain:
+            is_explain = re.search(
+                r"(?m)^\s*query_sql:\s*['\"]?\s*"
+                r"(?:--[^\n]*\n\s*)+EXPLAIN\b", source) is not None
         fields = record.get("fields", [])
         only_explain_rows = is_explain and fields and all(
             item.get("name", "").startswith("l1_result.") for item in fields)

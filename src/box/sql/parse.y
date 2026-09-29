@@ -1397,10 +1397,14 @@ expr(A) ::= expr(A) in_op(N) LP exprlist(Y) RP(E). [IN] {
     **      expr1 == ?1
     **      expr1 <> ?2
     */
+    bool direct_column = A.pExpr != 0 &&
+      (A.pExpr->op == TK_ID || A.pExpr->op == TK_DOT);
     Expr *pRHS = Y->a[0].pExpr;
     Y->a[0].pExpr = 0;
     sql_expr_list_delete(Y);
     A.pExpr = sqlPExpr(pParse, N ? TK_NE : TK_EQ, A.pExpr, pRHS);
+    if( A.pExpr != 0 && !direct_column )
+      A.pExpr->flags |= EP_SingletonIn;
   }else{
     A.pExpr = sqlPExpr(pParse, TK_IN, A.pExpr, 0);
     if( A.pExpr ){
