@@ -267,6 +267,26 @@ parse_pk_bound(const struct Expr *expr, int cursor, uint32_t fieldno,
 	} else {
 		bool negative = false;
 		bool parsed = false;
+		/* INTEGER fields and indexes accept unsigned MsgPack integers too.
+		 * Equality access must therefore keep a positive literal above
+		 * INT64_MAX in unsigned form instead of letting sql_atoi64() wrap it
+		 * through its signed output parameter.
+		 */
+		if (op == SQL_PLAN_EQ && !negated &&
+		    (literal->flags & EP_IntValue) == 0 &&
+		    literal->u.zToken != NULL && literal->u.zToken[0] != '-') {
+			errno = 0;
+			char *end;
+			unsigned long long wide =
+				strtoull(literal->u.zToken, &end, 10);
+			if (errno == 0 && end != literal->u.zToken && *end == '\0' &&
+			    wide > INT64_MAX) {
+				result.is_unsigned = true;
+				result.unsigned_key = (uint64_t)wide;
+				*out = result;
+				return true;
+			}
+		}
 		if ((literal->flags & EP_IntValue) != 0) {
 			result.signed_key = literal->u.iValue;
 			parsed = true;
@@ -1132,9 +1152,11 @@ sql_physical_table_scan_from_select(
 							    FIELD_TYPE_INTEGER)
 								continue;
 							struct parsed_pk_bound parsed;
-							if (!parse_pk_bound(term, source->iCursor,
-								    (uint32_t)column->iColumn,
-								    is_unsigned, &parsed) ||
+							bool parsed_ok = parse_pk_bound(term,
+									source->iCursor,
+									(uint32_t)column->iColumn,
+									is_unsigned, &parsed);
+							if (!parsed_ok ||
 							    parsed.op != SQL_PLAN_EQ)
 								continue;
 							matched_secondary = true;
@@ -1144,7 +1166,7 @@ sql_physical_table_scan_from_select(
 								secondary_index_id = index->def->iid;
 								secondary_key_column =
 									(uint32_t)column->iColumn;
-								secondary_key_unsigned = is_unsigned;
+								secondary_key_unsigned = parsed.is_unsigned;
 								secondary_signed_key = parsed.signed_key;
 								secondary_unsigned_key =
 									parsed.unsigned_key;
