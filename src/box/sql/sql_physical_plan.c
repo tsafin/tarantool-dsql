@@ -1426,11 +1426,12 @@ sql_physical_table_scan_from_select(
 			bool seen_equal[SQL_PLAN_POINT_KEY_PART_MAX] = {false};
 			struct parsed_pk_bound equal_values[
 				SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
-			bool has_lower = false;
-			bool has_upper = false;
-			struct parsed_pk_bound lower = {0};
-			struct parsed_pk_bound upper = {0};
-			uint32_t bound_part = UINT32_MAX;
+			bool has_lower_part[SQL_PLAN_POINT_KEY_PART_MAX] = {false};
+			bool has_upper_part[SQL_PLAN_POINT_KEY_PART_MAX] = {false};
+			struct parsed_pk_bound lower_part[
+				SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+			struct parsed_pk_bound upper_part[
+				SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
 			bool valid = true;
 			for (size_t i = 0; i < expr_count && valid; ++i) {
 				bool found = false;
@@ -1464,27 +1465,34 @@ sql_physical_table_scan_from_select(
 					}
 					continue;
 				}
-				if (bound_part != UINT32_MAX && bound_part != part) {
-					valid = false;
-					break;
-				}
-				bound_part = part;
 				if (parsed[i].op == SQL_PLAN_GT ||
 				    parsed[i].op == SQL_PLAN_GE) {
-					if (!has_lower || pk_bound_is_stricter(&parsed[i],
-								       &lower, true))
-						lower = parsed[i];
-					has_lower = true;
+					if (!has_lower_part[part] ||
+					    pk_bound_is_stricter(&parsed[i],
+								&lower_part[part], true))
+						lower_part[part] = parsed[i];
+					has_lower_part[part] = true;
 				} else {
-					if (!has_upper || pk_bound_is_stricter(&parsed[i],
-								       &upper, false))
-						upper = parsed[i];
-					has_upper = true;
+					if (!has_upper_part[part] ||
+					    pk_bound_is_stricter(&parsed[i],
+								&upper_part[part], false))
+						upper_part[part] = parsed[i];
+					has_upper_part[part] = true;
 				}
 			}
-			if (!valid || bound_part == UINT32_MAX || bound_part == 0 ||
-			    (!has_lower && !has_upper))
+			uint32_t bound_part = UINT32_MAX;
+			for (uint32_t part = 0; valid && part < pk->part_count; ++part) {
+				if (has_lower_part[part] || has_upper_part[part]) {
+					bound_part = part;
+					break;
+				}
+			}
+			if (!valid || bound_part == UINT32_MAX)
 				goto invalid_predicate;
+			bool has_lower = has_lower_part[bound_part];
+			bool has_upper = has_upper_part[bound_part];
+			struct parsed_pk_bound lower = lower_part[bound_part];
+			struct parsed_pk_bound upper = upper_part[bound_part];
 			for (uint32_t part = 0; part < bound_part; ++part) {
 				if (!seen_equal[part])
 					goto invalid_predicate;
@@ -1496,13 +1504,29 @@ sql_physical_table_scan_from_select(
 						.unsigned_value = equal_values[part].unsigned_key,
 					};
 			}
-			for (uint32_t part = bound_part; part < pk->part_count; ++part)
-				if (seen_equal[part])
-					goto invalid_predicate;
 			composite_point_count = bound_part;
-			has_prefix_scan = has_prefix_range_scan = true;
-			prefix_range_has_lower = has_lower;
-			prefix_range_has_upper = has_upper;
+			if (bound_part != 0) {
+				has_prefix_scan = has_prefix_range_scan = true;
+				prefix_range_has_lower = has_lower;
+				prefix_range_has_upper = has_upper;
+			}
+			/* Only the earliest varying key part bounds a contiguous B-tree
+			 * interval. Preserve every predicate on later parts (and equality
+			 * predicates on the ranged part) as a residual expression.
+			 */
+			for (size_t i = 0; i < expr_count; ++i) {
+				if (parsed_part[i] < bound_part ||
+				    (parsed_part[i] == bound_part &&
+				     parsed[i].op != SQL_PLAN_EQ))
+					continue;
+				if (filter_count == SQL_PLAN_FILTER_MAX)
+					goto invalid_predicate;
+				filters[filter_count] = (struct sql_plan_filter) {
+					.op = SQL_PLAN_FILTER_EXPRESSION,
+					.selectivity = 0.5,
+				};
+				filter_expressions[filter_count++] = exprs[i];
+			}
 			has_range_key = true;
 			has_range_end_key = has_lower && has_upper;
 			range_unsigned = pk->parts[bound_part].type ==

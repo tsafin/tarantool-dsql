@@ -541,6 +541,20 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT a, b FROM %s WHERE a >= 1 AND a <= 2 ' ..
+                           'AND b >= 11'):format(composite_name),
+                    expected = {{1, 11}, {2, 20}},
+                    enabled_route = 'new_planner',
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT a, b FROM %s WHERE b = 20 AND ' ..
+                           'a <= 2 AND a >= 1'):format(composite_name),
+                    expected = {{2, 20}},
+                    enabled_route = 'new_planner',
+                    unordered = true,
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE v IS NULL ' ..
                            'ORDER BY id ASC'):format(name),
                     expected = {{1}, {3}},

@@ -1763,11 +1763,22 @@ DML, triggers, subprograms, non-deterministic functions.
   strongest-bound selection, strictness, DESC upper-only behavior, empty
   intersections, and off/on/off parity on memtx and Vinyl. The focused test
   passes; generated/CnP capture validates 408 statements per engine with exact
-  408/408 parity and observed CnP execution. Range predicates split across
-  multiple key parts remain unsupported.
+  408/408 parity and observed CnP execution. Only the earliest varying part
+  supplies access bounds; later-part predicates are still evaluated as
+  residuals, not as additional key-range bounds.
+  **Later-key residuals on a leading primary-key range (2026-09-29):** the
+  producer now bounds a composite primary-index scan with the earliest varying
+  key part and retains predicates on later key parts (and equality predicates
+  on the ranged part) as residual SQL expressions. Predicates on preceding
+  key parts must still be equalities, and only one varying part contributes
+  access bounds; later comparisons do not claim a lexicographic multi-part
+  interval. The memtx/Vinyl scalar-filter regression covers a leading bounded
+  range with a later-part residual and confirms the `new_planner` route.
+  Focused Debug build and luatest pass. This is not arbitrary range splitting
+  or broad corpus parity.
   Do not infer rollback of AST, parser, or schema state.
-  This does not cover all descriptor operators, secondary-index access,
-  arbitrary ranges split across multiple key parts, all storage edge cases, or
+  This does not cover all descriptor operators, arbitrary lexicographic ranges
+  spanning multiple varying key parts, all storage edge cases, or
   corpus-wide parity;
   checkpoint rollback does not include
   arbitrary parser/AST/schema mutation. Keep M3.4 open pending broader producer,
