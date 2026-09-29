@@ -137,6 +137,14 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected_order_columns = {1, 2},
                 },
                 {
+                    sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
+                           'ORDER BY y, z LIMIT 2 OFFSET 1')
+                          :format(secondary_tertiary_name),
+                    expected = {{10, 2, 2, 1}, {10, 3, 1, 2}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_order_columns = {1, 2},
+                },
+                {
                     sql = ('SELECT x, note FROM %s WHERE x = 7 ' ..
                            'ORDER BY note DESC'):format(secondary_name),
                     expected = {{7, 'c'}, {7, 'b'}, {7, 'a'}},
