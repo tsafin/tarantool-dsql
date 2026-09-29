@@ -767,7 +767,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(63);
+	plan(65);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1152,6 +1152,20 @@ main(void)
 		.primary_key_columns = secondary_pk_columns,
 		.primary_key_count = 2,
 	};
+	struct sql_plan_secondary_index wrong_secondary_index = secondary_index;
+	wrong_secondary_index.index_id = 2;
+	int before_wrong_secondary_index = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+		secondary_equality_desc, &vdbe, 4, 5, &wrong_secondary_index, 20,
+		NULL, NULL) == -1 && vdbe.nOp == before_wrong_secondary_index,
+	   "secondary equality lowering rejects an index-ID mismatch atomically");
+	wrong_secondary_index = secondary_index;
+	wrong_secondary_index.key_column = 4;
+	int before_wrong_secondary_column = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+		secondary_equality_desc, &vdbe, 4, 5, &wrong_secondary_index, 20,
+		NULL, NULL) == -1 && vdbe.nOp == before_wrong_secondary_column,
+	   "secondary equality lowering rejects an indexed-column mismatch atomically");
 	int before_secondary_equality = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
 		secondary_equality_desc, &vdbe, 4, 5, &secondary_index, 20,
