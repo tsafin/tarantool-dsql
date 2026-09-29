@@ -106,7 +106,7 @@ def summarize(rows):
     return result
 
 
-def analyze(rows, baseline, candidate):
+def analyze(rows, baseline, candidate, allow_statistics_change=False):
     if not baseline or not candidate or baseline == candidate:
         raise ValueError("baseline and candidate must be distinct non-empty names")
     if not rows:
@@ -116,6 +116,7 @@ def analyze(rows, baseline, candidate):
     immutable = {}
     stage_inventory = {}
     actual_inventory = {}
+    statistics_inventory = {}
     for row in rows:
         scope = (row["workload_id"], row["engine"], row["dispatcher"])
         identity = scope + (row["configuration"], row["query_id"], row["repeat"])
@@ -123,10 +124,20 @@ def analyze(rows, baseline, candidate):
             raise ValueError(f"duplicate observation key: {identity}")
         record_keys.add(identity)
         provenance = (row["source_commit"], row["binary_sha256"],
-                      row["data_sha256"], row["statistics_id"])
+                      row["data_sha256"])
+        if not allow_statistics_change:
+            provenance += (row["statistics_id"],)
         if scope in immutable and immutable[scope] != provenance:
             raise ValueError(f"mixed source/binary provenance in scope: {scope}")
         immutable[scope] = provenance
+        statistics_key = scope + (row["configuration"],)
+        statistics_id = row["statistics_id"]
+        if (statistics_key in statistics_inventory and
+                statistics_inventory[statistics_key] != statistics_id):
+            raise ValueError(
+                "mixed statistics provenance for configuration: "
+                f"{'/'.join(statistics_key)}")
+        statistics_inventory[statistics_key] = statistics_id
         stage_key = scope + (row["configuration"], row["query_id"])
         stages = frozenset(stage["stage_id"]
                            for stage in row["cardinalities"])
@@ -192,7 +203,7 @@ def analyze(rows, baseline, candidate):
                     f"unmatched actual cardinalities for {scope}/{key}")
             ratios.append(cand_rows[key]["elapsed_us"] /
                           base_rows[key]["elapsed_us"])
-        comparisons["/".join(scope)] = {
+        comparison = {
             "baseline": baseline,
             "candidate": candidate,
             "paired_samples": len(ratios),
@@ -203,6 +214,12 @@ def analyze(rows, baseline, candidate):
                                            len(ratios)),
             },
         }
+        if allow_statistics_change:
+            comparison["statistics_ids"] = {
+                baseline: statistics_inventory[scope + (baseline,)],
+                candidate: statistics_inventory[scope + (candidate,)],
+            }
+        comparisons["/".join(scope)] = comparison
     return {"schema_version": 1, "groups": summaries,
             "queries": query_summaries,
             "paired_comparisons": comparisons}
@@ -229,11 +246,14 @@ def main(argv=None):
                         help="JSONL observation file(s)")
     parser.add_argument("--baseline", default="default")
     parser.add_argument("--candidate", default="candidate")
+    parser.add_argument("--allow-statistics-change", action="store_true",
+                        help="allow distinct statistics IDs by configuration; "
+                             "source, binary, and data provenance remain paired")
     parser.add_argument("--out", type=Path, help="write JSON report (default stdout)")
     args = parser.parse_args(argv)
     try:
         result = analyze(read_jsonl(args.observations), args.baseline,
-                         args.candidate)
+                         args.candidate, args.allow_statistics_change)
         output = json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + "\n"
         if args.out:
             args.out.write_text(output, encoding="utf-8")

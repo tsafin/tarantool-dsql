@@ -139,6 +139,25 @@ class E1MeasureTest(unittest.TestCase):
                                     "unmatched actual cardinalities"):
             e1_measure.analyze(baseline + candidate, "default", "candidate")
 
+    def test_statistics_comparison_requires_explicit_opt_in(self):
+        baseline = [observation("default", repeat, 100)
+                    for repeat in range(1, 6)]
+        candidate = [observation("candidate", repeat, 110)
+                     for repeat in range(1, 6)]
+        for row in candidate:
+            row["statistics_id"] = "live-snapshot-v1"
+        with self.assertRaisesRegex(ValueError, "mixed source/binary provenance"):
+            e1_measure.analyze(baseline + candidate, "default", "candidate")
+        result = e1_measure.analyze(
+            baseline + candidate, "default", "candidate",
+            allow_statistics_change=True)
+        comparison = result["paired_comparisons"][
+            "analytic-v1/memtx/generated"]
+        self.assertEqual(comparison["statistics_ids"], {
+            "default": "stats-v1-seed-17",
+            "candidate": "live-snapshot-v1",
+        })
+
     def test_rejects_duplicate_and_bad_numeric_fields(self):
         row = observation("default", 1, 100)
         e1_measure.validate_row(row, "in-memory", 1)

@@ -38,9 +38,13 @@ specified measurement rather than silently mixing it into execution time.
 
 For each engine/dispatcher/configuration, retain warmups but exclude them from
 summaries. Execute at least five measured repetitions per query/configuration;
-randomize or alternate configuration order to reduce temporal bias. Keep source
-commit, binary hash, data hash, and statistics ID identical across paired
-configurations.
+randomize or alternate configuration order to reduce temporal bias. Standard
+planner A/B comparisons must keep source commit, binary hash, data hash, and
+statistics ID identical across paired configurations. A dedicated statistics
+provider comparison may intentionally compare different statistics states; use
+`--allow-statistics-change` only for that experiment. It still requires source,
+binary, data, actual rows, and stage IDs to match, and reports each configuration's
+statistics ID. Do not use this option for solver-width or execution-mode A/B.
 Do not treat concurrent runs as independent latency repetitions. A report must
 include query-level distributions as well as aggregate distributions so a
 small number of expensive or badly estimated queries is not hidden by pooling.
@@ -53,6 +57,10 @@ Run locally with:
 python3 -B test/sql-baselines/test_e1_measure.py
 python3 -B test/sql-baselines/e1_measure.py observations.jsonl \
   --baseline default --candidate candidate --out report.json
+# Only for an explicit no-stats vs stats-provider comparison:
+python3 -B test/sql-baselines/e1_measure.py observations.jsonl \
+  --baseline no-stats --candidate live-stats --allow-statistics-change \
+  --out stats-report.json
 ```
 
 The analyzer validates schema/provenance, rejects duplicate or unpaired query
@@ -77,3 +85,23 @@ the aggregate.
 The tool deliberately sets no “good enough” q-error or latency threshold. The
 workload, metric thresholds, unacceptable regressions, and trade-off for any
 planner-time increase require review before collecting decision-grade results.
+
+`e1_sql_producer.py` is a reproducible TEST_BUILD pilot for the volatile
+snapshot adapter, not the production ANALYZE collector or reviewed M0
+analytical corpus. Run it after building `tarantool` and
+`sql_stats_snapshot_test` from a clean SQL/test source tree:
+
+```sh
+python3 -B test/sql-baselines/e1_sql_producer.py \
+  --build-dir build-jit-clang19-debug \
+  --out /tmp/sql-stats-live.jsonl
+```
+
+The pilot measures one prepared single-table equality query five times per
+configuration, records a warmup, and pairs the planner's EXPLAIN estimate with
+the actual rows from that same SELECT output. Its explicit
+`--allow-statistics-change` analysis compares no installed snapshot against a
+TEST_BUILD volatile snapshot and records both statistics IDs. Its uniform
+eight-row fixture, single engine, and test-only supplied summary are smoke
+evidence for the JSONL producer and stage contract only; they do not establish
+skewed MCV quality, corpus q-error improvement, or E1 acceptance.
