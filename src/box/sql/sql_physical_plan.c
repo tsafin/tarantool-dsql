@@ -65,6 +65,39 @@ is_source_column(const struct Expr *expr, int cursor, uint32_t field_count)
 }
 
 static bool
+has_only_source_columns(const struct Expr *expr, int cursor,
+			uint32_t field_count, size_t depth)
+{
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX ||
+	    ExprHasProperty(expr, EP_TokenOnly | EP_Reduced | EP_xIsSelect))
+		return false;
+	if (expr->op == TK_COLUMN_REF)
+		return is_source_column(expr, cursor, field_count);
+	if (expr->op == TK_IN || expr->op == TK_BETWEEN) {
+		if (expr->pRight != NULL || expr->x.pList == NULL ||
+		    expr->x.pList->nExpr <= 0 ||
+		    !has_only_source_columns(expr->pLeft, cursor, field_count,
+					    depth + 1))
+			return false;
+		for (int i = 0; i < expr->x.pList->nExpr; ++i) {
+			if (!has_only_source_columns(expr->x.pList->a[i].pExpr,
+						     cursor, field_count,
+						     depth + 1))
+				return false;
+		}
+		return true;
+	}
+	if (expr->pLeft == NULL && expr->pRight == NULL)
+		return sqlExprIsConstant((struct Expr *)expr);
+	return (expr->pLeft == NULL ||
+		has_only_source_columns(expr->pLeft, cursor, field_count,
+					depth + 1)) &&
+	       (expr->pRight == NULL ||
+		has_only_source_columns(expr->pRight, cursor, field_count,
+					depth + 1));
+}
+
+static bool
 is_supported_boolean_filter(const struct Expr *expr, int cursor,
 			    uint32_t field_count, size_t depth)
 {
@@ -81,7 +114,7 @@ is_supported_boolean_filter(const struct Expr *expr, int cursor,
 						   depth + 1);
 	if ((expr->op == TK_ISNULL || expr->op == TK_NOTNULL) &&
 	    expr->pRight == NULL)
-		return is_source_column(expr->pLeft, cursor, field_count);
+		return has_only_source_columns(expr->pLeft, cursor, field_count, 0);
 	if (expr->op == TK_BETWEEN && expr->pRight == NULL &&
 	    expr->x.pList != NULL && expr->x.pList->nExpr == 2 &&
 	    is_source_column(expr->pLeft, cursor, field_count))
@@ -570,6 +603,22 @@ sql_physical_table_scan_from_select(
 				continue;
 			}
 			if (term->op == TK_ISNULL || term->op == TK_NOTNULL) {
+				if (term->pLeft != NULL && term->pRight == NULL &&
+				    !is_source_column(term->pLeft, source->iCursor,
+						      source->space->def->field_count) &&
+				    has_only_source_columns(term->pLeft,
+							   source->iCursor,
+							   source->space->def->field_count,
+							   0)) {
+					if (filter_count == SQL_PLAN_FILTER_MAX)
+						goto invalid_predicate;
+					filters[filter_count] = (struct sql_plan_filter) {
+						.op = SQL_PLAN_FILTER_EXPRESSION,
+						.selectivity = 0.5,
+					};
+					filter_expressions[filter_count++] = term;
+					continue;
+				}
 				if (term->pLeft == NULL ||
 				    term->pRight != NULL ||
 				    term->pLeft->op != TK_COLUMN_REF ||

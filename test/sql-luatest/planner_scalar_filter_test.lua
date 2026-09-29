@@ -347,6 +347,23 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{2}},
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE a + b IS NULL ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{4}, {5}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE a + b IS NOT NULL ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{1}, {2}, {3}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE ABS(a) IS NULL ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{4}},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FUNCTION',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE NOT (a = b) ' ..
                            'ORDER BY id'):format(comparison_name),
                     expected = {{2}, {3}},

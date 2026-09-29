@@ -99,6 +99,41 @@ is_direct_null_predicate(const struct Expr *expr, int cursor,
 }
 
 static bool
+has_only_source_columns(const struct Expr *expr, int cursor,
+			uint32_t field_count, size_t depth)
+{
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX ||
+	    ExprHasProperty(expr, EP_TokenOnly | EP_Reduced | EP_xIsSelect))
+		return false;
+	if (expr->op == TK_COLUMN_REF)
+		return expr->pLeft == NULL && expr->pRight == NULL &&
+			expr->iTable == cursor && expr->iColumn >= 0 &&
+			(uint32_t)expr->iColumn < field_count;
+	if (expr->op == TK_IN || expr->op == TK_BETWEEN) {
+		if (expr->pRight != NULL || expr->x.pList == NULL ||
+		    expr->x.pList->nExpr <= 0 ||
+		    !has_only_source_columns(expr->pLeft, cursor, field_count,
+					    depth + 1))
+			return false;
+		for (int i = 0; i < expr->x.pList->nExpr; ++i) {
+			if (!has_only_source_columns(expr->x.pList->a[i].pExpr,
+						     cursor, field_count,
+						     depth + 1))
+				return false;
+		}
+		return true;
+	}
+	if (expr->pLeft == NULL && expr->pRight == NULL)
+		return sqlExprIsConstant((struct Expr *)expr);
+	return (expr->pLeft == NULL ||
+		has_only_source_columns(expr->pLeft, cursor, field_count,
+					depth + 1)) &&
+	       (expr->pRight == NULL ||
+		has_only_source_columns(expr->pRight, cursor, field_count,
+					depth + 1));
+}
+
+static bool
 is_filter_predicate_tree(const struct Expr *expr, int cursor,
 			 uint32_t field_count, size_t *term_count,
 			 size_t depth)
@@ -115,9 +150,13 @@ is_filter_predicate_tree(const struct Expr *expr, int cursor,
 	if (expr->op == TK_NOT && expr->pLeft != NULL && expr->pRight == NULL)
 		return is_filter_predicate_tree(expr->pLeft, cursor, field_count,
 						term_count, depth + 1);
+	bool expression_null_predicate = expr->pRight == NULL &&
+		(expr->op == TK_ISNULL || expr->op == TK_NOTNULL) &&
+		has_only_source_columns(expr->pLeft, cursor, field_count, 0);
 	if (!is_comparison_predicate(expr) && !is_between_predicate(expr) &&
 	    !is_in_predicate(expr, cursor, field_count) &&
-	    !is_direct_null_predicate(expr, cursor, field_count))
+	    !is_direct_null_predicate(expr, cursor, field_count) &&
+	    !expression_null_predicate)
 		return false;
 	if (*term_count == SQL_PLAN_POINT_KEY_PART_MAX)
 		return false;
