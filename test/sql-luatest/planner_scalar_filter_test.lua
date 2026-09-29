@@ -198,6 +198,15 @@ g.test_non_primary_null_filters_off_on_off = function()
                     unordered = true,
                 },
                 {
+                    sql = ('SELECT x, tenant, id FROM %s WHERE note <> \'c\' ' ..
+                           'ORDER BY x ASC LIMIT 1 OFFSET 1')
+                          :format(secondary_name),
+                    expected = {{7, 1, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    unordered = true,
+                },
+                {
                     sql = ('SELECT x, id FROM %s ORDER BY x ASC ' ..
                            'LIMIT 1'):format(nullable_secondary_name),
                     expected = {{box.NULL, 2}},
