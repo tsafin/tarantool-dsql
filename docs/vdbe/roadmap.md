@@ -1189,13 +1189,19 @@ DML, triggers, subprograms, non-deterministic functions.
   `SelectDest` result registers. It accepts only a resolved direct-column
   projection from one base table and requires a TREE primary index. The
   no-filter route supports optional primary-key ordering by scanning in the
-  requested direction. Composite primary indexes now support ORDER BY on a
-  leading key prefix with uniform ASC or DESC direction; mixed directions and
-  non-prefix terms remain on legacy codegen with stable
-  `UNSUPPORTED_EXPRESSION` fallback metadata. Memtx/Vinyl off/on result parity
+  requested physical direction. Composite primary and secondary indexes now
+  support ORDER BY on a leading key prefix when each requested direction
+  matches the declared key-part directions or their complete inverse. Mixed
+  patterns not represented by one forward/reverse key walk and non-prefix
+  terms remain on legacy codegen with stable `UNSUPPORTED_EXPRESSION` fallback
+  metadata. Memtx/Vinyl off/on result parity
   covers ascending prefix order, complete ascending/descending composite key
   order, and descending order over an equality-only composite prefix, while
-  preflight unit tests reject mixed and non-prefix shapes. It
+  preflight unit tests reject unsupported mixed and non-prefix shapes. A
+  composite secondary index with `(x ASC, note DESC)` now serves both its
+  natural `ORDER BY x ASC, note DESC` and complete inverse; focused memtx/Vinyl
+  off/on/off coverage checks the selected index and per-term result order, and
+  VDBE lowering unit tests pin forward and reverse cursor walks. It
   now recognizes complete equality predicates over composite INTEGER/UNSIGNED
   primary keys through the supported 255-part key bound, independent of
   predicate order, as a true point lookup. Preflight and producer flatten
@@ -1326,8 +1332,8 @@ DML, triggers, subprograms, non-deterministic functions.
   selective key access path applies; the executor resolves the base row before
   filtering. Coverage includes LIMIT/OFFSET after rejecting earlier ordered
   rows, and checks the selected secondary index and results.
-  Arbitrary predicates, non-prefix ordering, and mixed-direction index
-  prefixes remain unsupported. This is a bounded M3.4
+  Arbitrary predicates, non-prefix ordering, and mixed-direction requests not
+  matching a key definition or its complete inverse remain unsupported. This is a bounded M3.4
   increment, not closure.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source

@@ -336,23 +336,26 @@ through reverse traversal.
 #### Secondary-index ordered full scan
 
 A single-table SELECT may satisfy an `ORDER BY` matching a
-leading prefix of a TREE secondary index whose matched key parts all have the
-same declared direction, provided no more
+leading prefix of a TREE secondary index when the requested per-term
+directions match the index's declared directions or their complete inverse,
+provided no more
 selective primary/secondary point, range, or prefix access path is applicable.
 With no WHERE predicate this is a predicate-free full scan; a supported
 residual predicate is evaluated after each secondary entry has been resolved
 to its base row (direct string equality/inequality and `IN` are covered).
-Every term must match its index key part in order, and all terms must request
-the same direction. The
+Every term must match its index key part in order. Mixed directions are
+supported only when they match the key definition (or invert every term for a
+reverse walk); arbitrary mixed patterns still fall back. The
 full-scan access descriptor carries the selected index ID and produced-order
 terms; its direction chooses `Rewind`/`Next` or `Last`/`Prev`. Each secondary
 entry is resolved through its complete primary key before projection. The
 route applies literal LIMIT/OFFSET after residual filtering, but does not claim
 support for arbitrary predicates or non-prefix order. The scan direction is
-mapped relative to the index definition, so a uniform ASC or DESC index order
-can be walked forward or backward. The preflight derives order capacity from
+mapped relative to each matched index part, so both uniform and mixed key
+directions can be walked forward or backward as one physical traversal. The preflight derives order capacity from
 the matched secondary key, not the (possibly shorter) primary key. Mixed-
-direction index prefixes are not supported. Memtx/Vinyl tests cover one- and
+direction patterns that do not match the key definition remain unsupported.
+Memtx/Vinyl tests cover one- and
 two-term orders in both directions, including a descending-only composite
 index, duplicate key values, an unsigned maximum suffix, NULL placement at
 both ends of the order (including a nullable descending-only index), and
