@@ -301,19 +301,15 @@ S1 can start against this baseline.
 **Goal:** make the *current* planner's decisions inspectable, replayable, and
 counter-gated before changing the planner.
 
-**State:** `IN-PROGRESS`. M0-A/M0-B are accepted locally. M1.1 has the
-preparatory statement-compilation counter (`sql_statement_compiles_total`)
-plus WHERE-planner candidate and elapsed aggregates. A fallback aggregate
-now increments at the multi-relation fallback route, and M1.2/M3.5 expose
-`fallback` plus stable `UNSUPPORTED_RELATION_COUNT` / `UNSUPPORTED_AGGREGATE`
-reasons through summary EXPLAIN; snapshot serialization preserves the reason
-and its live corpus capture is tested for the multi-relation case. Other
-fallback shapes and replay remain open. M1.3's
-structured summary surface handles both the legacy `current_where_c` path and
-that fallback outcome. Hosted CI publication is pending but does not block
-local M1 work.
-Freeze the planner event/path-class and replay envelope before M3 consumes
-them.
+**State:** `COMPLETE` for the v1 observability and selection-replay contract.
+M1.1–M1.5 provide planner counters, path classes and stable fallback reasons,
+structured summary EXPLAIN, a versioned detached snapshot, and replay of the
+captured ordered final-path selection. M3.5's later producer-ledger audit
+closes the reviewed route/reason coverage referenced by M1.1/M1.2. Replay is
+intentionally selection-only: it validates and selects from a complete
+captured final-path list; live access-path enumeration, dominance, and beam
+pruning are not replayed. Unsupported captures remain diagnostic-only. Local
+gates are complete; hosted CI publication is not a prerequisite.
 
 **Exit criteria:**
 
