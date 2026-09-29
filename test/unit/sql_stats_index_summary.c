@@ -61,7 +61,7 @@ extract_tagged_scalar(void *context, const char *tuple, size_t tuple_size,
 	if (tuple_size == 0 || part_count != 1)
 		return -1;
 	parts[0] = (struct sql_stats_hll_value){
-		.type_tag = tuple[0] == 'N' ? 0 : 1,
+		.type_tag = tuple[0] == 'N' ? 0 : (uint8_t)tuple[0],
 		.data = tuple + 1,
 		.size = tuple_size - 1,
 	};
@@ -108,7 +108,7 @@ test_mcv_index_summaries(void)
 		struct sql_stats_spacesaving_entry entry;
 		if (sql_stats_index_summary_mcv_at(summary, 0, i, &type_tag, &value,
 							 &value_size, &entry) == 0 &&
-		    type_tag == 1 && value_size == 3 &&
+		    type_tag == 'I' && value_size == 3 &&
 		    memcmp(value, "hot", 3) == 0 &&
 		    entry.estimate == 4 && entry.error == 0)
 			found_hot = true;
