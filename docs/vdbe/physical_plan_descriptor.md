@@ -324,6 +324,17 @@ values, residual bounds, LIMIT/OFFSET, and selected-index evidence from
 overrides, non-integer key parts, and ranges on non-leading composite parts
 remain outside this route.
 
+#### Secondary-index ordered full scan
+
+A predicate-free single-table SELECT may satisfy a one-column `ORDER BY` on
+the first key part of an ascending TREE secondary index. The full-scan access
+descriptor carries the selected index ID and one produced-order term; its
+direction chooses `Rewind`/`Next` or `Last`/`Prev`. Each secondary entry is
+resolved through its complete primary key before projection. The route does
+not combine secondary traversal with filters or multi-term ordering, and does
+not claim support for a descending index definition. Memtx/Vinyl tests cover
+both requested directions and duplicate first-part values.
+
 For a composite key with at least three parts, equality on a proper leading
 prefix of two or more INTEGER/UNSIGNED parts uses a dedicated prefix scan. It
 seeks with the entire prefix key and compares each prefix column on every row,
