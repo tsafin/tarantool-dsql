@@ -332,6 +332,21 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{2}},
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE a + b = 3 ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{2}, {3}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE a + b = id ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{3}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE (a + b = 3) OR ' ..
+                           '(a = b) ORDER BY id'):format(comparison_name),
+                    expected = {{1}, {2}, {3}},
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE a <= b ORDER BY id')
                           :format(comparison_name),
                     expected = {{1}, {2}},

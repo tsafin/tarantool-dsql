@@ -98,6 +98,31 @@ has_only_source_columns(const struct Expr *expr, int cursor,
 }
 
 static bool
+has_source_column(const struct Expr *expr, int cursor, uint32_t field_count,
+		  size_t depth)
+{
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	if (is_source_column(expr, cursor, field_count))
+		return true;
+	if (expr->op == TK_IN || expr->op == TK_BETWEEN) {
+		if (has_source_column(expr->pLeft, cursor, field_count, depth + 1))
+			return true;
+		if (expr->x.pList != NULL) {
+			for (int i = 0; i < expr->x.pList->nExpr; ++i) {
+				if (has_source_column(expr->x.pList->a[i].pExpr,
+						     cursor, field_count,
+						     depth + 1))
+					return true;
+			}
+		}
+		return false;
+	}
+	return has_source_column(expr->pLeft, cursor, field_count, depth + 1) ||
+		has_source_column(expr->pRight, cursor, field_count, depth + 1);
+}
+
+static bool
 is_supported_boolean_filter(const struct Expr *expr, int cursor,
 			    uint32_t field_count, size_t depth)
 {
@@ -135,8 +160,10 @@ is_supported_boolean_filter(const struct Expr *expr, int cursor,
 		return false;
 	if (expr->pLeft == NULL || expr->pRight == NULL)
 		return false;
-	if (is_source_column(expr->pLeft, cursor, field_count) &&
-	    is_source_column(expr->pRight, cursor, field_count))
+	if (has_only_source_columns(expr->pLeft, cursor, field_count, 0) &&
+	    has_only_source_columns(expr->pRight, cursor, field_count, 0) &&
+	    (has_source_column(expr->pLeft, cursor, field_count, 0) ||
+	     has_source_column(expr->pRight, cursor, field_count, 0)))
 		return true;
 	return (is_source_column(expr->pLeft, cursor, field_count) &&
 		is_supported_filter_constant(expr->pRight)) ||
@@ -660,10 +687,33 @@ sql_physical_table_scan_from_select(
 			    term->op == TK_LT || term->op == TK_LE) {
 				if (term->pLeft == NULL || term->pRight == NULL)
 					goto invalid_predicate;
-				if (is_source_column(term->pLeft, source->iCursor,
-						     source->space->def->field_count) &&
-				    is_source_column(term->pRight, source->iCursor,
-						     source->space->def->field_count)) {
+				bool direct_column_comparison =
+					is_source_column(term->pLeft, source->iCursor,
+							 source->space->def->field_count) &&
+					is_source_column(term->pRight, source->iCursor,
+							 source->space->def->field_count);
+				bool direct_column_constant_comparison =
+					(is_source_column(term->pLeft, source->iCursor,
+							  source->space->def->field_count) &&
+					 is_supported_filter_constant(term->pRight)) ||
+					(is_source_column(term->pRight, source->iCursor,
+							  source->space->def->field_count) &&
+					 is_supported_filter_constant(term->pLeft));
+				bool computed_comparison = !direct_column_comparison &&
+					!direct_column_constant_comparison &&
+					has_only_source_columns(term->pLeft,
+							       source->iCursor,
+							       source->space->def->field_count,
+							       0) &&
+					has_only_source_columns(term->pRight,
+							       source->iCursor,
+							       source->space->def->field_count,
+							       0) &&
+					(has_source_column(term->pLeft, source->iCursor,
+							   source->space->def->field_count, 0) ||
+					 has_source_column(term->pRight, source->iCursor,
+							   source->space->def->field_count, 0));
+				if (direct_column_comparison || computed_comparison) {
 					if (filter_count == SQL_PLAN_FILTER_MAX)
 						goto invalid_predicate;
 					filters[filter_count] = (struct sql_plan_filter) {
