@@ -995,10 +995,11 @@ format approval is implied.
   volatile snapshot adapter and records the matching `select-output`
   estimate/actual cardinality with source, binary, data, and per-configuration
   statistics provenance. The local pilot at
-  `/tmp/e1-s1pilot-head-20260930.jsonl` contains 12 rows (warmup plus five
+  `/tmp/e1-s1pilot-final-20260930.jsonl` contains 12 rows (warmup plus five
   measured executions for each state); q-error is 3.33 without the snapshot
-  and 1.0 with it. The companion report shows all elapsed times at the 1 us
-  floor, so these values do not constitute latency evidence. Reproduce with the command
+  and 1.0 with it. Monotonic timing records median 10 us / 11 us respectively
+  in this five-repeat pilot, far too few and too small to constitute latency
+  evidence. Reproduce with the command
   in `test/sql-baselines/E1_WORKLOAD.md`. This narrows the producer gap but
   does not close S1.9: the fixture is uniform and tiny, uses the TEST_BUILD
   adapter rather than collected ANALYZE statistics, and is not integrated into
