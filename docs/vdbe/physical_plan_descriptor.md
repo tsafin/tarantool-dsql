@@ -315,10 +315,10 @@ Lowering seeks with the prefix arity, stops when the indexed prefix changes,
 resolves every matching entry through its complete primary key, and then
 applies residual filters and LIMIT/OFFSET. This is a range scan over the
 matching prefix, not a point lookup; duplicate prefix values must all be
-returned. It can also produce a one-term `ORDER BY` on the immediately
-following, unfixed key part when the selected forward or reverse walk matches
-the requested direction. Other orderings use another ordered access path or
-legacy codegen. Skipped leading parts, incomplete/non-literal values, and
+returned. It can also produce an `ORDER BY` over a contiguous prefix of the
+remaining key parts when the selected forward or reverse walk matches every
+requested direction. Other orderings use another ordered access path or legacy
+codegen. Skipped leading parts, incomplete/non-literal values, and
 unsupported key types also remain unsupported. Memtx/Vinyl
 off/on/off coverage checks duplicate matches, selected-index evidence, and
 one- and two-part prefix-only routing; VDBE tests pin seek and guard arity.

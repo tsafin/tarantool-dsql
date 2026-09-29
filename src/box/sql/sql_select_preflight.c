@@ -235,11 +235,11 @@ sql_select_preflight_table_scan(const struct Select *select,
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
 		/* A leading prefix of a TREE secondary index may provide
-		 * order for an unordered full scan or a compatible leading-key range.
-		 * The physical producer validates which access actually applies.
+		 * order for an unordered full scan, a compatible range, or a
+		 * prefix-equality scan. The physical producer validates which access
+		 * actually applies.
 		 */
-		if ((select->pWhere == NULL || order->nExpr == 1) &&
-		    order->a[0].pExpr->iTable == source->iCursor) {
+		if (order->a[0].pExpr->iTable == source->iCursor) {
 			for (uint32_t index_no = 1;
 			     index_no < source->space->index_count; ++index_no) {
 				const struct index *index =

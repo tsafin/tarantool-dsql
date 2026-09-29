@@ -970,7 +970,8 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		     (index->key_columns == NULL ||
 		      index->key_parts_unsigned == NULL)))
 		return -1;
-	bool invalid_range_order = input->access.produced_order_count != 0 &&
+	bool invalid_range_order = range &&
+		input->access.produced_order_count != 0 &&
 		(input->access.produced_order_count != 1 ||
 		 input->access.produced_order == NULL ||
 		 input->access.produced_order[0].column !=
@@ -1015,13 +1016,28 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		 input->access.has_unsigned_range_end_key ||
 		 input->access.bound_count != prefix_count ||
 		 input->access.bounds == NULL ||
-		 input->access.produced_order_count > 1 ||
+		 input->access.produced_order_count >
+			index_part_count - prefix_count ||
 		 (input->access.produced_order_count != 0 &&
 		  (input->access.produced_order == NULL ||
-		   prefix_count >= index_part_count ||
+		   index->key_parts_descending == NULL ||
 		   input->access.range_key_column !=
-			index->key_columns[prefix_count] ||
-		   invalid_range_order)));
+			index->key_columns[prefix_count])));
+	if (prefix_scan && !invalid_prefix &&
+	    input->access.produced_order_count != 0) {
+		for (size_t i = 0; i < input->access.produced_order_count; ++i) {
+			size_t part = prefix_count + i;
+			bool descending = index->key_parts_descending[part] !=
+				(input->access.direction == SQL_PLAN_DESC);
+			if (input->access.produced_order[i].column !=
+				index->key_columns[part] ||
+			    (input->access.produced_order[i].direction == SQL_PLAN_DESC) !=
+				descending) {
+				invalid_prefix = true;
+				break;
+			}
+		}
+	}
 	if (prefix_scan && !invalid_prefix) {
 		for (size_t i = 0; i < prefix_count; ++i) {
 			if (input->access.prefix_key_parts[i].column !=

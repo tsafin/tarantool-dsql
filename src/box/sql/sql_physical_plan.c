@@ -1577,28 +1577,31 @@ predicate_parsed:
 		}
 	}
 	if (has_secondary_prefix_scan && select->pOrderBy != NULL &&
-	    select->pOrderBy->nExpr == 1 &&
-	    select->pOrderBy->a[0].pExpr != NULL &&
-	    select->pOrderBy->a[0].pExpr->op == TK_COLUMN_REF &&
-	    select->pOrderBy->a[0].pExpr->pLeft == NULL &&
-	    select->pOrderBy->a[0].pExpr->pRight == NULL &&
-	    select->pOrderBy->a[0].pExpr->iTable == source->iCursor &&
-	    select->pOrderBy->a[0].pExpr->iColumn >= 0 &&
-	    source->space->index_map != NULL) {
+	    select->pOrderBy->nExpr > 0 && source->space->index_map != NULL) {
 		for (uint32_t index_no = 1;
 		     index_no < source->space->index_count; ++index_no) {
 			const struct index *index = source->space->index_map[index_no];
 			if (index == NULL || index->def == NULL ||
 			    index->def->iid != secondary_prefix_index_id ||
 			    index->def->type != TREE || index->def->key_def == NULL ||
-			    index->def->key_def->part_count <= secondary_prefix_count)
+			    index->def->key_def->part_count <= secondary_prefix_count ||
+			    (uint32_t)select->pOrderBy->nExpr >
+			    index->def->key_def->part_count - secondary_prefix_count)
 				continue;
-			const struct key_part *part = &index->def->key_def->parts[
-				secondary_prefix_count];
-			if (part->fieldno == (uint32_t)select->pOrderBy->a[0].pExpr->iColumn &&
-			    (part->sort_order == SORT_ORDER_ASC ||
-			     part->sort_order == SORT_ORDER_DESC)) {
-				secondary_prefix_order = true;
+			secondary_prefix_order = true;
+			for (int i = 0; i < select->pOrderBy->nExpr; ++i) {
+				const struct Expr *expr = select->pOrderBy->a[i].pExpr;
+				const struct key_part *part = &index->def->key_def->parts[
+					secondary_prefix_count + i];
+				if (expr == NULL || expr->op != TK_COLUMN_REF ||
+				    expr->pLeft != NULL || expr->pRight != NULL ||
+				    expr->iTable != source->iCursor || expr->iColumn < 0 ||
+				    part->fieldno != (uint32_t)expr->iColumn ||
+				    (part->sort_order != SORT_ORDER_ASC &&
+				     part->sort_order != SORT_ORDER_DESC)) {
+					secondary_prefix_order = false;
+					break;
+				}
 			}
 			break;
 		}

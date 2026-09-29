@@ -1322,10 +1322,10 @@ DML, triggers, subprograms, non-deterministic functions.
   seeks and guards exactly that prefix arity, resolves all matching primary
   rows, then applies residual filters and LIMIT/OFFSET. Memtx/Vinyl off/on/off
   coverage checks duplicate matches and selected-index evidence, and the VDBE
-  unit pins the prefix seek and mismatch guard. One-term ordering on the
-  immediately following key part is supported when its forward/reverse walk
-  matches the requested direction; unrelated orderings and skipped leading
-  parts remain unsupported for this access kind. This bounded route does not
+  unit pins the prefix seek and mismatch guard. Ordering on a contiguous prefix
+  of the immediately following key parts is supported when one forward/reverse
+  walk matches every requested direction; unrelated orderings and skipped
+  leading parts remain unsupported for this access kind. This bounded route does not
   close M3.4.
   **Composite secondary prefix-range extension (2026-09):** the producer now
   recognizes complete equality predicates on leading INTEGER/UNSIGNED key
