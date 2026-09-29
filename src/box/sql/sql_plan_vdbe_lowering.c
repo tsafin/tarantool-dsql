@@ -972,13 +972,14 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		return -1;
 	bool invalid_range_order = range &&
 		input->access.produced_order_count != 0 &&
-		(input->access.produced_order_count != 1 ||
-		 input->access.produced_order == NULL ||
+		(input->access.produced_order == NULL ||
 		 input->access.produced_order[0].column !=
 			input->access.range_key_column ||
-		 ((input->access.produced_order[0].direction == SQL_PLAN_DESC) !=
-		  (index_descending !=
-		   (input->access.direction == SQL_PLAN_DESC))));
+		 (input->access.produced_order_count > 1 &&
+		  (index_part_count == 0 ||
+		   index->key_parts_descending == NULL ||
+		   input->access.produced_order_count >
+			index_part_count - range_part)));
 	bool invalid_range = range &&
 		((prefix_count != 0 &&
 		  (index_part_count <= prefix_count ||
@@ -1002,6 +1003,25 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		 (!bounded_range &&
 			 (index_descending !=
 		   (input->access.direction == SQL_PLAN_DESC)) != upper_only));
+	if (range && !invalid_range &&
+	    input->access.produced_order_count != 0) {
+		for (size_t i = 0; i < input->access.produced_order_count; ++i) {
+			size_t part = range_part + i;
+			bool part_descending = index_part_count != 0 &&
+				index->key_parts_descending != NULL &&
+				index->key_parts_descending[part];
+			bool descending = part_descending !=
+				(input->access.direction == SQL_PLAN_DESC);
+			uint32_t column = index_part_count == 0 ? index->key_column :
+				index->key_columns[part];
+			if (input->access.produced_order[i].column != column ||
+			    (input->access.produced_order[i].direction == SQL_PLAN_DESC) !=
+				descending) {
+				invalid_range = true;
+				break;
+			}
+		}
+	}
 	bool invalid_prefix = prefix_scan &&
 		(input->access.index_id != index->index_id || prefix_count == 0 ||
 		 prefix_count >= index_part_count ||

@@ -1569,47 +1569,54 @@ predicate_parsed:
 	    !has_point_key && !has_range_key && !has_prefix_scan &&
 	    !has_prefix_range_scan &&
 	    select->pOrderBy != NULL &&
-	    select->pOrderBy->nExpr == 1 &&
-	    select->pOrderBy->a[0].pExpr != NULL &&
-	    select->pOrderBy->a[0].pExpr->op == TK_COLUMN_REF &&
-	    select->pOrderBy->a[0].pExpr->pLeft == NULL &&
-	    select->pOrderBy->a[0].pExpr->pRight == NULL &&
-	    select->pOrderBy->a[0].pExpr->iTable == source->iCursor &&
-	    select->pOrderBy->a[0].pExpr->iColumn >= 0 &&
-	    (uint32_t)select->pOrderBy->a[0].pExpr->iColumn ==
-		secondary_range_key_column && source->space->index_map != NULL) {
+	    select->pOrderBy->nExpr > 0 &&
+	    source->space->index_map != NULL) {
 		for (uint32_t index_no = 1;
 		     index_no < source->space->index_count; ++index_no) {
 			const struct index *index = source->space->index_map[index_no];
-			if (index != NULL && index->def != NULL &&
-			    index->def->iid == secondary_range_index_id &&
-			    index->def->type == TREE && index->def->key_def != NULL &&
-			    index->def->key_def->part_count > secondary_range_prefix_count &&
-			    (index->def->key_def->parts[
-				secondary_range_prefix_count].sort_order == SORT_ORDER_ASC ||
-			     index->def->key_def->parts[
-				secondary_range_prefix_count].sort_order == SORT_ORDER_DESC) &&
-			    index->def->key_def->parts[
-				secondary_range_prefix_count].fieldno ==
-				secondary_range_key_column) {
-				enum sort_order requested =
-					select->pOrderBy->a[0].sort_order;
-				if (requested == SORT_ORDER_UNDEF)
-					requested = SORT_ORDER_ASC;
-				bool requested_desc = requested == SORT_ORDER_DESC;
-				bool index_desc = index->def->key_def->parts[
-					secondary_range_prefix_count].sort_order ==
-					SORT_ORDER_DESC;
-				bool can_start = has_secondary_range_lower &&
-					!has_secondary_range_upper ? !requested_desc :
-					!has_secondary_range_lower &&
-					has_secondary_range_upper ? requested_desc : true;
-				secondary_range_order = can_start;
-				if (secondary_range_order)
-					direction = index_desc != requested_desc ?
-						SQL_PLAN_DESC : SQL_PLAN_ASC;
-				break;
+			if (index == NULL || index->def == NULL ||
+			    index->def->iid != secondary_range_index_id ||
+			    index->def->type != TREE || index->def->key_def == NULL ||
+			    index->def->key_def->part_count <=
+				secondary_range_prefix_count ||
+			    (uint32_t)select->pOrderBy->nExpr >
+				index->def->key_def->part_count -
+				secondary_range_prefix_count)
+				continue;
+			bool order_columns_match = true;
+			for (int i = 0; i < select->pOrderBy->nExpr; ++i) {
+				const struct Expr *expr = select->pOrderBy->a[i].pExpr;
+				const struct key_part *part = &index->def->key_def->parts[
+					secondary_range_prefix_count + i];
+				if (expr == NULL || expr->op != TK_COLUMN_REF ||
+				    expr->pLeft != NULL || expr->pRight != NULL ||
+				    expr->iTable != source->iCursor || expr->iColumn < 0 ||
+				    (uint32_t)expr->iColumn != part->fieldno ||
+				    (part->sort_order != SORT_ORDER_ASC &&
+				     part->sort_order != SORT_ORDER_DESC)) {
+					order_columns_match = false;
+					break;
+				}
 			}
+			if (!order_columns_match ||
+			    (uint32_t)select->pOrderBy->a[0].pExpr->iColumn !=
+				secondary_range_key_column)
+				continue;
+			enum sort_order requested = select->pOrderBy->a[0].sort_order;
+			if (requested == SORT_ORDER_UNDEF)
+				requested = SORT_ORDER_ASC;
+			bool requested_desc = requested == SORT_ORDER_DESC;
+			bool index_desc = index->def->key_def->parts[
+				secondary_range_prefix_count].sort_order == SORT_ORDER_DESC;
+			bool can_start = has_secondary_range_lower &&
+				!has_secondary_range_upper ? !requested_desc :
+				!has_secondary_range_lower &&
+				has_secondary_range_upper ? requested_desc : true;
+			secondary_range_order = can_start;
+			if (secondary_range_order)
+				direction = index_desc != requested_desc ?
+					SQL_PLAN_DESC : SQL_PLAN_ASC;
+			break;
 		}
 	}
 	if (has_secondary_prefix_scan && select->pOrderBy != NULL &&

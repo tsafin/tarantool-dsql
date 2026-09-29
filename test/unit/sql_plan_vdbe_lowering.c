@@ -226,9 +226,13 @@ new_secondary_range_descriptor(bool bounded,
 }
 
 static struct sql_plan_descriptor *
-new_secondary_prefix_range_descriptor(void)
+new_secondary_prefix_range_descriptor(bool ordered)
 {
 	static const uint32_t columns[] = {0};
+	static const struct sql_plan_order_term order[] = {
+		{.column = 4, .direction = SQL_PLAN_ASC},
+		{.column = 5, .direction = SQL_PLAN_ASC},
+	};
 	static const struct sql_plan_point_key_part prefix = {
 		.column = 3, .integer_value = 7,
 	};
@@ -258,6 +262,8 @@ new_secondary_prefix_range_descriptor(void)
 			.integer_range_end_op = SQL_PLAN_LT,
 			.range_key_column = 4,
 			.direction = SQL_PLAN_ASC,
+			.produced_order = ordered ? order : NULL,
+			.produced_order_count = ordered ? 2 : 0,
 		},
 		.projection_columns = columns, .projection_column_count = 1,
 		.expressions = expressions,
@@ -990,7 +996,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(82);
+	plan(83);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1057,7 +1063,9 @@ main(void)
 	struct sql_plan_descriptor *secondary_bounded_reverse_range_desc =
 		new_secondary_range_descriptor(true, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *secondary_prefix_range_desc =
-		new_secondary_prefix_range_descriptor();
+		new_secondary_prefix_range_descriptor(false);
+	struct sql_plan_descriptor *secondary_prefix_multi_range_order_desc =
+		new_secondary_prefix_range_descriptor(true);
 	struct sql_plan_descriptor *secondary_prefix_scan_desc =
 		new_secondary_prefix_scan_descriptor(false, false, false);
 	struct sql_plan_descriptor *secondary_prefix_order_desc =
@@ -1465,6 +1473,20 @@ main(void)
 		.primary_key_columns = secondary_pk_columns,
 		.primary_key_count = 2,
 	};
+	static const uint32_t secondary_prefix_range_order_columns[] = {3, 4, 5};
+	static const bool secondary_prefix_range_order_unsigned[] = {false, true, false};
+	static const bool secondary_prefix_range_order_descending[] = {false, false, false};
+	const struct sql_plan_secondary_index secondary_prefix_range_order_index = {
+		.index_id = 1,
+		.key_column = 4,
+		.key_unsigned = true,
+		.key_columns = secondary_prefix_range_order_columns,
+		.key_parts_unsigned = secondary_prefix_range_order_unsigned,
+		.key_parts_descending = secondary_prefix_range_order_descending,
+		.key_part_count = 3,
+		.primary_key_columns = secondary_pk_columns,
+		.primary_key_count = 2,
+	};
 	const struct sql_plan_secondary_index secondary_desc_full_index = {
 		.index_id = 1,
 		.key_column = 3,
@@ -1590,6 +1612,19 @@ main(void)
 	   vdbe.aOp[before_secondary_prefix_range + 7].opcode == OP_Le &&
 	   vdbe.aOp[before_secondary_prefix_range + 13].opcode == OP_Next,
 	   "composite secondary range seeks prefix plus suffix and guards both boundaries");
+	int before_secondary_prefix_multi_range_order = vdbe.nOp;
+	int secondary_prefix_multi_range_rc =
+		sql_plan_lower_vdbe_secondary_scan_with_projector(
+			secondary_prefix_multi_range_order_desc, &vdbe, 4, 5,
+			&secondary_prefix_range_order_index, 20, NULL, NULL);
+	bool secondary_prefix_multi_range_has_next = false;
+	for (int i = before_secondary_prefix_multi_range_order;
+	     i < vdbe.nOp; ++i)
+		secondary_prefix_multi_range_has_next |=
+			vdbe.aOp[i].opcode == OP_Next;
+	ok(secondary_prefix_multi_range_rc == 0 &&
+	   secondary_prefix_multi_range_has_next,
+	   "composite secondary range accepts a contiguous multi-term suffix order");
 	int before_secondary_prefix_scan = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		secondary_prefix_scan_desc, &vdbe, 4, 5, &secondary_full_index, 20,

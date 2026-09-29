@@ -1336,12 +1336,14 @@ DML, triggers, subprograms, non-deterministic functions.
   following key part. The descriptor carries typed prefix values and suffix
   range endpoints; lowering seeks with prefix-plus-suffix arity, stops when
   the prefix changes, enforces the opposite range endpoint, resolves the
-  primary key, and applies residual predicates. A suffix `ORDER BY` is
-  accepted only when the available one-way traversal satisfies it. Focused
+  primary key, and applies residual predicates. An `ORDER BY` over a contiguous
+  prefix beginning with the ranged suffix is accepted only when the available
+  one-way traversal satisfies every requested term. Focused
   memtx/Vinyl off/on/off tests cover bounded and upper-only ranges, duplicate
   prefix matches, a two-part mixed-type equality prefix, suffix ordering, and
   ascending/descending composite indexes;
-  VDBE unit coverage pins key arity and both guards. Unsupported/incomplete
+  VDBE unit coverage pins key arity, both guards, and multi-term suffix order;
+  runtime coverage combines that order with LIMIT/OFFSET. Unsupported/incomplete
   prefixes and skipped index parts remain on the legacy path. This is another
   bounded M3.4 increment, not M3.4 closure or broad corpus parity.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now

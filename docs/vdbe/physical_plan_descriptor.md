@@ -356,8 +356,9 @@ descriptor carries each typed prefix value separately from the suffix range
 bounds; the lowerer seeks with prefix-plus-range arity and independently
 guards both the equality prefix and the bounded endpoint. A one-sided range
 walk is accepted only when its effective SQL direction proceeds into the
-qualifying interval. A single-term `ORDER BY` on the ranged suffix is
-supported when it matches the available traversal. Incomplete prefixes,
+qualifying interval. An `ORDER BY` over a contiguous key prefix beginning at
+the ranged suffix is supported when every term matches the available
+traversal. Incomplete prefixes,
 unsupported key types, and ranges that skip an index part remain on legacy
 codegen. Focused memtx/Vinyl coverage checks bounded and upper-only suffix
 ranges, duplicate prefix matches, suffix ordering, and both ascending and
