@@ -991,15 +991,17 @@ format approval is implied.
   contract are now specified in `test/sql-baselines/E1_WORKLOAD.md`; they
   remain separate from M0 snapshot v1. A reproducible TEST_BUILD sidecar
   producer is now available at `test/sql-baselines/e1_sql_producer.py`; it
-  executes a prepared single-table SELECT before and after installing the
-  volatile snapshot adapter and records the matching `select-output`
-  estimate/actual cardinality with source, binary, data, and per-configuration
+  executes six prepared single-table predicates before and after installing
+  the volatile snapshot adapter and records matching `select-output`
+  estimate/actual cardinalities with source, binary, data, and per-configuration
   statistics provenance. The local pilot at
-  `/tmp/e1-s1pilot-final-20260930.jsonl` contains 12 rows (warmup plus five
-  measured executions for each state); q-error is 3.33 without the snapshot
-  and 1.0 with it. Monotonic timing records median 10 us / 11 us respectively
-  in this five-repeat pilot, far too few and too small to constitute latency
-  evidence. Reproduce with the command
+  `/tmp/e1-s1-workload-20260930.jsonl` contains 72 rows (warmup plus five
+  measured executions for six queries under each state). Across its 25 finite
+  cardinality samples, median q-error is 5.0 without the snapshot and 1.5 with
+  it; the empty-result equality contributes five unbounded errors in each
+  state. Per-query distributions are in the sidecar report. The pilot records
+  median times of 11 us / 11.5 us, with only five repetitions and tiny local
+  statements; this is not latency acceptance evidence. Reproduce with the command
   in `test/sql-baselines/E1_WORKLOAD.md`. This narrows the producer gap but
   does not close S1.9: the fixture is uniform and tiny, uses the TEST_BUILD
   adapter rather than collected ANALYZE statistics, and is not integrated into

@@ -103,11 +103,12 @@ python3 -B test/sql-baselines/e1_sql_producer.py \
   --out /tmp/sql-stats-live.jsonl
 ```
 
-The pilot measures one prepared single-table equality query five times per
-configuration, records a warmup, and pairs the planner's EXPLAIN estimate with
-the actual rows from that same SELECT output. Its explicit
+The pilot measures six prepared single-table predicates five times per
+configuration, records a warmup for each query, and pairs the planner's EXPLAIN
+estimate with the actual rows from that same SELECT output. Its explicit
 `--allow-statistics-change` analysis compares no installed snapshot against a
-TEST_BUILD volatile snapshot and records both statistics IDs. Its uniform
-eight-row fixture, single engine, and test-only supplied summary are smoke
-evidence for the JSONL producer and stage contract only; they do not establish
-skewed MCV quality, corpus q-error improvement, or E1 acceptance.
+TEST_BUILD volatile snapshot and records both statistics IDs. The pilot spans
+three equality values, an empty equality, and selective/non-selective ranges;
+its uniform eight-row fixture, single engine, and test-only supplied summary
+are smoke evidence for the JSONL producer and stage contract only. They do not
+establish skewed MCV quality, corpus q-error improvement, or E1 acceptance.

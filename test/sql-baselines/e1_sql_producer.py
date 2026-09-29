@@ -3,8 +3,8 @@
 
 This is an S1.7/S1.9 pilot producer, not the reviewed analytical workload or
 production ANALYZE path. It executes the TEST_BUILD live snapshot-adapter
-fixture in sql_stats_test.lua and records the planner estimate and actual
-SELECT output cardinality for the same prepared statement.
+fixture in sql_stats_test.lua and records planner estimates and actual SELECT
+output cardinalities for six prepared single-table predicates.
 """
 
 import argparse
@@ -54,9 +54,12 @@ def main(argv=None):
     # Refuse to label a dirty SQL/test implementation with only HEAD's commit.
     changed = subprocess.run(
         ["git", "diff", "--quiet", "HEAD", "--", "src/box/sql",
-         "test/sql-luatest/sql_stats_test.lua"], cwd=ROOT, check=False)
+         "test/sql-luatest/sql_stats_test.lua",
+         "test/sql-baselines/e1_sql_producer.py",
+         "test/sql-baselines/e1_measure.py"], cwd=ROOT, check=False)
     if changed.returncode != 0:
-        parser.error("commit SQL implementation and fixture changes before capture")
+        parser.error("commit SQL, fixture, producer, and analyzer changes "
+                     "before capture")
 
     source_commit = git_output("rev-parse", "HEAD")
     version = subprocess.check_output([str(tarantool), "--version"],
