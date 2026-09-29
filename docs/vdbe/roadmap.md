@@ -999,17 +999,19 @@ format approval is implied.
   statistics provenance. Its candidate uses the actual volatile ANALYZE
   collector, not the snapshot test adapter. The original uniform-only local
   pilot is at `/tmp/e1-s1-analyze-20260930.jsonl`. The follow-up pilot at
-  `/tmp/e1-s1-skew-20260930-final.jsonl` contains 120 rows (warmup plus five
-  measured executions for ten queries under each state), and its analyzer
-  report is `/tmp/e1-s1-skew-20260930-final.report.json`. Across the combined
-  40 finite cardinality samples, median q-error is 7.5 without statistics and
-  2.0 after ANALYZE; ten empty-result executions have unbounded error in each
-  state. The skewed fixture shows why this is not an MCV result: hot equality
-  worsens from q-error 1.25 to 2.67, while a tail equality improves from 10 to
-  3 and a range improves from 131072 to 1. These are five-repeat, tiny,
-  single-engine observations, not acceptance evidence; median elapsed time is
-  10 us / 8 us overall and is not latency evidence. Reproduce with the
-  command in `test/sql-baselines/E1_WORKLOAD.md`. This narrows the producer gap
+  `/tmp/e1-s1-skew-memtx-vinyl-20260930.jsonl` contains 168 rows (warmup plus
+  five measured executions for fourteen queries under each state), and its
+  analyzer report is `/tmp/e1-s1-skew-memtx-vinyl-20260930.report.json`.
+  Results are reported separately by engine: memtx has 40 finite samples,
+  median q-error 7.5 without statistics and 2.0 after ANALYZE; Vinyl has 15
+  finite samples, median q-error 10 and 2.67. Ten memtx and five Vinyl
+  empty-result executions have unbounded error in each state. On both engines,
+  hot equality worsens from q-error 1.25 to 2.67, tail equality improves from
+  10 to 3, and range improves from 131072 to 1. These are five-repeat, tiny
+  observations, not acceptance evidence. Median elapsed times are 8 us / 7.5
+  us for memtx and 20 us / 16 us for Vinyl; neither is latency evidence.
+  Reproduce with the command in `test/sql-baselines/E1_WORKLOAD.md`. This
+  narrows the producer gap
   but does not close S1.9: the fixtures are tiny and are not integrated into
   the reviewed M0 corpus. Skewed MCV planner integration/validation and a
   reviewed q-error criterion remain open. *parallel: yes*.
