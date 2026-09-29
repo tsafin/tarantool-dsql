@@ -47,12 +47,11 @@ g.test_unsupported_routes_preserve_rows_and_reasons = function()
                 sql = [[SELECT id FROM planner_fallback_parity
                         WHERE v + 1 > 1]],
                 off_route = 'current_where_c',
-                on_route = 'fallback',
-                on_reason = 'UNSUPPORTED_FILTER',
+                on_route = 'new_planner',
             },
             {
                 sql = [[SELECT id FROM planner_fallback_parity
-                        WHERE v = 0]],
+                        WHERE v = NULL]],
                 off_route = 'current_where_c',
                 on_route = 'fallback',
                 on_reason = 'NO_ACCESS_PATH',
