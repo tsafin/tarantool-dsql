@@ -1126,8 +1126,8 @@ emitter, plus bounded two-sided literal ranges on a single INTEGER/UNSIGNED
 primary-key part. Focused memtx/Vinyl parity and fallback tests cover this
 narrow slice;
 emitter unit checks pin all four range seek opcodes and signed/unsigned key
-encoding. M3.5 has broad structural fallback classification but remains open
-for route/reason closure; M3.6 capture/parity tooling is prototyped and M3.7's
+encoding. M3.5's reviewed producer and route/reason gate is closed; M3.6
+capture/parity tooling is prototyped and M3.7's
 feature flag gates only the current narrow route. Secondary indexes,
 broader range shapes, broader expression parity, corpus-wide new-planner
 coverage, and acceptance latency evidence remain open. M3 consumes M1 diagnostic
@@ -1522,8 +1522,17 @@ DML, triggers, subprograms, non-deterministic functions.
   parity, and capture coverage. Details:
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
   `SELECT`/VDBE integration).
-- [ ] **M3.5** Fallback gate — every unsupported shape emits stable
-  `fallback_reason` and routes to current `where.c`. Producer-contract
+- [x] **M3.5** Per-component fallback gate — closed for the reviewed producer
+  contract and corpus. Every successful SELECT component has an authoritative
+  route/reason ledger record across the inventoried producers; unsupported
+  candidates use stable reasons and legacy WHERE fallback, while direct
+  emitters have explicit non-fallback routes. Generated, CnP, and LLVM
+  off/on/off audits of the reviewed SQL, SQL-TAP, and SQL-luatest selections
+  pass semantic parity with no unreviewed route transitions. The documented
+  `iproto` observer-counter and direct-VALUES native-execution exclusions are
+  explicit; those queries remain covered in generated mode. This does not
+  claim complete new-planner feature coverage (M3.4/M3.7 remain open).
+  The implementation history and current evidence follow. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and
   exposes `path_class` plus an optional descriptor (`sql_plan_fallback.*`),
   with focused mapping tests. `sqlWhereBegin()` now records the actual legacy
@@ -1628,7 +1637,7 @@ DML, triggers, subprograms, non-deterministic functions.
   reasons on both engines. Literals above `UINT64_MAX` are rejected by SQL
   parsing before planner fallback classification. More specific
   expression/function rejection reasons retain precedence.
-  M3.5 remains partial: the narrow table-scan route now records physical
+  At that checkpoint M3.5 remained partial: the narrow table-scan route records physical
   rejection reasons at the attempted producer/lowering boundary, but the
   remaining legacy planner rejects are not all classified and routed through
   one complete producer gate. Physical candidate selection from the general
@@ -1672,7 +1681,7 @@ DML, triggers, subprograms, non-deterministic functions.
   `current_where_c` for ordinary projections and primary-key predicates when
   the feature flag is off; targeted `misc`, `planner_preflight`, and all five
   fallback SQL suites pass on memtx and Vinyl against the rebuilt executable.
-  M3.5 remains open for the other legacy/producer rejection routes.
+  At that checkpoint M3.5 remained open for the other legacy/producer rejection routes.
 
   A follow-up audit of the production `SELECT` path found no additional
   unclassified ordinary rejection that can safely be closed by adding a reason
@@ -1804,7 +1813,7 @@ DML, triggers, subprograms, non-deterministic functions.
   table-scan producer boundary: the structural rejection must survive rather
   than be replaced by a later lowering result. It does not address nested
   producer ownership, direct emitters, or the missing statement/component
-  route ledger; M3.5 remains open. The focused `planner_fallback_access_hint`
+  route ledger; M3.5 remained open at that checkpoint. The focused `planner_fallback_access_hint`
   test-run passed on both memtx and Vinyl in the root Clang-19 build.
 
   **Recursive CTE producer regression (2026-09-27).** The prior CTE check used
@@ -1858,7 +1867,7 @@ DML, triggers, subprograms, non-deterministic functions.
   reason. The M0 harness rejects incomplete successful SELECT ledgers. Focused
   runtime cases cover scan, join fallback, VALUES rows, OP_Count, compound,
   recursive CTE, FROM-subquery, and scalar-subquery; these all pass locally.
-  M3.5 remains open pending reviewed-corpus producer coverage and wider route
+  At this audit checkpoint M3.5 remained open pending reviewed-corpus producer coverage and wider route
   matrix evidence. A second focused producer matrix now also covers constant
   SELECT, DISTINCT, grouped aggregation, MIN/MAX, EXISTS, UNION, INTERSECT,
   and SELECT without FROM. Every successful snapshot is required to have a
@@ -1888,7 +1897,8 @@ DML, triggers, subprograms, non-deterministic functions.
   EXISTS and IN-with-SELECT producers; AST/codegen does not justify separate
   role claims for these paths. Runtime matrix assertions pin both roles while
   scalar SELECT retains `scalar_subquery`. The snapshot validator accepts the
-  appended role. M3.5's reviewed-corpus producer gate remains open.
+  appended role. At this implementation checkpoint, M3.5's reviewed-corpus
+  producer gate remained open.
   CTE-expanded FROM sources now retain their `cte` identity instead of being
   mislabeled as ordinary `from_subquery` producers at coroutine/materialized
   codegen. Recursive CTE setup SELECTs now receive `recursive_anchor` at their
@@ -1923,7 +1933,7 @@ DML, triggers, subprograms, non-deterministic functions.
   ANALYZE/system-stat cases still depend on the unapproved persistence gate.
   This is complete SQL-TAP producer coverage evidence, but the audit is not a
   normal-runner parity decision and does not cover SQL or SQL-luatest corpus
-  entries. M3.5 remains open until those reviewed-corpus producers and route
+  entries. At that point M3.5 remained open until those reviewed-corpus producers and route
   changes are dispositioned.
 
   **Current SQL-TAP ledger re-audit (2026-09-28, generated mode).** Re-ran all
@@ -1940,7 +1950,7 @@ DML, triggers, subprograms, non-deterministic functions.
   and timeouts remain explicit audit outcomes, not approvals. This strengthens
   SQL-TAP ledger completeness evidence only; it is generated-mode standalone
   capture, not SQL-luatest coverage, planner off/on parity, or route-transition
-  disposition. M3.5 remains open for those gates.
+  disposition. M3.5 remained open for those gates at that checkpoint.
 
   **Current SQL-TAP ledger re-audit (2026-09-29, generated mode).** Re-ran all
   275 standalone SQL-TAP files against the current integrated Debug binary on
@@ -2106,7 +2116,7 @@ DML, triggers, subprograms, non-deterministic functions.
   executions per run; strict generated-vs-CnP comparisons are exact (41/41)
   on both engines, and the typed-capture validator passes 4/4. LLVM is not
   enabled in this build, and the reviewed SQL-TAP corpus remains unverified
-  for this integrated revision. M3.5 remains open for full reviewed-corpus
+  for this integrated revision. M3.5 remained open for full reviewed-corpus
   inclusion and the complete producer/route inventory.
 
   The updated INSERT-SELECT/view-DML focused luatest also passes the typed
@@ -2261,7 +2271,7 @@ DML, triggers, subprograms, non-deterministic functions.
   on both engines. LLVM is not observed with JIT disabled, and unsupported
   multi-child/restarted/direct-net.box topologies and long tests remain
   explicitly unrun. This is expanded review evidence, not a clean full-suite
-  parity decision; M3.5 remains open pending these dispositions and the SQL
+  parity decision; M3.5 remained open pending these dispositions and the SQL
   suite/corpus gate.
 
   **Current full SQL-luatest ledger capture audit (2026-09-28, source
@@ -2309,6 +2319,28 @@ DML, triggers, subprograms, non-deterministic functions.
     S -- yes --> U[Summary mirrors root route]
     S -- no --> M[mixed; no statement fallback reason]
   ```
+
+  **M3.5 acceptance audit and closure (2026-09-29).** The component ledger
+  contract, source inventory, focused producer matrix, and reviewed-corpus route
+  audits now agree. Current Debug off/on/off captures pass in generated, CnP,
+  and LLVM modes with zero semantic diffs, exact off-repeat semantics, and no
+  unreviewed route classes. SQL-TAP covers 232 memtx / 224 Vinyl tests and
+  47,946 / 37,990 snapshots in every mode. The reviewed SQL selection covers
+  33 / 34 tests and 1,077 / 1,085 snapshots; SQL-luatest covers 32 / 31 tests
+  in generated mode and 31 / 30 in CnP/LLVM (498 / 446 generated snapshots,
+  498 / 446 native-mode snapshots). The one SQL exclusion is the
+  `box.stat().EXECUTE` observer-counter incompatibility in `iproto.test.lua`;
+  `gh_8676_exists_in_multiselect` is excluded from native-mode capture because
+  it emits only a direct VALUES route, and both remain covered in generated
+  mode. All observed route classes, including secondary-index `NO_ACCESS_PATH`
+  fallbacks and reason-only refinements, are dispositioned in the route policy.
+  A current-source focused rerun passes `planner_final_paths`,
+  `planner_insert_select_snapshot` (including INSERT-SELECT, DELETE/UPDATE view
+  materialization, and trigger SELECT), `planner_flag_fallback_parity`, and
+  `planner_composite_prefix_range`. These are the acceptance-scoped M3.5
+  results; they do not claim broad execution support for additional logical
+  shapes or close M3.4/M3.7. Detailed generated/CnP/LLVM reports are recorded
+  above under `/dev/shm/m35-planner-flags-*`.
 
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
@@ -2362,8 +2394,9 @@ DML, triggers, subprograms, non-deterministic functions.
   refinements. `planner_fallback_no_from` remains an evidence-backed
   diagnostic-only exclusion; baseline capture permits its absence only when
   the selected immutable anchor lacks the fixture, while candidate inventory
-  always requires it. M3.6 capture/parity prototype is complete; new planner
-  implementation, M3.5 classification closure, and M3.7 remain open.
+  always requires it. M3.6 capture/parity prototype is complete. At this
+  checkpoint, new planner implementation, M3.5 classification closure, and
+  M3.7 remained open.
   *parallel: yes*.
 - [ ] **M3.7** Feature flag `sql_new_planner_single_table=on/off` — partial.
   A default-off session setting now gates the narrow direct-column table scan,
@@ -2666,8 +2699,8 @@ DML, triggers, subprograms, non-deterministic functions.
   passes on memtx and Vinyl, and the full CnP corpus retry passes. Its report
   is `/tmp/sql-tap-cnp-flag-review.24Sc0V/report.json` at source
   `562ee7a09d870bc704b0d789c31f789ab364e0bf`. LLVM corpus validation is
-  recorded below; M3.7 feature acceptance remains open pending M3.5's
-  producer gate and the remaining flag-acceptance criteria.
+  recorded below; at this checkpoint M3.7 feature acceptance remained open
+  pending M3.5's producer gate and the remaining flag-acceptance criteria.
   The LLVM-mode attempt originally exposed API/build blockers, not a parity
   result. The server now builds with Clang 19 / LLVM 19 / CnP enabled in a
   `/dev/shm` build directory, avoiding the full root filesystem. JIT calls and
