@@ -215,10 +215,77 @@ g.test_snapshot_estimate_adapter = function()
             local plan = box.execute(query).rows
             return tonumber(plan[1][4]:match('~([0-9]+) row'))
         end
+        local function capture_e1_observations(configuration, statistics_id)
+            local output = os.getenv('E1_SQL_OUTPUT')
+            if output == nil then
+                return
+            end
+            local json = require('json')
+            local fiber = require('fiber')
+            local metadata = {
+                workload_id = os.getenv('E1_WORKLOAD_ID'),
+                source_commit = os.getenv('E1_SOURCE_COMMIT'),
+                binary_sha256 = os.getenv('E1_BINARY_SHA256'),
+                data_sha256 = os.getenv('E1_DATA_SHA256'),
+            }
+            for name, value in pairs(metadata) do
+                assert(value ~= nil and value ~= '',
+                       'missing E1 metadata: ' .. name)
+            end
+            local fixture_material =
+                'CREATE TABLE sql_stats_adapter_t (id INT PRIMARY KEY, a INT);\n' ..
+                'CREATE INDEX sql_stats_adapter_ix ON sql_stats_adapter_t (a);\n' ..
+                'INSERT INTO sql_stats_adapter_t VALUES ' ..
+                '(1, 1), (2, 1), (3, 1), (4, 2), ' ..
+                '(5, 2), (6, 2), (7, 3), (8, 3);'
+            local digest = require('digest')
+            assert(string.hex(digest.sha256(fixture_material)) ==
+                   metadata.data_sha256,
+                   'E1 data hash does not match the live SQL fixture')
+            local query =
+                'SELECT id FROM sql_stats_adapter_t WHERE a = 1;'
+            local stmt = box.prepare(query)
+            local function record(repeat_no, warmup)
+                local estimate = explain_estimate('E1 live capture', 'a = 1')
+                local started = fiber.clock()
+                local result = box.execute(stmt.stmt_id)
+                local elapsed_us = math.max(1,
+                    math.floor((fiber.clock() - started) * 1000000))
+                local row = {
+                    schema_version = 1,
+                    workload_id = metadata.workload_id,
+                    query_id = 'single-table-equality-a1',
+                    engine = 'memtx',
+                    dispatcher = 'generated',
+                    configuration = configuration,
+                    source_commit = metadata.source_commit,
+                    binary_sha256 = metadata.binary_sha256,
+                    data_sha256 = metadata.data_sha256,
+                    statistics_id = statistics_id,
+                    ['repeat'] = repeat_no,
+                    warmup = warmup,
+                    elapsed_us = elapsed_us,
+                    cardinalities = {{
+                        stage_id = 'select-output',
+                        estimated_rows = estimate,
+                        actual_rows = #result.rows,
+                    }},
+                }
+                local file = assert(io.open(output, 'a'))
+                file:write(json.encode(row), '\n')
+                file:close()
+            end
+            record(0, true)
+            for repeat_no = 1, 5 do
+                record(repeat_no, false)
+            end
+            box.unprepare(stmt.stmt_id)
+        end
         local baseline_plan_estimate = explain_estimate('baseline', 'a = 1')
         local cached_plan_before = explain_estimate('stats refresh', 'a = 1')
         local baseline_range_estimate = explain_estimate('baseline range',
                                                          'a >= 2')
+        capture_e1_observations('no-stats', 'no-snapshot-v1')
         adapter.install(space.id, index_id, 128, 96, 32, false)
         local cached_plan_after = explain_estimate('stats refresh', 'a = 1')
         local current = adapter.estimates(space.id, index_id)
@@ -241,6 +308,7 @@ g.test_snapshot_estimate_adapter = function()
         adapter.install(space.id, index_id, 8, 8, 3, false)
         local measured_plan_estimate = explain_estimate('measured uniform',
                                                         'a = 1')
+        capture_e1_observations('live-stats', 'volatile-snapshot-v1')
         local rows = box.execute([[SELECT id FROM sql_stats_adapter_t
                                    WHERE a = 1;]]).rows
         adapter.clear()
