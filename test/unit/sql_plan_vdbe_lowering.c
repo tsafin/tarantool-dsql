@@ -254,6 +254,34 @@ new_secondary_full_scan_descriptor(enum sql_plan_direction direction,
 }
 
 static struct sql_plan_descriptor *
+new_secondary_mixed_full_scan_descriptor(enum sql_plan_direction direction,
+						 bool inverse)
+{
+	static const uint32_t columns[] = {0};
+	const struct sql_plan_order_term order[] = {
+		{.column = 3, .direction = inverse ? SQL_PLAN_DESC : SQL_PLAN_ASC},
+		{.column = 4, .direction = inverse ? SQL_PLAN_ASC : SQL_PLAN_DESC},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_INDEX_FULL_SCAN,
+			.index_id = 1,
+			.direction = direction,
+			.produced_order = order,
+			.produced_order_count = sizeof(order) / sizeof(order[0]),
+		},
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_unsigned_point_descriptor(uint64_t key)
 {
 	static const uint32_t columns[] = {2, 0};
@@ -883,7 +911,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(75);
+	plan(76);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1287,6 +1315,7 @@ main(void)
 	static const uint32_t secondary_key_columns[] = {3, 4};
 	static const bool secondary_key_unsigned[] = {false, true};
 	static const bool secondary_key_descending[] = {false, false};
+	static const bool secondary_mixed_key_descending[] = {false, true};
 	static const bool secondary_desc_key_descending[] = {true, true};
 	const struct sql_plan_secondary_index secondary_desc_range_index = {
 		.index_id = 1,
@@ -1314,6 +1343,17 @@ main(void)
 		.key_columns = secondary_key_columns,
 		.key_parts_unsigned = secondary_key_unsigned,
 		.key_parts_descending = secondary_desc_key_descending,
+		.key_part_count = 2,
+		.primary_key_columns = secondary_pk_columns,
+		.primary_key_count = 2,
+	};
+	const struct sql_plan_secondary_index secondary_mixed_full_index = {
+		.index_id = 1,
+		.key_column = 3,
+		.key_unsigned = false,
+		.key_columns = secondary_key_columns,
+		.key_parts_unsigned = secondary_key_unsigned,
+		.key_parts_descending = secondary_mixed_key_descending,
 		.key_part_count = 2,
 		.primary_key_columns = secondary_pk_columns,
 		.primary_key_count = 2,
@@ -1474,6 +1514,24 @@ main(void)
 	   vdbe.aOp[before_descending_index_reverse].opcode == OP_Last &&
 	   vdbe.aOp[before_descending_index_reverse + 6].opcode == OP_Prev,
 	   "descending secondary index emits inverse order in a reverse walk");
+	struct sql_plan_descriptor *secondary_mixed_forward_desc =
+		new_secondary_mixed_full_scan_descriptor(SQL_PLAN_ASC, false);
+	struct sql_plan_descriptor *secondary_mixed_reverse_desc =
+		new_secondary_mixed_full_scan_descriptor(SQL_PLAN_DESC, true);
+	int before_secondary_mixed_forward = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_mixed_forward_desc, &vdbe, 4, 5,
+		&secondary_mixed_full_index, 20, NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_mixed_forward].opcode == OP_Rewind &&
+	   vdbe.aOp[before_secondary_mixed_forward + 6].opcode == OP_Next,
+	   "mixed-direction secondary key order uses its natural forward walk");
+	int before_secondary_mixed_reverse = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_mixed_reverse_desc, &vdbe, 4, 5,
+		&secondary_mixed_full_index, 20, NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_mixed_reverse].opcode == OP_Last &&
+	   vdbe.aOp[before_secondary_mixed_reverse + 6].opcode == OP_Prev,
+	   "mixed-direction secondary key order reverses every term together");
 	int before_point_filter = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_null_filter_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_point_filter + 1].opcode == OP_NotFound &&
@@ -1832,6 +1890,8 @@ main(void)
 	sql_plan_descriptor_delete(plan_desc);
 	sql_plan_descriptor_delete(filtered_desc);
 	sql_plan_descriptor_delete(descending_desc);
+	sql_plan_descriptor_delete(secondary_mixed_forward_desc);
+	sql_plan_descriptor_delete(secondary_mixed_reverse_desc);
 	sql_plan_descriptor_delete(limit_one_desc);
 	sql_plan_descriptor_delete(limit_zero_desc);
 	sql_plan_descriptor_delete(offset_limit_desc);

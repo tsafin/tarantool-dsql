@@ -234,7 +234,7 @@ sql_select_preflight_table_scan(const struct Select *select,
 			return SQL_SELECT_PREFLIGHT_SHAPE;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
-		/* A leading prefix of an ascending TREE secondary index may provide
+		/* A leading prefix of a TREE secondary index may provide
 		 * order for an unordered full scan or a compatible leading-key range.
 		 * The physical producer validates which access actually applies.
 		 */
@@ -252,39 +252,41 @@ sql_select_preflight_table_scan(const struct Select *select,
 					index->def->key_def->part_count)
 					continue;
 				bool matches_prefix = true;
+				bool natural_order = true;
+				bool reverse_order = true;
 				for (int term = 0; term < order->nExpr; ++term) {
 					const struct Expr *expr = order->a[term].pExpr;
 					const struct key_def *candidate =
 						index->def->key_def;
 					enum sort_order index_order =
-						candidate->parts[0].sort_order;
+						candidate->parts[term].sort_order;
+					enum sort_order requested_order =
+						order->a[term].sort_order;
+					if (requested_order == SORT_ORDER_UNDEF)
+						requested_order = SORT_ORDER_ASC;
 					bool invalid_index_order =
 						index_order != SORT_ORDER_ASC &&
 						index_order != SORT_ORDER_DESC;
-					if (select->pWhere == NULL) {
-						invalid_index_order |=
-							candidate->parts[term].sort_order != index_order;
-					} else {
-						invalid_index_order |= index_order != SORT_ORDER_ASC;
-					}
 					if (invalid_index_order || expr == NULL ||
 					    expr->op != TK_COLUMN_REF ||
 					    expr->pLeft != NULL || expr->pRight != NULL ||
 					    expr->iTable != source->iCursor ||
 					    expr->iColumn < 0 ||
 					    candidate->parts[term].fieldno !=
-						(uint32_t)expr->iColumn) {
+							(uint32_t)expr->iColumn) {
 						matches_prefix = false;
 						break;
 					}
+					natural_order &= requested_order == index_order;
+					reverse_order &= requested_order != index_order;
 				}
-				if (!matches_prefix)
+				if (!matches_prefix ||
+				    (!natural_order && !reverse_order))
 					continue;
 				key_def = index->def->key_def;
 				break;
 			}
 		}
-		enum sort_order order_direction = SORT_ORDER_UNDEF;
 		uint32_t first_part = UINT32_MAX;
 		for (uint32_t part = 0; part < key_def->part_count; ++part) {
 			if (key_def->parts[part].fieldno ==
@@ -296,11 +298,21 @@ sql_select_preflight_table_scan(const struct Select *select,
 		if (first_part == UINT32_MAX ||
 		    (uint32_t)order->nExpr > key_def->part_count - first_part)
 			return SQL_SELECT_PREFLIGHT_SHAPE;
+		bool reverse_walk = false;
 		for (int i = 0; i < order->nExpr; ++i) {
 			const struct Expr *expr = order->a[i].pExpr;
 			enum sort_order direction = order->a[i].sort_order;
 			if (direction == SORT_ORDER_UNDEF)
 				direction = SORT_ORDER_ASC;
+			const struct key_part *part =
+				&key_def->parts[first_part + (uint32_t)i];
+			enum sort_order key_direction = part->sort_order ==
+				SORT_ORDER_DESC ? SORT_ORDER_DESC : SORT_ORDER_ASC;
+			if (i == 0)
+				reverse_walk = direction != key_direction;
+			enum sort_order expected_direction = reverse_walk ?
+				(key_direction == SORT_ORDER_ASC ? SORT_ORDER_DESC :
+				 SORT_ORDER_ASC) : key_direction;
 			if (expr == NULL || ExprHasProperty(expr,
 							EP_TokenOnly | EP_Reduced) ||
 			    expr->op != TK_COLUMN_REF || expr->pLeft != NULL ||
@@ -309,10 +321,8 @@ sql_select_preflight_table_scan(const struct Select *select,
 			    (uint32_t)expr->iColumn !=
 				key_def->parts[first_part + (uint32_t)i].fieldno ||
 			    (direction != SORT_ORDER_ASC && direction != SORT_ORDER_DESC) ||
-			    (order_direction != SORT_ORDER_UNDEF &&
-			     direction != order_direction))
+			    direction != expected_direction)
 				return SQL_SELECT_PREFLIGHT_SHAPE;
-			order_direction = direction;
 		}
 	}
 	if (select->pWhere != NULL) {

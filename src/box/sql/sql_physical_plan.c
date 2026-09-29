@@ -1514,9 +1514,6 @@ predicate_parsed:
 			 !has_secondary_range_scan);
 		if (can_use_secondary_full_scan && order_by->nExpr > 0) {
 			const struct Expr *order_expr = order_by->a[0].pExpr;
-			enum sort_order requested_order = order_by->a[0].sort_order;
-			if (requested_order == SORT_ORDER_UNDEF)
-				requested_order = SORT_ORDER_ASC;
 			if (order_expr != NULL && order_expr->op == TK_COLUMN_REF &&
 			    order_expr->pLeft == NULL && order_expr->pRight == NULL &&
 			    order_expr->iTable == source->iCursor &&
@@ -1538,31 +1535,36 @@ predicate_parsed:
 					if ((uint32_t)order_by->nExpr >
 					    candidate->part_count)
 						continue;
-					enum sort_order index_order =
-						candidate->parts[0].sort_order;
-					if (index_order != SORT_ORDER_ASC &&
-					    index_order != SORT_ORDER_DESC)
-						continue;
 					bool matches_prefix = true;
+					bool natural_order = true;
+					bool reverse_order = true;
 					for (int term = 0; term < order_by->nExpr; ++term) {
 						const struct Expr *expr =
 							order_by->a[term].pExpr;
-						if (candidate->parts[term].sort_order !=
-							index_order || expr == NULL ||
+						enum sort_order key_order =
+							candidate->parts[term].sort_order;
+						enum sort_order requested =
+							order_by->a[term].sort_order;
+						if (requested == SORT_ORDER_UNDEF)
+							requested = SORT_ORDER_ASC;
+						if ((key_order != SORT_ORDER_ASC &&
+						     key_order != SORT_ORDER_DESC) || expr == NULL ||
 						    expr->op != TK_COLUMN_REF ||
 						    expr->pLeft != NULL ||
 						    expr->pRight != NULL ||
 						    expr->iTable != source->iCursor ||
 						    expr->iColumn < 0 ||
-						    candidate->parts[term].fieldno !=
+							candidate->parts[term].fieldno !=
 							(uint32_t)expr->iColumn) {
 							matches_prefix = false;
 							break;
 						}
+						natural_order &= requested == key_order;
+						reverse_order &= requested != key_order;
 					}
-					if (!matches_prefix)
+					if (!matches_prefix ||
+					    (!natural_order && !reverse_order))
 						continue;
-					bool natural_order = index_order == requested_order;
 					if (!has_secondary_full_scan || natural_order) {
 						key_def = index->def->key_def;
 						has_secondary_full_scan = true;
@@ -1631,11 +1633,21 @@ predicate_parsed:
 				goto invalid_predicate;
 			}
 		}
+		bool reverse_index_walk = false;
 		for (int i = 0; i < order_by->nExpr; ++i) {
 			const struct Expr *order_expr = order_by->a[i].pExpr;
 			enum sort_order term_direction = order_by->a[i].sort_order;
 			if (term_direction == SORT_ORDER_UNDEF)
 				term_direction = SORT_ORDER_ASC;
+			const struct key_part *key_part =
+				&key_def->parts[first_order_part + (uint32_t)i];
+			enum sort_order key_direction = key_part->sort_order ==
+				SORT_ORDER_DESC ? SORT_ORDER_DESC : SORT_ORDER_ASC;
+			if (i == 0)
+				reverse_index_walk = term_direction != key_direction;
+			enum sort_order expected_direction = reverse_index_walk ?
+				(key_direction == SORT_ORDER_ASC ? SORT_ORDER_DESC :
+				 SORT_ORDER_ASC) : key_direction;
 			if (order_expr == NULL ||
 			    ExprHasProperty(order_expr, EP_TokenOnly | EP_Reduced) ||
 			    order_expr->op != TK_COLUMN_REF ||
@@ -1646,9 +1658,7 @@ predicate_parsed:
 					key_def->parts[first_order_part + (uint32_t)i].fieldno ||
 			    (term_direction != SORT_ORDER_ASC &&
 				term_direction != SORT_ORDER_DESC) ||
-			    (i > 0 && term_direction !=
-				(order_direction == SQL_PLAN_DESC ? SORT_ORDER_DESC :
-				 SORT_ORDER_ASC))) {
+			    term_direction != expected_direction) {
 				free(order_terms);
 				if (reason != NULL)
 					*reason =
@@ -1660,12 +1670,13 @@ predicate_parsed:
 			order_terms[i] = (struct sql_plan_order_term) {
 				.column = key_def->parts[first_order_part +
 							 (uint32_t)i].fieldno,
-				.direction = order_direction,
+				.direction = term_direction == SORT_ORDER_DESC ?
+					SQL_PLAN_DESC : SQL_PLAN_ASC,
 			};
 		}
 		direction = has_secondary_full_scan ?
 			(secondary_full_scan_natural_order ? SQL_PLAN_ASC : SQL_PLAN_DESC) :
-			order_direction;
+			(reverse_index_walk ? SQL_PLAN_DESC : SQL_PLAN_ASC);
 		if (has_secondary_range_scan) {
 			bool requested_desc = order_direction == SQL_PLAN_DESC;
 			direction = secondary_range_descending != requested_desc ?

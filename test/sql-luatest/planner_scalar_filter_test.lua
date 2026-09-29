@@ -69,6 +69,10 @@ g.test_non_primary_null_filters_off_on_off = function()
             box.execute(('CREATE INDEX %s_xydesc ON %s ' ..
                          '(x DESC, y DESC)')
                         :format(secondary_name, secondary_name))
+            box.space[secondary_name]:create_index('xnotemixed', {
+                parts = {{3, 'integer', sort_order = 'asc'},
+                         {5, 'string', sort_order = 'desc'}},
+            })
             box.execute(('INSERT INTO %s VALUES ' ..
                          '(1, 1, 7, 10, \'a\'), ' ..
                          '(1, 2, 7, 10, \'b\'), ' ..
@@ -95,6 +99,26 @@ g.test_non_primary_null_filters_off_on_off = function()
                          '(4, NULL, 12)')
                         :format(descending_secondary_name))
             local queries = {
+                {
+                    sql = ('SELECT x, note, tenant, id FROM %s ' ..
+                           'ORDER BY x ASC, note DESC'):format(secondary_name),
+                    expected = {{7, 'a', 1, 1}, {7, 'b', 1, 2},
+                                {7, 'c', 2, 1}, {8, 'd', 2, 2}},
+                    expected_index = 'xnotemixed',
+                    expected_sort = {{column = 1, desc = false},
+                                     {column = 2, desc = true}},
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, note, tenant, id FROM %s ' ..
+                           'ORDER BY x DESC, note ASC'):format(secondary_name),
+                    expected = {{7, 'a', 1, 1}, {7, 'b', 1, 2},
+                                {7, 'c', 2, 1}, {8, 'd', 2, 2}},
+                    expected_index = 'xnotemixed',
+                    expected_sort = {{column = 1, desc = true},
+                                     {column = 2, desc = false}},
+                    unordered = true,
+                },
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE x = 7 AND y = 10')
                           :format(secondary_name),
@@ -890,6 +914,24 @@ g.test_non_primary_null_filters_off_on_off = function()
                                         t.assert(prev[column] > current[column])
                                     else
                                         t.assert(prev[column] < current[column])
+                                    end
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    if query.expected_sort ~= nil then
+                        for row_no = 2, #result.rows do
+                            local prev = result.rows[row_no - 1]
+                            local current = result.rows[row_no]
+                            for _, term in ipairs(query.expected_sort) do
+                                if prev[term.column] ~= current[term.column] then
+                                    if term.desc then
+                                        t.assert(prev[term.column] >
+                                                 current[term.column])
+                                    else
+                                        t.assert(prev[term.column] <
+                                                 current[term.column])
                                     end
                                     break
                                 end
