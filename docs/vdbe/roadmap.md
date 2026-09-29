@@ -1560,8 +1560,14 @@ DML, triggers, subprograms, non-deterministic functions.
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
   not reviewed-corpus feature acceptance.
-  Boolean trees outside the bounded comparison/NULL-leaf grammar, filtered
-  composite suffix ranges, and scalar operators outside the direct-column/
+  **Filtered composite primary suffix ranges (2026-09-29):** the
+  `planner_composite_prefix_range_test.lua` off/on/off fixture now composes a
+  direct residual equality with an equality-prefix-plus-suffix range, and a
+  bounded OR of residual equalities with a range over the preceding key part.
+  Both assert `new_planner` when enabled and exact rows/order on memtx and
+  Vinyl; the focused luatest passes. This verifies only the existing bounded
+  comparison/NULL boolean grammar over those range shapes. Boolean trees
+  outside that grammar and scalar operators outside the direct-column/
   constant-expression contract remain outside this route. Direct-column full
   scans and primary-key ordering also pass
   off/on/off parity for a TEXT primary key on both engines; the enabled route
