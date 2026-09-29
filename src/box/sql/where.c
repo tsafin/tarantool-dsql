@@ -124,9 +124,10 @@ where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
 	const struct key_part *part = &index_def->key_def->parts[0];
 	bool integer_part = part->type == FIELD_TYPE_INTEGER ||
 		part->type == FIELD_TYPE_UNSIGNED;
+	bool boolean_part = part->type == FIELD_TYPE_BOOLEAN;
 	bool string_part = part->type == FIELD_TYPE_STRING &&
 		(part->coll == NULL || part->coll->type == COLL_TYPE_BINARY);
-	if (!integer_part && !string_part)
+	if (!integer_part && !boolean_part && !string_part)
 		return false;
 	const struct Expr *lhs = term->pExpr->pLeft;
 	const struct Expr *rhs = term->pExpr->pRight;
@@ -153,6 +154,11 @@ where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
 			mp_encode_uint(encoded, (uint64_t)integer) :
 			(integer >= 0 ? mp_encode_uint(encoded, (uint64_t)integer) :
 			 mp_encode_int(encoded, integer));
+	} else if (boolean_part) {
+		if (literal == NULL ||
+		    (literal->op != TK_TRUE && literal->op != TK_FALSE))
+			return false;
+		end = mp_encode_bool(encoded, literal->op == TK_TRUE);
 	} else {
 		if (literal == NULL || literal->op != TK_STRING ||
 		    literal->u.zToken == NULL)

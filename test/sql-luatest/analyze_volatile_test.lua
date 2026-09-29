@@ -224,21 +224,24 @@ end
 g.test_analyze_mcv_changes_literal_equality_estimate = function()
     local estimates = g.server:exec(function()
         box.execute([[CREATE TABLE analyze_mcv_plan_t (
-                      id INTEGER PRIMARY KEY, value INTEGER, label TEXT)]])
+                      id INTEGER PRIMARY KEY, value INTEGER, label TEXT,
+                      flag BOOLEAN)]])
         box.execute([[CREATE INDEX analyze_mcv_plan_value
                       ON analyze_mcv_plan_t (value)]])
         box.execute([[CREATE INDEX analyze_mcv_plan_label
                       ON analyze_mcv_plan_t (label)]])
+        box.execute([[CREATE INDEX analyze_mcv_plan_flag
+                      ON analyze_mcv_plan_t (flag)]])
         for i = 1, 100 do
-            box.execute([[INSERT INTO analyze_mcv_plan_t VALUES (?, 1, 'hot')]],
-                        {i})
+            box.execute([[INSERT INTO analyze_mcv_plan_t
+                          VALUES (?, 1, 'hot', TRUE)]], {i})
         end
         local id = 100
         for value = 2, 11 do
             for _ = 1, 10 do
                 id = id + 1
-                box.execute([[INSERT INTO analyze_mcv_plan_t VALUES (?, ?, ?)]],
-                            {id, value, 'tail' .. value})
+                box.execute([[INSERT INTO analyze_mcv_plan_t VALUES (?, ?, ?, ?)]],
+                            {id, value, 'tail' .. value, value ~= 2})
             end
         end
         local function estimate(value)
@@ -267,6 +270,15 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
         end
         local after_label_hot = label_estimate('hot')
         local after_label_tail = label_estimate('tail2')
+        local function flag_estimate(value)
+            local literal = value and 'TRUE' or 'FALSE'
+            local plan = box.execute(([[EXPLAIN QUERY PLAN SELECT id FROM
+                analyze_mcv_plan_t WHERE flag = %s]]):format(literal)).rows
+            return assert(tonumber(plan[1][4]:match('~([0-9]+) row')),
+                          'missing boolean query-plan estimate')
+        end
+        local after_flag_true = flag_estimate(true)
+        local after_flag_false = flag_estimate(false)
         box.execute([[DROP TABLE analyze_mcv_plan_t]])
         return {
             before_hot = before_hot,
@@ -276,10 +288,13 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
             parameter_estimate = parameter_estimate,
             after_label_hot = after_label_hot,
             after_label_tail = after_label_tail,
+            after_flag_true = after_flag_true,
+            after_flag_false = after_flag_false,
         }
     end)
     t.assert_equals(estimates.before_hot, estimates.before_tail)
     t.assert_gt(estimates.after_hot, estimates.after_tail * 5)
     t.assert_gt(estimates.after_hot, estimates.parameter_estimate * 3)
     t.assert_gt(estimates.after_label_hot, estimates.after_label_tail * 5)
+    t.assert_gt(estimates.after_flag_true, estimates.after_flag_false * 5)
 end
