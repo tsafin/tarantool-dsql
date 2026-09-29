@@ -1314,9 +1314,10 @@ DML, triggers, subprograms, non-deterministic functions.
   lookup (72 assertions total). Off/on/off result coverage also verifies
   LIMIT/OFFSET on full scans and ascending/descending range traversals, with
   selected-index plans. The scan direction is mapped relative to a matched
-  index definition; a memtx/Vinyl composite-index fixture exercises a forward
-  walk over a uniformly descending definition. Nullable-index fixtures verify
-  NULL placement for
+  index definition; a memtx/Vinyl descending-only composite-index fixture
+  exercises both its natural forward walk and reverse traversal. Its
+  single-part primary key also verifies that preflight uses the secondary key
+  length for order validation. Nullable-index fixtures verify NULL placement for
   ascending and descending full traversal. Direct string equality, inequality,
   and `IN` residuals can accompany ordered full traversal when no more
   selective key access path applies; the executor resolves the base row before

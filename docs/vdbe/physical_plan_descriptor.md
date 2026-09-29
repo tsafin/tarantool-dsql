@@ -346,9 +346,11 @@ entry is resolved through its complete primary key before projection. The
 route applies literal LIMIT/OFFSET after residual filtering, but does not claim
 support for arbitrary predicates or non-prefix order. The scan direction is
 mapped relative to the index definition, so a uniform ASC or DESC index order
-can be walked forward or backward; mixed-direction index prefixes are not
-supported. Memtx/Vinyl tests cover one- and
-two-term orders in both directions, duplicate key values, an unsigned maximum
+can be walked forward or backward. The preflight derives order capacity from
+the matched secondary key, not the (possibly shorter) primary key. Mixed-
+direction index prefixes are not supported. Memtx/Vinyl tests cover one- and
+two-term orders in both directions, including a descending-only composite
+index, duplicate key values, an unsigned maximum
 suffix, NULL placement at both ends of the order, and LIMIT/OFFSET.
 
 For a composite key with at least three parts, equality on a proper leading
