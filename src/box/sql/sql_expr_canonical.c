@@ -125,6 +125,40 @@ encode_function(const struct Expr *expr, struct buffer *b, unsigned int depth,
 }
 
 static enum sql_expr_canonical_reject
+encode_collation(const struct Expr *expr, struct buffer *b, unsigned int depth,
+		 const uint32_t *cursor_to_relation, size_t cursor_count)
+{
+	if (expr->u.zToken == NULL || expr->pLeft == NULL ||
+	    expr->pRight != NULL || expr->x.pList != NULL)
+		return SQL_EXPR_CANONICAL_MALFORMED;
+	if (!append(b, "collate", 7))
+		return SQL_EXPR_CANONICAL_NOMEM;
+	char length[32];
+	int length_size = snprintf(length, sizeof(length), "%zu:",
+				    strlen(expr->u.zToken));
+	if (length_size < 0 || (size_t)length_size >= sizeof(length) ||
+	    !append(b, length, (size_t)length_size))
+		return SQL_EXPR_CANONICAL_NOMEM;
+	static const char hex[] = "0123456789abcdef";
+	for (const unsigned char *p = (const unsigned char *)expr->u.zToken;
+	     *p != '\0'; ++p) {
+		char c = *p >= 'A' && *p <= 'Z' ? (char)(*p - 'A' + 'a') : *p;
+		char pair[] = {hex[(unsigned char)c >> 4],
+			       hex[(unsigned char)c & 0xf]};
+		if (!append(b, pair, sizeof(pair)))
+			return SQL_EXPR_CANONICAL_NOMEM;
+	}
+	if (!append(b, "(", 1))
+		return SQL_EXPR_CANONICAL_NOMEM;
+	enum sql_expr_canonical_reject rc = encode(expr->pLeft, b, depth + 1,
+		cursor_to_relation, cursor_count);
+	if (rc != SQL_EXPR_CANONICAL_OK)
+		return rc;
+	return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
+		SQL_EXPR_CANONICAL_NOMEM;
+}
+
+static enum sql_expr_canonical_reject
 encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
        const uint32_t *cursor_to_relation, size_t cursor_count)
 {
@@ -134,6 +168,10 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 	uint32_t allowed = EP_Resolved | EP_IntValue | EP_Leaf;
 	if (expr->op == TK_FUNCTION)
 		allowed |= EP_ConstFunc | EP_Lookup2;
+	if (expr->op == TK_COLLATE)
+		allowed |= EP_Collate | EP_Skip;
+	else
+		allowed |= EP_Collate;
 	/* EP_Lookup2 remembers whether an identifier was quoted; EP_NoReduce
 	 * prevents a harmless size optimization. Neither has a remaining semantic
 	 * effect on a canonical TK_COLUMN_REF once name resolution has bound its
@@ -149,6 +187,9 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 	if (expr->op == TK_FUNCTION)
 		return encode_function(expr, b, depth, cursor_to_relation,
 				       cursor_count);
+	if (expr->op == TK_COLLATE)
+		return encode_collation(expr, b, depth, cursor_to_relation,
+					cursor_count);
 	if (expr->op == TK_COLUMN_REF) {
 		if (expr->pLeft != NULL || expr->pRight != NULL ||
 		    expr->iTable < 0 || expr->iColumn < 0)

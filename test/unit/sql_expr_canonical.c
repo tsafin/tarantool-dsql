@@ -4,7 +4,7 @@
 #include "box/sql/sql_expr_canonical.h"
 #include "unit.h"
 static void test_supported(void) {
-	plan(14); header();
+	plan(15); header();
 	const uint32_t cursor_map[] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, 0};
 	struct Expr col = {.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=3,.iColumn=1};
 	struct Expr a = {.op=TK_INTEGER,.flags=EP_Resolved|EP_IntValue}; a.u.iValue=7;
@@ -62,6 +62,9 @@ static void test_supported(void) {
 	struct Expr function={.op=TK_FUNCTION,
 		.flags=EP_Resolved|EP_ConstFunc|EP_Lookup2,.u.zToken="ABS",
 		.x.pList=&function_list};
+	struct Expr collated={.op=TK_COLLATE,
+		.flags=EP_Resolved|EP_Collate|EP_Skip,.u.zToken="unicode_ci",
+		.pLeft=&col};
 	char *ns=sql_expr_canonicalize(&nul,NULL,0,NULL), *ss=sql_expr_canonicalize(&str,NULL,0,NULL);
 	char *fs=sql_expr_canonicalize(&f,NULL,0,NULL), *fs2=sql_expr_canonicalize(&f2,NULL,0,NULL);
 	ok(ns && strcmp(ns,"null")==0,"NULL encoded");
@@ -81,11 +84,15 @@ static void test_supported(void) {
 	char *function_s=sql_expr_canonicalize(&function,cursor_map,4,NULL);
 	ok(function_s && strcmp(function_s, "func3:616273(col(r0,c1))")==0,
 	   "deterministic function identity and ordered args canonicalized");
-	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);free(between_s);free(in_s);free(function_s);
+	char *collated_s=sql_expr_canonicalize(&collated,cursor_map,4,NULL);
+	ok(collated_s && strcmp(collated_s,
+		"collate10:756e69636f64655f6369(col(r0,c1))")==0,
+	   "explicit collation and operand canonicalized case-insensitively");
+	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);free(between_s);free(in_s);free(function_s);free(collated_s);
 	footer(); check_plan();
 }
 static void test_rejects(void) {
-	plan(10); header(); enum sql_expr_canonical_reject r;
+	plan(11); header(); enum sql_expr_canonical_reject r;
 	struct Expr fn={.op=TK_FUNCTION,.flags=EP_Resolved,.u.zToken="abs"};
 	ok(!sql_expr_canonicalize(&fn,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,"nondeterministic function rejected");
 	struct Expr j={.op=TK_COLUMN_REF,.flags=EP_Resolved|EP_FromJoin,.iTable=0,.iColumn=1};
@@ -109,7 +116,11 @@ static void test_rejects(void) {
 	   r==SQL_EXPR_CANONICAL_MALFORMED,"malformed BETWEEN rejected");
 	struct Expr malformed_in={.op=TK_IN,.flags=EP_Resolved};
 	ok(!sql_expr_canonicalize(&malformed_in,NULL,0,&r)&&
-	   r==SQL_EXPR_CANONICAL_MALFORMED,"malformed IN rejected");
+		r==SQL_EXPR_CANONICAL_MALFORMED,"malformed IN rejected");
+	struct Expr malformed_collate={.op=TK_COLLATE,
+		.flags=EP_Resolved|EP_Collate|EP_Skip,.u.zToken="unicode_ci"};
+	ok(!sql_expr_canonicalize(&malformed_collate,NULL,0,&r)&&
+		r==SQL_EXPR_CANONICAL_MALFORMED,"malformed COLLATE rejected");
 	footer(); check_plan();
 }
 int main(void) { test_supported(); test_rejects(); return 0; }

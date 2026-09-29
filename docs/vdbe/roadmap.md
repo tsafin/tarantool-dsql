@@ -1490,6 +1490,16 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_FUNCTION`. The canonicalizer unit target passes 14 supported
   and 10 rejection assertions. This is residual-filter support only; M3.4
   remains partial.
+  **Explicit collation residual extension (2026-09-29):** canonicalization
+  now includes resolved `COLLATE` nodes using a case-folded collation name and
+  their canonical operand. Explicit collations are admitted only inside
+  bounded WHERE residuals; the wrapped expression cannot match direct key
+  access extraction, while existing SQL bytecode retains comparison semantics.
+  Memtx/Vinyl off/on/off cases distinguish `unicode_ci` from `binary`, cover
+  `IS NULL`, and assert `new_planner`; a separate SQL-TAP case confirms
+  collated projection remains `fallback / UNSUPPORTED_COLLATION`. The
+  canonicalizer unit target passes 15 supported and 11 rejection assertions.
+  This remains residual-only support and does not close M3.4.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit
