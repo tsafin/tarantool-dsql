@@ -61,6 +61,15 @@ g.test_non_primary_null_filters_off_on_off = function()
                          '(1, 2, 7, 10, \'b\'), ' ..
                          '(2, 1, 7, 18446744073709551615, \'c\'), ' ..
                          '(2, 2, 8, 10, \'d\')'):format(secondary_name))
+            local nullable_secondary_name = name .. '_secondary_nullable'
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
+                         'x INTEGER) WITH ENGINE = \'%s\'')
+                        :format(nullable_secondary_name, engine))
+            box.execute(('CREATE INDEX %s_x ON %s (x)')
+                        :format(nullable_secondary_name,
+                                nullable_secondary_name))
+            box.execute(('INSERT INTO %s VALUES (1, 3), (2, NULL), (3, 7)')
+                        :format(nullable_secondary_name))
             local queries = {
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE x = 7 AND y = 10')
@@ -178,6 +187,23 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{8, 2, 2}},
                     expected_index = secondary_name .. '_xy',
                     expected_order_column = 1,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, id FROM %s ORDER BY x ASC ' ..
+                           'LIMIT 1'):format(nullable_secondary_name),
+                    expected = {{box.NULL, 2}},
+                    expected_index = nullable_secondary_name .. '_x',
+                    expected_order_column = 1,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, id FROM %s ORDER BY x DESC ' ..
+                           'LIMIT 1 OFFSET 2'):format(nullable_secondary_name),
+                    expected = {{box.NULL, 2}},
+                    expected_index = nullable_secondary_name .. '_x',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
                     unordered = true,
                 },
                 {
@@ -776,6 +802,7 @@ g.test_non_primary_null_filters_off_on_off = function()
             box.execute(('DROP TABLE %s'):format(name))
             box.execute(('DROP TABLE %s'):format(composite_name))
             box.execute(('DROP TABLE %s'):format(secondary_name))
+            box.execute(('DROP TABLE %s'):format(nullable_secondary_name))
             box.execute(('DROP TABLE %s'):format(comparison_name))
         end
     end)
