@@ -137,6 +137,14 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected_order_columns = {1, 2},
                 },
                 {
+                    sql = ('SELECT x, note FROM %s WHERE x = 7 ' ..
+                           'ORDER BY note DESC'):format(secondary_name),
+                    expected = {{7, 'c'}, {7, 'b'}, {7, 'a'}},
+                    expected_index = 'xnotemixed',
+                    expected_order_column = 2,
+                    expected_order_desc = true,
+                },
+                {
                     sql = ('SELECT z, tenant, id FROM %s WHERE z < 4 ' ..
                            'AND y = 10 AND x = 7 AND z >= 2 ' ..
                            'ORDER BY z DESC'):format(secondary_tertiary_name),

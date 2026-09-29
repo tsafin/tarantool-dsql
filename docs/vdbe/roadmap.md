@@ -1324,9 +1324,11 @@ DML, triggers, subprograms, non-deterministic functions.
   coverage checks duplicate matches and selected-index evidence, and the VDBE
   unit pins the prefix seek and mismatch guard. Ordering on a contiguous prefix
   of the immediately following key parts is supported when one forward/reverse
-  walk matches every requested direction; unrelated orderings and skipped
-  leading parts remain unsupported for this access kind. This bounded route does not
-  close M3.4.
+  walk matches every requested direction; candidate selection prefers an
+  index that can supply that order. Tests cover two-term suffix order and a
+  natural descending suffix on a mixed-direction index. Unrelated orderings
+  and skipped leading parts remain unsupported for this access kind. This
+  bounded route does not close M3.4.
   **Composite secondary prefix-range extension (2026-09):** the producer now
   recognizes complete equality predicates on leading INTEGER/UNSIGNED key
   parts followed by one-sided or bounded literal bounds on the immediately

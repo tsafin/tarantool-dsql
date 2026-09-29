@@ -902,6 +902,7 @@ sql_physical_table_scan_from_select(
 		}
 		if (!has_secondary_equality_candidate && !has_secondary_range_scan &&
 		    source->space->index_map != NULL) {
+			bool saved_prefix_candidate = false;
 			for (uint32_t index_no = 1;
 			     index_no < source->space->index_count; ++index_no) {
 				const struct index *index =
@@ -948,6 +949,39 @@ sql_physical_table_scan_from_select(
 				if (prefix_count == 0 ||
 				    prefix_count == key_def->part_count)
 					continue;
+				bool order_matches = select->pOrderBy == NULL;
+				if (!order_matches && select->pOrderBy->nExpr > 0 &&
+				    (uint32_t)select->pOrderBy->nExpr <=
+				    key_def->part_count - prefix_count) {
+					bool natural = true;
+					bool reverse = true;
+					order_matches = true;
+					for (int i = 0; i < select->pOrderBy->nExpr; ++i) {
+						const struct Expr *expr =
+							select->pOrderBy->a[i].pExpr;
+						const struct key_part *part = &key_def->parts[
+							prefix_count + i];
+						enum sort_order requested =
+							select->pOrderBy->a[i].sort_order;
+						if (requested == SORT_ORDER_UNDEF)
+							requested = SORT_ORDER_ASC;
+						if (expr == NULL || expr->op != TK_COLUMN_REF ||
+						    expr->pLeft != NULL || expr->pRight != NULL ||
+						    expr->iTable != source->iCursor ||
+						    expr->iColumn < 0 ||
+						    (uint32_t)expr->iColumn != part->fieldno ||
+						    (part->sort_order != SORT_ORDER_ASC &&
+						     part->sort_order != SORT_ORDER_DESC)) {
+							order_matches = false;
+							break;
+						}
+						natural &= requested == part->sort_order;
+						reverse &= requested != part->sort_order;
+					}
+					order_matches &= natural || reverse;
+				}
+				if (!order_matches && saved_prefix_candidate)
+					continue;
 				has_secondary_prefix_scan = true;
 				secondary_prefix_index_id = index->def->iid;
 				secondary_prefix_count = prefix_count;
@@ -955,7 +989,9 @@ sql_physical_table_scan_from_select(
 				       prefix_count * sizeof(parts[0]));
 				memcpy(secondary_prefix_terms, terms,
 				       prefix_count * sizeof(terms[0]));
-				break;
+				if (order_matches)
+					break;
+				saved_prefix_candidate = true;
 			}
 		}
 		size_t bound_count = 0;
