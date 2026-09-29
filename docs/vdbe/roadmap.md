@@ -2013,6 +2013,23 @@ DML, triggers, subprograms, non-deterministic functions.
   selection; the explicitly incompatible iproto observer and multi-mode/full
   producer acceptance remain open.
 
+  **Current reviewed SQL CnP planner-flag audit (2026-09-29).** Repeated the
+  fixed off/on/off route and semantic audit with CnP dispatch enabled on the
+  current Debug binary. SQL-TAP passes for 232 memtx tests / 47,946 snapshots
+  and 224 Vinyl tests / 37,990 snapshots; SQL passes for 33 / 34 tests and
+  1,077 / 1,085 snapshots; SQL-luatest passes for 31 / 30 tests and 498 / 446
+  snapshots. All six engine/suite reports have zero semantic diffs, exact
+  off-repeat semantic parity, and zero unreviewed route transitions. The same
+  two known fixed-mode exclusions apply: `sql/iproto.test.lua` observes
+  snapshot instrumentation through `box.stat().EXECUTE`, and
+  `gh_8676_exists_in_multiselect_test.lua` contains only a direct `VALUES`
+  producer so no native CnP execution is attributed. Generated-mode audits
+  still include both. SQL-TAP retains only EXPLAIN-row differences (28/27
+  off/on and 5/4 off-repeat for memtx/Vinyl); the SQL and SQL-luatest captures
+  are exact. Reports are under `/dev/shm/m35-planner-flags-*-cnp-current-20260929*`.
+  This is broad CnP route/parity evidence, not the LLVM run or the complete
+  M3.5 producer gate.
+
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
   `insert_select_root`; ledger validation and statement-summary selection treat
