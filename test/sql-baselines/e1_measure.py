@@ -114,6 +114,7 @@ def analyze(rows, baseline, candidate):
     groups = defaultdict(list)
     record_keys = set()
     immutable = {}
+    stage_inventory = {}
     for row in rows:
         scope = (row["workload_id"], row["engine"], row["dispatcher"])
         identity = scope + (row["configuration"], row["query_id"], row["repeat"])
@@ -125,6 +126,14 @@ def analyze(rows, baseline, candidate):
         if scope in immutable and immutable[scope] != provenance:
             raise ValueError(f"mixed source/binary provenance in scope: {scope}")
         immutable[scope] = provenance
+        stage_key = scope + (row["configuration"], row["query_id"])
+        stages = frozenset(stage["stage_id"]
+                           for stage in row["cardinalities"])
+        if stage_key in stage_inventory and stage_inventory[stage_key] != stages:
+            raise ValueError(
+                "inconsistent cardinality stages across repetitions: "
+                f"{'/'.join(stage_key)}")
+        stage_inventory[stage_key] = stages
         if not row["warmup"]:
             groups[scope + (row["configuration"],)].append(row)
 

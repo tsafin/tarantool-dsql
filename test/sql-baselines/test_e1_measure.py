@@ -108,6 +108,17 @@ class E1MeasureTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unmatched cardinality stages"):
             e1_measure.analyze(baseline + candidate, "default", "candidate")
 
+    def test_rejects_stage_inventory_changing_between_repetitions(self):
+        rows = []
+        for configuration in ("default", "candidate"):
+            for repeat in range(1, 6):
+                stage = "join-output" if repeat != 3 else "scan-output"
+                rows.append(observation(configuration, repeat, 100,
+                                        stage=stage))
+        with self.assertRaisesRegex(ValueError,
+                                    "inconsistent cardinality stages"):
+            e1_measure.analyze(rows, "default", "candidate")
+
     def test_rejects_actual_cardinality_mismatch_between_configurations(self):
         baseline = [observation("default", repeat, 100, actual=50)
                     for repeat in range(1, 6)]
