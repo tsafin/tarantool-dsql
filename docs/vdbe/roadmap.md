@@ -1983,6 +1983,20 @@ DML, triggers, subprograms, non-deterministic functions.
   reviewed SQL-TAP slice only; standalone SQL and SQL-luatest reviewed-corpus
   coverage and the full M3.5 producer gate remain open.
 
+  **Reviewed SQL-luatest planner-flag audit (2026-09-29, generated mode).**
+  The reviewed selection passes off/on/off semantic parity with zero diffs on
+  both engines: 32 tests / 499 snapshots on memtx and 31 / 447 on Vinyl. All
+  route transitions are classified, with no unreviewed classes. The two
+  `current_where_c` to `fallback / NO_ACCESS_PATH` transitions per engine are
+  the same primary-only/secondary-index boundary described above; representative
+  cases are `gh_5183_fix_index_field_missing` (`a IS NULL` with a secondary
+  index) and `gh_8418_select_lead_to_assertion` (`_space.owner = 1`). They
+  retain exact result parity. Reports are under
+  `/dev/shm/m35-planner-flags-sql-luatest-current-20260929-reviewed-{memtx,vinyl}`.
+  This is the reviewed SQL-luatest selection, not a claim that every luatest
+  topology or the standalone `sql` suite is covered; those remain open for
+  M3.5.
+
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
   `insert_select_root`; ledger validation and statement-summary selection treat

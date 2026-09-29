@@ -2,9 +2,10 @@
   "sql-luatest": {
     "classes": [
       ["current_where_c", null, "new_planner", null],
-      ["current_where_c", null, "fallback", "UNSUPPORTED_FILTER"]
+      ["current_where_c", null, "fallback", "UNSUPPORTED_FILTER"],
+      ["current_where_c", null, "fallback", "NO_ACCESS_PATH"]
     ],
-    "note": "Matches the reviewed SQL-luatest route inventory; does not close M3.5 or accept M3.7."
+    "note": "The NO_ACCESS_PATH transitions in gh_5183_fix_index_field_missing and gh_8418_select_lead_to_assertion preserve the legacy secondary-index route when the primary-only executor cannot represent it. Zero semantic drift is required; this does not close M3.5 or accept M3.7."
   },
   "sql-tap": {
     "classes": [
