@@ -248,6 +248,16 @@ sql_stats_index_part_mcv_at(const struct sql_stats_index *index,
 			    size_t *value_size, uint64_t *estimate,
 			    uint64_t *error);
 
+/* Look up one tracked typed MCV and scale its SpaceSaving estimate/error
+ * interval from the sample domain to the index tuple population. An absent
+ * candidate remains MISSING (not zero); stale snapshots remain STALE. */
+enum sql_stats_lookup_status
+sql_stats_snapshot_estimate_index_part_mcv_rows(
+	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
+	uint32_t space_id, uint32_t index_id, size_t part_index,
+	uint8_t type_tag, const void *value, size_t value_size,
+	double *estimated_rows, double *error_rows);
+
 /**
  * Estimate the average row count for a relation/index prefix. A zero
  * prefix_count returns relation cardinality; otherwise prefix_count is the

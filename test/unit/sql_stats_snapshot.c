@@ -8,7 +8,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(35);
+	plan(38);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
@@ -97,6 +97,19 @@ test_deep_copy_lookup_and_lifetime(void)
 	   memcmp(stored_mcv, "hot", 3) == 0 && stored_mcv_estimate == 4 &&
 	   stored_mcv_error == 1,
 	   "typed MCV payload and both sample denominators are deep-copied");
+	double mcv_rows = -1, mcv_error_rows = -1;
+	ok(sql_stats_snapshot_estimate_index_part_mcv_rows(snapshot, 7, 42, 8,
+		0, 1, "hot", 3, &mcv_rows, &mcv_error_rows) ==
+	   SQL_STATS_LOOKUP_AVAILABLE && mcv_rows == 4 && mcv_error_rows == 1,
+	   "typed MCV estimate and error scale to the index population");
+	ok(sql_stats_snapshot_estimate_index_part_mcv_rows(snapshot, 7, 42, 8,
+		0, 1, "absent", 6, &mcv_rows, &mcv_error_rows) ==
+	   SQL_STATS_LOOKUP_MISSING && mcv_rows == 4 && mcv_error_rows == 1,
+	   "untracked equality remains missing rather than being treated as zero");
+	ok(sql_stats_snapshot_estimate_index_part_mcv_rows(snapshot, 8, 42, 8,
+		0, 1, "hot", 3, &mcv_rows, &mcv_error_rows) ==
+	   SQL_STATS_LOOKUP_STALE && mcv_rows == 4 && mcv_error_rows == 1,
+	   "stale MCV lookup leaves outputs untouched for fallback");
 	double rows = -1;
 	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
 							 0, &rows) ==

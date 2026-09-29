@@ -953,6 +953,45 @@ sql_stats_index_part_mcv_at(const struct sql_stats_index *index,
 }
 
 enum sql_stats_lookup_status
+sql_stats_snapshot_estimate_index_part_mcv_rows(
+	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
+	uint32_t space_id, uint32_t index_id, size_t part_index,
+	uint8_t type_tag, const void *value, size_t value_size,
+	double *estimated_rows, double *error_rows)
+{
+	if (estimated_rows == NULL || error_rows == NULL || type_tag == 0 ||
+	    (value == NULL && value_size != 0))
+		return SQL_STATS_LOOKUP_MISSING;
+	const struct sql_stats_relation *relation = NULL;
+	enum sql_stats_lookup_status status = sql_stats_snapshot_get_relation(
+		snapshot, current_schema_version, space_id, &relation);
+	if (status != SQL_STATS_LOOKUP_AVAILABLE)
+		return status;
+	const struct sql_stats_index *index = NULL;
+	status = sql_stats_relation_get_index(relation, index_id, &index);
+	if (status != SQL_STATS_LOOKUP_AVAILABLE)
+		return status;
+	if (part_index >= index->part_count)
+		return SQL_STATS_LOOKUP_MISSING;
+	uint64_t sample_rows = index->parts[part_index].sample_rows;
+	if (sample_rows == 0)
+		return SQL_STATS_LOOKUP_MISSING;
+	for (size_t i = 0; i < index->parts[part_index].mcv_count; ++i) {
+		const struct sql_stats_mcv *mcv = &index->parts[part_index].mcv[i];
+		if (mcv->type_tag != type_tag || mcv->value_size != value_size ||
+		    (value_size != 0 && memcmp(mcv->value, value, value_size) != 0))
+			continue;
+		/* SpaceSaving reports actual count in [estimate - error, estimate].
+		 * Preserve that interval when scaling to the captured population. */
+		double scale = (double)index->tuple_count / (double)sample_rows;
+		*estimated_rows = mcv->estimate * scale;
+		*error_rows = mcv->error * scale;
+		return SQL_STATS_LOOKUP_AVAILABLE;
+	}
+	return SQL_STATS_LOOKUP_MISSING;
+}
+
+enum sql_stats_lookup_status
 sql_stats_snapshot_estimate_index_prefix_rows(
 	const struct sql_stats_snapshot *snapshot, uint64_t current_schema_version,
 	uint32_t space_id, uint32_t index_id, uint32_t prefix_count, double *rows)
