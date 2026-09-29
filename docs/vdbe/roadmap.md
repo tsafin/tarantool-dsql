@@ -1332,6 +1332,14 @@ DML, triggers, subprograms, non-deterministic functions.
   function fallback. The focused regression passes under generated, CnP, and
   LLVM dispatch. This does not broaden the accepted canonical-expression
   grammar or enable cross-source expressions.
+  **Computed comparison residual extension (2026-09-29):** comparison
+  operands may now be canonical scalar expressions (for example,
+  `a + b = 3` or `a + b = id`) when every column reference belongs to the
+  scanned source and at least one operand is row-dependent. Such predicates
+  remain residuals and do not become access bounds; direct column/constant
+  primary-key predicates retain their existing bound behavior. Boolean OR
+  coverage includes computed and direct-column leaves. The focused memtx/Vinyl
+  off/on/off regression passes under generated, CnP, and LLVM dispatch.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit
