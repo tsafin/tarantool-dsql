@@ -14,6 +14,18 @@ struct sql_stats_index {
 	uint64_t definition_version;
 	size_t prefix_count;
 	uint64_t *distinct_prefixes;
+	size_t part_count;
+	struct sql_stats_index_part {
+		uint64_t sample_nonnull_rows;
+		size_t mcv_count;
+		struct sql_stats_mcv {
+			uint8_t type_tag;
+			void *value;
+			size_t value_size;
+			uint64_t estimate;
+			uint64_t error;
+		} *mcv;
+	} *parts;
 };
 
 struct sql_stats_relation {
@@ -131,6 +143,19 @@ destroy_relations(struct sql_stats_relation *relations, size_t count)
 				free(relations[i].indexes[j].population_basis);
 				free(relations[i].indexes[j].ndv_basis);
 				free(relations[i].indexes[j].distinct_prefixes);
+				if (relations[i].indexes[j].parts != NULL) {
+					for (size_t k = 0;
+					     k < relations[i].indexes[j].part_count; k++) {
+					struct sql_stats_index_part *part =
+						&relations[i].indexes[j].parts[k];
+						if (part->mcv != NULL) {
+							for (size_t n = 0; n < part->mcv_count; n++)
+								free(part->mcv[n].value);
+						}
+						free(part->mcv);
+					}
+				}
+				free(relations[i].indexes[j].parts);
 			}
 		}
 		free(relations[i].indexes);
@@ -211,7 +236,12 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 			struct sql_stats_index *index = &out->indexes[j];
 			if ((index_in->prefix_count != 0 &&
 			     index_in->distinct_prefixes == NULL) ||
-			    index_in->prefix_count > SIZE_MAX / sizeof(uint64_t))
+			    index_in->prefix_count > SIZE_MAX / sizeof(uint64_t) ||
+			    (index_in->part_count != 0 &&
+			     (index_in->parts == NULL ||
+			      index_in->part_count != index_in->prefix_count)) ||
+			    index_in->part_count > SIZE_MAX /
+							  sizeof(*index->parts))
 				goto error;
 			index->index_id = index_in->index_id;
 			index->tuple_count = index_in->tuple_count;
@@ -249,6 +279,75 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 				    (k != 0 && value < previous))
 					goto error;
 				previous = value;
+			}
+			index->part_count = index_in->part_count;
+			if (!add_bytes(&snapshot->bytes,
+				       index->part_count * sizeof(*index->parts), max_bytes))
+				goto error;
+			index->parts = index->part_count == 0 ? NULL :
+				stats_calloc(index->part_count, sizeof(*index->parts));
+			if (index->part_count != 0 && index->parts == NULL)
+				goto error;
+			for (size_t k = 0; k < index->part_count; k++) {
+				const struct sql_stats_index_part_input *part_in =
+					&index_in->parts[k];
+				struct sql_stats_index_part *part = &index->parts[k];
+				if ((part_in->mcv_count != 0 && part_in->mcv == NULL) ||
+				    part_in->mcv_count > SIZE_MAX / sizeof(*part->mcv))
+					goto error;
+				part->sample_nonnull_rows = part_in->sample_nonnull_rows;
+				part->mcv_count = part_in->mcv_count;
+				if (!add_bytes(&snapshot->bytes,
+					       part->mcv_count * sizeof(*part->mcv),
+					       max_bytes))
+					goto error;
+				part->mcv = part->mcv_count == 0 ? NULL :
+					stats_calloc(part->mcv_count, sizeof(*part->mcv));
+				if (part->mcv_count != 0 && part->mcv == NULL)
+					goto error;
+				uint64_t minimum_total = 0;
+				for (size_t n = 0; n < part->mcv_count; n++) {
+					const struct sql_stats_mcv_input *mcv_in =
+						&part_in->mcv[n];
+					struct sql_stats_mcv *mcv = &part->mcv[n];
+					if (mcv_in->type_tag == 0 || mcv_in->estimate == 0 ||
+					    mcv_in->error > mcv_in->estimate ||
+					    mcv_in->estimate > part->sample_nonnull_rows ||
+					    (mcv_in->value_size != 0 &&
+					     mcv_in->value == NULL))
+						goto error;
+					uint64_t minimum = mcv_in->estimate - mcv_in->error;
+					if (minimum > part->sample_nonnull_rows - minimum_total)
+						goto error;
+					minimum_total += minimum;
+					mcv->type_tag = mcv_in->type_tag;
+					mcv->value_size = mcv_in->value_size;
+					mcv->estimate = mcv_in->estimate;
+					mcv->error = mcv_in->error;
+					if (!add_bytes(&snapshot->bytes, mcv->value_size,
+						       max_bytes))
+						goto error;
+					if (mcv->value_size != 0) {
+						mcv->value = stats_malloc(mcv->value_size);
+						if (mcv->value == NULL)
+							goto error;
+						memcpy(mcv->value, mcv_in->value,
+						       mcv->value_size);
+					}
+					for (size_t p = 0; p < n; p++) {
+						struct sql_stats_mcv *previous_mcv =
+							&part->mcv[p];
+						if (previous_mcv->type_tag == mcv->type_tag &&
+						    previous_mcv->value_size ==
+							mcv->value_size &&
+						    (mcv->value_size == 0 ||
+						     memcmp(previous_mcv->value, mcv->value,
+							    mcv->value_size) == 0))
+							goto error;
+					}
+				}
+				if (minimum_total > part->sample_nonnull_rows)
+					goto error;
 			}
 		}
 		if (out->index_count > 1)
@@ -293,7 +392,7 @@ sql_stats_snapshot_release(struct sql_stats_snapshot *snapshot)
 }
 
 uint32_t sql_stats_snapshot_api_version(const struct sql_stats_snapshot *s)
-{ return s == NULL ? 0 : 2; }
+{ return s == NULL ? 0 : 3; }
 uint64_t sql_stats_snapshot_catalog_version(const struct sql_stats_snapshot *s)
 { return s == NULL ? 0 : s->catalog_version; }
 uint64_t sql_stats_snapshot_schema_version(const struct sql_stats_snapshot *s)
@@ -335,6 +434,8 @@ struct snapshot_copy_storage {
 	struct sql_stats_relation_input *relations;
 	struct sql_stats_index_input **indexes;
 	uint64_t ***prefixes;
+	struct sql_stats_index_part_input ***parts;
+	struct sql_stats_mcv_input ****mcv;
 	size_t relation_count;
 };
 
@@ -350,12 +451,39 @@ snapshot_copy_storage_destroy(struct snapshot_copy_storage *storage)
 		}
 		if (storage->prefixes != NULL)
 			free(storage->prefixes[i]);
+		if (storage->parts != NULL && storage->parts[i] != NULL) {
+			for (size_t j = 0; storage->relations != NULL &&
+			     storage->relations[i].index_count != 0 &&
+			     j < storage->relations[i].index_count; j++)
+				free(storage->parts[i][j]);
+		}
+		if (storage->mcv != NULL && storage->mcv[i] != NULL) {
+			for (size_t j = 0; storage->relations != NULL &&
+			     storage->relations[i].index_count != 0 &&
+			     j < storage->relations[i].index_count; j++) {
+				struct sql_stats_index_input *index =
+					storage->indexes[i] == NULL ? NULL :
+					&storage->indexes[i][j];
+				if (storage->mcv[i][j] != NULL) {
+					for (size_t k = 0; index != NULL &&
+					     k < index->part_count; k++)
+						free(storage->mcv[i][j][k]);
+				}
+				free(storage->mcv[i][j]);
+			}
+		}
+		if (storage->parts != NULL)
+			free(storage->parts[i]);
+		if (storage->mcv != NULL)
+			free(storage->mcv[i]);
 		if (storage->indexes != NULL)
 			free(storage->indexes[i]);
 	}
 	free(storage->prefixes);
 	free(storage->indexes);
 	free(storage->relations);
+	free(storage->parts);
+	free(storage->mcv);
 	*storage = (struct snapshot_copy_storage){};
 }
 
@@ -363,7 +491,9 @@ static bool
 snapshot_copy_relation(const struct sql_stats_relation *source,
 		       struct sql_stats_relation_input *relation,
 		       struct sql_stats_index_input **indexes,
-		       uint64_t ***prefixes, size_t *scratch_bytes,
+		       uint64_t ***prefixes,
+	       struct sql_stats_index_part_input ***parts,
+	       struct sql_stats_mcv_input ****mcv, size_t *scratch_bytes,
 		       size_t max_bytes)
 {
 	size_t index_count = sql_stats_relation_index_count(source);
@@ -375,13 +505,19 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 	size_t index_bytes = index_count * sizeof(**indexes);
 	size_t prefix_ptr_bytes = index_count * sizeof(**prefixes);
 	if (index_bytes > max_bytes - *scratch_bytes ||
-	    prefix_ptr_bytes > max_bytes - *scratch_bytes - index_bytes)
+	    prefix_ptr_bytes > max_bytes - *scratch_bytes - index_bytes ||
+	    index_count > (max_bytes - *scratch_bytes - index_bytes -
+			   prefix_ptr_bytes) / (sizeof(**parts) + sizeof(**mcv)))
 		return false;
 	*indexes = index_count == 0 ? NULL : calloc(index_count, sizeof(**indexes));
 	*prefixes = index_count == 0 ? NULL : calloc(index_count, sizeof(**prefixes));
-	if (index_count != 0 && (*indexes == NULL || *prefixes == NULL))
+	*parts = index_count == 0 ? NULL : calloc(index_count, sizeof(**parts));
+	*mcv = index_count == 0 ? NULL : calloc(index_count, sizeof(**mcv));
+	if (index_count != 0 && (*indexes == NULL || *prefixes == NULL ||
+				  *parts == NULL || *mcv == NULL))
 		return false;
-	*scratch_bytes += index_bytes + prefix_ptr_bytes;
+	*scratch_bytes += index_bytes + prefix_ptr_bytes +
+		index_count * (sizeof(**parts) + sizeof(**mcv));
 	for (size_t i = 0; i < index_count; i++) {
 		const struct sql_stats_index *source_index = NULL;
 		if (sql_stats_relation_index_at(source, i, &source_index) !=
@@ -399,6 +535,59 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 		for (size_t j = 0; j < prefix_count; j++)
 			prefix[j] = sql_stats_index_distinct_prefix(source_index, j);
 		(*prefixes)[i] = prefix;
+		size_t part_count = source_index == NULL ? 0 : prefix_count;
+		if (part_count > SIZE_MAX / sizeof(***parts) ||
+		    part_count > SIZE_MAX / sizeof(***mcv) ||
+		    part_count * (sizeof(***parts) + sizeof(***mcv)) >
+						max_bytes - *scratch_bytes)
+			return false;
+		(*parts)[i] = part_count == 0 ? NULL : calloc(part_count,
+								 sizeof(***parts));
+		(*mcv)[i] = part_count == 0 ? NULL : calloc(part_count,
+							    sizeof(***mcv));
+		if (part_count != 0 && ((*parts)[i] == NULL || (*mcv)[i] == NULL))
+			return false;
+		(*indexes)[i].part_count = part_count;
+		*scratch_bytes += part_count *
+			(sizeof(***parts) + sizeof(***mcv));
+		for (size_t k = 0; k < part_count; k++) {
+			size_t mcv_count = sql_stats_index_part_mcv_count(source_index, k);
+			if (mcv_count > SIZE_MAX / sizeof(struct sql_stats_mcv_input) ||
+			    mcv_count * sizeof(struct sql_stats_mcv_input) >
+						max_bytes - *scratch_bytes)
+				return false;
+			struct sql_stats_mcv_input *mcv_values = mcv_count == 0 ? NULL :
+				calloc(mcv_count, sizeof(*mcv_values));
+			if (mcv_count != 0 && mcv_values == NULL)
+				return false;
+			(*mcv)[i][k] = mcv_values;
+			*scratch_bytes += mcv_count * sizeof(*mcv_values);
+			for (size_t n = 0; n < mcv_count; n++) {
+				uint8_t type_tag;
+				const void *value;
+				size_t value_size;
+				uint64_t estimate, error;
+				if (sql_stats_index_part_mcv_at(source_index, k, n,
+						&type_tag, &value, &value_size,
+						&estimate, &error) !=
+				    SQL_STATS_LOOKUP_AVAILABLE)
+					return false;
+				mcv_values[n] = (struct sql_stats_mcv_input) {
+					.type_tag = type_tag,
+					.value = value,
+					.value_size = value_size,
+					.estimate = estimate,
+					.error = error,
+				};
+			}
+			(*parts)[i][k] = (struct sql_stats_index_part_input) {
+				.sample_nonnull_rows =
+					sql_stats_index_part_sample_nonnull_rows(
+						source_index, k),
+				.mcv = mcv_values,
+				.mcv_count = mcv_count,
+			};
+		}
 		(*indexes)[i] = (struct sql_stats_index_input) {
 			.index_id = sql_stats_index_id(source_index),
 			.tuple_count = sql_stats_index_tuple_count(source_index),
@@ -411,6 +600,8 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 				sql_stats_index_definition_version(source_index),
 			.distinct_prefixes = prefix,
 			.prefix_count = prefix_count,
+			.parts = (*parts)[i],
+			.part_count = part_count,
 		};
 	}
 	*relation = (struct sql_stats_relation_input) {
@@ -477,11 +668,12 @@ snapshot_rebuild(const struct sql_stats_snapshot *base,
 		return NULL;
 	count += replacement_count;
 	size_t relation_bytes = count * sizeof(struct sql_stats_relation_input);
-	if (count > SIZE_MAX / sizeof(struct sql_stats_index_input *) ||
-	    count > SIZE_MAX / sizeof(uint64_t **))
+	if (count > SIZE_MAX / (2 * sizeof(struct sql_stats_index_input *) +
+				 sizeof(uint64_t **) + sizeof(struct sql_stats_index_part_input **)))
 		return NULL;
-	size_t pointer_bytes = count * (sizeof(struct sql_stats_index_input *) +
-					 sizeof(uint64_t **));
+	size_t pointer_bytes = count * (2 * sizeof(struct sql_stats_index_input *) +
+					 sizeof(uint64_t **) +
+					 sizeof(struct sql_stats_index_part_input **));
 	if (relation_bytes > max_bytes ||
 	    pointer_bytes > max_bytes - relation_bytes)
 		return NULL;
@@ -491,9 +683,12 @@ snapshot_rebuild(const struct sql_stats_snapshot *base,
 	storage.indexes = count == 0 ? NULL : calloc(count,
 							       sizeof(*storage.indexes));
 	storage.prefixes = count == 0 ? NULL : calloc(count,
-							        sizeof(*storage.prefixes));
+								        sizeof(*storage.prefixes));
+	storage.parts = count == 0 ? NULL : calloc(count, sizeof(*storage.parts));
+	storage.mcv = count == 0 ? NULL : calloc(count, sizeof(*storage.mcv));
 	if (count != 0 && (storage.relations == NULL || storage.indexes == NULL ||
-			   storage.prefixes == NULL))
+			   storage.prefixes == NULL || storage.parts == NULL ||
+			   storage.mcv == NULL))
 		goto fail;
 	size_t scratch_bytes = relation_bytes + pointer_bytes;
 	size_t out = 0;
@@ -512,7 +707,8 @@ snapshot_rebuild(const struct sql_stats_snapshot *base,
 				continue;
 			if (out >= count || !snapshot_copy_relation(r,
 				&storage.relations[out], &storage.indexes[out],
-				&storage.prefixes[out], &scratch_bytes, max_bytes))
+				&storage.prefixes[out], &storage.parts[out],
+				&storage.mcv[out], &scratch_bytes, max_bytes))
 				goto fail;
 			out++;
 		}
@@ -559,10 +755,12 @@ sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
 	size_t relation_bytes = relation_count *
 		sizeof(struct sql_stats_relation_input);
 	if (relation_count > SIZE_MAX /
-	    (sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **)))
+	    (2 * sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **) +
+	     sizeof(struct sql_stats_index_part_input **)))
 		return NULL;
 	size_t pointer_bytes = relation_count *
-		(sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **));
+		(2 * sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **) +
+		 sizeof(struct sql_stats_index_part_input **));
 	if (relation_bytes > max_bytes || pointer_bytes > max_bytes - relation_bytes)
 		return NULL;
 	struct snapshot_copy_storage storage = {.relation_count = relation_count};
@@ -572,9 +770,14 @@ sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
 		calloc(relation_count, sizeof(*storage.indexes));
 	storage.prefixes = relation_count == 0 ? NULL :
 		calloc(relation_count, sizeof(*storage.prefixes));
+	storage.parts = relation_count == 0 ? NULL :
+		calloc(relation_count, sizeof(*storage.parts));
+	storage.mcv = relation_count == 0 ? NULL :
+		calloc(relation_count, sizeof(*storage.mcv));
 	if (relation_count != 0 && (storage.relations == NULL ||
 				    storage.indexes == NULL ||
-				    storage.prefixes == NULL))
+				    storage.prefixes == NULL ||
+				    storage.parts == NULL || storage.mcv == NULL))
 		goto fail;
 	size_t scratch_bytes = relation_bytes + pointer_bytes;
 	size_t out = 0;
@@ -587,6 +790,7 @@ sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
 			    SQL_STATS_LOOKUP_AVAILABLE || out >= relation_count ||
 			    !snapshot_copy_relation(relation, &storage.relations[out],
 				&storage.indexes[out], &storage.prefixes[out],
+				&storage.parts[out], &storage.mcv[out],
 				&scratch_bytes, max_bytes))
 				goto fail;
 			out++;
@@ -696,6 +900,44 @@ size_t sql_stats_index_prefix_count(const struct sql_stats_index *i)
 uint64_t sql_stats_index_distinct_prefix(const struct sql_stats_index *i,
 					 size_t n)
 { return i == NULL || n >= i->prefix_count ? 0 : i->distinct_prefixes[n]; }
+
+uint64_t
+sql_stats_index_part_sample_nonnull_rows(const struct sql_stats_index *index,
+						 size_t part_index)
+{
+	return index == NULL || part_index >= index->part_count ? 0 :
+		index->parts[part_index].sample_nonnull_rows;
+}
+
+size_t
+sql_stats_index_part_mcv_count(const struct sql_stats_index *index,
+				       size_t part_index)
+{
+	return index == NULL || part_index >= index->part_count ? 0 :
+		index->parts[part_index].mcv_count;
+}
+
+enum sql_stats_lookup_status
+sql_stats_index_part_mcv_at(const struct sql_stats_index *index,
+			    size_t part_index, size_t ordinal,
+			    uint8_t *type_tag, const void **value,
+			    size_t *value_size, uint64_t *estimate,
+			    uint64_t *error)
+{
+	if (type_tag == NULL || value == NULL || value_size == NULL ||
+	    estimate == NULL || error == NULL || index == NULL ||
+	    part_index >= index->part_count ||
+	    ordinal >= index->parts[part_index].mcv_count)
+		return SQL_STATS_LOOKUP_MISSING;
+	const struct sql_stats_mcv *mcv =
+		&index->parts[part_index].mcv[ordinal];
+	*type_tag = mcv->type_tag;
+	*value = mcv->value;
+	*value_size = mcv->value_size;
+	*estimate = mcv->estimate;
+	*error = mcv->error;
+	return SQL_STATS_LOOKUP_AVAILABLE;
+}
 
 enum sql_stats_lookup_status
 sql_stats_snapshot_estimate_index_prefix_rows(

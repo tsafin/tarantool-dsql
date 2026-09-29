@@ -12,6 +12,26 @@ enum sql_stats_cardinality_semantics {
 	SQL_STATS_CARDINALITY_ESTIMATE = 3,
 };
 
+/*
+ * Caller-canonicalized sampled MCV candidate. type_tag zero is reserved for
+ * NULL and is invalid here; values are opaque canonical bytes. estimate and
+ * error are a SpaceSaving-style upper estimate and error bound, so the
+ * candidate's conservative lower bound is estimate - error.
+ */
+struct sql_stats_mcv_input {
+	uint8_t type_tag;
+	const void *value;
+	size_t value_size;
+	uint64_t estimate;
+	uint64_t error;
+};
+
+struct sql_stats_index_part_input {
+	uint64_t sample_nonnull_rows;
+	const struct sql_stats_mcv_input *mcv;
+	size_t mcv_count;
+};
+
 struct sql_stats_index_input {
 	uint32_t index_id;
 	uint64_t tuple_count;
@@ -22,6 +42,9 @@ struct sql_stats_index_input {
 	uint64_t definition_version;
 	const uint64_t *distinct_prefixes;
 	size_t prefix_count;
+	/* Optional volatile S2 payload, one entry per index part. */
+	const struct sql_stats_index_part_input *parts;
+	size_t part_count;
 };
 
 struct sql_stats_relation_input {
@@ -60,7 +83,7 @@ enum sql_stats_lookup_status {
  * zero is invalid. Duplicate IDs, invalid numeric values, malformed prefix
  * counts, or budget overflow reject the whole snapshot and return NULL.
  *
- * Snapshot API version is currently 2 and intentionally distinct from the
+ * Snapshot API version is currently 3 and intentionally distinct from the
  * persistence payload/catalog/schema versions. `schema_version` mismatch at
  * lookup time reports STALE instead of making ordinary prepare fail.
  */
@@ -201,6 +224,22 @@ sql_stats_index_prefix_count(const struct sql_stats_index *index);
 uint64_t
 sql_stats_index_distinct_prefix(const struct sql_stats_index *index,
 				size_t prefix_index);
+
+uint64_t
+sql_stats_index_part_sample_nonnull_rows(const struct sql_stats_index *index,
+						 size_t part_index);
+
+size_t
+sql_stats_index_part_mcv_count(const struct sql_stats_index *index,
+				       size_t part_index);
+
+/* Value bytes are borrowed from the immutable snapshot. */
+enum sql_stats_lookup_status
+sql_stats_index_part_mcv_at(const struct sql_stats_index *index,
+			    size_t part_index, size_t ordinal,
+			    uint8_t *type_tag, const void **value,
+			    size_t *value_size, uint64_t *estimate,
+			    uint64_t *error);
 
 /**
  * Estimate the average row count for a relation/index prefix. A zero

@@ -1,19 +1,29 @@
 #include "box/sql/sql_stats_snapshot.h"
 
 #include <math.h>
+#include <string.h>
 
 #include "unit.h"
 
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(32);
+	plan(34);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
+	char mcv_value[] = "hot";
+	struct sql_stats_mcv_input mcv[] = {
+		{.type_tag = 1, .value = mcv_value, .value_size = 3,
+		 .estimate = 4, .error = 1},
+	};
+	struct sql_stats_index_part_input index_parts[] = {
+		{.sample_nonnull_rows = 8, .mcv = mcv, .mcv_count = 1},
+		{.sample_nonnull_rows = 10},
+	};
 	struct sql_stats_index_input indexes[] = {
 		{.index_id = 8, .tuple_count = 10, .distinct_prefixes = prefixes,
-		 .prefix_count = 2},
+		 .prefix_count = 2, .parts = index_parts, .part_count = 2},
 		{.index_id = 9, .tuple_count = 6,
 		 .distinct_prefixes = sparse_prefixes, .prefix_count = 2},
 	};
@@ -32,7 +42,7 @@ test_deep_copy_lookup_and_lifetime(void)
 		check_plan();
 		return;
 	}
-	ok(sql_stats_snapshot_api_version(snapshot) == 2,
+	ok(sql_stats_snapshot_api_version(snapshot) == 3,
 	   "snapshot API version is explicit");
 	ok(sql_stats_snapshot_catalog_version(snapshot) == 4 &&
 	   sql_stats_snapshot_schema_version(snapshot) == 7,
@@ -40,6 +50,7 @@ test_deep_copy_lookup_and_lifetime(void)
 	ok(sql_stats_snapshot_bytes(snapshot) <= 4096,
 	   "snapshot allocation respects byte budget");
 	prefixes[0] = 9;
+	mcv_value[0] = 'x';
 	relations[0].row_count = 999;
 	const struct sql_stats_relation *relation = NULL;
 	ok(sql_stats_snapshot_get_relation(snapshot, 7, 42, &relation) ==
@@ -71,6 +82,19 @@ test_deep_copy_lookup_and_lifetime(void)
 	   sql_stats_index_distinct_prefix(index, 0) == 2 &&
 	   sql_stats_index_distinct_prefix(index, 1) == 5,
 	   "index prefixes are retained independently");
+	const void *stored_mcv = NULL;
+	size_t stored_mcv_size = 0;
+	uint8_t stored_mcv_tag = 0;
+	uint64_t stored_mcv_estimate = 0, stored_mcv_error = 0;
+	ok(sql_stats_index_part_sample_nonnull_rows(index, 0) == 8 &&
+	   sql_stats_index_part_mcv_count(index, 0) == 1 &&
+	   sql_stats_index_part_mcv_at(index, 0, 0, &stored_mcv_tag,
+		&stored_mcv, &stored_mcv_size, &stored_mcv_estimate,
+		&stored_mcv_error) == SQL_STATS_LOOKUP_AVAILABLE &&
+	   stored_mcv_tag == 1 && stored_mcv_size == 3 &&
+	   memcmp(stored_mcv, "hot", 3) == 0 && stored_mcv_estimate == 4 &&
+	   stored_mcv_error == 1,
+	   "typed MCV payload and sample denominator are deep-copied");
 	double rows = -1;
 	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
 							 0, &rows) ==
@@ -127,6 +151,19 @@ test_deep_copy_lookup_and_lifetime(void)
 	ok(combined != NULL &&
 	   sql_stats_snapshot_relation_count(combined) == 2,
 	   "same-generation disjoint snapshots combine atomically");
+	const struct sql_stats_relation *combined_relation = NULL;
+	const struct sql_stats_index *combined_index = NULL;
+	stored_mcv = NULL;
+	ok(combined != NULL &&
+	   sql_stats_snapshot_get_relation(combined, 7, 42,
+		&combined_relation) == SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_relation_get_index(combined_relation, 8,
+		&combined_index) == SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_index_part_mcv_at(combined_index, 0, 0, &stored_mcv_tag,
+		&stored_mcv, &stored_mcv_size, &stored_mcv_estimate,
+		&stored_mcv_error) == SQL_STATS_LOOKUP_AVAILABLE &&
+	   memcmp(stored_mcv, "hot", 3) == 0,
+	   "combine preserves immutable MCV payload");
 	struct sql_stats_relation_input replacement_input = {
 		.space_id = 42, .row_count = 11,
 		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
@@ -215,7 +252,7 @@ test_deep_copy_lookup_and_lifetime(void)
 static void
 test_reject_invalid_inputs(void)
 {
-	plan(8);
+	plan(11);
 	header();
 	struct sql_stats_relation_input relation = {
 		.space_id = 1, .row_count = NAN, .average_row_width = 1,
@@ -258,6 +295,27 @@ test_reject_invalid_inputs(void)
 	relation.row_count = 3;
 	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
 	   "zero prefix NDV remains invalid for a nonempty index");
+	uint64_t valid_prefix = 1;
+	struct sql_stats_mcv_input bad_mcv = {
+		.type_tag = 0, .value = "x", .value_size = 1,
+		.estimate = 1, .error = 0,
+	};
+	struct sql_stats_index_part_input bad_part = {
+		.sample_nonnull_rows = 1, .mcv = &bad_mcv, .mcv_count = 1,
+	};
+	index.distinct_prefixes = &valid_prefix;
+	index.parts = &bad_part;
+	index.part_count = 1;
+	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
+	   "reserved NULL type tag rejected in MCV payload");
+	bad_mcv.type_tag = 1;
+	bad_mcv.error = 2;
+	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
+	   "MCV error larger than estimate rejected");
+	bad_mcv.error = 0;
+	bad_part.sample_nonnull_rows = 0;
+	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
+	   "MCV estimate beyond non-NULL sample denominator rejected");
 	footer();
 	check_plan();
 }
@@ -268,10 +326,19 @@ test_allocation_failures_roll_back(void)
 	plan(1);
 	header();
 	uint64_t prefixes[] = {2, 4};
+	struct sql_stats_mcv_input candidate = {
+		.type_tag = 1, .value = "x", .value_size = 1,
+		.estimate = 2, .error = 1,
+	};
+	struct sql_stats_index_part_input part[] = {
+		{.sample_nonnull_rows = 4, .mcv = &candidate, .mcv_count = 1},
+		{.sample_nonnull_rows = 4},
+	};
 	struct sql_stats_index_input index = {
 		.index_id = 8, .tuple_count = 10,
 		.population_basis = "visible@view", .ndv_basis = "visible@view",
 		.distinct_prefixes = prefixes, .prefix_count = 2,
+		.parts = part, .part_count = 2,
 	};
 	struct sql_stats_relation_input relation = {
 		.space_id = 42, .row_count = 10, .population_basis = "visible@view",

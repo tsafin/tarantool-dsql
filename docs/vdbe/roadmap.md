@@ -1069,6 +1069,12 @@ the `where.c` selectivity adapter wait for that interface.
   This is not yet wired to SQL `ANALYZE`, snapshot persistence, or the planner;
   the native index-hash adapter remains NDV-only because hashes cannot recover
   canonical MCV values. No persistent format or ID is defined.
+  The immutable in-memory `SqlStatsSnapshot` now optionally owns these
+  per-part candidates (snapshot API version 3), validates their typed bytes,
+  denominator and conservative error intervals, and deep-copies them. Snapshot
+  combine/replace retain the payload and remain byte-budgeted. This is only a
+  volatile data-contract step: no current collector populates it, and there is
+  still no `ANALYZE`, planner, or persistence integration.
 - [x] **S2.4** Equi-depth histogram builder from sampled ordered values.
   *parallel: yes*. In-memory API at
   `src/box/sql/sql_stats_histogram.{h,c}` validates sorted caller-encoded
