@@ -1320,7 +1320,8 @@ DML, triggers, subprograms, non-deterministic functions.
   primary key, and applies residual predicates. A suffix `ORDER BY` is
   accepted only when the available one-way traversal satisfies it. Focused
   memtx/Vinyl off/on/off tests cover bounded and upper-only ranges, duplicate
-  prefix matches, suffix ordering, and ascending/descending composite indexes;
+  prefix matches, a two-part mixed-type equality prefix, suffix ordering, and
+  ascending/descending composite indexes;
   VDBE unit coverage pins key arity and both guards. Unsupported/incomplete
   prefixes and skipped index parts remain on the legacy path. This is another
   bounded M3.4 increment, not M3.4 closure or broad corpus parity.

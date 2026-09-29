@@ -78,6 +78,19 @@ g.test_non_primary_null_filters_off_on_off = function()
                          '(1, 2, 7, 10, \'b\'), ' ..
                          '(2, 1, 7, 18446744073709551615, \'c\'), ' ..
                          '(2, 2, 8, 10, \'d\')'):format(secondary_name))
+            local secondary_tertiary_name = name .. '_secondary_tertiary'
+            box.execute(('CREATE TABLE %s (tenant INTEGER, id INTEGER, ' ..
+                         'x INTEGER, y UNSIGNED, z INTEGER, ' ..
+                         'PRIMARY KEY (tenant, id)) WITH ENGINE = \'%s\'')
+                        :format(secondary_tertiary_name, engine))
+            box.execute(('CREATE INDEX %s_xyz ON %s (x, y, z)')
+                        :format(secondary_tertiary_name,
+                                secondary_tertiary_name))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         '(1, 1, 7, 10, 1), (1, 2, 7, 10, 3), ' ..
+                         '(2, 1, 7, 10, 2), (2, 2, 7, 11, 1), ' ..
+                         '(3, 1, 8, 10, 4)')
+                        :format(secondary_tertiary_name))
             local nullable_secondary_name = name .. '_secondary_nullable'
             box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
                          'x INTEGER) WITH ENGINE = \'%s\'')
@@ -99,6 +112,15 @@ g.test_non_primary_null_filters_off_on_off = function()
                          '(4, NULL, 12)')
                         :format(descending_secondary_name))
             local queries = {
+                {
+                    sql = ('SELECT z, tenant, id FROM %s WHERE z < 4 ' ..
+                           'AND y = 10 AND x = 7 AND z >= 2 ' ..
+                           'ORDER BY z DESC'):format(secondary_tertiary_name),
+                    expected = {{3, 1, 2}, {2, 2, 1}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                },
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE x = 7 ' ..
                            'AND y >= 10 AND y < 11 ORDER BY y ASC')
@@ -1001,6 +1023,7 @@ g.test_non_primary_null_filters_off_on_off = function()
             box.execute(('DROP TABLE %s'):format(name))
             box.execute(('DROP TABLE %s'):format(composite_name))
             box.execute(('DROP TABLE %s'):format(secondary_name))
+            box.execute(('DROP TABLE %s'):format(secondary_tertiary_name))
             box.execute(('DROP TABLE %s'):format(nullable_secondary_name))
             box.execute(('DROP TABLE %s'):format(comparison_name))
             box.execute(('DROP TABLE %s'):format(unsigned_desc_name))
