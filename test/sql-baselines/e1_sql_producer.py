@@ -21,7 +21,12 @@ FIXTURE_MATERIAL = (
     "CREATE TABLE sql_stats_adapter_t (id INT PRIMARY KEY, a INT);\n"
     "CREATE INDEX sql_stats_adapter_ix ON sql_stats_adapter_t (a);\n"
     "INSERT INTO sql_stats_adapter_t VALUES "
-    "(1, 1), (2, 1), (3, 1), (4, 2), (5, 2), (6, 2), (7, 3), (8, 3);"
+    "(1, 1), (2, 1), (3, 1), (4, 2), (5, 2), (6, 2), (7, 3), (8, 3);\n"
+    "CREATE TABLE sql_stats_skew_t (id INT PRIMARY KEY, a INT);\n"
+    "CREATE INDEX sql_stats_skew_ix ON sql_stats_skew_t (a);\n"
+    "INSERT INTO sql_stats_skew_t VALUES "
+    "(1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), "
+    "(9, 2), (10, 3), (11, 4);"
 ).encode()
 
 

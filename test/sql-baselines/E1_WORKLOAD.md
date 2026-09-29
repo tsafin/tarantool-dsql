@@ -103,13 +103,16 @@ python3 -B test/sql-baselines/e1_sql_producer.py \
   --out /tmp/sql-stats-live.jsonl
 ```
 
-The pilot measures six prepared single-table predicates five times per
+The pilot measures ten prepared single-table predicates five times per
 configuration, records a warmup for each query, and pairs the planner's EXPLAIN
 estimate with the actual rows from that same SELECT output. Its explicit
 `--allow-statistics-change` analysis compares no installed snapshot against a
 named SQL `ANALYZE` collection and records both statistics IDs. The pilot spans
-three equality values, an empty equality, and selective/non-selective ranges;
-its uniform eight-row fixture and single engine are smoke evidence for the
-JSONL producer and stage contract, and a narrow validation of the volatile
-collection path. They do not establish skewed MCV quality, corpus q-error
-improvement, or E1 acceptance.
+three equality values, an empty equality, selective/non-selective ranges, and a
+separate skewed eleven-row fixture with a hot value, tail values, a range, and
+an empty equality. This exercises both uniform and skewed distributions in the
+JSONL producer, but does not establish skewed MCV quality: the volatile
+collector currently publishes relation/index summaries and the SQL planner
+does not consume the standalone MCV estimator. The single-engine pilot is
+smoke evidence for the producer and stage contract and a narrow validation of
+volatile collection, not reviewed-corpus q-error improvement or E1 acceptance.

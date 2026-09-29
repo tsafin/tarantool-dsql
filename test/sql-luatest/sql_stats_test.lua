@@ -208,9 +208,10 @@ g.test_snapshot_estimate_adapter = function()
         local space = box.space.sql_stats_adapter_t
         local index_id = space.index.sql_stats_adapter_ix.id
         local baseline = adapter.estimates(space.id, index_id)
-        local function explain_estimate(marker, predicate)
+        local function explain_estimate(marker, predicate, table_name)
+            table_name = table_name or 'sql_stats_adapter_t'
             local query = 'EXPLAIN QUERY PLAN SELECT id FROM '..
-                          'sql_stats_adapter_t WHERE '..predicate..'; -- '..
+                          table_name..' WHERE '..predicate..'; -- '..
                           marker
             local plan = box.execute(query).rows
             return tonumber(plan[1][4]:match('~([0-9]+) row'))
@@ -237,7 +238,12 @@ g.test_snapshot_estimate_adapter = function()
                 'CREATE INDEX sql_stats_adapter_ix ON sql_stats_adapter_t (a);\n' ..
                 'INSERT INTO sql_stats_adapter_t VALUES ' ..
                 '(1, 1), (2, 1), (3, 1), (4, 2), ' ..
-                '(5, 2), (6, 2), (7, 3), (8, 3);'
+                '(5, 2), (6, 2), (7, 3), (8, 3);\n' ..
+                'CREATE TABLE sql_stats_skew_t (id INT PRIMARY KEY, a INT);\n' ..
+                'CREATE INDEX sql_stats_skew_ix ON sql_stats_skew_t (a);\n' ..
+                'INSERT INTO sql_stats_skew_t VALUES ' ..
+                '(1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), ' ..
+                '(9, 2), (10, 3), (11, 4);'
             local digest = require('digest')
             assert(string.hex(digest.sha256(fixture_material)) ==
                    metadata.data_sha256,
@@ -249,14 +255,20 @@ g.test_snapshot_estimate_adapter = function()
                 {id = 'equality-empty', predicate = 'a = 99'},
                 {id = 'range-selective', predicate = 'a >= 2'},
                 {id = 'range-nonselective', predicate = 'a >= 1'},
+                {id = 'skew-hot', table = 'sql_stats_skew_t', predicate = 'a = 1'},
+                {id = 'skew-tail', table = 'sql_stats_skew_t', predicate = 'a = 2'},
+                {id = 'skew-range', table = 'sql_stats_skew_t', predicate = 'a >= 3'},
+                {id = 'skew-empty', table = 'sql_stats_skew_t', predicate = 'a = 99'},
             }
             for _, query in ipairs(queries) do
-                local sql = 'SELECT id FROM sql_stats_adapter_t WHERE '..
+                local table_name = query.table or 'sql_stats_adapter_t'
+                local sql = 'SELECT id FROM '..table_name..' WHERE '..
                             query.predicate..';'
                 local stmt = box.prepare(sql)
                 local function record(repeat_no, warmup)
                     local estimate = explain_estimate('E1 live capture',
-                                                      query.predicate)
+                                                      query.predicate,
+                                                      table_name)
                     assert(estimate ~= nil,
                            'missing EXPLAIN row estimate for '..query.id)
                     local started = clock.monotonic()
@@ -324,11 +336,13 @@ g.test_snapshot_estimate_adapter = function()
         if os.getenv('E1_SQL_OUTPUT') ~= nil then
             adapter.clear()
             box.execute('ANALYZE sql_stats_adapter_t')
+            box.execute('ANALYZE sql_stats_skew_t')
             capture_e1_observations('live-analyze', 'volatile-analyze-v1')
         end
         local rows = box.execute([[SELECT id FROM sql_stats_adapter_t
                                    WHERE a = 1;]]).rows
         adapter.clear()
+        box.execute([[DROP TABLE sql_stats_skew_t;]])
         box.execute([[DROP TABLE sql_stats_adapter_t;]])
         return {
             baseline = baseline,
