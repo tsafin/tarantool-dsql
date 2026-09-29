@@ -59,6 +59,12 @@ def main(argv=None):
         parser.error("commit SQL implementation and fixture changes before capture")
 
     source_commit = git_output("rev-parse", "HEAD")
+    version = subprocess.check_output([str(tarantool), "--version"],
+                                      text=True)
+    if f"-g{source_commit[:10]}" not in version:
+        parser.error(
+            "TEST_BUILD binary revision does not match HEAD; reconfigure and "
+            "rebuild the selected build directory before capture")
     binary_sha256 = hashlib.sha256(tarantool.read_bytes()).hexdigest()
     data_sha256 = hashlib.sha256(FIXTURE_MATERIAL).hexdigest()
     output.parent.mkdir(parents=True, exist_ok=True)

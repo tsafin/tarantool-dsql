@@ -88,10 +88,14 @@ planner-time increase require review before collecting decision-grade results.
 
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot for the volatile
 snapshot adapter, not the production ANALYZE collector or reviewed M0
-analytical corpus. Run it after building `tarantool` and
-`sql_stats_snapshot_test` from a clean SQL/test source tree:
+analytical corpus. Reconfigure and build `tarantool` and
+`sql_stats_snapshot_test` from a clean SQL/test source tree, then capture:
 
 ```sh
+cmake -S . -B build-jit-clang19-debug
+cmake --build build-jit-clang19-debug --target tarantool -- -j4
+cmake --build build-jit-clang19-debug \
+  --target sql_stats_snapshot_test -- -j4
 python3 -B test/sql-baselines/e1_sql_producer.py \
   --build-dir build-jit-clang19-debug \
   --out /tmp/sql-stats-live.jsonl
