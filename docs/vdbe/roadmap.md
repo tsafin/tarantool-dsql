@@ -2228,6 +2228,18 @@ DML, triggers, subprograms, non-deterministic functions.
   suites; M3.5 producer closure and the remaining M3.7 functional scope still
   need explicit acceptance review.
 
+  **Verification delta (2026-09-29).** A focused off/on/off capture of
+  `sql/types.test.lua` on the same generated-mode Debug binary fails in the
+  planner-on run at `SELECT i FROM t WHERE i >= 18446744073709551613 ORDER BY
+  i`: the expected unsigned integer row is absent. The standalone query
+  reproduces correctly outside the corpus harness, so the discrepancy is
+  narrowed to the test-run execution context or planner path; it is not yet
+  diagnosed. This concrete semantic failure supersedes any broad parity claim
+  above until reconciled and fixed. The attempted full reviewed SQL LLVM rerun
+  also cannot be counted as passing: the initial run hit the documented
+  `iproto.test.lua` observer-counter mismatch, and the retry excluding it
+  stopped on this `types.test.lua` failure. M3.5 and LLVM parity remain open.
+
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
   `insert_select_root`; ledger validation and statement-summary selection treat
