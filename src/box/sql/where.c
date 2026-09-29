@@ -38,6 +38,7 @@
  * indices, you might also think of this module as the "query optimizer".
  */
 #include "coll/coll.h"
+#include "coll/coll_def.h"
 #include "sqlInt.h"
 #include "tarantoolInt.h"
 #include "mem.h"
@@ -121,8 +122,11 @@ where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
 	    rows == NULL)
 		return false;
 	const struct key_part *part = &index_def->key_def->parts[0];
-	if (part->type != FIELD_TYPE_INTEGER &&
-	    part->type != FIELD_TYPE_UNSIGNED)
+	bool integer_part = part->type == FIELD_TYPE_INTEGER ||
+		part->type == FIELD_TYPE_UNSIGNED;
+	bool string_part = part->type == FIELD_TYPE_STRING &&
+		(part->coll == NULL || part->coll->type == COLL_TYPE_BINARY);
+	if (!integer_part && !string_part)
 		return false;
 	const struct Expr *lhs = term->pExpr->pLeft;
 	const struct Expr *rhs = term->pExpr->pRight;
@@ -138,15 +142,28 @@ where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
 	} else {
 		return false;
 	}
-	int64_t integer;
-	if (!where_stats_integer_literal(literal, &integer) ||
-	    (part->type == FIELD_TYPE_UNSIGNED && integer < 0))
-		return false;
-	char encoded[16];
-	char *end = part->type == FIELD_TYPE_UNSIGNED ?
-		mp_encode_uint(encoded, (uint64_t)integer) :
-		(integer >= 0 ? mp_encode_uint(encoded, (uint64_t)integer) :
-		 mp_encode_int(encoded, integer));
+	char encoded[260];
+	char *end;
+	if (integer_part) {
+		int64_t integer;
+		if (!where_stats_integer_literal(literal, &integer) ||
+		    (part->type == FIELD_TYPE_UNSIGNED && integer < 0))
+			return false;
+		end = part->type == FIELD_TYPE_UNSIGNED ?
+			mp_encode_uint(encoded, (uint64_t)integer) :
+			(integer >= 0 ? mp_encode_uint(encoded, (uint64_t)integer) :
+			 mp_encode_int(encoded, integer));
+	} else {
+		if (literal == NULL || literal->op != TK_STRING ||
+		    literal->u.zToken == NULL)
+			return false;
+		size_t value_size = strlen(literal->u.zToken);
+		/* ANALYZE retains at most 256 encoded value bytes. Leave room for
+		 * MessagePack's string header in the fixed planner scratch buffer. */
+		if (value_size > 256 - 5)
+			return false;
+		end = mp_encode_str(encoded, literal->u.zToken, value_size);
+	}
 	const struct sql_stats_snapshot *snapshot =
 		where_stats_snapshot(where_info);
 	if (snapshot == NULL)

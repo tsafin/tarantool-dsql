@@ -224,18 +224,21 @@ end
 g.test_analyze_mcv_changes_literal_equality_estimate = function()
     local estimates = g.server:exec(function()
         box.execute([[CREATE TABLE analyze_mcv_plan_t (
-                      id INTEGER PRIMARY KEY, value INTEGER)]])
+                      id INTEGER PRIMARY KEY, value INTEGER, label TEXT)]])
         box.execute([[CREATE INDEX analyze_mcv_plan_value
                       ON analyze_mcv_plan_t (value)]])
+        box.execute([[CREATE INDEX analyze_mcv_plan_label
+                      ON analyze_mcv_plan_t (label)]])
         for i = 1, 100 do
-            box.execute([[INSERT INTO analyze_mcv_plan_t VALUES (?, 1)]], {i})
+            box.execute([[INSERT INTO analyze_mcv_plan_t VALUES (?, 1, 'hot')]],
+                        {i})
         end
         local id = 100
         for value = 2, 11 do
             for _ = 1, 10 do
                 id = id + 1
-                box.execute([[INSERT INTO analyze_mcv_plan_t VALUES (?, ?)]],
-                            {id, value})
+                box.execute([[INSERT INTO analyze_mcv_plan_t VALUES (?, ?, ?)]],
+                            {id, value, 'tail' .. value})
             end
         end
         local function estimate(value)
@@ -251,14 +254,25 @@ g.test_analyze_mcv_changes_literal_equality_estimate = function()
         box.execute([[ANALYZE analyze_mcv_plan_t]])
         local after_hot = estimate(1)
         local after_tail = estimate(2)
+        local function label_estimate(label)
+            local plan = box.execute(([[EXPLAIN QUERY PLAN SELECT id FROM
+                analyze_mcv_plan_t WHERE label = '%s']]):format(label)).rows
+            return assert(tonumber(plan[1][4]:match('~([0-9]+) row')),
+                          'missing label query-plan estimate')
+        end
+        local after_label_hot = label_estimate('hot')
+        local after_label_tail = label_estimate('tail2')
         box.execute([[DROP TABLE analyze_mcv_plan_t]])
         return {
             before_hot = before_hot,
             before_tail = before_tail,
             after_hot = after_hot,
             after_tail = after_tail,
+            after_label_hot = after_label_hot,
+            after_label_tail = after_label_tail,
         }
     end)
     t.assert_equals(estimates.before_hot, estimates.before_tail)
     t.assert_gt(estimates.after_hot, estimates.after_tail * 5)
+    t.assert_gt(estimates.after_label_hot, estimates.after_label_tail * 5)
 end
