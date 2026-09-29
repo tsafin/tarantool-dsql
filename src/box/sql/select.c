@@ -6529,7 +6529,13 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			 plan_input->access.produced_order_count != 0) ?
 			plan_input->access.range_key_column :
 			secondary_key_columns[0];
+		/* Equality may probe an INTEGER key with an unsigned value from the
+		 * wider MsgPack integer domain. Here this scalar describes the encoded
+		 * probe, not only the declared key-part type.
+		 */
 		secondary_info.key_unsigned =
+			selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ?
+			plan_input->access.has_unsigned_point_key :
 			selected_access == SQL_PLAN_INDEX_RANGE_SCAN ?
 			plan_input->access.has_unsigned_range_key :
 			selected_access == SQL_PLAN_INDEX_PREFIX_SCAN &&

@@ -2234,19 +2234,19 @@ DML, triggers, subprograms, non-deterministic functions.
   an `INT` secondary key accepts the full signed/unsigned MsgPack integer
   domain, while equality extraction let `sql_atoi64()` wrap a positive wide
   literal through a signed output parameter. `parse_pk_bound()` now retains
-  positive equality literals above `INT64_MAX` as unsigned keys, and secondary
-  equality lowering follows the parsed key representation. Focused generated
-  and LLVM off/on/off captures of the full `sql/types.test.lua` file now pass on
-  memtx and Vinyl (395 queries per engine and mode; zero semantic or repeat
-  diffs), on commit `cc55aafaa1`. Reports are
-  `/dev/shm/types-ab-final-generated-1790672129/report.json` and
-  `/dev/shm/types-ab-final-llvm-1790672129/report.json`. Each mode still has
-  two unreviewed route-transition classes for this test, so these focused runs
-  do not pass the route-review gate or close the broader M3.5 acceptance. The
-  attempted full reviewed SQL LLVM rerun cannot be counted as passing: the
-  initial run hit the documented `iproto.test.lua` observer-counter mismatch,
-  and its retry stopped at the now-fixed equality regression. Full reviewed SQL
-  LLVM and M3.5 remain open pending current-source reruns and route review.
+  positive equality literals above `INT64_MAX` as unsigned keys. The first
+  correction exposed a lowerer's declared-type check that rejected unsigned
+  probes on an `INT` index; equality lowering metadata now validates the
+  encoded probe representation. Focused generated and LLVM off/on/off captures
+  of the full `sql/types.test.lua` file pass on memtx and Vinyl (395 queries per
+  engine and mode; zero semantic or repeat diffs). The observed
+  `fallback/UNSUPPORTED_EXPRESSION` to `new_planner` adoption is now explicitly
+  included in the SQL route policy because this file exercises the supported
+  wide-integer equality and range cases. The attempted full reviewed SQL LLVM
+  rerun cannot be counted as passing: its initial run hit the documented
+  `iproto.test.lua` observer-counter mismatch, and its retry stopped at the
+  now-fixed equality regression. Full reviewed SQL LLVM and M3.5 remain open
+  pending current-source corpus reruns.
 
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
