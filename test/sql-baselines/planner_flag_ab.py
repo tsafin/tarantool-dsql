@@ -236,6 +236,7 @@ def main():
                 raise ValueError(f"planner flag did not select any new_planner route on {engine}")
             report["engines"][engine] = {
                 "tests": len(tests),
+                "test_ids": tests,
                 "excluded_tests": exclusions,
                 "queries": query_count,
                 "off_on_semantic_parity": {
@@ -269,8 +270,8 @@ def main():
     report["route_review_required"] = not passed
     report["feature_acceptance_passed"] = False
     report["feature_acceptance_blockers"] = [
-        "M3.5 producer/classification closure remains open",
-        "LLVM-mode reviewed-corpus parity has not passed",
+        "a per-suite report cannot certify the aggregate M3.5 gate",
+        "run planner_flag_acceptance.py with all current suite/mode reports",
     ]
     report["semantic_parity_passed"] = True
     (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
