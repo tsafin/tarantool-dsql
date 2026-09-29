@@ -4,17 +4,21 @@
 
 `sql_expr_canonicalize()` returns an owned structural encoding for resolved
 columns, NULL/integer/finite-float/string/BLOB/boolean constants, and a fixed
-scalar operator set. The narrow executable single-table route uses it to own
-projection and residual-filter expression references and to resolve those
+scalar operator set. It also encodes deterministic scalar function calls by
+case-folded function name and ordered canonical arguments; resolver metadata
+must mark the function deterministic. The narrow executable single-table
+route uses it to own projection and residual-filter expression references and to resolve those
 references back to the original SELECT expressions during VDBE lowering. It
-rejects function calls, reduced/token-only nodes, flags outside its allowlist,
-and unknown operators.
-For resolved column references only, `EP_Lookup2` and `EP_NoReduce` are
-accepted because they retain no semantic effect after name resolution; the
-same bits remain rejected on other operators.
-Expr exposes function source tokens but does not by itself prove a stable
-function identity or absence of side effects. The helper is not wired into
-descriptor expression references, resolver routing, or lowering. Column
+rejects nondeterministic functions, reduced/token-only nodes, flags outside its
+allowlist, and unknown operators. `EP_Lookup2` is accepted on resolved columns
+and function calls because it retains no semantic effect after name
+resolution; `EP_NoReduce` remains column-only. Function canonicalization is
+for same-statement descriptor references, not a persisted/cross-version
+function identity. The executable route admits deterministic calls only in
+WHERE residual expressions whose arguments bind to the scanned source or are
+canonical constants. They are evaluated with existing SQL expression
+bytecode and are never access bounds; calls in projection/order/limit and
+nondeterministic calls remain on the legacy path. Column
 encoding requires a caller-supplied cursor-to-logical-relation ordinal map
 and emits that ordinal, not Expr.iTable. Stability therefore holds only
 under the same relation binding; this is not a universal cross-statement
@@ -155,8 +159,10 @@ unsupported shape. Its bounded filter grammar admits primary-key bounds,
 unary `IS NULL` / `IS NOT NULL` column tests, and direct comparison operators
 (`=`, `<>`, `<`, `<=`, `>`, `>=`) between a source column and a constant
 expression accepted by the canonicalizer and containing no column, variable,
-or function reference. This includes scalar literals and supported
-literal-only arithmetic/concatenation expressions. Direct `BETWEEN` and
+or function reference. This includes scalar literals and supported literal-only
+arithmetic/concatenation expressions. Deterministic scalar calls with
+canonical, same-source/constant arguments are additionally admitted only as
+residual expression operands; they cannot be key bounds. Direct `BETWEEN` and
 `NOT BETWEEN` use two such bounds. Direct `IN` / `NOT IN` lists contain one
 or more canonical constant expressions; `IN (SELECT ...)` remains unsupported.
 Reversed constant/column comparisons are
@@ -178,8 +184,9 @@ when lowering; their bytecode executes before projection, and `IfNot` rejects
 both false and NULL results. Simple primary-key conjuncts continue through the
 bound grammar; comparisons inside an admitted compound boolean filter tree
 are evaluated as residual expressions. Column-to-column comparisons,
-collated expressions, function calls, and boolean trees with unsupported
-leaves are not admitted.
+collated expressions, nondeterministic calls, function calls outside the
+bounded WHERE-residual position, and boolean trees with unsupported leaves
+are not admitted.
 On a prefix scan, equality-prefix and range-end guards run before residual
 checks; a rejected in-range row jumps to the cursor step, not
 the loop exit. IN forms outside the direct-column/constant-list contract,
@@ -770,7 +777,7 @@ when join algorithms can differ in those dimensions.
 | `UNSUPPORTED_TRIGGER` | Statement involves trigger subprogram. |
 | `UNSUPPORTED_NONDETERMINISTIC` | Function is not declared deterministic. This does not detect deterministic UDF side effects. |
 | `UNSUPPORTED_ACCESS_HINT` | Explicit `INDEXED BY` / `NOT INDEXED` requirement is not modeled. |
-| `UNSUPPORTED_FUNCTION` | Deterministic function call is outside the canonical expression contract. |
+| `UNSUPPORTED_FUNCTION` | Function call is outside the bounded deterministic-WHERE-residual contract (for example, in projection or ordering). |
 | `UNSUPPORTED_COLLATION` | Explicit collation semantics are not represented by the expression contract. |
 | `UNSUPPORTED_EXPRESSION` | Resolved scalar expression is outside the canonical expression contract. |
 | `UNSUPPORTED_FILTER` | Filter shape is outside the currently supported table-scan contract. |

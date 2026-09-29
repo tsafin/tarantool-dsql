@@ -850,6 +850,25 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT id FROM %s WHERE ABS(a) IS NULL ' ..
                            'ORDER BY id'):format(comparison_name),
                     expected = {{4}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE abs(a) > 1 ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{3}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE random() IS NULL ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_NONDETERMINISTIC',
+                },
+                {
+                    sql = ('SELECT ABS(a) FROM %s WHERE id = 1')
+                          :format(comparison_name),
+                    expected = {{1}},
                     enabled_route = 'fallback',
                     enabled_reason = 'UNSUPPORTED_FUNCTION',
                 },

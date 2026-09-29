@@ -5773,7 +5773,7 @@ sql_select_record_physical_fallback(Parse *parse,
 }
 
 static bool sql_select_has_nondeterministic_func(Select *select);
-static bool sql_select_has_func(Select *select);
+static bool sql_select_has_func_outside_where(Select *select);
 static bool sql_select_has_collation(Select *select);
 static bool sql_select_has_unsupported_expr(Parse *parse, Select *select);
 static bool sql_select_has_unsupported_projection_expr(Parse *parse,
@@ -5816,11 +5816,12 @@ sql_select_record_fallback(Parse *parse, Select *select, SelectDest *dest,
 	 * only for otherwise-supported single-relation SELECTs.
 	 */
 	if (!structurally_unsupported) {
-		/* Function calls are not yet in the canonical expression contract,
-		 * even when deterministic. Keep them on the legacy route until their
-		 * identity and evaluation semantics can be represented.
+		/* Deterministic function identity and arguments are represented by
+		 * the canonical expression contract. Existing SQL bytecode evaluates
+		 * these only as residual expressions; access-bound extraction still
+		 * requires a direct key column and a constant operand.
 		 */
-		if (sql_select_has_func(select))
+		if (sql_select_has_func_outside_where(select))
 			sql_select_record_fallback_reason(parse,
 					SQL_LOGICAL_REJECT_FUNCTION);
 		else if (sql_select_has_collation(select))
@@ -5918,13 +5919,19 @@ sql_select_has_func_expr(Walker *walker, Expr *expr)
 }
 
 static bool
-sql_select_has_func(Select *select)
+sql_select_has_func_outside_where(Select *select)
 {
 	Walker walker;
 	memset(&walker, 0, sizeof(walker));
 	walker.xExprCallback = sql_select_has_func_expr;
-	walker.xSelectCallback = sql_select_walk_subquery;
-	(void)sqlWalkSelect(&walker, select);
+	if (select->pEList != NULL)
+		(void)sqlWalkExprList(&walker, select->pEList);
+	if (walker.eCode == 0 && select->pOrderBy != NULL)
+		(void)sqlWalkExprList(&walker, select->pOrderBy);
+	if (walker.eCode == 0 && select->pLimit != NULL)
+		(void)sqlWalkExpr(&walker, select->pLimit);
+	if (walker.eCode == 0 && select->pOffset != NULL)
+		(void)sqlWalkExpr(&walker, select->pOffset);
 	return walker.eCode != 0;
 }
 

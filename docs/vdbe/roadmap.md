@@ -1457,12 +1457,9 @@ DML, triggers, subprograms, non-deterministic functions.
   **Expression NULL-test residual extension (2026-09-29):** `IS NULL` and
   `IS NOT NULL` now also accept canonical scalar expressions whose column
   references all resolve to the same source (for example, `a + b IS NULL`).
-  The expression is evaluated by the existing SQL bytecode path; function
-  calls remain fail-closed as `UNSUPPORTED_FUNCTION`. Memtx/Vinyl off/on/off
-  coverage includes both null and non-null arithmetic results and confirms
-  function fallback. The focused regression passes under generated, CnP, and
-  LLVM dispatch. This does not broaden the accepted canonical-expression
-  grammar or enable cross-source expressions.
+  The expression is evaluated by the existing SQL bytecode path. This initial
+  slice kept function calls fail-closed; see the deterministic-call extension
+  below.
   **Computed comparison residual extension (2026-09-29):** comparison
   operands may now be canonical scalar expressions (for example,
   `a + b = 3` or `a + b = id`) when every column reference belongs to the
@@ -1480,6 +1477,19 @@ DML, triggers, subprograms, non-deterministic functions.
   memtx and Vinyl under generated, CnP, and LLVM dispatch. Subqueries,
   cross-source operands, and noncanonical expressions remain rejected; a bare
   scalar predicate is not admitted because SQL requires a boolean result.
+  **Deterministic scalar-call residual extension (2026-09-29):** resolved
+  deterministic scalar calls now have canonical identities consisting of a
+  case-folded function name and ordered canonical arguments. `EP_Lookup2` is
+  accepted on function nodes as resolution metadata with no remaining semantic
+  effect. The producer admits these calls only as residual operands in the
+  bounded WHERE grammar when their columns bind to the scanned source; they
+  cannot become access bounds. SQL bytecode preserves evaluation semantics.
+  Memtx/Vinyl off/on/off coverage checks `ABS(a) IS NULL` and `abs(a) > 1`;
+  generated, CnP, and LLVM dispatch all pass. A `random()` predicate remains
+  `UNSUPPORTED_NONDETERMINISTIC`, and `ABS(a)` in projection remains
+  `UNSUPPORTED_FUNCTION`. The canonicalizer unit target passes 14 supported
+  and 10 rejection assertions. This is residual-filter support only; M3.4
+  remains partial.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit

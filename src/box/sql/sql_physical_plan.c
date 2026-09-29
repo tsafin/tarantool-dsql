@@ -87,6 +87,19 @@ has_only_source_columns(const struct Expr *expr, int cursor,
 		}
 		return true;
 	}
+	if (expr->op == TK_FUNCTION) {
+		if (!ExprHasProperty(expr, EP_ConstFunc) || expr->pLeft != NULL ||
+		    expr->pRight != NULL)
+			return false;
+		for (int i = 0; expr->x.pList != NULL &&
+		     i < expr->x.pList->nExpr; ++i) {
+			if (!has_only_source_columns(expr->x.pList->a[i].pExpr,
+						     cursor, field_count,
+						     depth + 1))
+				return false;
+		}
+		return true;
+	}
 	if (expr->pLeft == NULL && expr->pRight == NULL)
 		return sqlExprIsConstant((struct Expr *)expr);
 	return (expr->pLeft == NULL ||
@@ -115,6 +128,15 @@ has_source_column(const struct Expr *expr, int cursor, uint32_t field_count,
 						     depth + 1))
 					return true;
 			}
+		}
+		return false;
+	}
+	if (expr->op == TK_FUNCTION) {
+		for (int i = 0; expr->x.pList != NULL &&
+		     i < expr->x.pList->nExpr; ++i) {
+			if (has_source_column(expr->x.pList->a[i].pExpr, cursor,
+					      field_count, depth + 1))
+				return true;
 		}
 		return false;
 	}

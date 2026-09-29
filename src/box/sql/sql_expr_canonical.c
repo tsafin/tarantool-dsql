@@ -76,12 +76,64 @@ operator_name(int op)
 
 static enum sql_expr_canonical_reject
 encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
+	const uint32_t *cursor_to_relation, size_t cursor_count);
+
+static enum sql_expr_canonical_reject
+encode_function(const struct Expr *expr, struct buffer *b, unsigned int depth,
+		const uint32_t *cursor_to_relation, size_t cursor_count)
+{
+	/* Function names are resolved case-insensitively by SQL. Include the
+	 * resolved name and ordered arguments in the canonical identity, and only
+	 * admit functions whose definition is marked deterministic by resolve.c.
+	 */
+	if (!ExprHasProperty(expr, EP_ConstFunc) || expr->u.zToken == NULL ||
+	    expr->pLeft != NULL || expr->pRight != NULL)
+		return SQL_EXPR_CANONICAL_UNSUPPORTED;
+	if (!append(b, "func", 4))
+		return SQL_EXPR_CANONICAL_NOMEM;
+	char length[32];
+	int length_size = snprintf(length, sizeof(length), "%zu:",
+				    strlen(expr->u.zToken));
+	if (length_size < 0 || (size_t)length_size >= sizeof(length) ||
+	    !append(b, length, (size_t)length_size))
+		return SQL_EXPR_CANONICAL_NOMEM;
+	for (const unsigned char *p = (const unsigned char *)expr->u.zToken;
+	     *p != '\0'; ++p) {
+		char c = *p >= 'A' && *p <= 'Z' ? (char)(*p - 'A' + 'a') : *p;
+		static const char hex[] = "0123456789abcdef";
+		char pair[] = {hex[(unsigned char)c >> 4],
+			       hex[(unsigned char)c & 0xf]};
+		if (!append(b, pair, sizeof(pair)))
+			return SQL_EXPR_CANONICAL_NOMEM;
+	}
+	if (!append(b, "(", 1))
+		return SQL_EXPR_CANONICAL_NOMEM;
+	for (int i = 0; expr->x.pList != NULL &&
+	     i < expr->x.pList->nExpr; ++i) {
+		const struct Expr *arg = expr->x.pList->a[i].pExpr;
+		if (arg == NULL || !append(b, i == 0 ? "" : ",",
+					   i == 0 ? 0 : 1))
+			return arg == NULL ? SQL_EXPR_CANONICAL_MALFORMED :
+				SQL_EXPR_CANONICAL_NOMEM;
+		enum sql_expr_canonical_reject rc = encode(arg, b, depth + 1,
+			cursor_to_relation, cursor_count);
+		if (rc != SQL_EXPR_CANONICAL_OK)
+			return rc;
+	}
+	return append(b, ")", 1) ? SQL_EXPR_CANONICAL_OK :
+		SQL_EXPR_CANONICAL_NOMEM;
+}
+
+static enum sql_expr_canonical_reject
+encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
        const uint32_t *cursor_to_relation, size_t cursor_count)
 {
 	if (expr == NULL || depth > 256)
 		return SQL_EXPR_CANONICAL_MALFORMED;
 	/* Reduced nodes omit fields; allow only fully resolved plain nodes. */
 	uint32_t allowed = EP_Resolved | EP_IntValue | EP_Leaf;
+	if (expr->op == TK_FUNCTION)
+		allowed |= EP_ConstFunc | EP_Lookup2;
 	/* EP_Lookup2 remembers whether an identifier was quoted; EP_NoReduce
 	 * prevents a harmless size optimization. Neither has a remaining semantic
 	 * effect on a canonical TK_COLUMN_REF once name resolution has bound its
@@ -94,6 +146,9 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 		return SQL_EXPR_CANONICAL_UNSUPPORTED;
 	if ((expr->flags & ~allowed) != 0)
 		return SQL_EXPR_CANONICAL_UNSUPPORTED;
+	if (expr->op == TK_FUNCTION)
+		return encode_function(expr, b, depth, cursor_to_relation,
+				       cursor_count);
 	if (expr->op == TK_COLUMN_REF) {
 		if (expr->pLeft != NULL || expr->pRight != NULL ||
 		    expr->iTable < 0 || expr->iColumn < 0)

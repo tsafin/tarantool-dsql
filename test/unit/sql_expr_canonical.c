@@ -4,7 +4,7 @@
 #include "box/sql/sql_expr_canonical.h"
 #include "unit.h"
 static void test_supported(void) {
-	plan(13); header();
+	plan(14); header();
 	const uint32_t cursor_map[] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, 0};
 	struct Expr col = {.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=3,.iColumn=1};
 	struct Expr a = {.op=TK_INTEGER,.flags=EP_Resolved|EP_IntValue}; a.u.iValue=7;
@@ -55,6 +55,13 @@ static void test_supported(void) {
 	struct ExprList in_list={.nExpr=2,.a=in_items};
 	struct Expr in={.op=TK_IN,.flags=EP_Resolved,
 		.pLeft=&col,.x.pList=&in_list};
+	struct Expr function_arg = {.op=TK_COLUMN_REF,.flags=EP_Resolved,
+		.iTable=3,.iColumn=1};
+	struct ExprList_item function_items[] = {{.pExpr=&function_arg}};
+	struct ExprList function_list={.nExpr=1,.a=function_items};
+	struct Expr function={.op=TK_FUNCTION,
+		.flags=EP_Resolved|EP_ConstFunc|EP_Lookup2,.u.zToken="ABS",
+		.x.pList=&function_list};
 	char *ns=sql_expr_canonicalize(&nul,NULL,0,NULL), *ss=sql_expr_canonicalize(&str,NULL,0,NULL);
 	char *fs=sql_expr_canonicalize(&f,NULL,0,NULL), *fs2=sql_expr_canonicalize(&f2,NULL,0,NULL);
 	ok(ns && strcmp(ns,"null")==0,"NULL encoded");
@@ -71,13 +78,16 @@ static void test_supported(void) {
 	char *in_s=sql_expr_canonicalize(&in,cursor_map,4,NULL);
 	ok(in_s && strcmp(in_s, "in(col(r0,c1),str(61),str(7a))")==0,
 	   "IN expression and list canonicalized");
-	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);free(between_s);free(in_s);
+	char *function_s=sql_expr_canonicalize(&function,cursor_map,4,NULL);
+	ok(function_s && strcmp(function_s, "func3:616273(col(r0,c1))")==0,
+	   "deterministic function identity and ordered args canonicalized");
+	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);free(between_s);free(in_s);free(function_s);
 	footer(); check_plan();
 }
 static void test_rejects(void) {
 	plan(10); header(); enum sql_expr_canonical_reject r;
-	struct Expr fn={.op=TK_FUNCTION,.flags=EP_Resolved|EP_ConstFunc,.u.zToken="abs"};
-	ok(!sql_expr_canonicalize(&fn,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,"function identity/effects unproven");
+	struct Expr fn={.op=TK_FUNCTION,.flags=EP_Resolved,.u.zToken="abs"};
+	ok(!sql_expr_canonicalize(&fn,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,"nondeterministic function rejected");
 	struct Expr j={.op=TK_COLUMN_REF,.flags=EP_Resolved|EP_FromJoin,.iTable=0,.iColumn=1};
 	ok(!sql_expr_canonicalize(&j,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,"join annotation rejected");
 	struct Expr red={.op=TK_COLUMN_REF,.flags=EP_Resolved|EP_Reduced,.iTable=0,.iColumn=1};
