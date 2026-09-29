@@ -908,9 +908,10 @@ g.test_non_primary_null_filters_off_on_off = function()
                 -- expression bytecode path, not only when the function call
                 -- is the complete result expression.
                 {
-                    sql = ('SELECT ABS(a) + b FROM %s WHERE id = 1')
+                    sql = ('SELECT ABS(a) + b FROM %s WHERE id <= 3')
                           :format(comparison_name),
-                    expected = {{2}},
+                    expected = {{2}, {3}, {3}},
+                    unordered = true,
                     enabled_route = 'new_planner',
                 },
                 {

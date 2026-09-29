@@ -1411,9 +1411,10 @@ DML, triggers, subprograms, non-deterministic functions.
   rejection. This is focused evidence, not a refreshed reviewed-corpus route
   report.
   **2026-09 composed projection verification:** the executable route also
-  evaluates a composed deterministic projection (`ABS(a) + b`) using the
-  original SQL expression bytecode, with planner-off/on/off result checks on
-  memtx and Vinyl. The focused `planner_scalar_filter_test.lua` passes under
+  evaluates a composed deterministic projection (`ABS(a) + b`) for each row
+  of a three-row primary-key range using the original SQL expression bytecode,
+  with planner-off/on/off result checks on memtx and Vinyl. The focused
+  `planner_scalar_filter_test.lua` passes under
   generated, CnP, and LLVM dispatch, and checks that the enabled route is
   `new_planner`. This verifies that composition for this canonical expression
   shape; it does not establish general function/operator projection coverage.
