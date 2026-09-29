@@ -27,6 +27,9 @@ struct sql_stats_mcv_input {
 };
 
 struct sql_stats_index_part_input {
+	/* Rows actually delivered to this part's sketch, including NULLs. */
+	uint64_t sample_rows;
+	/* Of sample_rows, those whose value is not NULL. */
 	uint64_t sample_nonnull_rows;
 	const struct sql_stats_mcv_input *mcv;
 	size_t mcv_count;
@@ -83,7 +86,7 @@ enum sql_stats_lookup_status {
  * zero is invalid. Duplicate IDs, invalid numeric values, malformed prefix
  * counts, or budget overflow reject the whole snapshot and return NULL.
  *
- * Snapshot API version is currently 3 and intentionally distinct from the
+ * Snapshot API version is currently 4 and intentionally distinct from the
  * persistence payload/catalog/schema versions. `schema_version` mismatch at
  * lookup time reports STALE instead of making ordinary prepare fail.
  */
@@ -224,6 +227,10 @@ sql_stats_index_prefix_count(const struct sql_stats_index *index);
 uint64_t
 sql_stats_index_distinct_prefix(const struct sql_stats_index *index,
 				size_t prefix_index);
+
+uint64_t
+sql_stats_index_part_sample_rows(const struct sql_stats_index *index,
+				 size_t part_index);
 
 uint64_t
 sql_stats_index_part_sample_nonnull_rows(const struct sql_stats_index *index,

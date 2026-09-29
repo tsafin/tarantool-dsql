@@ -141,6 +141,7 @@ test_sample_to_candidate(void)
 	ok(built,
 	   "multiple sampled indexes become one complete detached candidate");
 	bool mcv_built = built &&
+		sql_stats_index_part_sample_rows(saved_index, 0) == 100 &&
 		sql_stats_index_part_sample_nonnull_rows(saved_index, 0) == 100 &&
 		sql_stats_index_part_mcv_count(saved_index, 0) != 0 &&
 		sql_stats_index_part_mcv_at(saved_index, 0, 0, &saved_mcv_tag,

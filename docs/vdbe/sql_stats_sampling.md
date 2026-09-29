@@ -527,11 +527,13 @@ complete detached candidate validation to this context's generation checks;
 `READ_CONFIRMED` alone is not authorization for publication, and this does not
 enable `ANALYZE`.
 
-The in-memory snapshot API version is now 3. In addition to provenance and
+The in-memory snapshot API version is now 4. In addition to provenance and
 width denominators, it can own optional per-index-part volatile MCV candidate
-lists: canonical typed bytes, a non-NULL sample denominator, and SpaceSaving
-estimate/error bounds. Construction validates the candidates and deep-copies
-their bytes; combine/replace preserve them. This API extension defines no
+lists: canonical typed bytes, total and non-NULL sample denominators, and
+SpaceSaving estimate/error bounds. The two denominators allow a future
+consumer to derive sample NULL fraction without inferring it from MCV mass.
+Construction validates the denominators and candidates and deep-copies their
+bytes; combine/replace preserve them. This API extension defines no
 durable encoding, system-space ID, `ANALYZE` publication path, or planner
 consumer. Existing designated/zero-initialized snapshot callers may omit
 metadata and it stays unset, with no inferred default; positional initializers

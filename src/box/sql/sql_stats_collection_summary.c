@@ -210,6 +210,8 @@ sql_stats_collection_build_sample_candidate(
 					break;
 				part_storage[i][p] =
 					(struct sql_stats_index_part_input) {
+					.sample_rows = sql_stats_index_summary_sample_rows(
+						indexes[i].summary),
 					.sample_nonnull_rows =
 						sql_stats_index_summary_mcv_sample_nonnull_rows(
 							indexes[i].summary, p),

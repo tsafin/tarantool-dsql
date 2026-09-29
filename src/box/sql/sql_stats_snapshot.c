@@ -16,6 +16,7 @@ struct sql_stats_index {
 	uint64_t *distinct_prefixes;
 	size_t part_count;
 	struct sql_stats_index_part {
+		uint64_t sample_rows;
 		uint64_t sample_nonnull_rows;
 		size_t mcv_count;
 		struct sql_stats_mcv {
@@ -293,8 +294,10 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 					&index_in->parts[k];
 				struct sql_stats_index_part *part = &index->parts[k];
 				if ((part_in->mcv_count != 0 && part_in->mcv == NULL) ||
+				    part_in->sample_nonnull_rows > part_in->sample_rows ||
 				    part_in->mcv_count > SIZE_MAX / sizeof(*part->mcv))
 					goto error;
+				part->sample_rows = part_in->sample_rows;
 				part->sample_nonnull_rows = part_in->sample_nonnull_rows;
 				part->mcv_count = part_in->mcv_count;
 				if (!add_bytes(&snapshot->bytes,
@@ -392,7 +395,7 @@ sql_stats_snapshot_release(struct sql_stats_snapshot *snapshot)
 }
 
 uint32_t sql_stats_snapshot_api_version(const struct sql_stats_snapshot *s)
-{ return s == NULL ? 0 : 3; }
+{ return s == NULL ? 0 : 4; }
 uint64_t sql_stats_snapshot_catalog_version(const struct sql_stats_snapshot *s)
 { return s == NULL ? 0 : s->catalog_version; }
 uint64_t sql_stats_snapshot_schema_version(const struct sql_stats_snapshot *s)
@@ -581,6 +584,8 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 				};
 			}
 			(*parts)[i][k] = (struct sql_stats_index_part_input) {
+				.sample_rows = sql_stats_index_part_sample_rows(
+					source_index, k),
 				.sample_nonnull_rows =
 					sql_stats_index_part_sample_nonnull_rows(
 						source_index, k),
@@ -900,6 +905,14 @@ size_t sql_stats_index_prefix_count(const struct sql_stats_index *i)
 uint64_t sql_stats_index_distinct_prefix(const struct sql_stats_index *i,
 					 size_t n)
 { return i == NULL || n >= i->prefix_count ? 0 : i->distinct_prefixes[n]; }
+
+uint64_t
+sql_stats_index_part_sample_rows(const struct sql_stats_index *index,
+				 size_t part_index)
+{
+	return index == NULL || part_index >= index->part_count ? 0 :
+		index->parts[part_index].sample_rows;
+}
 
 uint64_t
 sql_stats_index_part_sample_nonnull_rows(const struct sql_stats_index *index,

@@ -8,7 +8,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(34);
+	plan(35);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
@@ -18,8 +18,9 @@ test_deep_copy_lookup_and_lifetime(void)
 		 .estimate = 4, .error = 1},
 	};
 	struct sql_stats_index_part_input index_parts[] = {
-		{.sample_nonnull_rows = 8, .mcv = mcv, .mcv_count = 1},
-		{.sample_nonnull_rows = 10},
+		{.sample_rows = 10, .sample_nonnull_rows = 8,
+		 .mcv = mcv, .mcv_count = 1},
+		{.sample_rows = 10, .sample_nonnull_rows = 10},
 	};
 	struct sql_stats_index_input indexes[] = {
 		{.index_id = 8, .tuple_count = 10, .distinct_prefixes = prefixes,
@@ -42,7 +43,7 @@ test_deep_copy_lookup_and_lifetime(void)
 		check_plan();
 		return;
 	}
-	ok(sql_stats_snapshot_api_version(snapshot) == 3,
+	ok(sql_stats_snapshot_api_version(snapshot) == 4,
 	   "snapshot API version is explicit");
 	ok(sql_stats_snapshot_catalog_version(snapshot) == 4 &&
 	   sql_stats_snapshot_schema_version(snapshot) == 7,
@@ -87,6 +88,7 @@ test_deep_copy_lookup_and_lifetime(void)
 	uint8_t stored_mcv_tag = 0;
 	uint64_t stored_mcv_estimate = 0, stored_mcv_error = 0;
 	ok(sql_stats_index_part_sample_nonnull_rows(index, 0) == 8 &&
+	   sql_stats_index_part_sample_rows(index, 0) == 10 &&
 	   sql_stats_index_part_mcv_count(index, 0) == 1 &&
 	   sql_stats_index_part_mcv_at(index, 0, 0, &stored_mcv_tag,
 		&stored_mcv, &stored_mcv_size, &stored_mcv_estimate,
@@ -94,7 +96,7 @@ test_deep_copy_lookup_and_lifetime(void)
 	   stored_mcv_tag == 1 && stored_mcv_size == 3 &&
 	   memcmp(stored_mcv, "hot", 3) == 0 && stored_mcv_estimate == 4 &&
 	   stored_mcv_error == 1,
-	   "typed MCV payload and sample denominator are deep-copied");
+	   "typed MCV payload and both sample denominators are deep-copied");
 	double rows = -1;
 	ok(sql_stats_snapshot_estimate_index_prefix_rows(snapshot, 7, 42, 8,
 							 0, &rows) ==
@@ -185,6 +187,25 @@ test_deep_copy_lookup_and_lifetime(void)
 		   SQL_STATS_LOOKUP_AVAILABLE &&
 	   sql_stats_relation_row_count(preserved_relation) == 4,
 	   "same-generation replacement changes one relation and preserves others");
+	struct sql_stats_relation_input replacement_other_input = {
+		.space_id = 43, .row_count = 5,
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+	};
+	struct sql_stats_snapshot *replacement_other = sql_stats_snapshot_new(4, 7,
+		&replacement_other_input, 1, 4096);
+	struct sql_stats_snapshot *replaced_other = combined != NULL &&
+		replacement_other != NULL ? sql_stats_snapshot_replace_relation(
+			combined, replacement_other, 43, 8192) : NULL;
+	const struct sql_stats_relation *mcv_preserved_relation = NULL;
+	const struct sql_stats_index *mcv_preserved_index = NULL;
+	ok(replaced_other != NULL &&
+	   sql_stats_snapshot_get_relation(replaced_other, 7, 42,
+		&mcv_preserved_relation) == SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_relation_get_index(mcv_preserved_relation, 8,
+		&mcv_preserved_index) == SQL_STATS_LOOKUP_AVAILABLE &&
+	   sql_stats_index_part_sample_rows(mcv_preserved_index, 0) == 10 &&
+	   sql_stats_index_part_sample_nonnull_rows(mcv_preserved_index, 0) == 8,
+	   "replacement preserves both MCV sample denominators for other relations");
 	struct sql_stats_snapshot *wrong_generation = sql_stats_snapshot_new(5, 7,
 		&replacement_input, 1, 4096);
 	const struct sql_stats_snapshot *wrong_parts[] = {snapshot,
@@ -236,6 +257,8 @@ test_deep_copy_lookup_and_lifetime(void)
 	   "replacement allocation failures roll back before complete success");
 	sql_stats_snapshot_test_fail_allocation_after(-1);
 	sql_stats_snapshot_release(wrong_generation);
+	sql_stats_snapshot_release(replaced_other);
+	sql_stats_snapshot_release(replacement_other);
 	sql_stats_snapshot_release(replaced);
 	sql_stats_snapshot_release(replacement);
 	sql_stats_snapshot_release(combined);
@@ -252,7 +275,7 @@ test_deep_copy_lookup_and_lifetime(void)
 static void
 test_reject_invalid_inputs(void)
 {
-	plan(11);
+	plan(12);
 	header();
 	struct sql_stats_relation_input relation = {
 		.space_id = 1, .row_count = NAN, .average_row_width = 1,
@@ -301,7 +324,8 @@ test_reject_invalid_inputs(void)
 		.estimate = 1, .error = 0,
 	};
 	struct sql_stats_index_part_input bad_part = {
-		.sample_nonnull_rows = 1, .mcv = &bad_mcv, .mcv_count = 1,
+		.sample_rows = 1, .sample_nonnull_rows = 1,
+		.mcv = &bad_mcv, .mcv_count = 1,
 	};
 	index.distinct_prefixes = &valid_prefix;
 	index.parts = &bad_part;
@@ -309,6 +333,11 @@ test_reject_invalid_inputs(void)
 	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
 	   "reserved NULL type tag rejected in MCV payload");
 	bad_mcv.type_tag = 1;
+	bad_mcv.error = 0;
+	bad_part.sample_nonnull_rows = 2;
+	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
+	   "non-NULL denominator exceeding total sample rejected");
+	bad_part.sample_nonnull_rows = 1;
 	bad_mcv.error = 2;
 	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
 	   "MCV error larger than estimate rejected");
@@ -331,8 +360,9 @@ test_allocation_failures_roll_back(void)
 		.estimate = 2, .error = 1,
 	};
 	struct sql_stats_index_part_input part[] = {
-		{.sample_nonnull_rows = 4, .mcv = &candidate, .mcv_count = 1},
-		{.sample_nonnull_rows = 4},
+		{.sample_rows = 4, .sample_nonnull_rows = 4,
+		 .mcv = &candidate, .mcv_count = 1},
+		{.sample_rows = 4, .sample_nonnull_rows = 4},
 	};
 	struct sql_stats_index_input index = {
 		.index_id = 8, .tuple_count = 10,

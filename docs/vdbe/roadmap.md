@@ -1070,9 +1070,10 @@ the `where.c` selectivity adapter wait for that interface.
   the native index-hash adapter remains NDV-only because hashes cannot recover
   canonical MCV values. No persistent format or ID is defined.
   The immutable in-memory `SqlStatsSnapshot` now optionally owns these
-  per-part candidates (snapshot API version 3), validates their typed bytes,
-  denominator and conservative error intervals, and deep-copies them. Snapshot
-  combine/replace retain the payload and remain byte-budgeted. This is only a
+  per-part candidates (snapshot API version 4), validates their typed bytes,
+  total/non-NULL sample denominators and conservative error intervals, and
+  deep-copies them. Snapshot combine/replace retain the payload and remain
+  byte-budgeted. This is only a
   volatile data-contract step: the callback-based sampled candidate builder
   now propagates summary MCV candidates into snapshots under its temporary
   byte budget. Owned transaction and shared-read-view callback collectors may

@@ -161,6 +161,13 @@ sql_stats_index_summary_mcv_sample_nonnull_rows(
 	return 0;
 }
 
+uint64_t
+sql_stats_index_summary_sample_rows(
+	const struct sql_stats_index_summary *summary)
+{
+	return summary == NULL ? 0 : summary->sample_rows;
+}
+
 void
 sql_stats_index_summary_delete(struct sql_stats_index_summary *summary)
 {
