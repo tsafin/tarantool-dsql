@@ -1294,7 +1294,12 @@ DML, triggers, subprograms, non-deterministic functions.
   VDBE unit target passes 69 assertions, including bounded endpoint and
   upper-only NULL termination opcodes. Descending index definitions, ranges
   on non-leading composite parts, and broad corpus parity remain open; this
-  does not close M3.4.
+  does not close M3.4. An `ORDER BY` on the indexed leading field now reuses
+  the range traversal when the requested direction matches it: ASC for lower-
+  bound or bounded scans and DESC for upper-only scans. Off/on/off SQL tests
+  verify both directions and a bounded ascending range. A descending bounded
+  request is kept on legacy codegen because reverse bounded termination is not
+  implemented.
   This does not claim general secondary-index access or close M3.4.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now
   order by a leading prefix of an ascending TREE secondary index with uniform

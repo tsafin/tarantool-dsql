@@ -322,7 +322,11 @@ and one-sided ranges, signed/unsigned keys including `UINT64_MAX`, duplicate
 values, residual bounds, LIMIT/OFFSET, and selected-index evidence from
 `EXPLAIN QUERY PLAN`. Descending secondary index definitions, collation
 overrides, non-integer key parts, and ranges on non-leading composite parts
-remain outside this route.
+remain outside this route. A one-term `ORDER BY` on the indexed leading field
+is also satisfied when its direction matches the scan: ASC for lower-bound or
+bounded scans, DESC for upper-only scans. A descending bounded-secondary-range
+request remains on legacy codegen; bounded reverse termination is not yet
+implemented.
 
 #### Secondary-index ordered full scan
 
