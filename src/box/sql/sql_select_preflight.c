@@ -236,6 +236,30 @@ sql_select_preflight_table_scan(const struct Select *select,
 			return SQL_SELECT_PREFLIGHT_SHAPE;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
+		/* With no predicate, a single leading column of an ascending TREE
+		 * secondary index is also a valid full-scan order. Keep this shape
+		 * narrow: secondary traversal is not combined with a filter or a
+		 * multi-term ORDER BY yet.
+		 */
+		if (select->pWhere == NULL && order->nExpr == 1 &&
+		    order->a[0].pExpr->iTable == source->iCursor) {
+			uint32_t column = (uint32_t)order->a[0].pExpr->iColumn;
+			for (uint32_t index_no = 1;
+			     index_no < source->space->index_count; ++index_no) {
+				const struct index *index =
+					source->space->index_map[index_no];
+				if (index == NULL || index->def == NULL ||
+				    index->def->type != TREE ||
+				    index->def->key_def == NULL ||
+				    index->def->key_def->part_count == 0 ||
+				    index->def->key_def->parts[0].sort_order !=
+					SORT_ORDER_ASC ||
+				    index->def->key_def->parts[0].fieldno != column)
+					continue;
+				key_def = index->def->key_def;
+				break;
+			}
+		}
 		enum sort_order order_direction = SORT_ORDER_UNDEF;
 		uint32_t first_part = UINT32_MAX;
 		for (uint32_t part = 0; part < key_def->part_count; ++part) {

@@ -103,6 +103,23 @@ g.test_non_primary_null_filters_off_on_off = function()
                     unordered = true,
                 },
                 {
+                    sql = ('SELECT x, tenant, id FROM %s ORDER BY x ASC')
+                          :format(secondary_name),
+                    expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, tenant, id FROM %s ORDER BY x DESC')
+                          :format(secondary_name),
+                    expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    unordered = true,
+                },
+                {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b = 10 ' ..
                            'AND v IS NULL AND w IS NOT NULL')
                           :format(composite_name),
@@ -601,7 +618,7 @@ g.test_non_primary_null_filters_off_on_off = function()
                                                  query.expected_index, 1,
                                                  true) ~= nil,
                                       'composite secondary index not selected: ' ..
-                                      plan_text)
+                                      plan_text .. ' [' .. query.sql .. ']')
                         end
                         if query.enabled_reason ~= nil then
                             t.assert_equals(explain.rows[2][3],
@@ -614,6 +631,19 @@ g.test_non_primary_null_filters_off_on_off = function()
                     local result
                     result, err = box.execute(query.sql)
                     t.assert(err == nil, err and err.message)
+                    if query.expected_order_column ~= nil then
+                        for row_no = 2, #result.rows do
+                            local prev = result.rows[row_no - 1]
+                                [query.expected_order_column]
+                            local current = result.rows[row_no]
+                                [query.expected_order_column]
+                            if query.expected_order_desc then
+                                t.assert(prev >= current)
+                            else
+                                t.assert(prev <= current)
+                            end
+                        end
+                    end
                     if query.unordered then
                         table.sort(result.rows, function(a, b)
                             for column = 1, #a do

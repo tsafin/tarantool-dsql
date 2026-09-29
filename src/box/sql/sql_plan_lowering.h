@@ -42,6 +42,7 @@ struct sql_plan_secondary_index {
 	/* Key metadata follows the live secondary index's declared part order. */
 	const uint32_t *key_columns;
 	const bool *key_parts_unsigned;
+	const bool *key_parts_descending;
 	size_t key_part_count;
 	/* Backward-compatible scalar fields for one-part indexes. */
 	uint32_t key_column;

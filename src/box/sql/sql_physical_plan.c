@@ -485,6 +485,8 @@ sql_physical_table_scan_from_select(
 	int64_t secondary_signed_key = 0;
 	uint64_t secondary_unsigned_key = 0;
 	bool has_secondary_range_scan = false;
+	bool has_secondary_full_scan = false;
+	uint32_t secondary_full_index_id = 0;
 	uint32_t secondary_range_index_id = 0;
 	uint32_t secondary_range_key_column = 0;
 	bool secondary_range_unsigned = false;
@@ -1356,6 +1358,9 @@ predicate_parsed:
 	bool use_secondary_range_scan = has_secondary_range_scan &&
 		!has_secondary_equality_scan && !has_point_key && !has_range_key &&
 		!has_prefix_scan && select->pOrderBy == NULL;
+	bool use_secondary_full_scan = has_secondary_full_scan &&
+		!has_point_key && !has_range_key && !has_prefix_scan &&
+		!has_secondary_equality_scan && select->pWhere == NULL;
 	if (has_secondary_equality_scan && !use_secondary_equality_scan) {
 		for (size_t i = 0; i < (secondary_key_part_count == 0 ? 1 :
 					 secondary_key_part_count); ++i) {
@@ -1421,6 +1426,33 @@ predicate_parsed:
 		const struct ExprList *order_by = select->pOrderBy;
 		const struct key_def *key_def =
 			source->space->index_map[0]->def->key_def;
+		if (select->pWhere == NULL && order_by->nExpr == 1) {
+			const struct Expr *order_expr = order_by->a[0].pExpr;
+			if (order_expr != NULL && order_expr->op == TK_COLUMN_REF &&
+			    order_expr->pLeft == NULL && order_expr->pRight == NULL &&
+			    order_expr->iTable == source->iCursor &&
+			    order_expr->iColumn >= 0 &&
+			    source->space->index_map != NULL) {
+				for (uint32_t index_no = 1;
+				     index_no < source->space->index_count; ++index_no) {
+					const struct index *index =
+						source->space->index_map[index_no];
+					if (index == NULL || index->def == NULL ||
+					    index->def->type != TREE ||
+					    index->def->key_def == NULL ||
+					    index->def->key_def->part_count == 0 ||
+					    index->def->key_def->parts[0].sort_order !=
+						SORT_ORDER_ASC ||
+					    index->def->key_def->parts[0].fieldno !=
+						(uint32_t)order_expr->iColumn)
+						continue;
+					key_def = index->def->key_def;
+					has_secondary_full_scan = true;
+					secondary_full_index_id = index->def->iid;
+					break;
+				}
+			}
+		}
 		if (order_by->nExpr <= 0 ||
 		    (uint32_t)order_by->nExpr > key_def->part_count) {
 			if (reason != NULL)
@@ -1511,6 +1543,12 @@ predicate_parsed:
 		}
 		order_term_count = (size_t)order_by->nExpr;
 	}
+	/* Secondary full-scan eligibility is discovered while resolving ORDER BY
+	 * against the available indexes, so finalize it only after that pass.
+	 */
+	use_secondary_full_scan = has_secondary_full_scan &&
+		!has_point_key && !has_range_key && !has_prefix_scan &&
+		!has_secondary_equality_scan && select->pWhere == NULL;
 	uint32_t *columns = calloc(select->pEList->nExpr, sizeof(*columns));
 	uint32_t *projection_expr_refs = calloc(select->pEList->nExpr,
 						 sizeof(*projection_expr_refs));
@@ -1741,10 +1779,12 @@ predicate_parsed:
 				has_point_key ? SQL_PLAN_PK_POINT_LOOKUP :
 				use_secondary_equality_scan ?
 				SQL_PLAN_INDEX_EQUALITY_SCAN :
-				has_range_key ? SQL_PLAN_INDEX_RANGE_SCAN :
+				use_secondary_full_scan ? SQL_PLAN_INDEX_FULL_SCAN :
+				 has_range_key ? SQL_PLAN_INDEX_RANGE_SCAN :
 				SQL_PLAN_TABLE_FULL_SCAN,
 			.index_id = use_secondary_equality_scan ? secondary_index_id :
-				use_secondary_range_scan ? secondary_range_index_id : 0,
+				use_secondary_range_scan ? secondary_range_index_id :
+				use_secondary_full_scan ? secondary_full_index_id : 0,
 			.bounds = has_composite_point || has_prefix_scan ||
 				secondary_composite ?
 				composite_point_bounds :
