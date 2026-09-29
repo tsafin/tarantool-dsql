@@ -1691,17 +1691,16 @@ DML, triggers, subprograms, non-deterministic functions.
   parity, and capture coverage. Details:
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
   `SELECT`/VDBE integration).
-- [x] **M3.5** Per-component fallback gate — closed for the reviewed producer
-  contract and corpus. Every successful SELECT component has an authoritative
-  route/reason ledger record across the inventoried producers; unsupported
-  candidates use stable reasons and legacy WHERE fallback, while direct
-  emitters have explicit non-fallback routes. Generated, CnP, and LLVM
-  off/on/off audits of the reviewed SQL, SQL-TAP, and SQL-luatest selections
-  pass semantic parity with no unreviewed route transitions. The documented
-  `iproto` observer-counter and direct-VALUES native-execution exclusions are
-  explicit; those queries remain covered in generated mode. This does not
-  claim complete new-planner feature coverage (M3.4/M3.7 remain open).
-  The implementation history and current evidence follow. Producer-contract
+- [ ] **M3.5** Per-component fallback gate — implementation prototype; closure
+  remains open. A component ledger, stable fallback reasons, and explicit
+  direct-emitter routes exist, and completed audit slices have semantic parity
+  with no unreviewed route transitions. The required all-producer inventory,
+  reviewed-corpus dispositions, topology/engine exclusions, and LLVM parity
+  are not yet complete. `planner_flag_ab.py` therefore correctly leaves
+  `feature_acceptance_passed=false`; the later audit evidence below supersedes
+  this milestone's earlier optimistic closure summary. This does not claim
+  complete new-planner feature coverage (M3.4/M3.7 remain open). The
+  implementation history and current evidence follow. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and
   exposes `path_class` plus an optional descriptor (`sql_plan_fallback.*`),
   with focused mapping tests. `sqlWhereBegin()` now records the actual legacy
@@ -2755,6 +2754,17 @@ DML, triggers, subprograms, non-deterministic functions.
   the reviewed policy (`route_review_required=false`). This is the reviewed
   subset only, not all SQL-luatests; it does not close M3.5's producer
   inventory or the LLVM acceptance gate.
+
+  **Current reviewed SQL-luatest follow-up (2026-09-29, source
+  `7f470a14ad978f53116f3d1a6fbd09fe9e5b16f8`).** Re-ran generated-mode
+  off/on/off for the accepted reviewed subset: 32 memtx tests / 499 queries
+  and 31 Vinyl tests / 447 queries. Semantic off/on and repeat comparisons
+  both pass with zero diffs on both engines, including EXPLAIN output. The
+  enabled capture records 31 `new_planner` routes per engine; 32 transitions
+  per engine (31 to `new_planner`, one to `fallback / NO_ACCESS_PATH`) all
+  match the reviewed route-class policy. This updates only the reviewed
+  subset evidence; it does not close the broader producer inventory or LLVM
+  acceptance gate. The local report is `/tmp/planner-flag-ab-1SuBev/report.json`.
 
   ```mermaid
   flowchart LR
