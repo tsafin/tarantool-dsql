@@ -71,7 +71,7 @@ extract_tagged_scalar(void *context, const char *tuple, size_t tuple_size,
 static void
 test_mcv_index_summaries(void)
 {
-	plan(9);
+	plan(10);
 	header();
 	size_t hll_bytes = 0, mcv_bytes = 0;
 	ok(sql_stats_hll_storage_bytes(8, &hll_bytes) &&
@@ -133,6 +133,15 @@ test_mcv_index_summaries(void)
 	ok(sql_stats_index_summary_mcv_count(without_mcv, 0) == 0,
 	   "existing HLL-only constructor remains MCV-free");
 	sql_stats_index_summary_delete(without_mcv);
+	struct sql_stats_index_summary *typed =
+		sql_stats_index_summary_new_with_mcv(1, 8, 31, budget,
+			extract_tagged_scalar, NULL, 2, 8);
+	fail_if(typed == NULL);
+	ok(sql_stats_index_summary_consume(typed, "Ifoo", 4, NULL, 0) == 0 &&
+	   sql_stats_index_summary_consume(typed, "Sfoo", 4, NULL, 0) == 0 &&
+	   sql_stats_index_summary_mcv_count(typed, 0) == 2,
+	   "identical payloads with different SQL type tags remain distinct MCVs");
+	sql_stats_index_summary_delete(typed);
 	footer();
 	check_plan();
 }
