@@ -119,6 +119,17 @@ class E1MeasureTest(unittest.TestCase):
                                     "inconsistent cardinality stages"):
             e1_measure.analyze(rows, "default", "candidate")
 
+    def test_rejects_actual_cardinality_changing_between_repetitions(self):
+        rows = []
+        for configuration in ("default", "candidate"):
+            for repeat in range(1, 6):
+                actual = 51 if repeat == 3 else 50
+                rows.append(observation(configuration, repeat, 100,
+                                        actual=actual))
+        with self.assertRaisesRegex(ValueError,
+                                    "inconsistent actual cardinality"):
+            e1_measure.analyze(rows, "default", "candidate")
+
     def test_rejects_actual_cardinality_mismatch_between_configurations(self):
         baseline = [observation("default", repeat, 100, actual=50)
                     for repeat in range(1, 6)]

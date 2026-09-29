@@ -57,7 +57,8 @@ python3 -B test/sql-baselines/e1_measure.py observations.jsonl \
 
 The analyzer validates schema/provenance, rejects duplicate or unpaired query
 repetitions, excludes warmups, and requires a query/configuration to report the
-same cardinality-stage inventory on every repetition. Each paired
+same cardinality-stage inventory and actual row counts on every repetition.
+Each paired
 baseline/candidate execution must also produce identical actual row counts for
 every named stage. This
 prevents comparisons across runs whose executed workload changed despite

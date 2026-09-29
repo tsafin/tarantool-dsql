@@ -115,6 +115,7 @@ def analyze(rows, baseline, candidate):
     record_keys = set()
     immutable = {}
     stage_inventory = {}
+    actual_inventory = {}
     for row in rows:
         scope = (row["workload_id"], row["engine"], row["dispatcher"])
         identity = scope + (row["configuration"], row["query_id"], row["repeat"])
@@ -134,6 +135,14 @@ def analyze(rows, baseline, candidate):
                 "inconsistent cardinality stages across repetitions: "
                 f"{'/'.join(stage_key)}")
         stage_inventory[stage_key] = stages
+        for stage in row["cardinalities"]:
+            actual_key = stage_key + (stage["stage_id"],)
+            actual = stage["actual_rows"]
+            if actual_key in actual_inventory and actual_inventory[actual_key] != actual:
+                raise ValueError(
+                    "inconsistent actual cardinality across repetitions: "
+                    f"{'/'.join(actual_key)}")
+            actual_inventory[actual_key] = actual
         if not row["warmup"]:
             groups[scope + (row["configuration"],)].append(row)
 
