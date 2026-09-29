@@ -902,6 +902,13 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT ABS(a) FROM %s WHERE id = 1')
                           :format(comparison_name),
                     expected = {{1}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id <= 3 ' ..
+                           'ORDER BY ABS(a)'):format(comparison_name),
+                    expected = {{1}, {2}, {3}},
+                    unordered = true,
                     enabled_route = 'fallback',
                     enabled_reason = 'UNSUPPORTED_FUNCTION',
                 },
