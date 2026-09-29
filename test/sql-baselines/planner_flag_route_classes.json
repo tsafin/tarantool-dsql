@@ -10,12 +10,14 @@
     "classes": [
       ["current_where_c", null, "new_planner", null],
       ["fallback", "UNSUPPORTED_EXPRESSION", "new_planner", null],
+      ["current_where_c", null, "fallback", "NO_ACCESS_PATH"],
       ["current_where_c", null, "fallback", "UNSUPPORTED_FILTER"],
       ["mixed", null, "fallback", "UNSUPPORTED_RELATION_COUNT"],
       ["mixed", null, "fallback", "UNSUPPORTED_SUBQUERY"],
       [null, "UNSUPPORTED_AGGREGATE", null, "UNSUPPORTED_FILTER"],
-      [null, "UNSUPPORTED_EXPRESSION", null, "UNSUPPORTED_FILTER"]
+      [null, "UNSUPPORTED_EXPRESSION", null, "UNSUPPORTED_FILTER"],
+      [null, "UNSUPPORTED_EXPRESSION", null, "NO_ACCESS_PATH"]
     ],
-    "note": "Matches the reviewed SQL-TAP route inventory; representative runtime checks cover reason precedence, not every query in each class."
+    "note": "Reviewed SQL-TAP transitions include conservative fallback when the primary-only executor would displace a matching secondary-index path, and refinement from unsupported expression to no access path when the primary-only physical route has no candidate. Semantic parity is required; focused tests pin the secondary-index guard and reason contract."
   }
 }

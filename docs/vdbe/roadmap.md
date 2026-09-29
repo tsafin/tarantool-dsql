@@ -1961,6 +1961,28 @@ DML, triggers, subprograms, non-deterministic functions.
   SQL/SQL-luatest corpus, off/on route-transition, or remaining M3.5 disposition
   gates.
 
+  **Reviewed SQL-TAP planner-flag audit (2026-09-29, generated mode).** The
+  off/on/off audit now compares 232 reviewed SQL-TAP files / 47,946 snapshots
+  on memtx and 224 files / 37,990 snapshots on Vinyl. It reports zero semantic
+  differences for both off-to-on and off-repeat parity on both engines; the
+  output-only differences are EXPLAIN diagnostics. Every observed route/reason
+  transition is classified by the route policy, including 961 transitions per
+  engine from `current_where_c` to `fallback / NO_ACCESS_PATH`.
+  This class is the intentional primary-only executor boundary: when a WHERE
+  predicate can use a leading secondary-index field, the new full-table-scan
+  route declines so it cannot displace the existing indexed `where.c` choice.
+  The 36 `UNSUPPORTED_EXPRESSION` to `NO_ACCESS_PATH` reason refinements per
+  engine record that the physical table-scan producer has no candidate;
+  they do not change query semantics or claim that a new route executed. The
+  latter outcomes have no selected path, so their component route stays null.
+  The focused `planner_flag_fallback_parity` regression checks an actual
+  secondary-index lookup retains results and reports `NO_ACCESS_PATH`; TAP
+  `eqp` / `whereG` and reverse-singleton-IN cases also pass focused off/on/off
+  checks. Reports are under `/dev/shm/m35-planner-flags-sqltap-current-20260929-reviewed`
+  and its `-vinyl` counterpart. This closes route disposition for this
+  reviewed SQL-TAP slice only; standalone SQL and SQL-luatest reviewed-corpus
+  coverage and the full M3.5 producer gate remain open.
+
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
   `insert_select_root`; ledger validation and statement-summary selection treat
