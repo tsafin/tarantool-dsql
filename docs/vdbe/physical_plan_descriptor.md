@@ -332,7 +332,8 @@ keys do not leak through reverse traversal.
 #### Secondary-index ordered full scan
 
 A single-table SELECT may satisfy an `ORDER BY` matching a
-leading prefix of an ascending TREE secondary index, provided no more
+leading prefix of a TREE secondary index whose matched key parts all have the
+same declared direction, provided no more
 selective primary/secondary point, range, or prefix access path is applicable.
 With no WHERE predicate this is a predicate-free full scan; a supported
 residual predicate is evaluated after each secondary entry has been resolved
@@ -343,8 +344,10 @@ full-scan access descriptor carries the selected index ID and produced-order
 terms; its direction chooses `Rewind`/`Next` or `Last`/`Prev`. Each secondary
 entry is resolved through its complete primary key before projection. The
 route applies literal LIMIT/OFFSET after residual filtering, but does not claim
-support for arbitrary predicates or non-prefix order, and does not claim
-support for a descending index definition. Memtx/Vinyl tests cover one- and
+support for arbitrary predicates or non-prefix order. The scan direction is
+mapped relative to the index definition, so a uniform ASC or DESC index order
+can be walked forward or backward; mixed-direction index prefixes are not
+supported. Memtx/Vinyl tests cover one- and
 two-term orders in both directions, duplicate key values, an unsigned maximum
 suffix, NULL placement at both ends of the order, and LIMIT/OFFSET.
 
