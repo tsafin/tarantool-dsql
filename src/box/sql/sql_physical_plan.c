@@ -1511,7 +1511,7 @@ predicate_parsed:
 					    index->def->key_def->parts[0].fieldno !=
 						(uint32_t)order_expr->iColumn)
 						continue;
-				    const struct key_def *candidate =
+					const struct key_def *candidate =
 						index->def->key_def;
 					if ((uint32_t)order_by->nExpr >
 					    candidate->part_count)

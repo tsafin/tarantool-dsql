@@ -225,9 +225,7 @@ sql_select_preflight_table_scan(const struct Select *select,
 		    source->space->index_map[0] == NULL ||
 		    source->space->index_map[0]->def == NULL ||
 		    source->space->index_map[0]->def->type != TREE ||
-		    source->space->index_map[0]->def->key_def == NULL ||
-		    (uint32_t)order->nExpr >
-			source->space->index_map[0]->def->key_def->part_count)
+		    source->space->index_map[0]->def->key_def == NULL)
 			return SQL_SELECT_PREFLIGHT_SHAPE;
 		if (order->a[0].pExpr == NULL ||
 		    ExprHasProperty(order->a[0].pExpr, EP_TokenOnly | EP_Reduced) ||
@@ -258,8 +256,18 @@ sql_select_preflight_table_scan(const struct Select *select,
 					const struct Expr *expr = order->a[term].pExpr;
 					const struct key_def *candidate =
 						index->def->key_def;
-					if (candidate->parts[term].sort_order !=
-						SORT_ORDER_ASC || expr == NULL ||
+					enum sort_order index_order =
+						candidate->parts[0].sort_order;
+					bool invalid_index_order =
+						index_order != SORT_ORDER_ASC &&
+						index_order != SORT_ORDER_DESC;
+					if (select->pWhere == NULL) {
+						invalid_index_order |=
+							candidate->parts[term].sort_order != index_order;
+					} else {
+						invalid_index_order |= index_order != SORT_ORDER_ASC;
+					}
+					if (invalid_index_order || expr == NULL ||
 					    expr->op != TK_COLUMN_REF ||
 					    expr->pLeft != NULL || expr->pRight != NULL ||
 					    expr->iTable != source->iCursor ||

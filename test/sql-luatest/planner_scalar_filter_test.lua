@@ -73,6 +73,16 @@ g.test_non_primary_null_filters_off_on_off = function()
                                 nullable_secondary_name))
             box.execute(('INSERT INTO %s VALUES (1, 3), (2, NULL), (3, 7)')
                         :format(nullable_secondary_name))
+            local descending_secondary_name = name .. '_secondary_desc'
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
+                         'x INTEGER, y INTEGER) WITH ENGINE = \'%s\'')
+                        :format(descending_secondary_name, engine))
+            box.execute(('CREATE INDEX %s_xy ON %s (x DESC, y DESC)')
+                        :format(descending_secondary_name,
+                                descending_secondary_name))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         '(1, 7, 10), (2, 7, 11), (3, 8, 10)')
+                        :format(descending_secondary_name))
             local queries = {
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE x = 7 AND y = 10')
@@ -252,6 +262,18 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected_result_columns = {1, 3, 4},
                     expected_order_desc = true,
                     unordered = true,
+                },
+                {
+                    sql = ('SELECT x, y FROM %s ' ..
+                           'ORDER BY x DESC, y DESC')
+                          :format(descending_secondary_name),
+                    expected = {{8, 10}, {7, 11}, {7, 10}},
+                },
+                {
+                    sql = ('SELECT x, y FROM %s ' ..
+                           'ORDER BY x ASC, y ASC')
+                          :format(descending_secondary_name),
+                    expected = {{7, 10}, {7, 11}, {8, 10}},
                 },
                 {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b = 10 ' ..

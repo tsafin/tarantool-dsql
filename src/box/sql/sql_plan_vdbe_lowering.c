@@ -978,7 +978,7 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		(index->key_part_count == 0 || index->key_columns == NULL ||
 		 index->key_parts_descending == NULL ||
 		 index->key_columns[0] != index->key_column ||
-		 index->key_parts_descending[0] || input->access.bound_count != 0 ||
+		 input->access.bound_count != 0 ||
 		 input->access.point_key_part_count != 0 ||
 		 input->access.has_integer_point_key ||
 		 input->access.has_unsigned_point_key ||
@@ -1021,11 +1021,13 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		return -1;
 	if (full) {
 		for (size_t i = 0; i < input->access.produced_order_count; ++i) {
-			if (index->key_parts_descending[i] ||
-			    input->access.produced_order[i].column !=
+			bool effective_descending =
+				index->key_parts_descending[i] !=
+				(input->access.direction == SQL_PLAN_DESC);
+			if (input->access.produced_order[i].column !=
 				index->key_columns[i] ||
-			    input->access.produced_order[i].direction !=
-				input->access.direction)
+			    (input->access.produced_order[i].direction ==
+				SQL_PLAN_DESC) != effective_descending)
 				return -1;
 		}
 	}
