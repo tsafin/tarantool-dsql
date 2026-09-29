@@ -999,16 +999,16 @@ format approval is implied.
   statistics provenance. Its candidate uses the actual volatile ANALYZE
   collector, not the snapshot test adapter. The original uniform-only local
   pilot is at `/tmp/e1-s1-analyze-20260930.jsonl`. The follow-up pilot at
-  `/tmp/e1-s1-skew-20260930-r2.jsonl` contains 120 rows (warmup plus five
+  `/tmp/e1-s1-skew-20260930-final.jsonl` contains 120 rows (warmup plus five
   measured executions for ten queries under each state), and its analyzer
-  report is `/tmp/e1-s1-skew-20260930-r2.report.json`. Across the combined
+  report is `/tmp/e1-s1-skew-20260930-final.report.json`. Across the combined
   40 finite cardinality samples, median q-error is 7.5 without statistics and
   2.0 after ANALYZE; ten empty-result executions have unbounded error in each
   state. The skewed fixture shows why this is not an MCV result: hot equality
   worsens from q-error 1.25 to 2.67, while a tail equality improves from 10 to
   3 and a range improves from 131072 to 1. These are five-repeat, tiny,
   single-engine observations, not acceptance evidence; median elapsed time is
-  9 us / 7.5 us overall and is not latency evidence. Reproduce with the
+  10 us / 8 us overall and is not latency evidence. Reproduce with the
   command in `test/sql-baselines/E1_WORKLOAD.md`. This narrows the producer gap
   but does not close S1.9: the fixtures are tiny and are not integrated into
   the reviewed M0 corpus. Skewed MCV planner integration/validation and a
