@@ -205,6 +205,14 @@ g.test_snapshot_estimate_adapter = function()
         box.execute([[INSERT INTO sql_stats_adapter_t VALUES
                       (1, 1), (2, 1), (3, 1), (4, 2),
                       (5, 2), (6, 2), (7, 3), (8, 3);]])
+        box.execute([[CREATE TABLE sql_stats_skew_t
+                      (id INT PRIMARY KEY, a INT);]])
+        box.execute([[CREATE INDEX sql_stats_skew_ix
+                      ON sql_stats_skew_t (a);]])
+        box.execute([[INSERT INTO sql_stats_skew_t VALUES
+                      (1, 1), (2, 1), (3, 1), (4, 1),
+                      (5, 1), (6, 1), (7, 1), (8, 1),
+                      (9, 2), (10, 3), (11, 4);]])
         local space = box.space.sql_stats_adapter_t
         local index_id = space.index.sql_stats_adapter_ix.id
         local baseline = adapter.estimates(space.id, index_id)
