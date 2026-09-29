@@ -350,8 +350,9 @@ can be walked forward or backward. The preflight derives order capacity from
 the matched secondary key, not the (possibly shorter) primary key. Mixed-
 direction index prefixes are not supported. Memtx/Vinyl tests cover one- and
 two-term orders in both directions, including a descending-only composite
-index, duplicate key values, an unsigned maximum
-suffix, NULL placement at both ends of the order, and LIMIT/OFFSET.
+index, duplicate key values, an unsigned maximum suffix, NULL placement at
+both ends of the order (including a nullable descending-only index), and
+LIMIT/OFFSET.
 
 For a composite key with at least three parts, equality on a proper leading
 prefix of two or more INTEGER/UNSIGNED parts uses a dedicated prefix scan. It

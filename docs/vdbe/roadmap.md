@@ -1317,8 +1317,8 @@ DML, triggers, subprograms, non-deterministic functions.
   index definition; a memtx/Vinyl descending-only composite-index fixture
   exercises both its natural forward walk and reverse traversal. Its
   single-part primary key also verifies that preflight uses the secondary key
-  length for order validation. Nullable-index fixtures verify NULL placement for
-  ascending and descending full traversal. Direct string equality, inequality,
+  length for order validation, while nullable keys verify NULL placement in
+  both natural and reverse traversal. Direct string equality, inequality,
   and `IN` residuals can accompany ordered full traversal when no more
   selective key access path applies; the executor resolves the base row before
   filtering. Coverage includes LIMIT/OFFSET after rejecting earlier ordered
