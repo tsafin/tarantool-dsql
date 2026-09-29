@@ -2030,6 +2030,26 @@ DML, triggers, subprograms, non-deterministic functions.
   This is broad CnP route/parity evidence, not the LLVM run or the complete
   M3.5 producer gate.
 
+  **Current reviewed SQL LLVM planner-flag audit (2026-09-29).** Repeated the
+  off/on/off evaluation with LLVM JIT enabled on the current Clang-19 / LLVM-19
+  Debug binary. SQL-TAP passes on both engines: 232 memtx tests / 47,946
+  snapshots and 224 Vinyl / 37,990, with zero semantic and off-repeat diffs
+  and no unreviewed route transitions. Only EXPLAIN rows differ (28 / 27
+  off/on and 5 / 4 off-repeat). The reviewed `sql` selection passes 33 / 34
+  tests and 1,077 / 1,085 snapshots; SQL-luatest passes 31 / 30 tests and
+  498 / 446 snapshots. Both suites have zero semantic or repeat diffs and no
+  unreviewed routes. These retain the documented `iproto` observer-counter
+  exclusion and no-native-execution direct-VALUES exclusion; those tests are
+  still covered in generated mode. A focused LLVM run also passed `eqp`,
+  `whereG`, and reverse-singleton-IN coverage on both engines (243 snapshots,
+  zero semantic/repeat diffs). Reports are under
+  `/dev/shm/m35-planner-flags-sql-tap-llvm-current-20260929-{memtx,vinyl}`,
+  `/dev/shm/m35-planner-flags-sql-llvm-current-20260929-reviewed-{memtx,vinyl}`,
+  and `/dev/shm/m35-planner-flags-sql-luatest-llvm-current-20260929-reviewed-{memtx,vinyl}`.
+  This verifies current-source LLVM route and semantic parity for reviewed
+  suites; M3.5 producer closure and the remaining M3.7 functional scope still
+  need explicit acceptance review.
+
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
   `insert_select_root`; ledger validation and statement-summary selection treat
