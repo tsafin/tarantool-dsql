@@ -17,6 +17,20 @@ ROUTE_CLASSES = HERE / "planner_flag_route_classes.json"
 CORPUS = HERE / "corpus.py"
 DIFF = HERE / "diff.lua"
 
+# These tests are part of the general capture corpus, but cannot be included in
+# the fixed planner-flag A/B comparison. Keep the exceptions local and
+# reasoned: general capture and planner-feature coverage must not be narrowed.
+PLANNER_FLAG_EXCLUSIONS = {
+    "sql": {
+        "sql/iproto.test.lua":
+            "box.stat().EXECUTE observes snapshot-EXPLAIN instrumentation",
+    },
+    "sql-luatest": {
+        "sql-luatest/gh_8676_exists_in_multiselect_test.lua":
+            "direct VALUES producer has no native planner-flag route",
+    },
+}
+
 
 def invoke(command, *, env=None, timeout=3600):
     result = subprocess.run([str(part) for part in command], env=env,
@@ -67,6 +81,32 @@ def classify_route_transitions(transitions, route_policy):
         result.append({**item, "class_review":
                        "documented" if key in known else "unreviewed"})
     return result
+
+
+def select_tests(policy, suite, engine, mode, selected=()):
+    """Return the reviewed fixed-mode selection, honoring explicit exclusions."""
+    reviewed = {item["test"] for item in policy["included"]
+                if item["test"].startswith(suite + "/") and
+                engine in item["engines"]}
+    requested = set(selected)
+    unknown = requested - reviewed
+    if unknown:
+        raise ValueError(f"not reviewed for {suite}/{engine}: {sorted(unknown)}")
+    exclusions = PLANNER_FLAG_EXCLUSIONS.get(suite, {})
+    excluded = {test: reason for test, reason in exclusions.items()
+                if test in reviewed}
+    # The direct-VALUES exception applies only when CnP/LLVM participation is
+    # required. Generated dispatch still audits its planner-flag behavior.
+    if suite == "sql-luatest" and mode == "generated":
+        excluded = {}
+    rejected = requested & excluded.keys()
+    if rejected:
+        details = "; ".join(f"{test}: {excluded[test]}"
+                             for test in sorted(rejected))
+        raise ValueError(f"excluded from {suite}/{mode} planner-flag audit: "
+                         f"{details}")
+    tests = reviewed if not requested else requested
+    return sorted(tests - excluded.keys()), excluded
 
 
 def explain_output_diffs(records, candidate_root):
@@ -139,29 +179,19 @@ def main():
     env["TMPDIR"] = env.get("TMPDIR", "/dev/shm")
     source_commit = subprocess.check_output(
         ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
-    suite_tests = {item["test"] for item in policy["included"]
-                   if item["test"].startswith(args.suite + "/")}
-    unknown = set(selected) - suite_tests
-    if unknown:
-        raise ValueError(f"not reviewed for {args.suite}: {sorted(unknown)}")
-
     report = {"evaluation_version": 1, "source_commit": source_commit,
               "binary": str(binary), "suite": args.suite,
               "mode": args.mode, "engines": {},
-              "scope": f"all reviewed {args.suite} tests per engine" if not selected
+              "scope": f"all reviewed {args.suite} tests per engine after "
+                       "documented mode-specific exclusions" if not selected
                        else f"selected reviewed {args.suite} tests",
               "route_review_required": True}
     with tempfile.TemporaryDirectory(prefix="planner-flag-ab-",
                                      dir=env["TMPDIR"]) as temp_name:
         temp_root = Path(temp_name)
         for engine in engines:
-            eligible = [item for item in policy["included"]
-                        if item["test"].startswith(args.suite + "/") and
-                        engine in item["engines"]]
-            tests = sorted(item["test"] for item in eligible)
-            if selected:
-                tests = sorted(set(selected) & set(tests))
-                eligible = [item for item in eligible if item["test"] in tests]
+            tests, exclusions = select_tests(
+                policy, args.suite, engine, args.mode, selected)
             if not tests:
                 raise ValueError(f"empty {args.suite} corpus for {engine}")
             captures = {}
@@ -206,6 +236,7 @@ def main():
                 raise ValueError(f"planner flag did not select any new_planner route on {engine}")
             report["engines"][engine] = {
                 "tests": len(tests),
+                "excluded_tests": exclusions,
                 "queries": query_count,
                 "off_on_semantic_parity": {
                     "passed": not semantic_diffs,

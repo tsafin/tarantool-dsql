@@ -8,6 +8,10 @@ import planner_flag_ab as ab
 
 
 class PlannerFlagABTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.policy = json.loads((Path(__file__).parent / "corpus.json").read_text())
+
     def test_documented_classes_are_not_feature_acceptance(self):
         policy = json.loads((Path(__file__).parent /
                              "planner_flag_route_classes.json").read_text())
@@ -26,6 +30,29 @@ class PlannerFlagABTest(unittest.TestCase):
                       "queries": 3, "examples": ["snapshots/example"]}
         result = ab.classify_route_transitions([transition], {"classes": []})
         self.assertEqual(result[0]["class_review"], "unreviewed")
+
+    def test_default_sql_selection_applies_documented_iproto_exclusion(self):
+        tests, excluded = ab.select_tests(
+            self.policy, "sql", "memtx", "llvm")
+        self.assertEqual(len(tests), 33)
+        self.assertNotIn("sql/iproto.test.lua", tests)
+        self.assertIn("sql/iproto.test.lua", excluded)
+
+    def test_explicitly_selecting_excluded_iproto_is_an_error(self):
+        with self.assertRaisesRegex(ValueError, "EXECUTE observes"):
+            ab.select_tests(self.policy, "sql", "memtx", "generated",
+                            ["sql/iproto.test.lua"])
+
+    def test_direct_values_exclusion_applies_only_to_native_dispatch(self):
+        test = "sql-luatest/gh_8676_exists_in_multiselect_test.lua"
+        generated, generated_excluded = ab.select_tests(
+            self.policy, "sql-luatest", "memtx", "generated")
+        native, native_excluded = ab.select_tests(
+            self.policy, "sql-luatest", "memtx", "cnp")
+        self.assertIn(test, generated)
+        self.assertEqual(generated_excluded, {})
+        self.assertNotIn(test, native)
+        self.assertIn(test, native_excluded)
 
     def test_multiline_commented_explain_is_plan_output(self):
         import tempfile
