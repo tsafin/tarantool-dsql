@@ -1723,19 +1723,17 @@ DML, triggers, subprograms, non-deterministic functions.
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
   `SELECT`/VDBE integration).
 - [x] **M3.5** Per-component fallback gate — complete for the adopted
-  per-component ledger contract. The aggregate `planner_flag_acceptance.py`
-  gate passed at source `2b241c8afea485073a0492479cf1af38f9e9ec70`, validating
-  nine complete suite/mode reports (generated, CnP, LLVM × SQL-TAP, SQL, and
-  SQL-luatest) plus 24 focused producer runtime cases (four fixtures × two
-  engines × three modes). The suite reports were captured at
-  `aa8a87ce7af700089b83180dd51e11de93a75b19`; the gate confirms that only the
-  separately rerun focused fallback diagnostic and acceptance-tool files
-  changed afterward, with no planner or corpus-policy drift. All broad reports
-  have zero semantic/off-repeat diffs and unreviewed route transitions; the
-  focused matrix verifies ledger v1 and observed 1,706 CnP / 722 LLVM
-  executions. Documented fixed-mode exclusions remain explicit and
-  generated-mode covered. This closes the producer accounting gate, not M3.4's
-  broader lowering or M3.7's functional feature scope. The implementation
+  per-component ledger contract. The `planner_flag_acceptance.py` aggregate
+  was refreshed at source `48fc881413c494535fa3d30aa830cc1de8c77ad0` and
+  passed with nine current-source suite/mode reports (generated, CnP, LLVM ×
+  SQL-TAP, SQL, and SQL-luatest) plus 24 focused producer runtime cases (four
+  fixtures × two engines × three modes). All broad reports have zero
+  semantic/off-repeat diffs and unreviewed route transitions; the focused
+  matrix verifies ledger v1 and observed 1,706 CnP / 722 LLVM executions.
+  Documented fixed-mode exclusions remain explicit and generated-mode covered.
+  The fresh report set is under `/tmp/m35-after-m34-48fc/`. This closes the
+  producer accounting gate, not M3.4's broader lowering or M3.7's functional
+  feature scope. The implementation
   history follows. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and
   exposes `path_class` plus an optional descriptor (`sql_plan_fallback.*`),
@@ -2574,27 +2572,35 @@ DML, triggers, subprograms, non-deterministic functions.
     S -- no --> M[mixed; no statement fallback reason]
   ```
 
-  **M3.5 acceptance audit and closure (2026-09-29).** Current Debug off/on/off
-  captures pass in generated, CnP,
-  and LLVM modes with zero semantic diffs, exact off-repeat semantics, and no
-  unreviewed route classes. SQL-TAP covers 232 memtx / 224 Vinyl tests and
-  47,946 / 37,990 snapshots in every mode. The reviewed SQL selection covers
-  33 / 34 tests and 1,077 / 1,085 snapshots; SQL-luatest covers 32 / 31 tests
-  and 499 / 447 snapshots in generated mode, and 31 / 30 tests and 498 / 446
-  snapshots in CnP/LLVM. The one SQL exclusion is the
-  `box.stat().EXECUTE` observer-counter incompatibility in `iproto.test.lua`;
-  `gh_8676_exists_in_multiselect` is excluded from native-mode capture because
-  it emits only a direct VALUES route, and both remain covered in generated
-  mode. All observed route classes, including secondary-index `NO_ACCESS_PATH`
-  fallbacks and reason-only refinements, are dispositioned in the route policy.
+  **M3.5 acceptance audit and closure (2026-09-29; refreshed at
+  `48fc881413`).** The current-source Debug off/on/off matrix passes in all
+  nine suite/dispatcher combinations (SQL-TAP, SQL, SQL-luatest × generated,
+  CnP, LLVM), across memtx and Vinyl, with zero semantic diffs, exact
+  off-repeat semantics, and no unreviewed route classes. SQL-TAP covers 232
+  memtx / 224 Vinyl tests and 47,946 / 37,990 snapshots in every mode. The
+  reviewed SQL selection covers 33 / 34 tests and 1,077 / 1,085 snapshots;
+  SQL-luatest covers 32 / 31 tests and 499 / 447 snapshots in generated mode,
+  and 31 / 30 tests and 498 / 446 snapshots in CnP/LLVM. The one SQL exclusion
+  is the `box.stat().EXECUTE` observer-counter incompatibility in
+  `iproto.test.lua`; `gh_8676_exists_in_multiselect` is excluded from native-
+  mode capture because it emits only a direct VALUES route, and both remain
+  covered in generated mode. All observed route classes, including
+  secondary-index `NO_ACCESS_PATH` fallbacks, reason-only refinements, and the
+  reviewed unindexed-collation residual transition, are dispositioned in the
+  route policy. The fresh aggregate report is
+  `/tmp/m35-after-m34-48fc/acceptance.json`; all nine suite reports and the
+  current-source 24-case producer matrix are under
+  `/tmp/m35-after-m34-48fc/`.
   A current-source focused rerun passes `planner_final_paths`,
   `planner_insert_select_snapshot` (including INSERT-SELECT, DELETE/UPDATE view
   materialization, and trigger SELECT), `planner_flag_fallback_parity`, and
-  `planner_composite_prefix_range`. The current aggregate summary is
-  `/dev/shm/m35-acceptance-aa8a87ce7a-tmp/acceptance.json`; the focused matrix
-  is `/dev/shm/m35-producer-matrix-2b241c8afe/report.json`. These results close
-  the M3.5 accounting/coverage gate, not broad execution support for additional
-  logical shapes or M3.4/M3.7.
+  `planner_composite_prefix_range`. Those focused results and earlier
+  aggregate files under `/dev/shm` are historical checkpoints; the fresh
+  `/tmp/m35-after-m34-48fc/acceptance.json` supersedes them for current-source
+  M3.5 evidence. These results close the M3.5 accounting/coverage gate, not
+  broad execution support for additional logical shapes or M3.4/M3.7. The fresh
+  aggregate has zero blockers and records `feature_acceptance_passed=true` for
+  source `48fc881413c494535fa3d30aa830cc1de8c77ad0`.
 
   **Planner-flag runner exclusion fix (2026-09-29).** The runner now applies
   the documented fixed-mode exclusions by default and records their reasons
