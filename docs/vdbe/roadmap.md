@@ -1258,6 +1258,9 @@ DML, triggers, subprograms, non-deterministic functions.
   residuals, and LIMIT/OFFSET. Focused generated, CnP, and LLVM captures each
   contain 963 snapshots per engine; all four native-vs-generated comparisons
   have zero diffs. The debug `planner_scalar_filter_test.lua` runner passes.
+  VDBE unit coverage also pins the secondary seek, equality-run guard,
+  composite primary-key extraction, base-table lookup arity, and next-row
+  target (63 assertions total).
   This does not claim general secondary-index access or close M3.4.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
