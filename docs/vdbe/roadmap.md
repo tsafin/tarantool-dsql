@@ -1231,6 +1231,14 @@ DML, triggers, subprograms, non-deterministic functions.
   fails. Mixed-direction and unrelated orderings remain stable fallbacks. The
   VDBE unit pins the multi-part seek, mismatch checks, reverse direction, and
   limit/offset placement.
+  **2026-09 ordered upper-only primary range:** the producer now permits
+  ascending `ORDER BY` on a one-sided upper-bound primary-key range. The
+  lowerer rewinds and exits at the strict/inclusive endpoint guard; descending
+  traversal continues to seek at the upper endpoint. Memtx/Vinyl off/on/off
+  coverage checks both `<=` and `<` route as `new_planner`, and composes
+  deterministic projection with a bounded ordered range. The focused
+  scalar-filter regression passes in generated, CnP, and LLVM modes. This
+  extends only primary-key range ordering; M3.4 remains open.
   *parallel: no (extends the existing producer/descriptor/lowering chain)*.
   The route also lowers `primary_key_part IS NOT NULL` as a full
   scan, relying on the primary-key non-null invariant, and `primary_key_part
