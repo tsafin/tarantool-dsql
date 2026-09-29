@@ -177,6 +177,54 @@ new_composite_secondary_equality_descriptor(void)
 }
 
 static struct sql_plan_descriptor *
+new_secondary_range_descriptor(bool bounded)
+{
+	static const uint32_t columns[] = {0};
+	struct sql_plan_bound bounds[2] = {
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_GE, .expr_ref = 1},
+		{.side = SQL_PLAN_UPPER, .op = SQL_PLAN_LT, .expr_ref = 2},
+	};
+	struct sql_plan_expression expressions[2] = {
+		{.id = 1, .canonical = "secondary-integer-range-lower"},
+		{.id = 2, .canonical = "secondary-integer-range-upper"},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_INDEX_RANGE_SCAN,
+			.index_id = 1,
+			.bounds = bounds,
+			.bound_count = bounded ? 2 : 1,
+			.has_integer_range_key = true,
+			.integer_range_key = bounded ? 7 : 10,
+			.integer_range_op = bounded ? SQL_PLAN_GE : SQL_PLAN_LE,
+			.has_integer_range_end_key = bounded,
+			.integer_range_end_key = 10,
+			.integer_range_end_op = SQL_PLAN_LT,
+			.range_key_column = 3,
+			.direction = bounded ? SQL_PLAN_ASC : SQL_PLAN_DESC,
+		},
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+		.expressions = expressions,
+		.expression_count = bounded ? 2 : 1,
+	};
+	if (!bounded) {
+		bounds[0] = (struct sql_plan_bound) {
+			.side = SQL_PLAN_UPPER,
+			.op = SQL_PLAN_LE,
+			.expr_ref = 1,
+		};
+		expressions[0].canonical = "secondary-integer-range-upper";
+	}
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_unsigned_point_descriptor(uint64_t key)
 {
 	static const uint32_t columns[] = {2, 0};
@@ -806,7 +854,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(67);
+	plan(69);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -866,6 +914,10 @@ main(void)
 		new_secondary_equality_descriptor(7);
 	struct sql_plan_descriptor *composite_secondary_equality_desc =
 		new_composite_secondary_equality_descriptor();
+	struct sql_plan_descriptor *secondary_bounded_range_desc =
+		new_secondary_range_descriptor(true);
+	struct sql_plan_descriptor *secondary_upper_range_desc =
+		new_secondary_range_descriptor(false);
 	struct sql_plan_descriptor *negative_point_desc =
 		new_point_descriptor(INT64_MIN);
 	struct sql_plan_descriptor *unsigned_point_desc =
@@ -1196,19 +1248,19 @@ main(void)
 	struct sql_plan_secondary_index wrong_secondary_index = secondary_index;
 	wrong_secondary_index.index_id = 2;
 	int before_wrong_secondary_index = vdbe.nOp;
-	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		secondary_equality_desc, &vdbe, 4, 5, &wrong_secondary_index, 20,
 		NULL, NULL) == -1 && vdbe.nOp == before_wrong_secondary_index,
 	   "secondary equality lowering rejects an index-ID mismatch atomically");
 	wrong_secondary_index = secondary_index;
 	wrong_secondary_index.key_column = 4;
 	int before_wrong_secondary_column = vdbe.nOp;
-	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		secondary_equality_desc, &vdbe, 4, 5, &wrong_secondary_index, 20,
 		NULL, NULL) == -1 && vdbe.nOp == before_wrong_secondary_column,
 	   "secondary equality lowering rejects an indexed-column mismatch atomically");
 	int before_secondary_equality = vdbe.nOp;
-	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		secondary_equality_desc, &vdbe, 4, 5, &secondary_index, 20,
 		NULL, NULL) == 0 &&
 	   vdbe.aOp[before_secondary_equality].opcode == OP_Integer &&
@@ -1253,13 +1305,13 @@ main(void)
 	wrong_composite_secondary_index.key_columns =
 		wrong_composite_key_columns;
 	int before_wrong_composite_secondary = vdbe.nOp;
-	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		composite_secondary_equality_desc, &vdbe, 4, 5,
 		&wrong_composite_secondary_index, 20, NULL, NULL) == -1 &&
 	   vdbe.nOp == before_wrong_composite_secondary,
 	   "composite secondary lowering rejects a mismatched key part atomically");
 	int before_composite_secondary = vdbe.nOp;
-	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		composite_secondary_equality_desc, &vdbe, 4, 5,
 		&composite_secondary_index, 20, NULL, NULL) == 0 &&
 	   vdbe.aOp[before_composite_secondary].opcode == OP_Integer &&
@@ -1272,6 +1324,26 @@ main(void)
 	   vdbe.aOp[before_composite_secondary + 3].opcode == OP_IdxGT &&
 	   vdbe.aOp[before_composite_secondary + 3].p4.i == 2,
 	   "composite secondary equality seeks and guards the full typed key arity");
+	int before_secondary_range = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_bounded_range_desc, &vdbe, 4, 5, &secondary_index, 20,
+		NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_range].opcode == OP_Integer &&
+	   vdbe.aOp[before_secondary_range + 2].opcode == OP_SeekGE &&
+	   vdbe.aOp[before_secondary_range + 2].p4.i == 1 &&
+	   vdbe.aOp[before_secondary_range + 3].opcode == OP_Column &&
+	   vdbe.aOp[before_secondary_range + 4].opcode == OP_Le &&
+	   vdbe.aOp[before_secondary_range + 10].opcode == OP_Next,
+	   "bounded secondary range seeks at its lower endpoint and guards its upper endpoint");
+	int before_secondary_upper_range = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_upper_range_desc, &vdbe, 4, 5, &secondary_index, 20,
+		NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_upper_range + 1].opcode == OP_SeekLE &&
+	   vdbe.aOp[before_secondary_upper_range + 2].opcode == OP_Column &&
+	   vdbe.aOp[before_secondary_upper_range + 3].opcode == OP_IsNull &&
+	   vdbe.aOp[before_secondary_upper_range + 9].opcode == OP_Prev,
+	   "upper-only secondary range scans backward and terminates at nullable keys");
 	int before_point_filter = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_null_filter_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_point_filter + 1].opcode == OP_NotFound &&

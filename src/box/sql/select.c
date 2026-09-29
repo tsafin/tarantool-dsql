@@ -6417,7 +6417,9 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			message = sqlMPrintf("SCAN TABLE %s (~%llu rows)",
 					      space->def->name,
 					      (unsigned long long)rows);
-		} else if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN) {
+		} else if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ||
+			   (selected_access == SQL_PLAN_INDEX_RANGE_SCAN &&
+			    plan_input->access.index_id != 0)) {
 			const struct sql_plan_descriptor_input *input =
 				sql_plan_descriptor_get_input(plan);
 			const struct index *idx = NULL;
@@ -6431,9 +6433,16 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 				goto emission_error;
 			uint32_t fieldno = idx->def->key_def->parts[0].fieldno;
 			const char *field_name = space->def->fields[fieldno].name;
+			const char *op = selected_access ==
+				SQL_PLAN_INDEX_EQUALITY_SCAN ? "=?" :
+				plan_input->access.integer_range_op == SQL_PLAN_GT ? ">?" :
+				plan_input->access.integer_range_op == SQL_PLAN_GE ? ">=?" :
+				plan_input->access.integer_range_op == SQL_PLAN_LT ? "<?" :
+				"<=?";
 			message = sqlMPrintf("SEARCH TABLE %s USING INDEX %s "
-					      "(%s=?) (~1 row)", space->def->name,
-					      idx->def->name, field_name);
+					      "(%s%s) (~%llu rows)", space->def->name,
+					      idx->def->name, field_name, op,
+					      (unsigned long long)plan_input->cost_rows);
 		} else {
 			uint32_t fieldno = primary->def->key_def->parts[0].fieldno;
 			const char *field_name = space->def->fields[fieldno].name;
@@ -6452,7 +6461,10 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	uint32_t primary_columns[SQL_PLAN_POINT_KEY_PART_MAX];
 	uint32_t secondary_key_columns[SQL_PLAN_POINT_KEY_PART_MAX];
 	bool secondary_key_unsigned[SQL_PLAN_POINT_KEY_PART_MAX];
-	if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN) {
+	bool secondary_scan = selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ||
+		(selected_access == SQL_PLAN_INDEX_RANGE_SCAN &&
+		 plan_input->access.index_id != 0);
+	if (secondary_scan) {
 		for (uint32_t i = 1; i < space->index_count; ++i) {
 			if (space->index_map[i]->def->iid == plan_input->access.index_id) {
 				secondary = space->index_map[i];
@@ -6477,7 +6489,9 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		}
 		secondary_info.key_columns = secondary_key_columns;
 		secondary_info.key_parts_unsigned = secondary_key_unsigned;
-		secondary_info.key_part_count = secondary_part_count > 1 ?
+		secondary_info.key_part_count =
+			selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN &&
+			secondary_part_count > 1 ?
 			secondary_part_count : 0;
 		secondary_info.key_column = secondary_key_columns[0];
 		secondary_info.key_unsigned = secondary_key_unsigned[0];
@@ -6506,8 +6520,8 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	};
 	enum sql_plan_access_kind access_kind =
 		sql_plan_descriptor_access_kind(plan);
-	int lower_rc = access_kind == SQL_PLAN_INDEX_EQUALITY_SCAN ?
-		sql_plan_lower_vdbe_secondary_equality_with_projector(plan, vdbe,
+	int lower_rc = secondary_scan ?
+		sql_plan_lower_vdbe_secondary_scan_with_projector(plan, vdbe,
 				source->iCursor, secondary_cursor, &secondary_info,
 				result_first_reg, sql_select_emit_projection, &projection) :
 		access_kind == SQL_PLAN_PK_PREFIX_SCAN ?

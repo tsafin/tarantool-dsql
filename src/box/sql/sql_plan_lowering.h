@@ -101,8 +101,9 @@ sql_plan_lower_vdbe_pk_prefix_scan_with_projector(
 	int result_first_reg, sql_plan_projection_projector_f projector,
 	void *projector_ctx);
 
+/* Emit an equality or supported scalar range scan over a secondary index. */
 int
-sql_plan_lower_vdbe_secondary_equality_with_projector(
+sql_plan_lower_vdbe_secondary_scan_with_projector(
 	const struct sql_plan_descriptor *plan, struct Vdbe *vdbe,
 	int table_cursor, int index_cursor,
 	const struct sql_plan_secondary_index *index,

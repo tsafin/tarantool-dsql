@@ -484,6 +484,16 @@ sql_physical_table_scan_from_select(
 	bool secondary_key_unsigned = false;
 	int64_t secondary_signed_key = 0;
 	uint64_t secondary_unsigned_key = 0;
+	bool has_secondary_range_scan = false;
+	uint32_t secondary_range_index_id = 0;
+	uint32_t secondary_range_key_column = 0;
+	bool secondary_range_unsigned = false;
+	struct parsed_pk_bound secondary_range_lower = {0};
+	struct parsed_pk_bound secondary_range_upper = {0};
+	bool has_secondary_range_lower = false;
+	bool has_secondary_range_upper = false;
+	const struct Expr *secondary_range_terms[2] = {0};
+	size_t secondary_range_term_count = 0;
 	struct sql_plan_point_key_part secondary_key_parts[
 		SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
 	const struct Expr *secondary_scan_terms[
@@ -722,6 +732,97 @@ sql_physical_table_scan_from_select(
 				break;
 			}
 		}
+		bool has_secondary_equality_candidate =
+			has_secondary_equality_scan;
+		for (uint32_t index_no = 1;
+		     !has_secondary_equality_candidate &&
+		     index_no < source->space->index_count; ++index_no) {
+			const struct index *index = source->space->index_map[index_no];
+			if (index == NULL || index->def == NULL ||
+			    index->def->type != TREE || index->def->key_def == NULL ||
+			    index->def->key_def->part_count != 1)
+				continue;
+			const struct key_part *key_part =
+				&index->def->key_def->parts[0];
+			bool is_unsigned = key_part->type == FIELD_TYPE_UNSIGNED;
+			if (!is_unsigned && key_part->type != FIELD_TYPE_INTEGER)
+				continue;
+			for (size_t term_no = 0; term_no < expr_count; ++term_no) {
+				struct parsed_pk_bound parsed;
+				if (exprs[term_no]->op == TK_EQ &&
+				    parse_pk_bound(exprs[term_no], source->iCursor,
+						   key_part->fieldno, is_unsigned,
+						   &parsed) && parsed.op == SQL_PLAN_EQ) {
+					has_secondary_equality_candidate = true;
+					break;
+				}
+			}
+		}
+		if (!has_secondary_equality_candidate &&
+		    source->space->index_map != NULL) {
+			for (uint32_t index_no = 1;
+			     index_no < source->space->index_count; ++index_no) {
+				const struct index *index =
+					source->space->index_map[index_no];
+				if (index == NULL || index->def == NULL ||
+				    index->def->type != TREE || index->def->key_def == NULL ||
+				    index->def->key_def->part_count == 0)
+					continue;
+				const struct key_part *key_part =
+					&index->def->key_def->parts[0];
+				bool is_unsigned = key_part->type == FIELD_TYPE_UNSIGNED;
+				if (!is_unsigned && key_part->type != FIELD_TYPE_INTEGER)
+					continue;
+				if (key_part->sort_order != SORT_ORDER_ASC)
+					continue;
+				bool has_lower = false;
+				bool has_upper = false;
+				for (size_t term_no = 0; term_no < expr_count; ++term_no) {
+					const struct Expr *term = exprs[term_no];
+					if (term->op == TK_EQ)
+						continue;
+					struct parsed_pk_bound parsed;
+					if (!parse_pk_bound(term, source->iCursor,
+							    key_part->fieldno, is_unsigned,
+							    &parsed))
+						continue;
+					if (parsed.op == SQL_PLAN_GT ||
+					    parsed.op == SQL_PLAN_GE) {
+						if (!has_lower || pk_bound_is_stricter(&parsed,
+									   &secondary_range_lower,
+									   true)) {
+							secondary_range_lower = parsed;
+							secondary_range_terms[0] = term;
+						}
+						has_lower = true;
+					} else if (parsed.op == SQL_PLAN_LT ||
+						   parsed.op == SQL_PLAN_LE) {
+						if (!has_upper || pk_bound_is_stricter(&parsed,
+									   &secondary_range_upper,
+									   false)) {
+							secondary_range_upper = parsed;
+							secondary_range_terms[1] = term;
+						}
+						has_upper = true;
+					}
+				}
+				if (!has_lower && !has_upper)
+					continue;
+				has_secondary_range_scan = true;
+				has_secondary_range_lower = has_lower;
+				has_secondary_range_upper = has_upper;
+				secondary_range_index_id = index->def->iid;
+				secondary_range_key_column = key_part->fieldno;
+				secondary_range_unsigned = is_unsigned;
+				secondary_range_term_count = (has_lower ? 1 : 0) +
+					(has_upper ? 1 : 0);
+				if (!has_lower) {
+					secondary_range_terms[0] = secondary_range_terms[1];
+					secondary_range_terms[1] = NULL;
+				}
+				break;
+			}
+		}
 		size_t bound_count = 0;
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
@@ -795,6 +896,12 @@ sql_physical_table_scan_from_select(
 			    term->op == TK_LT || term->op == TK_LE) {
 				if (term->pLeft == NULL || term->pRight == NULL)
 					goto invalid_predicate;
+				bool is_selected_secondary_range_term = false;
+				for (size_t i = 0; i < secondary_range_term_count; ++i)
+					is_selected_secondary_range_term |=
+						term == secondary_range_terms[i];
+				if (is_selected_secondary_range_term)
+					continue;
 				bool is_selected_secondary_term = false;
 				for (size_t part = 0; part < secondary_key_part_count; ++part)
 					is_selected_secondary_term |=
@@ -943,7 +1050,8 @@ sql_physical_table_scan_from_select(
 		}
 		expr_count = bound_count;
 		if (expr_count == 0 && filter_count == 0 &&
-		    !primary_key_not_null && !has_secondary_equality_scan)
+		    !primary_key_not_null && !has_secondary_equality_scan &&
+		    !has_secondary_range_scan)
 			goto invalid_predicate;
 		if (expr_count == 0)
 			goto predicate_parsed;
@@ -1241,9 +1349,13 @@ predicate_parsed:
 			.offset = 0,
 		};
 	}
+	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	bool use_secondary_equality_scan = has_secondary_equality_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
 		select->pOrderBy == NULL;
+	bool use_secondary_range_scan = has_secondary_range_scan &&
+		!has_secondary_equality_scan && !has_point_key && !has_range_key &&
+		!has_prefix_scan && select->pOrderBy == NULL;
 	if (has_secondary_equality_scan && !use_secondary_equality_scan) {
 		for (size_t i = 0; i < (secondary_key_part_count == 0 ? 1 :
 					 secondary_key_part_count); ++i) {
@@ -1258,12 +1370,51 @@ predicate_parsed:
 				secondary_scan_terms[i];
 		}
 	}
+	if (use_secondary_range_scan) {
+		has_range_key = true;
+		has_range_end_key = has_secondary_range_lower &&
+			has_secondary_range_upper;
+		range_unsigned = secondary_range_unsigned;
+		if (has_secondary_range_lower) {
+			range_op = secondary_range_lower.op;
+			if (range_unsigned)
+				unsigned_range_key = secondary_range_lower.unsigned_key;
+			else
+				range_key = secondary_range_lower.signed_key;
+		} else {
+			range_op = secondary_range_upper.op;
+			if (range_unsigned)
+				unsigned_range_key = secondary_range_upper.unsigned_key;
+			else
+				range_key = secondary_range_upper.signed_key;
+		}
+		if (has_range_end_key) {
+			range_end_op = secondary_range_upper.op;
+			if (range_unsigned)
+				unsigned_range_end_key =
+					secondary_range_upper.unsigned_key;
+			else
+				range_end_key = secondary_range_upper.signed_key;
+		}
+		range_key_column = secondary_range_key_column;
+		direction = has_secondary_range_lower ? SQL_PLAN_ASC :
+			SQL_PLAN_DESC;
+	} else if (has_secondary_range_scan && !use_secondary_equality_scan) {
+		for (size_t i = 0; i < secondary_range_term_count; ++i) {
+			if (filter_count == SQL_PLAN_FILTER_MAX)
+				goto invalid_predicate;
+			filters[filter_count] = (struct sql_plan_filter) {
+				.op = SQL_PLAN_FILTER_EXPRESSION,
+				.selectivity = 0.5,
+			};
+			filter_expressions[filter_count++] = secondary_range_terms[i];
+		}
+	}
 	bool secondary_composite = use_secondary_equality_scan &&
 		secondary_key_part_count > 1;
 	size_t composite_access_count = has_composite_point || has_prefix_scan ?
 		composite_point_count : secondary_composite ?
 		secondary_key_part_count : 0;
-	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	struct sql_plan_order_term *order_terms = NULL;
 	size_t order_term_count = 0;
 	if (select->pOrderBy != NULL) {
@@ -1592,8 +1743,8 @@ predicate_parsed:
 				SQL_PLAN_INDEX_EQUALITY_SCAN :
 				has_range_key ? SQL_PLAN_INDEX_RANGE_SCAN :
 				SQL_PLAN_TABLE_FULL_SCAN,
-			.index_id = use_secondary_equality_scan ?
-				secondary_index_id : 0,
+			.index_id = use_secondary_equality_scan ? secondary_index_id :
+				use_secondary_range_scan ? secondary_range_index_id : 0,
 			.bounds = has_composite_point || has_prefix_scan ||
 				secondary_composite ?
 				composite_point_bounds :

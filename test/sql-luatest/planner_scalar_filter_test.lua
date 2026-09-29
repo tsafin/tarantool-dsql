@@ -67,28 +67,40 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(secondary_name),
                     expected = {{1, 1}, {1, 2}},
                     expected_index = secondary_name .. '_xy',
+                    unordered = true,
                 },
                 {
                     sql = ('SELECT id FROM %s WHERE y = 10 AND x = 7 ' ..
                            "AND note = 'b'"):format(secondary_name),
                     expected = {{2}},
+                    unordered = true,
                 },
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE y = 10 AND x = 99')
                           :format(secondary_name),
                     expected = {},
+                    unordered = true,
                 },
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE x = 7 AND ' ..
                            'y = 18446744073709551615'):format(secondary_name),
                     expected = {{2, 1}},
+                    unordered = true,
                 },
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE x = 7')
                           :format(secondary_name),
                     expected = {{1, 1}, {1, 2}, {2, 1}},
+                    unordered = true,
                     enabled_route = 'fallback',
                     enabled_reason = 'NO_ACCESS_PATH',
+                },
+                {
+                    sql = ('SELECT tenant, id FROM %s WHERE x >= 8')
+                          :format(secondary_name),
+                    expected = {{2, 2}},
+                    expected_index = secondary_name .. '_xy',
+                    unordered = true,
                 },
                 {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b = 10 ' ..
@@ -468,6 +480,49 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{1, 7}, {2, 7}, {5, 7}},
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE k > 7')
+                          :format(comparison_name),
+                    expected = {{3}},
+                    expected_index = comparison_name .. '_k',
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE 7 <= k AND k < 8')
+                          :format(comparison_name),
+                    expected = {{1}, {2}, {5}},
+                    expected_index = comparison_name .. '_k',
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE k > 6 AND k >= 7')
+                          :format(comparison_name),
+                    expected = {{1}, {2}, {3}, {5}},
+                    expected_index = comparison_name .. '_k',
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE k >= 7 ' ..
+                           'LIMIT 1 OFFSET 1'):format(comparison_name),
+                    expected = {{2}},
+                    expected_index = comparison_name .. '_k',
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE uk >= ' ..
+                           '18446744073709551615')
+                          :format(comparison_name),
+                    expected = {{3}},
+                    expected_index = comparison_name .. '_uk',
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE uk <= 10')
+                          :format(comparison_name),
+                    expected = {{1}, {2}, {5}},
+                    expected_index = comparison_name .. '_uk',
+                    unordered = true,
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE 7 = k')
                           :format(comparison_name),
                     expected = {{1}, {2}, {5}},
@@ -559,6 +614,16 @@ g.test_non_primary_null_filters_off_on_off = function()
                     local result
                     result, err = box.execute(query.sql)
                     t.assert(err == nil, err and err.message)
+                    if query.unordered then
+                        table.sort(result.rows, function(a, b)
+                            for column = 1, #a do
+                                if a[column] ~= b[column] then
+                                    return a[column] < b[column]
+                                end
+                            end
+                            return false
+                        end)
+                    end
                     results[i] = result.rows
                     t.assert_equals(results[i], query.expected,
                                     ('query %d result on %s'):format(i, engine))
