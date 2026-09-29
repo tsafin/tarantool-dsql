@@ -1774,8 +1774,11 @@ DML, triggers, subprograms, non-deterministic functions.
   access bounds; later comparisons do not claim a lexicographic multi-part
   interval. The memtx/Vinyl scalar-filter regression covers a leading bounded
   range with a later-part residual and confirms the `new_planner` route.
-  Focused Debug build and luatest pass. This is not arbitrary range splitting
-  or broad corpus parity.
+  Focused Debug build and luatest pass. The post-change producer matrix also
+  passes all 24 fixture/engine/dispatcher cases (generated, CnP, and LLVM ×
+  memtx and Vinyl) at source `4f1a30d646`, with no failed cases; report:
+  `/tmp/m34-later-key-residuals-4f1a/producer-matrix/report.json`. This is not
+  arbitrary range splitting or broad corpus parity.
   Do not infer rollback of AST, parser, or schema state.
   This does not cover all descriptor operators, arbitrary lexicographic ranges
   spanning multiple varying key parts, all storage edge cases, or
