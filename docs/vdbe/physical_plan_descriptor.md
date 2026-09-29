@@ -20,8 +20,11 @@ deterministic calls and explicit collation nodes only in WHERE residual
 expressions whose operands
 bind to the scanned source or are canonical constants. Existing SQL expression
 bytecode evaluates them, and the collated wrapper prevents direct key-bound
-recognition. Calls/collations in projection/order/limit and nondeterministic
-calls remain on the legacy path. Column
+recognition. The only standalone function-form boolean predicate admitted is
+`LIKE` / `NOT LIKE` with two or three canonical same-source/constant
+arguments; `MATCH` and other boolean-returning calls remain unsupported.
+Calls/collations in projection/order/limit and nondeterministic calls remain
+on the legacy path. Column
 encoding requires a caller-supplied cursor-to-logical-relation ordinal map
 and emits that ordinal, not Expr.iTable. Stability therefore holds only
 under the same relation binding; this is not a universal cross-statement
@@ -179,8 +182,11 @@ prefix scan/range. Up to eight scalar-comparison residuals may likewise be
 combined with supported access bounds. A compound `AND`/`OR` tree, or unary
 `NOT` over that tree, is admitted as one expression filter only when each leaf
 is a direct source-column comparison, BETWEEN with supported constant
-expression bounds, IN with canonical constant-list members, or a direct
-`IS NULL` / `IS NOT NULL` test. Expression
+expression bounds, IN with canonical constant-list members, a resolved
+`LIKE` call with two or three canonical same-source/constant arguments, or a
+direct `IS NULL` / `IS NOT NULL` test. `NOT LIKE` is represented as unary
+`NOT` over that LIKE leaf; `MATCH` and other boolean-returning functions are
+not admitted. Expression
 filters are referenced by
 the immutable descriptor and resolved against the original WHERE tree only
 when lowering; their bytecode executes before projection, and `IfNot` rejects

@@ -66,6 +66,30 @@ has_source_column(const struct Expr *expr, int cursor, uint32_t field_count,
 		  size_t depth);
 
 static bool
+is_like_filter(const struct Expr *expr, int cursor, uint32_t field_count)
+{
+	if (expr == NULL || expr->op != TK_FUNCTION ||
+	    !ExprHasProperty(expr, EP_ConstFunc) || expr->u.zToken == NULL ||
+	    expr->pLeft != NULL || expr->pRight != NULL || expr->x.pList == NULL ||
+	    expr->x.pList->nExpr < 2 || expr->x.pList->nExpr > 3)
+		return false;
+	const char *name = expr->u.zToken;
+	if (!((name[0] == 'l' || name[0] == 'L') &&
+	      (name[1] == 'i' || name[1] == 'I') &&
+	      (name[2] == 'k' || name[2] == 'K') &&
+	      (name[3] == 'e' || name[3] == 'E') && name[4] == '\0'))
+		return false;
+	bool has_source = false;
+	for (int i = 0; i < expr->x.pList->nExpr; ++i) {
+		const struct Expr *arg = expr->x.pList->a[i].pExpr;
+		if (!has_only_source_columns(arg, cursor, field_count, 0))
+			return false;
+		has_source |= has_source_column(arg, cursor, field_count, 0);
+	}
+	return has_source;
+}
+
+static bool
 is_in_predicate(const struct Expr *expr, int cursor, uint32_t field_count)
 {
 	if (expr == NULL || expr->op != TK_IN || expr->pRight != NULL ||
@@ -240,6 +264,7 @@ is_filter_predicate_tree(const struct Expr *expr, int cursor,
 		has_only_source_columns(expr->pLeft, cursor, field_count, 0);
 	if (!is_comparison_predicate(expr) && !is_between_predicate(expr) &&
 	    !is_in_predicate(expr, cursor, field_count) &&
+	    !is_like_filter(expr, cursor, field_count) &&
 	    !is_direct_null_predicate(expr, cursor, field_count) &&
 	    !expression_null_predicate)
 		return false;

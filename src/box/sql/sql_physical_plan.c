@@ -145,6 +145,30 @@ has_source_column(const struct Expr *expr, int cursor, uint32_t field_count,
 }
 
 static bool
+is_like_filter(const struct Expr *expr, int cursor, uint32_t field_count)
+{
+	if (expr == NULL || expr->op != TK_FUNCTION ||
+	    !ExprHasProperty(expr, EP_ConstFunc) || expr->u.zToken == NULL ||
+	    expr->pLeft != NULL || expr->pRight != NULL || expr->x.pList == NULL ||
+	    expr->x.pList->nExpr < 2 || expr->x.pList->nExpr > 3)
+		return false;
+	const char *name = expr->u.zToken;
+	if (!((name[0] == 'l' || name[0] == 'L') &&
+	      (name[1] == 'i' || name[1] == 'I') &&
+	      (name[2] == 'k' || name[2] == 'K') &&
+	      (name[3] == 'e' || name[3] == 'E') && name[4] == '\0'))
+		return false;
+	bool has_source = false;
+	for (int i = 0; i < expr->x.pList->nExpr; ++i) {
+		const struct Expr *arg = expr->x.pList->a[i].pExpr;
+		if (!has_only_source_columns(arg, cursor, field_count, 0))
+			return false;
+		has_source |= has_source_column(arg, cursor, field_count, 0);
+	}
+	return has_source;
+}
+
+static bool
 is_supported_boolean_filter(const struct Expr *expr, int cursor,
 			    uint32_t field_count, size_t depth)
 {
@@ -159,6 +183,8 @@ is_supported_boolean_filter(const struct Expr *expr, int cursor,
 	if (expr->op == TK_NOT && expr->pLeft != NULL && expr->pRight == NULL)
 		return is_supported_boolean_filter(expr->pLeft, cursor, field_count,
 						   depth + 1);
+	if (is_like_filter(expr, cursor, field_count))
+		return true;
 	if ((expr->op == TK_ISNULL || expr->op == TK_NOTNULL) &&
 	    expr->pRight == NULL)
 		return has_only_source_columns(expr->pLeft, cursor, field_count, 0);
@@ -636,6 +662,17 @@ sql_physical_table_scan_from_select(
 		size_t expr_count = 0;
 		for (size_t i = 0; i < term_count; ++i) {
 			const struct Expr *term = terms[i];
+			if (is_like_filter(term, source->iCursor,
+					   source->space->def->field_count)) {
+				if (filter_count == SQL_PLAN_FILTER_MAX)
+					goto invalid_predicate;
+				filters[filter_count] = (struct sql_plan_filter) {
+					.op = SQL_PLAN_FILTER_EXPRESSION,
+					.selectivity = 0.5,
+				};
+				filter_expressions[filter_count++] = term;
+				continue;
+			}
 			if (term->op == TK_IN &&
 			    is_supported_boolean_filter(term, source->iCursor,
 							 source->space->def->field_count, 0) &&

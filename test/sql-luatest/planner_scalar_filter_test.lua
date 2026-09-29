@@ -880,6 +880,18 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE s LIKE \'a%%\' ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{1}, {2}, {5}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE s NOT LIKE \'a%%\' ' ..
+                           'ORDER BY id'):format(comparison_name),
+                    expected = {{3}},
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE random() IS NULL ' ..
                            'ORDER BY id'):format(comparison_name),
                     expected = {},

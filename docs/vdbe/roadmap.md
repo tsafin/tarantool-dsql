@@ -1500,6 +1500,15 @@ DML, triggers, subprograms, non-deterministic functions.
   collated projection remains `fallback / UNSUPPORTED_COLLATION`. The
   canonicalizer unit target passes 15 supported and 11 rejection assertions.
   This remains residual-only support and does not close M3.4.
+  **LIKE residual extension (2026-09-29):** the parser's deterministic
+  function-form `LIKE` expression is admitted as a bounded boolean residual
+  when it has two or three canonical arguments and all column references bind
+  to the scanned source. `NOT LIKE` remains unary NOT over the same leaf;
+  `MATCH` and other standalone function predicates stay rejected. Existing SQL
+  bytecode preserves pattern, escape, and NULL semantics. Focused memtx/Vinyl
+  off/on/off coverage passes generated, CnP, and LLVM dispatch for LIKE and
+  NOT LIKE, including NULL rows. This remains residual-only and does not close
+  M3.4.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit
