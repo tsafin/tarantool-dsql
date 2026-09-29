@@ -883,7 +883,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(74);
+	plan(75);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1288,6 +1288,14 @@ main(void)
 	static const bool secondary_key_unsigned[] = {false, true};
 	static const bool secondary_key_descending[] = {false, false};
 	static const bool secondary_desc_key_descending[] = {true, true};
+	const struct sql_plan_secondary_index secondary_desc_range_index = {
+		.index_id = 1,
+		.key_column = 3,
+		.key_unsigned = false,
+		.key_parts_descending = secondary_desc_key_descending,
+		.primary_key_columns = secondary_pk_columns,
+		.primary_key_count = 2,
+	};
 	const struct sql_plan_secondary_index secondary_full_index = {
 		.index_id = 1,
 		.key_column = 3,
@@ -1397,8 +1405,9 @@ main(void)
 	   vdbe.aOp[before_secondary_range + 2].opcode == OP_SeekGE &&
 	   vdbe.aOp[before_secondary_range + 2].p4.i == 1 &&
 	   vdbe.aOp[before_secondary_range + 3].opcode == OP_Column &&
-	   vdbe.aOp[before_secondary_range + 4].opcode == OP_Le &&
-	   vdbe.aOp[before_secondary_range + 10].opcode == OP_Next,
+	   vdbe.aOp[before_secondary_range + 4].opcode == OP_IsNull &&
+	   vdbe.aOp[before_secondary_range + 5].opcode == OP_Le &&
+	   vdbe.aOp[before_secondary_range + 11].opcode == OP_Next,
 	   "bounded secondary range seeks at its lower endpoint and guards its upper endpoint");
 	int before_secondary_upper_range = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
@@ -1422,6 +1431,17 @@ main(void)
 	   vdbe.aOp[before_secondary_bounded_reverse + 5].opcode == OP_Gt &&
 	   vdbe.aOp[before_secondary_bounded_reverse + 11].opcode == OP_Prev,
 	   "descending bounded secondary range seeks upper, stops below lower, and terminates at NULL");
+	int before_secondary_desc_index_range = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_bounded_reverse_range_desc, &vdbe, 4, 5,
+		&secondary_desc_range_index, 20, NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_desc_index_range].opcode == OP_Integer &&
+	   vdbe.aOp[before_secondary_desc_index_range].p1 == 7 &&
+	   vdbe.aOp[before_secondary_desc_index_range + 2].opcode == OP_SeekLE &&
+	   vdbe.aOp[before_secondary_desc_index_range + 4].opcode == OP_IsNull &&
+	   vdbe.aOp[before_secondary_desc_index_range + 5].opcode == OP_Le &&
+	   vdbe.aOp[before_secondary_desc_index_range + 11].opcode == OP_Prev,
+	   "descending secondary index inverts the seek and walks its natural order");
 	int before_secondary_full_asc = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		secondary_full_asc_desc, &vdbe, 4, 5, &secondary_full_index, 20,
