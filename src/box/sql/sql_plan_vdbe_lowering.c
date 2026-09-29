@@ -945,19 +945,29 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 	bool bounded_range = range &&
 		(input->access.has_integer_range_end_key ||
 		 input->access.has_unsigned_range_end_key);
-	bool bounded_reverse = bounded_range &&
-		input->access.direction == SQL_PLAN_DESC;
 	bool upper_only = range && !bounded_range &&
 		(input->access.integer_range_op == SQL_PLAN_LT ||
 		 input->access.integer_range_op == SQL_PLAN_LE);
+	bool index_descending = range && index->key_parts_descending != NULL &&
+		index->key_parts_descending[0];
+	bool logical_descending = index_descending !=
+		(input->access.direction == SQL_PLAN_DESC);
+	bool bounded_reverse = bounded_range && logical_descending;
 	size_t key_part_count = index->key_part_count == 0 ? 1 :
 		index->key_part_count;
 	if (key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
 	    key_part_count > INT_MAX ||
 	    (index->key_part_count > 0 &&
-	     (index->key_columns == NULL ||
-	      index->key_parts_unsigned == NULL)))
+		     (index->key_columns == NULL ||
+		      index->key_parts_unsigned == NULL)))
 		return -1;
+	bool invalid_range_order = input->access.produced_order_count != 0 &&
+		(input->access.produced_order_count != 1 ||
+		 input->access.produced_order == NULL ||
+		 input->access.produced_order[0].column != index->key_column ||
+		 ((input->access.produced_order[0].direction == SQL_PLAN_DESC) !=
+		  (index_descending !=
+		   (input->access.direction == SQL_PLAN_DESC))));
 	bool invalid_range = range &&
 		(key_part_count != 1 || index->key_part_count != 0 ||
 		 input->access.point_key_part_count != 0 ||
@@ -968,12 +978,7 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		 input->access.has_unsigned_range_key ||
 		 input->access.has_unsigned_range_key != index->key_unsigned ||
 		 input->access.bound_count != (bounded_range ? 2 : 1) ||
-		 (input->access.produced_order_count != 0 &&
-		  (input->access.produced_order_count != 1 ||
-		   input->access.produced_order == NULL ||
-		   input->access.produced_order[0].column != index->key_column ||
-		   input->access.produced_order[0].direction !=
-			input->access.direction)));
+		 invalid_range_order);
 	bool invalid_full = full &&
 		(index->key_part_count == 0 || index->key_columns == NULL ||
 		 index->key_parts_descending == NULL ||
@@ -1175,6 +1180,15 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 			default: goto secondary_error;
 			}
 		}
+		if (index_descending) {
+			switch (seek_op) {
+			case OP_SeekGT: seek_op = OP_SeekLT; break;
+			case OP_SeekGE: seek_op = OP_SeekLE; break;
+			case OP_SeekLT: seek_op = OP_SeekGT; break;
+			case OP_SeekLE: seek_op = OP_SeekGE; break;
+			default: goto secondary_error;
+			}
+		}
 	}
 	int seek = full ? sqlVdbeAddOp2(vdbe, seek_op, index_cursor, 0) :
 		sqlVdbeAddOp4Int(vdbe, seek_op, index_cursor, 0, key_reg,
@@ -1201,14 +1215,11 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		if (column != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto secondary_error;
-		if (bounded_reverse) {
-			range_null_break = sqlVdbeAddOp2(vdbe, OP_IsNull,
+		range_null_break = sqlVdbeAddOp2(vdbe, OP_IsNull,
 						 range_current_reg, 0);
-			if (range_null_break != vdbe->nOp - 1 ||
-			    parse->is_aborted ||
-			    diag_last_error(diag_get()) != checkpoint.diag_error)
-				goto secondary_error;
-		}
+		if (range_null_break != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto secondary_error;
 		int check_op;
 		if (bounded_reverse) {
 			check_op = input->access.integer_range_op == SQL_PLAN_GT ?
@@ -1287,8 +1298,7 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 	if (offset_skip >= 0)
 		sqlVdbeJumpHere(vdbe, offset_skip);
 	sqlVdbeResolveLabel(vdbe, next_label);
-	int step = (range && (upper_only || bounded_reverse)) ||
-		(full && input->access.direction == SQL_PLAN_DESC) ? OP_Prev : OP_Next;
+	int step = input->access.direction == SQL_PLAN_DESC ? OP_Prev : OP_Next;
 	int next = sqlVdbeAddOp2(vdbe, step, index_cursor, body);
 	if (next != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)

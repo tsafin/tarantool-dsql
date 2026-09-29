@@ -42,6 +42,16 @@ g.test_non_primary_null_filters_off_on_off = function()
                         :format(comparison_name, comparison_name))
             box.execute(('CREATE INDEX %s_uk ON %s (uk)')
                         :format(comparison_name, comparison_name))
+            local unsigned_desc_name = name .. '_unsigned_desc'
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
+                         'uk UNSIGNED) WITH ENGINE = \'%s\'')
+                        :format(unsigned_desc_name, engine))
+            box.execute(('CREATE INDEX %s_uk ON %s (uk DESC)')
+                        :format(unsigned_desc_name, unsigned_desc_name))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         '(1, 10), (2, 10), ' ..
+                         '(3, 18446744073709551615), (4, NULL)')
+                        :format(unsigned_desc_name))
             local composite_name = name .. '_composite'
             box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, v STRING, ' ..
                          'w STRING, PRIMARY KEY (a, b)) ' ..
@@ -123,6 +133,28 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(secondary_name),
                     expected = {{2, 2}},
                     expected_index = secondary_name .. '_xy',
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT uk, id FROM %s WHERE uk <= ' ..
+                           '18446744073709551615 ORDER BY uk DESC')
+                          :format(unsigned_desc_name),
+                    expected = {{1}, {2}, {3}},
+                    expected_index = unsigned_desc_name .. '_uk',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    expected_result_columns = {2},
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT uk, id FROM %s WHERE uk < ' ..
+                           '18446744073709551615 ORDER BY uk DESC')
+                          :format(unsigned_desc_name),
+                    expected = {{1}, {2}},
+                    expected_index = unsigned_desc_name .. '_uk',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    expected_result_columns = {2},
                     unordered = true,
                 },
                 {
@@ -277,6 +309,50 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(descending_secondary_name),
                     expected = {{box.NULL, 12}, {7, 10},
                                 {7, 11}, {8, 10}},
+                },
+                {
+                    sql = ('SELECT x, y FROM %s WHERE x >= 7 ' ..
+                           'ORDER BY x ASC'):format(descending_secondary_name),
+                    expected = {{7, 10}, {7, 11}, {8, 10}},
+                    expected_index = descending_secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, y FROM %s WHERE x > 7 ' ..
+                           'ORDER BY x ASC'):format(descending_secondary_name),
+                    expected = {{8, 10}},
+                    expected_index = descending_secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, y FROM %s WHERE x <= 7 ' ..
+                           'ORDER BY x DESC'):format(descending_secondary_name),
+                    expected = {{7, 10}, {7, 11}},
+                    expected_index = descending_secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, y FROM %s WHERE x >= 7 AND x < 8 ' ..
+                           'ORDER BY x DESC')
+                          :format(descending_secondary_name),
+                    expected = {{7, 10}, {7, 11}},
+                    expected_index = descending_secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    unordered = true,
+                },
+                {
+                    sql = ('SELECT x, y FROM %s WHERE x > 7 AND x <= 8 ' ..
+                           'ORDER BY x ASC')
+                          :format(descending_secondary_name),
+                    expected = {{8, 10}},
+                    expected_index = descending_secondary_name .. '_xy',
+                    expected_order_column = 1,
+                    unordered = true,
                 },
                 {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b = 10 ' ..
@@ -857,6 +933,7 @@ g.test_non_primary_null_filters_off_on_off = function()
             box.execute(('DROP TABLE %s'):format(secondary_name))
             box.execute(('DROP TABLE %s'):format(nullable_secondary_name))
             box.execute(('DROP TABLE %s'):format(comparison_name))
+            box.execute(('DROP TABLE %s'):format(unsigned_desc_name))
         end
     end)
 end

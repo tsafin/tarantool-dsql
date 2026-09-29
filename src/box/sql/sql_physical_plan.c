@@ -491,6 +491,7 @@ sql_physical_table_scan_from_select(
 	uint32_t secondary_range_index_id = 0;
 	uint32_t secondary_range_key_column = 0;
 	bool secondary_range_unsigned = false;
+	bool secondary_range_descending = false;
 	struct parsed_pk_bound secondary_range_lower = {0};
 	struct parsed_pk_bound secondary_range_upper = {0};
 	bool has_secondary_range_lower = false;
@@ -776,7 +777,8 @@ sql_physical_table_scan_from_select(
 				bool is_unsigned = key_part->type == FIELD_TYPE_UNSIGNED;
 				if (!is_unsigned && key_part->type != FIELD_TYPE_INTEGER)
 					continue;
-				if (key_part->sort_order != SORT_ORDER_ASC)
+				if (key_part->sort_order != SORT_ORDER_ASC &&
+				    key_part->sort_order != SORT_ORDER_DESC)
 					continue;
 				bool has_lower = false;
 				bool has_upper = false;
@@ -817,6 +819,8 @@ sql_physical_table_scan_from_select(
 				secondary_range_index_id = index->def->iid;
 				secondary_range_key_column = key_part->fieldno;
 				secondary_range_unsigned = is_unsigned;
+				secondary_range_descending =
+					key_part->sort_order == SORT_ORDER_DESC;
 				secondary_range_term_count = (has_lower ? 1 : 0) +
 					(has_upper ? 1 : 0);
 				if (!has_lower) {
@@ -1403,10 +1407,25 @@ predicate_parsed:
 			    index->def->iid == secondary_range_index_id &&
 			    index->def->type == TREE && index->def->key_def != NULL &&
 			    index->def->key_def->part_count > 0 &&
-			    index->def->key_def->parts[0].sort_order == SORT_ORDER_ASC &&
+			    (index->def->key_def->parts[0].sort_order == SORT_ORDER_ASC ||
+			     index->def->key_def->parts[0].sort_order == SORT_ORDER_DESC) &&
 			    index->def->key_def->parts[0].fieldno ==
 				secondary_range_key_column) {
-				secondary_range_order = true;
+				enum sort_order requested =
+					select->pOrderBy->a[0].sort_order;
+				if (requested == SORT_ORDER_UNDEF)
+					requested = SORT_ORDER_ASC;
+				bool requested_desc = requested == SORT_ORDER_DESC;
+				bool index_desc = index->def->key_def->parts[0].sort_order ==
+					SORT_ORDER_DESC;
+				bool can_start = has_secondary_range_lower &&
+					!has_secondary_range_upper ? !requested_desc :
+					!has_secondary_range_lower &&
+					has_secondary_range_upper ? requested_desc : true;
+				secondary_range_order = can_start;
+				if (secondary_range_order)
+					direction = index_desc != requested_desc ?
+						SQL_PLAN_DESC : SQL_PLAN_ASC;
 				break;
 			}
 		}
@@ -1462,8 +1481,11 @@ predicate_parsed:
 				range_end_key = secondary_range_upper.signed_key;
 		}
 		range_key_column = secondary_range_key_column;
-		direction = has_secondary_range_lower ? SQL_PLAN_ASC :
-			SQL_PLAN_DESC;
+		if (select->pOrderBy == NULL) {
+			bool logical_desc = !has_secondary_range_lower;
+			direction = secondary_range_descending != logical_desc ?
+				SQL_PLAN_DESC : SQL_PLAN_ASC;
+		}
 	} else if (has_secondary_range_scan && !use_secondary_equality_scan) {
 		for (size_t i = 0; i < secondary_range_term_count; ++i) {
 			if (filter_count == SQL_PLAN_FILTER_MAX)
@@ -1644,7 +1666,13 @@ predicate_parsed:
 		direction = has_secondary_full_scan ?
 			(secondary_full_scan_natural_order ? SQL_PLAN_ASC : SQL_PLAN_DESC) :
 			order_direction;
+		if (has_secondary_range_scan) {
+			bool requested_desc = order_direction == SQL_PLAN_DESC;
+			direction = secondary_range_descending != requested_desc ?
+				SQL_PLAN_DESC : SQL_PLAN_ASC;
+		}
 		if (has_range_key && !has_prefix_range_scan &&
+		    !has_secondary_range_scan &&
 		    !has_range_end_key &&
 		    direction != (range_op == SQL_PLAN_LT ||
 				  range_op == SQL_PLAN_LE ? SQL_PLAN_DESC :
