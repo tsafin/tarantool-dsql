@@ -2235,14 +2235,18 @@ DML, triggers, subprograms, non-deterministic functions.
   domain, while equality extraction let `sql_atoi64()` wrap a positive wide
   literal through a signed output parameter. `parse_pk_bound()` now retains
   positive equality literals above `INT64_MAX` as unsigned keys, and secondary
-  equality lowering follows the parsed key representation. A focused generated
-  off/on/off capture of the full `sql/types.test.lua` file now passes on memtx
-  and Vinyl (395 queries each; zero semantic or repeat diffs). Its report still
-  requires review of two route-transition classes and therefore does not close
-  the broader M3.5 gate. The attempted full reviewed SQL LLVM rerun cannot be
-  counted as passing: the initial run hit the documented `iproto.test.lua`
-  observer-counter mismatch, and its retry stopped at the now-fixed equality
-  regression. M3.5 and LLVM parity remain open pending current-source reruns.
+  equality lowering follows the parsed key representation. Focused generated
+  and LLVM off/on/off captures of the full `sql/types.test.lua` file now pass on
+  memtx and Vinyl (395 queries per engine and mode; zero semantic or repeat
+  diffs), on commit `cc55aafaa1`. Reports are
+  `/dev/shm/types-ab-final-generated-1790672129/report.json` and
+  `/dev/shm/types-ab-final-llvm-1790672129/report.json`. Each mode still has
+  two unreviewed route-transition classes for this test, so these focused runs
+  do not pass the route-review gate or close the broader M3.5 acceptance. The
+  attempted full reviewed SQL LLVM rerun cannot be counted as passing: the
+  initial run hit the documented `iproto.test.lua` observer-counter mismatch,
+  and its retry stopped at the now-fixed equality regression. Full reviewed SQL
+  LLVM and M3.5 remain open pending current-source reruns and route review.
 
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
