@@ -1691,16 +1691,21 @@ DML, triggers, subprograms, non-deterministic functions.
   parity, and capture coverage. Details:
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
   `SELECT`/VDBE integration).
-- [ ] **M3.5** Per-component fallback gate — implementation prototype; closure
-  remains open. A component ledger, stable fallback reasons, and explicit
-  direct-emitter routes exist, and completed audit slices have semantic parity
-  with no unreviewed route transitions. The required all-producer inventory,
-  reviewed-corpus dispositions, topology/engine exclusions, and LLVM parity
-  are not yet complete. `planner_flag_ab.py` therefore correctly leaves
-  `feature_acceptance_passed=false`; the later audit evidence below supersedes
-  this milestone's earlier optimistic closure summary. This does not claim
-  complete new-planner feature coverage (M3.4/M3.7 remain open). The
-  implementation history and current evidence follow. Producer-contract
+- [x] **M3.5** Per-component fallback gate — complete for the adopted
+  per-component ledger contract. The aggregate `planner_flag_acceptance.py`
+  gate passed at source `2b241c8afea485073a0492479cf1af38f9e9ec70`, validating
+  nine complete suite/mode reports (generated, CnP, LLVM × SQL-TAP, SQL, and
+  SQL-luatest) plus 24 focused producer runtime cases (four fixtures × two
+  engines × three modes). The suite reports were captured at
+  `aa8a87ce7af700089b83180dd51e11de93a75b19`; the gate confirms that only the
+  separately rerun focused fallback diagnostic and acceptance-tool files
+  changed afterward, with no planner or corpus-policy drift. All broad reports
+  have zero semantic/off-repeat diffs and unreviewed route transitions; the
+  focused matrix verifies ledger v1 and observed 1,706 CnP / 722 LLVM
+  executions. Documented fixed-mode exclusions remain explicit and
+  generated-mode covered. This closes the producer accounting gate, not M3.4's
+  broader lowering or M3.7's functional feature scope. The implementation
+  history follows. Producer-contract
   prototype now maps logical/physical reject enums to stable reason codes and
   exposes `path_class` plus an optional descriptor (`sql_plan_fallback.*`),
   with focused mapping tests. `sqlWhereBegin()` now records the actual legacy
@@ -2538,16 +2543,14 @@ DML, triggers, subprograms, non-deterministic functions.
     S -- no --> M[mixed; no statement fallback reason]
   ```
 
-  **M3.5 acceptance-scoped evidence audit (2026-09-29; milestone remains
-  open).** The component ledger contract, source inventory, focused producer
-  matrix, and reviewed-corpus route
-  audits now agree. Current Debug off/on/off captures pass in generated, CnP,
+  **M3.5 acceptance audit and closure (2026-09-29).** Current Debug off/on/off
+  captures pass in generated, CnP,
   and LLVM modes with zero semantic diffs, exact off-repeat semantics, and no
   unreviewed route classes. SQL-TAP covers 232 memtx / 224 Vinyl tests and
   47,946 / 37,990 snapshots in every mode. The reviewed SQL selection covers
   33 / 34 tests and 1,077 / 1,085 snapshots; SQL-luatest covers 32 / 31 tests
-  in generated mode and 31 / 30 in CnP/LLVM (498 / 446 generated snapshots,
-  498 / 446 native-mode snapshots). The one SQL exclusion is the
+  and 499 / 447 snapshots in generated mode, and 31 / 30 tests and 498 / 446
+  snapshots in CnP/LLVM. The one SQL exclusion is the
   `box.stat().EXECUTE` observer-counter incompatibility in `iproto.test.lua`;
   `gh_8676_exists_in_multiselect` is excluded from native-mode capture because
   it emits only a direct VALUES route, and both remain covered in generated
@@ -2556,10 +2559,11 @@ DML, triggers, subprograms, non-deterministic functions.
   A current-source focused rerun passes `planner_final_paths`,
   `planner_insert_select_snapshot` (including INSERT-SELECT, DELETE/UPDATE view
   materialization, and trigger SELECT), `planner_flag_fallback_parity`, and
-  `planner_composite_prefix_range`. These are the acceptance-scoped M3.5
-  results; they do not claim broad execution support for additional logical
-  shapes or close M3.4/M3.7. Detailed generated/CnP/LLVM reports are recorded
-  above under `/dev/shm/m35-planner-flags-*`.
+  `planner_composite_prefix_range`. The current aggregate summary is
+  `/dev/shm/m35-acceptance-aa8a87ce7a-tmp/acceptance.json`; the focused matrix
+  is `/dev/shm/m35-producer-matrix-2b241c8afe/report.json`. These results close
+  the M3.5 accounting/coverage gate, not broad execution support for additional
+  logical shapes or M3.4/M3.7.
 
   **Planner-flag runner exclusion fix (2026-09-29).** The runner now applies
   the documented fixed-mode exclusions by default and records their reasons
@@ -2569,9 +2573,9 @@ DML, triggers, subprograms, non-deterministic functions.
   queries, zero semantic or repeat diffs, and zero unreviewed route classes.
   The report is `/dev/shm/sql-llvm-default-reviewed-20260929/report.json`.
   Six unit tests cover route classification and mode-specific selection.
-  This repairs an audit invocation trap, not the missing aggregate M3.5
-  acceptance verifier; individual reports therefore keep
-  `feature_acceptance_passed=false` and cannot certify M3.5 by themselves.
+  Individual reports keep `feature_acceptance_passed=false` because a single
+  suite cannot certify the milestone; the aggregate verifier now supplies the
+  complete M3.5 decision.
 
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
