@@ -1619,6 +1619,14 @@ sql_stats_rows_log_est(double rows)
 LogEst
 sql_space_tuple_log_count(struct space *space)
 {
+	return sql_space_tuple_log_count_with_snapshot(space,
+		db == NULL ? NULL : db->stats_snapshot);
+}
+
+LogEst
+sql_space_tuple_log_count_with_snapshot(
+	struct space *space, const struct sql_stats_snapshot *snapshot)
+{
 	if (space == NULL || space->index_map == NULL)
 		return 0;
 
@@ -1627,11 +1635,11 @@ sql_space_tuple_log_count(struct space *space)
 	/* If space represents VIEW, return default number. */
 	if (pk == NULL)
 		return DEFAULT_TUPLE_LOG_COUNT;
-	if (db != NULL && db->stats_snapshot != NULL) {
+	if (snapshot != NULL) {
 		double rows = 0;
 		enum sql_stats_lookup_status status =
 			sql_stats_snapshot_estimate_index_prefix_rows(
-				db->stats_snapshot, box_schema_version(),
+				snapshot, box_schema_version(),
 				space->def->id, pk->def->iid, 0, &rows);
 		if (status == SQL_STATS_LOOKUP_AVAILABLE)
 			return sql_stats_rows_log_est(rows);
@@ -1641,6 +1649,15 @@ sql_space_tuple_log_count(struct space *space)
 
 int16_t
 index_field_tuple_est(const struct index_def *idx_def, uint32_t field)
+{
+	return index_field_tuple_est_with_snapshot(idx_def, field,
+		db == NULL ? NULL : db->stats_snapshot);
+}
+
+int16_t
+index_field_tuple_est_with_snapshot(
+	const struct index_def *idx_def, uint32_t field,
+	const struct sql_stats_snapshot *snapshot)
 {
 	assert(idx_def != NULL);
 	struct space *space = space_by_id(idx_def->space_id);
@@ -1656,11 +1673,11 @@ index_field_tuple_est(const struct index_def *idx_def, uint32_t field)
 	if (field == idx_def->key_def->part_count &&
 	    idx_def->opts.is_unique)
 		return 0;
-	if (db != NULL && db->stats_snapshot != NULL) {
+	if (snapshot != NULL) {
 		double rows = 0;
 		enum sql_stats_lookup_status status =
 			sql_stats_snapshot_estimate_index_prefix_rows(
-				db->stats_snapshot, box_schema_version(),
+				snapshot, box_schema_version(),
 				idx_def->space_id, idx_def->iid, field, &rows);
 		if (status == SQL_STATS_LOOKUP_AVAILABLE) {
 			return sql_stats_rows_log_est(rows);

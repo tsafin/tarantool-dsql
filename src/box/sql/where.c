@@ -65,6 +65,15 @@ whereLoopResize(struct WhereLoop *p, int n);
 
 #define SQL_PATH_SOLVER_WIDTH_MAX 64
 
+static const struct sql_stats_snapshot *
+where_stats_snapshot(const struct WhereInfo *where_info)
+{
+	if (where_info == NULL || where_info->pParse == NULL ||
+	    where_info->pParse->pVdbe == NULL)
+		return NULL;
+	return where_info->pParse->pVdbe->stats_snapshot;
+}
+
 static int sql_path_solver_widths[3] = {1, 5, 10};
 static bool sql_path_solver_widths_loaded;
 
@@ -1930,7 +1939,8 @@ whereLoopAddBtreeIndex(WhereLoopBuilder * pBuilder,	/* The WhereLoop factory */
 	pTerm = whereScanInit(&scan, pBuilder->pWC, pSrc->iCursor, saved_nEq,
 			      opMask, probe);
 	pNew->rSetup = 0;
-	rSize = index_field_tuple_est(probe, 0);
+	rSize = index_field_tuple_est_with_snapshot(probe, 0,
+		where_stats_snapshot(pWInfo));
 	rLogSize = estLog(rSize);
 	for (; rc == 0 && pTerm != NULL; pTerm = whereScanNext(&scan)) {
 		u16 eOp = pTerm->eOperator;	/* Shorthand for pTerm->eOperator */
@@ -2083,8 +2093,10 @@ whereLoopAddBtreeIndex(WhereLoopBuilder * pBuilder,	/* The WhereLoop factory */
 				pNew->nOut -= nIn;
 			} else {
 				pNew->nOut +=
-					(index_field_tuple_est(probe, nEq) -
-					 index_field_tuple_est(probe, nEq - 1));
+					(index_field_tuple_est_with_snapshot(probe, nEq,
+						where_stats_snapshot(pWInfo)) -
+					 index_field_tuple_est_with_snapshot(probe, nEq - 1,
+						where_stats_snapshot(pWInfo)));
 				if ((eOp & WO_ISNULL) != 0) {
 					/*
 					 * TUNING: If there is no likelihood()
@@ -2316,7 +2328,9 @@ tnt_error:
 	 * Increase cost of ephemeral index if number of tuples in space is less
 	 * then 10240.
 	 */
-	if (!space->def->opts.is_view && sql_space_tuple_log_count(space) < 133)
+	if (!space->def->opts.is_view &&
+	    sql_space_tuple_log_count_with_snapshot(space,
+		where_stats_snapshot(pWInfo)) < 133)
 		rSize += DEFAULT_TUPLE_LOG_COUNT;
 	LogEst rLogSize = estLog(rSize);
 	if (!pBuilder->pOrSet && /* Not pqart of an OR optimization */
@@ -2375,7 +2389,8 @@ tnt_error:
 		/* Such index may possibly contain not all tuples, so skip it */
 		if (pSrc->pIBIndex == NULL && probe->key_def->has_exclude_null)
 			continue;
-		rSize = index_field_tuple_est(probe, 0);
+		rSize = index_field_tuple_est_with_snapshot(probe, 0,
+			where_stats_snapshot(pWInfo));
 		pNew->nEq = 0;
 		pNew->nBtm = 0;
 		pNew->nTop = 0;

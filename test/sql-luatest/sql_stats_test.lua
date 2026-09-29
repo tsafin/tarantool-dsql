@@ -189,8 +189,12 @@ end
 
 g.test_snapshot_estimate_adapter = function()
     local res = g.server:exec(function()
-        local adapter = package.loaded.sql_stats_snapshot_test
-        if adapter == nil then
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
             return {test_wrapper_unavailable = true}
         end
         adapter.clear()

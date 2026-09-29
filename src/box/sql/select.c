@@ -6508,7 +6508,8 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			 */
 			if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ||
 			    selected_access == SQL_PLAN_INDEX_PREFIX_SCAN) {
-				if (sql_space_tuple_log_count(space) == 0 && rows < 10)
+				if (sql_space_tuple_log_count_with_snapshot(space,
+					parse->pVdbe->stats_snapshot) == 0 && rows < 10)
 					rows = 10;
 			}
 			if (selected_access == SQL_PLAN_INDEX_RANGE_SCAN) {
@@ -6741,7 +6742,7 @@ sql_select_capture_replay_input(Parse *parse, const Select *select)
 			.reverse_mask = source->reverse_mask,
 		};
 	}
-	struct sql_stats_snapshot *snapshot = sql_get_stats_snapshot();
+	const struct sql_stats_snapshot *snapshot = vdbe->stats_snapshot;
 	struct sql_replay_input *input = NULL;
 	enum sql_replay_input_status status =
 		sql_replay_input_extract_select_from_snapshot_with_final_paths(
@@ -6752,7 +6753,6 @@ sql_select_capture_replay_input(Parse *parse, const Select *select)
 			vdbe->planner_final_path_count, true,
 			SQL_REPLAY_SELECTOR_FINAL_PATH_V1, &input);
 	free(cursor_map);
-	sql_stats_snapshot_release(snapshot);
 	if (status != SQL_REPLAY_INPUT_OK || input == NULL ||
 	    sql_replay_input_check_replay_ready(input) != SQL_REPLAY_INPUT_OK) {
 		sql_replay_input_delete(input);

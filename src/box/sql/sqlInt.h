@@ -1197,6 +1197,10 @@ enum trim_side_mask {
 LogEst
 sql_space_tuple_log_count(struct space *space);
 
+LogEst
+sql_space_tuple_log_count_with_snapshot(
+	struct space *space, const struct sql_stats_snapshot *snapshot);
+
 /*
  * Each foreign key constraint is an instance of the following structure.
  *
@@ -1283,6 +1287,11 @@ struct UnpackedRecord {
  */
 int16_t
 index_field_tuple_est(const struct index_def *idx, uint32_t field);
+
+int16_t
+index_field_tuple_est_with_snapshot(
+	const struct index_def *idx, uint32_t field,
+	const struct sql_stats_snapshot *snapshot);
 
 #ifdef DEFAULT_TUPLE_COUNT
 #undef DEFAULT_TUPLE_COUNT
