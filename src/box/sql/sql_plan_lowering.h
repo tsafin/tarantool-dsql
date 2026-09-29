@@ -39,6 +39,11 @@ typedef int (*sql_plan_projection_projector_f)(void *ctx, uint32_t expr_ref,
 
 struct sql_plan_secondary_index {
 	uint32_t index_id;
+	/* Key metadata follows the live secondary index's declared part order. */
+	const uint32_t *key_columns;
+	const bool *key_parts_unsigned;
+	size_t key_part_count;
+	/* Backward-compatible scalar fields for one-part indexes. */
 	uint32_t key_column;
 	bool key_unsigned;
 	const uint32_t *primary_key_columns;

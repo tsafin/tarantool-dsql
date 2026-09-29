@@ -6450,6 +6450,8 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	const struct index *secondary = NULL;
 	struct sql_plan_secondary_index secondary_info = {0};
 	uint32_t primary_columns[SQL_PLAN_POINT_KEY_PART_MAX];
+	uint32_t secondary_key_columns[SQL_PLAN_POINT_KEY_PART_MAX];
+	bool secondary_key_unsigned[SQL_PLAN_POINT_KEY_PART_MAX];
 	if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN) {
 		for (uint32_t i = 1; i < space->index_count; ++i) {
 			if (space->index_map[i]->def->iid == plan_input->access.index_id) {
@@ -6461,9 +6463,24 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			goto emission_error;
 		secondary_cursor = parse->nTab++;
 		secondary_info.index_id = secondary->def->iid;
-		secondary_info.key_column = secondary->def->key_def->parts[0].fieldno;
-		secondary_info.key_unsigned = secondary->def->key_def->parts[0].type ==
-			FIELD_TYPE_UNSIGNED;
+		size_t secondary_part_count =
+			secondary->def->key_def->part_count;
+		if (secondary_part_count == 0 ||
+		    secondary_part_count > SQL_PLAN_POINT_KEY_PART_MAX)
+			goto emission_error;
+		for (size_t i = 0; i < secondary_part_count; ++i) {
+			secondary_key_columns[i] =
+				secondary->def->key_def->parts[i].fieldno;
+			secondary_key_unsigned[i] =
+				secondary->def->key_def->parts[i].type ==
+				FIELD_TYPE_UNSIGNED;
+		}
+		secondary_info.key_columns = secondary_key_columns;
+		secondary_info.key_parts_unsigned = secondary_key_unsigned;
+		secondary_info.key_part_count = secondary_part_count > 1 ?
+			secondary_part_count : 0;
+		secondary_info.key_column = secondary_key_columns[0];
+		secondary_info.key_unsigned = secondary_key_unsigned[0];
 		secondary_info.primary_key_count = primary->def->key_def->part_count;
 		if (secondary_info.primary_key_count >
 		    SQL_PLAN_POINT_KEY_PART_MAX)

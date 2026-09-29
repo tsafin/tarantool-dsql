@@ -49,7 +49,47 @@ g.test_non_primary_null_filters_off_on_off = function()
             box.execute(('INSERT INTO %s VALUES ' ..
                          "(1, 10, NULL, 'a'), (1, 11, 'x', NULL), " ..
                          '(2, 20, NULL, NULL)'):format(composite_name))
+            local secondary_name = name .. '_secondary_composite'
+            box.execute(('CREATE TABLE %s (tenant INTEGER, id INTEGER, ' ..
+                         'x INTEGER, y UNSIGNED, note STRING, ' ..
+                         'PRIMARY KEY (tenant, id)) WITH ENGINE = \'%s\'')
+                        :format(secondary_name, engine))
+            box.execute(('CREATE INDEX %s_xy ON %s (x, y)')
+                        :format(secondary_name, secondary_name))
+            box.execute(('INSERT INTO %s VALUES ' ..
+                         '(1, 1, 7, 10, \'a\'), ' ..
+                         '(1, 2, 7, 10, \'b\'), ' ..
+                         '(2, 1, 7, 18446744073709551615, \'c\'), ' ..
+                         '(2, 2, 8, 10, \'d\')'):format(secondary_name))
             local queries = {
+                {
+                    sql = ('SELECT tenant, id FROM %s WHERE x = 7 AND y = 10')
+                          :format(secondary_name),
+                    expected = {{1, 1}, {1, 2}},
+                    expected_index = secondary_name .. '_xy',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE y = 10 AND x = 7 ' ..
+                           "AND note = 'b'"):format(secondary_name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ('SELECT tenant, id FROM %s WHERE y = 10 AND x = 99')
+                          :format(secondary_name),
+                    expected = {},
+                },
+                {
+                    sql = ('SELECT tenant, id FROM %s WHERE x = 7 AND ' ..
+                           'y = 18446744073709551615'):format(secondary_name),
+                    expected = {{2, 1}},
+                },
+                {
+                    sql = ('SELECT tenant, id FROM %s WHERE x = 7')
+                          :format(secondary_name),
+                    expected = {{1, 1}, {1, 2}, {2, 1}},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'NO_ACCESS_PATH',
+                },
                 {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b = 10 ' ..
                            'AND v IS NULL AND w IS NOT NULL')
@@ -487,9 +527,27 @@ g.test_non_primary_null_filters_off_on_off = function()
                     if enabled then
                         t.assert_equals(route, query.enabled_route or
                                         'new_planner',
-                                        ('query %d route on %s: %s / %s')
+                                        ('query %d route on %s: %s / %s [%s]')
                                         :format(i, engine, route,
-                                                tostring(explain.rows[2][3])))
+                                                tostring(explain.rows[2][3]),
+                                                query.sql))
+                        if query.expected_index ~= nil then
+                            local plan, plan_err = box.execute(
+                                'EXPLAIN QUERY PLAN ' .. query.sql)
+                            t.assert(plan_err == nil,
+                                     plan_err and plan_err.message)
+                            local plan_text = ''
+                            for _, row in ipairs(plan.rows) do
+                                for _, value in ipairs(row) do
+                                    plan_text = plan_text .. tostring(value) .. ' '
+                                end
+                            end
+                            t.assert(string.find(plan_text,
+                                                 query.expected_index, 1,
+                                                 true) ~= nil,
+                                      'composite secondary index not selected: ' ..
+                                      plan_text)
+                        end
                         if query.enabled_reason ~= nil then
                             t.assert_equals(explain.rows[2][3],
                                             query.enabled_reason)
@@ -514,6 +572,7 @@ g.test_non_primary_null_filters_off_on_off = function()
             t.assert_equals(off_again, off)
             box.execute(('DROP TABLE %s'):format(name))
             box.execute(('DROP TABLE %s'):format(composite_name))
+            box.execute(('DROP TABLE %s'):format(secondary_name))
             box.execute(('DROP TABLE %s'):format(comparison_name))
         end
     end)

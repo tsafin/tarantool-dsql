@@ -138,6 +138,45 @@ new_secondary_equality_descriptor(int64_t key)
 }
 
 static struct sql_plan_descriptor *
+new_composite_secondary_equality_descriptor(void)
+{
+	static const uint32_t columns[] = {0};
+	static const struct sql_plan_point_key_part parts[] = {
+		{.integer_value = 7, .column = 3, .is_unsigned = false},
+		{.unsigned_value = UINT64_MAX, .column = 4, .is_unsigned = true},
+	};
+	static const struct sql_plan_bound bounds[] = {
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1},
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 2},
+	};
+	static const struct sql_plan_expression expressions[] = {
+		{.id = 1, .canonical = "secondary-integer-equality-part"},
+		{.id = 2, .canonical = "secondary-unsigned-equality-part"},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_INDEX_EQUALITY_SCAN,
+			.index_id = 1,
+			.bounds = bounds,
+			.bound_count = 2,
+			.point_key_parts = parts,
+			.point_key_part_count = 2,
+			.range_key_column = 3,
+		},
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+		.expressions = expressions,
+		.expression_count = sizeof(expressions) / sizeof(expressions[0]),
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_unsigned_point_descriptor(uint64_t key)
 {
 	static const uint32_t columns[] = {2, 0};
@@ -767,7 +806,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(65);
+	plan(67);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -825,6 +864,8 @@ main(void)
 	struct sql_plan_descriptor *point_desc = new_point_descriptor(INT64_MAX);
 	struct sql_plan_descriptor *secondary_equality_desc =
 		new_secondary_equality_descriptor(7);
+	struct sql_plan_descriptor *composite_secondary_equality_desc =
+		new_composite_secondary_equality_descriptor();
 	struct sql_plan_descriptor *negative_point_desc =
 		new_point_descriptor(INT64_MIN);
 	struct sql_plan_descriptor *unsigned_point_desc =
@@ -1194,6 +1235,43 @@ main(void)
 	   vdbe.aOp[before_secondary_equality + 2].p2 ==
 		before_secondary_equality + 9,
 	   "secondary equality scans the full key run and resolves composite primary keys before projection");
+	static const uint32_t secondary_composite_columns[] = {3, 4};
+	static const bool secondary_composite_unsigned[] = {false, true};
+	const struct sql_plan_secondary_index composite_secondary_index = {
+		.index_id = 1,
+		.key_columns = secondary_composite_columns,
+		.key_parts_unsigned = secondary_composite_unsigned,
+		.key_part_count = 2,
+		.key_column = 3,
+		.key_unsigned = false,
+		.primary_key_columns = secondary_pk_columns,
+		.primary_key_count = 2,
+	};
+	struct sql_plan_secondary_index wrong_composite_secondary_index =
+		composite_secondary_index;
+	uint32_t wrong_composite_key_columns[] = {3, 5};
+	wrong_composite_secondary_index.key_columns =
+		wrong_composite_key_columns;
+	int before_wrong_composite_secondary = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+		composite_secondary_equality_desc, &vdbe, 4, 5,
+		&wrong_composite_secondary_index, 20, NULL, NULL) == -1 &&
+	   vdbe.nOp == before_wrong_composite_secondary,
+	   "composite secondary lowering rejects a mismatched key part atomically");
+	int before_composite_secondary = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+		composite_secondary_equality_desc, &vdbe, 4, 5,
+		&composite_secondary_index, 20, NULL, NULL) == 0 &&
+	   vdbe.aOp[before_composite_secondary].opcode == OP_Integer &&
+	   vdbe.aOp[before_composite_secondary + 1].opcode == OP_Int64 &&
+	   vdbe.aOp[before_composite_secondary + 1].p4type == P4_UINT64 &&
+	   (uint64_t)*vdbe.aOp[before_composite_secondary + 1].p4.pI64 ==
+		UINT64_MAX &&
+	   vdbe.aOp[before_composite_secondary + 2].opcode == OP_SeekGE &&
+	   vdbe.aOp[before_composite_secondary + 2].p4.i == 2 &&
+	   vdbe.aOp[before_composite_secondary + 3].opcode == OP_IdxGT &&
+	   vdbe.aOp[before_composite_secondary + 3].p4.i == 2,
+	   "composite secondary equality seeks and guards the full typed key arity");
 	int before_point_filter = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_null_filter_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_point_filter + 1].opcode == OP_NotFound &&

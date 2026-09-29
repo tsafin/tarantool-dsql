@@ -181,12 +181,16 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		    in->access.point_key_part_count != 0)) {
 		return NULL;
 	} else if (in->access.kind == SQL_PLAN_INDEX_EQUALITY_SCAN &&
-		   (in->access.has_integer_point_key ==
-		    in->access.has_unsigned_point_key ||
-		    in->access.index_id == 0 || in->access.bound_count != 1 ||
-		    in->access.bounds[0].side != SQL_PLAN_LOWER ||
-		    in->access.bounds[0].op != SQL_PLAN_EQ ||
-		    in->access.point_key_part_count != 0 ||
+		   ((in->access.point_key_part_count == 0 &&
+		     in->access.has_integer_point_key ==
+		     in->access.has_unsigned_point_key) ||
+		    in->access.index_id == 0 ||
+		    in->access.bound_count != (in->access.point_key_part_count == 0 ?
+					       1 :
+					       in->access.point_key_part_count) ||
+		    (in->access.point_key_part_count > 1 &&
+		     (in->access.has_integer_point_key ||
+		      in->access.has_unsigned_point_key)) ||
 		    in->access.range_key_column > INT_MAX ||
 		    in->access.has_integer_range_key ||
 		    in->access.has_unsigned_range_key ||
@@ -196,8 +200,18 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		return NULL;
 	}
 	if (in->access.kind != SQL_PLAN_PK_POINT_LOOKUP &&
+	    in->access.kind != SQL_PLAN_INDEX_EQUALITY_SCAN &&
 	    in->access.point_key_part_count != 0)
 		return NULL;
+	if (in->access.kind == SQL_PLAN_INDEX_EQUALITY_SCAN) {
+		for (size_t i = 0; i < in->access.bound_count; ++i)
+			if (in->access.bounds[i].side != SQL_PLAN_LOWER ||
+			    in->access.bounds[i].op != SQL_PLAN_EQ)
+				return NULL;
+		for (size_t i = 0; i < in->access.point_key_part_count; ++i)
+			if (in->access.point_key_parts[i].column > INT_MAX)
+				return NULL;
+	}
 	if (in->access.kind == SQL_PLAN_PK_PREFIX_SCAN) {
 		bool has_prefix_range = in->access.has_integer_range_key ||
 			in->access.has_unsigned_range_key;

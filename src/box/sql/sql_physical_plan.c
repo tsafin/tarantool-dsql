@@ -484,6 +484,11 @@ sql_physical_table_scan_from_select(
 	bool secondary_key_unsigned = false;
 	int64_t secondary_signed_key = 0;
 	uint64_t secondary_unsigned_key = 0;
+	struct sql_plan_point_key_part secondary_key_parts[
+		SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+	const struct Expr *secondary_scan_terms[
+		SQL_PLAN_POINT_KEY_PART_MAX] = {0};
+	size_t secondary_key_part_count = 0;
 	struct sql_plan_point_key_part composite_point_parts[
 		SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
 	size_t composite_point_count = 0;
@@ -646,6 +651,77 @@ sql_physical_table_scan_from_select(
 			exprs[expr_count++] = lower;
 			exprs[expr_count++] = upper;
 		}
+		/* A composite secondary access is eligible only when every key part
+		 * has a compatible literal equality. Keep the chosen source terms so
+		 * they can be elided only if this access path wins. */
+		if (source->space->index_map != NULL) {
+			for (uint32_t index_no = 1;
+			     index_no < source->space->index_count; ++index_no) {
+				const struct index *index =
+					source->space->index_map[index_no];
+				if (index == NULL || index->def == NULL ||
+				    index->def->type != TREE || index->def->key_def == NULL ||
+				    index->def->key_def->part_count < 2 ||
+				    index->def->key_def->part_count >
+					SQL_PLAN_POINT_KEY_PART_MAX)
+					continue;
+				struct sql_plan_point_key_part candidate_parts[
+					SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+				const struct Expr *candidate_terms[
+					SQL_PLAN_POINT_KEY_PART_MAX] = {0};
+				bool complete = true;
+				for (uint32_t part = 0;
+				     part < index->def->key_def->part_count; ++part) {
+					const struct key_part *key_part =
+						&index->def->key_def->parts[part];
+					bool is_unsigned = key_part->type == FIELD_TYPE_UNSIGNED;
+					if (!is_unsigned && key_part->type != FIELD_TYPE_INTEGER) {
+						complete = false;
+						break;
+					}
+					for (size_t term_no = 0; term_no < expr_count; ++term_no) {
+						const struct Expr *term = exprs[term_no];
+						if (term->op != TK_EQ)
+							continue;
+						struct parsed_pk_bound parsed;
+						if (!parse_pk_bound(term, source->iCursor,
+								    key_part->fieldno,
+								    is_unsigned, &parsed) ||
+						    parsed.op != SQL_PLAN_EQ)
+							continue;
+						candidate_terms[part] = term;
+						candidate_parts[part] =
+							(struct sql_plan_point_key_part) {
+							.column = key_part->fieldno,
+							.is_unsigned = is_unsigned,
+							.integer_value = parsed.signed_key,
+							.unsigned_value = parsed.unsigned_key,
+						};
+						break;
+					}
+					if (candidate_terms[part] == NULL) {
+						complete = false;
+						break;
+					}
+				}
+				if (!complete)
+					continue;
+				secondary_index_id = index->def->iid;
+				secondary_key_part_count =
+					index->def->key_def->part_count;
+				memcpy(secondary_key_parts, candidate_parts,
+				       secondary_key_part_count * sizeof(candidate_parts[0]));
+				memcpy(secondary_scan_terms, candidate_terms,
+				       secondary_key_part_count * sizeof(candidate_terms[0]));
+				has_secondary_equality_scan = true;
+				secondary_scan_term = secondary_scan_terms[0];
+				secondary_key_column = secondary_key_parts[0].column;
+				secondary_key_unsigned = secondary_key_parts[0].is_unsigned;
+				secondary_signed_key = secondary_key_parts[0].integer_value;
+				secondary_unsigned_key = secondary_key_parts[0].unsigned_value;
+				break;
+			}
+		}
 		size_t bound_count = 0;
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
@@ -719,6 +795,12 @@ sql_physical_table_scan_from_select(
 			    term->op == TK_LT || term->op == TK_LE) {
 				if (term->pLeft == NULL || term->pRight == NULL)
 					goto invalid_predicate;
+				bool is_selected_secondary_term = false;
+				for (size_t part = 0; part < secondary_key_part_count; ++part)
+					is_selected_secondary_term |=
+						term == secondary_scan_terms[part];
+				if (is_selected_secondary_term)
+					continue;
 				if (term->op == TK_EQ && source->space->index_map != NULL) {
 					const struct Expr *column = NULL;
 					if (is_source_column(term->pLeft, source->iCursor,
@@ -1163,14 +1245,24 @@ predicate_parsed:
 		!has_point_key && !has_range_key && !has_prefix_scan &&
 		select->pOrderBy == NULL;
 	if (has_secondary_equality_scan && !use_secondary_equality_scan) {
-		if (filter_count == SQL_PLAN_FILTER_MAX)
-			goto invalid_predicate;
-		filters[filter_count] = (struct sql_plan_filter) {
-			.op = SQL_PLAN_FILTER_EXPRESSION,
-			.selectivity = 0.5,
-		};
-		filter_expressions[filter_count++] = secondary_scan_term;
+		for (size_t i = 0; i < (secondary_key_part_count == 0 ? 1 :
+					 secondary_key_part_count); ++i) {
+			if (filter_count == SQL_PLAN_FILTER_MAX)
+				goto invalid_predicate;
+			filters[filter_count] = (struct sql_plan_filter) {
+				.op = SQL_PLAN_FILTER_EXPRESSION,
+				.selectivity = 0.5,
+			};
+			filter_expressions[filter_count++] =
+				secondary_key_part_count == 0 ? secondary_scan_term :
+				secondary_scan_terms[i];
+		}
 	}
+	bool secondary_composite = use_secondary_equality_scan &&
+		secondary_key_part_count > 1;
+	size_t composite_access_count = has_composite_point || has_prefix_scan ?
+		composite_point_count : secondary_composite ?
+		secondary_key_part_count : 0;
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	struct sql_plan_order_term *order_terms = NULL;
 	size_t order_term_count = 0;
@@ -1371,10 +1463,16 @@ predicate_parsed:
 		SQL_PLAN_POINT_KEY_PART_MAX + 2];
 	struct sql_plan_bound composite_point_bounds[
 		SQL_PLAN_POINT_KEY_PART_MAX + 2];
-	for (size_t i = 0; i < composite_point_count; ++i) {
+	for (size_t i = 0; i < composite_access_count; ++i) {
+		const struct sql_plan_point_key_part *key_part =
+			secondary_composite ? &secondary_key_parts[i] :
+			&composite_point_parts[i];
 		composite_point_expressions[i] = (struct sql_plan_expression) {
 			.id = (uint32_t)i + 1,
-			.canonical = "composite-primary-point-part",
+			.canonical = secondary_composite ?
+				(key_part->is_unsigned ? "secondary-unsigned-equality-part" :
+				 "secondary-integer-equality-part") :
+				"composite-primary-point-part",
 		};
 		composite_point_bounds[i] = (struct sql_plan_bound) {
 			.side = SQL_PLAN_LOWER,
@@ -1382,8 +1480,8 @@ predicate_parsed:
 			.expr_ref = (uint32_t)i + 1,
 		};
 	}
-	size_t composite_expression_count = composite_point_count;
-	size_t composite_bound_count = composite_point_count;
+	size_t composite_expression_count = composite_access_count;
+	size_t composite_bound_count = composite_access_count;
 	if (has_prefix_range_scan) {
 		if (prefix_range_has_lower) {
 			composite_point_expressions[composite_expression_count] =
@@ -1433,7 +1531,7 @@ predicate_parsed:
 	};
 	const struct sql_plan_expression *base_expressions = NULL;
 	size_t base_expression_count = 0;
-	if (has_composite_point || has_prefix_scan) {
+	if (has_composite_point || has_prefix_scan || secondary_composite) {
 		base_expressions = composite_point_expressions;
 		base_expression_count = composite_expression_count;
 	} else if (has_point_key || has_range_key ||
@@ -1496,28 +1594,34 @@ predicate_parsed:
 				SQL_PLAN_TABLE_FULL_SCAN,
 			.index_id = use_secondary_equality_scan ?
 				secondary_index_id : 0,
-			.bounds = has_composite_point || has_prefix_scan ?
+			.bounds = has_composite_point || has_prefix_scan ||
+				secondary_composite ?
 				composite_point_bounds :
 				has_point_key || has_range_key ||
 				use_secondary_equality_scan ? point_bounds : NULL,
-			.bound_count = has_composite_point || has_prefix_scan ?
+			.bound_count = has_composite_point || has_prefix_scan ||
+				secondary_composite ?
 				composite_bound_count :
 				has_range_key ? (has_range_end_key ? 2 : 1) :
 				has_point_key || use_secondary_equality_scan ? 1 : 0,
 			.has_integer_point_key = (has_point_key &&
 				!has_composite_point && !unsigned_point) ||
-				(use_secondary_equality_scan && !secondary_key_unsigned),
+				(use_secondary_equality_scan && !secondary_composite &&
+				 !secondary_key_unsigned),
 			.integer_point_key = use_secondary_equality_scan ?
 				secondary_signed_key : point_key,
 			.has_unsigned_point_key = (has_point_key &&
 				!has_composite_point && unsigned_point) ||
-				(use_secondary_equality_scan && secondary_key_unsigned),
+				(use_secondary_equality_scan && !secondary_composite &&
+				 secondary_key_unsigned),
 			.unsigned_point_key = use_secondary_equality_scan ?
 				secondary_unsigned_key : unsigned_point_key,
 			.point_key_parts = has_composite_point ?
-				composite_point_parts : NULL,
+				composite_point_parts : secondary_composite ?
+				secondary_key_parts : NULL,
 			.point_key_part_count = has_composite_point ?
-				composite_point_count : 0,
+				composite_point_count : secondary_composite ?
+				secondary_key_part_count : 0,
 			.prefix_key_parts = has_prefix_scan ? composite_point_parts : NULL,
 			.prefix_key_part_count = has_prefix_scan ?
 				composite_point_count : 0,
