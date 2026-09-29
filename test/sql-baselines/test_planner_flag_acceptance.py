@@ -44,6 +44,9 @@ def passing_producer_matrix(commit="current"):
 
 
 class PlannerFlagAcceptanceTest(unittest.TestCase):
+    def test_roadmap_only_drift_is_allowed(self):
+        self.assertIn("docs/vdbe/roadmap.md", gate.ALLOWED_REPORT_DRIFT)
+
     def test_complete_current_matrix_passes(self):
         result = gate.evaluate(complete_matrix(), "current",
                                passing_producer_matrix())

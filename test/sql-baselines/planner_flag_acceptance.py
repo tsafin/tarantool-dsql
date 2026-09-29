@@ -39,6 +39,7 @@ PRODUCER_CASES = {
     "planner_composite_prefix_range_test.lua",
 }
 ALLOWED_REPORT_DRIFT = {
+    "docs/vdbe/roadmap.md",
     "test/sql-luatest/planner_flag_fallback_parity_test.lua",
     "test/sql-baselines/planner_flag_acceptance.py",
     "test/sql-baselines/test_planner_flag_acceptance.py",

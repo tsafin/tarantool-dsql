@@ -1745,14 +1745,14 @@ DML, triggers, subprograms, non-deterministic functions.
   `SELECT`/VDBE integration).
 - [x] **M3.5** Per-component fallback gate — complete for the adopted
   per-component ledger contract. The `planner_flag_acceptance.py` aggregate
-  was refreshed at source `48fc881413c494535fa3d30aa830cc1de8c77ad0` and
-  passed with nine current-source suite/mode reports (generated, CnP, LLVM ×
+  was refreshed after the deterministic projection increment, with nine
+  suite/mode reports (generated, CnP, LLVM ×
   SQL-TAP, SQL, and SQL-luatest) plus 24 focused producer runtime cases (four
-  fixtures × two engines × three modes). All broad reports have zero
+  fixtures × two engines × three modes) passed with zero
   semantic/off-repeat diffs and unreviewed route transitions; the focused
   matrix verifies ledger v1 and observed 1,706 CnP / 722 LLVM executions.
   Documented fixed-mode exclusions remain explicit and generated-mode covered.
-  The fresh report set is under `/tmp/m35-after-m34-48fc/`. This closes the
+  The refreshed reports are under `/tmp/m35-final-c4bb/`. This closes the
   producer accounting gate, not M3.4's broader lowering or M3.7's functional
   feature scope. The implementation
   history follows. Producer-contract
@@ -2593,8 +2593,8 @@ DML, triggers, subprograms, non-deterministic functions.
     S -- no --> M[mixed; no statement fallback reason]
   ```
 
-  **M3.5 acceptance audit and closure (2026-09-29; checkpoint at
-  `48fc881413`).** At that source, the Debug off/on/off matrix passed in all
+  **M3.5 acceptance audit and closure (2026-09-29; post-projection refresh).**
+  The Debug off/on/off matrix passed in all
   nine suite/dispatcher combinations (SQL-TAP, SQL, SQL-luatest × generated,
   CnP, LLVM), across memtx and Vinyl, with zero semantic diffs, exact
   off-repeat semantics, and no unreviewed route classes. SQL-TAP covers 232
@@ -2624,6 +2624,15 @@ DML, triggers, subprograms, non-deterministic functions.
   broad execution support for additional logical shapes or M3.4/M3.7. The fresh
   aggregate has zero blockers and records `feature_acceptance_passed=true` for
   source `48fc881413c494535fa3d30aa830cc1de8c77ad0`.
+
+  **Post-projection evidence refresh.** The nine broad suite/mode reports
+  were rerun against source `c4bb6215e2` in `/tmp/m35-final-c4bb/`; the
+  24-case producer matrix was rerun against the updated expectation-only
+  fixture at the current source. Both have zero semantic diffs and no
+  unreviewed transitions. The current aggregate is
+  `/tmp/m35-final-c4bb/acceptance-postdocs.json`. Only roadmap documentation
+  and acceptance-test policy files changed since the broad capture; no
+  production or corpus expectations changed. M3.4 remains partial.
 
   **Planner-flag runner exclusion fix (2026-09-29).** The runner now applies
   the documented fixed-mode exclusions by default and records their reasons
