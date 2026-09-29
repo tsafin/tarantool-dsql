@@ -929,6 +929,13 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT ABS(a + b) * 2 FROM %s WHERE id >= 1 ' ..
+                           'AND id <= 3 ORDER BY id')
+                          :format(comparison_name),
+                    expected = {{4}, {6}, {6}},
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE id <= 3 ORDER BY id')
                           :format(comparison_name),
                     expected = {{1}, {2}, {3}},

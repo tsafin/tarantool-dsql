@@ -1524,8 +1524,11 @@ DML, triggers, subprograms, non-deterministic functions.
   The memtx/Vinyl `ABS(a)` projection case passes off/on/off checks under
   generated, CnP, and LLVM dispatch. Function-based ORDER BY remains
   `UNSUPPORTED_FUNCTION` on the legacy route; nondeterministic projection calls
-  remain rejected. Calls nested inside other projection operators are not yet
-  covered by this bounded increment. The SQL suite's generated audit identifies
+  remain rejected. A further off/on/off regression now covers a deterministic
+  call nested over arithmetic source expressions and composed with an outer
+  arithmetic operator (`ABS(a + b) * 2`); it passes for memtx and Vinyl and
+  verifies the new route. Function-based ORDER BY remains outside this
+  projection support. The SQL suite's generated audit identifies
   19 `fallback / UNSUPPORTED_FUNCTION` to `new_planner` transitions per engine
   in collation (`UPPER`/`LOWER`), `gh-4697-scalar-bool-sort-cmp` (`TYPEOF`),
   and `types.test.lua` (`ABS`, `TYPEOF`, `QUOTE`, `LEAST`) projections; off/on
