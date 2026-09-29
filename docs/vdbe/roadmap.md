@@ -1314,8 +1314,8 @@ DML, triggers, subprograms, non-deterministic functions.
   lookup (72 assertions total). Off/on/off result coverage also verifies
   LIMIT/OFFSET on full scans and ascending/descending range traversals, with
   selected-index plans. Nullable-index fixtures verify NULL placement for
-  ascending and descending full traversal. Direct string equality and
-  inequality residuals can accompany ordered full traversal when no more
+  ascending and descending full traversal. Direct string equality, inequality,
+  and `IN` residuals can accompany ordered full traversal when no more
   selective key access path applies; the executor resolves the base row before
   filtering. Coverage includes LIMIT/OFFSET after rejecting earlier ordered
   rows, and checks the selected secondary index and results.

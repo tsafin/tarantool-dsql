@@ -336,9 +336,9 @@ leading prefix of an ascending TREE secondary index, provided no more
 selective primary/secondary point, range, or prefix access path is applicable.
 With no WHERE predicate this is a predicate-free full scan; a supported
 residual predicate is evaluated after each secondary entry has been resolved
-to its base row (direct string equality and inequality are covered). Every
-term must match its index key part in order, and all terms must request the
-same direction. The
+to its base row (direct string equality/inequality and `IN` are covered).
+Every term must match its index key part in order, and all terms must request
+the same direction. The
 full-scan access descriptor carries the selected index ID and produced-order
 terms; its direction chooses `Rewind`/`Next` or `Last`/`Prev`. Each secondary
 entry is resolved through its complete primary key before projection. The
