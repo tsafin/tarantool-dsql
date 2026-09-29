@@ -1190,8 +1190,10 @@ DML, triggers, subprograms, non-deterministic functions.
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: yes*.
 - [ ] **M3.4 executable lowering** — partial: a narrow production route now
   connects the producer, physical descriptor, VDBE loop emitter, and
-  `SelectDest` result registers. It accepts only a resolved direct-column
-  projection from one base table and requires a TREE primary index. The
+  `SelectDest` result registers. It accepts resolved direct-column projections
+  and deterministic scalar-function projections from one base table and
+  requires a TREE primary index. Function-based ORDER BY remains on the legacy
+  sorter path. The
   no-filter route supports optional primary-key ordering by scanning in the
   requested physical direction. Composite primary and secondary indexes now
   support ORDER BY on a leading key prefix when each requested direction
@@ -1490,6 +1492,20 @@ DML, triggers, subprograms, non-deterministic functions.
   `UNSUPPORTED_FUNCTION`. The canonicalizer unit target passes 14 supported
   and 10 rejection assertions. This is residual-filter support only; M3.4
   remains partial.
+  **Deterministic scalar projection extension (2026-09-29):** a deterministic
+  scalar call used as a complete SELECT-list expression can now be evaluated
+  by the existing SQL expression bytecode on the new route, provided the
+  single-table preflight and canonical-expression contract accept the query.
+  The memtx/Vinyl `ABS(a)` projection case passes off/on/off checks under
+  generated, CnP, and LLVM dispatch. Function-based ORDER BY remains
+  `UNSUPPORTED_FUNCTION` on the legacy route; nondeterministic projection calls
+  remain rejected. Calls nested inside other projection operators are not yet
+  covered by this bounded increment. The current-source SQL-TAP generated
+  audit passes exact off/on and off-repeat semantics across 47,946 memtx and
+  37,990 Vinyl statements. Five legacy alias-predicate cases refine their
+  diagnostic from `UNSUPPORTED_FUNCTION` to `UNSUPPORTED_FILTER`; their
+  side-effecting deterministic UDF remains on legacy codegen and results are
+  unchanged. This does not close M3.4.
   **Explicit collation residual extension (2026-09-29):** canonicalization
   now includes resolved `COLLATE` nodes using a case-folded collation name and
   their canonical operand. Explicit collations are admitted only inside
@@ -2572,8 +2588,8 @@ DML, triggers, subprograms, non-deterministic functions.
     S -- no --> M[mixed; no statement fallback reason]
   ```
 
-  **M3.5 acceptance audit and closure (2026-09-29; refreshed at
-  `48fc881413`).** The current-source Debug off/on/off matrix passes in all
+  **M3.5 acceptance audit and closure (2026-09-29; checkpoint at
+  `48fc881413`).** At that source, the Debug off/on/off matrix passed in all
   nine suite/dispatcher combinations (SQL-TAP, SQL, SQL-luatest × generated,
   CnP, LLVM), across memtx and Vinyl, with zero semantic diffs, exact
   off-repeat semantics, and no unreviewed route classes. SQL-TAP covers 232
@@ -2590,7 +2606,9 @@ DML, triggers, subprograms, non-deterministic functions.
   route policy. The fresh aggregate report is
   `/tmp/m35-after-m34-48fc/acceptance.json`; all nine suite reports and the
   current-source 24-case producer matrix are under
-  `/tmp/m35-after-m34-48fc/`.
+  `/tmp/m35-after-m34-48fc/`. This checkpoint predates the deterministic
+  projection extension documented below; its source was separately checked
+  against focused generated/CnP/LLVM cases and the SQL-TAP generated corpus.
   A current-source focused rerun passes `planner_final_paths`,
   `planner_insert_select_snapshot` (including INSERT-SELECT, DELETE/UPDATE view
   materialization, and trigger SELECT), `planner_flag_fallback_parity`, and

@@ -16,15 +16,21 @@ rejects nondeterministic functions, reduced/token-only nodes, flags outside its
 allowlist, and unknown operators. `EP_Lookup2` is accepted on resolved columns
 and function calls because it retains no semantic effect after name
 resolution; `EP_NoReduce` remains column-only. The executable route admits
-deterministic calls and explicit collation nodes only in WHERE residual
-expressions whose operands
-bind to the scanned source or are canonical constants. Existing SQL expression
-bytecode evaluates them, and the collated wrapper prevents direct key-bound
+deterministic calls and explicit collation nodes in WHERE residual expressions
+whose operands bind to the scanned source or are canonical constants. It also
+admits a deterministic function as a complete SELECT-list expression when
+single-table preflight accepts the query; lowering uses existing SQL
+expression bytecode for the projected value. Function calls in ORDER BY,
+functions nested inside other projection operators, and collated projections
+remain on the legacy path. The collated wrapper prevents direct key-bound
 recognition. The only standalone function-form boolean predicate admitted is
 `LIKE` / `NOT LIKE` with two or three canonical same-source/constant
 arguments; `MATCH` and other boolean-returning calls remain unsupported.
-Calls/collations in projection/order/limit and nondeterministic calls remain
-on the legacy path. Column
+Collations in projection/order/limit and nondeterministic calls remain on the
+legacy path. Function-based ORDER BY remains legacy; function projections are
+gated by the feature flag. A deterministic declaration is not proof of purity:
+alias/filter shapes not represented by the route must remain on legacy codegen,
+as demonstrated by `alias.test.lua`. Column
 encoding requires a caller-supplied cursor-to-logical-relation ordinal map
 and emits that ordinal, not Expr.iTable. Stability therefore holds only
 under the same relation binding; this is not a universal cross-statement
