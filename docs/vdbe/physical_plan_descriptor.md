@@ -290,14 +290,16 @@ unsupported.
 
 The executable route supports equality on a single-part TREE secondary index
 whose indexed field is INTEGER or UNSIGNED. The predicate value must be a
-resolved integer literal in the field type's range. The descriptor identifies
+resolved integer literal in the field type's range, including `UINT64_MAX`
+for UNSIGNED fields. The descriptor identifies
 the index and typed equality bound; lowering seeks to the start of the equality
 run, stops when the indexed key changes, extracts the complete primary key for
 each secondary entry, and fetches the base tuple before evaluating residual
 filters or projecting columns. This is an equality *scan*, not a point lookup:
 non-unique indexes must return every matching tuple. Other predicates in an
 AND conjunction remain residual filters. Duplicate-key, reverse-operand,
-miss, residual-filter, and LIMIT/OFFSET cases are covered on memtx and Vinyl.
+miss, SQL-NULL fail-closed, contradictory equality, primary-key conjunction,
+residual-filter, and LIMIT/OFFSET cases are covered on memtx and Vinyl.
 Range, composite secondary keys, collation overrides, OR/IN access, and
 non-integer key values remain unsupported and use the legacy path.
 

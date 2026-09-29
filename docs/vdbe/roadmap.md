@@ -1254,10 +1254,13 @@ DML, triggers, subprograms, non-deterministic functions.
   filters and rejected entries advance to the next index row. The immutable
   descriptor carries the selected index ID and typed key; unsupported
   secondary shapes remain on legacy codegen. Memtx/Vinyl regression coverage
-  includes duplicate hits, reversed operands, a miss, equality plus text/NULL
+  includes duplicate hits, reversed operands, signed and UNSIGNED equality
+  through `UINT64_MAX`, a miss, SQL NULL fail-closed routing, contradictory
+  repeated equalities, primary-key plus secondary-index predicates, text/NULL
   residuals, and LIMIT/OFFSET. Focused generated, CnP, and LLVM captures each
-  contain 963 snapshots per engine; all four native-vs-generated comparisons
-  have zero diffs. The debug `planner_scalar_filter_test.lua` runner passes.
+  contain 1,013 snapshots per engine; all four native-vs-generated
+  comparisons have zero diffs. The debug `planner_scalar_filter_test.lua`
+  runner passes.
   VDBE unit coverage also pins the secondary seek, equality-run guard,
   composite primary-key extraction, base-table lookup arity, and next-row
   target (63 assertions total).
