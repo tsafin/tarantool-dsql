@@ -102,6 +102,42 @@ new_point_descriptor(int64_t key)
 }
 
 static struct sql_plan_descriptor *
+new_secondary_equality_descriptor(int64_t key)
+{
+	static const uint32_t columns[] = {0};
+	static const struct sql_plan_bound bound = {
+		.side = SQL_PLAN_LOWER,
+		.op = SQL_PLAN_EQ,
+		.expr_ref = 1,
+	};
+	static const struct sql_plan_expression expression = {
+		.id = 1,
+		.canonical = "secondary-integer-equality-key",
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1,
+		.planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100,
+		.space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_INDEX_EQUALITY_SCAN,
+			.index_id = 1,
+			.bounds = &bound,
+			.bound_count = 1,
+			.has_integer_point_key = true,
+			.integer_point_key = key,
+			.range_key_column = 3,
+		},
+		.projection_columns = columns,
+		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
+		.expressions = &expression,
+		.expression_count = 1,
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_unsigned_point_descriptor(uint64_t key)
 {
 	static const uint32_t columns[] = {2, 0};
@@ -731,7 +767,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(62);
+	plan(63);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -787,6 +823,8 @@ main(void)
 	struct sql_plan_descriptor *invalid_offset_desc =
 		new_scan_descriptor(NULL, 0, SQL_PLAN_ASC, &invalid_offset, 1);
 	struct sql_plan_descriptor *point_desc = new_point_descriptor(INT64_MAX);
+	struct sql_plan_descriptor *secondary_equality_desc =
+		new_secondary_equality_descriptor(7);
 	struct sql_plan_descriptor *negative_point_desc =
 		new_point_descriptor(INT64_MIN);
 	struct sql_plan_descriptor *unsigned_point_desc =
@@ -871,6 +909,7 @@ main(void)
 	   limit_one_desc != NULL && limit_zero_desc != NULL &&
 	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
 	   invalid_offset_desc != NULL && point_desc != NULL &&
+	   secondary_equality_desc != NULL &&
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
 	   point_null_filter_desc != NULL &&
 	   point_not_null_filter_desc != NULL &&
@@ -1105,6 +1144,42 @@ main(void)
 	   vdbe.aOp[before_unsigned_point].p4type == P4_UINT64 &&
 	   (uint64_t)*vdbe.aOp[before_unsigned_point].p4.pI64 == UINT64_MAX,
 	   "unsigned primary-key lookup preserves full uint64 key range");
+	static const uint32_t secondary_pk_columns[] = {0, 2};
+	const struct sql_plan_secondary_index secondary_index = {
+		.index_id = 1,
+		.key_column = 3,
+		.key_unsigned = false,
+		.primary_key_columns = secondary_pk_columns,
+		.primary_key_count = 2,
+	};
+	int before_secondary_equality = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_equality_with_projector(
+		secondary_equality_desc, &vdbe, 4, 5, &secondary_index, 20,
+		NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_equality].opcode == OP_Integer &&
+	   vdbe.aOp[before_secondary_equality + 1].opcode == OP_SeekGE &&
+	   vdbe.aOp[before_secondary_equality + 2].opcode == OP_IdxGT &&
+	   vdbe.aOp[before_secondary_equality + 3].opcode == OP_Column &&
+	   vdbe.aOp[before_secondary_equality + 3].p1 == 5 &&
+	   vdbe.aOp[before_secondary_equality + 3].p2 == 0 &&
+	   vdbe.aOp[before_secondary_equality + 4].opcode == OP_Column &&
+	   vdbe.aOp[before_secondary_equality + 4].p2 == 2 &&
+	   vdbe.aOp[before_secondary_equality + 5].opcode == OP_NotFound &&
+	   vdbe.aOp[before_secondary_equality + 5].p1 == 4 &&
+	   vdbe.aOp[before_secondary_equality + 5].p4.i == 2 &&
+	   vdbe.aOp[before_secondary_equality + 6].opcode == OP_Column &&
+	   vdbe.aOp[before_secondary_equality + 7].opcode == OP_ResultRow &&
+	   vdbe.aOp[before_secondary_equality + 8].opcode == OP_Next &&
+	   vdbe.aOp[before_secondary_equality + 8].p2 ==
+		before_secondary_equality + 2 &&
+	   vdbe.aOp[before_secondary_equality + 5].p2 < 0 &&
+	   parse.aLabel[ADDR(vdbe.aOp[before_secondary_equality + 5].p2)] ==
+		before_secondary_equality + 8 &&
+	   vdbe.aOp[before_secondary_equality + 1].p2 ==
+		before_secondary_equality + 9 &&
+	   vdbe.aOp[before_secondary_equality + 2].p2 ==
+		before_secondary_equality + 9,
+	   "secondary equality scans the full key run and resolves composite primary keys before projection");
 	int before_point_filter = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_null_filter_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_point_filter + 1].opcode == OP_NotFound &&
@@ -1469,6 +1544,7 @@ main(void)
 	sql_plan_descriptor_delete(wide_offset_limit_desc);
 	sql_plan_descriptor_delete(invalid_offset_desc);
 	sql_plan_descriptor_delete(point_desc);
+	sql_plan_descriptor_delete(secondary_equality_desc);
 	sql_plan_descriptor_delete(negative_point_desc);
 	sql_plan_descriptor_delete(unsigned_point_desc);
 	sql_plan_descriptor_delete(point_null_filter_desc);
@@ -1509,6 +1585,7 @@ main(void)
 			sql_xfree(vdbe.aOp[i].p4.p);
 	}
 	sql_xfree(vdbe.aOp);
+	sql_xfree(parse.aLabel);
 	footer();
 	int rc = check_plan();
 	box_free();
