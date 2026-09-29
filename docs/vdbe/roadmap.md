@@ -1500,12 +1500,17 @@ DML, triggers, subprograms, non-deterministic functions.
   generated, CnP, and LLVM dispatch. Function-based ORDER BY remains
   `UNSUPPORTED_FUNCTION` on the legacy route; nondeterministic projection calls
   remain rejected. Calls nested inside other projection operators are not yet
-  covered by this bounded increment. The current-source SQL-TAP generated
-  audit passes exact off/on and off-repeat semantics across 47,946 memtx and
-  37,990 Vinyl statements. Five legacy alias-predicate cases refine their
-  diagnostic from `UNSUPPORTED_FUNCTION` to `UNSUPPORTED_FILTER`; their
+  covered by this bounded increment. The SQL suite's generated audit identifies
+  19 `fallback / UNSUPPORTED_FUNCTION` to `new_planner` transitions per engine
+  in collation (`UPPER`/`LOWER`), `gh-4697-scalar-bool-sort-cmp` (`TYPEOF`),
+  and `types.test.lua` (`ABS`, `TYPEOF`, `QUOTE`, `LEAST`) projections; off/on
+  and off-repeat semantics are exact across all 1,077 memtx / 1,085 Vinyl
+  queries. SQL-TAP's generated audit passes exact semantics across 47,946
+  memtx and 37,990 Vinyl statements. Five alias-predicate cases refine their
+  diagnostic from `UNSUPPORTED_FUNCTION` to `UNSUPPORTED_FILTER`; the
   side-effecting deterministic UDF remains on legacy codegen and results are
-  unchanged. This does not close M3.4.
+  unchanged. Both route classes are documented in
+  `planner_flag_route_classes.json`. This does not close M3.4.
   **Explicit collation residual extension (2026-09-29):** canonicalization
   now includes resolved `COLLATE` nodes using a case-folded collation name and
   their canonical operand. Explicit collations are admitted only inside
