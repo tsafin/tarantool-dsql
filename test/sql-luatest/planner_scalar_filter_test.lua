@@ -81,7 +81,8 @@ g.test_non_primary_null_filters_off_on_off = function()
                         :format(descending_secondary_name,
                                 descending_secondary_name))
             box.execute(('INSERT INTO %s VALUES ' ..
-                         '(1, 7, 10), (2, 7, 11), (3, 8, 10)')
+                         '(1, 7, 10), (2, 7, 11), (3, 8, 10), ' ..
+                         '(4, NULL, 12)')
                         :format(descending_secondary_name))
             local queries = {
                 {
@@ -267,13 +268,15 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT x, y FROM %s ' ..
                            'ORDER BY x DESC, y DESC')
                           :format(descending_secondary_name),
-                    expected = {{8, 10}, {7, 11}, {7, 10}},
+                    expected = {{8, 10}, {7, 11}, {7, 10},
+                                {box.NULL, 12}},
                 },
                 {
                     sql = ('SELECT x, y FROM %s ' ..
                            'ORDER BY x ASC, y ASC')
                           :format(descending_secondary_name),
-                    expected = {{7, 10}, {7, 11}, {8, 10}},
+                    expected = {{box.NULL, 12}, {7, 10},
+                                {7, 11}, {8, 10}},
                 },
                 {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b = 10 ' ..
