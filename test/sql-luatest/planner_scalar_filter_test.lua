@@ -714,8 +714,14 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(comparison_name),
                     params = {1},
                     expected = {{1}},
-                    enabled_route = 'fallback',
-                    enabled_reason = 'UNSUPPORTED_FILTER',
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE ? = id')
+                          :format(comparison_name),
+                    params = {5},
+                    expected = {{5}},
+                    enabled_route = 'new_planner',
                 },
                 {
                     sql = ("SELECT id FROM %s WHERE v <> 'x' " ..
@@ -1285,6 +1291,29 @@ g.test_non_primary_null_filters_off_on_off = function()
                 t.assert_equals(result.rows, case[2])
             end
             box.unprepare(parameter_stmt.stmt_id)
+            local point_parameter_sql = ('SELECT id FROM %s WHERE id = ? ' ..
+                                         'ORDER BY id')
+                                        :format(comparison_name)
+            local point_explain = execute(
+                [[EXPLAIN (planner = 'summary') ]] .. point_parameter_sql,
+                {1})
+            t.assert_equals(point_explain.rows[1][3], 'new_planner')
+            local point_stmt = box.prepare(point_parameter_sql)
+            local point_cases = {
+                {{1}, {{1}}},
+                {{5}, {{5}}},
+                {{99}, {}},
+                {{1.0}, {{1}}},
+                {{1.5}, {}},
+                {{box.NULL}, {}},
+            }
+            for _, case in ipairs(point_cases) do
+                local result, err = box.execute(point_stmt.stmt_id, case[1])
+                t.assert(result ~= nil,
+                         tostring(err) .. ' for key ' .. tostring(case[1][1]))
+                t.assert_equals(result.rows, case[2])
+            end
+            box.unprepare(point_stmt.stmt_id)
             box.execute(('DROP TABLE %s'):format(name))
             box.execute(('DROP TABLE %s'):format(composite_name))
             box.execute(('DROP TABLE %s'):format(secondary_name))

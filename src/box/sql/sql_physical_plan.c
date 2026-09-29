@@ -543,6 +543,7 @@ sql_physical_table_scan_from_select(
 	enum sql_plan_bound_op range_op = SQL_PLAN_EQ;
 	enum sql_plan_bound_op range_end_op = SQL_PLAN_EQ;
 	uint64_t unsigned_point_key = 0;
+	uint32_t point_key_variable = 0;
 	uint64_t unsigned_range_key = 0;
 	uint64_t unsigned_range_end_key = 0;
 	bool has_secondary_equality_scan = false;
@@ -1553,6 +1554,32 @@ sql_physical_table_scan_from_select(
 					range_end_key = upper.signed_key;
 			}
 		} else {
+			if (expr_count == 1 && pk->part_count == 1 &&
+			    !unsigned_point) {
+				const struct Expr *term = exprs[0];
+				const struct Expr *column = term->pLeft;
+				const struct Expr *value = term->pRight;
+				if (column != NULL && value != NULL &&
+				    column->op != TK_COLUMN_REF &&
+				    value->op == TK_COLUMN_REF) {
+					const struct Expr *tmp = column;
+					column = value;
+					value = tmp;
+				}
+				if (term->op == TK_EQ && column != NULL && value != NULL &&
+				    column->op == TK_COLUMN_REF &&
+				    column->iTable == source->iCursor &&
+				    column->iColumn >= 0 &&
+				    (uint32_t)column->iColumn == primary_field &&
+				    value->op == TK_VARIABLE && value->iColumn > 0 &&
+				    value->pLeft == NULL && value->pRight == NULL &&
+				    !ExprHasProperty(value, EP_TokenOnly | EP_Reduced)) {
+					point_key_variable = (uint32_t)value->iColumn;
+					has_point_key = true;
+				}
+			}
+			if (point_key_variable != 0)
+				goto point_key_ready;
 			for (size_t i = 0; i < expr_count; ++i) {
 				if (!parse_pk_bound(exprs[i], source->iCursor,
 						    primary_field,
@@ -1630,6 +1657,8 @@ sql_physical_table_scan_from_select(
 						range_end_key = upper.signed_key;
 				}
 			}
+		point_key_ready:
+			;
 		}
 		if (filter_count != 0 && has_point_key &&
 		    !has_composite_point && pk->part_count != 1)
@@ -2483,17 +2512,20 @@ predicate_parsed:
 				has_range_key ? (has_range_end_key ? 2 : 1) :
 				has_point_key || use_secondary_equality_scan ? 1 : 0,
 			.has_integer_point_key = (has_point_key &&
-				!has_composite_point && !unsigned_point) ||
+				!has_composite_point && !unsigned_point &&
+				point_key_variable == 0) ||
 				(use_secondary_equality_scan && !secondary_composite &&
 				 !secondary_key_unsigned),
 			.integer_point_key = use_secondary_equality_scan ?
 				secondary_signed_key : point_key,
 			.has_unsigned_point_key = (has_point_key &&
-				!has_composite_point && unsigned_point) ||
+				!has_composite_point && unsigned_point &&
+				point_key_variable == 0) ||
 				(use_secondary_equality_scan && !secondary_composite &&
 				 secondary_key_unsigned),
 			.unsigned_point_key = use_secondary_equality_scan ?
 				secondary_unsigned_key : unsigned_point_key,
+			.point_key_variable = point_key_variable,
 			.point_key_parts = has_composite_point ?
 				composite_point_parts : secondary_composite ?
 				secondary_key_parts : NULL,

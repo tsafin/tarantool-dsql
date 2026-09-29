@@ -101,11 +101,17 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 	    (composite_point ?
 	     (input->access.has_integer_point_key ||
 	      input->access.has_unsigned_point_key ||
+	      input->access.point_key_variable != 0 ||
 	      input->access.point_key_parts == NULL ||
 	      input->access.point_key_part_count > INT_MAX ||
 	      input->access.bound_count != input->access.point_key_part_count) :
-	     (input->access.has_integer_point_key ==
-	      input->access.has_unsigned_point_key)) ||
+	     ((input->access.point_key_variable == 0 &&
+	       input->access.has_integer_point_key ==
+	       input->access.has_unsigned_point_key) ||
+	      (input->access.point_key_variable != 0 &&
+	       (input->access.has_integer_point_key ||
+		input->access.has_unsigned_point_key ||
+		input->access.point_key_variable > INT_MAX)))) ||
 	    input->filter_count > SQL_PLAN_FILTER_MAX ||
 	    (input->filter_count != 0 && input->filters == NULL) ||
 	    input->finalize_count > 1 ||
@@ -154,7 +160,15 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 			&input->access.point_key_parts[i] : &scalar_part;
 		int reg = key_reg + (int)i;
 		int key_op;
-		if (part->is_unsigned) {
+		if (!composite_point && input->access.point_key_variable != 0) {
+			int variable = sqlVdbeAddOp2(vdbe, OP_Variable,
+						(int)input->access.point_key_variable,
+						reg);
+			if (variable != vdbe->nOp - 1 || parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+			key_op = sqlVdbeAddOp2(vdbe, OP_MustBeInt, reg, 0);
+		} else if (part->is_unsigned) {
 			uint64_t key = part->unsigned_value;
 			if (key <= INT_MAX) {
 				key_op = sqlVdbeAddOp2(vdbe, OP_Integer, (int)key, reg);
@@ -176,6 +190,15 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 			}
 		}
 		if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto error;
+	}
+	int invalid_key = -1;
+	int null_key = -1;
+	if (!composite_point && input->access.point_key_variable != 0) {
+		invalid_key = vdbe->nOp - 1;
+		null_key = sqlVdbeAddOp2(vdbe, OP_IsNull, key_reg, 0);
+		if (null_key != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
 	}
@@ -214,6 +237,10 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 	    diag_last_error(diag_get()) != checkpoint.diag_error)
 		goto error;
 	sqlVdbeJumpHere(vdbe, miss);
+	if (invalid_key >= 0)
+		sqlVdbeJumpHere(vdbe, invalid_key);
+	if (null_key >= 0)
+		sqlVdbeJumpHere(vdbe, null_key);
 	for (size_t i = 0; i < input->filter_count; ++i)
 		sqlVdbeJumpHere(vdbe, filter_breaks[i]);
 	vdbe_codegen_checkpoint_commit(&checkpoint);
