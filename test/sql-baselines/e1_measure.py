@@ -11,6 +11,7 @@ import sys
 
 
 SCHEMA_VERSION = 1
+MIN_MEASURED_REPEATS = 5
 
 
 def percentile(values, pct):
@@ -136,6 +137,10 @@ def analyze(rows, baseline, candidate):
         for observation in observations:
             by_query[observation["query_id"]].append(observation)
         for query_id, query_rows in sorted(by_query.items()):
+            if len(query_rows) < MIN_MEASURED_REPEATS:
+                raise ValueError(
+                    f"insufficient measured repeats for {key}/{query_id}: "
+                    f"got {len(query_rows)}, need {MIN_MEASURED_REPEATS}")
             query_summaries[key + "/" + query_id] = summarize(query_rows)
     if not groups:
         raise ValueError("no non-warmup observations")

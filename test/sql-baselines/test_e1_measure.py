@@ -39,26 +39,40 @@ class E1MeasureTest(unittest.TestCase):
     def test_summarizes_qerror_latency_and_paired_cost(self):
         rows = [observation("default", 1, 100, estimate=100, actual=50),
                 observation("default", 2, 120, estimate=40, actual=50),
+                observation("default", 3, 100, estimate=40, actual=50),
+                observation("default", 4, 100, estimate=40, actual=50),
+                observation("default", 5, 100, estimate=40, actual=50),
                 observation("candidate", 1, 200, estimate=50, actual=50),
-                observation("candidate", 2, 240, estimate=50, actual=50)]
+                observation("candidate", 2, 240, estimate=50, actual=50),
+                observation("candidate", 3, 200, estimate=50, actual=50),
+                observation("candidate", 4, 200, estimate=50, actual=50),
+                observation("candidate", 5, 200, estimate=50, actual=50)]
         result = e1_measure.analyze(rows, "default", "candidate")
         base = result["groups"]["analytic-v1/memtx/generated/default"]
-        self.assertEqual(base["execution_samples"], 2)
-        self.assertEqual(base["q_error"]["median"], 1.625)
+        self.assertEqual(base["execution_samples"], 5)
+        self.assertEqual(base["q_error"]["median"], 1.25)
         compare = result["paired_comparisons"]["analytic-v1/memtx/generated"]
-        self.assertEqual(compare["paired_samples"], 2)
+        self.assertEqual(compare["paired_samples"], 5)
         self.assertEqual(compare["candidate_over_baseline_latency_ratio"]["median"], 2)
 
     def test_warmups_are_excluded(self):
         rows = [observation("default", 0, 10_000, warmup=True),
                 observation("default", 1, 100),
+                observation("default", 2, 100),
+                observation("default", 3, 100),
+                observation("default", 4, 100),
+                observation("default", 5, 100),
                 observation("candidate", 0, 10_000, warmup=True),
-                observation("candidate", 1, 110)]
+                observation("candidate", 1, 110),
+                observation("candidate", 2, 110),
+                observation("candidate", 3, 110),
+                observation("candidate", 4, 110),
+                observation("candidate", 5, 110)]
         result = e1_measure.analyze(rows, "default", "candidate")
         self.assertEqual(result["groups"]["analytic-v1/memtx/generated/default"]
-                         ["execution_samples"], 1)
+                         ["execution_samples"], 5)
         self.assertEqual(result["paired_comparisons"]
-                         ["analytic-v1/memtx/generated"]["paired_samples"], 1)
+                         ["analytic-v1/memtx/generated"]["paired_samples"], 5)
 
     def test_rejects_warmup_only_input(self):
         rows = [observation("default", 0, 10_000, warmup=True),
@@ -66,28 +80,42 @@ class E1MeasureTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "no non-warmup observations"):
             e1_measure.analyze(rows, "default", "candidate")
 
+    def test_rejects_fewer_than_five_measured_repeats(self):
+        rows = [observation(config, repeat, 100)
+                for config in ("default", "candidate")
+                for repeat in range(1, 5)]
+        with self.assertRaisesRegex(ValueError, "insufficient measured repeats"):
+            e1_measure.analyze(rows, "default", "candidate")
+
     def test_zero_cardinality_mismatch_is_unbounded(self):
-        rows = [observation("default", 1, 100, estimate=0, actual=10),
-                observation("candidate", 1, 100, estimate=10, actual=10)]
+        rows = [observation(config, repeat, 100,
+                            estimate=0 if config == "default" else 10,
+                            actual=10)
+                for config in ("default", "candidate")
+                for repeat in range(1, 6)]
         result = e1_measure.analyze(rows, "default", "candidate")
         summary = result["groups"]["analytic-v1/memtx/generated/default"]
-        self.assertEqual(summary["unbounded_q_error_stages"], 1)
+        self.assertEqual(summary["unbounded_q_error_stages"], 5)
         self.assertIsNone(summary["q_error"])
 
     def test_rejects_stage_mismatch_across_repeats_by_configuration(self):
-        baseline = observation("default", 1, 100, stage="join-output")
-        candidate = observation("candidate", 1, 100, stage="scan-output")
-        self.assertNotEqual(baseline["cardinalities"][0]["stage_id"],
-                            candidate["cardinalities"][0]["stage_id"])
+        baseline = [observation("default", repeat, 100, stage="join-output")
+                    for repeat in range(1, 6)]
+        candidate = [observation("candidate", repeat, 100, stage="scan-output")
+                     for repeat in range(1, 6)]
+        self.assertNotEqual(baseline[0]["cardinalities"][0]["stage_id"],
+                            candidate[0]["cardinalities"][0]["stage_id"])
         with self.assertRaisesRegex(ValueError, "unmatched cardinality stages"):
-            e1_measure.analyze([baseline, candidate], "default", "candidate")
+            e1_measure.analyze(baseline + candidate, "default", "candidate")
 
     def test_rejects_actual_cardinality_mismatch_between_configurations(self):
-        baseline = observation("default", 1, 100, actual=50)
-        candidate = observation("candidate", 1, 100, actual=49)
+        baseline = [observation("default", repeat, 100, actual=50)
+                    for repeat in range(1, 6)]
+        candidate = [observation("candidate", repeat, 100, actual=49)
+                     for repeat in range(1, 6)]
         with self.assertRaisesRegex(ValueError,
                                     "unmatched actual cardinalities"):
-            e1_measure.analyze([baseline, candidate], "default", "candidate")
+            e1_measure.analyze(baseline + candidate, "default", "candidate")
 
     def test_rejects_duplicate_and_bad_numeric_fields(self):
         row = observation("default", 1, 100)

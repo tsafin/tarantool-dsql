@@ -3297,8 +3297,10 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   analyzer now rejects paired observations whose actual row counts differ at
   any matching stage, even when query/repeat/stage IDs and provenance match;
   this guards q-error and timing comparisons against changed executed data.
-  Its focused seven-test suite passes. This strengthens analysis validation,
-  but does not provide the still-missing integrated measurement producer.
+  It also enforces the workload contract's minimum five non-warmup repeats per
+  query/configuration. Its focused eight-test suite passes. This strengthens
+  analysis validation, but does not provide the still-missing integrated
+  measurement producer.
   *parallel: yes*.
 
 ---
