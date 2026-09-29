@@ -1592,8 +1592,8 @@ DML, triggers, subprograms, non-deterministic functions.
   without expanding the supported expression grammar.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
-  filters. A parameterized primary-key bound remains an explicit
-  `fallback / UNSUPPORTED_FILTER` counter case. A full local Debug SQL-suite
+  filters. At this checkpoint, a parameterized primary-key bound was an
+  explicit `fallback / UNSUPPORTED_FILTER` counter case. A full local Debug SQL-suite
   run passes 136 tests with 2 disabled and no failures; both memtx and Vinyl
   preflight variants pass.
   **Parameterized residual extension (2026-09-29):** canonical identities
@@ -1605,9 +1605,9 @@ DML, triggers, subprograms, non-deterministic functions.
   `new_planner` route, checks parameterized `IN`/`BETWEEN` results, and executes
   the same prepared equality statement with matching, nonmatching, and NULL
   values. A separate
-  primary-key `id = ?` assertion remains `fallback / UNSUPPORTED_FILTER`, since
-  variable-valued seek-key emission is not implemented. The canonicalizer unit
-  test passes 17 supported and 12 rejection assertions; the focused scalar
+  primary-key `id = ?` assertion was then `fallback / UNSUPPORTED_FILTER`, since
+  variable-valued seek-key emission was not implemented at that checkpoint.
+  The canonicalizer unit test passes 17 supported and 12 rejection assertions; the focused scalar
   filter test passes locally. The post-commit producer matrix passes all 30
   fixture/engine/dispatcher cases at source `7daed303b6`, including the new
   parameterized `IN`/`BETWEEN` cases; its scalar-filter fixture records 2,581
@@ -1617,6 +1617,18 @@ DML, triggers, subprograms, non-deterministic functions.
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
   not reviewed-corpus feature acceptance.
+  **Scalar integer primary-key parameter point lookup (2026-09-30):** the
+  executable route now stores the resolved one-based bind ordinal in the
+  immutable descriptor and emits `OP_Variable` plus `OP_MustBeInt` before a
+  primary `NotFound` seek. Invalid/non-integral and NULL values skip the seek
+  and return no rows. The feature is limited to equality on one-part signed
+  INTEGER primary keys; composite/UNSIGNED parameter keys and parameterized
+  ranges remain on legacy codegen. Off/on/off SQL parity covers both operand
+  orders, hits, a miss, exact-integral and non-integral numeric binds, and
+  NULL on memtx and Vinyl. The focused SQL luatest passes under generated and
+  CnP dispatch; the lowering unit target passes 85 assertions, including
+  variable ordinal, type guard, NULL guard, and seek opcode order. This is a
+  bounded M3.4 increment, not closure or reviewed-corpus acceptance.
   **Filtered composite primary suffix ranges (2026-09-29):** the
   `planner_composite_prefix_range_test.lua` off/on/off fixture now composes a
   direct residual equality with an equality-prefix-plus-suffix range, and a

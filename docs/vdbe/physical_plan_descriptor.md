@@ -288,10 +288,15 @@ replay-envelope completeness.
 #### Integer primary-key point lookup
 
 The executable producer also accepts narrowly constrained equality filters.
-For a one-part primary key, the predicate must compare its INTEGER or UNSIGNED
+For a one-part primary key, the predicate may compare its INTEGER or UNSIGNED
 column with a resolved integer literal in that type's range (signed 64-bit or
-unsigned 64-bit, respectively). For a composite primary key, it accepts a
-conjunction containing one equality for every key part, provided all key parts
+unsigned 64-bit, respectively). A one-part signed INTEGER primary key also
+accepts an equality bind parameter; its one-based variable ordinal is stored
+in the descriptor and loaded at execution. `OP_MustBeInt` preserves exact
+integer semantics, with invalid and NULL values skipping the seek. Parameter
+values are not yet supported for UNSIGNED or composite primary keys, or for
+ranges. For a composite primary key, it accepts a conjunction containing one
+equality for every key part, provided all key parts
 are INTEGER or UNSIGNED and the complete conjunction has at most 255 terms;
 term order is independent of key order. The immutable descriptor owns one
 typed key value and equality bound per key part. VDBE lowering emits one key
@@ -309,8 +314,10 @@ fallback, and SQL rejection of literals above `UINT64_MAX`, LIMIT/OFFSET,
 primary-key ordering, and unsupported-filter fallback cases on both memtx and
 Vinyl. Composite point tests cover two- and three-part keys on both engines,
 including predicate reordering, an unsigned maximum, a hit/miss, and an
-incomplete-key fallback. Parameters and expression evaluation remain
-unsupported.
+incomplete-key fallback. Parameterized scalar INTEGER primary-key equality is
+covered for both engines with hits, misses, exact/non-integral numeric values,
+and NULL; other parameterized access predicates and expression-valued keys
+remain unsupported.
 
 #### Secondary-index equality scan
 
