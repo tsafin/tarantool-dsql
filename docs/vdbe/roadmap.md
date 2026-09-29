@@ -2652,6 +2652,20 @@ DML, triggers, subprograms, non-deterministic functions.
   and acceptance-test policy files changed since the broad capture; no
   production or corpus expectations changed. M3.4 remains partial.
 
+  **Post-range-lowering evidence refresh (2026-09-29).** After the ordered
+  one-sided primary-range lowering landed at source `3dfb754eec`, the complete
+  off/on/off corpus matrix was rerun across SQL, SQL-luatest, and SQL-TAP in
+  generated, CnP, and LLVM modes. All nine reports cover both memtx and Vinyl,
+  have zero semantic diffs and zero unreviewed route transitions, and record
+  the same source commit. The fresh 24-case all-producer matrix also passes;
+  `planner_flag_acceptance.py` aggregates all nine reports with
+  `feature_acceptance_passed=true` and no blockers at
+  `/tmp/m35-post3dfb-resized/acceptance.json`. The SQL-TAP LLVM run includes
+  47,946 memtx and 37,990 Vinyl queries, zero semantic diffs, and reviewed
+  off-repeat captures. This refresh confirms M3.5 acceptance after the M3.4
+  range change; M3.4 remains partial and this does not imply broad lowering
+  or M3.7 completion.
+
   **Planner-flag runner exclusion fix (2026-09-29).** The runner now applies
   the documented fixed-mode exclusions by default and records their reasons
   per engine; an explicit request for an excluded test fails with the reason.
