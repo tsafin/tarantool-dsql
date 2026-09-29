@@ -1318,11 +1318,11 @@ DML, triggers, subprograms, non-deterministic functions.
   existing bounded boolean grammar admits these comparisons as leaves under
   AND/OR/NOT, including conjunction with primary-key access bounds. Column
   references from other sources, computed operands, and explicit collation
-  expressions remain fail-closed. The off/on/off regression covers integer and
-  text comparisons, NULL operands, boolean OR, and a primary-key point plus a
-  residual comparison; it passes on memtx and Vinyl under generated, CnP, and
-  LLVM dispatch. This extends residual coverage only; broader access-path and
-  expression support remain open.
+  expressions remain fail-closed. The off/on/off regression covers all six
+  comparison operators, integer and text comparisons, NULL operands, boolean
+  OR/NOT, and a primary-key point plus a residual comparison; it passes on
+  memtx and Vinyl under generated, CnP, and LLVM dispatch. This extends residual
+  coverage only; broader access-path and expression support remain open.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
   filters, while parameterized predicates remain an explicit
