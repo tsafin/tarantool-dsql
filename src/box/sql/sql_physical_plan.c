@@ -144,15 +144,26 @@ is_supported_boolean_filter(const struct Expr *expr, int cursor,
 	    expr->x.pList != NULL && expr->x.pList->nExpr == 2 &&
 	    has_only_source_columns(expr->pLeft, cursor, field_count, 0) &&
 	    has_source_column(expr->pLeft, cursor, field_count, 0))
-		return is_supported_filter_constant(expr->x.pList->a[0].pExpr) &&
-			is_supported_filter_constant(expr->x.pList->a[1].pExpr);
+		return (is_supported_filter_constant(expr->x.pList->a[0].pExpr) ||
+			(has_only_source_columns(expr->x.pList->a[0].pExpr,
+						 cursor, field_count, 0) &&
+			 has_source_column(expr->x.pList->a[0].pExpr, cursor,
+					    field_count, 0))) &&
+		       (is_supported_filter_constant(expr->x.pList->a[1].pExpr) ||
+			(has_only_source_columns(expr->x.pList->a[1].pExpr,
+						 cursor, field_count, 0) &&
+			 has_source_column(expr->x.pList->a[1].pExpr, cursor,
+					    field_count, 0)));
 	if (expr->op == TK_IN && expr->pRight == NULL &&
 	    expr->x.pList != NULL && expr->x.pList->nExpr > 0 &&
 	    !ExprHasProperty(expr, EP_xIsSelect) &&
 	    has_only_source_columns(expr->pLeft, cursor, field_count, 0) &&
 	    has_source_column(expr->pLeft, cursor, field_count, 0)) {
 		for (int i = 0; i < expr->x.pList->nExpr; ++i) {
-			if (!is_supported_filter_constant(expr->x.pList->a[i].pExpr))
+			const struct Expr *item = expr->x.pList->a[i].pExpr;
+			if (!is_supported_filter_constant(item) &&
+			    !(has_only_source_columns(item, cursor, field_count, 0) &&
+			      has_source_column(item, cursor, field_count, 0)))
 				return false;
 		}
 		return true;
