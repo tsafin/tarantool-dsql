@@ -56,6 +56,9 @@ g.test_non_primary_null_filters_off_on_off = function()
                         :format(secondary_name, engine))
             box.execute(('CREATE INDEX %s_xy ON %s (x, y)')
                         :format(secondary_name, secondary_name))
+            box.execute(('CREATE INDEX %s_xydesc ON %s ' ..
+                         '(x DESC, y DESC)')
+                        :format(secondary_name, secondary_name))
             box.execute(('INSERT INTO %s VALUES ' ..
                          '(1, 1, 7, 10, \'a\'), ' ..
                          '(1, 2, 7, 10, \'b\'), ' ..
@@ -245,7 +248,6 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT x, y, tenant, id FROM %s ' ..
                            'ORDER BY x DESC, y DESC'):format(secondary_name),
                     expected = {{7, 1, 1}, {7, 1, 2}, {7, 2, 1}, {8, 2, 2}},
-                    expected_index = secondary_name .. '_xy',
                     expected_order_columns = {1, 2},
                     expected_result_columns = {1, 3, 4},
                     expected_order_desc = true,

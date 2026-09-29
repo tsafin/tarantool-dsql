@@ -486,6 +486,7 @@ sql_physical_table_scan_from_select(
 	uint64_t secondary_unsigned_key = 0;
 	bool has_secondary_range_scan = false;
 	bool has_secondary_full_scan = false;
+	bool secondary_full_scan_natural_order = false;
 	uint32_t secondary_full_index_id = 0;
 	uint32_t secondary_range_index_id = 0;
 	uint32_t secondary_range_key_column = 0;
@@ -1491,6 +1492,9 @@ predicate_parsed:
 			 !has_secondary_range_scan);
 		if (can_use_secondary_full_scan && order_by->nExpr > 0) {
 			const struct Expr *order_expr = order_by->a[0].pExpr;
+			enum sort_order requested_order = order_by->a[0].sort_order;
+			if (requested_order == SORT_ORDER_UNDEF)
+				requested_order = SORT_ORDER_ASC;
 			if (order_expr != NULL && order_expr->op == TK_COLUMN_REF &&
 			    order_expr->pLeft == NULL && order_expr->pRight == NULL &&
 			    order_expr->iTable == source->iCursor &&
@@ -1507,17 +1511,22 @@ predicate_parsed:
 					    index->def->key_def->parts[0].fieldno !=
 						(uint32_t)order_expr->iColumn)
 						continue;
-					const struct key_def *candidate =
+				    const struct key_def *candidate =
 						index->def->key_def;
 					if ((uint32_t)order_by->nExpr >
 					    candidate->part_count)
+						continue;
+					enum sort_order index_order =
+						candidate->parts[0].sort_order;
+					if (index_order != SORT_ORDER_ASC &&
+					    index_order != SORT_ORDER_DESC)
 						continue;
 					bool matches_prefix = true;
 					for (int term = 0; term < order_by->nExpr; ++term) {
 						const struct Expr *expr =
 							order_by->a[term].pExpr;
 						if (candidate->parts[term].sort_order !=
-							SORT_ORDER_ASC || expr == NULL ||
+							index_order || expr == NULL ||
 						    expr->op != TK_COLUMN_REF ||
 						    expr->pLeft != NULL ||
 						    expr->pRight != NULL ||
@@ -1531,10 +1540,15 @@ predicate_parsed:
 					}
 					if (!matches_prefix)
 						continue;
-					key_def = index->def->key_def;
-					has_secondary_full_scan = true;
-					secondary_full_index_id = index->def->iid;
-					break;
+					bool natural_order = index_order == requested_order;
+					if (!has_secondary_full_scan || natural_order) {
+						key_def = index->def->key_def;
+						has_secondary_full_scan = true;
+						secondary_full_scan_natural_order = natural_order;
+						secondary_full_index_id = index->def->iid;
+					}
+					if (natural_order)
+						break;
 				}
 			}
 		}
@@ -1627,7 +1641,9 @@ predicate_parsed:
 				.direction = order_direction,
 			};
 		}
-		direction = order_direction;
+		direction = has_secondary_full_scan ?
+			(secondary_full_scan_natural_order ? SQL_PLAN_ASC : SQL_PLAN_DESC) :
+			order_direction;
 		if (has_range_key && !has_prefix_range_scan &&
 		    !has_range_end_key &&
 		    direction != (range_op == SQL_PLAN_LT ||
