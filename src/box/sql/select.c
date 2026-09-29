@@ -6331,22 +6331,6 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		return 0;
 	}
 	const struct index *primary = space->index_map[0];
-	if (sql_select_has_matching_secondary_index(select, source)) {
-		sql_select_record_physical_fallback(parse,
-				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
-		return 0;
-	}
-	/* HASH supports ITER_ALL but not the ordered or keyed operations emitted
-	 * by the other physical routes. Keep it to unordered scans, optionally
-	 * guarded by a primary-key IS NULL/IS NOT NULL invariant.
-	 */
-	if (primary->def->type != TREE &&
-	    (primary->def->type != HASH || select->pOrderBy != NULL ||
-	     !sql_select_hash_pk_null_predicate(select, source, primary))) {
-		sql_select_record_physical_fallback(parse,
-				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
-		return 0;
-	}
 	ssize_t row_count = index_size(space->index_map[0]);
 	if (row_count < 0) {
 		sql_select_record_physical_fallback(parse,
@@ -6376,6 +6360,29 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		sql_select_record_physical_fallback(parse, reason);
 		return 0;
 	}
+	enum sql_plan_access_kind selected_access =
+		sql_plan_descriptor_access_kind(plan);
+	if (sql_select_has_matching_secondary_index(select, source) &&
+	    selected_access == SQL_PLAN_TABLE_FULL_SCAN) {
+		sql_plan_descriptor_delete(plan);
+		sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
+		return 0;
+	}
+	/* HASH supports ITER_ALL but not the keyed operations emitted by this
+	 * slice. Keep it to unordered full scans, optionally guarded by the
+	 * primary-key NULL invariant. Secondary-index probes still need the
+	 * TREE primary cursor to resolve complete tuples.
+	 */
+	if (primary->def->type != TREE &&
+	    (selected_access != SQL_PLAN_TABLE_FULL_SCAN ||
+	     primary->def->type != HASH || select->pOrderBy != NULL ||
+	     !sql_select_hash_pk_null_predicate(select, source, primary))) {
+		sql_plan_descriptor_delete(plan);
+		sql_select_record_physical_fallback(parse,
+				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
+		return 0;
+	}
 	if (source->fg.disallow_scan &&
 	    (parse->sql_flags & SQL_SeqScan) == 0 &&
 	    sql_plan_descriptor_access_kind(plan) == SQL_PLAN_TABLE_FULL_SCAN) {
@@ -6401,7 +6408,7 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		goto emission_error;
 	if (parse->explain == 2) {
 		char *message;
-		if (sql_plan_descriptor_access_kind(plan) ==
+		if (selected_access ==
 		    SQL_PLAN_TABLE_FULL_SCAN) {
 			u64 rows = plan_input->cost_rows > 0 ?
 				(u64)plan_input->cost_rows :
@@ -6410,6 +6417,23 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			message = sqlMPrintf("SCAN TABLE %s (~%llu rows)",
 					      space->def->name,
 					      (unsigned long long)rows);
+		} else if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN) {
+			const struct sql_plan_descriptor_input *input =
+				sql_plan_descriptor_get_input(plan);
+			const struct index *idx = NULL;
+			for (uint32_t i = 1; i < space->index_count; ++i)
+				if (space->index_map[i]->def->iid ==
+				    input->access.index_id) {
+					idx = space->index_map[i];
+					break;
+				}
+			if (idx == NULL)
+				goto emission_error;
+			uint32_t fieldno = idx->def->key_def->parts[0].fieldno;
+			const char *field_name = space->def->fields[fieldno].name;
+			message = sqlMPrintf("SEARCH TABLE %s USING INDEX %s "
+					      "(%s=?) (~1 row)", space->def->name,
+					      idx->def->name, field_name);
 		} else {
 			uint32_t fieldno = primary->def->key_def->parts[0].fieldno;
 			const char *field_name = space->def->fields[fieldno].name;
@@ -6422,7 +6446,35 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 				  message, P4_DYNAMIC) < 0)
 			goto emission_error;
 	}
-	if (primary->def->type == TREE)
+	int secondary_cursor = -1;
+	const struct index *secondary = NULL;
+	struct sql_plan_secondary_index secondary_info = {0};
+	uint32_t primary_columns[SQL_PLAN_POINT_KEY_PART_MAX];
+	if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN) {
+		for (uint32_t i = 1; i < space->index_count; ++i) {
+			if (space->index_map[i]->def->iid == plan_input->access.index_id) {
+				secondary = space->index_map[i];
+				break;
+			}
+		}
+		if (secondary == NULL || primary->def->type != TREE)
+			goto emission_error;
+		secondary_cursor = parse->nTab++;
+		secondary_info.index_id = secondary->def->iid;
+		secondary_info.key_column = secondary->def->key_def->parts[0].fieldno;
+		secondary_info.key_unsigned = secondary->def->key_def->parts[0].type ==
+			FIELD_TYPE_UNSIGNED;
+		secondary_info.primary_key_count = primary->def->key_def->part_count;
+		if (secondary_info.primary_key_count >
+		    SQL_PLAN_POINT_KEY_PART_MAX)
+			goto emission_error;
+		for (size_t i = 0; i < secondary_info.primary_key_count; ++i)
+			primary_columns[i] = primary->def->key_def->parts[i].fieldno;
+		secondary_info.primary_key_columns = primary_columns;
+		vdbe_emit_open_cursor(parse, source->iCursor, 0, space);
+		vdbe_emit_open_cursor(parse, secondary_cursor, secondary->def->iid,
+				      space);
+	} else if (primary->def->type == TREE)
 		vdbe_emit_open_cursor(parse, source->iCursor, 0, space);
 	else
 		vdbe_emit_open_hash_cursor_for_all(parse, source->iCursor, 0, space);
@@ -6437,7 +6489,11 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	};
 	enum sql_plan_access_kind access_kind =
 		sql_plan_descriptor_access_kind(plan);
-	int lower_rc = access_kind == SQL_PLAN_PK_PREFIX_SCAN ?
+	int lower_rc = access_kind == SQL_PLAN_INDEX_EQUALITY_SCAN ?
+		sql_plan_lower_vdbe_secondary_equality_with_projector(plan, vdbe,
+				source->iCursor, secondary_cursor, &secondary_info,
+				result_first_reg, sql_select_emit_projection, &projection) :
+		access_kind == SQL_PLAN_PK_PREFIX_SCAN ?
 		sql_plan_lower_vdbe_pk_prefix_scan_with_projector(plan, vdbe,
 				source->iCursor, result_first_reg,
 				sql_select_emit_projection, &projection) :
@@ -6454,6 +6510,12 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 				sql_select_emit_projection, &projection);
 	if (lower_rc != 0)
 		goto emission_error;
+	if (secondary_cursor >= 0) {
+		int index_close = sqlVdbeAddOp1(vdbe, OP_Close, secondary_cursor);
+		if (index_close != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto emission_error;
+	}
 	int close_op = sqlVdbeAddOp1(vdbe, OP_Close, source->iCursor);
 	if (close_op != vdbe->nOp - 1 || parse->is_aborted ||
 	    diag_last_error(diag_get()) != checkpoint.diag_error)

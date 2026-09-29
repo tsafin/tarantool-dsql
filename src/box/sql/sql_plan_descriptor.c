@@ -117,7 +117,7 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	    (in->fallback_reason != SQL_PLAN_FALLBACK_NONE &&
 	     sql_plan_fallback_reason_name(in->fallback_reason) == NULL) ||
 	    in->access.kind < SQL_PLAN_PK_POINT_LOOKUP ||
-	    in->access.kind > SQL_PLAN_PK_PREFIX_SCAN ||
+	    in->access.kind > SQL_PLAN_INDEX_EQUALITY_SCAN ||
 	    in->access.direction < SQL_PLAN_ASC ||
 	    in->access.direction > SQL_PLAN_DESC ||
 	    !valid_array(in->access.bounds, in->access.bound_count,
@@ -173,9 +173,26 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 			if (in->access.bounds[i].op != SQL_PLAN_EQ)
 				return NULL;
 	} else if (in->access.kind == SQL_PLAN_INDEX_POINT_LOOKUP &&
-		   (in->access.bound_count != 1 ||
+		   (in->access.has_integer_point_key ==
+		    in->access.has_unsigned_point_key ||
+		    in->access.index_id == 0 ||
+		    in->access.bound_count != 1 ||
 		    in->access.bounds[0].op != SQL_PLAN_EQ ||
 		    in->access.point_key_part_count != 0)) {
+		return NULL;
+	} else if (in->access.kind == SQL_PLAN_INDEX_EQUALITY_SCAN &&
+		   (in->access.has_integer_point_key ==
+		    in->access.has_unsigned_point_key ||
+		    in->access.index_id == 0 || in->access.bound_count != 1 ||
+		    in->access.bounds[0].side != SQL_PLAN_LOWER ||
+		    in->access.bounds[0].op != SQL_PLAN_EQ ||
+		    in->access.point_key_part_count != 0 ||
+		    in->access.range_key_column > INT_MAX ||
+		    in->access.has_integer_range_key ||
+		    in->access.has_unsigned_range_key ||
+		    in->access.has_integer_range_end_key ||
+		    in->access.has_unsigned_range_end_key ||
+		    in->access.prefix_key_part_count != 0)) {
 		return NULL;
 	}
 	if (in->access.kind != SQL_PLAN_PK_POINT_LOOKUP &&

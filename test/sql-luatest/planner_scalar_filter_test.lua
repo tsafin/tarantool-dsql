@@ -26,13 +26,19 @@ g.test_non_primary_null_filters_off_on_off = function()
                         :format(name))
             local comparison_name = name .. '_comparison'
             box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
-                         'a INTEGER, b INTEGER, s STRING, t STRING) ' ..
+                         'a INTEGER, b INTEGER, s STRING, t STRING, ' ..
+                         'k INTEGER) ' ..
                          "WITH ENGINE = '%s'")
                         :format(comparison_name, engine))
             box.execute(('INSERT INTO %s VALUES ' ..
-                         "(1, 1, 1, 'a', 'a'), (2, 1, 2, 'a', 'b'), " ..
-                         "(3, 2, 1, 'b', 'a'), (4, NULL, 1, NULL, 'a'), " ..
-                         "(5, 1, NULL, 'a', NULL)"):format(comparison_name))
+                         "(1, 1, 1, 'a', 'a', 7), " ..
+                         "(2, 1, 2, 'a', 'b', 7), " ..
+                         "(3, 2, 1, 'b', 'a', 8), " ..
+                         "(4, NULL, 1, NULL, 'a', NULL), " ..
+                         "(5, 1, NULL, 'a', NULL, 7)")
+                        :format(comparison_name))
+            box.execute(('CREATE INDEX %s_k ON %s (k)')
+                        :format(comparison_name, comparison_name))
             local composite_name = name .. '_composite'
             box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, v STRING, ' ..
                          'w STRING, PRIMARY KEY (a, b)) ' ..
@@ -411,6 +417,36 @@ g.test_non_primary_null_filters_off_on_off = function()
                 {
                     sql = ('SELECT id FROM %s WHERE id = 2 AND a < b')
                           :format(comparison_name),
+                    expected = {{2}},
+                },
+                {
+                    sql = ('SELECT id, k FROM %s WHERE k = 7')
+                          :format(comparison_name),
+                    expected = {{1, 7}, {2, 7}, {5, 7}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE 7 = k')
+                          :format(comparison_name),
+                    expected = {{1}, {2}, {5}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE k = 99')
+                          :format(comparison_name),
+                    expected = {},
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE k = 7 AND t = 'a'")
+                          :format(comparison_name),
+                    expected = {{1}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE k = 7 AND t IS NULL')
+                          :format(comparison_name),
+                    expected = {{5}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE k = 7 ' ..
+                           'LIMIT 1 OFFSET 1'):format(comparison_name),
                     expected = {{2}},
                 },
             }

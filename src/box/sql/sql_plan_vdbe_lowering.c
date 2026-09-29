@@ -921,6 +921,197 @@ sql_plan_lower_vdbe_pk_range_with_projector(
 }
 
 int
+sql_plan_lower_vdbe_secondary_equality_with_projector(
+	const struct sql_plan_descriptor *plan, struct Vdbe *vdbe,
+	int table_cursor, int index_cursor,
+	const struct sql_plan_secondary_index *index, int result_first_reg,
+	sql_plan_projection_projector_f projector, void *projector_ctx)
+{
+	if (plan == NULL || vdbe == NULL || vdbe->pParse == NULL ||
+	    table_cursor < 0 || index_cursor < 0 || table_cursor == index_cursor ||
+	    index == NULL || index->index_id == 0 ||
+	    index->primary_key_columns == NULL || index->primary_key_count == 0 ||
+	    index->primary_key_count > INT_MAX || result_first_reg < 1 ||
+	    vdbe->magic != VDBE_MAGIC_INIT)
+		return -1;
+	const struct sql_plan_descriptor_input *input =
+		sql_plan_descriptor_get_input(plan);
+	if (input == NULL || input->path_class != SQL_PLAN_NEW_PLANNER ||
+	    input->access.kind != SQL_PLAN_INDEX_EQUALITY_SCAN ||
+	    input->access.index_id != index->index_id ||
+	    input->access.range_key_column != index->key_column ||
+	    input->access.has_integer_point_key ==
+		input->access.has_unsigned_point_key ||
+	    input->access.has_unsigned_point_key != index->key_unsigned ||
+	    input->access.bound_count != 1 || input->access.bounds == NULL ||
+	    input->access.bounds[0].op != SQL_PLAN_EQ ||
+	    input->filter_count > SQL_PLAN_FILTER_MAX ||
+	    (input->filter_count != 0 && input->filters == NULL) ||
+	    input->finalize_count > 1 ||
+	    (input->finalize_count == 1 &&
+	     (input->finalize == NULL ||
+	      input->finalize[0].kind != SQL_PLAN_LIMIT ||
+	      input->finalize[0].limit > INT64_MAX ||
+	      input->finalize[0].offset > INT64_MAX)) ||
+	    input->projection_columns == NULL ||
+	    input->projection_column_count == 0 ||
+	    input->projection_column_count > INT_MAX ||
+	    result_first_reg > INT_MAX - (int)input->projection_column_count + 1)
+		return -1;
+	for (size_t i = 0; i < index->primary_key_count; ++i)
+		if (index->primary_key_columns[i] > INT_MAX)
+			return -1;
+	for (size_t i = 0; i < input->filter_count; ++i)
+		if (!sql_plan_filter_is_valid(&input->filters[i], projector))
+			return -1;
+	for (size_t i = 0; i < input->projection_column_count; ++i) {
+		uint32_t expr_ref = input->projection_expr_refs == NULL ? 0 :
+			input->projection_expr_refs[i];
+		if ((expr_ref == 0 && input->projection_columns[i] > INT_MAX) ||
+		    (expr_ref != 0 && projector == NULL))
+			return -1;
+	}
+	Parse *parse = vdbe->pParse;
+	bool has_limit = input->finalize_count == 1;
+	bool has_offset = has_limit && input->finalize[0].offset != 0;
+	if (has_limit && input->finalize[0].limit == 0) {
+		struct vdbe_codegen_checkpoint checkpoint;
+		if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
+			return -1;
+		int skip = sqlVdbeAddOp2(vdbe, OP_Goto, 0, 0);
+		if (skip != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error) {
+			vdbe_codegen_checkpoint_rollback(&checkpoint);
+			return -1;
+		}
+		sqlVdbeJumpHere(vdbe, skip);
+		vdbe_codegen_checkpoint_commit(&checkpoint);
+		return 0;
+	}
+	int extra_regs = 1 + (int)index->primary_key_count +
+		(int)input->filter_count + (has_limit ? 1 : 0) +
+		(has_offset ? 1 : 0);
+	if (parse->nMem > INT_MAX - extra_regs)
+		return -1;
+	struct vdbe_codegen_checkpoint checkpoint;
+	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
+		return -1;
+	int key_reg = ++parse->nMem;
+	int pk_reg = parse->nMem + 1;
+	parse->nMem += (int)index->primary_key_count;
+	int filter_reg = input->filter_count == 0 ? 0 : parse->nMem + 1;
+	parse->nMem += (int)input->filter_count;
+	int limit_reg = has_limit ? ++parse->nMem : 0;
+	int offset_reg = has_offset ? ++parse->nMem : 0;
+	int rc = sql_plan_emit_integer_constant(vdbe, key_reg,
+		input->access.has_unsigned_point_key,
+		input->access.integer_point_key,
+		input->access.unsigned_point_key);
+	if (rc != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error)
+		goto secondary_error;
+	if (has_limit) {
+		uint64_t value = input->finalize[0].limit;
+		rc = value <= INT_MAX ?
+			sqlVdbeAddOp2(vdbe, OP_Integer, (int)value, limit_reg) :
+			sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, limit_reg, 0,
+					  (const u8 *)&value, P4_UINT64);
+		if (rc != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto secondary_error;
+	}
+	if (has_offset) {
+		uint64_t value = input->finalize[0].offset;
+		rc = value <= INT_MAX ?
+			sqlVdbeAddOp2(vdbe, OP_Integer, (int)value, offset_reg) :
+			sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, offset_reg, 0,
+					  (const u8 *)&value, P4_UINT64);
+		if (rc != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto secondary_error;
+	}
+	int seek = sqlVdbeAddOp4Int(vdbe, OP_SeekGE, index_cursor, 0,
+				    key_reg, 1);
+	if (seek != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error)
+		goto secondary_error;
+	int body = sqlVdbeCurrentAddr(vdbe);
+	int end = sqlVdbeAddOp4Int(vdbe, OP_IdxGT, index_cursor, 0,
+				   key_reg, 1);
+	if (end != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error)
+		goto secondary_error;
+	for (size_t i = 0; i < index->primary_key_count; ++i) {
+		rc = sqlVdbeAddOp3(vdbe, OP_Column, index_cursor,
+				   (int)index->primary_key_columns[i],
+				   pk_reg + (int)i);
+		if (rc != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto secondary_error;
+	}
+	int table_miss = sqlVdbeAddOp4Int(vdbe, OP_NotFound, table_cursor, 0,
+					   pk_reg,
+					   (int)index->primary_key_count);
+	if (table_miss != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error)
+		goto secondary_error;
+	int next_label = sqlVdbeMakeLabel(vdbe);
+	int filter_breaks[SQL_PLAN_FILTER_MAX];
+	for (size_t i = 0; i < input->filter_count; ++i) {
+		filter_breaks[i] = sql_plan_emit_filter(&input->filters[i], vdbe,
+			parse, &checkpoint, table_cursor, filter_reg + (int)i, projector,
+			projector_ctx);
+		if (filter_breaks[i] < 0)
+			goto secondary_error;
+	}
+	int offset_skip = -1;
+	if (has_offset) {
+		offset_skip = sqlVdbeAddOp2(vdbe, OP_IfNotZero, offset_reg, 0);
+		if (offset_skip != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto secondary_error;
+	}
+	for (size_t i = 0; i < input->projection_column_count; ++i) {
+		if (sql_plan_emit_projection(input, vdbe, parse, &checkpoint,
+					     table_cursor, i,
+					     result_first_reg + (int)i,
+					     projector, projector_ctx) != 0)
+			goto secondary_error;
+	}
+	rc = sqlVdbeAddOp2(vdbe, OP_ResultRow, result_first_reg,
+			   (int)input->projection_column_count);
+	if (rc != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error)
+		goto secondary_error;
+	int limit_break = -1;
+	if (has_limit) {
+		limit_break = sqlVdbeAddOp2(vdbe, OP_DecrJumpZero, limit_reg, 0);
+		if (limit_break != vdbe->nOp - 1 || parse->is_aborted ||
+		    diag_last_error(diag_get()) != checkpoint.diag_error)
+			goto secondary_error;
+	}
+	if (offset_skip >= 0)
+		sqlVdbeJumpHere(vdbe, offset_skip);
+	sqlVdbeResolveLabel(vdbe, next_label);
+	int next = sqlVdbeAddOp2(vdbe, OP_Next, index_cursor, body);
+	if (next != vdbe->nOp - 1 || parse->is_aborted ||
+	    diag_last_error(diag_get()) != checkpoint.diag_error)
+		goto secondary_error;
+	sqlVdbeJumpHere(vdbe, seek);
+	sqlVdbeJumpHere(vdbe, end);
+	sqlVdbeChangeP2(vdbe, table_miss, next_label);
+	for (size_t i = 0; i < input->filter_count; ++i)
+		sqlVdbeChangeP2(vdbe, filter_breaks[i], next_label);
+	if (limit_break >= 0)
+		sqlVdbeJumpHere(vdbe, limit_break);
+	vdbe_codegen_checkpoint_commit(&checkpoint);
+	return 0;
+secondary_error:
+	vdbe_codegen_checkpoint_rollback(&checkpoint);
+	return -1;
+}
+
+int
 sql_plan_lower_vdbe_pk_point(const struct sql_plan_descriptor *plan,
 			     struct Vdbe *vdbe, int cursor, int result_first_reg)
 {
