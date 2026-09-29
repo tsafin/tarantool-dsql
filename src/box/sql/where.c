@@ -48,8 +48,11 @@
 #include "fiber.h"
 #include "clock.h"
 #include "sql_plan_fallback.h"
+#include "sql_stats_snapshot.h"
+#include "msgpuck.h"
 
 #include <errno.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -72,6 +75,99 @@ where_stats_snapshot(const struct WhereInfo *where_info)
 	    where_info->pParse->pVdbe == NULL)
 		return NULL;
 	return where_info->pParse->pVdbe->stats_snapshot;
+}
+
+/* Read integer SQL literals without evaluating SQL expressions at prepare
+ * time. Bind parameters and computed constants deliberately retain the
+ * existing planner estimate. */
+static bool
+where_stats_integer_literal(const struct Expr *expr, int64_t *value)
+{
+	bool negative = false;
+	if (expr != NULL && (expr->op == TK_UMINUS || expr->op == TK_UPLUS)) {
+		negative = expr->op == TK_UMINUS;
+		expr = expr->pLeft;
+	}
+	if (expr == NULL || expr->op != TK_INTEGER)
+		return false;
+	int64_t parsed;
+	if ((expr->flags & EP_IntValue) != 0) {
+		parsed = expr->u.iValue;
+	} else {
+		bool token_negative = false;
+		if (expr->u.zToken == NULL ||
+		    sql_atoi64(expr->u.zToken, &parsed, &token_negative,
+			       strlen(expr->u.zToken)) != 0 || token_negative)
+			return false;
+	}
+	if (negative) {
+		if (parsed == INT64_MIN)
+			return false;
+		parsed = -parsed;
+	}
+	*value = parsed;
+	return true;
+}
+
+static bool
+where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
+			      const struct index_def *index_def,
+			      int cursor, const struct WhereTerm *term,
+			      uint64_t *rows)
+{
+	if (index_def == NULL || index_def->opts.is_unique ||
+	    index_def->key_def == NULL || index_def->key_def->part_count == 0 ||
+	    term == NULL || term->pExpr == NULL || term->pExpr->op != TK_EQ ||
+	    rows == NULL)
+		return false;
+	const struct key_part *part = &index_def->key_def->parts[0];
+	if (part->type != FIELD_TYPE_INTEGER &&
+	    part->type != FIELD_TYPE_UNSIGNED)
+		return false;
+	const struct Expr *lhs = term->pExpr->pLeft;
+	const struct Expr *rhs = term->pExpr->pRight;
+	const struct Expr *literal = NULL;
+	if (lhs != NULL && lhs->op == TK_COLUMN_REF && lhs->pLeft == NULL &&
+	    lhs->pRight == NULL && lhs->iTable == cursor &&
+	    lhs->iColumn == (int)part->fieldno) {
+		literal = rhs;
+	} else if (rhs != NULL && rhs->op == TK_COLUMN_REF &&
+		   rhs->pLeft == NULL && rhs->pRight == NULL &&
+		   rhs->iTable == cursor && rhs->iColumn == (int)part->fieldno) {
+		literal = lhs;
+	} else {
+		return false;
+	}
+	int64_t integer;
+	if (!where_stats_integer_literal(literal, &integer) ||
+	    (part->type == FIELD_TYPE_UNSIGNED && integer < 0))
+		return false;
+	char encoded[16];
+	char *end = part->type == FIELD_TYPE_UNSIGNED ?
+		mp_encode_uint(encoded, (uint64_t)integer) :
+		(integer >= 0 ? mp_encode_uint(encoded, (uint64_t)integer) :
+		 mp_encode_int(encoded, integer));
+	const struct sql_stats_snapshot *snapshot =
+		where_stats_snapshot(where_info);
+	if (snapshot == NULL)
+		return false;
+	double estimate, error;
+	if (sql_stats_snapshot_estimate_index_part_mcv_rows(snapshot,
+		box_schema_version(), index_def->space_id, index_def->iid, 0,
+		(uint8_t)part->type + 1, encoded, end - encoded, &estimate,
+		&error) != SQL_STATS_LOOKUP_AVAILABLE)
+		return false;
+	/* SpaceSaving's actual count is in [estimate-error, estimate]. Use the
+	 * interval midpoint as the point estimate, then retain the existing
+	 * minimum-one-row floor used by LogEst planning. */
+	if (estimate < error || !isfinite(estimate) || !isfinite(error))
+		return false;
+	double midpoint = estimate - error / 2;
+	if (midpoint < 1)
+		midpoint = 1;
+	*rows = midpoint >= (double)UINT64_MAX ? UINT64_MAX :
+		(uint64_t)(midpoint + 0.5);
+	return true;
 }
 
 static int sql_path_solver_widths[3] = {1, 5, 10};
@@ -2092,12 +2188,24 @@ whereLoopAddBtreeIndex(WhereLoopBuilder * pBuilder,	/* The WhereLoop factory */
 				pNew->nOut += pTerm->truthProb;
 				pNew->nOut -= nIn;
 			} else {
-				pNew->nOut +=
-					(index_field_tuple_est_with_snapshot(probe, nEq,
-						where_stats_snapshot(pWInfo)) -
-					 index_field_tuple_est_with_snapshot(probe, nEq - 1,
-						where_stats_snapshot(pWInfo)));
-				if ((eOp & WO_ISNULL) != 0) {
+				uint64_t mcv_rows;
+				bool used_mcv = nEq == 1 && nIn == 0 &&
+					(eOp & WO_EQ) != 0 && pTerm->truthProb > 0 &&
+					where_stats_mcv_equality_rows(pWInfo, probe,
+							      pSrc->iCursor, pTerm,
+							      &mcv_rows);
+				if (used_mcv) {
+					pNew->nOut = sqlLogEst(mcv_rows);
+				} else {
+					pNew->nOut +=
+						(index_field_tuple_est_with_snapshot(probe,
+							nEq,
+							where_stats_snapshot(pWInfo)) -
+						 index_field_tuple_est_with_snapshot(probe,
+							nEq - 1,
+							where_stats_snapshot(pWInfo)));
+				}
+				if (!used_mcv && (eOp & WO_ISNULL) != 0) {
 					/*
 					 * TUNING: If there is no likelihood()
 					 * value, assume that a "col IS NULL"
