@@ -226,12 +226,13 @@ new_secondary_range_descriptor(bool bounded,
 }
 
 static struct sql_plan_descriptor *
-new_secondary_full_scan_descriptor(enum sql_plan_direction direction)
+new_secondary_full_scan_descriptor(enum sql_plan_direction direction,
+				   enum sql_plan_direction order_direction)
 {
 	static const uint32_t columns[] = {0};
 	const struct sql_plan_order_term order[] = {
-		{.column = 3, .direction = direction},
-		{.column = 4, .direction = direction},
+		{.column = 3, .direction = order_direction},
+		{.column = 4, .direction = order_direction},
 	};
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
@@ -882,7 +883,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(72);
+	plan(74);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -949,9 +950,13 @@ main(void)
 	struct sql_plan_descriptor *secondary_bounded_reverse_range_desc =
 		new_secondary_range_descriptor(true, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *secondary_full_asc_desc =
-		new_secondary_full_scan_descriptor(SQL_PLAN_ASC);
+		new_secondary_full_scan_descriptor(SQL_PLAN_ASC, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *secondary_full_desc_desc =
-		new_secondary_full_scan_descriptor(SQL_PLAN_DESC);
+		new_secondary_full_scan_descriptor(SQL_PLAN_DESC, SQL_PLAN_DESC);
+	struct sql_plan_descriptor *secondary_full_desc_key_desc =
+		new_secondary_full_scan_descriptor(SQL_PLAN_ASC, SQL_PLAN_DESC);
+	struct sql_plan_descriptor *secondary_full_desc_key_asc =
+		new_secondary_full_scan_descriptor(SQL_PLAN_DESC, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *negative_point_desc =
 		new_point_descriptor(INT64_MIN);
 	struct sql_plan_descriptor *unsigned_point_desc =
@@ -1282,6 +1287,7 @@ main(void)
 	static const uint32_t secondary_key_columns[] = {3, 4};
 	static const bool secondary_key_unsigned[] = {false, true};
 	static const bool secondary_key_descending[] = {false, false};
+	static const bool secondary_desc_key_descending[] = {true, true};
 	const struct sql_plan_secondary_index secondary_full_index = {
 		.index_id = 1,
 		.key_column = 3,
@@ -1289,6 +1295,17 @@ main(void)
 		.key_columns = secondary_key_columns,
 		.key_parts_unsigned = secondary_key_unsigned,
 		.key_parts_descending = secondary_key_descending,
+		.key_part_count = 2,
+		.primary_key_columns = secondary_pk_columns,
+		.primary_key_count = 2,
+	};
+	const struct sql_plan_secondary_index secondary_desc_full_index = {
+		.index_id = 1,
+		.key_column = 3,
+		.key_unsigned = false,
+		.key_columns = secondary_key_columns,
+		.key_parts_unsigned = secondary_key_unsigned,
+		.key_parts_descending = secondary_desc_key_descending,
 		.key_part_count = 2,
 		.primary_key_columns = secondary_pk_columns,
 		.primary_key_count = 2,
@@ -1423,6 +1440,20 @@ main(void)
 	   vdbe.aOp[before_secondary_full_desc + 5].opcode == OP_ResultRow &&
 	   vdbe.aOp[before_secondary_full_desc + 6].opcode == OP_Prev,
 	   "descending secondary full scan walks the index backward");
+	int before_descending_index_forward = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_full_desc_key_desc, &vdbe, 4, 5,
+		&secondary_desc_full_index, 20, NULL, NULL) == 0 &&
+	   vdbe.aOp[before_descending_index_forward].opcode == OP_Rewind &&
+	   vdbe.aOp[before_descending_index_forward + 6].opcode == OP_Next,
+	   "descending secondary index emits its natural order in a forward walk");
+	int before_descending_index_reverse = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_full_desc_key_asc, &vdbe, 4, 5,
+		&secondary_desc_full_index, 20, NULL, NULL) == 0 &&
+	   vdbe.aOp[before_descending_index_reverse].opcode == OP_Last &&
+	   vdbe.aOp[before_descending_index_reverse + 6].opcode == OP_Prev,
+	   "descending secondary index emits inverse order in a reverse walk");
 	int before_point_filter = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(point_null_filter_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_point_filter + 1].opcode == OP_NotFound &&
