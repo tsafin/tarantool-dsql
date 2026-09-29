@@ -1084,7 +1084,10 @@ the `where.c` selectivity adapter wait for that interface.
   bounded MCV summaries; callback extraction or the native scalar adapter
   supplies values, and preflight charges worst-case candidate arrays before
   sampling. This remains volatile collection only: planner and persistence
-  integration are still open. The
+  integration are still open. A stale-checked snapshot lookup now matches a
+  typed MCV and scales its SpaceSaving estimate/error interval to the index
+  tuple population; an absent candidate stays explicitly unknown. SQL literal
+  canonicalization and `where.c` consumption are still open. The
   candidate handoff also exposed and fixed a SpaceSaving eviction-error bug:
   replacement now resets error to the evicted counter floor instead of adding
   the evicted entry's stale error; a repeated-eviction regression checks every
