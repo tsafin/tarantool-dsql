@@ -235,6 +235,7 @@ create_unit_test(PREFIX sql_physical_plan
                  SOURCES sql_physical_plan.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_logical_plan.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_plan_descriptor.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_expr_canonical.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_physical_plan.c
                  LIBRARIES unit m
 )

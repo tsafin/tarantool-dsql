@@ -4,8 +4,32 @@
 #include "box/sql/sqlInt.h"
 #include "box/sql/sql_logical_plan.h"
 #include "box/sql/sql_physical_plan.h"
+#include "box/index.h"
+#include "box/index_def.h"
+#include "box/key_def.h"
 #include "box/space.h"
 #include "unit.h"
+
+/* This target exercises logical-plan physicalization, not Select parsing.
+ * Keep parser-only dependencies fail-closed rather than linking the complete
+ * SQL expression runtime into this focused unit binary.
+ */
+int
+sql_atoi64(const char *z, int64_t *value, bool *is_negative, int length)
+{
+	(void)z;
+	(void)value;
+	(void)is_negative;
+	(void)length;
+	return -1;
+}
+
+int
+sqlExprIsConstant(Expr *expr)
+{
+	(void)expr;
+	return 0;
+}
 
 static struct sql_logical_plan *
 make_logical_plan(struct space_def **def_out)
@@ -45,6 +69,7 @@ test_access_path_choices(void)
 	struct sql_plan_expression expression = {1, "param(1)"};
 	struct sql_physical_candidate candidate = {
 		.access = {.kind = SQL_PLAN_PK_POINT_LOOKUP, .index_id = 0,
+			.integer_point_key = 1, .has_integer_point_key = true,
 			.bounds = &bound, .bound_count = 1,
 			.est_rows = 1, .est_rows_confidence = 1},
 		.expressions = &expression, .expression_count = 1,
@@ -69,13 +94,24 @@ test_access_path_choices(void)
 	for (size_t i = 0; i < sizeof(kinds) / sizeof(kinds[0]); ++i) {
 		candidate.access.kind = kinds[i];
 		candidate.access.index_id = 2;
+		candidate.access.has_integer_point_key = false;
+		candidate.access.has_unsigned_point_key = false;
+		candidate.access.has_integer_range_key = false;
+		candidate.access.has_unsigned_range_key = false;
+		candidate.access.has_integer_range_end_key = false;
+		candidate.access.has_unsigned_range_end_key = false;
 		candidate.access.bound_count = 0;
 		if (kinds[i] == SQL_PLAN_INDEX_POINT_LOOKUP) {
+			candidate.access.integer_point_key = 1;
+			candidate.access.has_integer_point_key = true;
 			candidate.access.bounds = &bound;
 			candidate.access.bound_count = 1;
 		}
 		if (kinds[i] == SQL_PLAN_INDEX_RANGE_SCAN) {
 			bound.op = SQL_PLAN_GE;
+			candidate.access.integer_range_key = 1;
+			candidate.access.has_integer_range_key = true;
+			candidate.access.integer_range_op = SQL_PLAN_GE;
 			candidate.access.bounds = &bound;
 			candidate.access.bound_count = 1;
 		}
@@ -87,7 +123,7 @@ test_access_path_choices(void)
 	}
 
 	struct sql_physical_candidate alternatives[2] = {candidate, candidate};
-	alternatives[0].access.kind = SQL_PLAN_TABLE_FULL_SCAN;
+	 alternatives[0].access.kind = SQL_PLAN_TABLE_FULL_SCAN;
 	alternatives[0].access.bound_count = 0;
 	alternatives[0].total_cost = 9;
 	alternatives[1].access.kind = SQL_PLAN_INDEX_FULL_SCAN;
@@ -123,7 +159,26 @@ test_resolved_table_scan_producer(void)
 	strcpy(def->name, "t1");
 	def->id = 512;
 	def->field_count = 3;
-	struct space space = {.def = def};
+	struct key_def *primary_key_def =
+		calloc(1, sizeof(*primary_key_def) + sizeof(struct key_part));
+	primary_key_def->part_count = 1;
+	primary_key_def->parts[0] = (struct key_part) {
+		.fieldno = 0,
+		.type = FIELD_TYPE_INTEGER,
+		.sort_order = SORT_ORDER_ASC,
+	};
+	struct index_def primary_def = {
+		.iid = 0,
+		.type = TREE,
+		.key_def = primary_key_def,
+	};
+	struct index primary = {.def = &primary_def};
+	struct index *index_map[] = {&primary};
+	struct space space = {
+		.def = def,
+		.index_map = index_map,
+		.index_count = 1,
+	};
 	struct SrcList source = {.nSrc = 1};
 	source.a[0].space = &space;
 	source.a[0].iCursor = 4;
@@ -171,6 +226,7 @@ test_resolved_table_scan_producer(void)
 	   reason == SQL_PHYSICAL_REJECT_INVALID_LOGICAL_PLAN,
 	   "filtered SELECT is outside the table-scan producer contract");
 	free(def);
+	free(primary_key_def);
 	footer();
 	check_plan();
 }
