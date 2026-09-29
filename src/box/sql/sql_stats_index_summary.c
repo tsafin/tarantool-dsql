@@ -8,6 +8,8 @@
 #include "index_def.h"
 #include "key_def.h"
 #include "coll/coll.h"
+#include "coll/coll_def.h"
+#include "msgpuck.h"
 #include "tuple.h"
 #include "tuple_format.h"
 #include "tuple_hash.h"
@@ -28,6 +30,74 @@ struct sql_stats_index_summary {
 	uint64_t bytes;
 	bool failed;
 };
+
+static bool
+summary_mcv_storage_bytes(size_t part_count, uint32_t capacity,
+			  size_t max_value_bytes, size_t *mcv_bytes,
+			  size_t *scratch_bytes)
+{
+	if (part_count == 0 || max_value_bytes == SIZE_MAX ||
+	    part_count > SIZE_MAX / sizeof(struct sql_stats_spacesaving *) ||
+	    part_count > SIZE_MAX / sizeof(uint64_t))
+		return false;
+	size_t one_sketch;
+	if (sql_stats_spacesaving_storage_bytes(capacity, max_value_bytes + 1,
+						&one_sketch) != 0)
+		return false;
+	size_t per_part = sizeof(struct sql_stats_spacesaving *) +
+		sizeof(uint64_t);
+	if (one_sketch > SIZE_MAX - per_part)
+		return false;
+	per_part += one_sketch;
+	if (part_count > SIZE_MAX / per_part)
+		return false;
+	*mcv_bytes = part_count * per_part;
+	*scratch_bytes = max_value_bytes + 1;
+	if (*scratch_bytes > SIZE_MAX - *mcv_bytes)
+		return false;
+	return true;
+}
+
+static int
+summary_enable_mcv(struct sql_stats_index_summary *summary,
+		   uint32_t capacity, size_t max_value_bytes,
+		   size_t scratch_bytes)
+{
+	summary->mcv = calloc(summary->part_count, sizeof(*summary->mcv));
+	summary->mcv_nonnull_rows = calloc(summary->part_count,
+						   sizeof(*summary->mcv_nonnull_rows));
+	summary->mcv_key_scratch = malloc(scratch_bytes);
+	if (summary->mcv == NULL || summary->mcv_nonnull_rows == NULL ||
+	    summary->mcv_key_scratch == NULL)
+		return -1;
+	summary->max_mcv_value_bytes = max_value_bytes;
+	for (size_t i = 0; i < summary->part_count; i++) {
+		summary->mcv[i] = sql_stats_spacesaving_new(capacity);
+		if (summary->mcv[i] == NULL)
+			return -1;
+	}
+	return 0;
+}
+
+static int
+summary_add_mcv(struct sql_stats_index_summary *summary, size_t part,
+		uint8_t type_tag, const void *value, size_t value_size)
+{
+	if (summary->mcv == NULL || type_tag == 0 ||
+	    (value == NULL && value_size != 0) ||
+	    value_size > summary->max_mcv_value_bytes || value_size == SIZE_MAX ||
+	    summary->mcv_nonnull_rows[part] == UINT64_MAX)
+		return -1;
+	size_t key_size = value_size + 1;
+	summary->mcv_key_scratch[0] = type_tag;
+	if (value_size != 0)
+		memcpy(summary->mcv_key_scratch + 1, value, value_size);
+	if (sql_stats_spacesaving_add(summary->mcv[part],
+				       summary->mcv_key_scratch, key_size) != 0)
+		return -1;
+	summary->mcv_nonnull_rows[part]++;
+	return 0;
+}
 
 static struct sql_stats_index_summary *
 summary_new_base(size_t part_count, uint8_t precision, uint64_t seed,
@@ -83,45 +153,22 @@ sql_stats_index_summary_new_with_mcv(size_t part_count, uint8_t precision,
 				     uint32_t mcv_capacity,
 				     size_t max_mcv_value_bytes)
 {
-	if (extract == NULL || part_count == 0 ||
-	    part_count > SIZE_MAX / sizeof(struct sql_stats_spacesaving *) ||
-	    part_count > SIZE_MAX / sizeof(uint64_t))
+	if (extract == NULL)
 		return NULL;
-	size_t one_sketch;
-	if (max_mcv_value_bytes == SIZE_MAX ||
-	    sql_stats_spacesaving_storage_bytes(mcv_capacity,
-						max_mcv_value_bytes + 1,
-						&one_sketch) != 0)
-		return NULL;
-	size_t per_part = sizeof(struct sql_stats_spacesaving *) +
-		sizeof(uint64_t);
-	if (one_sketch > SIZE_MAX - per_part)
-		return NULL;
-	per_part += one_sketch;
-	if (part_count > max_bytes / per_part)
-		return NULL;
-	size_t mcv_bytes = part_count * per_part;
-	size_t scratch_bytes = max_mcv_value_bytes + 1;
-	if (scratch_bytes > max_bytes - mcv_bytes)
+	size_t mcv_bytes, scratch_bytes;
+	if (!summary_mcv_storage_bytes(part_count, mcv_capacity,
+				       max_mcv_value_bytes, &mcv_bytes,
+				       &scratch_bytes) || mcv_bytes > max_bytes ||
+	    scratch_bytes > max_bytes - mcv_bytes)
 		return NULL;
 	mcv_bytes += scratch_bytes;
 	struct sql_stats_index_summary *summary = summary_new_base(part_count,
 		precision, seed, max_bytes - mcv_bytes, extract, extract_context);
 	if (summary == NULL)
 		return NULL;
-	summary->mcv = calloc(part_count, sizeof(*summary->mcv));
-	summary->mcv_nonnull_rows = calloc(part_count,
-						   sizeof(*summary->mcv_nonnull_rows));
-	summary->mcv_key_scratch = malloc(scratch_bytes);
-	if (summary->mcv == NULL || summary->mcv_nonnull_rows == NULL ||
-	    summary->mcv_key_scratch == NULL)
+	if (summary_enable_mcv(summary, mcv_capacity, max_mcv_value_bytes,
+				scratch_bytes) != 0)
 		goto fail;
-	summary->max_mcv_value_bytes = max_mcv_value_bytes;
-	for (size_t i = 0; i < part_count; i++) {
-		summary->mcv[i] = sql_stats_spacesaving_new(mcv_capacity);
-		if (summary->mcv[i] == NULL)
-			goto fail;
-	}
 	return summary;
 fail:
 	sql_stats_index_summary_delete(summary);
@@ -152,6 +199,10 @@ sql_stats_index_summary_new_for_index(struct tuple_format *format,
 	 * the value comparator; noncanonical encodings are not produced by tuples. */
 	for (uint32_t i = 0; i < key_def->part_count; i++) {
 		enum field_type type = key_def->parts[i].type;
+		/* tuple_field() below returns the whole top-level field. A JSON-path
+		 * key needs its extracted value instead, so keep it NDV-only. */
+		if (key_def->parts[i].path != NULL)
+			return false;
 		if (type != FIELD_TYPE_STRING && type != FIELD_TYPE_DOUBLE &&
 		    type != FIELD_TYPE_BOOLEAN && type != FIELD_TYPE_UNSIGNED &&
 		    type != FIELD_TYPE_INTEGER)
@@ -172,6 +223,60 @@ sql_stats_index_summary_new_for_index(struct tuple_format *format,
 	summary->format = format;
 	tuple_format_ref(format);
 	summary->hash_bits = 32;
+	return summary;
+}
+
+bool
+sql_stats_index_summary_native_mcv_supported(const struct index_def *index_def)
+{
+	if (index_def == NULL ||
+	    (index_def->type != HASH && index_def->type != TREE) ||
+	    index_def->key_def == NULL || index_def->opts.func_id != 0)
+		return false;
+	const struct key_def *key_def = index_def->key_def;
+	if (key_def->part_count == 0 || key_def->part_count > UINT32_MAX ||
+	    key_def->is_multikey || key_def->for_func_index)
+		return false;
+	for (uint32_t i = 0; i < key_def->part_count; i++) {
+		enum field_type type = key_def->parts[i].type;
+		if (type != FIELD_TYPE_STRING && type != FIELD_TYPE_DOUBLE &&
+		    type != FIELD_TYPE_BOOLEAN && type != FIELD_TYPE_UNSIGNED &&
+		    type != FIELD_TYPE_INTEGER)
+			return false;
+		if (type == FIELD_TYPE_STRING && key_def->parts[i].coll != NULL &&
+		    (key_def->parts[i].coll->type != COLL_TYPE_BINARY ||
+		     key_def->parts[i].coll->hash == NULL))
+			return false;
+	}
+	return true;
+}
+
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_for_index_with_mcv(
+	struct tuple_format *format, const struct index_def *index_def,
+	uint8_t precision, uint64_t seed, size_t max_bytes,
+	uint32_t mcv_capacity, size_t max_mcv_value_bytes)
+{
+	if (!sql_stats_index_summary_native_mcv_supported(index_def))
+		return NULL;
+	size_t mcv_bytes, scratch_bytes;
+	if (!summary_mcv_storage_bytes(index_def->key_def->part_count,
+				       mcv_capacity, max_mcv_value_bytes,
+				       &mcv_bytes, &scratch_bytes) ||
+	    mcv_bytes > max_bytes || scratch_bytes > max_bytes - mcv_bytes)
+		return NULL;
+	size_t total_mcv_bytes = mcv_bytes + scratch_bytes;
+	struct sql_stats_index_summary *summary =
+		sql_stats_index_summary_new_for_index(format, index_def, precision,
+						      seed,
+						      max_bytes - total_mcv_bytes);
+	if (summary == NULL)
+		return NULL;
+	if (summary_enable_mcv(summary, mcv_capacity, max_mcv_value_bytes,
+				scratch_bytes) != 0) {
+		sql_stats_index_summary_delete(summary);
+		return NULL;
+	}
 	return summary;
 }
 
@@ -221,16 +326,33 @@ sql_stats_index_summary_consume(void *context, const char *tuple,
 		uint32_t *hashes = malloc(summary->part_count * sizeof(*hashes));
 		int rc = hashes == NULL ? -1 : tuple_hash_prefixes(native_tuple,
 			summary->key_def, hashes, (uint32_t)summary->part_count);
-		/* tuple_new() returns an unreferenced runtime tuple. */
-		tuple_delete(native_tuple);
 		if (rc == 0) {
 			for (size_t i = 0; i < summary->part_count; i++) {
 				if (sql_stats_hll_add_u32(summary->prefixes[i], hashes[i]) != 0) {
 					rc = -1;
 					break;
 				}
+				if (summary->mcv != NULL) {
+					uint32_t fieldno =
+						summary->key_def->parts[i].fieldno;
+					const char *field = tuple_field(native_tuple, fieldno);
+					if (field == NULL || mp_typeof(*field) == MP_NIL)
+						continue;
+					const char *end = field;
+					mp_next(&end);
+					size_t value_size = end - field;
+					uint8_t type_tag =
+						(uint8_t)summary->key_def->parts[i].type + 1;
+					if (summary_add_mcv(summary, i, type_tag, field,
+							    value_size) != 0) {
+						rc = -1;
+						break;
+					}
+				}
 			}
 		}
+		/* tuple_new() returns an unreferenced runtime tuple. */
+		tuple_delete(native_tuple);
 		free(hashes);
 		if (rc != 0) {
 			summary->failed = true;
@@ -260,26 +382,12 @@ sql_stats_index_summary_consume(void *context, const char *tuple,
 			return -1;
 		}
 		if (summary->mcv != NULL && parts[i].type_tag != 0) {
-			if (parts[i].size > summary->max_mcv_value_bytes ||
-			    parts[i].size == SIZE_MAX) {
+			if (summary_add_mcv(summary, i, parts[i].type_tag,
+					    parts[i].data, parts[i].size) != 0) {
 				summary->failed = true;
 				free(parts);
 				return -1;
 			}
-			size_t key_size = parts[i].size + 1;
-			summary->mcv_key_scratch[0] = parts[i].type_tag;
-			if (parts[i].size != 0)
-				memcpy(summary->mcv_key_scratch + 1, parts[i].data,
-				       parts[i].size);
-			int rc = sql_stats_spacesaving_add(summary->mcv[i],
-							   summary->mcv_key_scratch,
-							   key_size);
-			if (rc != 0 || summary->mcv_nonnull_rows[i] == UINT64_MAX) {
-				summary->failed = true;
-				free(parts);
-				return -1;
-			}
-			summary->mcv_nonnull_rows[i]++;
 		}
 	}
 	free(parts);

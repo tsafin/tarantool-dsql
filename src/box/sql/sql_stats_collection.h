@@ -180,8 +180,8 @@ struct sql_stats_tx_index_spec {
 	/* Shared-read-view collector only: use the engine's bounded index hash
 	 * adapter. Transaction collectors require an explicit canonical extractor. */
 	bool use_native_index_hash;
-	/* Optional bounded MCV sketch for callback-based canonical values only.
-	 * Both fields must be zero to disable MCV. Native hash mode rejects MCV. */
+	/* Optional bounded MCV sketch. Both fields must be zero to disable MCV.
+	 * The native adapter supports it only for canonicalizable key definitions. */
 	uint32_t mcv_capacity;
 	size_t max_mcv_value_bytes;
 };
@@ -199,7 +199,8 @@ sql_stats_tx_index_spec_mcv_staging_bytes(
 		*bytes = 0;
 		return true;
 	}
-	if (spec->use_native_index_hash || spec->extract == NULL ||
+	if ((spec->use_native_index_hash && spec->extract != NULL) ||
+	    (!spec->use_native_index_hash && spec->extract == NULL) ||
 	    spec->max_mcv_value_bytes == 0)
 		return false;
 	size_t part_count = spec->expected->part_count;

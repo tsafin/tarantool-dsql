@@ -434,18 +434,21 @@ caller-provided generation tokens but cannot prove they identify one read
 view. Producers must therefore go through a collector context rather than
 minting a visibility token around unrelated samples.
 
-When a callback-backed `sql_stats_index_summary` was created with MCV enabled,
-the sample candidate builder now copies its per-part typed candidates and
-non-NULL denominator into the immutable snapshot. The intermediate input
-arrays are included in its temporary byte ceiling and are released after the
-snapshot deep-copy. The native index-hash adapter remains NDV-only: hashes
-cannot recover canonical values, so SQL `ANALYZE` still produces no MCV
-payload. This plumbing is volatile API coverage, not planner or persistence
-integration. Both owned transaction and shared-read-view callback collectors
-can opt into this summary with `mcv_capacity` and
-`max_mcv_value_bytes`; these options must both be set (or both be zero), and
-native hash mode rejects them. Their worst-case per-part candidate-copy arrays
-are included in aggregate staging preflight before sampling begins.
+When an index summary is created with MCV enabled, the sample candidate
+builder copies its per-part typed candidates and both sample denominators into
+the immutable snapshot. The intermediate input arrays are included in their
+temporary byte ceiling and released after the snapshot deep-copy. Callback
+collectors provide their own canonical SQL bytes. The native index-hash
+adapter still hashes values only for HLL; a separate native MCV path copies
+canonical MessagePack scalar fields for INTEGER, UNSIGNED, DOUBLE, BOOLEAN,
+and STRING with binary collation. Non-binary collated strings remain NDV-only.
+Volatile SQL `ANALYZE` now enables fixed-capacity MCV for compatible index
+definitions and publishes it in the in-memory snapshot. Both owned transaction
+and shared-read-view collectors may opt in with `mcv_capacity` and
+`max_mcv_value_bytes`; these must both be set (or both zero). Worst-case
+per-part candidate-copy arrays are charged in aggregate staging preflight.
+This remains volatile collection only: planner consumption and persistence are
+not implemented.
 
 The transaction context now provides
 `sql_stats_tx_context_finish_and_publish()`. It matches the expected

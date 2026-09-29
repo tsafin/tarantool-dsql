@@ -1066,9 +1066,13 @@ the `where.c` selectivity adapter wait for that interface.
   budget, and oversize values poison the
   summary rather than exposing partial output. Focused tests cover budget
   boundaries, NULL exclusion, candidate/error access, and fail-closed bounds.
-  This is not yet wired to SQL `ANALYZE`, snapshot persistence, or the planner;
-  the native index-hash adapter remains NDV-only because hashes cannot recover
-  canonical MCV values. No persistent format or ID is defined.
+  A separate native MCV adapter now extracts canonical MessagePack scalar
+  values for INTEGER, UNSIGNED, DOUBLE, BOOLEAN, and binary-collated STRING
+  key parts; HLL continues to use native hashes. Non-binary collated strings
+  remain NDV-only. SQL `ANALYZE` enables a fixed-capacity volatile MCV sketch
+  for compatible indexes and candidate construction copies it to snapshots.
+  This is not wired to persistence or the planner. No persistent format or ID
+  is defined.
   The immutable in-memory `SqlStatsSnapshot` now optionally owns these
   per-part candidates (snapshot API version 4), validates their typed bytes,
   total/non-NULL sample denominators and conservative error intervals, and
@@ -1076,12 +1080,11 @@ the `where.c` selectivity adapter wait for that interface.
   byte-budgeted. This is only a
   volatile data-contract step: the callback-based sampled candidate builder
   now propagates summary MCV candidates into snapshots under its temporary
-  byte budget. Owned transaction and shared-read-view callback collectors may
-  opt into bounded MCV summaries; preflight charges the worst-case candidate
-  arrays before sampling, and native hash mode rejects MCV because hashed
-  values cannot be recovered. SQL `ANALYZE` still uses the hash-only adapter
-  and does not populate MCVs. There is still no planner or persistence
-  integration. The
+  byte budget. Owned transaction and shared-read-view collectors may opt into
+  bounded MCV summaries; callback extraction or the native scalar adapter
+  supplies values, and preflight charges worst-case candidate arrays before
+  sampling. This remains volatile collection only: planner and persistence
+  integration are still open. The
   candidate handoff also exposed and fixed a SpaceSaving eviction-error bug:
   replacement now resets error to the evicted counter floor instead of adding
   the evicted entry's stale error; a repeated-eviction regression checks every

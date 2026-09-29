@@ -169,6 +169,8 @@ sql_stats_analyze_execute(const char *space_name)
 			uint64_t seed = schema_version ^
 				((uint64_t)space->def->id << 32) ^
 				((uint64_t)index->unique_id << 1) ^ 0x9e3779b97f4a7c15ULL;
+			bool mcv_supported =
+				sql_stats_index_summary_native_mcv_supported(index->def);
 			specs[i] = (struct sql_stats_tx_index_spec) {
 				.target = targets[i],
 				.expected = &expected_indexes[i],
@@ -192,6 +194,11 @@ sql_stats_analyze_execute(const char *space_name)
 				.summary_max_bytes =
 					SQL_STATS_ANALYZE_INDEX_SUMMARY_BYTES,
 				.use_native_index_hash = true,
+				.mcv_capacity =
+					mcv_supported ? SQL_STATS_ANALYZE_MCV_CAPACITY : 0,
+				.max_mcv_value_bytes =
+					mcv_supported ?
+					SQL_STATS_ANALYZE_MAX_MCV_VALUE_BYTES : 0,
 			};
 		}
 		relations[r] = (struct sql_stats_collection_relation_spec) {

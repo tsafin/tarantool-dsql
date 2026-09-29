@@ -23,7 +23,7 @@ main(void)
 	fiber_init(fiber_c_invoke);
 	coll_init();
 	tuple_init(test_field_name_hash);
-	plan(5);
+	plan(6);
 	header();
 
 	struct key_part_def part = key_part_def_default;
@@ -40,10 +40,10 @@ main(void)
 		.key_def = key_def,
 	};
 	struct sql_stats_index_summary *summary = key_def == NULL ? NULL :
-		sql_stats_index_summary_new_for_index(tuple_format_runtime,
-			&index_def, 8, 42, sketch_bytes + sizeof(void *));
+		sql_stats_index_summary_new_for_index_with_mcv(tuple_format_runtime,
+			&index_def, 8, 42, 16384, 4, 32);
 	ok(summary != NULL,
-	   "unsigned native key hash is accepted by the index summary");
+	   "unsigned native key hash and MCV are accepted by the index summary");
 
 	char tuple_data_buf[16];
 	char *pos = mp_encode_array(tuple_data_buf, 1);
@@ -68,6 +68,28 @@ main(void)
 		ndv[0] > 1.5 && ndv[0] < 2.5;
 	ok(values_ok,
 	   "unsigned hash deduplicates repeats and distinguishes values");
+	bool found_seven = false;
+	for (uint32_t i = 0; summary != NULL &&
+	     i < sql_stats_index_summary_mcv_count(summary, 0); i++) {
+		uint8_t type_tag;
+		const void *value;
+		size_t value_size;
+		struct sql_stats_spacesaving_entry entry;
+		if (sql_stats_index_summary_mcv_at(summary, 0, i, &type_tag,
+							   &value, &value_size,
+							   &entry) == 0 &&
+		    type_tag == FIELD_TYPE_UNSIGNED + 1 && value_size > 0) {
+			const char *end = value;
+			uint64_t decoded = mp_decode_uint(&end);
+			if (end == (const char *)value + value_size && decoded == 7 &&
+			    entry.estimate == 2 && entry.error == 0)
+				found_seven = true;
+		}
+	}
+	ok(found_seven &&
+	   sql_stats_index_summary_mcv_sample_nonnull_rows(summary, 0) == 3 &&
+	   sql_stats_index_summary_sample_rows(summary) == 3,
+	   "native MCV retains canonical typed values and sample denominators");
 
 	struct key_part_def signed_part = key_part_def_default;
 	signed_part.fieldno = 0;

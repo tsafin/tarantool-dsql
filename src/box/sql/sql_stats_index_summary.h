@@ -72,6 +72,17 @@ sql_stats_index_summary_new_for_index(struct tuple_format *format,
 				      uint8_t precision, uint64_t seed,
 				      size_t max_bytes);
 
+/* Native index adapter with per-part MCVs over canonical MessagePack values.
+ * Supported only for the native summary's accepted types and binary strings. */
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_for_index_with_mcv(
+	struct tuple_format *format, const struct index_def *index_def,
+	uint8_t precision, uint64_t seed, size_t max_bytes,
+	uint32_t mcv_capacity, size_t max_mcv_value_bytes);
+
+bool
+sql_stats_index_summary_native_mcv_supported(const struct index_def *index_def);
+
 /* 0 for callback values, 32 for native index-hash summaries. */
 uint8_t
 sql_stats_index_summary_hash_bits(
