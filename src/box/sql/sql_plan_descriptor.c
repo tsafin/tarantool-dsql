@@ -117,7 +117,7 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	    (in->fallback_reason != SQL_PLAN_FALLBACK_NONE &&
 	     sql_plan_fallback_reason_name(in->fallback_reason) == NULL) ||
 	    in->access.kind < SQL_PLAN_PK_POINT_LOOKUP ||
-	    in->access.kind > SQL_PLAN_INDEX_EQUALITY_SCAN ||
+	    in->access.kind > SQL_PLAN_INDEX_PREFIX_SCAN ||
 	    in->access.direction < SQL_PLAN_ASC ||
 	    in->access.direction > SQL_PLAN_DESC ||
 	    !valid_array(in->access.bounds, in->access.bound_count,
@@ -212,7 +212,27 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 			if (in->access.point_key_parts[i].column > INT_MAX)
 				return NULL;
 	}
-	if (in->access.kind == SQL_PLAN_PK_PREFIX_SCAN) {
+	if (in->access.kind == SQL_PLAN_INDEX_PREFIX_SCAN) {
+		size_t prefix_count = in->access.prefix_key_part_count;
+		if (in->access.index_id == 0 || prefix_count == 0 ||
+		    prefix_count >= SQL_PLAN_POINT_KEY_PART_MAX ||
+		    in->access.prefix_key_parts == NULL ||
+		    in->access.point_key_part_count != 0 ||
+		    in->access.has_integer_point_key ||
+		    in->access.has_unsigned_point_key ||
+		    in->access.has_integer_range_key ||
+		    in->access.has_unsigned_range_key ||
+		    in->access.has_integer_range_end_key ||
+		    in->access.has_unsigned_range_end_key ||
+		    in->access.bound_count != prefix_count ||
+		    in->access.produced_order_count != 0)
+			return NULL;
+		for (size_t i = 0; i < prefix_count; ++i)
+			if (in->access.prefix_key_parts[i].column > INT_MAX ||
+			    in->access.bounds[i].side != SQL_PLAN_LOWER ||
+			    in->access.bounds[i].op != SQL_PLAN_EQ)
+				return NULL;
+	} else if (in->access.kind == SQL_PLAN_PK_PREFIX_SCAN) {
 		bool has_prefix_range = in->access.has_integer_range_key ||
 			in->access.has_unsigned_range_key;
 		bool has_prefix_range_end =
@@ -314,7 +334,8 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 				 SQL_PLAN_LOWER : SQL_PLAN_UPPER))
 				return NULL;
 		}
-	} else if (in->access.prefix_key_part_count != 0) {
+	} else if (in->access.kind != SQL_PLAN_INDEX_PREFIX_SCAN &&
+		   in->access.prefix_key_part_count != 0) {
 		return NULL;
 	}
 	if ((in->access.kind == SQL_PLAN_INDEX_FULL_SCAN ||

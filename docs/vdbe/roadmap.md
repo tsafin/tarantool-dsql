@@ -1120,14 +1120,18 @@ lowers direct-column scans, INTEGER/UNSIGNED primary-key point lookups, and
 one-sided primary-key literal ranges through the physical descriptor and VDBE
 emitter, plus bounded two-sided literal ranges on a single INTEGER/UNSIGNED
 primary-key part. Focused memtx/Vinyl parity and fallback tests cover this
-narrow slice;
-emitter unit checks pin all four range seek opcodes and signed/unsigned key
-encoding. A one-part INTEGER/UNSIGNED TREE secondary-key equality-run path now
-seeks the secondary index, fetches each matching base tuple by its complete
-primary key, and applies residual filters before projection. M3.5's reviewed
-producer and route/reason gate is closed; M3.6 capture/parity tooling is
-prototyped and M3.7's feature flag gates only the current narrow route.
-Secondary ranges/composite keys, broader range shapes, broader expression
+narrow slice; emitter unit checks pin all four range seek opcodes and
+signed/unsigned key encoding. A one-part INTEGER/UNSIGNED TREE secondary-key
+equality-run path seeks the secondary index, fetches each matching base tuple
+by its complete primary key, and applies residual filters before projection.
+Complete composite secondary equality and proper leading-prefix equality
+scans are also supported for INTEGER/UNSIGNED keys, as are bounded secondary
+ranges following a complete equality prefix. The descriptor records typed
+prefix keys and the secondary scan resolves each matching primary key before
+filtering and projection. M3.5's reviewed producer and route/reason gate is
+closed; M3.6
+capture/parity tooling is prototyped and M3.7's flag gates the executable
+routes. General secondary ranges, broader range shapes, broader expression
 parity, corpus-wide new-planner
 coverage, and acceptance latency evidence remain open. M3 consumes M1 diagnostic
 path-class/fallback reporting and the M0-A seed parity gate, but does not wait
@@ -1310,6 +1314,16 @@ DML, triggers, subprograms, non-deterministic functions.
   bounded and one-sided ranges, an UNSIGNED `UINT64_MAX` bound, and selected
   index plans. Bounded and upper-only walks terminate at NULL keys before
   filtering/projection. This does not claim general secondary-index access or
+  close M3.4.
+  **Composite secondary equality-prefix scan (2026-09):** equality on a
+  non-empty proper leading prefix of a composite INTEGER/UNSIGNED TREE index
+  now selects an unordered index-prefix scan when no suffix range or complete
+  equality path applies. The descriptor records typed prefix parts; lowering
+  seeks and guards exactly that prefix arity, resolves all matching primary
+  rows, then applies residual filters and LIMIT/OFFSET. Memtx/Vinyl off/on/off
+  coverage checks duplicate matches and selected-index evidence, and the VDBE
+  unit pins the prefix seek and mismatch guard. ORDER BY and skipped leading
+  parts remain unsupported for this access kind; this bounded route does not
   close M3.4.
   **Composite secondary prefix-range extension (2026-09):** the producer now
   recognizes complete equality predicates on leading INTEGER/UNSIGNED key
@@ -2886,7 +2900,8 @@ DML, triggers, subprograms, non-deterministic functions.
   and native direct-VALUES exclusions remain as documented under M3.5; both
   queries are included in generated-mode coverage. This closes the flag gate
   for the routes that exist today, not general physical candidate selection,
-  secondary-index execution, or the broader operator scope tracked by M3.4.
+  general secondary-index execution, or the broader operator scope tracked by
+  M3.4.
   *parallel: no*.
 
 ---

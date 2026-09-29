@@ -306,6 +306,22 @@ residual-filter, and LIMIT/OFFSET cases are covered on memtx and Vinyl.
 Partial composite equality keys, collation overrides, OR/IN access, and
 non-integer key values remain unsupported and use the legacy path.
 
+#### Secondary-index equality-prefix scan
+
+A composite TREE secondary index can scan a non-empty proper leading prefix
+of INTEGER/UNSIGNED equality keys when the remaining key parts are not
+constrained. The descriptor records each equality value in index order.
+Lowering seeks with the prefix arity, stops when the indexed prefix changes,
+resolves every matching entry through its complete primary key, and then
+applies residual filters and LIMIT/OFFSET. This is a range scan over the
+matching prefix, not a point lookup; duplicate prefix values must all be
+returned. This access kind produces no `ORDER BY`; when ordering is requested,
+another ordered access path may be selected, otherwise the query stays on
+legacy codegen. Skipped leading parts, incomplete/non-literal values, and
+unsupported key types also remain unsupported. Memtx/Vinyl
+off/on/off coverage checks duplicate matches, selected-index evidence, and
+one- and two-part prefix-only routing; VDBE tests pin seek and guard arity.
+
 #### Secondary-index range scan
 
 The range route supports one-sided or two-sided literal bounds on the first
@@ -683,6 +699,7 @@ The narrow set required by roadmap M3:
 | `PkPointLookup` | `relations[].access` | Single-row equality on primary key. |
 | `IndexPointLookup` | `relations[].access` | Single-row equality on secondary index. |
 | `IndexEqualityScan` | `relations[].access` | Equality run on a full single-part or composite secondary key; may return multiple rows. |
+| `IndexPrefixScan` | `relations[].access` | Equality run over a proper leading prefix of a composite secondary key; may return multiple rows. |
 | `IndexRangeScan` | `relations[].access` | Open or closed primary-key range, or supported leading secondary-key range; direction explicit. |
 | `IndexFullScan` | `relations[].access` | Full traversal in index order. |
 | `TableFullScan` | `relations[].access` | Full traversal in physical order (memtx) or LSM order (Vinyl). |

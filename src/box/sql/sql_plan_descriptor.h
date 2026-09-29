@@ -17,6 +17,7 @@ enum sql_plan_access_kind {
 	SQL_PLAN_TABLE_FULL_SCAN,
 	SQL_PLAN_PK_PREFIX_SCAN,
 	SQL_PLAN_INDEX_EQUALITY_SCAN,
+	SQL_PLAN_INDEX_PREFIX_SCAN,
 };
 
 enum sql_plan_direction { SQL_PLAN_ASC, SQL_PLAN_DESC };

@@ -113,6 +113,13 @@ g.test_non_primary_null_filters_off_on_off = function()
                         :format(descending_secondary_name))
             local queries = {
                 {
+                    sql = ('SELECT tenant, id FROM %s WHERE y = 10 ' ..
+                           'AND x = 7'):format(secondary_tertiary_name),
+                    expected = {{1, 1}, {1, 2}, {2, 1}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    unordered = true,
+                },
+                {
                     sql = ('SELECT z, tenant, id FROM %s WHERE z < 4 ' ..
                            'AND y = 10 AND x = 7 AND z >= 2 ' ..
                            'ORDER BY z DESC'):format(secondary_tertiary_name),
@@ -198,9 +205,8 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT tenant, id FROM %s WHERE x = 7')
                           :format(secondary_name),
                     expected = {{1, 1}, {1, 2}, {2, 1}},
+                    expected_index = secondary_name .. '_xy',
                     unordered = true,
-                    enabled_route = 'fallback',
-                    enabled_reason = 'NO_ACCESS_PATH',
                 },
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE x >= 8')

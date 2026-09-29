@@ -267,6 +267,36 @@ new_secondary_prefix_range_descriptor(void)
 }
 
 static struct sql_plan_descriptor *
+new_secondary_prefix_scan_descriptor(void)
+{
+	static const uint32_t columns[] = {0};
+	static const struct sql_plan_point_key_part prefix = {
+		.column = 3, .integer_value = 7,
+	};
+	static const struct sql_plan_bound bound = {
+		.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1,
+	};
+	static const struct sql_plan_expression expression = {
+		.id = 1, .canonical = "secondary-integer-equality-part",
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1, .planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100, .space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_INDEX_PREFIX_SCAN,
+			.index_id = 1,
+			.bounds = &bound, .bound_count = 1,
+			.prefix_key_parts = &prefix, .prefix_key_part_count = 1,
+			.direction = SQL_PLAN_ASC,
+		},
+		.projection_columns = columns, .projection_column_count = 1,
+		.expressions = &expression, .expression_count = 1,
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_secondary_full_scan_descriptor(enum sql_plan_direction direction,
 				   enum sql_plan_direction order_direction)
 {
@@ -952,7 +982,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(78);
+	plan(79);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1020,6 +1050,8 @@ main(void)
 		new_secondary_range_descriptor(true, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *secondary_prefix_range_desc =
 		new_secondary_prefix_range_descriptor();
+	struct sql_plan_descriptor *secondary_prefix_scan_desc =
+		new_secondary_prefix_scan_descriptor();
 	struct sql_plan_descriptor *secondary_full_asc_desc =
 		new_secondary_full_scan_descriptor(SQL_PLAN_ASC, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *secondary_full_desc_desc =
@@ -1518,6 +1550,16 @@ main(void)
 	   vdbe.aOp[before_secondary_prefix_range + 7].opcode == OP_Le &&
 	   vdbe.aOp[before_secondary_prefix_range + 13].opcode == OP_Next,
 	   "composite secondary range seeks prefix plus suffix and guards both boundaries");
+	int before_secondary_prefix_scan = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_prefix_scan_desc, &vdbe, 4, 5, &secondary_full_index, 20,
+		NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_prefix_scan + 1].opcode == OP_SeekGE &&
+	   vdbe.aOp[before_secondary_prefix_scan + 1].p4.i == 1 &&
+	   vdbe.aOp[before_secondary_prefix_scan + 2].opcode == OP_IdxGT &&
+	   vdbe.aOp[before_secondary_prefix_scan + 2].p4.i == 1 &&
+	   vdbe.aOp[before_secondary_prefix_scan + 8].opcode == OP_Next,
+	   "secondary equality-prefix scan seeks and guards only the complete prefix");
 	int before_secondary_upper_range = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		secondary_upper_range_desc, &vdbe, 4, 5, &secondary_index, 20,

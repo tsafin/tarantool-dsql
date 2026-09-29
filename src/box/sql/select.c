@@ -6431,6 +6431,7 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			message = sqlMPrintf("SCAN TABLE %s USING INDEX %s",
 					      space->def->name, idx->def->name);
 		} else if (selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ||
+			   selected_access == SQL_PLAN_INDEX_PREFIX_SCAN ||
 			   (selected_access == SQL_PLAN_INDEX_RANGE_SCAN &&
 			    plan_input->access.index_id != 0)) {
 			const struct sql_plan_descriptor_input *input =
@@ -6447,7 +6448,8 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			uint32_t fieldno = idx->def->key_def->parts[0].fieldno;
 			const char *field_name = space->def->fields[fieldno].name;
 			const char *op = selected_access ==
-				SQL_PLAN_INDEX_EQUALITY_SCAN ? "=?" :
+				SQL_PLAN_INDEX_EQUALITY_SCAN || selected_access ==
+				SQL_PLAN_INDEX_PREFIX_SCAN ? "=?" :
 				plan_input->access.integer_range_op == SQL_PLAN_GT ? ">?" :
 				plan_input->access.integer_range_op == SQL_PLAN_GE ? ">=?" :
 				plan_input->access.integer_range_op == SQL_PLAN_LT ? "<?" :
@@ -6476,6 +6478,7 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	bool secondary_key_unsigned[SQL_PLAN_POINT_KEY_PART_MAX];
 	bool secondary_key_descending[SQL_PLAN_POINT_KEY_PART_MAX];
 	bool secondary_scan = selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ||
+		selected_access == SQL_PLAN_INDEX_PREFIX_SCAN ||
 		(selected_access == SQL_PLAN_INDEX_FULL_SCAN &&
 		 plan_input->access.index_id != 0) ||
 		(selected_access == SQL_PLAN_INDEX_RANGE_SCAN &&
@@ -6511,8 +6514,10 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		secondary_info.key_parts_descending = secondary_key_descending;
 		secondary_info.key_part_count =
 			(selected_access == SQL_PLAN_INDEX_FULL_SCAN ||
-			 selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN) &&
+			 selected_access == SQL_PLAN_INDEX_EQUALITY_SCAN ||
+			 selected_access == SQL_PLAN_INDEX_PREFIX_SCAN) &&
 			(selected_access == SQL_PLAN_INDEX_FULL_SCAN ||
+			 selected_access == SQL_PLAN_INDEX_PREFIX_SCAN ||
 			 secondary_part_count > 1) ?
 			secondary_part_count :
 			selected_access == SQL_PLAN_INDEX_RANGE_SCAN &&

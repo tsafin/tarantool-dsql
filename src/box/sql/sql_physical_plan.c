@@ -485,6 +485,13 @@ sql_physical_table_scan_from_select(
 	int64_t secondary_signed_key = 0;
 	uint64_t secondary_unsigned_key = 0;
 	bool has_secondary_range_scan = false;
+	bool has_secondary_prefix_scan = false;
+	uint32_t secondary_prefix_index_id = 0;
+	struct sql_plan_point_key_part secondary_prefix_parts[
+		SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+	const struct Expr *secondary_prefix_terms[
+		SQL_PLAN_POINT_KEY_PART_MAX] = {0};
+	size_t secondary_prefix_count = 0;
 	bool has_secondary_full_scan = false;
 	bool secondary_full_scan_natural_order = false;
 	uint32_t secondary_full_index_id = 0;
@@ -893,6 +900,64 @@ sql_physical_table_scan_from_select(
 					break;
 			}
 		}
+		if (!has_secondary_equality_candidate && !has_secondary_range_scan &&
+		    source->space->index_map != NULL) {
+			for (uint32_t index_no = 1;
+			     index_no < source->space->index_count; ++index_no) {
+				const struct index *index =
+					source->space->index_map[index_no];
+				if (index == NULL || index->def == NULL ||
+				    index->def->type != TREE || index->def->key_def == NULL ||
+				    index->def->key_def->part_count < 2 ||
+				    index->def->key_def->part_count >
+					SQL_PLAN_POINT_KEY_PART_MAX)
+					continue;
+				const struct key_def *key_def = index->def->key_def;
+				struct sql_plan_point_key_part parts[
+					SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+				const struct Expr *terms[
+					SQL_PLAN_POINT_KEY_PART_MAX] = {0};
+				size_t prefix_count = 0;
+				for (uint32_t part_no = 0;
+				     part_no < key_def->part_count; ++part_no) {
+					const struct key_part *part = &key_def->parts[part_no];
+					bool is_unsigned = part->type == FIELD_TYPE_UNSIGNED;
+					if (!is_unsigned && part->type != FIELD_TYPE_INTEGER)
+						break;
+					for (size_t term_no = 0; term_no < expr_count; ++term_no) {
+						const struct Expr *term = exprs[term_no];
+						struct parsed_pk_bound parsed;
+						if (!parse_pk_bound(term, source->iCursor,
+								    part->fieldno, is_unsigned,
+								    &parsed) ||
+						    parsed.op != SQL_PLAN_EQ)
+							continue;
+						parts[part_no] = (struct sql_plan_point_key_part) {
+							.column = part->fieldno,
+							.is_unsigned = is_unsigned,
+							.integer_value = parsed.signed_key,
+							.unsigned_value = parsed.unsigned_key,
+						};
+						terms[part_no] = term;
+						break;
+					}
+					if (terms[part_no] == NULL)
+						break;
+					++prefix_count;
+				}
+				if (prefix_count == 0 ||
+				    prefix_count == key_def->part_count)
+					continue;
+				has_secondary_prefix_scan = true;
+				secondary_prefix_index_id = index->def->iid;
+				secondary_prefix_count = prefix_count;
+				memcpy(secondary_prefix_parts, parts,
+				       prefix_count * sizeof(parts[0]));
+				memcpy(secondary_prefix_terms, terms,
+				       prefix_count * sizeof(terms[0]));
+				break;
+			}
+		}
 		size_t bound_count = 0;
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
@@ -977,6 +1042,13 @@ sql_physical_table_scan_from_select(
 					is_selected_secondary_range_prefix_term |=
 						term == secondary_range_prefix_terms[i];
 				if (is_selected_secondary_range_prefix_term)
+					continue;
+				bool is_selected_secondary_prefix_term = false;
+				for (size_t i = 0; i < secondary_prefix_count; ++i)
+					is_selected_secondary_prefix_term |=
+						term == secondary_prefix_terms[i];
+				if (has_secondary_prefix_scan &&
+				    is_selected_secondary_prefix_term)
 					continue;
 				bool is_selected_secondary_term = false;
 				for (size_t part = 0; part < secondary_key_part_count; ++part)
@@ -1156,7 +1228,7 @@ sql_physical_table_scan_from_select(
 		expr_count = bound_count;
 		if (expr_count == 0 && filter_count == 0 &&
 		    !primary_key_not_null && !has_secondary_equality_scan &&
-		    !has_secondary_range_scan)
+		    !has_secondary_range_scan && !has_secondary_prefix_scan)
 			goto invalid_predicate;
 		if (expr_count == 0)
 			goto predicate_parsed;
@@ -1510,9 +1582,36 @@ predicate_parsed:
 		!has_secondary_equality_scan && !has_point_key && !has_range_key &&
 		!has_prefix_scan && !has_prefix_range_scan &&
 		(select->pOrderBy == NULL || secondary_range_order);
+	bool use_secondary_prefix_scan = has_secondary_prefix_scan &&
+		!has_secondary_equality_scan && !has_secondary_range_scan &&
+		!has_point_key && !has_range_key && !has_prefix_scan &&
+		!has_prefix_range_scan && select->pOrderBy == NULL;
 	bool use_secondary_full_scan = has_secondary_full_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
-		!has_secondary_equality_scan && select->pWhere == NULL;
+		!has_secondary_equality_scan && !has_secondary_range_scan &&
+		select->pWhere == NULL;
+	if (has_secondary_prefix_scan && !use_secondary_prefix_scan) {
+		for (size_t i = 0; i < secondary_prefix_count; ++i) {
+			if (filter_count == SQL_PLAN_FILTER_MAX)
+				goto invalid_predicate;
+			filters[filter_count] = (struct sql_plan_filter) {
+				.op = SQL_PLAN_FILTER_EXPRESSION,
+				.selectivity = 0.5,
+			};
+			filter_expressions[filter_count++] = secondary_prefix_terms[i];
+		}
+	}
+	if (has_secondary_prefix_scan && !use_secondary_prefix_scan) {
+		for (size_t i = 0; i < secondary_prefix_count; ++i) {
+			if (filter_count == SQL_PLAN_FILTER_MAX)
+				goto invalid_predicate;
+			filters[filter_count] = (struct sql_plan_filter) {
+				.op = SQL_PLAN_FILTER_EXPRESSION,
+				.selectivity = 0.5,
+			};
+			filter_expressions[filter_count++] = secondary_prefix_terms[i];
+		}
+	}
 	if (has_secondary_equality_scan && !use_secondary_equality_scan) {
 		for (size_t i = 0; i < (secondary_key_part_count == 0 ? 1 :
 					 secondary_key_part_count); ++i) {
@@ -1572,11 +1671,13 @@ predicate_parsed:
 	}
 	bool secondary_composite = use_secondary_equality_scan &&
 		secondary_key_part_count > 1;
+	bool secondary_prefix_composite = use_secondary_prefix_scan;
 	bool secondary_range_composite = use_secondary_range_scan &&
 		secondary_range_prefix_count != 0;
 	size_t composite_access_count = has_composite_point || has_prefix_scan ?
 		composite_point_count : secondary_composite ?
-		secondary_key_part_count : secondary_range_composite ?
+		secondary_key_part_count : secondary_prefix_composite ?
+		secondary_prefix_count : secondary_range_composite ?
 		secondary_range_prefix_count : 0;
 	struct sql_plan_order_term *order_terms = NULL;
 	size_t order_term_count = 0;
@@ -1891,12 +1992,14 @@ predicate_parsed:
 	for (size_t i = 0; i < composite_access_count; ++i) {
 		const struct sql_plan_point_key_part *key_part =
 			secondary_composite ? &secondary_key_parts[i] :
+			secondary_prefix_composite ? &secondary_prefix_parts[i] :
 			secondary_range_composite ?
 				&secondary_range_prefix_parts[i] :
 			&composite_point_parts[i];
 		composite_point_expressions[i] = (struct sql_plan_expression) {
 			.id = (uint32_t)i + 1,
-			.canonical = secondary_composite || secondary_range_composite ?
+			.canonical = secondary_composite || secondary_prefix_composite ||
+				secondary_range_composite ?
 				(key_part->is_unsigned ? "secondary-unsigned-equality-part" :
 				 "secondary-integer-equality-part") :
 				"composite-primary-point-part",
@@ -1983,6 +2086,7 @@ predicate_parsed:
 	const struct sql_plan_expression *base_expressions = NULL;
 	size_t base_expression_count = 0;
 	if (has_composite_point || has_prefix_scan || secondary_composite ||
+	    secondary_prefix_composite ||
 	    secondary_range_composite) {
 		base_expressions = composite_point_expressions;
 		base_expression_count = composite_expression_count;
@@ -2042,19 +2146,24 @@ predicate_parsed:
 				has_point_key ? SQL_PLAN_PK_POINT_LOOKUP :
 				use_secondary_equality_scan ?
 				SQL_PLAN_INDEX_EQUALITY_SCAN :
+				use_secondary_prefix_scan ?
+				SQL_PLAN_INDEX_PREFIX_SCAN :
 				use_secondary_full_scan ? SQL_PLAN_INDEX_FULL_SCAN :
 				 has_range_key ? SQL_PLAN_INDEX_RANGE_SCAN :
 				SQL_PLAN_TABLE_FULL_SCAN,
 			.index_id = use_secondary_equality_scan ? secondary_index_id :
+				use_secondary_prefix_scan ? secondary_prefix_index_id :
 				use_secondary_range_scan ? secondary_range_index_id :
 				use_secondary_full_scan ? secondary_full_index_id : 0,
 			.bounds = has_composite_point || has_prefix_scan ||
-				secondary_composite || secondary_range_composite ?
+				secondary_composite || secondary_prefix_composite ||
+				secondary_range_composite ?
 				composite_point_bounds :
 				has_point_key || has_range_key ||
 				use_secondary_equality_scan ? point_bounds : NULL,
 			.bound_count = has_composite_point || has_prefix_scan ||
-				secondary_composite || secondary_range_composite ?
+				secondary_composite || secondary_prefix_composite ||
+				secondary_range_composite ?
 				composite_bound_count :
 				has_range_key ? (has_range_end_key ? 2 : 1) :
 				has_point_key || use_secondary_equality_scan ? 1 : 0,
@@ -2077,10 +2186,12 @@ predicate_parsed:
 				composite_point_count : secondary_composite ?
 				secondary_key_part_count : 0,
 			.prefix_key_parts = has_prefix_scan ? composite_point_parts :
+				secondary_prefix_composite ? secondary_prefix_parts :
 				secondary_range_composite ?
 				secondary_range_prefix_parts : NULL,
 			.prefix_key_part_count = has_prefix_scan ?
-				composite_point_count : secondary_range_composite ?
+				composite_point_count : secondary_prefix_composite ?
+				secondary_prefix_count : secondary_range_composite ?
 				secondary_range_prefix_count : 0,
 			.has_integer_range_key = has_range_key && !range_unsigned,
 			.integer_range_key = range_key,
