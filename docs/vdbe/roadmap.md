@@ -2212,7 +2212,7 @@ DML, triggers, subprograms, non-deterministic functions.
   off/on/off evaluation with LLVM JIT enabled on the current Clang-19 / LLVM-19
   Debug binary. SQL-TAP passes on both engines: 232 memtx tests / 47,946
   snapshots and 224 Vinyl / 37,990, with zero semantic and off-repeat diffs
-  and no unreviewed route transitions. Only EXPLAIN rows differ (28 / 27
+  and no unreviewed route transitions. Only EXPLAIN rows differ (35 / 34
   off/on and 5 / 4 off-repeat). The reviewed `sql` selection passes 33 / 34
   tests and 1,077 / 1,085 snapshots; SQL-luatest passes 31 / 30 tests and
   498 / 446 snapshots. Both suites have zero semantic or repeat diffs and no
@@ -2227,6 +2227,28 @@ DML, triggers, subprograms, non-deterministic functions.
   This verifies current-source LLVM route and semantic parity for reviewed
   suites; M3.5 producer closure and the remaining M3.7 functional scope still
   need explicit acceptance review.
+
+  The full current-source LLVM reports for the EQP emitter correction are
+  `/dev/shm/sql-tap-eqpfix4-llvm-memtx-20260929/report.json` and
+  `/dev/shm/sql-tap-eqpfix4-llvm-vinyl-20260929/report.json`. They confirm zero
+  semantic/off-repeat diffs and zero unreviewed transitions with the corrected
+  secondary-index covering labels, legacy range operators and estimates, and
+  singular row wording. Commits: `fe0a84344c` (emitter) and `3f8305a552`
+  (route classification).
+
+  **Generated SQL-TAP EQP revalidation (2026-09-29).** The complete generated
+  captures pass semantic and off-repeat parity: 232 memtx tests / 47,946
+  queries and 224 Vinyl tests / 37,990. Raw differences are EXPLAIN-only
+  (35 / 34 off/on; 5 / 4 off-repeat). Reports:
+  `/dev/shm/sql-tap-eqpfix4-generated-memtx-20260929/report.json` and
+  `/dev/shm/sql-tap-eqpfix4-generated-vinyl-20260929/report.json`. Those
+  captures started before the newly observed `fallback/UNSUPPORTED_EXPRESSION`
+  to `current_where_c` class was added, so their route-review bit is stale.
+  The updated policy passes its unit tests and focused `whereA` A/B/A runs on
+  both engines with `route_review_required=false`:
+  `/dev/shm/wherea-route-review-memtx-20260929/report.json` and
+  `/dev/shm/wherea-route-review-vinyl-20260929/report.json`. This addresses
+  that classification delta, not the universal M3.5 producer gate.
 
   **Unsigned secondary equality correction (2026-09-29).** The focused failure
   was `SELECT i FROM t WHERE i = 18446744073709551613` after creating an index
