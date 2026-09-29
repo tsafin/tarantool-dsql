@@ -1263,7 +1263,8 @@ DML, triggers, subprograms, non-deterministic functions.
   runner passes.
   VDBE unit coverage also pins the secondary seek, equality-run guard,
   composite primary-key extraction, base-table lookup arity, and next-row
-  target (63 assertions total).
+  target; mismatched index IDs and key columns reject atomically (65
+  assertions total).
   This does not claim general secondary-index access or close M3.4.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
