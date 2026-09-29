@@ -13,11 +13,12 @@
       ["fallback", "UNSUPPORTED_EXPRESSION", "new_planner", null],
       ["current_where_c", null, "fallback", "NO_ACCESS_PATH"],
       ["current_where_c", null, "fallback", "UNSUPPORTED_FILTER"],
+      ["fallback", "UNSUPPORTED_COLLATION", "new_planner", null],
       [null, "UNSUPPORTED_AGGREGATE", null, "UNSUPPORTED_FILTER"],
       [null, "UNSUPPORTED_EXPRESSION", null, "NO_ACCESS_PATH"],
       [null, "UNSUPPORTED_EXPRESSION", null, "UNSUPPORTED_FILTER"]
     ],
-    "note": "The reviewed SQL suite exercises the same primary-only no-access-path boundary, residual-filter rejection, and precise reason refinements as SQL-TAP, plus supported planner adoptions. The UNSUPPORTED_EXPRESSION to new_planner transition is exercised by the full-width integer secondary equality/range cases in types.test.lua. Off/on and off-repeat semantic parity must remain exact; iproto.test.lua is excluded because snapshot EXPLAIN changes its asserted EXECUTE counter."
+    "note": "The reviewed SQL suite exercises the same primary-only no-access-path boundary, residual-filter rejection, and precise reason refinements as SQL-TAP, plus supported planner adoptions. The UNSUPPORTED_EXPRESSION to new_planner transition is exercised by the full-width integer secondary equality/range cases in types.test.lua. The UNSUPPORTED_COLLATION transition is confined to unindexed residual predicates in collation.test.lua (a-vs-b, b-vs-c, and concatenation comparisons); indexed collation access remains guarded on the legacy path. Off/on and off-repeat semantic parity must remain exact; iproto.test.lua is excluded because snapshot EXPLAIN changes its asserted EXECUTE counter."
   },
   "sql-tap": {
     "classes": [
