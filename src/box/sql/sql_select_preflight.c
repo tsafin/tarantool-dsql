@@ -28,15 +28,20 @@ is_between_predicate(const struct Expr *expr)
 }
 
 static bool
+has_only_source_columns(const struct Expr *expr, int cursor,
+			uint32_t field_count, size_t depth);
+static bool
+has_source_column(const struct Expr *expr, int cursor, uint32_t field_count,
+		  size_t depth);
+
+static bool
 is_in_predicate(const struct Expr *expr, int cursor, uint32_t field_count)
 {
 	if (expr == NULL || expr->op != TK_IN || expr->pRight != NULL ||
 	    ExprHasProperty(expr, EP_TokenOnly | EP_Reduced | EP_xIsSelect) ||
 	    expr->x.pList == NULL || expr->x.pList->nExpr <= 0 ||
-	    expr->pLeft == NULL || expr->pLeft->op != TK_COLUMN_REF ||
-	    expr->pLeft->pLeft != NULL || expr->pLeft->pRight != NULL ||
-	    expr->pLeft->iTable != cursor || expr->pLeft->iColumn < 0 ||
-	    (uint32_t)expr->pLeft->iColumn >= field_count)
+	    !has_only_source_columns(expr->pLeft, cursor, field_count, 0) ||
+	    !has_source_column(expr->pLeft, cursor, field_count, 0))
 		return false;
 	for (int i = 0; i < expr->x.pList->nExpr; ++i) {
 		if (expr->x.pList->a[i].pExpr == NULL)
@@ -129,8 +134,35 @@ has_only_source_columns(const struct Expr *expr, int cursor,
 		has_only_source_columns(expr->pLeft, cursor, field_count,
 					depth + 1)) &&
 	       (expr->pRight == NULL ||
-		has_only_source_columns(expr->pRight, cursor, field_count,
+			has_only_source_columns(expr->pRight, cursor, field_count,
 					depth + 1));
+}
+
+static bool
+has_source_column(const struct Expr *expr, int cursor, uint32_t field_count,
+		  size_t depth)
+{
+	if (expr == NULL || depth >= SQL_PLAN_POINT_KEY_PART_MAX)
+		return false;
+	if (expr->op == TK_COLUMN_REF)
+		return expr->pLeft == NULL && expr->pRight == NULL &&
+			expr->iTable == cursor && expr->iColumn >= 0 &&
+			(uint32_t)expr->iColumn < field_count;
+	if (expr->op == TK_IN || expr->op == TK_BETWEEN) {
+		if (has_source_column(expr->pLeft, cursor, field_count, depth + 1))
+			return true;
+		if (expr->x.pList != NULL) {
+			for (int i = 0; i < expr->x.pList->nExpr; ++i) {
+				if (has_source_column(expr->x.pList->a[i].pExpr,
+						     cursor, field_count,
+						     depth + 1))
+					return true;
+			}
+		}
+		return false;
+	}
+	return has_source_column(expr->pLeft, cursor, field_count, depth + 1) ||
+		has_source_column(expr->pRight, cursor, field_count, depth + 1);
 }
 
 static bool

@@ -142,13 +142,15 @@ is_supported_boolean_filter(const struct Expr *expr, int cursor,
 		return has_only_source_columns(expr->pLeft, cursor, field_count, 0);
 	if (expr->op == TK_BETWEEN && expr->pRight == NULL &&
 	    expr->x.pList != NULL && expr->x.pList->nExpr == 2 &&
-	    is_source_column(expr->pLeft, cursor, field_count))
+	    has_only_source_columns(expr->pLeft, cursor, field_count, 0) &&
+	    has_source_column(expr->pLeft, cursor, field_count, 0))
 		return is_supported_filter_constant(expr->x.pList->a[0].pExpr) &&
 			is_supported_filter_constant(expr->x.pList->a[1].pExpr);
 	if (expr->op == TK_IN && expr->pRight == NULL &&
 	    expr->x.pList != NULL && expr->x.pList->nExpr > 0 &&
 	    !ExprHasProperty(expr, EP_xIsSelect) &&
-	    is_source_column(expr->pLeft, cursor, field_count)) {
+	    has_only_source_columns(expr->pLeft, cursor, field_count, 0) &&
+	    has_source_column(expr->pLeft, cursor, field_count, 0)) {
 		for (int i = 0; i < expr->x.pList->nExpr; ++i) {
 			if (!is_supported_filter_constant(expr->x.pList->a[i].pExpr))
 				return false;
@@ -546,12 +548,18 @@ sql_physical_table_scan_from_select(
 			if (term->op == TK_IN &&
 			    is_supported_boolean_filter(term, source->iCursor,
 							 source->space->def->field_count, 0) &&
-			    is_source_column(term->pLeft, source->iCursor,
-					     source->space->def->field_count)) {
+			    has_only_source_columns(term->pLeft, source->iCursor,
+						   source->space->def->field_count, 0) &&
+			    has_source_column(term->pLeft, source->iCursor,
+					      source->space->def->field_count, 0)) {
 				bool is_pk_column = false;
-				for (uint32_t part = 0; part < pk->part_count; ++part)
-					is_pk_column |= (uint32_t)term->pLeft->iColumn ==
-						pk->parts[part].fieldno;
+				if (is_source_column(term->pLeft, source->iCursor,
+					     source->space->def->field_count)) {
+					for (uint32_t part = 0; part < pk->part_count; ++part)
+						is_pk_column |=
+							(uint32_t)term->pLeft->iColumn ==
+							pk->parts[part].fieldno;
+				}
 				if (!is_pk_column) {
 					if (filter_count == SQL_PLAN_FILTER_MAX)
 						goto invalid_predicate;
@@ -566,12 +574,18 @@ sql_physical_table_scan_from_select(
 			if (term->op == TK_BETWEEN &&
 			    is_supported_boolean_filter(term, source->iCursor,
 							source->space->def->field_count, 0) &&
-			    is_source_column(term->pLeft, source->iCursor,
-					     source->space->def->field_count)) {
+			    has_only_source_columns(term->pLeft, source->iCursor,
+						   source->space->def->field_count, 0) &&
+			    has_source_column(term->pLeft, source->iCursor,
+					      source->space->def->field_count, 0)) {
 				bool is_pk_column = false;
-				for (uint32_t part = 0; part < pk->part_count; ++part)
-					is_pk_column |= (uint32_t)term->pLeft->iColumn ==
-						pk->parts[part].fieldno;
+				if (is_source_column(term->pLeft, source->iCursor,
+					     source->space->def->field_count)) {
+					for (uint32_t part = 0; part < pk->part_count; ++part)
+						is_pk_column |=
+							(uint32_t)term->pLeft->iColumn ==
+							pk->parts[part].fieldno;
+				}
 				if (!is_pk_column) {
 					if (filter_count == SQL_PLAN_FILTER_MAX)
 						goto invalid_predicate;
