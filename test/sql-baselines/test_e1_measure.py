@@ -82,6 +82,13 @@ class E1MeasureTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unmatched cardinality stages"):
             e1_measure.analyze([baseline, candidate], "default", "candidate")
 
+    def test_rejects_actual_cardinality_mismatch_between_configurations(self):
+        baseline = observation("default", 1, 100, actual=50)
+        candidate = observation("candidate", 1, 100, actual=49)
+        with self.assertRaisesRegex(ValueError,
+                                    "unmatched actual cardinalities"):
+            e1_measure.analyze([baseline, candidate], "default", "candidate")
+
     def test_rejects_duplicate_and_bad_numeric_fields(self):
         row = observation("default", 1, 100)
         e1_measure.validate_row(row, "in-memory", 1)

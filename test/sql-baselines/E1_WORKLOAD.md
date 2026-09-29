@@ -56,7 +56,10 @@ python3 -B test/sql-baselines/e1_measure.py observations.jsonl \
 ```
 
 The analyzer validates schema/provenance, rejects duplicate or unpaired query
-repetitions, excludes warmups, and reports median/p95/p99 execution time and
+repetitions, excludes warmups, and requires each paired baseline/candidate
+execution to produce identical actual row counts for every named stage. This
+prevents comparisons across runs whose executed workload changed despite
+sharing query and stage IDs. It reports median/p95/p99 execution time and
 median/p95/max/geometric-mean q-error per workload, engine, dispatcher, and
 configuration. It also reports paired candidate/default latency ratios. For
 positive estimates and actuals, q-error is

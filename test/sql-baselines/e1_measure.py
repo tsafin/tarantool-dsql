@@ -159,6 +159,14 @@ def analyze(rows, baseline, candidate):
                                 cand_rows[key]["cardinalities"]}
             if base_stages != candidate_stages:
                 raise ValueError(f"unmatched cardinality stages for {scope}/{key}")
+            base_actual = {stage["stage_id"]: stage["actual_rows"]
+                           for stage in base_rows[key]["cardinalities"]}
+            candidate_actual = {
+                stage["stage_id"]: stage["actual_rows"]
+                for stage in cand_rows[key]["cardinalities"]}
+            if base_actual != candidate_actual:
+                raise ValueError(
+                    f"unmatched actual cardinalities for {scope}/{key}")
             ratios.append(cand_rows[key]["elapsed_us"] /
                           base_rows[key]["elapsed_us"])
         comparisons["/".join(scope)] = {

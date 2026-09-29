@@ -3293,7 +3293,12 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
   does not accept E1 or justify changing defaults. Exact diffs and reproduction
   instructions are in `test/sql-baselines/PLANNER_AB.md`. The capture/evaluation prototype
   is complete; strict SQL-TAP cross-width parity and
-  full-width plan-quality evaluation remain open.
+  full-width plan-quality evaluation remain open. The separate E1 workload
+  analyzer now rejects paired observations whose actual row counts differ at
+  any matching stage, even when query/repeat/stage IDs and provenance match;
+  this guards q-error and timing comparisons against changed executed data.
+  Its focused seven-test suite passes. This strengthens analysis validation,
+  but does not provide the still-missing integrated measurement producer.
   *parallel: yes*.
 
 ---
