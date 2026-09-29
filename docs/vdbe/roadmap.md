@@ -2245,13 +2245,16 @@ DML, triggers, subprograms, non-deterministic functions.
   `/dev/shm/types-ab-current-llvm-1790672690/report.json`. The observed
   `fallback/UNSUPPORTED_EXPRESSION` to `new_planner` adoption is now explicitly
   included in the SQL route policy because this file exercises the supported
-  wide-integer equality and range cases. The attempted full reviewed SQL LLVM
-  rerun cannot be counted as passing: its initial run hit the documented
-  `iproto.test.lua` observer-counter mismatch, and its retry stopped at the
-  now-fixed equality regression. Full reviewed SQL LLVM and M3.5 remain open
-  pending current-source corpus reruns. These selected-test reports are not a
-  substitute for the full reviewed SQL suite; their overall acceptance bit
-  remains false because this command intentionally ran one test only.
+  wide-integer equality and range cases. Current-source full reviewed SQL
+  captures were then rerun in generated and LLVM modes on `e9c930fc02`,
+  excluding only the documented fixed-mode `iproto.test.lua` observer-counter
+  incompatibility. Both modes pass off/on semantics and exact off-repeat
+  semantics with zero unreviewed transitions: 33 memtx tests / 1,077 queries
+  and 34 Vinyl tests / 1,085 queries. Reports:
+  `/dev/shm/sql-full-generated-1790672830919806609/report.json` and
+  `/dev/shm/sql-full-llvm-1790672830970913834/report.json`. These close current
+  reviewed SQL generated/LLVM parity, but not the wider M3.5 universal producer
+  gate or remaining M3.7 functional scope.
 
   **Embedded INSERT-SELECT route slice (2026-09-28).** `insert.c` now labels
   its snapshot-mode `sqlSelect()` producer as the explicit root role
