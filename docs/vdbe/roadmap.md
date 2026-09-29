@@ -1581,7 +1581,10 @@ DML, triggers, subprograms, non-deterministic functions.
   primary-key `id = ?` assertion remains `fallback / UNSUPPORTED_FILTER`, since
   variable-valued seek-key emission is not implemented. The canonicalizer unit
   test passes 17 supported and 12 rejection assertions; the focused scalar
-  filter test passes locally.
+  filter test passes locally. The post-commit producer matrix passes all 30
+  fixture/engine/dispatcher cases at source `357eebe39d`; its scalar-filter
+  fixture records 2,521 CnP and 989 LLVM executions per engine. Report:
+  `/tmp/m34-parameterized-residuals-357e/producer-matrix/report.json`.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
