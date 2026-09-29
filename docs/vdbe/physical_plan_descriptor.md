@@ -170,7 +170,8 @@ arithmetic/concatenation expressions. Deterministic scalar calls with
 canonical, same-source/constant arguments are additionally admitted only as
 residual expression operands; they cannot be key bounds. Direct `BETWEEN` and
 `NOT BETWEEN` use two such bounds. Direct `IN` / `NOT IN` lists contain one
-or more canonical constant expressions; `IN (SELECT ...)` remains unsupported.
+or more canonical constant expressions or same-source scalar expressions when
+the left operand is also row-dependent; `IN (SELECT ...)` remains unsupported.
 Reversed constant/column comparisons are
 preserved as expressions and evaluated by SQL expression codegen. The
 primary-key NULL tests use
