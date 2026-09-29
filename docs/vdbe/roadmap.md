@@ -1291,15 +1291,16 @@ DML, triggers, subprograms, non-deterministic functions.
   operands, duplicate values, residual bounds, upper-only and bounded ranges,
   NULL keys, and LIMIT/OFFSET; `EXPLAIN QUERY PLAN` confirms the index is
   selected. The `planner_scalar_filter_test.lua` Debug runner passes and the
-  VDBE unit target passes 69 assertions, including bounded endpoint and
-  upper-only NULL termination opcodes. Descending index definitions, ranges
-  on non-leading composite parts, and broad corpus parity remain open; this
-  does not close M3.4. An `ORDER BY` on the indexed leading field now reuses
+  VDBE unit target passes 72 assertions, including both bounded directions,
+  endpoint guards, and NULL termination opcodes. Descending index definitions,
+  ranges on non-leading composite parts, and broad corpus parity remain open;
+  this does not close M3.4. An `ORDER BY` on the indexed leading field now reuses
   the range traversal when the requested direction matches it: ASC for lower-
-  bound or bounded scans and DESC for upper-only scans. Off/on/off SQL tests
-  verify both directions and a bounded ascending range. A descending bounded
-  request is kept on legacy codegen because reverse bounded termination is not
-  implemented.
+  bound or bounded scans and DESC for upper-only or bounded scans. Descending
+  bounded scans seek at the upper endpoint, walk backward, and terminate at
+  the lower endpoint or NULL keys. Off/on/off SQL tests verify one-sided and
+  bounded traversal in both directions; VDBE unit coverage pins the reverse
+  seek, lower guard, NULL termination, and Prev walk.
   This does not claim general secondary-index access or close M3.4.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now
   order by a leading prefix of an ascending TREE secondary index with uniform

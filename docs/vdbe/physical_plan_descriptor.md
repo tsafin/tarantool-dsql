@@ -324,9 +324,10 @@ values, residual bounds, LIMIT/OFFSET, and selected-index evidence from
 overrides, non-integer key parts, and ranges on non-leading composite parts
 remain outside this route. A one-term `ORDER BY` on the indexed leading field
 is also satisfied when its direction matches the scan: ASC for lower-bound or
-bounded scans, DESC for upper-only scans. A descending bounded-secondary-range
-request remains on legacy codegen; bounded reverse termination is not yet
-implemented.
+bounded scans, DESC for upper-only or bounded scans. Descending bounded scans
+seek at the upper endpoint, walk backward, and stop at the lower endpoint or
+the first NULL key. Focused tests cover both range directions and ensure NULL
+keys do not leak through reverse traversal.
 
 #### Secondary-index ordered full scan
 
