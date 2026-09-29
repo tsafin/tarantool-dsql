@@ -206,6 +206,19 @@ encode(const struct Expr *expr, struct buffer *b, unsigned int depth,
 			return SQL_EXPR_CANONICAL_NOMEM;
 		return SQL_EXPR_CANONICAL_OK;
 	}
+	if (expr->op == TK_VARIABLE) {
+		if (expr->pLeft != NULL || expr->pRight != NULL ||
+		    expr->x.pList != NULL || expr->iColumn < 1 ||
+		    expr->u.zToken == NULL || expr->u.zToken[0] == '\0' ||
+		    ExprHasProperty(expr, EP_IntValue))
+			return SQL_EXPR_CANONICAL_MALFORMED;
+		char tmp[48];
+		int n = snprintf(tmp, sizeof(tmp), "var(%d)", expr->iColumn);
+		if (n < 0 || (size_t)n >= sizeof(tmp) ||
+		    !append(b, tmp, (size_t)n))
+			return SQL_EXPR_CANONICAL_NOMEM;
+		return SQL_EXPR_CANONICAL_OK;
+	}
 	if (expr->op == TK_NULL) {
 		if (expr->pLeft != NULL || expr->pRight != NULL)
 			return SQL_EXPR_CANONICAL_MALFORMED;

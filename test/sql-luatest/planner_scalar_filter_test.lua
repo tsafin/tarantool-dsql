@@ -660,6 +660,21 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {},
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE s = ? ORDER BY id')
+                          :format(comparison_name),
+                    params = {'a'},
+                    expected = {{1}, {2}, {5}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id = ?')
+                          :format(comparison_name),
+                    params = {1},
+                    expected = {{1}},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FILTER',
+                },
+                {
                     sql = ("SELECT id FROM %s WHERE v <> 'x' " ..
                            'ORDER BY id ASC'):format(name),
                     expected = {{4}},
@@ -1078,13 +1093,20 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{3}},
                 },
             }
+            local function execute(sql, params)
+                if params == nil then
+                    return box.execute(sql)
+                end
+                return box.execute(sql, params)
+            end
             local function capture(enabled)
                 local results = {}
                 box.execute(('SET SESSION "sql_new_planner_single_table" = %s')
                             :format(enabled and 'true' or 'false'))
                 for i, query in ipairs(queries) do
-                    local explain, err = box.execute(
-                        [[EXPLAIN (planner = 'summary') ]] .. query.sql)
+                    local explain, err = execute(
+                        [[EXPLAIN (planner = 'summary') ]] .. query.sql,
+                        query.params)
                     t.assert(err == nil, err and err.message)
                     local route = explain.rows[1][3]
                     if enabled then
@@ -1095,8 +1117,9 @@ g.test_non_primary_null_filters_off_on_off = function()
                                                 tostring(explain.rows[2][3]),
                                                 query.sql))
                         if query.expected_index ~= nil then
-                            local plan, plan_err = box.execute(
-                                'EXPLAIN QUERY PLAN ' .. query.sql)
+                            local plan, plan_err = execute(
+                                'EXPLAIN QUERY PLAN ' .. query.sql,
+                                query.params)
                             t.assert(plan_err == nil,
                                      plan_err and plan_err.message)
                             local plan_text = ''
@@ -1120,7 +1143,7 @@ g.test_non_primary_null_filters_off_on_off = function()
                                  route == 'fallback')
                     end
                     local result
-                    result, err = box.execute(query.sql)
+                    result, err = execute(query.sql, query.params)
                     t.assert(err == nil, err and err.message)
                     if query.expected_order_column ~= nil then
                         for row_no = 2, #result.rows do
@@ -1202,6 +1225,23 @@ g.test_non_primary_null_filters_off_on_off = function()
             t.assert_equals(on, off)
             local off_again = capture(false)
             t.assert_equals(off_again, off)
+            local parameter_sql = ('SELECT id FROM %s WHERE s = ? ' ..
+                                   'ORDER BY id'):format(comparison_name)
+            box.execute('SET SESSION "sql_new_planner_single_table" = true')
+            local parameter_explain = execute(
+                [[EXPLAIN (planner = 'summary') ]] .. parameter_sql, {'a'})
+            t.assert_equals(parameter_explain.rows[1][3], 'new_planner')
+            local parameter_stmt = box.prepare(parameter_sql)
+            local parameter_cases = {
+                {{'a'}, {{1}, {2}, {5}}},
+                {{'b'}, {{3}}},
+                {{box.NULL}, {}},
+            }
+            for _, case in ipairs(parameter_cases) do
+                local result = box.execute(parameter_stmt.stmt_id, case[1])
+                t.assert_equals(result.rows, case[2])
+            end
+            box.unprepare(parameter_stmt.stmt_id)
             box.execute(('DROP TABLE %s'):format(name))
             box.execute(('DROP TABLE %s'):format(composite_name))
             box.execute(('DROP TABLE %s'):format(secondary_name))

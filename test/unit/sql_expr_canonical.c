@@ -4,7 +4,7 @@
 #include "box/sql/sql_expr_canonical.h"
 #include "unit.h"
 static void test_supported(void) {
-	plan(15); header();
+	plan(17); header();
 	const uint32_t cursor_map[] = {UINT32_MAX, UINT32_MAX, UINT32_MAX, 0};
 	struct Expr col = {.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=3,.iColumn=1};
 	struct Expr a = {.op=TK_INTEGER,.flags=EP_Resolved|EP_IntValue}; a.u.iValue=7;
@@ -14,6 +14,12 @@ static void test_supported(void) {
 	struct Expr min_value = {.op=TK_UMINUS,.flags=EP_Resolved,
 		.pLeft=&min_operand};
 	struct Expr plus = {.op=TK_PLUS,.flags=EP_Resolved,.pLeft=&col,.pRight=&a};
+	struct Expr variable = {.op=TK_VARIABLE,.flags=EP_Resolved|EP_Leaf,
+		.u.zToken="?",.iColumn=1};
+	struct Expr named_variable = {.op=TK_VARIABLE,
+		.flags=EP_Resolved|EP_Leaf,.u.zToken=":value",.iColumn=1};
+	struct Expr second_variable = {.op=TK_VARIABLE,
+		.flags=EP_Resolved|EP_Leaf,.u.zToken="?",.iColumn=2};
 	char *s=sql_expr_canonicalize(&col,cursor_map,4,NULL);
 	char *s2=sql_expr_canonicalize(&col,cursor_map,4,NULL);
 	ok(s && s2 && strcmp(s,s2)==0 && strcmp(s,"col(r0,c1)")==0,"mapped column stable");
@@ -35,6 +41,13 @@ static void test_supported(void) {
 	   "minimum signed integer literal canonicalized exactly");
 	char *o=sql_expr_canonicalize(&plus,cursor_map,4,NULL);
 	ok(o && strcmp(o,"plus(col(r0,c1),int(7))")==0,"operator structure encoded");
+	char *v=sql_expr_canonicalize(&variable,NULL,0,NULL);
+	char *v_named=sql_expr_canonicalize(&named_variable,NULL,0,NULL);
+	char *v2=sql_expr_canonicalize(&second_variable,NULL,0,NULL);
+	ok(v && v_named && strcmp(v,"var(1)")==0 && strcmp(v,v_named)==0,
+	   "positional and named parameters canonicalize by resolved ordinal");
+	ok(v2 && strcmp(v2,"var(2)")==0 && strcmp(v,v2)!=0,
+	   "different bound parameter ordinals remain distinct");
 	struct Expr nul={.op=TK_NULL,.flags=EP_Resolved};
 	struct Expr str={.op=TK_STRING,.flags=EP_Resolved,.u.zToken="a\"b"};
 	struct Expr f={.op=TK_FLOAT,.flags=EP_Resolved,.u.zToken="1.0"};
@@ -88,11 +101,11 @@ static void test_supported(void) {
 	ok(collated_s && strcmp(collated_s,
 		"collate10:756e69636f64655f6369(col(r0,c1))")==0,
 	   "explicit collation and operand canonicalized case-insensitively");
-	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);free(between_s);free(in_s);free(function_s);free(collated_s);
+	free(s);free(s2);free(lookup);free(no_reduce);free(n);free(n2);free(min);free(o);free(v);free(v_named);free(v2);free(ns);free(ss);free(fs);free(fs2);free(bs);free(bools);free(between_s);free(in_s);free(function_s);free(collated_s);
 	footer(); check_plan();
 }
 static void test_rejects(void) {
-	plan(11); header(); enum sql_expr_canonical_reject r;
+	plan(12); header(); enum sql_expr_canonical_reject r;
 	struct Expr fn={.op=TK_FUNCTION,.flags=EP_Resolved,.u.zToken="abs"};
 	ok(!sql_expr_canonicalize(&fn,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,"nondeterministic function rejected");
 	struct Expr j={.op=TK_COLUMN_REF,.flags=EP_Resolved|EP_FromJoin,.iTable=0,.iColumn=1};
@@ -108,6 +121,11 @@ static void test_rejects(void) {
 	struct Expr col={.op=TK_COLUMN_REF,.flags=EP_Resolved,.iTable=0,.iColumn=0};
 	ok(!sql_expr_canonicalize(&col,NULL,0,&r)&&r==SQL_EXPR_CANONICAL_UNSUPPORTED,
 	   "column without cursor binding rejected");
+	struct Expr bad_variable={.op=TK_VARIABLE,
+		.flags=EP_Resolved|EP_Leaf,.u.zToken="?",.iColumn=0};
+	ok(!sql_expr_canonicalize(&bad_variable,NULL,0,&r)&&
+	   r==SQL_EXPR_CANONICAL_MALFORMED,
+	   "variable without a resolved positive ordinal rejected");
 	struct Expr bad_blob={.op=TK_BLOB,.flags=EP_Resolved,.u.zToken="X'0G'"};
 	ok(!sql_expr_canonicalize(&bad_blob,NULL,0,&r)&&
 	   r==SQL_EXPR_CANONICAL_MALFORMED,"malformed blob hex rejected");

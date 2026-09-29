@@ -1567,10 +1567,21 @@ DML, triggers, subprograms, non-deterministic functions.
   This remains residual-only and does not close M3.4.
   The SQL-TAP preflight regression now asserts `new_planner` for direct scalar
   residuals, mixed primary-key/residual predicates, and bounded boolean
-  filters, while parameterized predicates remain an explicit
+  filters. A parameterized primary-key bound remains an explicit
   `fallback / UNSUPPORTED_FILTER` counter case. A full local Debug SQL-suite
   run passes 136 tests with 2 disabled and no failures; both memtx and Vinyl
   preflight variants pass.
+  **Parameterized residual extension (2026-09-29):** canonical identities
+  now represent resolved bind parameters by their 1-based variable ordinal,
+  independent of positional/named spelling. Non-primary scalar comparisons
+  can therefore retain a prepared parameter as a residual expression; runtime
+  values are still read by the existing SQL `OP_Variable` bytecode. A focused
+  memtx/Vinyl regression asserts the `new_planner` route, and executes the same
+  prepared statement with matching, nonmatching, and NULL values. A separate
+  primary-key `id = ?` assertion remains `fallback / UNSUPPORTED_FILTER`, since
+  variable-valued seek-key emission is not implemented. The canonicalizer unit
+  test passes 17 supported and 12 rejection assertions; the focused scalar
+  filter test passes locally.
   After integrating the composite-point filter extension and CTE role update,
   the broader `planner_flag_parity_test.lua` also passes on the rebuilt Debug
   binary under generated and CnP dispatch; this remains focused route evidence,
@@ -1853,8 +1864,11 @@ DML, triggers, subprograms, non-deterministic functions.
   counter tests cover CAST, LIKE, arithmetic and negative LIMIT, and
   parameterized LIMIT and OFFSET; LIKE is correctly classified as an
   unsupported function because the parser represents it through the function
-  operator. Bind parameters remain on the legacy route
-  because their value is not part of the immutable descriptor at prepare time.
+  operator. Parameterized primary-key access bounds remain on the legacy route
+  because their runtime values are not yet represented as VDBE seek-key
+  producers in the immutable access descriptor; parameterized non-primary
+  residuals are represented by parameter ordinal and evaluated through the
+  existing `OP_Variable` SQL bytecode.
   For shapes that pass the feature-gated table-scan preflight, this expression
   classification is deferred until the physical attempt: a successful TEXT
   primary-key ordered scan reports `new_planner` without a stale fallback
