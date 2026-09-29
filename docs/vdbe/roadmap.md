@@ -1297,15 +1297,17 @@ DML, triggers, subprograms, non-deterministic functions.
   does not close M3.4.
   This does not claim general secondary-index access or close M3.4.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now
-  order by the first key part of an ascending TREE secondary index. The
-  descriptor records the selected index and order direction; lowering walks
-  forward for ASC or backward for DESC, resolves each complete primary key,
-  and projects the fetched base row. Memtx/Vinyl off/on/off coverage includes
-  duplicate first-part values and both directions. The focused
-  `planner_scalar_filter_test.lua` runner passes, and VDBE unit tests pin both
-  cursor directions and base-row lookup (71 assertions total). Filters,
-  multi-term secondary ordering, and descending index definitions remain
-  unsupported. This is a bounded M3.4 increment, not closure.
+  order by a leading prefix of an ascending TREE secondary index with uniform
+  ASC or DESC direction. The descriptor records the selected index and every
+  produced-order term; lowering walks forward or backward, resolves each
+  complete primary key, and projects the fetched base row. Memtx/Vinyl
+  off/on/off coverage includes one- and two-term order, duplicate keys,
+  `UINT64_MAX` suffix order, and both directions. The focused
+  `planner_scalar_filter_test.lua` runner passes, and VDBE unit tests pin the
+  direction-specific cursor operations, multi-term order metadata, and base-row
+  lookup (71 assertions total). Filters, non-prefix ordering, and descending
+  index definitions remain unsupported. This is a bounded M3.4 increment, not
+  closure.
   **2026-09 scalar-comparison extension:** direct comparison residuals now
   also accept `=`, `<>`, `<`, `<=`, `>`, and `>=` between a non-primary source
   column and a constant expression accepted by the canonicalizer and free of
