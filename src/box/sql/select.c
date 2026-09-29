@@ -6524,12 +6524,17 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 			plan_input->access.prefix_key_part_count != 0 ?
 			secondary_part_count : 0;
 		secondary_info.key_column =
-			selected_access == SQL_PLAN_INDEX_RANGE_SCAN ?
+			selected_access == SQL_PLAN_INDEX_RANGE_SCAN ||
+			(selected_access == SQL_PLAN_INDEX_PREFIX_SCAN &&
+			 plan_input->access.produced_order_count != 0) ?
 			plan_input->access.range_key_column :
 			secondary_key_columns[0];
 		secondary_info.key_unsigned =
 			selected_access == SQL_PLAN_INDEX_RANGE_SCAN ?
 			plan_input->access.has_unsigned_range_key :
+			selected_access == SQL_PLAN_INDEX_PREFIX_SCAN &&
+			plan_input->access.produced_order_count != 0 ?
+			secondary_key_unsigned[plan_input->access.prefix_key_part_count] :
 			secondary_key_unsigned[0];
 		secondary_info.primary_key_count = primary->def->key_def->part_count;
 		if (secondary_info.primary_key_count >

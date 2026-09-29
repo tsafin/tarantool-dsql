@@ -1528,6 +1528,7 @@ predicate_parsed:
 	}
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	bool secondary_range_order = false;
+	bool secondary_prefix_order = false;
 	if (has_secondary_range_scan && !has_secondary_equality_scan &&
 	    !has_point_key && !has_range_key && !has_prefix_scan &&
 	    !has_prefix_range_scan &&
@@ -1575,6 +1576,33 @@ predicate_parsed:
 			}
 		}
 	}
+	if (has_secondary_prefix_scan && select->pOrderBy != NULL &&
+	    select->pOrderBy->nExpr == 1 &&
+	    select->pOrderBy->a[0].pExpr != NULL &&
+	    select->pOrderBy->a[0].pExpr->op == TK_COLUMN_REF &&
+	    select->pOrderBy->a[0].pExpr->pLeft == NULL &&
+	    select->pOrderBy->a[0].pExpr->pRight == NULL &&
+	    select->pOrderBy->a[0].pExpr->iTable == source->iCursor &&
+	    select->pOrderBy->a[0].pExpr->iColumn >= 0 &&
+	    source->space->index_map != NULL) {
+		for (uint32_t index_no = 1;
+		     index_no < source->space->index_count; ++index_no) {
+			const struct index *index = source->space->index_map[index_no];
+			if (index == NULL || index->def == NULL ||
+			    index->def->iid != secondary_prefix_index_id ||
+			    index->def->type != TREE || index->def->key_def == NULL ||
+			    index->def->key_def->part_count <= secondary_prefix_count)
+				continue;
+			const struct key_part *part = &index->def->key_def->parts[
+				secondary_prefix_count];
+			if (part->fieldno == (uint32_t)select->pOrderBy->a[0].pExpr->iColumn &&
+			    (part->sort_order == SORT_ORDER_ASC ||
+			     part->sort_order == SORT_ORDER_DESC)) {
+				secondary_prefix_order = true;
+			}
+			break;
+		}
+	}
 	bool use_secondary_equality_scan = has_secondary_equality_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
 		select->pOrderBy == NULL;
@@ -1585,22 +1613,12 @@ predicate_parsed:
 	bool use_secondary_prefix_scan = has_secondary_prefix_scan &&
 		!has_secondary_equality_scan && !has_secondary_range_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
-		!has_prefix_range_scan && select->pOrderBy == NULL;
+		!has_prefix_range_scan &&
+		(select->pOrderBy == NULL || secondary_prefix_order);
 	bool use_secondary_full_scan = has_secondary_full_scan &&
 		!has_point_key && !has_range_key && !has_prefix_scan &&
 		!has_secondary_equality_scan && !has_secondary_range_scan &&
 		select->pWhere == NULL;
-	if (has_secondary_prefix_scan && !use_secondary_prefix_scan) {
-		for (size_t i = 0; i < secondary_prefix_count; ++i) {
-			if (filter_count == SQL_PLAN_FILTER_MAX)
-				goto invalid_predicate;
-			filters[filter_count] = (struct sql_plan_filter) {
-				.op = SQL_PLAN_FILTER_EXPRESSION,
-				.selectivity = 0.5,
-			};
-			filter_expressions[filter_count++] = secondary_prefix_terms[i];
-		}
-	}
 	if (has_secondary_prefix_scan && !use_secondary_prefix_scan) {
 		for (size_t i = 0; i < secondary_prefix_count; ++i) {
 			if (filter_count == SQL_PLAN_FILTER_MAX)
@@ -1688,7 +1706,7 @@ predicate_parsed:
 		bool can_use_secondary_full_scan = select->pWhere == NULL ||
 			(!has_point_key && !has_range_key && !has_prefix_scan &&
 			 !has_prefix_range_scan && !has_secondary_equality_scan &&
-			 !has_secondary_range_scan);
+			 !has_secondary_range_scan && !has_secondary_prefix_scan);
 		if (can_use_secondary_full_scan && order_by->nExpr > 0) {
 			const struct Expr *order_expr = order_by->a[0].pExpr;
 			if (order_expr != NULL && order_expr->op == TK_COLUMN_REF &&
@@ -1753,13 +1771,15 @@ predicate_parsed:
 				}
 			}
 		}
-		if (secondary_range_order) {
+		if (secondary_range_order || secondary_prefix_order) {
+			uint32_t selected_index_id = secondary_range_order ?
+				secondary_range_index_id : secondary_prefix_index_id;
 			for (uint32_t index_no = 1;
 			     index_no < source->space->index_count; ++index_no) {
 				const struct index *index =
 					source->space->index_map[index_no];
 				if (index != NULL && index->def != NULL &&
-				    index->def->iid == secondary_range_index_id) {
+				    index->def->iid == selected_index_id) {
 					key_def = index->def->key_def;
 					break;
 				}
@@ -1809,8 +1829,10 @@ predicate_parsed:
 				free(order_terms);
 				goto invalid_predicate;
 			}
-		} else if (secondary_range_composite) {
+		} else if (secondary_range_composite || secondary_prefix_composite) {
 			first_order_part = (uint32_t)secondary_range_prefix_count;
+			if (secondary_prefix_composite)
+				first_order_part = (uint32_t)secondary_prefix_count;
 			if ((uint32_t)order_by->nExpr >
 			    key_def->part_count - first_order_part) {
 				free(order_terms);
@@ -2205,7 +2227,9 @@ predicate_parsed:
 				range_unsigned,
 			.unsigned_range_end_key = unsigned_range_end_key,
 			.integer_range_end_op = range_end_op,
-			.range_key_column = use_secondary_equality_scan ?
+			.range_key_column = use_secondary_prefix_scan &&
+				secondary_prefix_order && order_term_count != 0 ?
+				order_terms[0].column : use_secondary_equality_scan ?
 				secondary_key_column : range_key_column,
 			.direction = direction,
 			.produced_order = order_terms,

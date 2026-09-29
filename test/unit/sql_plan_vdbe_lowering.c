@@ -267,9 +267,12 @@ new_secondary_prefix_range_descriptor(void)
 }
 
 static struct sql_plan_descriptor *
-new_secondary_prefix_scan_descriptor(void)
+new_secondary_prefix_scan_descriptor(bool ordered)
 {
 	static const uint32_t columns[] = {0};
+	static const struct sql_plan_order_term order = {
+		.column = 4, .direction = SQL_PLAN_DESC,
+	};
 	static const struct sql_plan_point_key_part prefix = {
 		.column = 3, .integer_value = 7,
 	};
@@ -288,7 +291,10 @@ new_secondary_prefix_scan_descriptor(void)
 			.index_id = 1,
 			.bounds = &bound, .bound_count = 1,
 			.prefix_key_parts = &prefix, .prefix_key_part_count = 1,
-			.direction = SQL_PLAN_ASC,
+			.range_key_column = ordered ? 4 : 0,
+			.direction = ordered ? SQL_PLAN_DESC : SQL_PLAN_ASC,
+			.produced_order = ordered ? &order : NULL,
+			.produced_order_count = ordered ? 1 : 0,
 		},
 		.projection_columns = columns, .projection_column_count = 1,
 		.expressions = &expression, .expression_count = 1,
@@ -982,7 +988,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(79);
+	plan(80);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1051,7 +1057,9 @@ main(void)
 	struct sql_plan_descriptor *secondary_prefix_range_desc =
 		new_secondary_prefix_range_descriptor();
 	struct sql_plan_descriptor *secondary_prefix_scan_desc =
-		new_secondary_prefix_scan_descriptor();
+		new_secondary_prefix_scan_descriptor(false);
+	struct sql_plan_descriptor *secondary_prefix_order_desc =
+		new_secondary_prefix_scan_descriptor(true);
 	struct sql_plan_descriptor *secondary_full_asc_desc =
 		new_secondary_full_scan_descriptor(SQL_PLAN_ASC, SQL_PLAN_ASC);
 	struct sql_plan_descriptor *secondary_full_desc_desc =
@@ -1560,6 +1568,14 @@ main(void)
 	   vdbe.aOp[before_secondary_prefix_scan + 2].p4.i == 1 &&
 	   vdbe.aOp[before_secondary_prefix_scan + 8].opcode == OP_Next,
 	   "secondary equality-prefix scan seeks and guards only the complete prefix");
+	int before_secondary_prefix_order = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
+		secondary_prefix_order_desc, &vdbe, 4, 5, &secondary_full_index, 20,
+		NULL, NULL) == 0 &&
+	   vdbe.aOp[before_secondary_prefix_order + 1].opcode == OP_SeekLE &&
+	   vdbe.aOp[before_secondary_prefix_order + 2].opcode == OP_IdxLT &&
+	   vdbe.aOp[before_secondary_prefix_order + 8].opcode == OP_Prev,
+	   "secondary equality-prefix scan can walk a suffix in reverse index order");
 	int before_secondary_upper_range = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_secondary_scan_with_projector(
 		secondary_upper_range_desc, &vdbe, 4, 5, &secondary_index, 20,

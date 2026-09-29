@@ -954,7 +954,8 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		input->access.prefix_key_part_count : 0;
 	size_t index_part_count = index->key_part_count;
 	size_t range_part = prefix_count;
-	bool index_descending = range && index->key_parts_descending != NULL &&
+	bool index_descending = (range || prefix_scan) &&
+		index->key_parts_descending != NULL &&
 		range_part < index_part_count &&
 		index->key_parts_descending[range_part];
 	bool logical_descending = index_descending !=
@@ -1014,7 +1015,13 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		 input->access.has_unsigned_range_end_key ||
 		 input->access.bound_count != prefix_count ||
 		 input->access.bounds == NULL ||
-		 input->access.produced_order_count != 0);
+		 input->access.produced_order_count > 1 ||
+		 (input->access.produced_order_count != 0 &&
+		  (input->access.produced_order == NULL ||
+		   prefix_count >= index_part_count ||
+		   input->access.range_key_column !=
+			index->key_columns[prefix_count] ||
+		   invalid_range_order)));
 	if (prefix_scan && !invalid_prefix) {
 		for (size_t i = 0; i < prefix_count; ++i) {
 			if (input->access.prefix_key_parts[i].column !=
@@ -1233,7 +1240,8 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 	}
 	int seek_op = full ?
 		(input->access.direction == SQL_PLAN_DESC ? OP_Last : OP_Rewind) :
-		OP_SeekGE;
+		(prefix_scan && input->access.direction == SQL_PLAN_DESC ?
+		 OP_SeekLE : OP_SeekGE);
 	if (range) {
 		switch (input->access.integer_range_op) {
 		case SQL_PLAN_GT: seek_op = OP_SeekGT; break;

@@ -225,7 +225,10 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		    in->access.has_integer_range_end_key ||
 		    in->access.has_unsigned_range_end_key ||
 		    in->access.bound_count != prefix_count ||
-		    in->access.produced_order_count != 0)
+		    in->access.produced_order_count > 1 ||
+		    (in->access.produced_order_count != 0 &&
+		     (in->access.range_key_column > INT_MAX ||
+		      in->access.produced_order == NULL)))
 			return NULL;
 		for (size_t i = 0; i < prefix_count; ++i)
 			if (in->access.prefix_key_parts[i].column > INT_MAX ||
