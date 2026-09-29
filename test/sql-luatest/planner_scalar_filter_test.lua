@@ -200,6 +200,29 @@ g.test_non_primary_null_filters_off_on_off = function()
                 },
                 {
                     sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
+                           'AND y >= 10 ORDER BY y DESC')
+                          :format(secondary_tertiary_name),
+                    expected = {{10, 1, 1, 1}, {10, 2, 2, 1},
+                                {10, 3, 1, 2}, {11, 1, 2, 2}},
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    unordered = true,
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FILTER',
+                },
+                {
+                    sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
+                           'AND y < 11 ORDER BY y ASC')
+                          :format(secondary_tertiary_name),
+                    expected = {{10, 1, 1, 1}, {10, 2, 2, 1},
+                                {10, 3, 1, 2}},
+                    expected_order_column = 1,
+                    unordered = true,
+                    enabled_route = 'fallback',
+                    enabled_reason = 'UNSUPPORTED_FILTER',
+                },
+                {
+                    sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
                            'AND y >= 10 AND y < 11 ' ..
                            'ORDER BY y DESC, z DESC LIMIT 2 OFFSET 1')
                           :format(secondary_tertiary_name),
