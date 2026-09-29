@@ -16,6 +16,7 @@ TESTS = (
     "planner_insert_select_snapshot_test.lua",
     "planner_flag_fallback_parity_test.lua",
     "planner_composite_prefix_range_test.lua",
+    "planner_scalar_filter_test.lua",
 )
 ENGINES = ("memtx", "vinyl")
 MODES = ("generated", "cnp", "llvm")
