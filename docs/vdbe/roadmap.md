@@ -1343,9 +1343,10 @@ DML, triggers, subprograms, non-deterministic functions.
   prefix matches, a two-part mixed-type equality prefix, suffix ordering, and
   ascending/descending composite indexes;
   VDBE unit coverage pins key arity, both guards, and multi-term suffix order;
-  runtime coverage combines that order with LIMIT/OFFSET. Unsupported/incomplete
-  prefixes and skipped index parts remain on the legacy path. This is another
-  bounded M3.4 increment, not M3.4 closure or broad corpus parity.
+  runtime coverage combines ascending and descending order with LIMIT/OFFSET.
+  Unsupported/incomplete prefixes and skipped index parts remain on the legacy
+  path. This is another bounded M3.4 increment, not M3.4 closure or broad
+  corpus parity.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now
   order by a leading prefix of an ascending TREE secondary index with uniform
   ASC or DESC direction. The descriptor records the selected index and every

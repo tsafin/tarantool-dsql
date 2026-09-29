@@ -362,7 +362,9 @@ traversal. Incomplete prefixes,
 unsupported key types, and ranges that skip an index part remain on legacy
 codegen. Focused memtx/Vinyl coverage checks bounded and upper-only suffix
 ranges, duplicate prefix matches, suffix ordering, and both ascending and
-descending composite index definitions. A three-part `(INTEGER, UNSIGNED,
+descending composite index definitions. The three-part fixture combines
+bounded ascending and descending multi-term suffix order with LIMIT/OFFSET.
+A three-part `(INTEGER, UNSIGNED,
 INTEGER)` index fixture also exercises two equality-prefix values before the
 ranged suffix. The VDBE unit pins seek arity and prefix/range guards.
 
