@@ -27,17 +27,20 @@ g.test_non_primary_null_filters_off_on_off = function()
             local comparison_name = name .. '_comparison'
             box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
                          'a INTEGER, b INTEGER, s STRING, t STRING, ' ..
-                         'k INTEGER) ' ..
+                         'k INTEGER, uk UNSIGNED) ' ..
                          "WITH ENGINE = '%s'")
                         :format(comparison_name, engine))
             box.execute(('INSERT INTO %s VALUES ' ..
-                         "(1, 1, 1, 'a', 'a', 7), " ..
-                         "(2, 1, 2, 'a', 'b', 7), " ..
-                         "(3, 2, 1, 'b', 'a', 8), " ..
-                         "(4, NULL, 1, NULL, 'a', NULL), " ..
-                         "(5, 1, NULL, 'a', NULL, 7)")
+                         "(1, 1, 1, 'a', 'a', 7, 10), " ..
+                         "(2, 1, 2, 'a', 'b', 7, 10), " ..
+                         "(3, 2, 1, 'b', 'a', 8, " ..
+                         '18446744073709551615), ' ..
+                         "(4, NULL, 1, NULL, 'a', NULL, NULL), " ..
+                         "(5, 1, NULL, 'a', NULL, 7, 10)")
                         :format(comparison_name))
             box.execute(('CREATE INDEX %s_k ON %s (k)')
+                        :format(comparison_name, comparison_name))
+            box.execute(('CREATE INDEX %s_uk ON %s (uk)')
                         :format(comparison_name, comparison_name))
             local composite_name = name .. '_composite'
             box.execute(('CREATE TABLE %s (a INTEGER, b INTEGER, v STRING, ' ..
@@ -435,6 +438,23 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {},
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE k = NULL')
+                          :format(comparison_name),
+                    expected = {},
+                    enabled_route = 'fallback',
+                    enabled_reason = 'NO_ACCESS_PATH',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE k = 7 AND k = 8')
+                          :format(comparison_name),
+                    expected = {},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id = 5 AND uk = 10')
+                          :format(comparison_name),
+                    expected = {{5}},
+                },
+                {
                     sql = ("SELECT id FROM %s WHERE k = 7 AND t = 'a'")
                           :format(comparison_name),
                     expected = {{1}},
@@ -448,6 +468,11 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT id FROM %s WHERE k = 7 ' ..
                            'LIMIT 1 OFFSET 1'):format(comparison_name),
                     expected = {{2}},
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE uk = ' ..
+                           '18446744073709551615'):format(comparison_name),
+                    expected = {{3}},
                 },
             }
             local function capture(enabled)

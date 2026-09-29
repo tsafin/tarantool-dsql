@@ -478,6 +478,7 @@ sql_physical_table_scan_from_select(
 	uint64_t unsigned_range_key = 0;
 	uint64_t unsigned_range_end_key = 0;
 	bool has_secondary_equality_scan = false;
+	const struct Expr *secondary_scan_term = NULL;
 	uint32_t secondary_index_id = 0;
 	uint32_t secondary_key_column = 0;
 	bool secondary_key_unsigned = false;
@@ -763,23 +764,27 @@ sql_physical_table_scan_from_select(
 								    is_unsigned, &parsed) ||
 							    parsed.op != SQL_PLAN_EQ)
 								continue;
-							if (filter_count == SQL_PLAN_FILTER_MAX)
-								goto invalid_predicate;
-							has_secondary_equality_scan = true;
 							matched_secondary = true;
-							secondary_index_id = index->def->iid;
-							secondary_key_column =
-								(uint32_t)column->iColumn;
-							secondary_key_unsigned = is_unsigned;
-							secondary_signed_key = parsed.signed_key;
-							secondary_unsigned_key =
-								parsed.unsigned_key;
-							filters[filter_count] =
-								(struct sql_plan_filter) {
-									.op = SQL_PLAN_FILTER_EXPRESSION,
-									.selectivity = 0.5,
-								};
-							filter_expressions[filter_count++] = term;
+							if (!has_secondary_equality_scan) {
+								has_secondary_equality_scan = true;
+								secondary_scan_term = term;
+								secondary_index_id = index->def->iid;
+								secondary_key_column =
+									(uint32_t)column->iColumn;
+								secondary_key_unsigned = is_unsigned;
+								secondary_signed_key = parsed.signed_key;
+								secondary_unsigned_key =
+									parsed.unsigned_key;
+							} else {
+								if (filter_count == SQL_PLAN_FILTER_MAX)
+									goto invalid_predicate;
+								filters[filter_count] =
+									(struct sql_plan_filter) {
+										.op = SQL_PLAN_FILTER_EXPRESSION,
+										.selectivity = 0.5,
+									};
+								filter_expressions[filter_count++] = term;
+							}
 							break;
 						}
 						if (matched_secondary)
@@ -856,7 +861,7 @@ sql_physical_table_scan_from_select(
 		}
 		expr_count = bound_count;
 		if (expr_count == 0 && filter_count == 0 &&
-		    !primary_key_not_null)
+		    !primary_key_not_null && !has_secondary_equality_scan)
 			goto invalid_predicate;
 		if (expr_count == 0)
 			goto predicate_parsed;
@@ -1154,6 +1159,18 @@ predicate_parsed:
 			.offset = 0,
 		};
 	}
+	bool use_secondary_equality_scan = has_secondary_equality_scan &&
+		!has_point_key && !has_range_key && !has_prefix_scan &&
+		select->pOrderBy == NULL;
+	if (has_secondary_equality_scan && !use_secondary_equality_scan) {
+		if (filter_count == SQL_PLAN_FILTER_MAX)
+			goto invalid_predicate;
+		filters[filter_count] = (struct sql_plan_filter) {
+			.op = SQL_PLAN_FILTER_EXPRESSION,
+			.selectivity = 0.5,
+		};
+		filter_expressions[filter_count++] = secondary_scan_term;
+	}
 	enum sql_plan_direction direction = SQL_PLAN_ASC;
 	struct sql_plan_order_term *order_terms = NULL;
 	size_t order_term_count = 0;
@@ -1405,9 +1422,6 @@ predicate_parsed:
 	 * Keep the original single-bound encoding for point and one-sided routes;
 	 * bounded ranges add one independently-owned expression/bound.
 	 */
-	bool use_secondary_equality_scan = has_secondary_equality_scan &&
-		!has_point_key && !has_range_key && !has_prefix_scan &&
-		select->pOrderBy == NULL;
 	struct sql_plan_expression point_expression = {
 		.id = 1,
 		.canonical = use_secondary_equality_scan ?
