@@ -1191,7 +1191,7 @@ DML, triggers, subprograms, non-deterministic functions.
 - [ ] **M3.4 executable lowering** — partial: a narrow production route now
   connects the producer, physical descriptor, VDBE loop emitter, and
   `SelectDest` result registers. It accepts resolved direct-column projections
-  and deterministic scalar-function projections from one base table and
+  and canonical deterministic scalar-function/composed projections from one base table and
   requires a TREE primary index. Function-based ORDER BY remains on the legacy
   sorter path. The
   no-filter route supports optional primary-key ordering by scanning in the
@@ -1410,6 +1410,13 @@ DML, triggers, subprograms, non-deterministic functions.
   canonicalizer unit target passes all 19 assertions, including malformed-hex
   rejection. This is focused evidence, not a refreshed reviewed-corpus route
   report.
+  **2026-09 composed projection verification:** the executable route also
+  evaluates a composed deterministic projection (`ABS(a) + b`) using the
+  original SQL expression bytecode, with planner-off/on/off result checks on
+  memtx and Vinyl. The focused `planner_scalar_filter_test.lua` passes under
+  generated, CnP, and LLVM dispatch, and checks that the enabled route is
+  `new_planner`. This verifies that composition for this canonical expression
+  shape; it does not establish general function/operator projection coverage.
   Direct residual comparisons also accept SQL `TRUE` and `FALSE` literals,
   canonically distinct from integer 1/0. The memtx/Vinyl scalar-filter
   regression checks both values with off/on/off result parity; generated/CnP

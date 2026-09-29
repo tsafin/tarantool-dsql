@@ -904,6 +904,15 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected = {{1}},
                     enabled_route = 'new_planner',
                 },
+                -- Projection expressions are emitted by the regular SQL
+                -- expression bytecode path, not only when the function call
+                -- is the complete result expression.
+                {
+                    sql = ('SELECT ABS(a) + b FROM %s WHERE id = 1')
+                          :format(comparison_name),
+                    expected = {{2}},
+                    enabled_route = 'new_planner',
+                },
                 {
                     sql = ('SELECT id FROM %s WHERE id <= 3 ' ..
                            'ORDER BY ABS(a)'):format(comparison_name),
