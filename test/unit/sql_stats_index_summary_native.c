@@ -55,17 +55,23 @@ main(void)
 	pos = mp_encode_array(tuple_data_buf, 1);
 	pos = mp_encode_uint(pos, 8);
 	struct tuple *other = tuple_new(tuple_format_runtime, tuple_data_buf, pos);
+	pos = mp_encode_array(tuple_data_buf, 1);
+	pos = mp_encode_nil(pos);
+	struct tuple *null_value = tuple_new(tuple_format_runtime, tuple_data_buf,
+						      pos);
 	double ndv[1] = {};
 	bool values_ok = summary != NULL && first != NULL && same != NULL &&
-		other != NULL &&
+		other != NULL && null_value != NULL &&
 		sql_stats_index_summary_consume(summary, tuple_data(first),
 			tuple_bsize(first), NULL, 0) == 0 &&
 		sql_stats_index_summary_consume(summary, tuple_data(same),
 			tuple_bsize(same), NULL, 0) == 0 &&
 		sql_stats_index_summary_consume(summary, tuple_data(other),
 			tuple_bsize(other), NULL, 0) == 0 &&
+		sql_stats_index_summary_consume(summary, tuple_data(null_value),
+			tuple_bsize(null_value), NULL, 0) == 0 &&
 		sql_stats_index_summary_prefix_ndv(summary, 1, ndv, 1) == 0 &&
-		ndv[0] > 1.5 && ndv[0] < 2.5;
+		ndv[0] > 2.5 && ndv[0] < 3.5;
 	ok(values_ok,
 	   "unsigned hash deduplicates repeats and distinguishes values");
 	bool found_seven = false;
@@ -88,8 +94,8 @@ main(void)
 	}
 	ok(found_seven &&
 	   sql_stats_index_summary_mcv_sample_nonnull_rows(summary, 0) == 3 &&
-	   sql_stats_index_summary_sample_rows(summary) == 3,
-	   "native MCV retains canonical typed values and sample denominators");
+	   sql_stats_index_summary_sample_rows(summary) == 4,
+	   "native MCV retains typed values and excludes NULL from its denominator");
 
 	struct key_part_def signed_part = key_part_def_default;
 	signed_part.fieldno = 0;
@@ -150,6 +156,8 @@ main(void)
 		tuple_delete(same);
 	if (other != NULL)
 		tuple_delete(other);
+	if (null_value != NULL)
+		tuple_delete(null_value);
 	sql_stats_index_summary_delete(summary);
 	sql_stats_index_summary_delete(signed_summary);
 	if (key_def != NULL)
