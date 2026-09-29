@@ -242,44 +242,57 @@ g.test_snapshot_estimate_adapter = function()
             assert(string.hex(digest.sha256(fixture_material)) ==
                    metadata.data_sha256,
                    'E1 data hash does not match the live SQL fixture')
-            local query =
-                'SELECT id FROM sql_stats_adapter_t WHERE a = 1;'
-            local stmt = box.prepare(query)
-            local function record(repeat_no, warmup)
-                local estimate = explain_estimate('E1 live capture', 'a = 1')
-                local started = clock.monotonic()
-                local result = box.execute(stmt.stmt_id)
-                local elapsed_us = math.max(1,
-                    math.floor((clock.monotonic() - started) * 1000000))
-                local row = {
-                    schema_version = 1,
-                    workload_id = metadata.workload_id,
-                    query_id = 'single-table-equality-a1',
-                    engine = 'memtx',
-                    dispatcher = 'generated',
-                    configuration = configuration,
-                    source_commit = metadata.source_commit,
-                    binary_sha256 = metadata.binary_sha256,
-                    data_sha256 = metadata.data_sha256,
-                    statistics_id = statistics_id,
-                    ['repeat'] = repeat_no,
-                    warmup = warmup,
-                    elapsed_us = elapsed_us,
-                    cardinalities = {{
-                        stage_id = 'select-output',
-                        estimated_rows = estimate,
-                        actual_rows = #result.rows,
-                    }},
-                }
-                local file = assert(io.open(output, 'a'))
-                file:write(json.encode(row), '\n')
-                file:close()
+            local queries = {
+                {id = 'equality-a1', predicate = 'a = 1'},
+                {id = 'equality-a2', predicate = 'a = 2'},
+                {id = 'equality-a3', predicate = 'a = 3'},
+                {id = 'equality-empty', predicate = 'a = 99'},
+                {id = 'range-selective', predicate = 'a >= 2'},
+                {id = 'range-nonselective', predicate = 'a >= 1'},
+            }
+            for _, query in ipairs(queries) do
+                local sql = 'SELECT id FROM sql_stats_adapter_t WHERE '..
+                            query.predicate..';'
+                local stmt = box.prepare(sql)
+                local function record(repeat_no, warmup)
+                    local estimate = explain_estimate('E1 live capture',
+                                                      query.predicate)
+                    assert(estimate ~= nil,
+                           'missing EXPLAIN row estimate for '..query.id)
+                    local started = clock.monotonic()
+                    local result = box.execute(stmt.stmt_id)
+                    local elapsed_us = math.max(1,
+                        math.floor((clock.monotonic() - started) * 1000000))
+                    local row = {
+                        schema_version = 1,
+                        workload_id = metadata.workload_id,
+                        query_id = query.id,
+                        engine = 'memtx',
+                        dispatcher = 'generated',
+                        configuration = configuration,
+                        source_commit = metadata.source_commit,
+                        binary_sha256 = metadata.binary_sha256,
+                        data_sha256 = metadata.data_sha256,
+                        statistics_id = statistics_id,
+                        ['repeat'] = repeat_no,
+                        warmup = warmup,
+                        elapsed_us = elapsed_us,
+                        cardinalities = {{
+                            stage_id = 'select-output',
+                            estimated_rows = estimate,
+                            actual_rows = #result.rows,
+                        }},
+                    }
+                    local file = assert(io.open(output, 'a'))
+                    file:write(json.encode(row), '\n')
+                    file:close()
+                end
+                record(0, true)
+                for repeat_no = 1, 5 do
+                    record(repeat_no, false)
+                end
+                box.unprepare(stmt.stmt_id)
             end
-            record(0, true)
-            for repeat_no = 1, 5 do
-                record(repeat_no, false)
-            end
-            box.unprepare(stmt.stmt_id)
         end
         local baseline_plan_estimate = explain_estimate('baseline', 'a = 1')
         local cached_plan_before = explain_estimate('stats refresh', 'a = 1')
