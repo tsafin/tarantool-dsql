@@ -317,42 +317,45 @@ def main():
         harness = HERE / "harness" / "run.lua"
         build_dir = binary.parent.parent
         env["BUILDDIR"] = str(build_dir)
-        with tempfile.TemporaryDirectory(prefix="sql-corpus-work-") as temp:
-            for index, row in enumerate(selected):
-                suite = row["test"].split("/", 1)[0]
-                if suite == "sql-luatest" or (suite == "sql" and
-                                               row["test"].endswith(".test.lua")):
-                    with tempfile.TemporaryDirectory(prefix="sql-runner-capture-") as child_temp:
-                        child_out = Path(child_temp) / "capture"
-                        name = Path(row["test"]).name
-                        stem = name[:-len(".test.lua")] if suite == "sql" else \
-                               name[:-len(".lua")]
-                        child_command = [
-                            sys.executable, HERE / "luatest_capture.py",
-                            "--repo", HERE.parent.parent,
-                            "--runner-repo", repo,
-                            "--binary", binary,
-                            "--out", child_out,
-                            "--test", name,
-                            "--suite", suite,
-                            "--engine", args.engine,
-                            "--mode", args.mode]
-                        if args.planner_flag is not None:
-                            child_command.extend(("--planner-flag",
-                                                  args.planner_flag))
-                        run(*child_command, env=env)
-                        child_snap = child_out / "snapshots" / suite / stem
-                        target_snap = out / "snapshots" / suite / stem
-                        target_snap.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copytree(child_snap, target_snap)
-                        child_manifest = child_out / "manifests" / suite / \
-                                         f"{stem}.{args.engine}.json"
-                        target_manifest = out / "manifests" / suite / child_manifest.name
-                        target_manifest.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(child_manifest, target_manifest)
-                    continue
-                work = Path(temp) / str(index)
-                work.mkdir()
+        for row in selected:
+            suite = row["test"].split("/", 1)[0]
+            if suite == "sql-luatest" or (suite == "sql" and
+                                           row["test"].endswith(".test.lua")):
+                with tempfile.TemporaryDirectory(prefix="sql-runner-capture-") as child_temp:
+                    child_out = Path(child_temp) / "capture"
+                    name = Path(row["test"]).name
+                    stem = name[:-len(".test.lua")] if suite == "sql" else \
+                           name[:-len(".lua")]
+                    child_command = [
+                        sys.executable, HERE / "luatest_capture.py",
+                        "--repo", HERE.parent.parent,
+                        "--runner-repo", repo,
+                        "--binary", binary,
+                        "--out", child_out,
+                        "--test", name,
+                        "--suite", suite,
+                        "--engine", args.engine,
+                        "--mode", args.mode]
+                    if args.planner_flag is not None:
+                        child_command.extend(("--planner-flag",
+                                              args.planner_flag))
+                    run(*child_command, env=env)
+                    child_snap = child_out / "snapshots" / suite / stem
+                    target_snap = out / "snapshots" / suite / stem
+                    target_snap.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copytree(child_snap, target_snap)
+                    child_manifest = child_out / "manifests" / suite / \
+                                     f"{stem}.{args.engine}.json"
+                    target_manifest = out / "manifests" / suite / child_manifest.name
+                    target_manifest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(child_manifest, target_manifest)
+                continue
+            # Each process owns a fresh work directory. Keep it only for the
+            # lifetime of that process: large SQL-TAP tests can write enough
+            # WAL/snapshot data that retaining every database until the end
+            # of a full-corpus capture exhausts the shared temporary volume.
+            with tempfile.TemporaryDirectory(prefix="sql-corpus-work-") as temp:
+                work = Path(temp)
                 test_env = env.copy()
                 # Several SQL TAP tests reconfigure box.cfg.listen and then
                 # connect through LISTEN. Give each test its own Unix socket;
