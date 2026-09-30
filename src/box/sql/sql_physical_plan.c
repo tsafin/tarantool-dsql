@@ -691,7 +691,87 @@ sql_physical_table_scan_from_select(
 							(uint32_t)term->pLeft->iColumn ==
 							pk->parts[part].fieldno;
 				}
+				bool singleton_in = term->x.pList != NULL &&
+					term->x.pList->nExpr == 1 &&
+					!ExprHasProperty(term, EP_TokenOnly | EP_Reduced |
+							 EP_xIsSelect) &&
+					term->x.pList->a[0].pExpr != NULL;
 				bool normalized_singleton_in = false;
+				if (singleton_in && expr_count <
+				    SQL_PLAN_POINT_KEY_PART_MAX) {
+					struct Expr *equality = &between_bounds[expr_count];
+					*equality = (struct Expr) {
+						.op = TK_EQ,
+						.pLeft = term->pLeft,
+						.pRight = term->x.pList->a[0].pExpr,
+					};
+					if (is_pk_column) {
+						for (uint32_t part = 0; part < pk->part_count;
+						     ++part) {
+							bool is_unsigned = pk->parts[part].type ==
+								FIELD_TYPE_UNSIGNED;
+							struct parsed_pk_bound parsed;
+							if ((!is_unsigned && pk->parts[part].type !=
+							     FIELD_TYPE_INTEGER) ||
+							    !parse_pk_bound(equality, source->iCursor,
+								    pk->parts[part].fieldno,
+								    is_unsigned, &parsed) ||
+							    parsed.op != SQL_PLAN_EQ)
+								continue;
+							exprs[expr_count] = equality;
+							expr_sources[expr_count++] = term;
+							normalized_singleton_in = true;
+							break;
+						}
+					} else if (!has_secondary_equality_scan) {
+						for (uint32_t index_no = 1;
+						     index_no < source->space->index_count;
+						     ++index_no) {
+							const struct index *index =
+								source->space->index_map[index_no];
+							if (index == NULL || index->def == NULL ||
+							    index->def->type != TREE ||
+							    index->def->key_def == NULL ||
+							    index->def->key_def->part_count != 1)
+								continue;
+							const struct key_part *key_part =
+								&index->def->key_def->parts[0];
+							bool is_unsigned = key_part->type ==
+								FIELD_TYPE_UNSIGNED;
+							struct parsed_pk_bound parsed;
+							if (key_part->fieldno !=
+							    (uint32_t)term->pLeft->iColumn ||
+							    (!is_unsigned && key_part->type !=
+							     FIELD_TYPE_INTEGER) ||
+							    !parse_pk_bound(equality, source->iCursor,
+								    key_part->fieldno,
+								    is_unsigned, &parsed) ||
+							    parsed.op != SQL_PLAN_EQ)
+								continue;
+							secondary_index_id = index->def->iid;
+							secondary_key_column = key_part->fieldno;
+							secondary_key_unsigned = parsed.is_unsigned;
+							secondary_signed_key = parsed.signed_key;
+							secondary_unsigned_key = parsed.unsigned_key;
+							secondary_scan_term = term;
+							has_secondary_equality_scan = true;
+							normalized_singleton_in = true;
+							break;
+						}
+					}
+				}
+				if (normalized_singleton_in) {
+					if (!is_pk_column) {
+						if (filter_count == SQL_PLAN_FILTER_MAX)
+							goto invalid_predicate;
+						filters[filter_count] = (struct sql_plan_filter) {
+							.op = SQL_PLAN_FILTER_EXPRESSION,
+							.selectivity = 0.5,
+						};
+						filter_expressions[filter_count++] = term;
+					}
+					continue;
+				}
 				if (!is_pk_column) {
 					if (filter_count == SQL_PLAN_FILTER_MAX)
 						goto invalid_predicate;
@@ -702,36 +782,6 @@ sql_physical_table_scan_from_select(
 					filter_expressions[filter_count++] = term;
 					continue;
 				}
-				if (term->x.pList != NULL && term->x.pList->nExpr == 1 &&
-				    !ExprHasProperty(term, EP_TokenOnly | EP_Reduced |
-						     EP_xIsSelect) &&
-				    term->x.pList->a[0].pExpr != NULL &&
-				    expr_count < SQL_PLAN_POINT_KEY_PART_MAX) {
-					struct Expr *equality = &between_bounds[expr_count];
-					*equality = (struct Expr) {
-						.op = TK_EQ,
-						.pLeft = term->pLeft,
-						.pRight = term->x.pList->a[0].pExpr,
-					};
-					for (uint32_t part = 0; part < pk->part_count; ++part) {
-						bool is_unsigned = pk->parts[part].type ==
-							FIELD_TYPE_UNSIGNED;
-						struct parsed_pk_bound parsed;
-						if ((!is_unsigned && pk->parts[part].type !=
-						     FIELD_TYPE_INTEGER) ||
-						    !parse_pk_bound(equality, source->iCursor,
-							    pk->parts[part].fieldno,
-							    is_unsigned, &parsed) ||
-						    parsed.op != SQL_PLAN_EQ)
-							continue;
-						exprs[expr_count] = equality;
-						expr_sources[expr_count++] = term;
-						normalized_singleton_in = true;
-						break;
-					}
-				}
-				if (normalized_singleton_in)
-					continue;
 			}
 			if (term->op == TK_BETWEEN &&
 			    is_supported_boolean_filter(term, source->iCursor,
