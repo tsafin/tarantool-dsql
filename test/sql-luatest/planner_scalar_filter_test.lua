@@ -97,7 +97,7 @@ g.test_non_primary_null_filters_off_on_off = function()
             box.execute(('INSERT INTO %s VALUES ' ..
                          '(1, 1, 7, 10, 1), (1, 2, 7, 10, 3), ' ..
                          '(2, 1, 7, 10, 2), (2, 2, 7, 11, 1), ' ..
-                         '(3, 1, 8, 10, 4)')
+                         '(3, 1, 8, 10, 4), (3, 2, 7, NULL, 5)')
                         :format(secondary_tertiary_name))
             local nullable_secondary_name = name .. '_secondary_nullable'
             box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, ' ..
@@ -160,7 +160,8 @@ g.test_non_primary_null_filters_off_on_off = function()
                 {
                     sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
                            'ORDER BY y, z'):format(secondary_tertiary_name),
-                    expected = {{10, 1, 1, 1}, {10, 2, 2, 1},
+                    expected = {{box.NULL, 5, 3, 2}, {10, 1, 1, 1},
+                                {10, 2, 2, 1},
                                 {10, 3, 1, 2}, {11, 1, 2, 2}},
                     expected_index = secondary_tertiary_name .. '_xyz',
                     expected_order_columns = {1, 2},
@@ -169,7 +170,7 @@ g.test_non_primary_null_filters_off_on_off = function()
                     sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
                            'ORDER BY y, z LIMIT 2 OFFSET 1')
                           :format(secondary_tertiary_name),
-                    expected = {{10, 2, 2, 1}, {10, 3, 1, 2}},
+                    expected = {{10, 1, 1, 1}, {10, 2, 2, 1}},
                     expected_index = secondary_tertiary_name .. '_xyz',
                     expected_order_columns = {1, 2},
                 },
@@ -216,10 +217,10 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(secondary_tertiary_name),
                     expected = {{10, 1, 1, 1}, {10, 2, 2, 1},
                                 {10, 3, 1, 2}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_opcode = 'SeekGE',
                     expected_order_column = 1,
-                    unordered = true,
-                    enabled_route = 'fallback',
-                    enabled_reason = 'UNSUPPORTED_FILTER',
+                    enabled_route = 'new_planner',
                 },
                 {
                     sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
@@ -787,7 +788,7 @@ g.test_non_primary_null_filters_off_on_off = function()
                 {
                     sql = ('SELECT tenant, id FROM %s WHERE x IN (7)')
                           :format(secondary_tertiary_name),
-                    expected = {{1, 1}, {1, 2}, {2, 1}, {2, 2}},
+                    expected = {{1, 1}, {1, 2}, {2, 1}, {2, 2}, {3, 2}},
                     expected_index = secondary_tertiary_name .. '_xyz',
                     expected_opcode = 'SeekGE',
                     unordered = true,
@@ -1357,7 +1358,15 @@ g.test_non_primary_null_filters_off_on_off = function()
                             local current = result.rows[row_no]
                             for _, column in ipairs(columns) do
                                 if prev[column] ~= current[column] then
-                                    if query.expected_order_desc then
+                                    local prev_is_null = prev[column] == box.NULL
+                                    local current_is_null =
+                                        current[column] == box.NULL
+                                    if prev_is_null or current_is_null then
+                                        t.assert(query.expected_order_desc and
+                                                 current_is_null or
+                                                 not query.expected_order_desc and
+                                                 prev_is_null)
+                                    elseif query.expected_order_desc then
                                         t.assert(prev[column] > current[column])
                                     else
                                         t.assert(prev[column] < current[column])

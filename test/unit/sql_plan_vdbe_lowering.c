@@ -311,6 +311,45 @@ new_secondary_prefix_range_descriptor(bool ordered, bool descending)
 }
 
 static struct sql_plan_descriptor *
+new_secondary_prefix_upper_range_descriptor(void)
+{
+	static const uint32_t columns[] = {0};
+	static const struct sql_plan_order_term order = {
+		.column = 4, .direction = SQL_PLAN_ASC,
+	};
+	static const struct sql_plan_point_key_part prefix = {
+		.column = 3, .integer_value = 7,
+	};
+	static const struct sql_plan_bound bounds[] = {
+		{.side = SQL_PLAN_LOWER, .op = SQL_PLAN_EQ, .expr_ref = 1},
+		{.side = SQL_PLAN_UPPER, .op = SQL_PLAN_LT, .expr_ref = 2},
+	};
+	static const struct sql_plan_expression expressions[] = {
+		{.id = 1, .canonical = "secondary-integer-equality-part"},
+		{.id = 2, .canonical = "secondary-unsigned-prefix-range-bound"},
+	};
+	struct sql_plan_descriptor_input input = {
+		.descriptor_version = 1, .planner_version = 1,
+		.path_class = SQL_PLAN_NEW_PLANNER,
+		.space_id = 100, .space_name = "lowering_t",
+		.access = {
+			.kind = SQL_PLAN_INDEX_RANGE_SCAN,
+			.index_id = 1,
+			.bounds = bounds, .bound_count = 2,
+			.prefix_key_parts = &prefix, .prefix_key_part_count = 1,
+			.has_unsigned_range_key = true, .unsigned_range_key = 11,
+			.integer_range_op = SQL_PLAN_LT,
+			.range_key_column = 4,
+			.direction = SQL_PLAN_ASC,
+			.produced_order = &order, .produced_order_count = 1,
+		},
+		.projection_columns = columns, .projection_column_count = 1,
+		.expressions = expressions, .expression_count = 2,
+	};
+	return sql_plan_descriptor_new(&input);
+}
+
+static struct sql_plan_descriptor *
 new_secondary_prefix_scan_descriptor(bool ordered, bool two_term,
 				     bool natural_desc)
 {
@@ -1034,7 +1073,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(85);
+	plan(87);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1104,6 +1143,8 @@ main(void)
 		new_secondary_range_descriptor(true, SQL_PLAN_DESC);
 	struct sql_plan_descriptor *secondary_prefix_range_desc =
 		new_secondary_prefix_range_descriptor(false, false);
+	struct sql_plan_descriptor *secondary_prefix_upper_range_asc_desc =
+		new_secondary_prefix_upper_range_descriptor();
 	struct sql_plan_descriptor *secondary_prefix_multi_range_order_desc =
 		new_secondary_prefix_range_descriptor(true, false);
 	struct sql_plan_descriptor *secondary_prefix_multi_range_reverse_desc =
@@ -1661,6 +1702,31 @@ main(void)
 	   vdbe.aOp[before_secondary_prefix_range + 7].opcode == OP_Le &&
 	   vdbe.aOp[before_secondary_prefix_range + 13].opcode == OP_Next,
 	   "composite secondary range seeks prefix plus suffix and guards both boundaries");
+	int before_secondary_prefix_upper_asc = vdbe.nOp;
+	int secondary_prefix_upper_asc_rc =
+		sql_plan_lower_vdbe_secondary_scan_with_projector(
+			secondary_prefix_upper_range_asc_desc, &vdbe, 4, 5,
+			&secondary_prefix_range_order_index, 20, NULL, NULL);
+	bool upper_asc_prefix_seek = false;
+	bool upper_asc_prefix_guard = false;
+	bool upper_asc_range_guard = false;
+	bool upper_asc_null_skip = false;
+	bool upper_asc_step = false;
+	for (int i = before_secondary_prefix_upper_asc; i < vdbe.nOp; ++i) {
+		upper_asc_prefix_seek |= vdbe.aOp[i].opcode == OP_SeekGE &&
+			vdbe.aOp[i].p4.i == 1;
+		upper_asc_prefix_guard |= vdbe.aOp[i].opcode == OP_IdxGT &&
+			vdbe.aOp[i].p4.i == 1;
+		upper_asc_range_guard |= vdbe.aOp[i].opcode == OP_Ge;
+		if (vdbe.aOp[i].opcode == OP_IsNull)
+			upper_asc_null_skip = vdbe.aOp[i].p2 != 0;
+		upper_asc_step |= vdbe.aOp[i].opcode == OP_Next;
+	}
+	ok(secondary_prefix_upper_asc_rc == 0 && upper_asc_prefix_seek &&
+	   upper_asc_prefix_guard && upper_asc_range_guard && upper_asc_step,
+	   "upper-only composite secondary range starts at its equality prefix and stops at the upper bound");
+	ok(upper_asc_null_skip,
+	   "ascending upper-only range skips NULL keys and continues within the prefix");
 	int before_secondary_prefix_multi_range_order = vdbe.nOp;
 	int secondary_prefix_multi_range_rc =
 		sql_plan_lower_vdbe_secondary_scan_with_projector(

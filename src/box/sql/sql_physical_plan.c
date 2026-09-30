@@ -2006,10 +2006,9 @@ predicate_parsed:
 			if (have_range_order && has_secondary_range_lower &&
 			    !has_secondary_range_upper)
 				can_start = !requested_desc;
-			else if (have_range_order &&
-				 !has_secondary_range_lower &&
-				 has_secondary_range_upper)
-				can_start = requested_desc;
+			/* Upper-only ranges can also walk forward from the start of
+			 * the index (or fixed equality prefix) and stop at the upper
+			 * bound. The lowerer emits that guard explicitly. */
 			secondary_range_order = can_start;
 			if (secondary_range_order && have_range_order)
 				direction = index_desc != requested_desc ?
