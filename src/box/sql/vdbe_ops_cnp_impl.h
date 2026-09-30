@@ -466,7 +466,7 @@ vdbe_op_applytype_impl(Vdbe *p, Op *pOp, Mem *aMem)
 	Mem *pIn1 = &aMem[pOp->p1];
 	for (int i = 0; i < pOp->p2; ++i, ++pIn1) {
 		enum field_type type = types[i];
-		assert(pIn1 <= &p->aMem[(p->nMem + 1 - p->nCursor)]);
+		assert(pIn1 <= &aMem[(p->nMem + 1 - p->nCursor)]);
 		assert(pIn1->type != MEM_TYPE_INVALID);
 		if (mem_cast_implicit(pIn1, type) != 0) {
 			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
