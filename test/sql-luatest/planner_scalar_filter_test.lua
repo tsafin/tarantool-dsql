@@ -273,6 +273,25 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected_order_desc = true,
                 },
                 {
+                    sql = ('SELECT x, y FROM %s WHERE x = 7 ' ..
+                           'AND y <= 11 ORDER BY y ASC')
+                          :format(descending_secondary_name),
+                    expected = {{7, 10}, {7, 11}},
+                    expected_index = descending_secondary_name .. '_xy',
+                    expected_order_column = 2,
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT x, y FROM %s WHERE x = 7 ' ..
+                           'AND y >= 10 ORDER BY y DESC')
+                          :format(descending_secondary_name),
+                    expected = {{7, 11}, {7, 10}},
+                    expected_index = descending_secondary_name .. '_xy',
+                    expected_order_column = 2,
+                    expected_order_desc = true,
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT x, note, tenant, id FROM %s ' ..
                            'ORDER BY x ASC, note DESC'):format(secondary_name),
                     expected = {{7, 'a', 1, 1}, {7, 'b', 1, 2},

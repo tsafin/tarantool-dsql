@@ -989,14 +989,12 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		index->key_parts_descending != NULL &&
 		range_part < index_part_count &&
 		index->key_parts_descending[range_part];
-	bool upper_only_ascending = upper_only && !index_descending &&
-		input->access.direction == SQL_PLAN_ASC;
-	bool lower_only_descending = lower_only && !index_descending &&
-		input->access.direction == SQL_PLAN_DESC;
-	bool one_sided_guarded_walk = upper_only_ascending ||
-		lower_only_descending;
 	bool logical_descending = index_descending !=
 		(input->access.direction == SQL_PLAN_DESC);
+	bool upper_only_ascending = upper_only && !logical_descending;
+	bool lower_only_descending = lower_only && logical_descending;
+	bool one_sided_guarded_walk = upper_only_ascending ||
+		lower_only_descending;
 	bool bounded_reverse = bounded_range && logical_descending;
 	size_t key_part_count = prefix_scan ? prefix_count : range ?
 		prefix_count + (one_sided_guarded_walk ? 0 : 1) :
@@ -1327,10 +1325,11 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		(input->access.direction == SQL_PLAN_DESC ? OP_Last : OP_Rewind) :
 		(prefix_scan && input->access.direction == SQL_PLAN_DESC ?
 		 OP_SeekLE : OP_SeekGE);
-	if (range && upper_only_ascending) {
-		seek_op = prefix_count == 0 ? OP_Rewind : OP_SeekGE;
-	} else if (range && lower_only_descending) {
-		seek_op = prefix_count == 0 ? OP_Last : OP_SeekLE;
+	if (range && one_sided_guarded_walk) {
+		if (input->access.direction == SQL_PLAN_DESC)
+			seek_op = prefix_count == 0 ? OP_Last : OP_SeekLE;
+		else
+			seek_op = prefix_count == 0 ? OP_Rewind : OP_SeekGE;
 	} else if (range) {
 		switch (input->access.integer_range_op) {
 		case SQL_PLAN_GT: seek_op = OP_SeekGT; break;
