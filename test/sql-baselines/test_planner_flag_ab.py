@@ -2,6 +2,7 @@
 """Unit checks for planner-flag route inventory classification."""
 import json
 from pathlib import Path
+import sys
 import unittest
 
 import planner_flag_ab as ab
@@ -11,6 +12,14 @@ class PlannerFlagABTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.policy = json.loads((Path(__file__).parent / "corpus.json").read_text())
+
+    def test_invoke_tolerates_non_utf8_subprocess_output(self):
+        result = ab.invoke([
+            sys.executable, "-c",
+            "import sys; sys.stdout.buffer.write(b'capture\\x8ecomplete')",
+        ])
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "capture\ufffdcomplete")
 
     def test_documented_classes_are_not_feature_acceptance(self):
         policy = json.loads((Path(__file__).parent /

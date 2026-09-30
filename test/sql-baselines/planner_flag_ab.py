@@ -35,7 +35,8 @@ PLANNER_FLAG_EXCLUSIONS = {
 def invoke(command, *, env=None, timeout=3600):
     result = subprocess.run([str(part) for part in command], env=env,
                             text=True, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, timeout=timeout)
+                            stderr=subprocess.STDOUT, timeout=timeout,
+                            errors="replace")
     return result
 
 
