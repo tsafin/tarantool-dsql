@@ -1422,6 +1422,15 @@ DML, triggers, subprograms, non-deterministic functions.
   focused Debug `planner_scalar_filter_test.lua` passes. Other computed
   constants remain outside the access-bound grammar. This is a small M3.4
   compatibility increment, not closure.
+  **Singleton primary-key `IN` (2026-09):** a one-element `IN` list containing
+  a parseable INTEGER/UNSIGNED literal on a primary-key part is normalized to
+  an equality candidate. Single-part and composite-primary point lookups use
+  the existing typed seek lowerers; the original multi-value `IN` behavior is
+  unchanged and remains fail-closed for this access route. Off/on/off
+  memtx/Vinyl coverage asserts `NotFound` for both point forms and pins
+  multi-value `IN` to `fallback / UNSUPPORTED_FILTER` with row parity. The
+  focused Debug `planner_scalar_filter_test.lua` passes. This is a bounded
+  point-access increment, not general `IN` lowering or M3.4 closure.
   **Composite secondary equality-prefix scan (2026-09):** equality on a
   non-empty proper leading prefix of a composite INTEGER/UNSIGNED TREE index
   now selects an unordered index-prefix scan when no suffix range or complete
