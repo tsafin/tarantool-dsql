@@ -1427,16 +1427,19 @@ DML, triggers, subprograms, non-deterministic functions.
   an equality candidate. Single-part and composite-primary point lookups use
   the typed point lowerers. A single-part INTEGER/UNSIGNED secondary TREE
   index also serves singleton `IN` equality; composite TREE indexes accept it
-  on a leading key part for prefix scans and together with equality predicates
-  for complete composite-key lookups. The original `IN` expression is retained
+  on a leading key part for prefix scans and on a later key part when every
+  preceding part has a parseable equality predicate. This enables both proper
+  equality-prefix scans and complete composite-key lookups. The original `IN` expression is retained
   as a residual for duplicate-hit correctness. Multi-value `IN` remains
   unchanged and unsupported as a new-planner access path. Off/on/off memtx/Vinyl
   coverage asserts `NotFound` for primary point forms, `SeekGE` and
   selected-index evidence for single-part and composite secondary forms, and
   pins multi-value `IN` to `fallback / UNSUPPORTED_FILTER` with row parity. The
   focused Debug `planner_scalar_filter_test.lua` passes. A fresh producer
-  matrix at source `246410d919` passes all 30 generated/CnP/LLVM × memtx/Vinyl
-  fixture cases; report: `/tmp/m34-composite-in-246410/report.json`. This is a
+  matrix at source `ec6ebeaf0a` passes all 30 generated/CnP/LLVM × memtx/Vinyl
+  fixture cases; report: `/tmp/m34-suffix-in-ec6ebeaf0a/report.json`. The new
+  regression pins `x = 7 AND y IN (10) AND z = 3` to the composite `(x,y,z)`
+  index and its `SeekGE` route. This is a
   bounded access increment, not general `IN` lowering or M3.4 closure.
   **Composite secondary equality-prefix scan (2026-09):** equality on a
   non-empty proper leading prefix of a composite INTEGER/UNSIGNED TREE index
