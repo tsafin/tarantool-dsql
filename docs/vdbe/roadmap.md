@@ -1011,10 +1011,16 @@ format approval is implied.
   observations, not acceptance evidence. Median elapsed times are 8 us / 7.5
   us for memtx and 20 us / 16 us for Vinyl; neither is latency evidence.
   Reproduce with the command in `test/sql-baselines/E1_WORKLOAD.md`. This
-  narrows the producer gap
-  but does not close S1.9: the fixtures are tiny and are not integrated into
-  the reviewed M0 corpus. Skewed MCV planner integration/validation and a
-  reviewed q-error criterion remain open. *parallel: yes*.
+  narrows the producer gap but does not close S1.9: the fixtures are tiny and
+  are not integrated into the reviewed M0 corpus. After volatile
+  literal-equality MCV consumption landed, the current-source pilot was rerun
+  at `/tmp/e1-mcv-current-20260930.jsonl` (report:
+  `/tmp/e1-mcv-current-20260930.report.json`, source `8107ee88bb`). On both
+  engines the skewed hot and tail equality estimates have q-error 1.0 after
+  ANALYZE, versus 1.25 and 10 respectively without statistics. This is focused
+  evidence that the live MCV route works, not reviewed-corpus improvement or a
+  latency acceptance result. S1.9 remains open pending reviewed workload
+  integration and an accepted q-error criterion. *parallel: yes*.
 
 ---
 

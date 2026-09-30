@@ -111,8 +111,9 @@ named SQL `ANALYZE` collection and records both statistics IDs. The pilot spans
 three equality values, an empty equality, selective/non-selective ranges, and a
 separate skewed eleven-row fixture on both memtx and Vinyl, with a hot value,
 tail values, a range, and an empty equality. This exercises both storage
-samplers, but does not establish skewed MCV quality: the volatile collector
-currently publishes relation/index summaries and the SQL planner does not
-consume the standalone MCV estimator. The small two-engine pilot is smoke
-evidence for the producer/stage contract and a narrow validation of volatile
-collection, not reviewed-corpus q-error improvement or E1 acceptance.
+samplers and the volatile literal-equality MCV planner path. The current-source
+pilot at `/tmp/e1-mcv-current-20260930.jsonl` reports q-error 1.0 for both hot
+and tail equality after ANALYZE on memtx and Vinyl (versus 1.25 and 10 without
+statistics). This is focused smoke evidence, not reviewed-corpus q-error
+improvement or E1 acceptance; the workload is tiny and no acceptance threshold
+has been reviewed.
