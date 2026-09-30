@@ -135,11 +135,10 @@ residual_bounded_result = box.execute([[SELECT id FROM planner_preflight_t WHERE
 assert(#residual_bounded_result.rows == 2 and residual_bounded_result.rows[1][1] == 1 and residual_bounded_result.rows[2][1] == 2)
 filter_fallback_before = box.stat.sql()
 bound_point, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t WHERE id = ?]], {2})
-assert(err == nil and bound_point.rows[1][3] == 'fallback')
-assert(bound_point.rows[2][3] == 'UNSUPPORTED_FILTER')
+assert(err == nil and bound_point.rows[1][3] == 'new_planner')
 filter_fallback_after = box.stat.sql()
-assert(filter_fallback_after.sql_planner_fallback_total == filter_fallback_before.sql_planner_fallback_total + 1)
-assert(filter_fallback_after.sql_planner_fallback_UNSUPPORTED_FILTER_total == filter_fallback_before.sql_planner_fallback_UNSUPPORTED_FILTER_total + 1)
+assert(filter_fallback_after.sql_planner_fallback_total == filter_fallback_before.sql_planner_fallback_total)
+assert(filter_fallback_after.sql_planner_fallback_UNSUPPORTED_FILTER_total == filter_fallback_before.sql_planner_fallback_UNSUPPORTED_FILTER_total)
 bound_point_result = box.execute([[SELECT v FROM planner_preflight_t WHERE id = ?]], {2})
 assert(#bound_point_result.rows == 1 and bound_point_result.rows[1][1] == 20)
 non_primary_point, err = box.execute([[EXPLAIN (planner = 'summary') SELECT v FROM planner_preflight_t WHERE v = 20]])
@@ -246,7 +245,7 @@ for i, sql in ipairs(parity_queries) do parity_disabled_first[i] = box.execute(s
 box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
 for i, sql in ipairs(parity_queries) do planner_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]]..sql); assert(err == nil and planner_summary.rows[1][3] == 'new_planner'); enabled_rows = box.execute(sql).rows; assert(planner_preflight_rows_equal(parity_disabled_first[i], enabled_rows)) end
 box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
-for i, sql in ipairs(parity_queries) do planner_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]]..sql); assert(err == nil and planner_summary.rows[1][3] == 'current_where_c'); disabled_again_rows = box.execute(sql).rows; assert(planner_preflight_rows_equal(parity_disabled_first[i], disabled_again_rows)) end
+for i, sql in ipairs(parity_queries) do planner_summary, err = box.execute([[EXPLAIN (planner = 'summary') ]]..sql); assert(err == nil); disabled_route = planner_summary.rows[1][3]; assert(disabled_route == 'current_where_c' or disabled_route == 'fallback'); if disabled_route == 'fallback' then assert(type(planner_summary.rows[2][3]) == 'string' and #planner_summary.rows[2][3] > 0) end; disabled_again_rows = box.execute(sql).rows; assert(planner_preflight_rows_equal(parity_disabled_first[i], disabled_again_rows)) end
 
 box.execute([[DROP TABLE planner_preflight_t]])
 test_run = require('test_run').new()

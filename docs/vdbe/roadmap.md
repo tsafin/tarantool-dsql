@@ -2890,13 +2890,18 @@ DML, triggers, subprograms, non-deterministic functions.
   (M3.4 scope); this does not leave any currently executable new-planner route
   outside the flag. Default-off behavior and off/on/off summary route
   checks for scan and point routes pass in the focused memtx/Vinyl
-  regression. A two-sided INTEGER primary-key range now also has explicit
-  flag-on `new_planner` and flag-off `fallback` route assertions plus result
-  parity on both memtx and Vinyl. `planner_preflight.test.lua` now adds a
+  regression. A bound one-part INTEGER primary-key equality now also follows
+  the executable `new_planner` route without changing fallback counters. The
+  off/on/off matrix permits either `current_where_c` or a named fallback for
+  a disabled query whose shape is not executable by the current planner, while
+  preserving row parity. A two-sided INTEGER primary-key range now also has
+  explicit flag-on `new_planner` and flag-off `fallback` route assertions plus
+  result parity on both memtx and Vinyl. `planner_preflight.test.lua` now adds a
   seven-query off/on/off row-parity matrix spanning table scan, LIMIT/OFFSET,
   ordered scan, point lookup, one-sided bounds, and a two-sided range; it also
-  asserts `new_planner` while enabled and `current_where_c` while disabled.
-  The focused test passes on memtx and Vinyl. This is representative route
+  asserts `new_planner` while enabled and accepts `current_where_c` or a
+  reasoned fallback while disabled. The focused test passes on memtx and
+  Vinyl. This is representative route
   coverage, not yet the wider supported-shape/corpus acceptance gate. A
   separate `sql-luatest/planner_flag_parity_test.lua` now extends off/on/off
   row parity to eight supported UNSIGNED-primary-key queries across memtx and
