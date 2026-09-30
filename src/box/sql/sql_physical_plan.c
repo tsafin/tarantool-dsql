@@ -287,8 +287,9 @@ parse_pk_bound(const struct Expr *expr, int cursor, uint32_t fieldno,
 	    ExprHasProperty(value, EP_TokenOnly | EP_Reduced))
 		return false;
 	bool negated = value->op == TK_UMINUS;
-	const struct Expr *literal = negated ? value->pLeft : value;
-	if ((negated && value->pRight != NULL) || literal == NULL ||
+	bool unary = negated || value->op == TK_UPLUS;
+	const struct Expr *literal = unary ? value->pLeft : value;
+	if ((unary && value->pRight != NULL) || literal == NULL ||
 	    ExprHasProperty(literal, EP_TokenOnly | EP_Reduced) ||
 	    literal->op != TK_INTEGER || (literal->flags & EP_Resolved) == 0 ||
 	    literal->pLeft != NULL || literal->pRight != NULL)

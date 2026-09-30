@@ -740,6 +740,20 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE id = +2')
+                          :format(comparison_name),
+                    expected = {{2}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE uk = +10')
+                          :format(comparison_name),
+                    expected = {{1}, {2}, {5}},
+                    expected_index = comparison_name .. '_uk',
+                    unordered = true,
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE id BETWEEN 2 AND 4 ' ..
                            'ORDER BY id'):format(name),
                     expected = {{2}, {3}, {4}},
