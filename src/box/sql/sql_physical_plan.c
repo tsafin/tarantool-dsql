@@ -699,6 +699,32 @@ sql_physical_table_scan_from_select(
 						.selectivity = 0.5,
 					};
 					filter_expressions[filter_count++] = term;
+					continue;
+				}
+			}
+			if (term->op == TK_BETWEEN &&
+			    is_supported_boolean_filter(term, source->iCursor,
+							source->space->def->field_count, 0) &&
+			    has_only_source_columns(term->pLeft, source->iCursor,
+						   source->space->def->field_count, 0) &&
+			    has_source_column(term->pLeft, source->iCursor,
+					      source->space->def->field_count, 0)) {
+				bool is_pk_column = false;
+				if (is_source_column(term->pLeft, source->iCursor,
+					     source->space->def->field_count)) {
+					for (uint32_t part = 0; part < pk->part_count; ++part)
+						is_pk_column |=
+							(uint32_t)term->pLeft->iColumn ==
+							pk->parts[part].fieldno;
+				}
+				if (!is_pk_column) {
+					if (filter_count == SQL_PLAN_FILTER_MAX)
+						goto invalid_predicate;
+					filters[filter_count] = (struct sql_plan_filter) {
+						.op = SQL_PLAN_FILTER_EXPRESSION,
+						.selectivity = 0.5,
+					};
+					filter_expressions[filter_count++] = term;
 					bool has_secondary_range_key = false;
 					for (uint32_t index_no = 1;
 					     !has_secondary_range_key &&
@@ -726,32 +752,6 @@ sql_physical_table_scan_from_select(
 					}
 					if (!has_secondary_range_key)
 						continue;
-				}
-			}
-			if (term->op == TK_BETWEEN &&
-			    is_supported_boolean_filter(term, source->iCursor,
-							source->space->def->field_count, 0) &&
-			    has_only_source_columns(term->pLeft, source->iCursor,
-						   source->space->def->field_count, 0) &&
-			    has_source_column(term->pLeft, source->iCursor,
-					      source->space->def->field_count, 0)) {
-				bool is_pk_column = false;
-				if (is_source_column(term->pLeft, source->iCursor,
-					     source->space->def->field_count)) {
-					for (uint32_t part = 0; part < pk->part_count; ++part)
-						is_pk_column |=
-							(uint32_t)term->pLeft->iColumn ==
-							pk->parts[part].fieldno;
-				}
-				if (!is_pk_column) {
-					if (filter_count == SQL_PLAN_FILTER_MAX)
-						goto invalid_predicate;
-					filters[filter_count] = (struct sql_plan_filter) {
-						.op = SQL_PLAN_FILTER_EXPRESSION,
-						.selectivity = 0.5,
-					};
-					filter_expressions[filter_count++] = term;
-					continue;
 				}
 			}
 			if (term->op != TK_BETWEEN) {

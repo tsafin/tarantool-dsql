@@ -772,6 +772,7 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(secondary_tertiary_name),
                     expected = {{1, 1}, {1, 2}, {2, 1}, {2, 2}},
                     expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_opcode = 'SeekGE',
                     unordered = true,
                     enabled_route = 'new_planner',
                 },
@@ -781,6 +782,7 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(comparison_name),
                     expected = {{1}, {2}, {3}, {5}},
                     expected_index = comparison_name .. '_uk',
+                    expected_opcode = 'SeekGE',
                     unordered = true,
                     enabled_route = 'new_planner',
                 },
@@ -1250,6 +1252,20 @@ g.test_non_primary_null_filters_off_on_off = function()
                                                  true) ~= nil,
                                       'composite secondary index not selected: ' ..
                                       plan_text .. ' [' .. query.sql .. ']')
+                        end
+                        if query.expected_opcode ~= nil then
+                            local program, program_err = execute(
+                                'EXPLAIN ' .. query.sql, query.params)
+                            t.assert(program_err == nil,
+                                     program_err and program_err.message)
+                            local found = false
+                            for _, row in ipairs(program.rows) do
+                                found = found or row[2] == query.expected_opcode
+                            end
+                            t.assert(found,
+                                     'expected VDBE opcode ' ..
+                                     query.expected_opcode .. ' in [' ..
+                                     query.sql .. ']')
                         end
                         if query.enabled_reason ~= nil then
                             t.assert_equals(explain.rows[2][3],
