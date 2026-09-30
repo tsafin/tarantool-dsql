@@ -1477,18 +1477,20 @@ DML, triggers, subprograms, non-deterministic functions.
   immutable expression reference is
   resolved to its original WHERE term only at lowering, and SQL expression
   bytecode plus `IfNot` preserves false/NULL rejection semantics.
-  Collated expressions and function calls remain fail-closed; simple primary-
+  Function calls remain fail-closed in this comparison shape; simple primary-
   key conjuncts remain bounded to the existing access-bound grammar. The
-  producer also accepts direct same-table column-to-column comparisons as
-  expression residuals (for example `a <= b` and `t > s`); this support was
-  implemented and covered by `planner_scalar_filter_test.lua`, but the earlier
-  status text incorrectly listed it as unsupported. Compound `AND`/`OR` trees
-  are admitted only when every leaf is a supported direct-column comparison
-  or NULL test. Regression coverage checks equality, inequality,
+  producer accepts direct same-table column-to-column comparisons as
+  expression residuals (for example `a <= b` and `t > s`) and collated direct
+  comparisons (for example `s COLLATE "unicode_ci" = 'A'`); both are covered
+  by `planner_scalar_filter_test.lua`. Thus the earlier status text's claims
+  that both were unsupported were stale. Compound `AND`/`OR` trees are
+  admitted only when every leaf is a supported direct-column comparison or
+  NULL test. Regression coverage checks equality, inequality,
   ordered/reversed comparisons, and mixed primary-key bounds and
   primary/composite-point residuals on both engines; generated/CnP captures
   match exactly (583 snapshots per engine), and the VDBE lowering unit target
-  passes all 62 assertions at that checkpoint.
+  passes all 62 assertions at that checkpoint. The current Debug build also
+  passes `planner_scalar_filter_test.lua` on memtx and Vinyl.
   M3.4 remains partial: this is a bounded direct scalar comparison extension,
   not general predicate lowering.
   **2026-09 BLOB literal extension:** canonical expressions now encode
