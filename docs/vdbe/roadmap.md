@@ -1410,6 +1410,17 @@ DML, triggers, subprograms, non-deterministic functions.
   generated/CnP/LLVM × memtx/Vinyl cases; report:
   `/tmp/m34-secondary-upper-asc-51c1f03d3e/report.json`. This remains a bounded
   access-path increment, not M3.4 closure.
+  **Lower-only descending secondary ranges (2026-09):** lower-only `>` / `>=`
+  ranges now also satisfy descending order on an ascending TREE secondary
+  index. The lowerer seeks to the end of the fixed equality prefix, walks
+  backward, and stops below the lower bound (with NULL termination at the
+  prefix end). Memtx/Vinyl off/on/off coverage asserts the selected composite
+  index, `SeekLE`, descending result order, and parity; VDBE tests pin the
+  prefix seek/guard, lower-bound guard, reverse step, and NULL exit (88
+  assertions total). The refreshed producer matrix at source `bf9957bc40`
+  passes all 30 generated/CnP/LLVM × memtx/Vinyl cases; report:
+  `/tmp/m34-secondary-lower-desc-bf9957bc40/report.json`. This is still a
+  bounded access-path increment, not M3.4 closure.
   **Literal `BETWEEN` secondary ranges (2026-09):** normalize a literal
   `BETWEEN` on an INTEGER/UNSIGNED indexed part to inclusive lower/upper
   bounds for candidate extraction, while preserving and evaluating the
