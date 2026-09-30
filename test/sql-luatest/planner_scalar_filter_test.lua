@@ -175,6 +175,19 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected_order_columns = {1, 2},
                 },
                 {
+                    sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
+                           'ORDER BY y DESC, z DESC')
+                          :format(secondary_tertiary_name),
+                    expected = {{11, 1, 2, 2}, {10, 3, 1, 2},
+                                {10, 2, 2, 1}, {10, 1, 1, 1},
+                                {box.NULL, 5, 3, 2}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_opcode = 'SeekLE',
+                    expected_order_columns = {1, 2},
+                    expected_order_desc = true,
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT x, note FROM %s WHERE x = 7 ' ..
                            'ORDER BY note DESC'):format(secondary_name),
                     expected = {{7, 'c'}, {7, 'b'}, {7, 'a'}},
