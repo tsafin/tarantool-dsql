@@ -1424,6 +1424,14 @@ DML, triggers, subprograms, non-deterministic functions.
   passes all 30 generated/CnP/LLVM × memtx/Vinyl cases; report:
   `/tmp/m34-secondary-lower-desc-bf9957bc40/report.json`. This is still a
   bounded access-path increment, not M3.4 closure.
+  **Declared-descending secondary keys (2026-09):** the one-sided guarded
+  walks now distinguish SQL value order from the index's declared key order.
+  Both `x DESC, y DESC` upper-only/ascending and lower-only/descending
+  equality-prefix queries pass memtx/Vinyl off/on/off checks with the selected
+  index and exact ordered rows. The current-source producer matrix at
+  `d9744bd930` passes all 30 generated/CnP/LLVM × memtx/Vinyl cases; report:
+  `/tmp/m34-secondary-key-direction-d9744bd930/report.json`. No general mixed
+  direction or non-prefix ordering support is implied.
   **Literal `BETWEEN` secondary ranges (2026-09):** normalize a literal
   `BETWEEN` on an INTEGER/UNSIGNED indexed part to inclusive lower/upper
   bounds for candidate extraction, while preserving and evaluating the
