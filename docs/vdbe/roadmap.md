@@ -1413,6 +1413,13 @@ DML, triggers, subprograms, non-deterministic functions.
   `0f67cf2512` passes all 30 generated/CnP/LLVM × memtx/Vinyl fixture cases;
   report: `/dev/shm/m34-between-0f67cf2512/report.json`. This is a bounded
   M3.4 increment, not general predicate/access-path support or M3.4 closure.
+  **Unary-plus integer bounds (2026-09):** the typed primary/secondary bound
+  parser now unwraps SQL unary `+` without weakening literal validation.
+  Off/on/off memtx/Vinyl coverage pins `id = +2` as a primary point route and
+  `uk = +10` as a selected unsigned secondary-index equality route; the
+  focused Debug `planner_scalar_filter_test.lua` passes. Other computed
+  constants remain outside the access-bound grammar. This is a small M3.4
+  compatibility increment, not closure.
   **Composite secondary equality-prefix scan (2026-09):** equality on a
   non-empty proper leading prefix of a composite INTEGER/UNSIGNED TREE index
   now selects an unordered index-prefix scan when no suffix range or complete
