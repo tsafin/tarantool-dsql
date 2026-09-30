@@ -655,6 +655,7 @@ sql_physical_table_scan_from_select(
 		}
 		const struct Expr *terms[SQL_PLAN_POINT_KEY_PART_MAX];
 		const struct Expr *exprs[SQL_PLAN_POINT_KEY_PART_MAX];
+		const struct Expr *expr_sources[SQL_PLAN_POINT_KEY_PART_MAX];
 		struct Expr between_bounds[SQL_PLAN_POINT_KEY_PART_MAX];
 		size_t term_count = 0;
 		if (!collect_and_terms(select->pWhere, terms,
@@ -697,7 +698,33 @@ sql_physical_table_scan_from_select(
 						.selectivity = 0.5,
 					};
 					filter_expressions[filter_count++] = term;
-					continue;
+					bool has_secondary_range_key = false;
+					for (uint32_t index_no = 1;
+					     !has_secondary_range_key &&
+					     index_no < source->space->index_count;
+					     ++index_no) {
+						const struct index *index =
+							source->space->index_map[index_no];
+						if (index == NULL || index->def == NULL ||
+						    index->def->type != TREE ||
+						    index->def->key_def == NULL)
+							continue;
+						for (uint32_t part = 0;
+						     part < index->def->key_def->part_count;
+						     ++part) {
+							const struct key_part *key_part =
+								&index->def->key_def->parts[part];
+							if (key_part->fieldno ==
+							    (uint32_t)term->pLeft->iColumn &&
+							    (key_part->type == FIELD_TYPE_INTEGER ||
+							     key_part->type == FIELD_TYPE_UNSIGNED)) {
+								has_secondary_range_key = true;
+								break;
+							}
+						}
+					}
+					if (!has_secondary_range_key)
+						continue;
 				}
 			}
 			if (term->op == TK_BETWEEN &&
@@ -729,7 +756,8 @@ sql_physical_table_scan_from_select(
 			if (term->op != TK_BETWEEN) {
 				if (expr_count == SQL_PLAN_POINT_KEY_PART_MAX)
 					goto invalid_predicate;
-				exprs[expr_count++] = term;
+				exprs[expr_count] = term;
+				expr_sources[expr_count++] = term;
 				continue;
 			}
 			/* BETWEEN is represented as x >= low AND x <= high by the
@@ -754,8 +782,10 @@ sql_physical_table_scan_from_select(
 				.pLeft = term->pLeft,
 				.pRight = term->x.pList->a[1].pExpr,
 			};
-			exprs[expr_count++] = lower;
-			exprs[expr_count++] = upper;
+			exprs[expr_count] = lower;
+			expr_sources[expr_count++] = term;
+			exprs[expr_count] = upper;
+			expr_sources[expr_count++] = term;
 		}
 		/* A composite secondary access is eligible only when every key part
 		 * has a compatible literal equality. Keep the chosen source terms so
@@ -938,7 +968,8 @@ sql_physical_table_scan_from_select(
 										   &secondary_range_lower,
 										   true)) {
 								secondary_range_lower = parsed;
-								secondary_range_terms[0] = term;
+								secondary_range_terms[0] =
+									expr_sources[term_no];
 							}
 							has_lower = true;
 						} else if (parsed.op == SQL_PLAN_LT ||
@@ -947,7 +978,8 @@ sql_physical_table_scan_from_select(
 										   &secondary_range_upper,
 										   false)) {
 								secondary_range_upper = parsed;
-								secondary_range_terms[1] = term;
+								secondary_range_terms[1] =
+									expr_sources[term_no];
 							}
 							has_upper = true;
 						}
@@ -1077,6 +1109,12 @@ sql_physical_table_scan_from_select(
 		size_t bound_count = 0;
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
+			bool selected_secondary_range_bound = false;
+			for (size_t j = 0; j < secondary_range_term_count; ++j)
+				selected_secondary_range_bound |= has_secondary_range_scan &&
+					expr_sources[i] == secondary_range_terms[j];
+			if (selected_secondary_range_bound)
+				continue;
 			if ((term->op == TK_OR || term->op == TK_NOT) &&
 			    is_supported_boolean_filter(term, source->iCursor,
 							source->space->def->field_count, 0)) {
@@ -1912,6 +1950,12 @@ predicate_parsed:
 		}
 	} else if (has_secondary_range_scan && !use_secondary_equality_scan) {
 		for (size_t i = 0; i < secondary_range_term_count; ++i) {
+			bool already_filtered = false;
+			for (size_t j = 0; j < filter_count; ++j)
+				already_filtered |= filter_expressions[j] ==
+					secondary_range_terms[i];
+			if (already_filtered)
+				continue;
 			if (filter_count == SQL_PLAN_FILTER_MAX)
 				goto invalid_predicate;
 			filters[filter_count] = (struct sql_plan_filter) {

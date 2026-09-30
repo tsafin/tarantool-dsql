@@ -740,6 +740,37 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE id BETWEEN 2 AND 4 ' ..
+                           'ORDER BY id'):format(name),
+                    expected = {{2}, {3}, {4}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT a, b FROM %s WHERE a = 1 AND ' ..
+                           'b BETWEEN 10 AND 11 ORDER BY a, b')
+                          :format(composite_name),
+                    expected = {{1, 10}, {1, 11}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT tenant, id FROM %s WHERE x = 7 AND ' ..
+                           'y BETWEEN 10 AND 11')
+                          :format(secondary_tertiary_name),
+                    expected = {{1, 1}, {1, 2}, {2, 1}, {2, 2}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    unordered = true,
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE uk BETWEEN 10 AND ' ..
+                           '18446744073709551615')
+                          :format(comparison_name),
+                    expected = {{1}, {2}, {3}, {5}},
+                    expected_index = comparison_name .. '_uk',
+                    unordered = true,
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE ? = id')
                           :format(comparison_name),
                     params = {5},
