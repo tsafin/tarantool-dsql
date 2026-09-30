@@ -4,7 +4,7 @@
 
 This document is the single source of truth for the analytics-focused SQL
 engine work on `tsafin/nextgen_sql` and its descendants. Status below was
-reconciled with the local tree on 2026-09-27; uncommitted files are evidence
+reconciled with the local tree on 2026-09-30; uncommitted files are evidence
 of work in progress, not completed deliverables.
 
 Scope is deliberately narrow:
@@ -2821,6 +2821,20 @@ DML, triggers, subprograms, non-deterministic functions.
   Individual reports keep `feature_acceptance_passed=false` because a single
   suite cannot certify the milestone; the aggregate verifier now supplies the
   complete M3.5 decision.
+
+  **Fresh M3.5 aggregate (2026-09-30).** Re-ran all nine suite/mode reports
+  (SQL-TAP, SQL, and SQL-luatest × generated, CnP, and LLVM) against source
+  `e19fa284b657534d0330108249538b6322425814`, including both memtx and Vinyl
+  for every report. All reports have reviewed route transitions and certified
+  semantic parity, including exact off-repeat semantic parity. The producer
+  runner completed all 30 cases (the 24 required four-fixture cases plus the
+  scalar-filter fixture); every case passed. The aggregate verifier reports
+  `feature_acceptance_passed=true`, nine suite/mode reports, and no blockers.
+  Evidence is under `/dev/shm/m35-refresh-e19fa284b6/`; the authoritative
+  aggregate is `acceptance.json`. LLVM/Vinyl SQL-TAP has 35 EXPLAIN-only
+  off/on row differences; these are not semantic diffs and are explicitly
+  allowed by the acceptance comparator. This closes the adopted M3.5 gate,
+  not M3.4's broader executable-lowering work or M3.7 functional acceptance.
 
   *parallel: no*.
 - [x] **M3.6 prototype** M0 snapshot capture now asks
