@@ -1103,6 +1103,15 @@ emit_projection_literal(void *context, uint32_t expr_ref, int result_reg)
 	return ctx->addrs[slot] == ctx->vdbe->nOp - 1 ? 0 : -1;
 }
 
+static int
+emit_projection_then_fail(void *context, uint32_t expr_ref, int result_reg)
+{
+	(void)expr_ref;
+	struct projection_projector_ctx *ctx = context;
+	(void)sqlVdbeAddOp2(ctx->vdbe, OP_Integer, 42, result_reg);
+	return -1;
+}
+
 int
 main(void)
 {
@@ -1112,7 +1121,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(88);
+	plan(89);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -2257,6 +2266,19 @@ main(void)
 	ok(expr_scan != NULL && sql_plan_lower_vdbe_table_scan(expr_scan,
 		&vdbe, 4, 20) == -1 && vdbe.nOp == before_missing_projector,
 	   "expression projections without a projector are rejected atomically");
+	struct projection_projector_ctx failing_projector_ctx = {
+		.vdbe = &vdbe,
+	};
+	int before_projector_failure = vdbe.nOp;
+	int n_mem_before_projector_failure = parse.nMem;
+	int prior_opcode = vdbe.aOp[before_projector_failure - 1].opcode;
+	ok(expr_scan != NULL &&
+	   sql_plan_lower_vdbe_table_scan_with_projector(expr_scan, &vdbe, 4,
+		20, emit_projection_then_fail, &failing_projector_ctx) == -1 &&
+	   vdbe.nOp == before_projector_failure &&
+	   parse.nMem == n_mem_before_projector_failure &&
+	   vdbe.aOp[before_projector_failure - 1].opcode == prior_opcode,
+	   "projector failure after emission rolls back the VDBE and Parse state");
 	const enum sql_plan_access_kind projection_kinds[] = {
 		SQL_PLAN_TABLE_FULL_SCAN, SQL_PLAN_PK_POINT_LOOKUP,
 		SQL_PLAN_INDEX_RANGE_SCAN, SQL_PLAN_PK_PREFIX_SCAN,
