@@ -1302,7 +1302,11 @@ DML, triggers, subprograms, non-deterministic functions.
   seeking on the prefix/bound and walking with `Prev` until the prefix guard
   fails. Mixed-direction and unrelated orderings remain stable fallbacks. The
   VDBE unit pins the multi-part seek, mismatch checks, reverse direction, and
-  limit/offset placement.
+  limit/offset placement. It also injects a projector failure after an opcode
+  has been emitted and verifies that lowering restores the VDBE opcode count
+  and Parse register state atomically (`sql_plan_vdbe_lowering.test`, 89
+  assertions). Broader range semantics and corpus parity remain open; this
+  fault-path coverage does not close M3.4.
   **2026-09 ordered one-sided primary ranges:** the producer and lowerer now
   support both traversal directions for one-sided INTEGER/UNSIGNED primary
   ranges. Upper-only ASC rewinds and exits at the strict/inclusive upper guard;
