@@ -1407,12 +1407,14 @@ DML, triggers, subprograms, non-deterministic functions.
   non-indexed `BETWEEN` predicates retain their prior residual behavior.
   Off/on/off memtx/Vinyl coverage verifies primary-key ranges, composite
   primary-key prefix ranges, unsigned secondary endpoints through
-  `UINT64_MAX`, equality-prefix composite secondary access, selected-index
-  evidence, and row parity. The focused Debug luatest passes; all 85 VDBE
-  lowering assertions pass. The refreshed producer matrix at source
-  `0f67cf2512` passes all 30 generated/CnP/LLVM × memtx/Vinyl fixture cases;
-  report: `/dev/shm/m34-between-0f67cf2512/report.json`. This is a bounded
-  M3.4 increment, not general predicate/access-path support or M3.4 closure.
+  `UINT64_MAX`, equality-prefix composite secondary access, and row parity.
+  Secondary `BETWEEN` cases also assert `SeekGE` in the experimental VDBE
+  program, proving the selected range lowerer executes instead of a residual
+  full scan. The focused Debug luatest passes; all 85 VDBE lowering assertions
+  pass. The refreshed producer matrix at source `7d4e86936f` passes all 30
+  generated/CnP/LLVM × memtx/Vinyl fixture cases; report:
+  `/dev/shm/m34-between-7d4e86936f/report.json`. This is a bounded M3.4
+  increment, not general predicate/access-path support or M3.4 closure.
   **Unary-plus integer bounds (2026-09):** the typed primary/secondary bound
   parser now unwraps SQL unary `+` without weakening literal validation.
   Off/on/off memtx/Vinyl coverage pins `id = +2` as a primary point route and
