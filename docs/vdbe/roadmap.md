@@ -1422,17 +1422,20 @@ DML, triggers, subprograms, non-deterministic functions.
   focused Debug `planner_scalar_filter_test.lua` passes. Other computed
   constants remain outside the access-bound grammar. This is a small M3.4
   compatibility increment, not closure.
-  **Singleton primary-key `IN` (2026-09):** a one-element `IN` list containing
+  **Singleton `IN` equality access (2026-09):** a one-element `IN` list with
   a parseable INTEGER/UNSIGNED literal on a primary-key part is normalized to
   an equality candidate. Single-part and composite-primary point lookups use
-  the existing typed seek lowerers; the original multi-value `IN` behavior is
-  unchanged and remains fail-closed for this access route. Off/on/off
-  memtx/Vinyl coverage asserts `NotFound` for both point forms and pins
+  the typed point lowerers. A single-part INTEGER/UNSIGNED secondary TREE
+  index also serves singleton `IN` equality; the original `IN` expression is
+  retained as a residual for duplicate-hit correctness. Multi-value `IN`
+  remains unchanged and unsupported as a new-planner access path. Off/on/off
+  memtx/Vinyl coverage asserts `NotFound` for the primary point forms,
+  `SeekGE` and selected-index evidence for the secondary form, and pins
   multi-value `IN` to `fallback / UNSUPPORTED_FILTER` with row parity. The
   focused Debug `planner_scalar_filter_test.lua` passes. A fresh producer
-  matrix at source `47c71d62a1` passes all 30 generated/CnP/LLVM × memtx/Vinyl
-  fixture cases; report: `/tmp/m34-singleton-31888/report.json`. This is a
-  bounded point-access increment, not general `IN` lowering or M3.4 closure.
+  matrix at source `23143c672e` passes all 30 generated/CnP/LLVM × memtx/Vinyl
+  fixture cases; report: `/tmp/m34-singleton-in-23143/report.json`. This is a
+  bounded access increment, not general `IN` lowering or M3.4 closure.
   **Composite secondary equality-prefix scan (2026-09):** equality on a
   non-empty proper leading prefix of a composite INTEGER/UNSIGNED TREE index
   now selects an unordered index-prefix scan when no suffix range or complete
