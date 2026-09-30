@@ -758,6 +758,37 @@ sql_physical_table_scan_from_select(
 							normalized_singleton_in = true;
 							break;
 						}
+						if (!normalized_singleton_in) {
+							for (uint32_t index_no = 1;
+							     index_no < source->space->index_count;
+							     ++index_no) {
+								const struct index *index =
+									source->space->index_map[index_no];
+								if (index == NULL || index->def == NULL ||
+								    index->def->type != TREE ||
+								    index->def->key_def == NULL ||
+								    index->def->key_def->part_count < 2)
+									continue;
+								const struct key_part *key_part =
+									&index->def->key_def->parts[0];
+								bool is_unsigned = key_part->type ==
+									FIELD_TYPE_UNSIGNED;
+								struct parsed_pk_bound parsed;
+								if (key_part->fieldno !=
+								    (uint32_t)term->pLeft->iColumn ||
+								    (!is_unsigned && key_part->type !=
+								     FIELD_TYPE_INTEGER) ||
+								    !parse_pk_bound(equality, source->iCursor,
+									    key_part->fieldno,
+									    is_unsigned, &parsed) ||
+								    parsed.op != SQL_PLAN_EQ)
+									continue;
+								exprs[expr_count] = equality;
+								expr_sources[expr_count++] = term;
+								normalized_singleton_in = true;
+								break;
+							}
+						}
 					}
 				}
 				if (normalized_singleton_in) {
@@ -908,7 +939,7 @@ sql_physical_table_scan_from_select(
 								    is_unsigned, &parsed) ||
 						    parsed.op != SQL_PLAN_EQ)
 							continue;
-						candidate_terms[part] = term;
+						candidate_terms[part] = expr_sources[term_no];
 						candidate_parts[part] =
 							(struct sql_plan_point_key_part) {
 							.column = key_part->fieldno,
@@ -1008,7 +1039,7 @@ sql_physical_table_scan_from_select(
 									    &parsed) ||
 							    parsed.op != SQL_PLAN_EQ)
 								continue;
-							prefix_terms[part_no] = term;
+							prefix_terms[part_no] = expr_sources[term_no];
 							prefix_parts[part_no] =
 								(struct sql_plan_point_key_part) {
 								.column = part->fieldno,
@@ -1134,7 +1165,7 @@ sql_physical_table_scan_from_select(
 							.integer_value = parsed.signed_key,
 							.unsigned_value = parsed.unsigned_key,
 						};
-						terms[part_no] = term;
+						terms[part_no] = expr_sources[term_no];
 						break;
 					}
 					if (terms[part_no] == NULL)
@@ -1192,11 +1223,30 @@ sql_physical_table_scan_from_select(
 		size_t bound_count = 0;
 		for (size_t i = 0; i < expr_count; ++i) {
 			const struct Expr *term = exprs[i];
+			bool selected_secondary_equality = false;
+			if (has_secondary_equality_scan) {
+				size_t count = secondary_key_part_count == 0 ? 1 :
+					secondary_key_part_count;
+				for (size_t j = 0; j < count; ++j) {
+					const struct Expr *source_term =
+						secondary_key_part_count == 0 ? secondary_scan_term :
+						secondary_scan_terms[j];
+					selected_secondary_equality |= expr_sources[i] ==
+						source_term;
+				}
+			}
+			bool selected_secondary_prefix = false;
+			if (has_secondary_prefix_scan) {
+				for (size_t j = 0; j < secondary_prefix_count; ++j)
+					selected_secondary_prefix |= expr_sources[i] ==
+						secondary_prefix_terms[j];
+			}
 			bool selected_secondary_range_bound = false;
 			for (size_t j = 0; j < secondary_range_term_count; ++j)
 				selected_secondary_range_bound |= has_secondary_range_scan &&
 					expr_sources[i] == secondary_range_terms[j];
-			if (selected_secondary_range_bound)
+			if (selected_secondary_equality || selected_secondary_prefix ||
+			    selected_secondary_range_bound)
 				continue;
 			if ((term->op == TK_OR || term->op == TK_NOT) &&
 			    is_supported_boolean_filter(term, source->iCursor,
