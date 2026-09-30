@@ -803,6 +803,16 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT tenant, id FROM %s WHERE x = 7 ' ..
+                           'AND y IN (10) AND z = 3')
+                          :format(secondary_tertiary_name),
+                    expected = {{1, 2}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_opcode = 'SeekGE',
+                    unordered = true,
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE id BETWEEN 2 AND 4 ' ..
                            'ORDER BY id'):format(name),
                     expected = {{2}, {3}, {4}},

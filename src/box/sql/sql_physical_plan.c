@@ -769,24 +769,70 @@ sql_physical_table_scan_from_select(
 								    index->def->key_def == NULL ||
 								    index->def->key_def->part_count < 2)
 									continue;
-								const struct key_part *key_part =
-									&index->def->key_def->parts[0];
-								bool is_unsigned = key_part->type ==
-									FIELD_TYPE_UNSIGNED;
-								struct parsed_pk_bound parsed;
-								if (key_part->fieldno !=
-								    (uint32_t)term->pLeft->iColumn ||
-								    (!is_unsigned && key_part->type !=
-								     FIELD_TYPE_INTEGER) ||
-								    !parse_pk_bound(equality, source->iCursor,
-									    key_part->fieldno,
-									    is_unsigned, &parsed) ||
-								    parsed.op != SQL_PLAN_EQ)
-									continue;
-								exprs[expr_count] = equality;
-								expr_sources[expr_count++] = term;
-								normalized_singleton_in = true;
-								break;
+								const struct key_def *key_def =
+									index->def->key_def;
+								for (uint32_t part = 0;
+								     part < key_def->part_count; ++part) {
+									const struct key_part *key_part =
+										&key_def->parts[part];
+									if (key_part->fieldno !=
+									    (uint32_t)term->pLeft->iColumn)
+										continue;
+									bool is_unsigned = key_part->type ==
+										FIELD_TYPE_UNSIGNED;
+									if (!is_unsigned && key_part->type !=
+									    FIELD_TYPE_INTEGER)
+										continue;
+									bool complete_prefix = true;
+									for (uint32_t prefix = 0;
+									     prefix < part && complete_prefix;
+									     ++prefix) {
+										const struct key_part *prefix_part =
+											&key_def->parts[prefix];
+										bool prefix_unsigned =
+											prefix_part->type ==
+											FIELD_TYPE_UNSIGNED;
+										if (!prefix_unsigned &&
+										    prefix_part->type !=
+										    FIELD_TYPE_INTEGER) {
+											complete_prefix = false;
+											break;
+										}
+										bool found = false;
+										for (size_t source_no = 0;
+										     source_no < term_count;
+										     ++source_no) {
+											struct parsed_pk_bound prefix_bound;
+											if (parse_pk_bound(
+												terms[source_no],
+												source->iCursor,
+												prefix_part->fieldno,
+												prefix_unsigned,
+												&prefix_bound) &&
+											    prefix_bound.op ==
+												SQL_PLAN_EQ) {
+												found = true;
+												break;
+											}
+										}
+										complete_prefix &= found;
+									}
+									struct parsed_pk_bound parsed;
+									if (!complete_prefix ||
+									    !parse_pk_bound(equality,
+										    source->iCursor,
+										    key_part->fieldno,
+										    is_unsigned,
+										    &parsed) ||
+									    parsed.op != SQL_PLAN_EQ)
+										continue;
+									exprs[expr_count] = equality;
+									expr_sources[expr_count++] = term;
+									normalized_singleton_in = true;
+									break;
+								}
+								if (normalized_singleton_in)
+									break;
 							}
 						}
 					}
