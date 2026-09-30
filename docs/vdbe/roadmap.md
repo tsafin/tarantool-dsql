@@ -1399,6 +1399,17 @@ DML, triggers, subprograms, non-deterministic functions.
   index plans. Bounded and upper-only walks terminate at NULL keys before
   filtering/projection. This does not claim general secondary-index access or
   close M3.4.
+  **Upper-only ascending secondary ranges (2026-09):** upper-only `<` / `<=`
+  ranges can now satisfy ascending order on an ascending TREE secondary index.
+  The lowerer rewinds or seeks to the fixed equality-prefix start, skips NULL
+  key values, and stops at the first value outside the upper bound. The
+  memtx/Vinyl off/on/off regression verifies selected `(x,y,z)` index access,
+  `SeekGE`, ordered results, and continuation past a NULL key; the VDBE unit
+  pins the prefix guard, upper-bound guard, and NULL skip branch (87 assertions
+  total). The focused producer matrix at source `51c1f03d3e` passes all 30
+  generated/CnP/LLVM × memtx/Vinyl cases; report:
+  `/tmp/m34-secondary-upper-asc-51c1f03d3e/report.json`. This remains a bounded
+  access-path increment, not M3.4 closure.
   **Literal `BETWEEN` secondary ranges (2026-09):** normalize a literal
   `BETWEEN` on an INTEGER/UNSIGNED indexed part to inclusive lower/upper
   bounds for candidate extraction, while preserving and evaluating the
