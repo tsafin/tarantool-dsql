@@ -1391,8 +1391,11 @@ DML, triggers, subprograms, non-deterministic functions.
   M3.4. The route now also accepts descending TREE secondary-key definitions.
   Scan direction is physical: `Next`/`Prev` is combined with the declared key
   direction to produce SQL order, and descending definitions invert the seek
-  comparison while preserving inclusive/exclusive endpoint meaning. Lower-only
-  ordered scans can produce ASC, upper-only scans DESC, and bounded scans
+  comparison while preserving inclusive/exclusive endpoint meaning. On
+  ascending secondary keys, ordered one-sided scans now cover both traversal
+  directions: lower-only scans seek/rewind from the appropriate bound or
+  prefix end, and upper-only scans seek/restart from the bound or prefix start;
+  each enforces its stopping bound and NULL behavior. Bounded scans support
   either direction when requested order matches the traversal. Focused
   memtx/Vinyl off/on/off coverage exercises signed endpoints, descending
   bounded and one-sided ranges, an UNSIGNED `UINT64_MAX` bound, and selected
