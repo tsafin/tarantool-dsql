@@ -2002,14 +2002,10 @@ predicate_parsed:
 				index->def->key_def
 					->parts[secondary_range_prefix_count]
 					.sort_order == SORT_ORDER_DESC;
-			bool can_start = true;
-			if (have_range_order && has_secondary_range_lower &&
-			    !has_secondary_range_upper)
-				can_start = !requested_desc;
-			/* Upper-only ranges can also walk forward from the start of
-			 * the index (or fixed equality prefix) and stop at the upper
-			 * bound. The lowerer emits that guard explicitly. */
-			secondary_range_order = can_start;
+			/* One-sided ranges can walk from either end: lower-only scans
+			 * stop at the lower bound when walking backward, while upper-only
+			 * scans stop at the upper bound when walking forward. */
+			secondary_range_order = true;
 			if (secondary_range_order && have_range_order)
 				direction = index_desc != requested_desc ?
 						    SQL_PLAN_DESC :

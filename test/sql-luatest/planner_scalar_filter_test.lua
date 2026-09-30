@@ -205,11 +205,12 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(secondary_tertiary_name),
                     expected = {{10, 1, 1, 1}, {10, 2, 2, 1},
                                 {10, 3, 1, 2}, {11, 1, 2, 2}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_opcode = 'SeekLE',
                     expected_order_column = 1,
                     expected_order_desc = true,
                     unordered = true,
-                    enabled_route = 'fallback',
-                    enabled_reason = 'UNSUPPORTED_FILTER',
+                    enabled_route = 'new_planner',
                 },
                 {
                     sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..

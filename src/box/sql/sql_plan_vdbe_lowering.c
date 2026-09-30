@@ -978,6 +978,9 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 	bool upper_only = range && !bounded_range &&
 		(input->access.integer_range_op == SQL_PLAN_LT ||
 		 input->access.integer_range_op == SQL_PLAN_LE);
+	bool lower_only = range && !bounded_range &&
+		(input->access.integer_range_op == SQL_PLAN_GT ||
+		 input->access.integer_range_op == SQL_PLAN_GE);
 	size_t prefix_count = range || prefix_scan ?
 		input->access.prefix_key_part_count : 0;
 	size_t index_part_count = index->key_part_count;
@@ -988,11 +991,15 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		index->key_parts_descending[range_part];
 	bool upper_only_ascending = upper_only && !index_descending &&
 		input->access.direction == SQL_PLAN_ASC;
+	bool lower_only_descending = lower_only && !index_descending &&
+		input->access.direction == SQL_PLAN_DESC;
+	bool one_sided_guarded_walk = upper_only_ascending ||
+		lower_only_descending;
 	bool logical_descending = index_descending !=
 		(input->access.direction == SQL_PLAN_DESC);
 	bool bounded_reverse = bounded_range && logical_descending;
 	size_t key_part_count = prefix_scan ? prefix_count : range ?
-		prefix_count + (upper_only_ascending ? 0 : 1) :
+		prefix_count + (one_sided_guarded_walk ? 0 : 1) :
 		(index_part_count == 0 ? 1 : index_part_count);
 	if (key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
 	    key_part_count > INT_MAX ||
@@ -1030,7 +1037,7 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		 input->access.bound_count != prefix_count +
 			(bounded_range ? 2 : 1) ||
 		 invalid_range_order ||
-		 (!bounded_range && !upper_only_ascending &&
+		 (!bounded_range && !one_sided_guarded_walk &&
 		  (index_descending !=
 		   (input->access.direction == SQL_PLAN_DESC)) != upper_only));
 	if (range && !invalid_range &&
@@ -1216,8 +1223,8 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 	int key_register_count = full ? 0 : (int)key_part_count;
 	int extra_regs = key_register_count +
 		(bounded_range ? 1 : 0) +
-		(upper_only_ascending ? 1 : 0) +
-		((bounded_range || upper_only) ? 1 : 0) +
+		(one_sided_guarded_walk ? 1 : 0) +
+		((bounded_range || upper_only || lower_only_descending) ? 1 : 0) +
 		(int)index->primary_key_count +
 		(int)input->filter_count + (has_limit ? 1 : 0) +
 		(has_offset ? 1 : 0);
@@ -1229,8 +1236,9 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 	int key_reg = full ? 0 : parse->nMem + 1;
 	parse->nMem += key_register_count;
 	int range_end_reg = bounded_range ? ++parse->nMem : 0;
-	int range_bound_reg = upper_only_ascending ? ++parse->nMem : 0;
-	int range_current_reg = bounded_range || upper_only ?
+	int range_bound_reg = one_sided_guarded_walk ? ++parse->nMem : 0;
+	int range_current_reg = bounded_range || upper_only ||
+		lower_only_descending ?
 		++parse->nMem : 0;
 	int pk_reg = parse->nMem + 1;
 	parse->nMem += (int)index->primary_key_count;
@@ -1286,7 +1294,7 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto secondary_error;
 	}
-	if (upper_only_ascending) {
+	if (one_sided_guarded_walk) {
 		int rc = sql_plan_emit_integer_constant(vdbe, range_bound_reg,
 			input->access.has_unsigned_range_key,
 			input->access.integer_range_key,
@@ -1321,6 +1329,8 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		 OP_SeekLE : OP_SeekGE);
 	if (range && upper_only_ascending) {
 		seek_op = prefix_count == 0 ? OP_Rewind : OP_SeekGE;
+	} else if (range && lower_only_descending) {
+		seek_op = prefix_count == 0 ? OP_Last : OP_SeekLE;
 	} else if (range) {
 		switch (input->access.integer_range_op) {
 		case SQL_PLAN_GT: seek_op = OP_SeekGT; break;
@@ -1346,7 +1356,8 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 			}
 		}
 	}
-	int seek = full || (range && upper_only_ascending && prefix_count == 0) ?
+	int seek = full || (range && one_sided_guarded_walk &&
+			     prefix_count == 0) ?
 		sqlVdbeAddOp2(vdbe, seek_op, index_cursor, 0) :
 		sqlVdbeAddOp4Int(vdbe, seek_op, index_cursor, 0, key_reg,
 				 (int)key_part_count);
@@ -1401,7 +1412,7 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		if (range_break != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto secondary_error;
-	} else if (range && upper_only_ascending) {
+	} else if (range && one_sided_guarded_walk) {
 		int column = sqlVdbeAddOp3(vdbe, OP_Column, index_cursor,
 					   (int)input->access.range_key_column,
 					   range_current_reg);
@@ -1409,12 +1420,19 @@ sql_plan_lower_vdbe_secondary_scan_with_projector(
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto secondary_error;
 		range_null_break = sqlVdbeAddOp2(vdbe, OP_IsNull,
-						 range_current_reg, next_label);
+						 range_current_reg,
+						 upper_only_ascending ? next_label : 0);
 		if (range_null_break != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto secondary_error;
-		int check_op = input->access.integer_range_op == SQL_PLAN_LT ?
-			OP_Ge : OP_Gt;
+		int check_op;
+		if (upper_only_ascending) {
+			check_op = input->access.integer_range_op == SQL_PLAN_LT ?
+				OP_Ge : OP_Gt;
+		} else {
+			check_op = input->access.integer_range_op == SQL_PLAN_GT ?
+				OP_Le : OP_Lt;
+		}
 		range_break = sqlVdbeAddOp3(vdbe, check_op, range_bound_reg, 0,
 					      range_current_reg);
 		if (range_break != vdbe->nOp - 1 || parse->is_aborted ||
