@@ -1519,14 +1519,18 @@ DML, triggers, subprograms, non-deterministic functions.
   VDBE unit coverage pins key arity, both guards, and multi-term suffix order;
   runtime coverage combines ascending and descending order with LIMIT/OFFSET.
   Unsupported/incomplete prefixes and skipped index parts remain on the legacy
-  path. The one-sided secondary-prefix range/order combinations that cannot
-  start at the required endpoint are also pinned to `fallback /
-  UNSUPPORTED_FILTER` with result parity: lower-only DESC and upper-only ASC on
-  an ascending composite index. This protects against emitting an unguarded
-  scan for an unsupported traversal. Both fallback probes pass the focused
-  memtx/Vinyl off/on/off luatest under generated, CnP, and LLVM-19 dispatch.
-  This is another bounded M3.4 increment, not M3.4 closure or broad corpus
-  parity.
+  path. The former one-sided fallback cases are now covered by guarded walks:
+  lower-only DESC and upper-only ASC on ascending composite indexes, plus both
+  corresponding logical-order cases on a declared-descending index. Focused
+  memtx/Vinyl off/on/off regressions pin ordered results, selected indexes,
+  bound termination, and NULL handling. This is another bounded M3.4
+  increment, not M3.4 closure or broad corpus parity.
+  A deeper-prefix regression at source `b1003162f3` now verifies equality on
+  both `x` and `y`, a bounded range on `z`, and descending order over the
+  composite `(x,y,z)` index. It asserts the selected route and `SeekLT`, with
+  exact memtx/Vinyl off/on/off parity. The fresh producer matrix passes all 30
+  generated/CnP/LLVM × memtx/Vinyl cases; report:
+  `/tmp/m34-secondary-deep-range-b1003162f3/report.json`.
   **Secondary ordered full-scan extension:** predicate-free SELECTs may now
   order by a leading prefix of an ascending TREE secondary index with uniform
   ASC or DESC direction. The descriptor records the selected index and every
