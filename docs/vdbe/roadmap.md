@@ -1399,6 +1399,20 @@ DML, triggers, subprograms, non-deterministic functions.
   index plans. Bounded and upper-only walks terminate at NULL keys before
   filtering/projection. This does not claim general secondary-index access or
   close M3.4.
+  **Literal `BETWEEN` secondary ranges (2026-09):** normalize a literal
+  `BETWEEN` on an INTEGER/UNSIGNED indexed part to inclusive lower/upper
+  bounds for candidate extraction, while preserving and evaluating the
+  original expression as a residual. This works for a single-part secondary
+  index and for the next key part after an equality prefix; unrelated
+  non-indexed `BETWEEN` predicates retain their prior residual behavior.
+  Off/on/off memtx/Vinyl coverage verifies primary-key ranges, composite
+  primary-key prefix ranges, unsigned secondary endpoints through
+  `UINT64_MAX`, equality-prefix composite secondary access, selected-index
+  evidence, and row parity. The focused Debug luatest passes; all 85 VDBE
+  lowering assertions pass. The refreshed producer matrix at source
+  `0f67cf2512` passes all 30 generated/CnP/LLVM × memtx/Vinyl fixture cases;
+  report: `/dev/shm/m34-between-0f67cf2512/report.json`. This is a bounded
+  M3.4 increment, not general predicate/access-path support or M3.4 closure.
   **Composite secondary equality-prefix scan (2026-09):** equality on a
   non-empty proper leading prefix of a composite INTEGER/UNSIGNED TREE index
   now selects an unordered index-prefix scan when no suffix range or complete
