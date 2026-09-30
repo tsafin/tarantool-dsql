@@ -691,6 +691,7 @@ sql_physical_table_scan_from_select(
 							(uint32_t)term->pLeft->iColumn ==
 							pk->parts[part].fieldno;
 				}
+				bool normalized_singleton_in = false;
 				if (!is_pk_column) {
 					if (filter_count == SQL_PLAN_FILTER_MAX)
 						goto invalid_predicate;
@@ -701,6 +702,36 @@ sql_physical_table_scan_from_select(
 					filter_expressions[filter_count++] = term;
 					continue;
 				}
+				if (term->x.pList != NULL && term->x.pList->nExpr == 1 &&
+				    !ExprHasProperty(term, EP_TokenOnly | EP_Reduced |
+						     EP_xIsSelect) &&
+				    term->x.pList->a[0].pExpr != NULL &&
+				    expr_count < SQL_PLAN_POINT_KEY_PART_MAX) {
+					struct Expr *equality = &between_bounds[expr_count];
+					*equality = (struct Expr) {
+						.op = TK_EQ,
+						.pLeft = term->pLeft,
+						.pRight = term->x.pList->a[0].pExpr,
+					};
+					for (uint32_t part = 0; part < pk->part_count; ++part) {
+						bool is_unsigned = pk->parts[part].type ==
+							FIELD_TYPE_UNSIGNED;
+						struct parsed_pk_bound parsed;
+						if ((!is_unsigned && pk->parts[part].type !=
+						     FIELD_TYPE_INTEGER) ||
+						    !parse_pk_bound(equality, source->iCursor,
+							    pk->parts[part].fieldno,
+							    is_unsigned, &parsed) ||
+						    parsed.op != SQL_PLAN_EQ)
+							continue;
+						exprs[expr_count] = equality;
+						expr_sources[expr_count++] = term;
+						normalized_singleton_in = true;
+						break;
+					}
+				}
+				if (normalized_singleton_in)
+					continue;
 			}
 			if (term->op == TK_BETWEEN &&
 			    is_supported_boolean_filter(term, source->iCursor,
@@ -787,6 +818,7 @@ sql_physical_table_scan_from_select(
 			expr_sources[expr_count++] = term;
 			exprs[expr_count] = upper;
 			expr_sources[expr_count++] = term;
+			continue;
 		}
 		/* A composite secondary access is eligible only when every key part
 		 * has a compatible literal equality. Keep the chosen source terms so
