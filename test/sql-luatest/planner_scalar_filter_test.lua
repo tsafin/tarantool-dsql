@@ -205,6 +205,18 @@ g.test_non_primary_null_filters_off_on_off = function()
                     expected_order_desc = true,
                 },
                 {
+                    sql = ('SELECT z, tenant, id FROM %s WHERE x = 7 ' ..
+                           'AND y = 10 AND z >= 2 AND z < 4 ' ..
+                           'ORDER BY z DESC')
+                          :format(secondary_tertiary_name),
+                    expected = {{3, 1, 2}, {2, 2, 1}},
+                    expected_index = secondary_tertiary_name .. '_xyz',
+                    expected_opcode = 'SeekLT',
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT y, z, tenant, id FROM %s WHERE x = 7 ' ..
                            'AND y >= 10 ORDER BY y, z LIMIT 2 OFFSET 1')
                           :format(secondary_tertiary_name),
