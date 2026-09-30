@@ -1489,6 +1489,14 @@ DML, triggers, subprograms, non-deterministic functions.
   Unrelated orderings and skipped leading parts remain unsupported for this
   access kind. This
   bounded route does not close M3.4.
+  A further reverse-prefix regression at source `42c3af217c` now pins
+  `WHERE x = 7 ORDER BY y DESC, z DESC` on `(x,y,z)`, including duplicate
+  suffix values and a nullable suffix key, to the selected index and `SeekLE`;
+  focused memtx/Vinyl off/on/off coverage passes. Its producer matrix passes
+  all 30 generated/CnP/LLVM × memtx/Vinyl cases at
+  `/tmp/m34-secondary-prefix-reverse-42c3af217c/report.json`. This strengthens
+  the finite prefix-order evidence without broadening the supported order
+  shapes.
   **Composite secondary prefix-range extension (2026-09):** the producer now
   recognizes complete equality predicates on leading INTEGER/UNSIGNED key
   parts followed by one-sided or bounded literal bounds on the immediately
