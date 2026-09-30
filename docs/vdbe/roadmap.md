@@ -1990,6 +1990,21 @@ DML, triggers, subprograms, non-deterministic functions.
   `/tmp/m34-later-key-residuals-4f1a/producer-matrix/report.json`. This is not
   arbitrary range splitting or broad corpus parity.
   Do not infer rollback of AST, parser, or schema state.
+  **Current-source parity refresh (2026-09-30, `fe76f616f2`):** the reviewed
+  SQL and SQL-luatest off/on/off corpora pass on both memtx and Vinyl under
+  generated, CnP, and LLVM dispatch. SQL reports cover 1,077 memtx / 1,085
+  Vinyl queries per mode; SQL-luatest covers 499 / 447 queries in generated
+  mode and 498 / 446 in CnP/LLVM. All have zero semantic diffs, exact
+  off-repeat semantics, and zero unreviewed route transitions. The complete
+  generated SQL-TAP captures also pass with 47,946 memtx and 37,990 Vinyl
+  queries, with zero semantic diffs and unreviewed transitions. Reports:
+  `/tmp/m34-current2-sql-{generated,cnp,llvm}/report.json`,
+  `/tmp/m34-current2-sql-luatest-{generated,cnp,llvm}/report.json`, and
+  `/tmp/m34-current3-sql-tap-generated-{memtx,vinyl}/report.json`. SQL-TAP
+  CnP/LLVM refreshes were not completed: the initial parallel attempt exhausted
+  the already nearly-full `/dev/shm`, and a full two-engine generated capture
+  exceeded available disk. This is partial current-source corpus evidence,
+  not complete M3.4 capture coverage.
   This does not cover all descriptor operators, arbitrary lexicographic ranges
   spanning multiple varying key parts, all storage edge cases, or
   corpus-wide parity;
