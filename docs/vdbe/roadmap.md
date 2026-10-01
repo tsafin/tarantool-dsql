@@ -2005,6 +2005,18 @@ DML, triggers, subprograms, non-deterministic functions.
   the already nearly-full `/dev/shm`, and a full two-engine generated capture
   exceeded available disk. This is partial current-source corpus evidence,
   not complete M3.4 capture coverage.
+  **Completion of the SQL-TAP matrix (2026-10-01):** rerunning one engine at a
+  time with disk-backed temporary directories completed the missing SQL-TAP
+  CnP and LLVM comparisons. Both memtx (47,946 queries) and Vinyl (37,990
+  queries) pass in each dispatcher mode: zero semantic diffs, exact off-repeat
+  semantics, and zero unreviewed transitions. The mode/engine reports are
+  `/tmp/m34-current3-sql-tap-{cnp,llvm}-{memtx,vinyl}/report.json`; generated
+  reports are listed above. Across SQL, SQL-luatest, and SQL-TAP, all nine
+  reviewed-corpus suite/mode combinations are now parity evidence. The SQL-TAP
+  CnP/LLVM reports record `cd17106ade`, a docs-only commit after the
+  `fe76f616f2` reports; no SQL or test source changed between those revisions.
+  The binary used throughout was built at `fe76f616f2`, so the executed
+  production/test source tree is identical at both report revisions.
   This does not cover all descriptor operators, arbitrary lexicographic ranges
   spanning multiple varying key parts, all storage edge cases, or
   corpus-wide parity;
