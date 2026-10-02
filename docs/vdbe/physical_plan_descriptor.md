@@ -55,7 +55,12 @@ interface, not SQL expression analysis or `where.c` routing; the current
 logical IR does not consume the isolated `sql_expr_canonicalize()` helper.
 Descriptor expression references therefore still lack stable normalized
 identities, and this selector is not a detached normalized-input model for
-M1 replay.
+M1 replay. Production single-table descriptors now seed relation cardinality,
+average row width, and confidence from the statement-pinned statistics
+snapshot when its schema generation is fresh; missing/stale snapshots retain
+the storage-layer `index_size()` estimate. This seeds cost metadata only: it
+does not yet compare alternative access paths with a statistics-backed cost
+model.
 
 The executable primary-key point descriptor can also own a bounded scalar
 INTEGER/UNSIGNED candidate set for literal `IN` lists (at most 16 distinct

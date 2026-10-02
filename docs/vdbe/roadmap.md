@@ -1494,6 +1494,18 @@ DML, triggers, subprograms, non-deterministic functions.
   the same off/on/off fixture. A refreshed 30-case matrix at source
   `0243f1f4d0` passes all modes and engines with 6,374 captured queries per
   mode (`/tmp/m34-indexed-in-0243f1f4d0/report.json`).
+  The first production cost-metadata input now uses fresh statement-pinned
+  relation statistics for descriptor row count, average width, and confidence;
+  missing/stale snapshots keep the storage population estimate (`841a399f21`).
+  A TEST_BUILD regression checks fresh 32-row versus fallback four-row
+  `EXPLAIN QUERY PLAN` estimates. This does not yet rank alternative access
+  paths with a statistical cost model or close M3.4.
+  A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
+  change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
+  semantic diffs and no unreviewed route transitions
+  (`/dev/shm/m34-current-sql-generated-9f68/report.json`, source
+  `9f68d4ae79`). The other suite/mode combinations have not been refreshed at
+  this source.
   Before this extension, the focused all-producer matrix passed this fixture
   in generated, CnP, and LLVM modes on
   memtx and Vinyl: 2,443 captured queries per case, with accepted component
