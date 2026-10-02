@@ -1304,9 +1304,12 @@ DML, triggers, subprograms, non-deterministic functions.
   VDBE unit pins the multi-part seek, mismatch checks, reverse direction, and
   limit/offset placement. It also injects a projector failure after an opcode
   has been emitted and verifies that lowering restores the VDBE opcode count
-  and Parse register state atomically (`sql_plan_vdbe_lowering.test`, 89
+  and Parse register state atomically (`sql_plan_vdbe_lowering.test`, 91
   assertions). Broader range semantics and corpus parity remain open; this
-  fault-path coverage does not close M3.4.
+  fault-path coverage does not close M3.4. The multi-value primary-key point
+  extension is described below; it adds bounded deduplicated seeks with
+  primary-key ordering and global literal LIMIT/OFFSET, but does not close the
+  broader M3.4 scope.
   **2026-09 ordered one-sided primary ranges:** the producer and lowerer now
   support both traversal directions for one-sided INTEGER/UNSIGNED primary
   ranges. Upper-only ASC rewinds and exits at the strict/inclusive upper guard;
@@ -1471,17 +1474,19 @@ DML, triggers, subprograms, non-deterministic functions.
   literal `IN` path now deep-copies up to 16 distinct INTEGER/UNSIGNED keys and
   emits ordered `NotFound` seeks. Duplicate literals are removed. This first
   multi-value form supports unordered SELECTs or `ORDER BY` on the primary key
-  (ASC or DESC), without LIMIT/OFFSET or additional predicates; all other forms
+  (ASC or DESC), plus literal LIMIT/OFFSET across the candidate set and
+  zero-LIMIT seek suppression, without additional predicates; all other forms
   retain fallback. Off/on/off
   memtx/Vinyl coverage asserts primary and secondary point operators and pins
   multi-value primary `IN` result parity, duplicate suppression, misses, and
   route selection. The focused Debug
   `planner_scalar_filter_test.lua` passes. On 2026-10-03 the focused
   all-producer matrix passed this fixture in generated, CnP, and LLVM modes on
-  memtx and Vinyl: 2,419 captured queries per case, with accepted component
-  ledgers (`/tmp/multi-in-ordered-producer-matrix/report.json`, source
-  `1a58fef88b`). This is focused fixture evidence, not full-corpus M3.4
-  acceptance. A fresh producer
+  memtx and Vinyl: 2,443 captured queries per case, with accepted component
+  ledgers (`/tmp/multi-in-limit-producer-matrix/report.json`, source
+  `a76ae4f71a`). The VDBE unit now has 91 assertions, including multi-candidate
+  LIMIT/OFFSET counter and jump placement. This is focused fixture evidence,
+  not full-corpus M3.4 acceptance. A fresh producer
   matrix at source `ec6ebeaf0a` passes all 30 generated/CnP/LLVM × memtx/Vinyl
   fixture cases; report: `/tmp/m34-suffix-in-ec6ebeaf0a/report.json`. The new
   regression pins `x = 7 AND y IN (10) AND z = 3` to the composite `(x,y,z)`
