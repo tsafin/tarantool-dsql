@@ -45,7 +45,12 @@ struct sql_physical_table_scan_estimate {
 	 * the producer's conservative fallback for that access path. */
 	bool (*prefix_rows)(void *ctx, uint32_t index_id, uint32_t prefix_count,
 			    double *rows);
-	void *prefix_rows_ctx;
+	/* Shared borrowed context for both callbacks, valid during production. */
+	void *stats_ctx;
+	/* Optional value-specific estimate for a scalar secondary equality. */
+	bool (*point_mcv_rows)(void *ctx, uint32_t index_id, bool is_unsigned,
+			       int64_t signed_key, uint64_t unsigned_key,
+			       double *rows);
 };
 
 /*

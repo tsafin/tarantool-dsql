@@ -2783,13 +2783,26 @@ predicate_parsed:
 			(secondary_key_part_count == 0 ? 1 :
 			 secondary_key_part_count) : secondary_prefix_count;
 		double prefix_rows;
-		if (estimate->prefix_rows(estimate->prefix_rows_ctx, index_id,
+		if (estimate->prefix_rows(estimate->stats_ctx, index_id,
 					  prefix_count, &prefix_rows) &&
 		    isfinite(prefix_rows) && prefix_rows >= 0) {
 			access_rows = prefix_rows;
 			double per_row = estimate->rows > 0 ?
 				estimate->total_cost / estimate->rows : 1;
 			access_cost = estimate->startup_cost + prefix_rows * per_row;
+		}
+	}
+	if (use_secondary_equality_scan && secondary_key_part_count == 0 &&
+	    estimate->point_mcv_rows != NULL) {
+		double mcv_rows;
+		if (estimate->point_mcv_rows(estimate->stats_ctx,
+			secondary_index_id, secondary_key_unsigned,
+			secondary_signed_key, secondary_unsigned_key, &mcv_rows) &&
+		    isfinite(mcv_rows) && mcv_rows >= 1) {
+			access_rows = mcv_rows;
+			double per_row = estimate->rows > 0 ?
+				estimate->total_cost / estimate->rows : 1;
+			access_cost = estimate->startup_cost + mcv_rows * per_row;
 		}
 	}
 	struct sql_plan_descriptor_input input = {

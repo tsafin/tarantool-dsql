@@ -52,7 +52,9 @@
 #include "sql_stats_snapshot.h"
 #include "sql.h"
 #include "box/index.h"
+#include "msgpuck.h"
 
+#include <math.h>
 #include <stdlib.h>
 
 /*
@@ -6316,6 +6318,7 @@ sql_select_emit_projection(void *context, uint32_t expression_ref,
 
 struct sql_select_prefix_estimate_context {
 	const struct sql_stats_snapshot *snapshot;
+	const struct space *space;
 	uint64_t schema_version;
 	uint32_t space_id;
 };
@@ -6328,6 +6331,44 @@ sql_select_prefix_rows(void *ctx, uint32_t index_id, uint32_t prefix_count,
 	return sql_stats_snapshot_estimate_index_prefix_rows(estimate->snapshot,
 		estimate->schema_version, estimate->space_id, index_id,
 		prefix_count, rows) == SQL_STATS_LOOKUP_AVAILABLE;
+}
+
+static bool
+sql_select_point_mcv_rows(void *ctx, uint32_t index_id, bool is_unsigned,
+			  int64_t signed_key, uint64_t unsigned_key, double *rows)
+{
+	const struct sql_select_prefix_estimate_context *estimate = ctx;
+	if (estimate->snapshot == NULL || estimate->space == NULL || rows == NULL)
+		return false;
+	const struct index_def *def = NULL;
+	for (uint32_t i = 1; i < estimate->space->index_count; ++i) {
+		const struct index *index = estimate->space->index_map[i];
+		if (index != NULL && index->def != NULL &&
+		    index->def->iid == index_id) {
+			def = index->def;
+			break;
+		}
+	}
+	if (def == NULL || def->opts.is_unique || def->key_def == NULL ||
+	    def->key_def->part_count != 1)
+		return false;
+	enum field_type type = def->key_def->parts[0].type;
+	if (type != (is_unsigned ? FIELD_TYPE_UNSIGNED : FIELD_TYPE_INTEGER))
+		return false;
+	char encoded[16];
+	char *end = is_unsigned ? mp_encode_uint(encoded, unsigned_key) :
+		signed_key >= 0 ? mp_encode_uint(encoded, (uint64_t)signed_key) :
+		mp_encode_int(encoded, signed_key);
+	double mcv_estimate, error;
+	if (sql_stats_snapshot_estimate_index_part_mcv_rows(
+		estimate->snapshot, estimate->schema_version, estimate->space_id,
+		index_id, 0, (uint8_t)type + 1, encoded, end - encoded,
+		&mcv_estimate, &error) != SQL_STATS_LOOKUP_AVAILABLE ||
+	    !isfinite(mcv_estimate) || !isfinite(error) || mcv_estimate < error)
+		return false;
+	double midpoint = mcv_estimate - error / 2;
+	*rows = midpoint < 1 ? 1 : midpoint;
+	return true;
 }
 
 /*
@@ -6393,6 +6434,7 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 	}
 	struct sql_select_prefix_estimate_context prefix_context = {
 		.snapshot = vdbe->stats_snapshot,
+		.space = space,
 		.schema_version = box_schema_version(),
 		.space_id = space->def->id,
 	};
@@ -6403,7 +6445,8 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		.row_width = 0,
 		.confidence = 0,
 		.prefix_rows = sql_select_prefix_rows,
-		.prefix_rows_ctx = &prefix_context,
+		.stats_ctx = &prefix_context,
+		.point_mcv_rows = sql_select_point_mcv_rows,
 	};
 	const struct sql_stats_relation *stats_relation = NULL;
 	if (sql_stats_snapshot_get_relation(vdbe->stats_snapshot,

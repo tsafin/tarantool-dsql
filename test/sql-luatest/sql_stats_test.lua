@@ -490,6 +490,57 @@ g.test_physical_scan_estimate_uses_fresh_snapshot = function()
     t.assert_equals(res.stale_prefix, res.baseline_prefix)
 end
 
+g.test_physical_secondary_point_uses_live_mcv = function()
+    local res = g.server:exec(function()
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
+            return {test_wrapper_unavailable = true}
+        end
+        adapter.clear()
+        box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+        box.execute([[CREATE TABLE sql_stats_physical_mcv_t
+                      (id INT PRIMARY KEY, a INT);]])
+        box.execute([[CREATE INDEX sql_stats_physical_mcv_ix
+                      ON sql_stats_physical_mcv_t (a);]])
+        box.execute([[INSERT INTO sql_stats_physical_mcv_t VALUES
+                      (1, 1), (2, 1), (3, 1), (4, 1),
+                      (5, 1), (6, 1), (7, 1), (8, 1),
+                      (9, 2), (10, 3), (11, 4);]])
+        local function plan(value)
+            return box.execute(('EXPLAIN QUERY PLAN SELECT id FROM ' ..
+                                'sql_stats_physical_mcv_t WHERE a = %d')
+                                :format(value)).rows[1][4]
+        end
+        local baseline_hot = plan(1)
+        box.execute('ANALYZE sql_stats_physical_mcv_t')
+        local hot = plan(1)
+        local tail = plan(2)
+        local route = box.execute([[EXPLAIN (planner = 'summary')
+                                   SELECT id FROM sql_stats_physical_mcv_t
+                                   WHERE a = 1]]).rows[1][3]
+        box.execute([[CREATE TABLE sql_stats_mcv_schema_bump_t
+                      (id INT PRIMARY KEY);]])
+        local stale_hot = plan(1)
+        adapter.clear()
+        box.execute([[DROP TABLE sql_stats_mcv_schema_bump_t;]])
+        box.execute([[DROP TABLE sql_stats_physical_mcv_t;]])
+        return {baseline_hot = baseline_hot, hot = hot, tail = tail,
+                stale_hot = stale_hot, route = route}
+    end)
+
+    if res.test_wrapper_unavailable then
+        t.skip('SQL stats live wrapper requires a TEST_BUILD server')
+    end
+    t.assert_equals(res.route, 'new_planner')
+    t.assert_str_contains(res.hot, '~8 rows')
+    t.assert_str_contains(res.tail, '~1 row')
+    t.assert_equals(res.stale_hot, res.baseline_hot)
+end
+
 g.test_prepared_statement_retains_stats_generation = function()
     local res = g.server:exec(function()
         local build_dir = os.getenv('BUILDDIR')
