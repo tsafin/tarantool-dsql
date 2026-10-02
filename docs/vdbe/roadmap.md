@@ -1472,7 +1472,8 @@ DML, triggers, subprograms, non-deterministic functions.
   equality-prefix scans and complete composite-key lookups. The original `IN` expression is retained
   as a residual for duplicate-hit correctness. A bounded one-part primary-key
   literal `IN` path now deep-copies up to 16 distinct INTEGER/UNSIGNED keys and
-  emits ordered `NotFound` seeks. Duplicate literals are removed. This first
+  emits ordered `NotFound` seeks. Duplicate literals are removed; NULL members
+  do not generate seeks, while all-NULL lists retain fallback (`6c2647c185`). This first
   multi-value form supports unordered SELECTs or `ORDER BY` on the primary key
   (ASC or DESC), plus literal LIMIT/OFFSET across the candidate set and
   zero-LIMIT seek suppression. A subsequent bounded extension accepts

@@ -60,7 +60,8 @@ M1 replay.
 The executable primary-key point descriptor can also own a bounded scalar
 INTEGER/UNSIGNED candidate set for literal `IN` lists (at most 16 distinct
 keys). Candidate values are deep-copied and emitted as ordered point seeks;
-duplicate literals are removed so a row is returned at most once. The current
+duplicate literals are removed so a row is returned at most once. Literal NULL
+members contribute no seek; all-NULL lists remain on fallback. The current
 producer admits only a one-part primary key, literal parseable values, and an
 optional `ORDER BY` on that primary key in one direction. Literal LIMIT/OFFSET
 is applied across the ordered candidate results; zero LIMIT avoids emitting
