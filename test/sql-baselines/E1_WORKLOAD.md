@@ -87,7 +87,10 @@ workload, metric thresholds, unacceptable regressions, and trade-off for any
 planner-time increase require review before collecting decision-grade results.
 
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
-`ANALYZE table`, not the reviewed M0 analytical corpus. Reconfigure and build
+`ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
+same-statistics report comparing the legacy route with the enabled M3 route;
+its `.planner.jsonl` contains only those two configurations so the strict
+provenance validator does not mix in `no-stats`. Reconfigure and build
 `tarantool` and
 `sql_stats_snapshot_test` from a clean SQL/test source tree, then capture:
 The runner refuses dirty SQL/test sources and verifies the binary's embedded
@@ -117,3 +120,14 @@ and tail equality after ANALYZE on memtx and Vinyl (versus 1.25 and 10 without
 statistics). This is focused smoke evidence, not reviewed-corpus q-error
 improvement or E1 acceptance; the workload is tiny and no acceptance threshold
 has been reviewed.
+
+The three-configuration run at source `8e49433dac` is
+`/tmp/e1-m3-current-8e49433dac.jsonl`. The same-statistics M3 comparison is
+`/tmp/e1-m3-current-8e49433dac.planner.report.json` (paired input:
+`/tmp/e1-m3-current-8e49433dac.planner.jsonl`). Legacy+ANALYZE and
+M3+ANALYZE each have median finite q-error 1.0 on both engines; ten memtx and
+five Vinyl measured empty-result executions per configuration have unbounded
+q-error. Paired median M3/legacy latency ratios are 1.52 on memtx and 1.57 on
+Vinyl, with median execution times 8/10.5 µs and 14/22 µs respectively.
+These tiny pilot timings are not latency acceptance evidence and do not
+justify a planner-width or route-default change.

@@ -1021,6 +1021,15 @@ format approval is implied.
   evidence that the live MCV route works, not reviewed-corpus improvement or a
   latency acceptance result. S1.9 remains open pending reviewed workload
   integration and an accepted q-error criterion. *parallel: yes*.
+  A three-configuration TEST_BUILD pilot at source `8e49433dac` now also
+  compares legacy+ANALYZE with the enabled M3 route under the same volatile
+  statistics generation. The 252-observation sidecar and both reports are at
+  `/tmp/e1-m3-current-8e49433dac*`; the same-stats planner report has equal
+  median finite q-error (1.0) on memtx and Vinyl, but paired median M3/legacy
+  latency ratios of 1.52 and 1.57. Ten memtx and five Vinyl measured empty
+  executions per configuration remain unbounded q-error. This tiny pilot is
+  not a reviewed M0 workload or E1/S1.9 acceptance result; production
+  thresholds and integrated stage coverage remain open.
 
 ---
 
