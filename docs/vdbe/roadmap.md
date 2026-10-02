@@ -1470,16 +1470,17 @@ DML, triggers, subprograms, non-deterministic functions.
   as a residual for duplicate-hit correctness. A bounded one-part primary-key
   literal `IN` path now deep-copies up to 16 distinct INTEGER/UNSIGNED keys and
   emits ordered `NotFound` seeks. Duplicate literals are removed. This first
-  multi-value form is limited to unordered SELECTs without LIMIT/OFFSET or
-  additional predicates; all other forms retain fallback. Off/on/off
+  multi-value form supports unordered SELECTs or `ORDER BY` on the primary key
+  (ASC or DESC), without LIMIT/OFFSET or additional predicates; all other forms
+  retain fallback. Off/on/off
   memtx/Vinyl coverage asserts primary and secondary point operators and pins
   multi-value primary `IN` result parity, duplicate suppression, misses, and
   route selection. The focused Debug
-  `planner_scalar_filter_test.lua` passes. On 2026-10-02 the focused
+  `planner_scalar_filter_test.lua` passes. On 2026-10-03 the focused
   all-producer matrix passed this fixture in generated, CnP, and LLVM modes on
-  memtx and Vinyl: 2,391 captured queries per case, with accepted component
-  ledgers (`/tmp/multi-in-producer-matrix/report.json`, source
-  `289f99125c`). This is focused fixture evidence, not full-corpus M3.4
+  memtx and Vinyl: 2,419 captured queries per case, with accepted component
+  ledgers (`/tmp/multi-in-ordered-producer-matrix/report.json`, source
+  `1a58fef88b`). This is focused fixture evidence, not full-corpus M3.4
   acceptance. A fresh producer
   matrix at source `ec6ebeaf0a` passes all 30 generated/CnP/LLVM × memtx/Vinyl
   fixture cases; report: `/tmp/m34-suffix-in-ec6ebeaf0a/report.json`. The new

@@ -62,8 +62,10 @@ INTEGER/UNSIGNED candidate set for literal `IN` lists (at most 16 distinct
 keys). Candidate values are deep-copied and emitted as ordered point seeks;
 duplicate literals are removed so a row is returned at most once. The current
 producer admits only a one-part primary key, literal parseable values, and an
-unordered SELECT with no LIMIT/OFFSET or additional predicates. Unsupported
-types, larger lists, and mixed shapes keep their existing fallback route.
+optional `ORDER BY` on that primary key in one direction, with no LIMIT/OFFSET
+or additional predicates. Candidates are walked in key order (or its inverse)
+to satisfy that order without a sorter. Unsupported types, larger lists, and
+mixed shapes keep their existing fallback route.
 
 M3.4 adds `sql_plan_lower()`, an ordered callback contract over a descriptor:
 scan, each residual filter, projection, each finalize operator (sort/limit),
