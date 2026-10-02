@@ -1490,6 +1490,10 @@ DML, triggers, subprograms, non-deterministic functions.
   passes all 30 generated/CnP/LLVM × memtx/Vinyl fixture cases, with 6,278
   captured queries per dispatcher mode and accepted component ledgers
   (`/tmp/m34-filtered-in-5bc85a1f2e/report.json`, source `5bc85a1f2e`).
+  Mixed NULL/key lists and indexed equality/range residuals are now pinned in
+  the same off/on/off fixture. A refreshed 30-case matrix at source
+  `0243f1f4d0` passes all modes and engines with 6,374 captured queries per
+  mode (`/tmp/m34-indexed-in-0243f1f4d0/report.json`).
   Before this extension, the focused all-producer matrix passed this fixture
   in generated, CnP, and LLVM modes on
   memtx and Vinyl: 2,443 captured queries per case, with accepted component
