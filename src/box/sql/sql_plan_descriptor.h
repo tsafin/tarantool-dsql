@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 #define SQL_PLAN_POINT_KEY_PART_MAX 255
+#define SQL_PLAN_PK_MULTI_VALUE_MAX 16
 #define SQL_PLAN_FILTER_MAX 8
 
 /* Internal, immutable descriptor for the M3.1 single-relation contract. */
@@ -77,6 +78,9 @@ struct sql_plan_access {
 	bool has_unsigned_point_key;
 	/* One-based SQL bind ordinal for a scalar primary-key point lookup. */
 	uint32_t point_key_variable;
+	/* Bounded scalar INTEGER/UNSIGNED primary-key IN-list point set. */
+	const struct sql_plan_point_key_part *point_key_values;
+	size_t point_key_value_count;
 	/* Multi-part integer/unsigned primary-key point lookup key. */
 	const struct sql_plan_point_key_part *point_key_parts;
 	size_t point_key_part_count;

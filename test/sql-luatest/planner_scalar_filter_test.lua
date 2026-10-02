@@ -803,8 +803,22 @@ g.test_non_primary_null_filters_off_on_off = function()
                           :format(comparison_name),
                     expected = {{2}, {3}},
                     unordered = true,
-                    enabled_route = 'fallback',
-                    enabled_reason = 'UNSUPPORTED_FILTER',
+                    expected_opcode = 'NotFound',
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (3, 2, 3, 99)')
+                          :format(comparison_name),
+                    expected = {{2}, {3}},
+                    unordered = true,
+                    expected_opcode = 'NotFound',
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (2, 2)')
+                          :format(comparison_name),
+                    expected = {{2}},
+                    enabled_route = 'new_planner',
                 },
                 {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b IN (11)')

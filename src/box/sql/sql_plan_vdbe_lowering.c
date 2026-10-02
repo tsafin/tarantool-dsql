@@ -96,8 +96,17 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 	if (input == NULL)
 		return -1;
 	bool composite_point = input->access.point_key_part_count != 0;
+	bool multi_point = input->access.point_key_value_count != 0;
 	if (input->path_class != SQL_PLAN_NEW_PLANNER ||
 	    input->access.kind != SQL_PLAN_PK_POINT_LOOKUP ||
+	    (multi_point &&
+	     (input->access.point_key_value_count == 0 ||
+	      input->access.point_key_value_count > SQL_PLAN_PK_MULTI_VALUE_MAX ||
+	      input->access.point_key_values == NULL || composite_point ||
+	      input->access.has_integer_point_key ||
+	      input->access.has_unsigned_point_key ||
+	      input->access.point_key_variable != 0 || input->filter_count != 0 ||
+	      input->finalize_count != 0)) ||
 	    (composite_point ?
 	     (input->access.has_integer_point_key ||
 	      input->access.has_unsigned_point_key ||
@@ -105,13 +114,13 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 	      input->access.point_key_parts == NULL ||
 	      input->access.point_key_part_count > INT_MAX ||
 	      input->access.bound_count != input->access.point_key_part_count) :
-	     ((input->access.point_key_variable == 0 &&
+	     (!multi_point && ((input->access.point_key_variable == 0 &&
 	       input->access.has_integer_point_key ==
 	       input->access.has_unsigned_point_key) ||
 	      (input->access.point_key_variable != 0 &&
 	       (input->access.has_integer_point_key ||
 		input->access.has_unsigned_point_key ||
-		input->access.point_key_variable > INT_MAX)))) ||
+		input->access.point_key_variable > INT_MAX))))) ||
 	    input->filter_count > SQL_PLAN_FILTER_MAX ||
 	    (input->filter_count != 0 && input->filters == NULL) ||
 	    input->finalize_count > 1 ||
@@ -140,6 +149,65 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
 			goto error;
 		sqlVdbeJumpHere(vdbe, skip);
+		vdbe_codegen_checkpoint_commit(&checkpoint);
+		return 0;
+	}
+	if (multi_point) {
+		if (parse->nMem == INT_MAX)
+			goto error;
+		int key_reg = ++parse->nMem;
+		for (size_t key_no = 0;
+		     key_no < input->access.point_key_value_count; ++key_no) {
+			const struct sql_plan_point_key_part *part =
+				&input->access.point_key_values[key_no];
+			int key_op;
+			if (part->is_unsigned) {
+				uint64_t key = part->unsigned_value;
+				if (key <= INT_MAX)
+					key_op = sqlVdbeAddOp2(vdbe, OP_Integer,
+							       (int)key, key_reg);
+				else
+					key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0,
+						key_reg, 0, (const u8 *)&key, P4_UINT64);
+			} else {
+				int64_t key = part->integer_value;
+				if (key >= INT_MIN && key <= INT_MAX)
+					key_op = sqlVdbeAddOp2(vdbe, OP_Integer,
+							       (int)key, key_reg);
+				else if (key < 0)
+					key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0,
+						key_reg, 0, (const u8 *)&key, P4_INT64);
+				else {
+					uint64_t value = (uint64_t)key;
+					key_op = sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0,
+						key_reg, 0, (const u8 *)&value, P4_UINT64);
+				}
+			}
+			if (key_op != vdbe->nOp - 1 || parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+			int miss = sqlVdbeAddOp4Int(vdbe, OP_NotFound, cursor, 0,
+						    key_reg, 1);
+			if (miss != vdbe->nOp - 1 || parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+			for (size_t i = 0; i < input->projection_column_count; ++i) {
+				uint32_t expr_ref = input->projection_expr_refs == NULL ? 0 :
+					input->projection_expr_refs[i];
+				if ((expr_ref == 0 && input->projection_columns[i] > INT_MAX) ||
+				    (expr_ref != 0 && projector == NULL) ||
+				    sql_plan_emit_projection(input, vdbe, parse, &checkpoint,
+					cursor, i, result_first_reg + (int)i, projector,
+					projector_ctx) != 0)
+					goto error;
+			}
+			int result = sqlVdbeAddOp2(vdbe, OP_ResultRow, result_first_reg,
+						    (int)input->projection_column_count);
+			if (result != vdbe->nOp - 1 || parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+			sqlVdbeJumpHere(vdbe, miss);
+		}
 		vdbe_codegen_checkpoint_commit(&checkpoint);
 		return 0;
 	}

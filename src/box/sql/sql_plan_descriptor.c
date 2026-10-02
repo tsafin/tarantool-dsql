@@ -11,6 +11,7 @@ struct sql_plan_descriptor {
 	char *space_name;
 	struct sql_plan_bound *bounds;
 	struct sql_plan_point_key_part *point_key_parts;
+	struct sql_plan_point_key_part *point_key_values;
 	struct sql_plan_point_key_part *prefix_key_parts;
 	uint32_t *access_columns, *projection_columns, *projection_expr_refs;
 	struct sql_plan_order_term *order;
@@ -102,7 +103,8 @@ free_descriptor(struct sql_plan_descriptor *d)
 	free(d->expressions); free(d->finalize); free(d->filters);
 	free(d->order); free(d->projection_expr_refs);
 	free(d->projection_columns); free(d->access_columns);
-	free(d->prefix_key_parts); free(d->point_key_parts); free(d->bounds);
+	free(d->prefix_key_parts); free(d->point_key_parts);
+	free(d->point_key_values); free(d->bounds);
 	free(d->space_name); free(d);
 }
 
@@ -126,6 +128,10 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 			 in->access.point_key_part_count,
 			 sizeof(*in->access.point_key_parts)) ||
 	    in->access.point_key_part_count > SQL_PLAN_POINT_KEY_PART_MAX ||
+	    !valid_array(in->access.point_key_values,
+			 in->access.point_key_value_count,
+			 sizeof(*in->access.point_key_values)) ||
+	    in->access.point_key_value_count > SQL_PLAN_PK_MULTI_VALUE_MAX ||
 	    !valid_array(in->access.prefix_key_parts,
 			 in->access.prefix_key_part_count,
 			 sizeof(*in->access.prefix_key_parts)) ||
@@ -158,22 +164,32 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 		    !has_expr(in, b->expr_ref)) return NULL;
 	}
 	if (in->access.kind == SQL_PLAN_PK_POINT_LOOKUP) {
+		bool has_multi_key = in->access.point_key_value_count != 0;
 		bool has_composite_key = in->access.point_key_part_count != 0;
-		if ((has_composite_key &&
-		     (in->access.has_integer_point_key ||
+		if (has_multi_key &&
+		    (has_composite_key || in->access.has_integer_point_key ||
 		      in->access.has_unsigned_point_key ||
 		      in->access.point_key_variable != 0 ||
-		      in->access.bound_count !=
-			in->access.point_key_part_count)) ||
-		    (!has_composite_key &&
-		     ((in->access.point_key_variable == 0 &&
-		       in->access.has_integer_point_key ==
-		       in->access.has_unsigned_point_key) ||
-		      (in->access.point_key_variable != 0 &&
-		       (in->access.has_integer_point_key ||
-			in->access.has_unsigned_point_key ||
-			in->access.point_key_variable > INT_MAX)) ||
-		      in->access.bound_count != 1)))
+		      in->access.point_key_values == NULL ||
+		      in->access.point_key_value_count == 0 ||
+		      in->access.bound_count != 0))
+			return NULL;
+		if (!has_multi_key && has_composite_key &&
+		    (in->access.has_integer_point_key ||
+		     in->access.has_unsigned_point_key ||
+		     in->access.point_key_variable != 0 ||
+		     in->access.bound_count !=
+			in->access.point_key_part_count))
+			return NULL;
+		if (!has_multi_key && !has_composite_key &&
+		    ((in->access.point_key_variable == 0 &&
+		      in->access.has_integer_point_key ==
+		      in->access.has_unsigned_point_key) ||
+		     (in->access.point_key_variable != 0 &&
+		      (in->access.has_integer_point_key ||
+		       in->access.has_unsigned_point_key ||
+		       in->access.point_key_variable > INT_MAX)) ||
+		     in->access.bound_count != 1))
 			return NULL;
 		for (size_t i = 0; i < in->access.bound_count; ++i)
 			if (in->access.bounds[i].op != SQL_PLAN_EQ)
@@ -209,6 +225,9 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	if (in->access.kind != SQL_PLAN_PK_POINT_LOOKUP &&
 	    in->access.kind != SQL_PLAN_INDEX_EQUALITY_SCAN &&
 	    in->access.point_key_part_count != 0)
+		return NULL;
+	if (in->access.kind != SQL_PLAN_PK_POINT_LOOKUP &&
+	    in->access.point_key_value_count != 0)
 		return NULL;
 	if (in->access.kind != SQL_PLAN_PK_POINT_LOOKUP &&
 	    in->access.point_key_variable != 0)
@@ -451,6 +470,9 @@ sql_plan_descriptor_new(const struct sql_plan_descriptor_input *in)
 	COPY_FIELD(d->point_key_parts, in->access.point_key_parts,
 		   in->access.point_key_part_count);
 	d->value.access.point_key_parts = d->point_key_parts;
+	COPY_FIELD(d->point_key_values, in->access.point_key_values,
+		   in->access.point_key_value_count);
+	d->value.access.point_key_values = d->point_key_values;
 	COPY_FIELD(d->prefix_key_parts, in->access.prefix_key_parts,
 		   in->access.prefix_key_part_count);
 	d->value.access.prefix_key_parts = d->prefix_key_parts;

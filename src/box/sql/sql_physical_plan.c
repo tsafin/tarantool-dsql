@@ -530,6 +530,7 @@ sql_physical_table_scan_from_select(
 		return NULL;
 	}
 	bool has_point_key = false;
+	bool has_multi_point_key = false;
 	bool has_range_key = false;
 	bool has_range_end_key = false;
 	bool primary_key_not_null = false;
@@ -587,6 +588,9 @@ sql_physical_table_scan_from_select(
 	size_t secondary_key_part_count = 0;
 	struct sql_plan_point_key_part composite_point_parts[
 		SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+	struct sql_plan_point_key_part multi_point_values[
+		SQL_PLAN_PK_MULTI_VALUE_MAX] = {{0}};
+	size_t multi_point_count = 0;
 	size_t composite_point_count = 0;
 	bool has_composite_point = false;
 	bool has_prefix_scan = false;
@@ -697,6 +701,72 @@ sql_physical_table_scan_from_select(
 							 EP_xIsSelect) &&
 					term->x.pList->a[0].pExpr != NULL;
 				bool normalized_singleton_in = false;
+				if (is_pk_column && !has_multi_point_key &&
+				    pk->part_count == 1 && term_count == 1 &&
+				    select->pOrderBy == NULL && select->pLimit == NULL &&
+				    select->pOffset == NULL && term->x.pList != NULL &&
+				    term->x.pList->nExpr >= 2 &&
+				    term->x.pList->nExpr <= SQL_PLAN_PK_MULTI_VALUE_MAX &&
+				    !ExprHasProperty(term, EP_TokenOnly | EP_Reduced |
+						     EP_xIsSelect)) {
+					bool is_unsigned = pk->parts[0].type ==
+						FIELD_TYPE_UNSIGNED;
+					if (!is_unsigned && pk->parts[0].type !=
+					    FIELD_TYPE_INTEGER)
+						goto invalid_predicate;
+					for (int value_no = 0;
+					     value_no < term->x.pList->nExpr; ++value_no) {
+						struct Expr equality = {
+							.op = TK_EQ,
+							.pLeft = term->pLeft,
+							.pRight = term->x.pList->a[value_no].pExpr,
+						};
+						struct parsed_pk_bound parsed;
+						if (equality.pRight == NULL ||
+						    !parse_pk_bound(&equality, source->iCursor,
+							pk->parts[0].fieldno, is_unsigned,
+							&parsed) || parsed.op != SQL_PLAN_EQ ||
+						    parsed.is_unsigned != is_unsigned)
+							goto invalid_predicate;
+						bool duplicate = false;
+						for (size_t i = 0; i < multi_point_count; ++i)
+							duplicate |= is_unsigned ?
+								multi_point_values[i].unsigned_value ==
+								parsed.unsigned_key :
+								multi_point_values[i].integer_value ==
+								parsed.signed_key;
+						if (duplicate)
+							continue;
+						multi_point_values[multi_point_count++] =
+							(struct sql_plan_point_key_part) {
+								.column = pk->parts[0].fieldno,
+								.is_unsigned = is_unsigned,
+								.integer_value = parsed.signed_key,
+								.unsigned_value = parsed.unsigned_key,
+							};
+					}
+					if (multi_point_count == 0)
+						goto invalid_predicate;
+					/* Keep seeks in key order, and make the descriptor's
+					 * result order deterministic for unordered IN queries. */
+					for (size_t i = 1; i < multi_point_count; ++i) {
+						struct sql_plan_point_key_part value =
+							multi_point_values[i];
+						size_t j = i;
+						while (j > 0 && (is_unsigned ?
+						       multi_point_values[j - 1].unsigned_value >
+						       value.unsigned_value :
+						       multi_point_values[j - 1].integer_value >
+						       value.integer_value)) {
+							multi_point_values[j] =
+								multi_point_values[j - 1];
+							--j;
+						}
+						multi_point_values[j] = value;
+					}
+						has_multi_point_key = has_point_key = true;
+					continue;
+				}
 				if (singleton_in && expr_count <
 				    SQL_PLAN_POINT_KEY_PART_MAX) {
 					struct Expr *equality = &between_bounds[expr_count];
@@ -1562,7 +1632,8 @@ sql_physical_table_scan_from_select(
 		}
 		expr_count = bound_count;
 		if (expr_count == 0 && filter_count == 0 &&
-		    !primary_key_not_null && !has_secondary_equality_scan &&
+		    !has_point_key && !primary_key_not_null &&
+		    !has_secondary_equality_scan &&
 		    !has_secondary_range_scan && !has_secondary_prefix_scan)
 			goto invalid_predicate;
 		if (expr_count == 0)
@@ -1879,6 +1950,10 @@ sql_physical_table_scan_from_select(
 		}
 		if (filter_count != 0 && has_point_key &&
 		    !has_composite_point && pk->part_count != 1)
+			goto invalid_predicate;
+		if (has_multi_point_key &&
+		    (filter_count != 0 || expr_count != 0 || select->pOrderBy != NULL ||
+		     select->pLimit != NULL || select->pOffset != NULL))
 			goto invalid_predicate;
 	}
 	goto predicate_parsed;
@@ -2723,13 +2798,15 @@ predicate_parsed:
 				composite_point_bounds :
 				has_point_key || has_range_key ||
 				use_secondary_equality_scan ? point_bounds : NULL,
-			.bound_count = has_composite_point || has_prefix_scan ||
+			.bound_count = has_multi_point_key ? 0 :
+				has_composite_point || has_prefix_scan ||
 				secondary_composite || secondary_prefix_composite ||
 				secondary_range_composite ?
 				composite_bound_count :
 				has_range_key ? (has_range_end_key ? 2 : 1) :
 				has_point_key || use_secondary_equality_scan ? 1 : 0,
 			.has_integer_point_key = (has_point_key &&
+				!has_multi_point_key &&
 				!has_composite_point && !unsigned_point &&
 				point_key_variable == 0) ||
 				(use_secondary_equality_scan && !secondary_composite &&
@@ -2737,6 +2814,7 @@ predicate_parsed:
 			.integer_point_key = use_secondary_equality_scan ?
 				secondary_signed_key : point_key,
 			.has_unsigned_point_key = (has_point_key &&
+				!has_multi_point_key &&
 				!has_composite_point && unsigned_point &&
 				point_key_variable == 0) ||
 				(use_secondary_equality_scan && !secondary_composite &&
@@ -2744,6 +2822,9 @@ predicate_parsed:
 			.unsigned_point_key = use_secondary_equality_scan ?
 				secondary_unsigned_key : unsigned_point_key,
 			.point_key_variable = point_key_variable,
+			.point_key_values = has_multi_point_key ? multi_point_values : NULL,
+			.point_key_value_count = has_multi_point_key ?
+				multi_point_count : 0,
 			.point_key_parts = has_composite_point ?
 				composite_point_parts : secondary_composite ?
 				secondary_key_parts : NULL,
@@ -2779,7 +2860,8 @@ predicate_parsed:
 			.produced_order_count = order_term_count,
 			.projected_columns = columns,
 			.projected_column_count = select->pEList->nExpr,
-			.est_rows = has_point_key || use_secondary_equality_scan ? 1 :
+			.est_rows = has_multi_point_key ? multi_point_count :
+				has_point_key || use_secondary_equality_scan ? 1 :
 				has_range_key ?
 				estimate->rows / 2 : estimate->rows,
 			.est_rows_confidence = estimate->confidence,
@@ -2792,10 +2874,12 @@ predicate_parsed:
 		.expressions = expression_count == 0 ? NULL : expressions,
 		.expression_count = expression_count,
 		.cost_startup = estimate->startup_cost,
-		.cost_total = has_point_key || use_secondary_equality_scan ? 1 :
+		.cost_total = has_multi_point_key ? multi_point_count :
+			has_point_key || use_secondary_equality_scan ? 1 :
 			has_range_key ?
 			estimate->total_cost / 2 : estimate->total_cost,
-		.cost_rows = has_point_key || use_secondary_equality_scan ? 1 :
+		.cost_rows = has_multi_point_key ? multi_point_count :
+			has_point_key || use_secondary_equality_scan ? 1 :
 			has_range_key ?
 			estimate->rows / 2 : estimate->rows,
 		.cost_row_width = estimate->row_width,
