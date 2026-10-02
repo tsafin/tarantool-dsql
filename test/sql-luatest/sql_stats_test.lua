@@ -429,6 +429,46 @@ g.test_snapshot_estimate_adapter = function()
     t.assert_equals(res.rows, {{1}, {2}, {3}})
 end
 
+g.test_physical_scan_estimate_uses_fresh_snapshot = function()
+    local res = g.server:exec(function()
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
+            return {test_wrapper_unavailable = true}
+        end
+        adapter.clear()
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+        box.execute([[CREATE TABLE sql_stats_physical_cost_t
+                      (id INT PRIMARY KEY);]])
+        box.execute([[INSERT INTO sql_stats_physical_cost_t VALUES
+                      (1), (2), (3), (4);]])
+        local space = box.space.sql_stats_physical_cost_t
+        local function plan()
+            return box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                 sql_stats_physical_cost_t]]).rows[1][4]
+        end
+        local baseline = plan()
+        adapter.install(space.id, space.index[0].id, 32, 32, 0, false, 101)
+        local fresh = plan()
+        adapter.install(space.id, space.index[0].id, 64, 64, 0, true, 102)
+        local stale = plan()
+        adapter.clear()
+        box.execute([[DROP TABLE sql_stats_physical_cost_t;]])
+        return {baseline = baseline, fresh = fresh, stale = stale}
+    end)
+
+    if res.test_wrapper_unavailable then
+        t.skip('SQL stats live wrapper requires a TEST_BUILD server')
+    end
+    t.assert_str_contains(res.baseline, '~4 rows')
+    t.assert_str_contains(res.fresh, '~32 rows')
+    t.assert_str_contains(res.stale, '~4 rows')
+end
+
 g.test_prepared_statement_retains_stats_generation = function()
     local res = g.server:exec(function()
         local build_dir = os.getenv('BUILDDIR')

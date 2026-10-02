@@ -6382,6 +6382,17 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		.row_width = 0,
 		.confidence = 0,
 	};
+	const struct sql_stats_relation *stats_relation = NULL;
+	if (sql_stats_snapshot_get_relation(vdbe->stats_snapshot,
+					    box_schema_version(), space->def->id,
+					    &stats_relation) == SQL_STATS_LOOKUP_AVAILABLE) {
+		/* Use the statement-pinned generation. Missing or stale statistics
+		 * leave the storage-layer population estimate unchanged. */
+		estimate.rows = sql_stats_relation_row_count(stats_relation);
+		estimate.total_cost = estimate.rows;
+		estimate.row_width = sql_stats_relation_average_row_width(stats_relation);
+		estimate.confidence = sql_stats_relation_confidence(stats_relation);
+	}
 	enum sql_physical_reject_reason reason;
 	struct sql_plan_descriptor *plan =
 		sql_physical_table_scan_from_select(select, &estimate, &reason);
