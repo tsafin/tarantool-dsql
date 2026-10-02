@@ -10,6 +10,7 @@ new-planner+ANALYZE configurations.
 
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -63,10 +64,12 @@ def main(argv=None):
             parser.error(f"required TEST_BUILD artifact is missing: {path}")
     output = args.out.resolve()
     report = (args.report or output.with_suffix(".report.json")).resolve()
+    planner_observations = output.with_suffix(".planner.jsonl")
     planner_report = (args.planner_report or
                       output.with_suffix(".planner.report.json")).resolve()
-    if len({output, report, planner_report}) != 3 or any(
-            path.exists() for path in (output, report, planner_report)):
+    artifacts = (output, report, planner_observations, planner_report)
+    if len(set(artifacts)) != len(artifacts) or any(
+            path.exists() for path in artifacts):
         parser.error("output and report paths must be distinct and not exist")
 
     # Refuse to label a dirty SQL/test implementation with only HEAD's commit.
@@ -124,18 +127,34 @@ def main(argv=None):
     if not output.is_file() or output.stat().st_size == 0:
         parser.error("live SQL test completed without producing observations")
 
+    # Keep the analyzer strict: the no-stats row has a different statistics
+    # generation and must not enter the same-statistics planner comparison.
+    selected = {"live-analyze", "new-planner-stats"}
+    counts = {name: 0 for name in selected}
+    with output.open(encoding="utf-8") as source, \
+            planner_observations.open("x", encoding="utf-8") as target:
+        for line in source:
+            row = json.loads(line)
+            configuration = row["configuration"]
+            if configuration in selected:
+                target.write(line)
+                counts[configuration] += 1
+    if not all(counts.values()):
+        parser.error(f"missing planner comparison observations: {counts}")
+
     analyzer = [sys.executable, "-B", str(ROOT / "test/sql-baselines/e1_measure.py"),
                 str(output), "--baseline", "no-stats", "--candidate",
                 "live-analyze", "--allow-statistics-change", "--out", str(report)]
     subprocess.run(analyzer, cwd=ROOT, check=True)
     planner_analyzer = [
         sys.executable, "-B", str(ROOT / "test/sql-baselines/e1_measure.py"),
-        str(output), "--baseline", "live-analyze", "--candidate",
+        str(planner_observations), "--baseline", "live-analyze", "--candidate",
         "new-planner-stats", "--out", str(planner_report),
     ]
     subprocess.run(planner_analyzer, cwd=ROOT, check=True)
     print(f"observations: {output}")
     print(f"report: {report}")
+    print(f"planner observations: {planner_observations}")
     print(f"planner report: {planner_report}")
 
 
