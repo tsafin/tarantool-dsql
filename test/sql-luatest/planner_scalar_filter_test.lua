@@ -872,6 +872,18 @@ g.test_non_primary_null_filters_off_on_off = function()
                 },
                 {
                     sql = ('SELECT id FROM %s WHERE id IN (2, 3, 4) ' ..
+                           'AND k = 7'):format(comparison_name),
+                    expected = {{2}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (2, 3, 4) ' ..
+                           'AND k > 7'):format(comparison_name),
+                    expected = {{3}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (2, 3, 4) ' ..
                            'AND s IS NULL'):format(comparison_name),
                     expected = {{4}},
                     enabled_route = 'new_planner',
