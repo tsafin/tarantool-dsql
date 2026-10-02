@@ -1485,8 +1485,10 @@ DML, triggers, subprograms, non-deterministic functions.
   route selection. The focused Debug `planner_scalar_filter_test.lua` passes
   with non-key equality and NULL residuals, plus descending
   ORDER BY with LIMIT/OFFSET after filtering, on memtx and Vinyl. The Debug
-  VDBE unit passes all 91 assertions. The wider producer matrix below predates
-  the residual-filter extension and has not yet been rerun at this source.
+  VDBE unit passes all 91 assertions. The post-extension all-producer matrix
+  passes all 30 generated/CnP/LLVM × memtx/Vinyl fixture cases, with 6,278
+  captured queries per dispatcher mode and accepted component ledgers
+  (`/tmp/m34-filtered-in-5bc85a1f2e/report.json`, source `5bc85a1f2e`).
   Before this extension, the focused all-producer matrix passed this fixture
   in generated, CnP, and LLVM modes on
   memtx and Vinyl: 2,443 captured queries per case, with accepted component
