@@ -454,6 +454,9 @@ g.test_physical_scan_estimate_uses_fresh_snapshot = function()
                                  sql_stats_physical_cost_t]]).rows[1][4]
         end
         local baseline = plan()
+        local baseline_prefix = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                             sql_stats_physical_cost_t
+                                             WHERE a = 1]]).rows[1][4]
         adapter.install(space.id, space.index[0].id, 32, 32, 0, false, 101)
         local fresh = plan()
         adapter.install(space.id, space.index.sql_stats_physical_cost_ix.id,
@@ -466,10 +469,14 @@ g.test_physical_scan_estimate_uses_fresh_snapshot = function()
                                           WHERE a = 1]]).rows[1][3]
         adapter.install(space.id, space.index[0].id, 64, 64, 0, true, 102)
         local stale = plan()
+        local stale_prefix = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                          sql_stats_physical_cost_t
+                                          WHERE a = 1]]).rows[1][4]
         adapter.clear()
         box.execute([[DROP TABLE sql_stats_physical_cost_t;]])
-        return {baseline = baseline, fresh = fresh, prefix = prefix,
-                prefix_route = prefix_route, stale = stale}
+        return {baseline = baseline, baseline_prefix = baseline_prefix,
+                fresh = fresh, prefix = prefix, prefix_route = prefix_route,
+                stale = stale, stale_prefix = stale_prefix}
     end)
 
     if res.test_wrapper_unavailable then
@@ -480,6 +487,7 @@ g.test_physical_scan_estimate_uses_fresh_snapshot = function()
     t.assert_str_contains(res.prefix, '~8 rows')
     t.assert_equals(res.prefix_route, 'new_planner')
     t.assert_str_contains(res.stale, '~4 rows')
+    t.assert_equals(res.stale_prefix, res.baseline_prefix)
 end
 
 g.test_prepared_statement_retains_stats_generation = function()
