@@ -1475,7 +1475,12 @@ DML, triggers, subprograms, non-deterministic functions.
   memtx/Vinyl coverage asserts primary and secondary point operators and pins
   multi-value primary `IN` result parity, duplicate suppression, misses, and
   route selection. The focused Debug
-  `planner_scalar_filter_test.lua` passes. A fresh producer
+  `planner_scalar_filter_test.lua` passes. On 2026-10-02 the focused
+  all-producer matrix passed this fixture in generated, CnP, and LLVM modes on
+  memtx and Vinyl: 2,391 captured queries per case, with accepted component
+  ledgers (`/tmp/multi-in-producer-matrix/report.json`, source
+  `289f99125c`). This is focused fixture evidence, not full-corpus M3.4
+  acceptance. A fresh producer
   matrix at source `ec6ebeaf0a` passes all 30 generated/CnP/LLVM × memtx/Vinyl
   fixture cases; report: `/tmp/m34-suffix-in-ec6ebeaf0a/report.json`. The new
   regression pins `x = 7 AND y IN (10) AND z = 3` to the composite `(x,y,z)`
