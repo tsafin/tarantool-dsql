@@ -64,7 +64,10 @@ duplicate literals are removed so a row is returned at most once. The current
 producer admits only a one-part primary key, literal parseable values, and an
 optional `ORDER BY` on that primary key in one direction. Literal LIMIT/OFFSET
 is applied across the ordered candidate results; zero LIMIT avoids emitting
-the seeks. Additional predicates remain unsupported. Candidates are walked in
+the seeks. Supported non-key predicates are evaluated as residual filters for
+each fetched tuple before OFFSET, LIMIT, and projection; expression-column
+caches are cleared between seeks. Additional primary-key bounds and other
+unsupported predicate shapes still fall back. Candidates are walked in
 key order (or its inverse) to satisfy ordering without a sorter. Unsupported
 types, larger lists, and mixed shapes keep their existing fallback route.
 

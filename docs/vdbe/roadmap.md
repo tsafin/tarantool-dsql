@@ -1475,13 +1475,20 @@ DML, triggers, subprograms, non-deterministic functions.
   emits ordered `NotFound` seeks. Duplicate literals are removed. This first
   multi-value form supports unordered SELECTs or `ORDER BY` on the primary key
   (ASC or DESC), plus literal LIMIT/OFFSET across the candidate set and
-  zero-LIMIT seek suppression, without additional predicates; all other forms
-  retain fallback. Off/on/off
+  zero-LIMIT seek suppression. A subsequent bounded extension accepts
+  supported non-key residual predicates, evaluates them before offset and
+  limit accounting, and clears expression-column caches between seeks
+  (`2e36a2819a`). A conflicting additional primary-key bound remains on
+  fallback; other unsupported forms also retain fallback. Off/on/off
   memtx/Vinyl coverage asserts primary and secondary point operators and pins
   multi-value primary `IN` result parity, duplicate suppression, misses, and
-  route selection. The focused Debug
-  `planner_scalar_filter_test.lua` passes. On 2026-10-03 the focused
-  all-producer matrix passed this fixture in generated, CnP, and LLVM modes on
+  route selection. The focused Debug `planner_scalar_filter_test.lua` passes
+  with non-key equality and NULL residuals, plus descending
+  ORDER BY with LIMIT/OFFSET after filtering, on memtx and Vinyl. The Debug
+  VDBE unit passes all 91 assertions. The wider producer matrix below predates
+  the residual-filter extension and has not yet been rerun at this source.
+  Before this extension, the focused all-producer matrix passed this fixture
+  in generated, CnP, and LLVM modes on
   memtx and Vinyl: 2,443 captured queries per case, with accepted component
   ledgers (`/tmp/multi-in-limit-producer-matrix/report.json`, source
   `a76ae4f71a`). The VDBE unit now has 91 assertions, including multi-candidate
