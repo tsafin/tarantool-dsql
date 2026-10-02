@@ -379,6 +379,10 @@ g.test_snapshot_estimate_adapter = function()
             box.execute('ANALYZE sql_stats_skew_t')
             box.execute('ANALYZE sql_stats_skew_vinyl_t')
             capture_e1_observations('live-analyze', 'volatile-analyze-v1')
+            box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+            capture_e1_observations('new-planner-stats',
+                                    'volatile-analyze-v1')
+            box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
         end
         local rows = box.execute([[SELECT id FROM sql_stats_adapter_t
                                    WHERE a = 1;]]).rows

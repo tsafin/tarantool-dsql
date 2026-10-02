@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Capture a stage-matched live SQL ANALYZE comparison.
+"""Capture stage-matched ANALYZE and planner-route comparisons.
 
 This is an S1.9 pilot producer, not the reviewed M0 analytical workload. It
 executes the TEST_BUILD volatile ANALYZE fixture in sql_stats_test.lua and
 records planner estimates and actual SELECT output cardinalities for fourteen
-prepared single-table predicates.
+prepared single-table predicates under no statistics, legacy+ANALYZE, and
+new-planner+ANALYZE configurations.
 """
 
 import argparse
@@ -48,6 +49,9 @@ def main(argv=None):
                         help="new JSONL output path (must not already exist)")
     parser.add_argument("--report", type=Path,
                         help="analyzer report path (default: OUT.report.json)")
+    parser.add_argument("--planner-report", type=Path,
+                        help="same-stats planner report path "
+                             "(default: OUT.planner.report.json)")
     args = parser.parse_args(argv)
 
     build_dir = args.build_dir.resolve()
@@ -59,8 +63,11 @@ def main(argv=None):
             parser.error(f"required TEST_BUILD artifact is missing: {path}")
     output = args.out.resolve()
     report = (args.report or output.with_suffix(".report.json")).resolve()
-    if output.exists() or report.exists():
-        parser.error("output and report paths must not already exist")
+    planner_report = (args.planner_report or
+                      output.with_suffix(".planner.report.json")).resolve()
+    if len({output, report, planner_report}) != 3 or any(
+            path.exists() for path in (output, report, planner_report)):
+        parser.error("output and report paths must be distinct and not exist")
 
     # Refuse to label a dirty SQL/test implementation with only HEAD's commit.
     changed = subprocess.run(
@@ -83,6 +90,7 @@ def main(argv=None):
     data_sha256 = hashlib.sha256(FIXTURE_MATERIAL).hexdigest()
     output.parent.mkdir(parents=True, exist_ok=True)
     report.parent.mkdir(parents=True, exist_ok=True)
+    planner_report.parent.mkdir(parents=True, exist_ok=True)
 
     env = os.environ.copy()
     env.update({
@@ -120,8 +128,15 @@ def main(argv=None):
                 str(output), "--baseline", "no-stats", "--candidate",
                 "live-analyze", "--allow-statistics-change", "--out", str(report)]
     subprocess.run(analyzer, cwd=ROOT, check=True)
+    planner_analyzer = [
+        sys.executable, "-B", str(ROOT / "test/sql-baselines/e1_measure.py"),
+        str(output), "--baseline", "live-analyze", "--candidate",
+        "new-planner-stats", "--out", str(planner_report),
+    ]
+    subprocess.run(planner_analyzer, cwd=ROOT, check=True)
     print(f"observations: {output}")
     print(f"report: {report}")
+    print(f"planner report: {planner_report}")
 
 
 if __name__ == "__main__":
