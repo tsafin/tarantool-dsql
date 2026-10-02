@@ -821,6 +821,23 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE id IN (3, 2, 3) ' ..
+                           'ORDER BY id ASC'):format(comparison_name),
+                    expected = {{2}, {3}},
+                    expected_order_column = 1,
+                    expected_opcode = 'NotFound',
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (2, 3) ' ..
+                           'ORDER BY id DESC'):format(comparison_name),
+                    expected = {{3}, {2}},
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    expected_opcode = 'NotFound',
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b IN (11)')
                           :format(composite_name),
                     expected = {{1, 11}},

@@ -158,8 +158,10 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 		int key_reg = ++parse->nMem;
 		for (size_t key_no = 0;
 		     key_no < input->access.point_key_value_count; ++key_no) {
+			size_t value_no = input->access.direction == SQL_PLAN_DESC ?
+				input->access.point_key_value_count - key_no - 1 : key_no;
 			const struct sql_plan_point_key_part *part =
-				&input->access.point_key_values[key_no];
+				&input->access.point_key_values[value_no];
 			int key_op;
 			if (part->is_unsigned) {
 				uint64_t key = part->unsigned_value;
