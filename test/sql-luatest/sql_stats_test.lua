@@ -507,33 +507,70 @@ g.test_physical_secondary_point_uses_live_mcv = function()
         adapter.clear()
         box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
         box.execute([[CREATE TABLE sql_stats_physical_mcv_t
-                      (id INT PRIMARY KEY, a INT);]])
+                      (id INT PRIMARY KEY, a INT, b INT);]])
         box.execute([[CREATE INDEX sql_stats_physical_mcv_ix
                       ON sql_stats_physical_mcv_t (a);]])
+        box.execute([[CREATE INDEX sql_stats_physical_mcv_b_ix
+                      ON sql_stats_physical_mcv_t (b);]])
         box.execute([[INSERT INTO sql_stats_physical_mcv_t VALUES
-                      (1, 1), (2, 1), (3, 1), (4, 1),
-                      (5, 1), (6, 1), (7, 1), (8, 1),
-                      (9, 2), (10, 3), (11, 4);]])
+                      (1, 1, 1), (2, 1, 0), (3, 1, 0), (4, 1, 0),
+                      (5, 1, 0), (6, 1, 0), (7, 1, 0), (8, 1, 0),
+                      (9, 2, 0), (10, 3, 0), (11, 4, 0);]])
         local function plan(value)
             return box.execute(('EXPLAIN QUERY PLAN SELECT id FROM ' ..
                                 'sql_stats_physical_mcv_t WHERE a = %d')
                                 :format(value)).rows[1][4]
         end
         local baseline_hot = plan(1)
+        local baseline_ab = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                         sql_stats_physical_mcv_t
+                                         WHERE a = 1 AND b = 1]]).rows[1][4]
+        local space = box.space.sql_stats_physical_mcv_t
+        adapter.install(space.id, space.index.sql_stats_physical_mcv_ix.id,
+                        11, 11, 4, false, 103)
+        local partial_ab = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                        sql_stats_physical_mcv_t
+                                        WHERE a = 1 AND b = 1]]).rows[1][4]
+        adapter.clear()
         box.execute('ANALYZE sql_stats_physical_mcv_t')
         local hot = plan(1)
         local tail = plan(2)
         local route = box.execute([[EXPLAIN (planner = 'summary')
                                    SELECT id FROM sql_stats_physical_mcv_t
                                    WHERE a = 1]]).rows[1][3]
+        local selective_index = 'sql_stats_physical_mcv_b_ix'
+        local ab = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                sql_stats_physical_mcv_t
+                                WHERE a = 1 AND b = 1]]).rows[1][4]
+        local ba = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                sql_stats_physical_mcv_t
+                                WHERE b = 1 AND a = 1]]).rows[1][4]
+        local ab_route = box.execute([[EXPLAIN (planner = 'summary')
+                                      SELECT id FROM sql_stats_physical_mcv_t
+                                      WHERE a = 1 AND b = 1]]).rows[1][3]
+        local ba_route = box.execute([[EXPLAIN (planner = 'summary')
+                                      SELECT id FROM sql_stats_physical_mcv_t
+                                      WHERE b = 1 AND a = 1]]).rows[1][3]
+        local ab_rows = box.execute([[SELECT id FROM sql_stats_physical_mcv_t
+                                     WHERE a = 1 AND b = 1]]).rows
+        local ba_rows = box.execute([[SELECT id FROM sql_stats_physical_mcv_t
+                                     WHERE b = 1 AND a = 1]]).rows
         box.execute([[CREATE TABLE sql_stats_mcv_schema_bump_t
                       (id INT PRIMARY KEY);]])
         local stale_hot = plan(1)
+        local stale_ab = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                      sql_stats_physical_mcv_t
+                                      WHERE a = 1 AND b = 1]]).rows[1][4]
         adapter.clear()
         box.execute([[DROP TABLE sql_stats_mcv_schema_bump_t;]])
         box.execute([[DROP TABLE sql_stats_physical_mcv_t;]])
         return {baseline_hot = baseline_hot, hot = hot, tail = tail,
-                stale_hot = stale_hot, route = route}
+                stale_hot = stale_hot, route = route,
+                ab = ab, ba = ba, ab_rows = ab_rows, ba_rows = ba_rows,
+                ab_route = ab_route, ba_route = ba_route,
+                baseline_ab = baseline_ab, stale_ab = stale_ab,
+                partial_ab = partial_ab,
+                selective_index = selective_index}
     end)
 
     if res.test_wrapper_unavailable then
@@ -543,6 +580,15 @@ g.test_physical_secondary_point_uses_live_mcv = function()
     t.assert_str_contains(res.hot, '~8 rows')
     t.assert_str_contains(res.tail, '~1 row')
     t.assert_equals(res.stale_hot, res.baseline_hot)
+    t.assert_equals(res.stale_ab, res.baseline_ab)
+    t.assert_equals(res.partial_ab:match('INDEX ([^ ]+)'),
+                    res.baseline_ab:match('INDEX ([^ ]+)'))
+    t.assert_str_contains(res.ab, res.selective_index)
+    t.assert_str_contains(res.ba, res.selective_index)
+    t.assert_equals(res.ab_route, 'new_planner')
+    t.assert_equals(res.ba_route, 'new_planner')
+    t.assert_equals(res.ab_rows, {{1}})
+    t.assert_equals(res.ba_rows, {{1}})
 end
 
 g.test_prepared_statement_retains_stats_generation = function()

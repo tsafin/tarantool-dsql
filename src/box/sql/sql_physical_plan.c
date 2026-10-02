@@ -13,6 +13,22 @@
 #include "box/key_def.h"
 #include "box/space.h"
 
+static bool
+estimate_secondary_scalar_rows(
+	const struct sql_physical_table_scan_estimate *estimate,
+	uint32_t index_id, bool is_unsigned, int64_t signed_key,
+	uint64_t unsigned_key, double *rows)
+{
+	if (estimate->point_mcv_rows != NULL &&
+	    estimate->point_mcv_rows(estimate->stats_ctx, index_id, is_unsigned,
+				     signed_key, unsigned_key, rows) &&
+	    isfinite(*rows) && *rows >= 1)
+		return true;
+	return estimate->prefix_rows != NULL &&
+		estimate->prefix_rows(estimate->stats_ctx, index_id, 1, rows) &&
+		isfinite(*rows) && *rows >= 0;
+}
+
 static const struct sql_logical_node *
 find_scan(const struct sql_logical_plan *logical)
 {
@@ -1116,6 +1132,81 @@ sql_physical_table_scan_from_select(
 					has_secondary_equality_candidate = true;
 					break;
 				}
+			}
+		}
+		/* Compare scalar secondary equality paths only when every eligible
+		 * path has a fresh estimate from the same statement snapshot. If any
+		 * summary is absent, keep the historical first-match selection. */
+		bool direct_terms = true;
+		for (size_t i = 0; i < expr_count; ++i)
+			direct_terms &= exprs[i] == expr_sources[i];
+		if (!has_secondary_equality_scan && direct_terms &&
+		    (estimate->point_mcv_rows != NULL ||
+		     estimate->prefix_rows != NULL)) {
+			bool all_estimated = true;
+			size_t candidate_count = 0;
+			double best_rows = INFINITY;
+			uint32_t best_index_id = UINT32_MAX;
+			const struct Expr *best_term = NULL;
+			struct parsed_pk_bound best_key = {0};
+			uint32_t best_column = 0;
+			for (size_t term_no = 0; term_no < expr_count; ++term_no) {
+				const struct Expr *term = exprs[term_no];
+				if (term->op != TK_EQ)
+					continue;
+				for (uint32_t index_no = 1;
+				     index_no < source->space->index_count;
+				     ++index_no) {
+					const struct index *index =
+						source->space->index_map[index_no];
+					if (index == NULL || index->def == NULL ||
+					    index->def->type != TREE ||
+					    index->def->key_def == NULL ||
+					    index->def->key_def->part_count != 1)
+						continue;
+					const struct key_part *part =
+						&index->def->key_def->parts[0];
+					bool is_unsigned = part->type ==
+						FIELD_TYPE_UNSIGNED;
+					if (!is_unsigned && part->type !=
+					    FIELD_TYPE_INTEGER)
+						continue;
+					struct parsed_pk_bound parsed;
+					if (!parse_pk_bound(term, source->iCursor,
+							    part->fieldno, is_unsigned,
+							    &parsed) ||
+					    parsed.op != SQL_PLAN_EQ)
+						continue;
+					++candidate_count;
+					double rows;
+					if (!estimate_secondary_scalar_rows(estimate,
+						index->def->iid, is_unsigned,
+						parsed.signed_key,
+						parsed.unsigned_key, &rows)) {
+						all_estimated = false;
+						continue;
+					}
+					if (rows < best_rows ||
+					    (rows == best_rows &&
+					     index->def->iid < best_index_id)) {
+						best_rows = rows;
+						best_index_id = index->def->iid;
+						best_term = term;
+						best_key = parsed;
+						best_column = part->fieldno;
+					}
+				}
+			}
+			if (all_estimated && candidate_count > 1 &&
+			    best_term != NULL) {
+				has_secondary_equality_scan = true;
+				has_secondary_equality_candidate = true;
+				secondary_scan_term = best_term;
+				secondary_index_id = best_index_id;
+				secondary_key_column = best_column;
+				secondary_key_unsigned = best_key.is_unsigned;
+				secondary_signed_key = best_key.signed_key;
+				secondary_unsigned_key = best_key.unsigned_key;
 			}
 		}
 		if (!has_secondary_equality_candidate &&

@@ -6444,9 +6444,7 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		.rows = (double)row_count,
 		.row_width = 0,
 		.confidence = 0,
-		.prefix_rows = sql_select_prefix_rows,
 		.stats_ctx = &prefix_context,
-		.point_mcv_rows = sql_select_point_mcv_rows,
 	};
 	const struct sql_stats_relation *stats_relation = NULL;
 	if (sql_stats_snapshot_get_relation(vdbe->stats_snapshot,
@@ -6458,6 +6456,8 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 		estimate.total_cost = estimate.rows;
 		estimate.row_width = sql_stats_relation_average_row_width(stats_relation);
 		estimate.confidence = sql_stats_relation_confidence(stats_relation);
+		estimate.prefix_rows = sql_select_prefix_rows;
+		estimate.point_mcv_rows = sql_select_point_mcv_rows;
 	}
 	enum sql_physical_reject_reason reason;
 	struct sql_plan_descriptor *plan =
