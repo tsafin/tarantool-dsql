@@ -715,6 +715,11 @@ sql_physical_table_scan_from_select(
 						goto invalid_predicate;
 					for (int value_no = 0;
 					     value_no < term->x.pList->nExpr; ++value_no) {
+						/* A NULL member cannot match a non-NULL primary key
+						 * in a WHERE clause. It contributes no seek. */
+						if (term->x.pList->a[value_no].pExpr != NULL &&
+						    term->x.pList->a[value_no].pExpr->op == TK_NULL)
+							continue;
 						struct Expr equality = {
 							.op = TK_EQ,
 							.pLeft = term->pLeft,

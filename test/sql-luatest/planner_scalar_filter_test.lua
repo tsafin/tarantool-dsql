@@ -821,6 +821,18 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE id IN (NULL, 3, 2, NULL)')
+                          :format(comparison_name),
+                    expected = {{2}, {3}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (NULL, NULL)')
+                          :format(comparison_name),
+                    expected = {},
+                    enabled_route = 'fallback',
+                },
+                {
                     sql = ('SELECT id FROM %s WHERE id IN (3, 2, 3) ' ..
                            'ORDER BY id ASC'):format(comparison_name),
                     expected = {{2}, {3}},
