@@ -1,6 +1,7 @@
 #ifndef TARANTOOL_SQL_PHYSICAL_PLAN_H
 #define TARANTOOL_SQL_PHYSICAL_PLAN_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -40,6 +41,11 @@ struct sql_physical_table_scan_estimate {
 	double rows;
 	double row_width;
 	double confidence;
+	/* Optional statement-scoped index-prefix estimate. Returning false keeps
+	 * the producer's conservative fallback for that access path. */
+	bool (*prefix_rows)(void *ctx, uint32_t index_id, uint32_t prefix_count,
+			    double *rows);
+	void *prefix_rows_ctx;
 };
 
 /*

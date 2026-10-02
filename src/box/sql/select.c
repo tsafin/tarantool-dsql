@@ -6314,6 +6314,22 @@ sql_select_emit_projection(void *context, uint32_t expression_ref,
 	return -1;
 }
 
+struct sql_select_prefix_estimate_context {
+	const struct sql_stats_snapshot *snapshot;
+	uint64_t schema_version;
+	uint32_t space_id;
+};
+
+static bool
+sql_select_prefix_rows(void *ctx, uint32_t index_id, uint32_t prefix_count,
+		       double *rows)
+{
+	const struct sql_select_prefix_estimate_context *estimate = ctx;
+	return sql_stats_snapshot_estimate_index_prefix_rows(estimate->snapshot,
+		estimate->schema_version, estimate->space_id, index_id,
+		prefix_count, rows) == SQL_STATS_LOOKUP_AVAILABLE;
+}
+
 /*
  * Route the first executable physical-plan slice: a resolved, direct-column
  * projection over one primary index with primary-key predicates, and an
@@ -6375,12 +6391,19 @@ sql_select_try_lower_table_scan(Parse *parse, Select *select,
 				SQL_PHYSICAL_REJECT_NO_ACCESS_PATH);
 		return 0;
 	}
+	struct sql_select_prefix_estimate_context prefix_context = {
+		.snapshot = vdbe->stats_snapshot,
+		.schema_version = box_schema_version(),
+		.space_id = space->def->id,
+	};
 	struct sql_physical_table_scan_estimate estimate = {
 		.startup_cost = 0,
 		.total_cost = (double)row_count,
 		.rows = (double)row_count,
 		.row_width = 0,
 		.confidence = 0,
+		.prefix_rows = sql_select_prefix_rows,
+		.prefix_rows_ctx = &prefix_context,
 	};
 	const struct sql_stats_relation *stats_relation = NULL;
 	if (sql_stats_snapshot_get_relation(vdbe->stats_snapshot,

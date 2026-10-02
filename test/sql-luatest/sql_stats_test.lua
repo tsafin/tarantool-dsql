@@ -443,9 +443,11 @@ g.test_physical_scan_estimate_uses_fresh_snapshot = function()
         box.execute([[SET SESSION "sql_seq_scan" = true]])
         box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
         box.execute([[CREATE TABLE sql_stats_physical_cost_t
-                      (id INT PRIMARY KEY);]])
+                      (id INT PRIMARY KEY, a INT);]])
+        box.execute([[CREATE INDEX sql_stats_physical_cost_ix
+                      ON sql_stats_physical_cost_t (a);]])
         box.execute([[INSERT INTO sql_stats_physical_cost_t VALUES
-                      (1), (2), (3), (4);]])
+                      (1, 1), (2, 1), (3, 2), (4, 3);]])
         local space = box.space.sql_stats_physical_cost_t
         local function plan()
             return box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
@@ -454,11 +456,20 @@ g.test_physical_scan_estimate_uses_fresh_snapshot = function()
         local baseline = plan()
         adapter.install(space.id, space.index[0].id, 32, 32, 0, false, 101)
         local fresh = plan()
+        adapter.install(space.id, space.index.sql_stats_physical_cost_ix.id,
+                        32, 32, 4, false, 102)
+        local prefix_plan = box.execute([[EXPLAIN QUERY PLAN SELECT id FROM
+                                         sql_stats_physical_cost_t WHERE a = 1]])
+        local prefix = prefix_plan.rows[1][4]
+        local prefix_route = box.execute([[EXPLAIN (planner = 'summary')
+                                          SELECT id FROM sql_stats_physical_cost_t
+                                          WHERE a = 1]]).rows[1][3]
         adapter.install(space.id, space.index[0].id, 64, 64, 0, true, 102)
         local stale = plan()
         adapter.clear()
         box.execute([[DROP TABLE sql_stats_physical_cost_t;]])
-        return {baseline = baseline, fresh = fresh, stale = stale}
+        return {baseline = baseline, fresh = fresh, prefix = prefix,
+                prefix_route = prefix_route, stale = stale}
     end)
 
     if res.test_wrapper_unavailable then
@@ -466,6 +477,8 @@ g.test_physical_scan_estimate_uses_fresh_snapshot = function()
     end
     t.assert_str_contains(res.baseline, '~4 rows')
     t.assert_str_contains(res.fresh, '~32 rows')
+    t.assert_str_contains(res.prefix, '~8 rows')
+    t.assert_equals(res.prefix_route, 'new_planner')
     t.assert_str_contains(res.stale, '~4 rows')
 end
 

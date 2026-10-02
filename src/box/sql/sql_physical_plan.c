@@ -2769,6 +2769,29 @@ predicate_parsed:
 			.canonical = projection_canonical[i],
 		};
 	}
+	double access_rows = has_multi_point_key ? multi_point_count :
+		has_point_key || use_secondary_equality_scan ? 1 :
+		has_range_key ? estimate->rows / 2 : estimate->rows;
+	double access_cost = has_multi_point_key ? multi_point_count :
+		has_point_key || use_secondary_equality_scan ? 1 :
+		has_range_key ? estimate->total_cost / 2 : estimate->total_cost;
+	if ((use_secondary_equality_scan || use_secondary_prefix_scan) &&
+	    estimate->prefix_rows != NULL) {
+		uint32_t index_id = use_secondary_equality_scan ?
+			secondary_index_id : secondary_prefix_index_id;
+		uint32_t prefix_count = use_secondary_equality_scan ?
+			(secondary_key_part_count == 0 ? 1 :
+			 secondary_key_part_count) : secondary_prefix_count;
+		double prefix_rows;
+		if (estimate->prefix_rows(estimate->prefix_rows_ctx, index_id,
+					  prefix_count, &prefix_rows) &&
+		    isfinite(prefix_rows) && prefix_rows >= 0) {
+			access_rows = prefix_rows;
+			double per_row = estimate->rows > 0 ?
+				estimate->total_cost / estimate->rows : 1;
+			access_cost = estimate->startup_cost + prefix_rows * per_row;
+		}
+	}
 	struct sql_plan_descriptor_input input = {
 		.descriptor_version = 1,
 		.planner_version = 1,
@@ -2862,10 +2885,7 @@ predicate_parsed:
 			.produced_order_count = order_term_count,
 			.projected_columns = columns,
 			.projected_column_count = select->pEList->nExpr,
-			.est_rows = has_multi_point_key ? multi_point_count :
-				has_point_key || use_secondary_equality_scan ? 1 :
-				has_range_key ?
-				estimate->rows / 2 : estimate->rows,
+			.est_rows = access_rows,
 			.est_rows_confidence = estimate->confidence,
 		},
 		.filters = filter_count == 0 ? NULL : filters,
@@ -2876,14 +2896,8 @@ predicate_parsed:
 		.expressions = expression_count == 0 ? NULL : expressions,
 		.expression_count = expression_count,
 		.cost_startup = estimate->startup_cost,
-		.cost_total = has_multi_point_key ? multi_point_count :
-			has_point_key || use_secondary_equality_scan ? 1 :
-			has_range_key ?
-			estimate->total_cost / 2 : estimate->total_cost,
-		.cost_rows = has_multi_point_key ? multi_point_count :
-			has_point_key || use_secondary_equality_scan ? 1 :
-			has_range_key ?
-			estimate->rows / 2 : estimate->rows,
+		.cost_total = access_cost,
+		.cost_rows = access_rows,
 		.cost_row_width = estimate->row_width,
 		.cost_confidence = estimate->confidence,
 	};
