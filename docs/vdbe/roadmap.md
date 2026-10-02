@@ -1500,6 +1500,12 @@ DML, triggers, subprograms, non-deterministic functions.
   A TEST_BUILD regression checks fresh 32-row versus fallback four-row
   `EXPLAIN QUERY PLAN` estimates. This does not yet rank alternative access
   paths with a statistical cost model or close M3.4.
+  Secondary equality/equality-prefix descriptor estimates now also consume
+  fresh pinned index population and prefix NDV through a statement-scoped
+  callback (`e65e225942`); absent/stale summaries keep the prior heuristic.
+  The TEST_BUILD regression pins an enabled secondary-equality route and an
+  eight-row estimate from 32 index tuples / four distinct prefixes. Physical
+  unit and SQL stats luatest pass. Access-path ranking remains open.
   A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
   change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
   semantic diffs and no unreviewed route transitions

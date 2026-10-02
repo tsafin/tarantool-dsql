@@ -58,7 +58,10 @@ identities, and this selector is not a detached normalized-input model for
 M1 replay. Production single-table descriptors now seed relation cardinality,
 average row width, and confidence from the statement-pinned statistics
 snapshot when its schema generation is fresh; missing/stale snapshots retain
-the storage-layer `index_size()` estimate. This seeds cost metadata only: it
+the storage-layer `index_size()` estimate. Supported secondary equality and
+equality-prefix access descriptors also use the pinned index population divided
+by prefix NDV when that summary is available. Missing/stale index summaries
+retain the existing access heuristic. These seed cost metadata only: production
 does not yet compare alternative access paths with a statistics-backed cost
 model.
 
