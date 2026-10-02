@@ -64,9 +64,12 @@ by prefix NDV when that summary is available. Missing/stale index summaries
 retain the existing access heuristic. A scalar non-unique INTEGER/UNSIGNED
 secondary equality can override that average with the pinned value's MCV
 interval midpoint (floored at one row); unmatched values use the prefix-NDV
-average, and stale summaries fall back. These seed cost metadata only:
-production does not yet compare alternative access paths with a
-statistics-backed cost model.
+average, and stale summaries fall back. Production now compares competing
+one-part secondary equality paths when all
+eligible paths have fresh estimates from the pinned snapshot. It chooses the
+smaller estimated result, breaking ties by index ID. Missing, partial, or stale
+statistics preserve the previous first-match route. This is not yet general
+ranking among primary, range, prefix, full-scan, and secondary paths.
 
 The executable primary-key point descriptor can also own a bounded scalar
 INTEGER/UNSIGNED candidate set for literal `IN` lists (at most 16 distinct

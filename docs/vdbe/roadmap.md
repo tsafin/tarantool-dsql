@@ -1519,8 +1519,17 @@ DML, triggers, subprograms, non-deterministic functions.
   now prefers the pinned value-specific SpaceSaving MCV midpoint over the
   prefix-NDV average (`960b384e30`). A live volatile-ANALYZE regression pins
   hot/tail estimates (eight/one rows), `new_planner` routing, and stale-schema
-  fallback to the previous estimate. This is value-specific cost metadata,
-  not a production comparison among access candidates.
+  fallback to the previous estimate. At that revision this was value-specific
+  cost metadata, not yet a production comparison among access candidates.
+  The first production comparison among access candidates is now in place for
+  competing one-part secondary INTEGER/UNSIGNED equality paths (`9da54dacea`).
+  With complete fresh estimates, the producer chooses the lower estimated row
+  count and breaks ties by index ID; incomplete or stale summaries retain the
+  historical first-match choice. A live-ANALYZE TEST_BUILD regression uses two
+  indexes with eight versus one matching row and checks the selective index
+  for both predicate orders, `new_planner` routing, exact rows, and missing/stale
+  fallback. This does not rank primary, range, prefix, or full scans, nor does
+  it close M3.4 or establish workload-level plan quality.
   A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
   change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
   semantic diffs and no unreviewed route transitions
