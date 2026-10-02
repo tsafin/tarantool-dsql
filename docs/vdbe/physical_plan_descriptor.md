@@ -61,9 +61,12 @@ snapshot when its schema generation is fresh; missing/stale snapshots retain
 the storage-layer `index_size()` estimate. Supported secondary equality and
 equality-prefix access descriptors also use the pinned index population divided
 by prefix NDV when that summary is available. Missing/stale index summaries
-retain the existing access heuristic. These seed cost metadata only: production
-does not yet compare alternative access paths with a statistics-backed cost
-model.
+retain the existing access heuristic. A scalar non-unique INTEGER/UNSIGNED
+secondary equality can override that average with the pinned value's MCV
+interval midpoint (floored at one row); unmatched values use the prefix-NDV
+average, and stale summaries fall back. These seed cost metadata only:
+production does not yet compare alternative access paths with a
+statistics-backed cost model.
 
 The executable primary-key point descriptor can also own a bounded scalar
 INTEGER/UNSIGNED candidate set for literal `IN` lists (at most 16 distinct

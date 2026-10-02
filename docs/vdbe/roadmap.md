@@ -1506,6 +1506,12 @@ DML, triggers, subprograms, non-deterministic functions.
   The TEST_BUILD regression pins an enabled secondary-equality route and an
   eight-row estimate from 32 index tuples / four distinct prefixes. Physical
   unit and SQL stats luatest pass. Access-path ranking remains open.
+  For a scalar non-unique INTEGER/UNSIGNED secondary equality, the descriptor
+  now prefers the pinned value-specific SpaceSaving MCV midpoint over the
+  prefix-NDV average (`960b384e30`). A live volatile-ANALYZE regression pins
+  hot/tail estimates (eight/one rows), `new_planner` routing, and stale-schema
+  fallback to the previous estimate. This is value-specific cost metadata,
+  not a production comparison among access candidates.
   A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
   change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
   semantic diffs and no unreviewed route transitions
