@@ -103,7 +103,8 @@ new_point_descriptor(int64_t key)
 
 static struct sql_plan_descriptor *
 new_multi_point_descriptor(const struct sql_plan_point_key_part *values,
-			   size_t value_count)
+			   size_t value_count,
+			   const struct sql_plan_finalize *finalize)
 {
 	static const uint32_t columns[] = {2, 0};
 	struct sql_plan_descriptor_input input = {
@@ -118,6 +119,8 @@ new_multi_point_descriptor(const struct sql_plan_point_key_part *values,
 			.point_key_value_count = value_count,
 			.est_rows = value_count,
 		},
+		.finalize = finalize,
+		.finalize_count = finalize == NULL ? 0 : 1,
 		.projection_columns = columns,
 		.projection_column_count = sizeof(columns) / sizeof(columns[0]),
 		.cost_total = value_count,
@@ -1146,7 +1149,7 @@ main(void)
 	event_init();
 	box_init();
 	sql_init();
-	plan(90);
+	plan(91);
 	header();
 	static const struct sql_plan_filter filter = {
 		.expr_ref = 1, .selectivity = 0.5, .confidence = 1,
@@ -1181,6 +1184,9 @@ main(void)
 		.kind = SQL_PLAN_LIMIT, .limit = 1,
 		.offset = UINT64_MAX,
 	};
+	static const struct sql_plan_finalize multi_point_limit_offset = {
+		.kind = SQL_PLAN_LIMIT, .limit = 1, .offset = 1,
+	};
 	struct sql_plan_descriptor *plan_desc = new_scan_descriptor(NULL, 0,
 		SQL_PLAN_ASC, NULL, 0);
 	struct sql_plan_descriptor *filtered_desc =
@@ -1208,7 +1214,12 @@ main(void)
 	struct sql_plan_descriptor *multi_point_desc =
 		new_multi_point_descriptor(multi_point_values,
 					   sizeof(multi_point_values) /
-					   sizeof(multi_point_values[0]));
+					   sizeof(multi_point_values[0]), NULL);
+	struct sql_plan_descriptor *multi_point_limit_offset_desc =
+		new_multi_point_descriptor(multi_point_values,
+					   sizeof(multi_point_values) /
+					   sizeof(multi_point_values[0]),
+					   &multi_point_limit_offset);
 	multi_point_values[0].integer_value = 101;
 	multi_point_values[1].integer_value = 103;
 	struct sql_plan_descriptor *variable_point_desc =
@@ -1333,7 +1344,7 @@ main(void)
 	   limit_one_desc != NULL && limit_zero_desc != NULL &&
 	   offset_limit_desc != NULL && wide_offset_limit_desc != NULL &&
 	   invalid_offset_desc != NULL && point_desc != NULL &&
-	   multi_point_desc != NULL &&
+	   multi_point_desc != NULL && multi_point_limit_offset_desc != NULL &&
 	   secondary_equality_desc != NULL &&
 	   negative_point_desc != NULL && unsigned_point_desc != NULL &&
 	   point_null_filter_desc != NULL &&
@@ -1568,6 +1579,26 @@ main(void)
 	   vdbe.aOp[before_multi_point + 6].p2 == before_multi_point + 10 &&
 	   vdbe.aOp[before_multi_point + 9].opcode == OP_ResultRow,
 	   "multi-point descriptor owns candidates and emits ordered seeks with miss jumps");
+	int before_multi_point_limit_offset = vdbe.nOp;
+	ok(sql_plan_lower_vdbe_pk_point(multi_point_limit_offset_desc, &vdbe,
+					4, 20) == 0 &&
+	   vdbe.aOp[before_multi_point_limit_offset].opcode == OP_Integer &&
+	   vdbe.aOp[before_multi_point_limit_offset].p1 == 1 &&
+	   vdbe.aOp[before_multi_point_limit_offset + 1].opcode == OP_Integer &&
+	   vdbe.aOp[before_multi_point_limit_offset + 1].p1 == 1 &&
+	   vdbe.aOp[before_multi_point_limit_offset + 3].opcode == OP_NotFound &&
+	   vdbe.aOp[before_multi_point_limit_offset + 4].opcode == OP_IfNotZero &&
+	   vdbe.aOp[before_multi_point_limit_offset + 4].p2 ==
+		before_multi_point_limit_offset + 9 &&
+	   vdbe.aOp[before_multi_point_limit_offset + 8].opcode ==
+		OP_DecrJumpZero &&
+	   vdbe.aOp[before_multi_point_limit_offset + 8].p2 == vdbe.nOp &&
+	   vdbe.aOp[before_multi_point_limit_offset + 9].opcode == OP_Integer &&
+	   vdbe.aOp[before_multi_point_limit_offset + 10].opcode == OP_NotFound &&
+	   vdbe.aOp[before_multi_point_limit_offset + 15].opcode ==
+		OP_DecrJumpZero &&
+	   vdbe.aOp[before_multi_point_limit_offset + 15].p2 == vdbe.nOp,
+	   "multi-point LIMIT/OFFSET applies across candidates and branches over remaining seeks");
 	int before_negative_point = vdbe.nOp;
 	ok(sql_plan_lower_vdbe_pk_point(negative_point_desc, &vdbe, 4, 20) == 0 &&
 	   vdbe.aOp[before_negative_point].opcode == OP_Int64 &&
@@ -2390,6 +2421,7 @@ main(void)
 	sql_plan_descriptor_delete(invalid_offset_desc);
 	sql_plan_descriptor_delete(point_desc);
 	sql_plan_descriptor_delete(multi_point_desc);
+	sql_plan_descriptor_delete(multi_point_limit_offset_desc);
 	sql_plan_descriptor_delete(variable_point_desc);
 	sql_plan_descriptor_delete(secondary_equality_desc);
 	sql_plan_descriptor_delete(negative_point_desc);

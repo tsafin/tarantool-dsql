@@ -838,6 +838,21 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ('SELECT id FROM %s WHERE id IN (2, 3, 4) ' ..
+                           'ORDER BY id DESC LIMIT 1 OFFSET 1')
+                          :format(comparison_name),
+                    expected = {{3}},
+                    expected_order_column = 1,
+                    expected_order_desc = true,
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (2, 3) LIMIT 0')
+                          :format(comparison_name),
+                    expected = {},
+                    enabled_route = 'new_planner',
+                },
+                {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b IN (11)')
                           :format(composite_name),
                     expected = {{1, 11}},

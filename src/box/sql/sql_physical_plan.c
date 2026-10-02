@@ -703,8 +703,7 @@ sql_physical_table_scan_from_select(
 				bool normalized_singleton_in = false;
 				if (is_pk_column && !has_multi_point_key &&
 				    pk->part_count == 1 && term_count == 1 &&
-				    select->pLimit == NULL &&
-				    select->pOffset == NULL && term->x.pList != NULL &&
+				    term->x.pList != NULL &&
 				    term->x.pList->nExpr >= 2 &&
 				    term->x.pList->nExpr <= SQL_PLAN_PK_MULTI_VALUE_MAX &&
 				    !ExprHasProperty(term, EP_TokenOnly | EP_Reduced |
@@ -1952,8 +1951,7 @@ sql_physical_table_scan_from_select(
 		    !has_composite_point && pk->part_count != 1)
 			goto invalid_predicate;
 		if (has_multi_point_key &&
-		    (filter_count != 0 || expr_count != 0 || select->pLimit != NULL ||
-		     select->pOffset != NULL))
+		    (filter_count != 0 || expr_count != 0))
 			goto invalid_predicate;
 	}
 	goto predicate_parsed;

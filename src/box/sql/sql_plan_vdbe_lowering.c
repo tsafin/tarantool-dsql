@@ -105,8 +105,7 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 	      input->access.point_key_values == NULL || composite_point ||
 	      input->access.has_integer_point_key ||
 	      input->access.has_unsigned_point_key ||
-	      input->access.point_key_variable != 0 || input->filter_count != 0 ||
-	      input->finalize_count != 0)) ||
+	      input->access.point_key_variable != 0 || input->filter_count != 0)) ||
 	    (composite_point ?
 	     (input->access.has_integer_point_key ||
 	      input->access.has_unsigned_point_key ||
@@ -143,7 +142,8 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 	if (vdbe_codegen_checkpoint_init(&checkpoint, vdbe) != 0)
 		return -1;
 	if (input->finalize_count == 1 &&
-	    (input->finalize[0].limit == 0 || input->finalize[0].offset != 0)) {
+	    (input->finalize[0].limit == 0 ||
+	     (!multi_point && input->finalize[0].offset != 0))) {
 		int skip = sqlVdbeAddOp2(vdbe, OP_Goto, 0, 0);
 		if (skip != vdbe->nOp - 1 || parse->is_aborted ||
 		    diag_last_error(diag_get()) != checkpoint.diag_error)
@@ -153,9 +153,37 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 		return 0;
 	}
 	if (multi_point) {
-		if (parse->nMem == INT_MAX)
+		bool has_limit = input->finalize_count == 1;
+		bool has_offset = has_limit && input->finalize[0].offset != 0;
+		int registers_needed = 1 + (has_limit ? 1 : 0) +
+			(has_offset ? 1 : 0);
+		if (parse->nMem > INT_MAX - registers_needed)
 			goto error;
 		int key_reg = ++parse->nMem;
+		int limit_reg = has_limit ? ++parse->nMem : 0;
+		int offset_reg = has_offset ? ++parse->nMem : 0;
+		if (has_limit) {
+			uint64_t limit = input->finalize[0].limit;
+			int addr = limit <= INT_MAX ?
+				sqlVdbeAddOp2(vdbe, OP_Integer, (int)limit, limit_reg) :
+				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, limit_reg, 0,
+						  (const u8 *)&limit, P4_UINT64);
+			if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+		}
+		if (has_offset) {
+			uint64_t offset = input->finalize[0].offset;
+			int addr = offset <= INT_MAX ?
+				sqlVdbeAddOp2(vdbe, OP_Integer, (int)offset, offset_reg) :
+				sqlVdbeAddOp4Dup8(vdbe, OP_Int64, 0, offset_reg, 0,
+						  (const u8 *)&offset, P4_UINT64);
+			if (addr != vdbe->nOp - 1 || parse->is_aborted ||
+			    diag_last_error(diag_get()) != checkpoint.diag_error)
+				goto error;
+		}
+		int limit_breaks[SQL_PLAN_PK_MULTI_VALUE_MAX];
+		size_t limit_break_count = 0;
 		for (size_t key_no = 0;
 		     key_no < input->access.point_key_value_count; ++key_no) {
 			size_t value_no = input->access.direction == SQL_PLAN_DESC ?
@@ -193,6 +221,14 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 			if (miss != vdbe->nOp - 1 || parse->is_aborted ||
 			    diag_last_error(diag_get()) != checkpoint.diag_error)
 				goto error;
+			int offset_skip = -1;
+			if (has_offset) {
+				offset_skip = sqlVdbeAddOp2(vdbe, OP_IfNotZero,
+							   offset_reg, 0);
+				if (offset_skip != vdbe->nOp - 1 || parse->is_aborted ||
+				    diag_last_error(diag_get()) != checkpoint.diag_error)
+					goto error;
+			}
 			for (size_t i = 0; i < input->projection_column_count; ++i) {
 				uint32_t expr_ref = input->projection_expr_refs == NULL ? 0 :
 					input->projection_expr_refs[i];
@@ -208,8 +244,20 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 			if (result != vdbe->nOp - 1 || parse->is_aborted ||
 			    diag_last_error(diag_get()) != checkpoint.diag_error)
 				goto error;
+			if (has_limit) {
+				int limit_break = sqlVdbeAddOp2(vdbe, OP_DecrJumpZero,
+								limit_reg, 0);
+				if (limit_break != vdbe->nOp - 1 || parse->is_aborted ||
+				    diag_last_error(diag_get()) != checkpoint.diag_error)
+					goto error;
+				limit_breaks[limit_break_count++] = limit_break;
+			}
+			if (offset_skip >= 0)
+				sqlVdbeJumpHere(vdbe, offset_skip);
 			sqlVdbeJumpHere(vdbe, miss);
 		}
+		for (size_t i = 0; i < limit_break_count; ++i)
+			sqlVdbeJumpHere(vdbe, limit_breaks[i]);
 		vdbe_codegen_checkpoint_commit(&checkpoint);
 		return 0;
 	}
