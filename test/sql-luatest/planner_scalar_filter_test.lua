@@ -853,6 +853,31 @@ g.test_non_primary_null_filters_off_on_off = function()
                     enabled_route = 'new_planner',
                 },
                 {
+                    sql = ("SELECT id FROM %s WHERE id IN (2, 3, 4) " ..
+                           "AND s = 'a'"):format(comparison_name),
+                    expected = {{2}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (2, 3, 4) ' ..
+                           'AND s IS NULL'):format(comparison_name),
+                    expected = {{4}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ("SELECT id FROM %s WHERE id IN (1, 2, 3, 4) " ..
+                           "AND s = 'a' ORDER BY id DESC LIMIT 1 OFFSET 1")
+                          :format(comparison_name),
+                    expected = {{1}},
+                    enabled_route = 'new_planner',
+                },
+                {
+                    sql = ('SELECT id FROM %s WHERE id IN (2, 3) ' ..
+                           'AND id > 2'):format(comparison_name),
+                    expected = {{3}},
+                    enabled_route = 'fallback',
+                },
+                {
                     sql = ('SELECT a, b FROM %s WHERE a = 1 AND b IN (11)')
                           :format(composite_name),
                     expected = {{1, 11}},
@@ -1508,7 +1533,8 @@ g.test_non_primary_null_filters_off_on_off = function()
                         results[i] = result.rows
                     end
                     t.assert_equals(results[i], query.expected,
-                                    ('query %d result on %s'):format(i, engine))
+                                    ('query %d result on %s enabled=%s'):format(
+                                        i, engine, tostring(enabled)))
                 end
                 return results
             end

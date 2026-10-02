@@ -702,7 +702,7 @@ sql_physical_table_scan_from_select(
 					term->x.pList->a[0].pExpr != NULL;
 				bool normalized_singleton_in = false;
 				if (is_pk_column && !has_multi_point_key &&
-				    pk->part_count == 1 && term_count == 1 &&
+				    pk->part_count == 1 &&
 				    term->x.pList != NULL &&
 				    term->x.pList->nExpr >= 2 &&
 				    term->x.pList->nExpr <= SQL_PLAN_PK_MULTI_VALUE_MAX &&
@@ -763,7 +763,7 @@ sql_physical_table_scan_from_select(
 						}
 						multi_point_values[j] = value;
 					}
-						has_multi_point_key = has_point_key = true;
+					has_multi_point_key = has_point_key = true;
 					continue;
 				}
 				if (singleton_in && expr_count <
@@ -1950,8 +1950,7 @@ sql_physical_table_scan_from_select(
 		if (filter_count != 0 && has_point_key &&
 		    !has_composite_point && pk->part_count != 1)
 			goto invalid_predicate;
-		if (has_multi_point_key &&
-		    (filter_count != 0 || expr_count != 0))
+		if (has_multi_point_key && expr_count != 0)
 			goto invalid_predicate;
 	}
 	goto predicate_parsed;

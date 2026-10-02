@@ -105,7 +105,7 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 	      input->access.point_key_values == NULL || composite_point ||
 	      input->access.has_integer_point_key ||
 	      input->access.has_unsigned_point_key ||
-	      input->access.point_key_variable != 0 || input->filter_count != 0)) ||
+	      input->access.point_key_variable != 0)) ||
 	    (composite_point ?
 	     (input->access.has_integer_point_key ||
 	      input->access.has_unsigned_point_key ||
@@ -156,12 +156,13 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 		bool has_limit = input->finalize_count == 1;
 		bool has_offset = has_limit && input->finalize[0].offset != 0;
 		int registers_needed = 1 + (has_limit ? 1 : 0) +
-			(has_offset ? 1 : 0);
+			(has_offset ? 1 : 0) + (input->filter_count != 0 ? 1 : 0);
 		if (parse->nMem > INT_MAX - registers_needed)
 			goto error;
 		int key_reg = ++parse->nMem;
 		int limit_reg = has_limit ? ++parse->nMem : 0;
 		int offset_reg = has_offset ? ++parse->nMem : 0;
+		int filter_reg = input->filter_count != 0 ? ++parse->nMem : 0;
 		if (has_limit) {
 			uint64_t limit = input->finalize[0].limit;
 			int addr = limit <= INT_MAX ?
@@ -221,6 +222,17 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 			if (miss != vdbe->nOp - 1 || parse->is_aborted ||
 			    diag_last_error(diag_get()) != checkpoint.diag_error)
 				goto error;
+			/* The cursor now points at a different tuple. A projector may have
+			 * cached a column from the preceding point lookup. */
+			sqlExprCacheClear(parse);
+			int filter_breaks[SQL_PLAN_FILTER_MAX];
+			for (size_t i = 0; i < input->filter_count; ++i) {
+				filter_breaks[i] = sql_plan_emit_filter(&input->filters[i],
+					vdbe, parse, &checkpoint, cursor, filter_reg,
+					projector, projector_ctx);
+				if (filter_breaks[i] < 0)
+					goto error;
+			}
 			int offset_skip = -1;
 			if (has_offset) {
 				offset_skip = sqlVdbeAddOp2(vdbe, OP_IfNotZero,
@@ -254,6 +266,8 @@ sql_plan_lower_vdbe_pk_point_with_projector(
 			}
 			if (offset_skip >= 0)
 				sqlVdbeJumpHere(vdbe, offset_skip);
+			for (size_t i = 0; i < input->filter_count; ++i)
+				sqlVdbeJumpHere(vdbe, filter_breaks[i]);
 			sqlVdbeJumpHere(vdbe, miss);
 		}
 		for (size_t i = 0; i < limit_break_count; ++i)
