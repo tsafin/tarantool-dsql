@@ -1,54 +1,78 @@
 # SQL access-cost calibration probe
 
-This probe measures **observed warm-cache prepared SQL execution**, not a
-storage-engine primitive or a calibrated planner coefficient. It uses the same
-4096-row SQL fixture on memtx and Vinyl: a primary key, a non-unique secondary
-key with 16 rows per value, and a payload column. `INDEXED BY` fixes the
-access path; each JSONL row includes the actual `EXPLAIN QUERY PLAN` text and
-the checked number of returned rows. Cases are primary-key point lookup,
-secondary equality projected as key-only and payload, secondary range, and
-primary scan. Preparation and fixture creation are outside the timer; result
-materialization is inside it. One execution per case is warmed first, and
-engine order alternates between repetitions.
+This probe measures **prepared SQL execution**, not a storage-engine primitive
+or a production planner coefficient. It uses a 4096-row SQL fixture on memtx
+and Vinyl: a primary key, a non-unique secondary key with 16 rows per value,
+and a payload column. `INDEXED BY` fixes the path, while the observation keeps
+the actual `EXPLAIN QUERY PLAN` and checked output row count. Preparation and
+fixture creation are outside the timer; result materialization is inside it.
+Engine order alternates between repetitions.
 
-From the repository root, using a **current binary built from the source being
-evaluated**:
+`primary_point` and the secondary equality cases reuse one key per timed
+batch. `primary_cycling` and `secondary_cycling` change the parameter every
+execution, approximating repeated probes on the inner side of a nested-loop
+JOIN. These are still *single-table* SQL calls, not a measured JOIN operator.
+
+## Run
+
+From the repository root, with a matching binary and no uncommitted `src/`
+changes:
 
 ```sh
 python3 -B tools/sql_cost/test_access_cost_report.py
-bench_dir=$(mktemp -d /tmp/sql-cost.XXXXXX)
-cd "$bench_dir"
-SQL_COST_ROWS=4096 SQL_COST_REPEATS=7 SQL_COST_ITERATIONS=300 \
-  /absolute/path/to/build/src/tarantool \
-  /absolute/path/to/tools/sql_cost/access_cost_bench.lua > observations.jsonl
-python3 -B /absolute/path/to/tools/sql_cost/access_cost_report.py \
-  observations.jsonl > report.json
+python3 -B tools/sql_cost/run_access_cost.py \
+  --binary build-jit-clang19-debug/src/tarantool \
+  --out-dir /tmp/sql-cost-memory-run \
+  --storage-state memory
+python3 -B tools/sql_cost/run_access_cost.py \
+  --binary build-jit-clang19-debug/src/tarantool \
+  --out-dir /tmp/sql-cost-dumped-run \
+  --storage-state dumped
 ```
 
-Retain `git rev-parse HEAD`, `git status --short`, binary `--version`, binary
-SHA-256, build configuration, CPU/storage configuration, and the two output
-files with any reported measurements. Run on an otherwise idle host and repeat
-on a second day/machine before treating small differences as meaningful. For
-Vinyl, this run does **not** control LSM level count, compaction, persistence,
-or OS cache. A cold/read-amplification experiment needs its own fixture and
-cache-state metadata. The `secondary_payload` name deliberately does not claim
-that EXPLAIN's “COVERING INDEX” label identifies the number of engine reads.
+Use fresh output directories. The runner verifies that the binary's embedded
+Git revision has the same committed `src/` tree as HEAD, rejects dirty `src/`,
+records source and binary hashes, and writes observations, validated report,
+and manifest. Keep all three artifacts and record host CPU/storage details.
+The default is seven paired repetitions; the analyzer requires at least five.
 
-The report checks seven-way pairing, fixture/version consistency, stable
-SQL/plan/result shapes, timing arithmetic, and a minimum of five repeats. It
-prints per-access engine medians and paired ratios. These ratios compare full
-SQL calls and include executor/return overhead; they cannot be copied into
-`WhereLoop.rRun`. The current planner uses shared `LogEst` formulas for both
-engines, including a generic secondary-index penalty. An engine-aware cost
-change requires a separate same-binary A/B of chosen plans, planning time,
-and actual execution time on the reviewed JOIN workload. This probe only
-supplies a reproducible starting point for selecting candidate coefficients.
+`memory` measures newly inserted Vinyl data before a dump. `dumped` calls
+`box.snapshot()` and waits until both Vinyl indexes have runs. Every Vinyl
+observation includes per-index run count and deltas for disk pages, disk
+lookups, cache lookups/gets, and memory gets. A single warmup execution precedes
+each timed batch. The OS page cache and Vinyl cache are **not reset**; the
+JSONL deliberately labels cache state `uncontrolled`, even for the fixed-key
+cases. `secondary_payload` does not claim that EXPLAIN's “COVERING INDEX” label
+identifies how many storage reads occurred.
 
-The initial smoke run (`HEAD` 231884c8af, binary version
-`1.3.2-19597-g1d854aadfa`, 4096 rows, seven repeats) gave median
-Vinyl/memtx ratios of 1.98 for primary point, 3.19 for primary scan, and
-5.04–5.80 for secondary accesses. The binary's embedded revision did **not**
-match HEAD, so this run is explicitly *not* decision-grade evidence for the
-current source. Its observations and report are local at
-`/tmp/sql-cost-run.5aHLkX/`; regenerate with a matching clean build before
-calibration or any production ranking change.
+The report checks pairing, fixture/version/source/binary/run provenance,
+stable SQL/plan/result shapes, elapsed-time arithmetic, and a minimum of five
+repeats. It prints medians and per-execution Vinyl read counters. Ratios include
+SQL executor and result-return overhead. They cannot be copied directly into
+`WhereLoop.rRun`, which uses `LogEst` units and combines multiple terms.
+
+## Initial candidate coefficient grid (not accepted)
+
+An exploratory local run with 4096 rows, seven repeats, and a binary reporting
+revision `e688db7ff9` produced the following median Vinyl/memtx ratios. It was
+launched directly while the shared source tree was changing, without the strict
+runner's provenance check; its `binary_sha256` field is a diagnostic placeholder.
+These numbers are a **candidate A/B grid only**, not decision-grade calibration.
+
+| Access shape | Memory | Dumped | Rounded candidate multiplier | `LogEst` delta for A/B |
+| --- | ---: | ---: | ---: | ---: |
+| Primary point / cycling | 2.1 / 2.1 | 1.8 / 2.0 | 2× | +10 |
+| Primary full scan | 3.3 | 2.8 | 3× | +16 |
+| Secondary equality, key/payload/cycling | 4.4–5.7 | 4.6–5.7 | 5× | +23 |
+| Secondary range, 16 rows | 5.5 | 8.6 | 6× | +26 |
+
+Local diagnostic artifacts are `/tmp/sql-cost-memory.CAHYXE/` and
+`/tmp/sql-cost-dumped.ZhdIS2/`. The dumped secondary range recorded a median
+one disk page per SQL execution; most other dumped cases recorded zero, so one
+cannot treat the rounded factors as stable I/O prices. In particular, a
+single-run LSM does not characterize read amplification from multiple levels.
+Repeat with a clean matching source/binary, multiple fixture sizes and LSM
+topologies, and a second host before narrowing coefficients. Then compare
+candidate vs baseline **on the same binary and statistics** for chosen JOIN
+plans, planning time, and execution time. Do not change production ranking
+based on this probe alone.

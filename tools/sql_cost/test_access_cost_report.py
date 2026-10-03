@@ -13,13 +13,21 @@ def observations():
             for engine in ENGINES:
                 elapsed = repeat * (2 if engine == "vinyl" else 1)
                 result.append({
-                    "schema_version": 1, "fixture": "fixture-v1", "rows": 128,
+                    "schema_version": 2, "fixture": "fixture-v1", "rows": 128,
                     "tarantool_version": "test-build",
+                    "source_commit": "a" * 40, "binary_sha256": "b" * 64,
+                    "run_id": "run-1", "storage_state": "memory",
                     "engine": engine, "access": access, "repeat_no": repeat,
                     "result_rows": 16,
                     "per_execution_us": elapsed, "elapsed_us": elapsed * 10,
-                    "iterations": 10, "cache_state": "warm",
+                    "iterations": 10, "cache_state": "uncontrolled",
+                    "warmup_scope": "one_execution",
                     "timing_scope": "prepared_execute_and_materialize",
+                    "vinyl_counters": ({"run_count": 0,
+                                        "disk_read_pages": 0, "disk_lookup": 0,
+                                        "cache_lookup": 0, "cache_get_rows": 0,
+                                        "memory_get_rows": 0}
+                                       if engine == "vinyl" else None),
                     "explain": [[0, 0, 0, "SEARCH TABLE"]], "sql": "SELECT 1",
                 })
     return result
@@ -67,6 +75,19 @@ class ReportTest(unittest.TestCase):
     def test_too_few_repeats_rejected(self):
         rows = [row for row in observations() if row["repeat_no"] != 5]
         with self.assertRaisesRegex(ValueError, "at least five"):
+            self.summarize_rows(rows)
+
+    def test_mixed_provenance_rejected(self):
+        rows = observations()
+        rows[-1]["binary_sha256"] = "c" * 64
+        with self.assertRaisesRegex(ValueError, "mixed provenance"):
+            self.summarize_rows(rows)
+
+    def test_dumped_requires_run(self):
+        rows = observations()
+        for row in rows:
+            row["storage_state"] = "dumped"
+        with self.assertRaisesRegex(ValueError, "no Vinyl run"):
             self.summarize_rows(rows)
 
 
