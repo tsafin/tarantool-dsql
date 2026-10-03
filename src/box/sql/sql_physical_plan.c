@@ -1381,6 +1381,19 @@ sql_physical_table_scan_from_select(
 		if (!has_secondary_equality_candidate && !has_secondary_range_scan &&
 		    source->space->index_map != NULL) {
 			bool saved_prefix_candidate = false;
+			/* Only unordered prefix scans have equivalent physical
+			 * properties. Preserve the existing ORDER BY preference. */
+			bool rank_prefixes = select->pOrderBy == NULL &&
+				estimate->prefix_rows != NULL;
+			bool all_prefixes_estimated = true;
+			size_t prefix_candidate_count = 0;
+			double best_prefix_rows = INFINITY;
+			uint32_t best_prefix_index_id = UINT32_MAX;
+			struct sql_plan_point_key_part best_prefix_parts[
+				SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+			const struct Expr *best_prefix_terms[
+				SQL_PLAN_POINT_KEY_PART_MAX] = {0};
+			size_t best_prefix_count = 0;
 			for (uint32_t index_no = 1;
 			     index_no < source->space->index_count; ++index_no) {
 				const struct index *index =
@@ -1460,7 +1473,37 @@ sql_physical_table_scan_from_select(
 				}
 				if (!order_matches && saved_prefix_candidate)
 					continue;
-				has_secondary_prefix_scan = true;
+				++prefix_candidate_count;
+				if (!has_secondary_prefix_scan) {
+					has_secondary_prefix_scan = true;
+					secondary_prefix_index_id = index->def->iid;
+					secondary_prefix_count = prefix_count;
+					memcpy(secondary_prefix_parts, parts,
+					       prefix_count * sizeof(parts[0]));
+					memcpy(secondary_prefix_terms, terms,
+					       prefix_count * sizeof(terms[0]));
+				}
+				if (rank_prefixes) {
+					double rows;
+					if (!estimate->prefix_rows(estimate->stats_ctx,
+						index->def->iid, prefix_count, &rows) ||
+					    !isfinite(rows) || rows < 0) {
+						all_prefixes_estimated = false;
+						continue;
+					}
+					if (rows < best_prefix_rows ||
+					    (rows == best_prefix_rows &&
+					     index->def->iid < best_prefix_index_id)) {
+						best_prefix_rows = rows;
+						best_prefix_index_id = index->def->iid;
+						best_prefix_count = prefix_count;
+						memcpy(best_prefix_parts, parts,
+						       prefix_count * sizeof(parts[0]));
+						memcpy(best_prefix_terms, terms,
+						       prefix_count * sizeof(terms[0]));
+					}
+					continue;
+				}
 				secondary_prefix_index_id = index->def->iid;
 				secondary_prefix_count = prefix_count;
 				memcpy(secondary_prefix_parts, parts,
@@ -1470,6 +1513,15 @@ sql_physical_table_scan_from_select(
 				if (order_matches)
 					break;
 				saved_prefix_candidate = true;
+			}
+			if (rank_prefixes && prefix_candidate_count > 1 &&
+			    all_prefixes_estimated && best_prefix_index_id != UINT32_MAX) {
+				secondary_prefix_index_id = best_prefix_index_id;
+				secondary_prefix_count = best_prefix_count;
+				memcpy(secondary_prefix_parts, best_prefix_parts,
+				       best_prefix_count * sizeof(best_prefix_parts[0]));
+				memcpy(secondary_prefix_terms, best_prefix_terms,
+				       best_prefix_count * sizeof(best_prefix_terms[0]));
 			}
 		}
 		size_t bound_count = 0;

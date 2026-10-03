@@ -658,6 +658,73 @@ g.test_physical_composite_secondary_ranks_pinned_prefixes = function()
     t.assert_equals(res.stale, res.baseline)
 end
 
+g.test_physical_partial_secondary_ranks_pinned_prefixes = function()
+    local res = g.server:exec(function()
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
+            return {test_wrapper_unavailable = true}
+        end
+        adapter.clear()
+        box.execute([[SET SESSION "sql_new_planner_single_table" = true]])
+        box.execute([[CREATE TABLE sql_stats_prefix_rank_t
+                      (id INT PRIMARY KEY, a INT, x INT, b INT, y INT);]])
+        box.execute([[CREATE INDEX sql_stats_prefix_rank_ax
+                      ON sql_stats_prefix_rank_t (a, x);]])
+        box.execute([[CREATE INDEX sql_stats_prefix_rank_by
+                      ON sql_stats_prefix_rank_t (b, y);]])
+        for i = 1, 12 do
+            local a = i <= 8 and 1 or i
+            box.execute(('INSERT INTO sql_stats_prefix_rank_t VALUES ' ..
+                         '(%d, %d, %d, %d, %d)')
+                        :format(i, a, i, i, i))
+        end
+        local ab_sql = [[SELECT id FROM sql_stats_prefix_rank_t
+                          WHERE a = 1 AND b = 1]]
+        local ba_sql = [[SELECT id FROM sql_stats_prefix_rank_t
+                          WHERE b = 1 AND a = 1]]
+        local function plan(sql)
+            return box.execute('EXPLAIN QUERY PLAN ' .. sql).rows[1][4]
+        end
+        local baseline = plan(ab_sql)
+        local space = box.space.sql_stats_prefix_rank_t
+        adapter.install(space.id, space.index.sql_stats_prefix_rank_ax.id,
+                        12, 12, 5, false, 103)
+        local partial = plan(ab_sql)
+        adapter.clear()
+        box.execute('ANALYZE sql_stats_prefix_rank_t')
+        local analyzed_ab = plan(ab_sql)
+        local analyzed_ba = plan(ba_sql)
+        local route = box.execute('EXPLAIN (planner = \'summary\') ' ..
+                                  ab_sql).rows[1][3]
+        local rows = box.execute(ab_sql).rows
+        box.execute([[CREATE TABLE sql_stats_prefix_rank_bump_t
+                      (id INT PRIMARY KEY);]])
+        local stale = plan(ab_sql)
+        adapter.clear()
+        box.execute('DROP TABLE sql_stats_prefix_rank_bump_t')
+        box.execute('DROP TABLE sql_stats_prefix_rank_t')
+        return {baseline = baseline, partial = partial,
+                analyzed_ab = analyzed_ab, analyzed_ba = analyzed_ba,
+                route = route, rows = rows, stale = stale}
+    end)
+
+    if res.test_wrapper_unavailable then
+        t.skip('SQL stats live wrapper requires a TEST_BUILD server')
+    end
+    t.assert_str_contains(res.baseline, 'sql_stats_prefix_rank_ax')
+    t.assert_equals(res.partial:match('INDEX ([^ ]+)'),
+                    res.baseline:match('INDEX ([^ ]+)'))
+    t.assert_str_contains(res.analyzed_ab, 'sql_stats_prefix_rank_by')
+    t.assert_str_contains(res.analyzed_ba, 'sql_stats_prefix_rank_by')
+    t.assert_equals(res.route, 'new_planner')
+    t.assert_equals(res.rows, {{1}})
+    t.assert_equals(res.stale, res.baseline)
+end
+
 g.test_prepared_statement_retains_stats_generation = function()
     local res = g.server:exec(function()
         local build_dir = os.getenv('BUILDDIR')
