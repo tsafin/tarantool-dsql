@@ -399,6 +399,17 @@ compares beam and oracle on both engines and checks identical results and
 zero oracle path truncation. Its narrow workload does not yet prove a
 runtime benefit or E1 acceptance.
 
+The matched-revision E1 pilot compared default `(1,5,10)`, wider `(2,8,16)`,
+and the exact oracle on both engines. The widened beam changed one four-way
+plan, improving that query on memtx but regressing it on Vinyl; the oracle
+also changed the plan without a cross-engine runtime win. The same pilot
+exposed a hot JOIN estimate of 22 rows versus 1820 actual rows. The interim
+policy is to retain the default beam and keep the oracle opt-in; see the
+measurements and remaining acceptance gaps in
+[`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md). Narrow
+engine-cost probe results likewise remain experimental, as documented in
+[`tools/sql_cost/README.md`](../../tools/sql_cost/README.md).
+
 ## Cost-function status: memtx versus Vinyl
 
 **Cardinality inputs are partly data- and engine-specific; access costs are

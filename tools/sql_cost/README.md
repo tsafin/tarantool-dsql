@@ -76,3 +76,18 @@ topologies, and a second host before narrowing coefficients. Then compare
 candidate vs baseline **on the same binary and statistics** for chosen JOIN
 plans, planning time, and execution time. Do not change production ranking
 based on this probe alone.
+
+## Matched-source repeat (2026-10-04)
+
+The strict runner completed both modes against the binary built from
+`524fa34855`: `/tmp/sql-cost-strict-524fa34855-memory/` and
+`/tmp/sql-cost-strict-524fa34855-dumped/`. Each manifest records the binary
+hash and probe revision, and each report validates seven paired repetitions.
+Median Vinyl/memtx ratios were 2.04×/1.88× for fixed primary points,
+4.02×/3.87× for primary scans, 5.21×/5.60× for secondary payload equality,
+and 5.81×/9.37× for a 16-row secondary range (memory/dumped respectively).
+Both dumped indexes had a run, but the median timed disk-page delta was zero
+except for the secondary range (one page per execution). This corroborates
+that the workload mostly measures cached SQL execution, not general Vinyl
+disk or multi-run LSM cost. Keep the candidate coefficient grid experimental;
+no production `WhereLoop` coefficient changes follow from these results.

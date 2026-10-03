@@ -157,6 +157,34 @@ engines. This is evidence that JOIN selectivity calibration matters, not a
 conclusion about the best width. Rerun from a clean, matching build before
 using timings or q-error for a width-default decision.
 
+### Matched-revision pilot and interim policy (2026-10-04)
+
+The serial, same-binary run at
+`/tmp/e1-join-strict-ab326a54d1/report.json` has
+`decision_grade_provenance=true` for its source, binary, fixture, and volatile
+statistics. It compares default `(1,5,10)`, wider `(2,8,16)`, and opt-in
+exact search on six eligible INNER queries (plus a default/wider LEFT JOIN),
+with five measured executions per configuration and engine. All result
+fingerprints match. The one changed default/wider plan is `four-selective`:
+its median execution time is 317/267 µs (default/wider) on memtx but
+802/951 µs on Vinyl. Exact search changes that plan again, with medians
+323 µs (memtx) and 932 µs (Vinyl). Its one-off preparation observation is
+260/257 µs, versus default 114/112 µs; this is **not** a planner-time
+distribution. The same query's final-output estimate is 160 rows under the
+default beam and 208 under exact search, versus 72 actual rows. The hot
+two-way JOIN remains 22 estimated versus 1820 actual rows for every search
+configuration (q-error 82.7). The empty JOIN has a nonzero estimate, hence
+unbounded q-error.
+
+**Interim decision: retain production beam widths `(1,5,10)` and do not
+enable exact search by default.** This pilot demonstrates neither a stable
+cross-engine runtime gain nor reliable JOIN cardinality; it has no reviewed
+latency/q-error thresholds or representative corpus. The next gate requires a
+broader graph/ORDER BY/skew workload, repeated preparation measurements,
+JOIN-prefix actual/estimate instrumentation, and a calibrated cost-model A/B.
+Matched provenance is necessary but does not make this synthetic pilot a
+production acceptance test.
+
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
 same-statistics report comparing the legacy route with the enabled M3 route;
