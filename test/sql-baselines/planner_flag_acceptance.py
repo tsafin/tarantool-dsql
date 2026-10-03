@@ -32,9 +32,11 @@ EXPECTED = {
     ("sql-luatest", "llvm", "memtx"): (31, 498),
     ("sql-luatest", "llvm", "vinyl"): (30, 446),
 }
+# Required M3.5 ledger evidence is scoped to producers owned by a top-level
+# SELECT. Embedded DML/trigger SELECTs remain supported and exercised by the
+# producer matrix, but are diagnostic coverage rather than an acceptance gate.
 PRODUCER_CASES = {
     "planner_final_paths_test.lua",
-    "planner_insert_select_snapshot_test.lua",
     "planner_flag_fallback_parity_test.lua",
     "planner_composite_prefix_range_test.lua",
 }

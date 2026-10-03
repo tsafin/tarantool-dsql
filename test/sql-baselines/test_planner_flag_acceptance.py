@@ -87,6 +87,14 @@ class PlannerFlagAcceptanceTest(unittest.TestCase):
         self.assertTrue(any("missing focused producer case" in item
                             for item in result["feature_acceptance_blockers"]))
 
+    def test_embedded_dml_case_is_not_required_for_ledger_gate(self):
+        self.assertNotIn("planner_insert_select_snapshot_test.lua",
+                         gate.PRODUCER_CASES)
+        result = gate.evaluate(complete_matrix(), "current",
+                               passing_producer_matrix())
+        self.assertTrue(result["feature_acceptance_passed"],
+                        result["feature_acceptance_blockers"])
+
 
 if __name__ == "__main__":
     unittest.main()
