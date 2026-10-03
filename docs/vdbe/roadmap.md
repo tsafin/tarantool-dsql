@@ -1547,6 +1547,14 @@ DML, triggers, subprograms, non-deterministic functions.
   The reconfigured binary at `459e5170bc` also passes the focused 30/30
   generated/CnP/LLVM × memtx/Vinyl producer matrix (19,122 captured queries):
   `/tmp/m34-composite-rank-459e517/report.json`.
+  Unordered proper-prefix secondary equality scans now make the same
+  complete-estimate comparison (`39aa07be7b`). A TEST_BUILD live-ANALYZE
+  regression chooses `(b,y)` over the earlier `(a,x)` for both predicate
+  orders, checks exact output and `new_planner` routing, and confirms partial
+  and stale summaries preserve the old index choice. `ORDER BY`-sensitive
+  prefix selection retains its previous property preference; this still is
+  not a cross-kind cost comparison. The focused SQL stats and scalar-filter
+  suites pass through `test-run.py`.
   A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
   change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
   semantic diffs and no unreviewed route transitions

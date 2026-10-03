@@ -74,6 +74,10 @@ complete-estimate rule now compares multiple eligible *full-key composite*
 secondary equality paths using each index's full-prefix NDV average, with a
 stable index-ID tie. It does not have a value-specific composite MCV; if any
 candidate lacks a fresh prefix estimate, the prior first-index choice remains.
+Unordered proper-prefix composite secondary equality scans also compare
+complete pinned prefix-NDV averages, choosing the smaller estimated row count
+and then index ID. Missing summaries preserve the previous first-index route;
+`ORDER BY`-sensitive prefix selection retains its existing property preference.
 
 The executable primary-key point descriptor can also own a bounded scalar
 INTEGER/UNSIGNED candidate set for literal `IN` lists (at most 16 distinct
