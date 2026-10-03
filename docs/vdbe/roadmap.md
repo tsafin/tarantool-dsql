@@ -1555,6 +1555,9 @@ DML, triggers, subprograms, non-deterministic functions.
   prefix selection retains its previous property preference; this still is
   not a cross-kind cost comparison. The focused SQL stats and scalar-filter
   suites pass through `test-run.py`.
+  The rebuilt binary at `c80daa3beb` passes the focused 30/30
+  generated/CnP/LLVM × memtx/Vinyl producer matrix (19,122 captured queries):
+  `/tmp/m34-prefix-rank-c80daa3/report.json`.
   A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
   change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
   semantic diffs and no unreviewed route transitions
