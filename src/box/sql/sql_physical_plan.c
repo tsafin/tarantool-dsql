@@ -1041,6 +1041,15 @@ sql_physical_table_scan_from_select(
 		 * has a compatible literal equality. Keep the chosen source terms so
 		 * they can be elided only if this access path wins. */
 		if (source->space->index_map != NULL) {
+			size_t composite_candidate_count = 0;
+			bool all_composite_estimated = estimate->prefix_rows != NULL;
+			double best_composite_rows = INFINITY;
+			uint32_t best_composite_index_id = UINT32_MAX;
+			struct sql_plan_point_key_part best_composite_parts[
+				SQL_PLAN_POINT_KEY_PART_MAX] = {{0}};
+			const struct Expr *best_composite_terms[
+				SQL_PLAN_POINT_KEY_PART_MAX] = {0};
+			size_t best_composite_part_count = 0;
 			for (uint32_t index_no = 1;
 			     index_no < source->space->index_count; ++index_no) {
 				const struct index *index =
@@ -1092,20 +1101,52 @@ sql_physical_table_scan_from_select(
 				}
 				if (!complete)
 					continue;
-				secondary_index_id = index->def->iid;
-				secondary_key_part_count =
-					index->def->key_def->part_count;
-				memcpy(secondary_key_parts, candidate_parts,
-				       secondary_key_part_count * sizeof(candidate_parts[0]));
-				memcpy(secondary_scan_terms, candidate_terms,
-				       secondary_key_part_count * sizeof(candidate_terms[0]));
-				has_secondary_equality_scan = true;
+				++composite_candidate_count;
+				uint32_t part_count = index->def->key_def->part_count;
+				if (!has_secondary_equality_scan) {
+					secondary_index_id = index->def->iid;
+					secondary_key_part_count = part_count;
+					memcpy(secondary_key_parts, candidate_parts,
+					       part_count * sizeof(candidate_parts[0]));
+					memcpy(secondary_scan_terms, candidate_terms,
+					       part_count * sizeof(candidate_terms[0]));
+					has_secondary_equality_scan = true;
+				}
+				double rows;
+				if (estimate->prefix_rows == NULL ||
+				    !estimate->prefix_rows(estimate->stats_ctx,
+					index->def->iid, part_count, &rows) ||
+				    !isfinite(rows) || rows < 0) {
+					all_composite_estimated = false;
+					continue;
+				}
+				if (rows < best_composite_rows ||
+				    (rows == best_composite_rows &&
+				     index->def->iid < best_composite_index_id)) {
+					best_composite_rows = rows;
+					best_composite_index_id = index->def->iid;
+					best_composite_part_count = part_count;
+					memcpy(best_composite_parts, candidate_parts,
+					       part_count * sizeof(candidate_parts[0]));
+					memcpy(best_composite_terms, candidate_terms,
+					       part_count * sizeof(candidate_terms[0]));
+				}
+			}
+			if (composite_candidate_count > 1 && all_composite_estimated &&
+			    best_composite_index_id != UINT32_MAX) {
+				secondary_index_id = best_composite_index_id;
+				secondary_key_part_count = best_composite_part_count;
+				memcpy(secondary_key_parts, best_composite_parts,
+				       best_composite_part_count * sizeof(best_composite_parts[0]));
+				memcpy(secondary_scan_terms, best_composite_terms,
+				       best_composite_part_count * sizeof(best_composite_terms[0]));
+			}
+			if (has_secondary_equality_scan) {
 				secondary_scan_term = secondary_scan_terms[0];
 				secondary_key_column = secondary_key_parts[0].column;
 				secondary_key_unsigned = secondary_key_parts[0].is_unsigned;
 				secondary_signed_key = secondary_key_parts[0].integer_value;
 				secondary_unsigned_key = secondary_key_parts[0].unsigned_value;
-				break;
 			}
 		}
 		bool has_secondary_equality_candidate =
