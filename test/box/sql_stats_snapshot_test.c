@@ -96,6 +96,27 @@ lbox_delete_snapshot_stmt(lua_State *L)
 	return 0;
 }
 
+/** Test-only selected WHERE output estimate for a plain top-level JOIN. */
+static int
+lbox_join_output_estimate(lua_State *L)
+{
+	const char *sql = luaL_checkstring(L, 1);
+	struct Vdbe *stmt = NULL;
+	const char *tail = NULL;
+	if (sql_stmt_compile(sql, -1, NULL, &stmt, &tail, true) != 0 ||
+	    stmt == NULL)
+		return luaL_error(L, "failed to compile JOIN estimate fixture");
+	if (!stmt->planner_join_output_valid) {
+		sqlVdbeDelete(stmt);
+		lua_pushnil(L);
+		return 1;
+	}
+	uint64_t rows = sqlLogEstToInt(stmt->planner_join_output_logest);
+	sqlVdbeDelete(stmt);
+	lua_pushnumber(L, rows);
+	return 1;
+}
+
 static int
 lbox_clear_snapshot(lua_State *L)
 {
@@ -166,6 +187,7 @@ luaopen_sql_stats_snapshot_test(lua_State *L)
 		{"prepare", lbox_prepare_snapshot_stmt},
 		{"stmt_catalog_version", lbox_stmt_snapshot_catalog_version},
 		{"delete_stmt", lbox_delete_snapshot_stmt},
+		{"join_output_estimate", lbox_join_output_estimate},
 		{NULL, NULL},
 	};
 	luaL_register(L, "sql_stats_snapshot_test", methods);

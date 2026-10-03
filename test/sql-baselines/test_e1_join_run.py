@@ -23,7 +23,10 @@ def observations():
                         "statistics_id": "stats-v1", "actual_rows": 1,
                         "result_sha256": "d" * 64, "plan_sha256": "e" * 64,
                         "elapsed_us": 10 if config == "default" else 20,
-                        "prepare_us": 5,
+                        "prepare_us": 5, "estimated_rows": 2,
+                        "cardinalities": [{"stage_id": "join-output",
+                                           "estimated_rows": 2,
+                                           "actual_rows": 1}],
                     })
     return rows
 
@@ -37,6 +40,7 @@ class JoinRunnerTest(unittest.TestCase):
         self.assertEqual(report["engines"]["memtx"]["aggregate"]
                          ["default_elapsed_us"]["n"], len(join.QUERIES) * 5)
         self.assertFalse(item["plan_changed"])
+        self.assertEqual(item["default_q_error"], 2)
 
     def test_result_drift_rejected(self):
         rows = observations()

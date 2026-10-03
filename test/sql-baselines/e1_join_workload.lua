@@ -9,6 +9,7 @@ local engine = assert(os.getenv('E1_JOIN_ENGINE'))
 local config = assert(os.getenv('E1_JOIN_CONFIG'))
 local provenance = json.decode(assert(os.getenv('E1_JOIN_PROVENANCE')))
 assert(engine == 'memtx' or engine == 'vinyl')
+package.cpath = assert(os.getenv('E1_JOIN_MODULE_DIR')) .. '/?.so;' .. package.cpath
 
 box.cfg({memtx_memory = 128 * 1024 * 1024,
          vinyl_memory = 128 * 1024 * 1024})
@@ -53,6 +54,15 @@ end
 for _, table_name in ipairs({'e1_a', 'e1_b', 'e1_c', 'e1_d'}) do
     assert(box.execute('ANALYZE ' .. table_name))
 end
+local stats_test = require('sql_stats_snapshot_test')
+assert(stats_test.join_output_estimate([[SELECT a.k, COUNT(*) FROM e1_a a
+    JOIN e1_b b ON a.k = b.k GROUP BY a.k]]) == nil,
+    'grouped JOIN must not expose a final-output estimate')
+assert(stats_test.join_output_estimate([[SELECT a.id FROM e1_a a
+    JOIN e1_b b ON a.k = b.k LIMIT 2]]) == nil,
+    'limited JOIN must not expose a final-output estimate')
+assert(stats_test.join_output_estimate('SELECT id FROM e1_a') == nil,
+    'single-table SELECT is outside the JOIN estimate gate')
 
 local queries = {
     {id = 'two-hot', sql = [[SELECT a.id, b.id FROM e1_a a
@@ -98,8 +108,11 @@ for _, query in ipairs(queries) do
     local started = clock.monotonic()
     local stmt = assert(box.prepare(query.sql))
     local prepare_us = math.max(1, math.floor((clock.monotonic() - started) * 1e6))
+    local estimated_rows = assert(stats_test.join_output_estimate(query.sql),
+                                  'missing selected JOIN output estimate: ' .. query.id)
     local plan = assert(box.execute('EXPLAIN QUERY PLAN ' .. query.sql)).rows
     prepared[query.id] = {stmt = stmt, prepare_us = prepare_us,
+                          estimated_rows = estimated_rows,
                           plan_sha256 = hex_sha(json.encode(plan)), plan = plan}
 end
 
@@ -128,6 +141,10 @@ for round = 0, 7 do
             warmup = round < 3, elapsed_us = elapsed_us,
             prepare_us = info.prepare_us, plan_sha256 = info.plan_sha256,
             plan = info.plan, actual_rows = #result.rows,
+            estimated_rows = info.estimated_rows,
+            cardinalities = {{stage_id = 'join-output',
+                              estimated_rows = info.estimated_rows,
+                              actual_rows = #result.rows}},
             result_sha256 = hex_sha(json.encode(result.rows)),
         }
         file:write(json.encode(row), '\n')

@@ -100,6 +100,8 @@ configuration process order. All timing runs are serial, not concurrent.
 
 ```sh
 python3 -B test/sql-baselines/test_e1_join_run.py
+cmake --build build-jit-clang19-debug --target tarantool -- -j4
+cmake --build build-jit-clang19-debug --target sql_stats_snapshot_test -- -j4
 python3 -B test/sql-baselines/e1_join_run.py \
   --binary build-jit-clang19-debug/src/tarantool \
   --out /tmp/e1-join-width-run
@@ -109,8 +111,9 @@ The runner requires the binary's embedded commit to match HEAD and the SQL and
 producer sources to be clean. `--allow-stale-binary` is only for local debugging
 and sets `decision_grade_provenance=false`. The output contains one JSONL per
 engine/configuration and `report.json` with per-query latency distributions,
-paired ratios, prepare-time observations, plan fingerprints, actual row counts,
-and result fingerprints. It rejects changed results, repetition gaps, mixed
+paired ratios, prepare-time observations, plan fingerprints, selected WHERE-path
+output estimates, actual row counts, stage-matched q-error, and result
+fingerprints. It rejects changed results, repetition gaps, mixed
 statistics/fixture/binary provenance, and plan instability within a run. The
 fixture code SHA-256 is the data generator/DDL revision identifier; the
 statistics ID identifies volatile ANALYZE of that same fixture. Timing includes
@@ -119,15 +122,24 @@ result materialization, excludes preparation and warmup. The one-off
 time distribution.
 
 EXPLAIN QUERY PLAN exposes per-loop estimates, not a semantically matched
-estimate for each JOIN output. This pilot therefore does **not** feed JOIN
-estimates to `e1_measure.py` or claim a JOIN q-error. Stage-matched JOIN-output
-cardinality instrumentation is still required for the estimate-quality gate.
+estimate for each JOIN output. The TEST_BUILD adapter instead compiles the
+same SQL text and reads the selected `WhereInfo.nRowOut` at the top-level
+`sqlWhereBegin()` call. The capture is valid only for multi-relation,
+ungrouped, unlimited, non-DISTINCT SELECT output: its post-WHERE cardinality
+is the SELECT output cardinality. The fixture explicitly checks that grouped,
+limited, and single-table SELECTs do not expose this estimate. Every measured
+row includes one `join-output` cardinality stage; the strict `e1_measure.py`
+analyzer supplies per-query and aggregate q-error under `estimate_quality` in
+the report. The selected estimate is not an EXPLAIN per-loop count, and it is
+not an executor-observed intermediate JOIN-prefix count. Prefix-stage
+estimates and actuals remain uninstrumented.
 Likewise, this small synthetic pilot does not set or satisfy production latency
-acceptance thresholds. A first non-decision-grade run with a concurrent
-uncommitted optimizer build changed the four-way EXPLAIN order on both engines
-but preserved the asserted results; its local report is
-`/tmp/e1-join-width-pilot-20261004-d/report.json`. It should be rerun from a
-clean, matching build before using timings in a width-default decision.
+acceptance thresholds. A non-decision-grade local instrumentation smoke run is
+`/tmp/e1-join-qerror-pilot-20261004-b/report.json`; it finds a hot two-way JOIN
+with estimated 22 versus actual 1820 output rows (q-error about 82.7) on both
+engines. This is evidence that JOIN selectivity calibration matters, not a
+conclusion about the best width. Rerun from a clean, matching build before
+using timings or q-error for a width-default decision.
 
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,

@@ -346,6 +346,12 @@ struct Vdbe {
 	uint64_t planner_fallback_count;
 	/* generated, dominated, truncated, and retained candidate paths. */
 	uint64_t planner_path_metrics[4];
+	/** Selected WHERE output estimate for an eligible plain top-level JOIN.
+	 * The stage is after WHERE/ON filtering and before ORDER BY/projection.
+	 * Test-only consumers must pair it only with an ungrouped, unlimited
+	 * SELECT's output cardinality. */
+	LogEst planner_join_output_logest;
+	bool planner_join_output_valid;
 	/* Complete post-beam one-relation paths from the final solver pass. */
 	/* Allocated only for snapshot EXPLAINs that capture final paths. */
 	struct sql_planner_final_path_capture *planner_final_paths;

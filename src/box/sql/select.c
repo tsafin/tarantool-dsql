@@ -7383,6 +7383,22 @@ sqlSelect(Parse * pParse,		/* The parser context */
 				      p->pEList, wctrlFlags, p->nSelectRow);
 		if (pWInfo == 0)
 			goto select_end;
+		/* Record a stage-matched estimate for test-only JOIN quality
+		 * measurements. For this shape the WHERE output is exactly the
+		 * SELECT output cardinality: there is no aggregate, DISTINCT,
+		 * compound operation, or LIMIT after the join. ORDER BY only
+		 * permutes rows. The estimate comes from the selected WherePath,
+		 * not from an individual EXPLAIN loop. */
+		if (pParse->iSelectId == 0 && pDest->eDest == SRT_Output &&
+		    pTabList->nSrc >= 2 && !sDistinct.isTnct &&
+		    !isAgg && pGroupBy == NULL && pHaving == NULL &&
+		    (p->selFlags & (SF_Aggregate | SF_HasAgg)) == 0 &&
+		    p->pPrior == NULL && p->pLimit == NULL &&
+		    p->pOffset == NULL) {
+			v->planner_join_output_logest =
+				sqlWhereOutputRowCount(pWInfo);
+			v->planner_join_output_valid = true;
+		}
 		if (sqlWhereOutputRowCount(pWInfo) < p->nSelectRow) {
 			p->nSelectRow = sqlWhereOutputRowCount(pWInfo);
 		}

@@ -16,6 +16,8 @@ import statistics
 import subprocess
 import tempfile
 
+import e1_measure
+
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKLOAD = Path(__file__).resolve().with_name("e1_join_workload.lua")
@@ -65,6 +67,12 @@ def validate_and_report(records, engines):
         for name in ("elapsed_us", "prepare_us", "actual_rows"):
             if type(row.get(name)) is not int or row[name] < (0 if name == "actual_rows" else 1):
                 raise ValueError("invalid " + name)
+        if type(row.get("estimated_rows")) is not int or row["estimated_rows"] < 0:
+            raise ValueError("invalid selected JOIN estimate")
+        if row.get("cardinalities") != [{"stage_id": "join-output",
+                                         "estimated_rows": row["estimated_rows"],
+                                         "actual_rows": row["actual_rows"]}]:
+            raise ValueError("cardinality stage is not the final JOIN output")
         for name in ("binary_sha256", "data_sha256", "result_sha256", "plan_sha256"):
             if not isinstance(row.get(name), str) or not re.fullmatch("[0-9a-f]{64}", row[name]):
                 raise ValueError("invalid " + name)
@@ -88,7 +96,8 @@ def validate_and_report(records, engines):
                                       "statistics_id", "dispatcher"), immutable)),
               "configurations": {key: list(value) for key, value in CONFIGS.items()},
               "engines": {}, "limitations": [
-                  "EXPLAIN per-loop estimates are not JOIN-output estimates; no JOIN q-error is claimed",
+                  "JOIN q-error compares selected WHERE-path output estimate with rows from plain, ungrouped, unlimited SELECTs only",
+                  "intermediate JOIN-prefix actual cardinalities are not instrumented",
                   "prepare_us includes parse/compile but is captured once per query, not a planning-time distribution",
                   "this small synthetic workload is not a production latency acceptance gate",
               ]}
@@ -109,6 +118,8 @@ def validate_and_report(records, engines):
             for config_rows in (base, cand):
                 if len({row["plan_sha256"] for row in config_rows.values()}) != 1:
                     raise ValueError("unstable EXPLAIN plan across repetitions")
+                if len({row["estimated_rows"] for row in config_rows.values()}) != 1:
+                    raise ValueError("unstable selected JOIN output estimate")
             measured = range(3, 8)
             base_times = [base[i]["elapsed_us"] for i in measured]
             cand_times = [cand[i]["elapsed_us"] for i in measured]
@@ -119,6 +130,12 @@ def validate_and_report(records, engines):
             aggregate_ratios.extend(ratios)
             per_query[query] = {
                 "actual_rows": base[3]["actual_rows"],
+                "default_estimated_rows": base[3]["estimated_rows"],
+                "candidate_estimated_rows": cand[3]["estimated_rows"],
+                "default_q_error": e1_measure.q_error(
+                    base[3]["estimated_rows"], base[3]["actual_rows"]),
+                "candidate_q_error": e1_measure.q_error(
+                    cand[3]["estimated_rows"], cand[3]["actual_rows"]),
                 "result_sha256": base[3]["result_sha256"],
                 "default_elapsed_us": summary(base_times),
                 "candidate_elapsed_us": summary(cand_times),
@@ -139,6 +156,7 @@ def validate_and_report(records, engines):
             "plan_changes": sum(item["plan_changed"]
                                 for item in per_query.values()),
         }
+    report["estimate_quality"] = e1_measure.analyze(records, "default", "candidate")
     return report
 
 
@@ -161,6 +179,9 @@ def run(binary, out, mode, engines, allow_stale_binary=False):
          str(Path(__file__))], cwd=ROOT, text=True).strip()
     if dirty and not allow_stale_binary:
         raise ValueError("SQL or JOIN producer sources are dirty; commit before capture")
+    module = binary.parent.parent / "test/box/sql_stats_snapshot_test.so"
+    if not module.is_file():
+        raise ValueError("missing TEST_BUILD SQL statistics adapter: " + str(module))
     out.mkdir(parents=True)
     records = []
     workload_hash = sha256(WORKLOAD)
@@ -176,6 +197,7 @@ def run(binary, out, mode, engines, allow_stale_binary=False):
                         "SQL_JIT_ENABLE": "1" if mode == "llvm" else "0",
                         "E1_JOIN_OUTPUT": str(path), "E1_JOIN_ENGINE": engine,
                         "E1_JOIN_CONFIG": config,
+                        "E1_JOIN_MODULE_DIR": str(module.parent),
                         "E1_JOIN_PROVENANCE": json.dumps({
                             "dispatcher": mode, "source_commit": embedded,
                             "binary_sha256": sha256(binary),
