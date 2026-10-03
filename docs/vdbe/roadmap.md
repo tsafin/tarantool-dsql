@@ -36,6 +36,8 @@ each map to a sub-issue; their checklist items map to individual tasks.
   contracts and feasibility constraints.
 - [`planner_vm_migration.md`](planner_vm_migration.md) — staged migration
   of `where.c` to planner-IR + VDBE lowering.
+- [`dp-planner.md`](dp-planner.md) — current bounded-DP algorithms, data
+  structures, cost equations, pruning, and limitations.
 - [`next_gen_sql_planner.md`](next_gen_sql_planner.md) — architecture survey
   (PostgreSQL / DPhyp / ORCA comparisons; memtx and Vinyl applicability).
 
