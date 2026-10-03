@@ -725,6 +725,144 @@ g.test_physical_partial_secondary_ranks_pinned_prefixes = function()
     t.assert_equals(res.stale, res.baseline)
 end
 
+g.test_dp_join_cost_uses_pinned_relation_rows = function()
+    local results = g.server:exec(function()
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
+            return {test_wrapper_unavailable = true}
+        end
+        adapter.clear()
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+        local output = {}
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local big = 'sql_stats_dp_big_' .. engine
+            local small = 'sql_stats_dp_small_' .. engine
+            box.execute(("CREATE TABLE %s (id INT PRIMARY KEY, v INT) " ..
+                         "WITH ENGINE = '%s'"):format(big, engine))
+            box.execute(("CREATE TABLE %s (id INT PRIMARY KEY, v INT) " ..
+                         "WITH ENGINE = '%s'"):format(small, engine))
+            for i = 1, 100 do
+                box.execute(('INSERT INTO %s VALUES (?, ?)'):format(big),
+                            {i, i})
+            end
+            for i = 1, 5 do
+                box.execute(('INSERT INTO %s VALUES (?, ?)'):format(small),
+                            {i, i})
+            end
+            local sql = ('SELECT a.id FROM %s AS a JOIN %s AS b ' ..
+                         'ON a.id = b.id'):format(big, small)
+            local function first_loop()
+                return box.execute('EXPLAIN QUERY PLAN ' .. sql).rows[1][4]
+            end
+            local before = first_loop()
+            box.execute('ANALYZE ' .. big)
+            box.execute('ANALYZE ' .. small)
+            local after = first_loop()
+            local rows = box.execute(sql).rows
+            local bump = 'sql_stats_dp_bump_' .. engine
+            box.execute(('CREATE TABLE %s (id INT PRIMARY KEY)'):format(bump))
+            local stale = first_loop()
+            box.execute('DROP TABLE ' .. bump)
+            box.execute('DROP TABLE ' .. small)
+            box.execute('DROP TABLE ' .. big)
+            output[engine] = {before = before, after = after, stale = stale,
+                              rows = rows}
+        end
+        adapter.clear()
+        box.execute([[SET SESSION "sql_seq_scan" = false]])
+        return output
+    end)
+
+    if results.test_wrapper_unavailable then
+        t.skip('DP live-statistics test requires a TEST_BUILD server')
+    end
+    for _, engine in ipairs({'memtx', 'vinyl'}) do
+        local result = results[engine]
+        t.assert_str_contains(result.before,
+                              'SCAN TABLE sql_stats_dp_big_' .. engine)
+        t.assert_str_contains(result.after,
+                              'SCAN TABLE sql_stats_dp_small_' .. engine)
+        t.assert_str_contains(result.stale,
+                              'SCAN TABLE sql_stats_dp_big_' .. engine)
+        t.assert_equals(result.rows, {{1}, {2}, {3}, {4}, {5}})
+    end
+end
+
+g.test_dp_join_cost_uses_pinned_mcv = function()
+    local results = g.server:exec(function()
+        local build_dir = os.getenv('BUILDDIR')
+        if build_dir ~= nil then
+            package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        end
+        local ok, adapter = pcall(require, 'sql_stats_snapshot_test')
+        if not ok then
+            return {test_wrapper_unavailable = true}
+        end
+        adapter.clear()
+        box.execute([[SET SESSION "sql_seq_scan" = true]])
+        box.execute([[SET SESSION "sql_new_planner_single_table" = false]])
+        local output = {}
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local a = 'sql_stats_dp_skew_a_' .. engine
+            local b = 'sql_stats_dp_skew_b_' .. engine
+            box.execute(("CREATE TABLE %s (id INT PRIMARY KEY, v INT) " ..
+                         "WITH ENGINE = '%s'"):format(a, engine))
+            box.execute(("CREATE TABLE %s (id INT PRIMARY KEY, v INT) " ..
+                         "WITH ENGINE = '%s'"):format(b, engine))
+            box.execute(('CREATE INDEX %s_v ON %s (v)'):format(a, a))
+            box.execute(('CREATE INDEX %s_v ON %s (v)'):format(b, b))
+            for i = 1, 100 do
+                box.execute(('INSERT INTO %s VALUES (?, ?)'):format(a),
+                            {i, i <= 90 and 1 or i})
+                box.execute(('INSERT INTO %s VALUES (?, ?)'):format(b),
+                            {i, i == 1 and 1 or 2})
+            end
+            local sql = ('SELECT a.id FROM %s AS a JOIN %s AS b ' ..
+                         'ON a.id = b.id WHERE a.v = 1 AND b.v = 1')
+                        :format(a, b)
+            local function first_loop()
+                return box.execute('EXPLAIN QUERY PLAN ' .. sql).rows[1][4]
+            end
+            local before = first_loop()
+            box.execute('ANALYZE ' .. a)
+            box.execute('ANALYZE ' .. b)
+            local after = first_loop()
+            local rows = box.execute(sql).rows
+            local bump = 'sql_stats_dp_skew_bump_' .. engine
+            box.execute(('CREATE TABLE %s (id INT PRIMARY KEY)'):format(bump))
+            local stale = first_loop()
+            box.execute('DROP TABLE ' .. bump)
+            box.execute('DROP TABLE ' .. b)
+            box.execute('DROP TABLE ' .. a)
+            output[engine] = {before = before, after = after, stale = stale,
+                              rows = rows}
+        end
+        adapter.clear()
+        box.execute([[SET SESSION "sql_seq_scan" = false]])
+        return output
+    end)
+
+    if results.test_wrapper_unavailable then
+        t.skip('DP live-statistics test requires a TEST_BUILD server')
+    end
+    for _, engine in ipairs({'memtx', 'vinyl'}) do
+        local result = results[engine]
+        t.assert_str_contains(result.before,
+                              'SEARCH TABLE sql_stats_dp_skew_a_' .. engine)
+        t.assert_str_contains(result.after,
+                              'SEARCH TABLE sql_stats_dp_skew_b_' .. engine)
+        t.assert_str_contains(result.after, '(v=?) (~1 row)')
+        t.assert_str_contains(result.stale,
+                              'SEARCH TABLE sql_stats_dp_skew_a_' .. engine)
+        t.assert_equals(result.rows, {{1}})
+    end
+end
+
 g.test_prepared_statement_retains_stats_generation = function()
     local res = g.server:exec(function()
         local build_dir = os.getenv('BUILDDIR')
