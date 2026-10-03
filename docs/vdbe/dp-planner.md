@@ -372,6 +372,33 @@ volatile TEST_BUILD ANALYZE implementation. The current production beam
 defaults remain 1/5/10 until the workload-level quality and latency gates in
 [`roadmap.md`](roadmap.md) are reviewed.
 
+### Opt-in exact small-join comparator
+
+`SQL_PATH_SOLVER_ORACLE_MAX_RELATIONS=2`, `3`, or `4` enables a diagnostic
+comparison mode for eligible flat INNER-join planning invocations with no
+subquery FROM item, `NATURAL`/`USING`, `LEFT`, or `CROSS` join. It is off by
+default. For eligible invocations, `wherePathSolver()` keeps every feasible
+partial left-deep path formed from its existing `WhereInfo.pLoops` candidates:
+it applies the same prerequisite, relation-reuse, automatic-index payback,
+row, cost, and ORDER BY calculations, but skips path dominance and global
+beam admission. Thus it returns the minimum **estimated** cost over the
+existing candidate set and physical plan space, subject to the ordinary
+candidate pruning that happened before this solver. It is not a bushy-plan
+or SQL-wide optimality proof.
+
+A preflight upper bound multiplies the number of loops for each relation by
+the number of relation permutations. If that bound exceeds 65,536 paths per
+depth, the explicit oracle request fails rather than silently returning a
+beam-truncated plan. Ineligible shapes use the ordinary bounded solver.
+This opt-in mode is an experimental oracle for small-query comparison, **not
+a production fallback policy**; no default width or routing changes. The
+separate [`join-legality-selectivity-audit.md`](join-legality-selectivity-audit.md)
+records the legality and cardinality limits. The
+[`sql_dp_oracle_test.lua`](../../test/sql-luatest/sql_dp_oracle_test.lua)
+compares beam and oracle on both engines and checks identical results and
+zero oracle path truncation. Its narrow workload does not yet prove a
+runtime benefit or E1 acceptance.
+
 ## Cost-function status: memtx versus Vinyl
 
 **Cardinality inputs are partly data- and engine-specific; access costs are

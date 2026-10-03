@@ -69,6 +69,26 @@ whereLoopResize(struct WhereLoop *p, int n);
 
 #define SQL_PATH_SOLVER_WIDTH_MAX 64
 
+/* An opt-in comparison oracle, not a production join-order policy. */
+#define SQL_PATH_SOLVER_ORACLE_PATH_MAX 65536
+
+static int
+sql_path_solver_oracle_max_relations(void)
+{
+	char value_buf[32];
+	const char *value = getenv_safe("SQL_PATH_SOLVER_ORACLE_MAX_RELATIONS",
+					     value_buf, sizeof(value_buf));
+	if (value == NULL || value[0] == '\0')
+		return 0;
+	errno = 0;
+	char *end = NULL;
+	long limit = strtol(value, &end, 10);
+	if (errno != 0 || end == value || *end != '\0' || limit < 2 ||
+	    limit > 4)
+		return 0;
+	return (int)limit;
+}
+
 static const struct sql_stats_snapshot *
 where_stats_snapshot(const struct WhereInfo *where_info)
 {
@@ -3218,6 +3238,50 @@ where_path_copy(WherePath *dst, const WherePath *src, int n_loop)
 }
 
 /*
+ * Bound the complete left-deep enumeration before allocating its frontier.
+ * This deliberately counts all supplied WhereLoop combinations, including
+ * paths that prerequisite checks will later reject. If the bound is too
+ * large, fail the explicit oracle request instead of silently returning a
+ * beam-truncated result under an "exact" label.
+ */
+static int
+where_path_oracle_capacity(WhereInfo *pWInfo, int n_loop)
+{
+	int relation_limit = sql_path_solver_oracle_max_relations();
+	if (n_loop < 2 || n_loop > relation_limit)
+		return 0;
+	int loop_count[4] = {0};
+	for (int i = 0; i < n_loop; i++) {
+		struct SrcList_item *item = &pWInfo->pTabList->a[i];
+		if ((item->fg.jointype &
+		     (JT_LEFT | JT_CROSS | JT_RIGHT | JT_NATURAL)) != 0 ||
+		    item->pUsing != NULL || item->pSelect != NULL)
+			return 0;
+	}
+	for (WhereLoop *loop = pWInfo->pLoops; loop != NULL;
+	     loop = loop->pNextLoop) {
+		if (loop->iTab < n_loop)
+			loop_count[loop->iTab]++;
+	}
+	uint64_t capacity = 1;
+	for (int i = 0; i < n_loop; i++) {
+		if (loop_count[i] == 0)
+			return 0;
+		uint64_t factor = (uint64_t)(i + 1) * loop_count[i];
+		if (capacity > SQL_PATH_SOLVER_ORACLE_PATH_MAX / factor) {
+			diag_set(ClientError, ER_SQL_PARSER_LIMIT,
+				 "The number of exact join-oracle paths",
+				 SQL_PATH_SOLVER_ORACLE_PATH_MAX + 1,
+				 SQL_PATH_SOLVER_ORACLE_PATH_MAX);
+			pWInfo->pParse->is_aborted = true;
+			return -1;
+		}
+		capacity *= factor;
+	}
+	return (int)capacity;
+}
+
+/*
  * Given the list of WhereLoop objects at pWInfo->pLoops, this routine
  * attempts to find the lowest cost path that visits each WhereLoop
  * once.  This path is then loaded into the pWInfo->a[].pWLoop fields.
@@ -3233,6 +3297,7 @@ static int
 wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 {
 	int mxChoice;		/* Maximum number of simultaneous paths tracked */
+	bool exact_oracle;	/* Exhaust all retained WhereLoop combinations. */
 	int nLoop;		/* Number of terms in the join */
 	Parse *pParse;		/* Parsing context */
 	int iLoop;		/* Loop counter over the terms of the join */
@@ -3255,6 +3320,12 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 	 * to tune the bounded beam without changing the planner implementation.
 	 */
 	mxChoice = sql_path_solver_width(nLoop);
+	int oracle_capacity = where_path_oracle_capacity(pWInfo, nLoop);
+	if (oracle_capacity < 0)
+		return -1;
+	exact_oracle = oracle_capacity > 0;
+	if (exact_oracle)
+		mxChoice = oracle_capacity;
 	assert(nLoop <= pWInfo->pTabList->nSrc);
 	WHERETRACE(0x002, ("---- begin solver.  (nRowEst=%d)\n", nRowEst));
 
@@ -3394,6 +3465,21 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 				sql_record_planner_path_metric(
 					pWInfo->pParse->pVdbe,
 					SQL_PLANNER_PATH_GENERATED, 1);
+				if (exact_oracle) {
+					/* The preflight bound makes this impossible. No
+					 * dominance or global beam pruning is used here. */
+					if (nTo >= mxChoice) {
+						diag_set(ClientError, ER_SQL_PARSER_LIMIT,
+							 "The number of exact join-oracle paths",
+							 nTo + 1, mxChoice);
+						pParse->is_aborted = true;
+						sql_xfree(pSpace);
+						return -1;
+					}
+					jj = nTo++;
+					pTo = &aTo[jj];
+					goto candidate_ready;
+				}
 
 				/* A path can dominate another only inside the same relation
 				 * subset/order/reverse-scan partition. Keep incomparable paths
@@ -4091,9 +4177,13 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		}
 #endif
 
-		wherePathSolver(pWInfo, 0);
+		rc = wherePathSolver(pWInfo, 0);
+		if (rc != 0)
+			goto whereBeginError;
 		if (pWInfo->pOrderBy != NULL)
-			wherePathSolver(pWInfo, pWInfo->nRowOut + 1);
+			rc = wherePathSolver(pWInfo, pWInfo->nRowOut + 1);
+		if (rc != 0)
+			goto whereBeginError;
 	}
 	sql_record_planner_elapsed(v,
 				   (clock_monotonic64() - planner_start_ns) / 1000);
