@@ -3536,6 +3536,23 @@ end-to-end execution timing, including zero-cardinality and provenance rules.
 Its six unit tests pass; no integrated M3/S2 producer currently supplies these
 observations, and the contract intentionally selects no acceptance thresholds.
 
+**Working DP cost-model checkpoint (2026-10-03).** The production bounded DP
+in `wherePathSolver()` already prices WhereLoop candidates from relation rows,
+index-prefix rows, and value-specific MCV estimates read from the VDBE-pinned
+statistics snapshot. It combines each loop's setup/run cost with outer-path
+rows and prior cost, then retains and selects paths by estimated total cost
+within the configured beam. Live volatile-ANALYZE regressions in
+`sql_stats_test.lua` now demonstrate that this cost model changes the chosen
+two-table join order on both memtx and Vinyl: a 100-row/5-row join changes
+from scanning the first table to scanning the five-row table, and a same-size
+skewed join changes from the first index's default ~10-row estimate to the
+other index's MCV-backed ~1-row estimate. Both queries preserve exact results;
+schema-stale statistics restore the default path. The focused SQL stats suite
+passes in the Debug TEST_BUILD. This proves a working statistics-aware cost
+model inside the current bounded DP, not calibrated join-correlation or range
+selectivity, an integrated M3 physical-plan DP, corpus plan-quality gain, or
+E1 acceptance. The 1/5/10 defaults remain unchanged (`b0fcce7daa`).
+
 **Exit criteria:**
 
 - the current bounded DP solver runs with configurable budgets, property-

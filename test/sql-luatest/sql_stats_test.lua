@@ -785,8 +785,10 @@ g.test_dp_join_cost_uses_pinned_relation_rows = function()
         local result = results[engine]
         t.assert_str_contains(result.before,
                               'SCAN TABLE sql_stats_dp_big_' .. engine)
+        t.assert_str_contains(result.before, '(~1048576 rows)')
         t.assert_str_contains(result.after,
                               'SCAN TABLE sql_stats_dp_small_' .. engine)
+        t.assert_str_contains(result.after, '(~5 rows)')
         t.assert_str_contains(result.stale,
                               'SCAN TABLE sql_stats_dp_big_' .. engine)
         t.assert_equals(result.rows, {{1}, {2}, {3}, {4}, {5}})
@@ -854,6 +856,7 @@ g.test_dp_join_cost_uses_pinned_mcv = function()
         local result = results[engine]
         t.assert_str_contains(result.before,
                               'SEARCH TABLE sql_stats_dp_skew_a_' .. engine)
+        t.assert_str_contains(result.before, '(v=?) (~10 rows)')
         t.assert_str_contains(result.after,
                               'SEARCH TABLE sql_stats_dp_skew_b_' .. engine)
         t.assert_str_contains(result.after, '(v=?) (~1 row)')
