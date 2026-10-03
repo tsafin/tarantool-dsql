@@ -463,7 +463,12 @@ single-relation subset; broader normalized inputs remain future work.
 
 #### M3.5 route-ledger scope decision
 
-The current diagnostic is one record per prepared-statement VDBE, but the
+The following describes the original integration problem and its implemented
+solution. M3.5 is now accepted for top-level SELECT statements; the
+2026-10-03 scope clarification below excludes embedded DML/trigger producers
+from the required ledger gate without removing their diagnostic support.
+
+The original diagnostic was one record per prepared-statement VDBE, but the
 production `sqlSelect()` path is recursive: compound branches, recursive CTE
 terms, and subquery producers can each compile into that VDBE. Existing
 first-reason-wins metadata therefore describes neither every SELECT component
@@ -473,9 +478,11 @@ rows without entering the WHERE planner or the table-scan attempt. Counting
 such a direct route as a planner fallback would be false; silently omitting it
 is only valid if the gate explicitly excludes direct producers.
 
-Adopt **per-component scope**. Every SELECT producer, including recursive
-compound/CTE/subquery branches, direct multi-row `VALUES`, and direct
-`OP_Count`, receives a route record. A component is identified by its
+Adopt **per-component scope within a top-level SELECT statement**. Every
+SELECT producer in that statement, including recursive compound/CTE/subquery
+branches and direct `OP_Count`, receives a route record.
+Standalone multi-row `VALUES` remains implemented diagnostic coverage outside
+the required top-level SELECT gate. A component is identified by its
 statement-local `iSelectId`; records also carry parent component ID and a
 stable role (`root`, `compound`, `subquery`, `cte`, or `direct`). Direct paths
 are not fallbacks merely because they bypass `where.c`.
@@ -486,23 +493,26 @@ there is one; if the root is absent or route records disagree across the
 statement, it reports `mixed` and a NULL fallback reason. It must never select
 an arbitrary first nested reason. Counters count each component's actual
 planner attempt once; EXPLAIN serialization does not increment them. This
-scope is required by the roadmap's “every unsupported shape” contract and
-avoids silently excluding direct or recursive producers. A bounded ledger is
-now populated at the SQL producer boundaries and exposed in the v5 snapshot.
+scope is required by the roadmap's “every unsupported shape” contract for
+top-level SELECT statements and avoids silently excluding direct or recursive
+producers. A bounded ledger is now populated at the SQL producer boundaries
+and exposed in the v5 snapshot.
 Focused runtime coverage verifies ordinary, fallback, VALUES, OP_Count,
 compound, recursive CTE, FROM-subquery, and scalar-subquery routes. The M0
-harness rejects incomplete successful SELECT captures. M3.5 remains open until
-the reviewed corpus producer inventory is covered and broader mixed/direct/
-nested runtime evidence closes the route matrix.
+harness rejects incomplete successful SELECT captures. At that checkpoint,
+M3.5 remained open until the reviewed top-level SELECT inventory and
+mixed/direct/nested runtime evidence closed the route matrix; those gates have
+since passed as recorded in the roadmap.
 
 The 2026-09-28 caller inventory also finds `sqlSelect()` producers outside
 `select.c`: INSERT-from-SELECT in `insert.c`, view materialization for DELETE
-in `delete.c`, and SELECT trigger steps in `trigger.c`. The M3.5 scope decision
-includes every such producer, not only top-level SELECT statements. Embedded
-producer roles identify ownership while route results remain per component;
-the enclosing DML statement itself is not mislabeled as a planner fallback.
-Runtime and reviewed-corpus capture coverage for each producer remains part of
-the M3.5 completion gate.
+in `delete.c`, and SELECT trigger steps in `trigger.c`. These were included by
+the earlier, broader 2026-09-27 scope decision, which the 2026-10-03 user
+decision supersedes for M3.5 acceptance: embedded DML/trigger producers are
+not required for the top-level SELECT ledger gate. Their implemented roles,
+route records, runtime tests, and corpus semantic-parity checks remain useful
+additional coverage; the enclosing DML statement is not mislabeled as a
+planner fallback.
 
 INSERT-from-SELECT is now included in the component ledger when captured with
 `EXPLAIN (planner = 'snapshot')`. Its embedded SELECT is the component root,
@@ -523,9 +533,8 @@ SELECT trigger steps are included in the ledger by the trigger-program
 integration: the first trigger SELECT is `trigger_select_root` when it owns the
 ledger, and `trigger_select` with a parent edge when another SELECT already
 owns the statement ledger. A focused INSERT-trigger test covers standalone and
-INSERT-SELECT ownership plus execution. DELETE/UPDATE view materialization and
-the broader reviewed-corpus producer inventory still require corpus coverage
-before M3.5 can close.
+INSERT-SELECT ownership plus execution. Further DELETE/UPDATE view and trigger
+coverage is useful non-gating regression work under the clarified scope.
 
 ```mermaid
 flowchart TD

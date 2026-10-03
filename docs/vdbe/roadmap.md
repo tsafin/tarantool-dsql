@@ -2124,7 +2124,12 @@ DML, triggers, subprograms, non-deterministic functions.
   `docs/vdbe/physical_plan_descriptor.md`. *parallel: no* (shares
   `SELECT`/VDBE integration).
 - [x] **M3.5** Per-component fallback gate — complete for the adopted
-  per-component ledger contract. The `planner_flag_acceptance.py` aggregate
+  top-level SELECT ledger contract. This includes nested SELECT components
+  owned by that statement, but does not require SELECT producers compiled
+  inside INSERT/DELETE/UPDATE or trigger programs. Those embedded producers
+  remain implemented and tested as additional diagnostic coverage, not the
+  M3.5 ledger acceptance gate (`79695bfff6`). The
+  `planner_flag_acceptance.py` aggregate
   was refreshed after the deterministic projection increment, with nine
   suite/mode reports (generated, CnP, LLVM ×
   SQL-TAP, SQL, and SQL-luatest) plus 24 focused producer runtime cases (four
@@ -2335,8 +2340,10 @@ DML, triggers, subprograms, non-deterministic functions.
   This inventory is source-level coverage, not proof that every reviewed SQL
   corpus topology has passed typed capture. Focused runtime tests now cover
   all listed direct/nested producer families, including mixed roots and
-  children and trigger ownership. Full reviewed-corpus inclusion and route
-  dispositions remain the M3.5 acceptance gate. A fresh focused capture of the
+  children and trigger ownership. Reviewed-corpus inclusion and route
+  dispositions for top-level SELECT producers are the M3.5 acceptance gate;
+  embedded DML/trigger producers remain extra evidence. A fresh focused
+  capture of the
   INSERT-SELECT, view-DML, and trigger producer fixture validates 41 snapshots
   per engine in generated, CnP, LLVM, and generated-repeat modes; all three
   comparisons are exact, with 39 observed CnP and 32 observed LLVM executions
@@ -2447,7 +2454,8 @@ DML, triggers, subprograms, non-deterministic functions.
   statement versus per SELECT component); until then, do not add fallback
   assertions or infer a route class for VALUES.
 
-  **Route-ledger scope decision (2026-09-27): resolved.** M3.5 uses every
+  **Historical route-ledger scope decision (2026-09-27; superseded
+  2026-10-03).** The original implementation used every
   SELECT component as its coverage unit across every `sqlSelect()` producer,
   including top-level root, recursive compound/CTE/subquery, direct multi-row
   VALUES, direct OP_Count, INSERT-SELECT, view-DML materialization, and trigger
@@ -2462,6 +2470,16 @@ DML, triggers, subprograms, non-deterministic functions.
   evidence. The v5 snapshot ledger is authoritative when complete; legacy
   statement fields remain a compatibility view. No additional route enum
   alone closes the remaining producer-coverage gate.
+
+  **Superseding acceptance scope (2026-10-03).** M3.5 requires a complete
+  ledger for SELECT producers owned by a top-level SELECT statement, including
+  its nested/recursive components and direct emitters within that statement.
+  INSERT-SELECT, view-DML materialization, and trigger-program SELECTs are
+  outside the required ledger gate. Their existing records, runtime fixtures,
+  and broad semantic-parity coverage remain intact; no supported route is
+  removed. The focused matrix still runs the embedded-producer fixture as an
+  extra regression, but `planner_flag_acceptance.py` no longer requires it to
+  decide M3.5 closure.
 
   **Component-ledger integration (2026-09-27).** The bounded internal model
   now records unique SELECT component IDs, parents, producer roles, and route /
