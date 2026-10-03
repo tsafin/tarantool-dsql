@@ -86,6 +86,49 @@ The tool deliberately sets no “good enough” q-error or latency threshold. Th
 workload, metric thresholds, unacceptable regressions, and trade-off for any
 planner-time increase require review before collecting decision-grade results.
 
+## Bounded-DP multiway JOIN execution pilot
+
+`e1_join_run.py` drives `e1_join_workload.lua` in a fresh Tarantool process for
+each engine and solver-width triple. It compares the current `(1,5,10)` widths
+with `(2,8,16)` on the same deterministic, volatile-ANALYZE fixture. The
+workload executes seven SELECTs: hot and rare two-way equijoins, filtered and
+range/equality three-way joins, a selective four-way join, an empty three-way
+join, and a LEFT JOIN. The fixture asserts expected output row counts. Each
+query is prepared once, warmed up three times, then executed five measured
+times; query order alternates within each process. Memtx and Vinyl reverse
+configuration process order. All timing runs are serial, not concurrent.
+
+```sh
+python3 -B test/sql-baselines/test_e1_join_run.py
+python3 -B test/sql-baselines/e1_join_run.py \
+  --binary build-jit-clang19-debug/src/tarantool \
+  --out /tmp/e1-join-width-run
+```
+
+The runner requires the binary's embedded commit to match HEAD and the SQL and
+producer sources to be clean. `--allow-stale-binary` is only for local debugging
+and sets `decision_grade_provenance=false`. The output contains one JSONL per
+engine/configuration and `report.json` with per-query latency distributions,
+paired ratios, prepare-time observations, plan fingerprints, actual row counts,
+and result fingerprints. It rejects changed results, repetition gaps, mixed
+statistics/fixture/binary provenance, and plan instability within a run. The
+fixture code SHA-256 is the data generator/DDL revision identifier; the
+statistics ID identifies volatile ANALYZE of that same fixture. Timing includes
+result materialization, excludes preparation and warmup. The one-off
+`prepare_us` values include parsing and compilation and are **not** a planner-
+time distribution.
+
+EXPLAIN QUERY PLAN exposes per-loop estimates, not a semantically matched
+estimate for each JOIN output. This pilot therefore does **not** feed JOIN
+estimates to `e1_measure.py` or claim a JOIN q-error. Stage-matched JOIN-output
+cardinality instrumentation is still required for the estimate-quality gate.
+Likewise, this small synthetic pilot does not set or satisfy production latency
+acceptance thresholds. A first non-decision-grade run with a concurrent
+uncommitted optimizer build changed the four-way EXPLAIN order on both engines
+but preserved the asserted results; its local report is
+`/tmp/e1-join-width-pilot-20261004-d/report.json`. It should be rerun from a
+clean, matching build before using timings in a width-default decision.
+
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
 same-statistics report comparing the legacy route with the enabled M3 route;

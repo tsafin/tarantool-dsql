@@ -10,7 +10,7 @@ local config = assert(os.getenv('E1_JOIN_CONFIG'))
 local provenance = json.decode(assert(os.getenv('E1_JOIN_PROVENANCE')))
 assert(engine == 'memtx' or engine == 'vinyl')
 
-box.cfg({wal_mode = 'none', memtx_memory = 128 * 1024 * 1024,
+box.cfg({memtx_memory = 128 * 1024 * 1024,
          vinyl_memory = 128 * 1024 * 1024})
 assert(box.execute([[SET SESSION "sql_seq_scan" = true]]))
 
@@ -65,6 +65,10 @@ local queries = {
         JOIN e1_b b ON a.k = b.k JOIN e1_c c ON b.k = c.k
         WHERE a.bucket = 7 AND b.flag = 2 AND c.band = 1
         ORDER BY a.id, b.id, c.id]]},
+    {id = 'three-range-equality', sql = [[SELECT a.id, b.id, c.id FROM e1_a a
+        JOIN e1_b b ON a.k = b.k JOIN e1_c c ON b.k = c.k
+        WHERE a.id BETWEEN 60 AND 80 AND b.flag = 2 AND c.band = 1
+        ORDER BY a.id, b.id, c.id]]},
     {id = 'four-selective', sql = [[SELECT a.id, b.id, c.id, d.id
         FROM e1_a a JOIN e1_b b ON a.k = b.k
         JOIN e1_c c ON b.k = c.k JOIN e1_d d ON c.k = d.k
@@ -76,6 +80,12 @@ local queries = {
     {id = 'left-join', sql = [[SELECT a.id, b.id FROM e1_a a
         LEFT JOIN e1_b b ON a.k = b.k AND b.flag = 1
         WHERE a.k = 19 ORDER BY a.id, b.id]]},
+}
+local expected_rows = {
+    ['two-hot'] = 1820, ['two-rare'] = 12,
+    ['three-filtered'] = 340, ['three-range-equality'] = 182,
+    ['four-selective'] = 72,
+    ['three-empty'] = 0, ['left-join'] = 3,
 }
 
 local function hex_sha(value)
@@ -103,6 +113,8 @@ for round = 0, 7 do
         local info = prepared[query.id]
         local started = clock.monotonic()
         local result = assert(box.execute(info.stmt.stmt_id))
+        assert(#result.rows == expected_rows[query.id],
+               'JOIN output cardinality changed: ' .. query.id)
         local elapsed_us = math.max(1, math.floor((clock.monotonic() - started) * 1e6))
         local row = {
             schema_version = 1, workload_id = 'bounded-dp-joins-v1',
