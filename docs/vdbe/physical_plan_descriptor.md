@@ -69,7 +69,11 @@ one-part secondary equality paths when all
 eligible paths have fresh estimates from the pinned snapshot. It chooses the
 smaller estimated result, breaking ties by index ID. Missing, partial, or stale
 statistics preserve the previous first-match route. This is not yet general
-ranking among primary, range, prefix, full-scan, and secondary paths.
+ranking among primary, range, prefix, full-scan, and secondary paths. The same
+complete-estimate rule now compares multiple eligible *full-key composite*
+secondary equality paths using each index's full-prefix NDV average, with a
+stable index-ID tie. It does not have a value-specific composite MCV; if any
+candidate lacks a fresh prefix estimate, the prior first-index choice remains.
 
 The executable primary-key point descriptor can also own a bounded scalar
 INTEGER/UNSIGNED candidate set for literal `IN` lists (at most 16 distinct

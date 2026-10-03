@@ -1535,6 +1535,15 @@ DML, triggers, subprograms, non-deterministic functions.
   fixture cases (19,122 captured queries, accepted component ledgers):
   `/tmp/m34-cost-rank-cb7adc-verified/report.json`. This is focused route
   regression evidence, not a reviewed full-corpus quality gate.
+  Complete composite INTEGER/UNSIGNED secondary equality paths are also
+  compared by their pinned full-prefix NDV averages when every eligible path
+  has an estimate (`c6002f7349`). The first-index route remains when a
+  summary is absent or stale. A live-ANALYZE TEST_BUILD regression pins the
+  more selective `(c,d)` index against an earlier `(a,b)` index for both
+  predicate orders, exact result rows, and missing/stale fallback. The focused
+  `sql_stats_test.lua` and `planner_scalar_filter_test.lua` suites pass through
+  `test-run.py` with a short VARDIR. This still excludes cross-kind cost
+  comparisons and value-specific composite MCV estimates.
   A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
   change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
   semantic diffs and no unreviewed route transitions
