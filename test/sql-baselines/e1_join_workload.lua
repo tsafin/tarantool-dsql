@@ -105,15 +105,17 @@ end
 local file = assert(io.open(output, 'w'))
 local prepared = {}
 for _, query in ipairs(queries) do
-    local started = clock.monotonic()
-    local stmt = assert(box.prepare(query.sql))
-    local prepare_us = math.max(1, math.floor((clock.monotonic() - started) * 1e6))
-    local estimated_rows = assert(stats_test.join_output_estimate(query.sql),
-                                  'missing selected JOIN output estimate: ' .. query.id)
-    local plan = assert(box.execute('EXPLAIN QUERY PLAN ' .. query.sql)).rows
-    prepared[query.id] = {stmt = stmt, prepare_us = prepare_us,
-                          estimated_rows = estimated_rows,
-                          plan_sha256 = hex_sha(json.encode(plan)), plan = plan}
+    if config ~= 'exact-oracle' or query.id ~= 'left-join' then
+        local started = clock.monotonic()
+        local stmt = assert(box.prepare(query.sql))
+        local prepare_us = math.max(1, math.floor((clock.monotonic() - started) * 1e6))
+        local estimated_rows = assert(stats_test.join_output_estimate(query.sql),
+                                      'missing selected JOIN output estimate: ' .. query.id)
+        local plan = assert(box.execute('EXPLAIN QUERY PLAN ' .. query.sql)).rows
+        prepared[query.id] = {stmt = stmt, prepare_us = prepare_us,
+                              estimated_rows = estimated_rows,
+                              plan_sha256 = hex_sha(json.encode(plan)), plan = plan}
+    end
 end
 
 -- Alternate order each round to reduce systematic warming effects. A round
@@ -124,6 +126,7 @@ for round = 0, 7 do
         local index = round % 2 == 0 and offset or #queries - offset + 1
         local query = queries[index]
         local info = prepared[query.id]
+        if info ~= nil then
         local started = clock.monotonic()
         local result = assert(box.execute(info.stmt.stmt_id))
         assert(#result.rows == expected_rows[query.id],
@@ -138,6 +141,7 @@ for round = 0, 7 do
             data_sha256 = provenance.data_sha256,
             statistics_id = provenance.statistics_id,
             widths = provenance.widths, ['repeat'] = round,
+            oracle_relation_limit = provenance.oracle_relation_limit,
             warmup = round < 3, elapsed_us = elapsed_us,
             prepare_us = info.prepare_us, plan_sha256 = info.plan_sha256,
             plan = info.plan, actual_rows = #result.rows,
@@ -148,6 +152,7 @@ for round = 0, 7 do
             result_sha256 = hex_sha(json.encode(result.rows)),
         }
         file:write(json.encode(row), '\n')
+        end
     end
 end
 file:close()

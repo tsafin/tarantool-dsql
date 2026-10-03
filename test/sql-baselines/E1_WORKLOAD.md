@@ -105,6 +105,10 @@ cmake --build build-jit-clang19-debug --target sql_stats_snapshot_test -- -j4
 python3 -B test/sql-baselines/e1_join_run.py \
   --binary build-jit-clang19-debug/src/tarantool \
   --out /tmp/e1-join-width-run
+# Optional exhaustive comparison for eligible 2–4-way INNER JOINs:
+python3 -B test/sql-baselines/e1_join_run.py \
+  --binary build-jit-clang19-debug/src/tarantool \
+  --include-oracle --out /tmp/e1-join-oracle-run
 ```
 
 The runner requires the binary's embedded commit to match HEAD and the SQL and
@@ -133,6 +137,18 @@ analyzer supplies per-query and aggregate q-error under `estimate_quality` in
 the report. The selected estimate is not an EXPLAIN per-loop count, and it is
 not an executor-observed intermediate JOIN-prefix count. Prefix-stage
 estimates and actuals remain uninstrumented.
+
+The optional `exact-oracle` process enables
+`SQL_PATH_SOLVER_ORACLE_MAX_RELATIONS=4`; all baseline/candidate processes
+explicitly clear that override. Oracle observations include only eligible
+INNER JOINs; LEFT JOIN is excluded because `where.c` uses its bounded solver
+for that shape. The reporter verifies oracle output and statistics provenance
+against the same query under the default beam, and records plan fingerprints,
+final-output q-error, prepare observations, and execution latency under
+`exact_oracle` / `oracle_estimate_quality`. This comparison is exact only in
+the oracle's bounded left-deep search space, not over bushy or alternative
+physical join algorithms.
+
 Likewise, this small synthetic pilot does not set or satisfy production latency
 acceptance thresholds. A non-decision-grade local instrumentation smoke run is
 `/tmp/e1-join-qerror-pilot-20261004-b/report.json`; it finds a hot two-way JOIN

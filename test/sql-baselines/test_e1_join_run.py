@@ -18,6 +18,7 @@ def observations():
                         "engine": engine, "configuration": config,
                         "query_id": query, "sql": "SELECT 1", "repeat": repeat,
                         "warmup": repeat < 3, "widths": list(widths),
+                        "oracle_relation_limit": 0,
                         "dispatcher": "generated", "source_commit": "a" * 40,
                         "binary_sha256": "b" * 64, "data_sha256": "c" * 64,
                         "statistics_id": "stats-v1", "actual_rows": 1,
@@ -74,6 +75,31 @@ class JoinRunnerTest(unittest.TestCase):
                 row["plan_sha256"] = "f" * 64
         report = join.validate_and_report(rows, ("memtx", "vinyl"))
         self.assertEqual(report["engines"]["memtx"]["plan_changes"], 1)
+
+    def test_exact_oracle_eligibility_and_parity(self):
+        rows = observations()
+        oracle = []
+        for row in rows:
+            if row["configuration"] == "default" and \
+                    row["query_id"] in join.ORACLE_QUERIES:
+                copy_row = copy.deepcopy(row)
+                copy_row["configuration"] = join.ORACLE_CONFIG
+                copy_row["oracle_relation_limit"] = 4
+                oracle.append(copy_row)
+        report = join.validate_and_report(rows + oracle,
+                                          ("memtx", "vinyl"), True)
+        self.assertIn("oracle_estimate_quality", report)
+        self.assertNotIn("exact_oracle",
+                         report["engines"]["memtx"]["queries"]["left-join"])
+        drift = copy.deepcopy(oracle)
+        drift[-1]["actual_rows"] = 3
+        drift[-1]["cardinalities"][0]["actual_rows"] = 3
+        with self.assertRaisesRegex(ValueError, "oracle JOIN result changed"):
+            join.validate_and_report(rows + drift, ("memtx", "vinyl"), True)
+        wrong = copy.deepcopy(oracle)
+        wrong[-1]["oracle_relation_limit"] = 0
+        with self.assertRaisesRegex(ValueError, "oracle eligibility"):
+            join.validate_and_report(rows + wrong, ("memtx", "vinyl"), True)
 
 
 if __name__ == "__main__":
