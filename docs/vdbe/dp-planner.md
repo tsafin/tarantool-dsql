@@ -99,6 +99,40 @@ selection in `sql_physical_plan.c`; it does not replace this join-order DP.
 The E1 decision about wider beam defaults and corpus-level plan quality is
 also separate from whether the present DP cost model functions.
 
+## Join coverage, size limit, and fallback behavior
+
+The WHERE planner uses this DP to choose the outer-to-inner order for a
+multi-relation `FROM` list. Its physical join operator is always a nested
+loop: a `WhereLoop` specifies how to access the next relation, not a choice
+between nested-loop, hash, and merge join algorithms. This distinction also
+means that a supported SQL join is not necessarily freely reorderable.
+
+| SQL construct | DP treatment |
+| --- | --- |
+| `INNER JOIN` and comma join | Supported; orders may be rearranged when predicate dependencies permit. |
+| `CROSS JOIN` | Supported, but a prerequisite mask preserves the relevant left-to-right boundary. |
+| `LEFT [OUTER] JOIN` | Supported with NULL-extension semantics; prerequisite masks prevent illegal movement of its right side ahead of the required left side. |
+| `NATURAL JOIN` and `USING` | Supported; join/column resolution occurs before the WHERE planner sees the resulting predicates. Their underlying join type still determines ordering legality. |
+| `RIGHT JOIN` and `FULL OUTER JOIN` | Rejected as unsupported before this DP runs. |
+| Explicit `SEMI JOIN` or `ANTI JOIN` syntax | Unsupported. `EXISTS`, `NOT EXISTS`, and `IN` can express related semantics through subquery/set machinery; they are not additional physical join families in this DP. |
+
+`sqlWhereBegin()` accepts at most `BMS = sizeof(Bitmask) * 8` `FROM` entries
+in one planning invocation. The normal `u64` Bitmask makes this **64
+relations**, or at most 63 binary join edges in a single flat join tree.
+The limit applies to that invocation, not to a sum across separately planned
+query blocks. Subquery flattening can change which entries end up in one
+invocation. A build that overrides `SQL_BITMASK_TYPE` changes the limit with
+the bitmask width. Exceeding the limit raises the SQL parser-limit error; it
+does not invoke a different optimizer.
+
+For every multi-relation invocation, `sqlWhereBegin()` builds WhereLoop
+candidates and runs `wherePathSolver()`; a one-relation shortcut may bypass
+it. There is **no relation-count threshold that switches from DP to a greedy,
+genetic, or other faster join-order algorithm**. Instead, the DP is bounded
+at *every* depth: by default it retains at most five paths for two relations
+and ten paths for three through 64 relations. Thus 64 is a capacity limit,
+not a promise to enumerate all legal orders or find a global optimum.
+
 ```mermaid
 flowchart LR
     SQL[Resolved SELECT and WHERE] --> WC[WhereClause / WhereTerm analysis]
