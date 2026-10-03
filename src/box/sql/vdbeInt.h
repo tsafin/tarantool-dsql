@@ -346,6 +346,9 @@ struct Vdbe {
 	uint64_t planner_fallback_count;
 	/* generated, dominated, truncated, and retained candidate paths. */
 	uint64_t planner_path_metrics[4];
+	/** Maximum retained frontier and solver-buffer bytes over WHERE calls. */
+	uint64_t planner_path_peak_frontier;
+	uint64_t planner_path_peak_bytes;
 	/** Selected WHERE output estimate for an eligible plain top-level JOIN.
 	 * The stage is after WHERE/ON filtering and before ORDER BY/projection.
 	 * Test-only consumers must pair it only with an ungrouped, unlimited

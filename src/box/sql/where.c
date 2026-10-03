@@ -3345,6 +3345,9 @@ wherePathSolver(WhereInfo * pWInfo, LogEst nRowEst)
 	nSpace =
 	    (sizeof(WherePath) + sizeof(WhereLoop *) * nLoop) * mxChoice * 2;
 	nSpace += sizeof(LogEst) * nOrderBy;
+	if (pParse->pVdbe != NULL &&
+	    pParse->pVdbe->planner_path_peak_bytes < (uint64_t)nSpace)
+		pParse->pVdbe->planner_path_peak_bytes = nSpace;
 	pSpace = sql_xmalloc(nSpace);
 	aTo = (WherePath *) pSpace;
 	aFrom = aTo + mxChoice;
@@ -3608,6 +3611,9 @@ candidate_ready:
 		}
 		sql_record_planner_path_metric(pWInfo->pParse->pVdbe,
 					      SQL_PLANNER_PATH_RETAINED, nTo);
+		if (pParse->pVdbe != NULL &&
+		    pParse->pVdbe->planner_path_peak_frontier < (uint64_t)nTo)
+			pParse->pVdbe->planner_path_peak_frontier = nTo;
 
 #ifdef SQL_DEBUG	/* >=2 */
 		if (sqlWhereTrace & 0x02) {

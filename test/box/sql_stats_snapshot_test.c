@@ -117,6 +117,39 @@ lbox_join_output_estimate(lua_State *L)
 	return 1;
 }
 
+/** Test-only counters for the same selected JOIN planning invocation. */
+static int
+lbox_join_planner_metrics(lua_State *L)
+{
+	const char *sql = luaL_checkstring(L, 1);
+	struct Vdbe *stmt = NULL;
+	const char *tail = NULL;
+	if (sql_stmt_compile(sql, -1, NULL, &stmt, &tail, true) != 0 ||
+	    stmt == NULL)
+		return luaL_error(L, "failed to compile JOIN metrics fixture");
+	if (!stmt->planner_join_output_valid) {
+		sqlVdbeDelete(stmt);
+		lua_pushnil(L);
+		return 1;
+	}
+	lua_newtable(L);
+	static const char *names[] = {
+		"generated", "dominated", "truncated", "retained"
+	};
+	for (int i = 0; i < 4; i++) {
+		lua_pushnumber(L, stmt->planner_path_metrics[i]);
+		lua_setfield(L, -2, names[i]);
+	}
+	lua_pushnumber(L, stmt->planner_elapsed_us);
+	lua_setfield(L, -2, "planner_elapsed_us");
+	lua_pushnumber(L, stmt->planner_path_peak_frontier);
+	lua_setfield(L, -2, "peak_frontier");
+	lua_pushnumber(L, stmt->planner_path_peak_bytes);
+	lua_setfield(L, -2, "peak_solver_bytes");
+	sqlVdbeDelete(stmt);
+	return 1;
+}
+
 static int
 lbox_clear_snapshot(lua_State *L)
 {
@@ -188,6 +221,7 @@ luaopen_sql_stats_snapshot_test(lua_State *L)
 		{"stmt_catalog_version", lbox_stmt_snapshot_catalog_version},
 		{"delete_stmt", lbox_delete_snapshot_stmt},
 		{"join_output_estimate", lbox_join_output_estimate},
+		{"join_planner_metrics", lbox_join_planner_metrics},
 		{NULL, NULL},
 	};
 	luaL_register(L, "sql_stats_snapshot_test", methods);

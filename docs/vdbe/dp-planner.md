@@ -398,6 +398,11 @@ records the legality and cardinality limits. The
 compares beam and oracle on both engines and checks identical results and
 zero oracle path truncation. Its narrow workload does not yet prove a
 runtime benefit or E1 acceptance.
+The TEST_BUILD JOIN-metrics adapter exposes per-statement generated,
+dominated, truncated, and retained counts, measured WHERE planning time,
+the maximum retained frontier, and peak solver-buffer allocation. The last
+quantity covers the solver's temporary path arrays, not all planner memory;
+the time covers WHERE planning, not full SQL preparation.
 
 The matched-revision E1 pilot compared default `(1,5,10)`, wider `(2,8,16)`,
 and the exact oracle on both engines. The widened beam changed one four-way
