@@ -4,6 +4,7 @@ import tempfile
 import unittest
 
 from access_cost_report import ACCESSES, ENGINES, summarize
+from run_access_cost import BENCH
 
 
 def observations():
@@ -34,6 +35,10 @@ def observations():
 
 
 class ReportTest(unittest.TestCase):
+    def test_benchmark_path_works_from_temporary_directory(self):
+        self.assertTrue(BENCH.is_absolute())
+        self.assertTrue(BENCH.is_file())
+
     def summarize_rows(self, rows):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "observations.jsonl"

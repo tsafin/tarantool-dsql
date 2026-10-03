@@ -17,7 +17,7 @@ from access_cost_report import summarize
 
 
 ROOT = Path(__file__).resolve().parents[2]
-BENCH = Path(__file__).with_name("access_cost_bench.lua")
+BENCH = Path(__file__).resolve().with_name("access_cost_bench.lua")
 
 
 def git(*args):
@@ -93,6 +93,7 @@ def main(argv=None):
                                 env=env, text=True, capture_output=True,
                                 check=False)
     if result.returncode != 0:
+        sys.stderr.write(result.stdout)
         sys.stderr.write(result.stderr)
         parser.error(f"benchmark failed with exit code {result.returncode}")
     out_dir.mkdir(parents=True)
