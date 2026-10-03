@@ -371,3 +371,115 @@ their separate human sign-off gate; the demonstrated collection path is the
 volatile TEST_BUILD ANALYZE implementation. The current production beam
 defaults remain 1/5/10 until the workload-level quality and latency gates in
 [`roadmap.md`](roadmap.md) are reviewed.
+
+## Cost-function status: memtx versus Vinyl
+
+**Cardinality inputs are partly data- and engine-specific; access costs are
+not yet calibrated per engine.** Volatile `ANALYZE` samples the selected
+memtx or Vinyl data and publishes statement-pinned relation/index summaries.
+The current WHERE planner consumes relation population, index-prefix
+averages, and supported leading-part literal-equality MCV estimates. These
+inputs can change a WhereLoop's `nOut` and `rRun`, and the resulting DP join
+order, on either engine. Missing or stale statistics revert to defaults.
+This is a working statistics-aware *relative* cost model, not a measured
+execution-time predictor. Persistence remains behind the separate S1 schema
+approval gate.
+
+| Surface | Implemented now | Missing for engine-aware costing |
+| --- | --- | --- |
+| Legacy WHERE / join DP | One LogEst setup/run formula for both engines; relation and index statistics may differ by engine. Full scans, seeks, secondary scans, base-tuple fetches, and automatic indexes have heuristic penalties. | Independently calibrated memtx/Vinyl CPU and access units, cache/read-amplification state, and measured repeated nested-loop probe cost. |
+| Vinyl secondary access | Uses the same index-visit and base-fetch formula as memtx. `where.c` notes that its tuple-size approximation does not describe Vinyl secondary-index entries reliably. | LSM run/level and cache effects, bloom-filter behavior, and secondary-to-primary lookup amplification. |
+| M3 single-table physical producer | Carries linear startup/total/rows/width/confidence fields, but the live SELECT adapter seeds total cost from row count and derives narrow point/prefix/range costs from that value. It does not replace the join DP. | A common-unit engine cost provider and calibrated path-specific access formulas before these costs can be compared across engines or integrated into a new join DP. |
+| Selectivity | Snapshot cardinality, prefix NDV-derived averages, and narrow MCV equality are live; range and residual selectivity still use legacy heuristics. | Histogram range and multivariate/join-correlation estimates wired into the planner, with stale/confidence policy and stage-matched q-error validation. |
+
+The `sql_index_tuple_size()` input is obtained from `space_bsize()` and
+`index_size()`, so storage can affect a value used by the common formula; it
+is **not** a separate Vinyl cost function. The memtx-specific simple
+`COUNT(*)` fast path in `select.c` is an execution optimization, not a
+memtx-specific join cost model. The proposed linear CPU/memory/engine-access
+interface and its calibration workload are described in
+[`next_gen_sql_planner.md`](next_gen_sql_planner.md#cost-model-and-logest-transition).
+
+## Comparison with join-enumeration research
+
+The comparison is about **planning time, search space, and plan quality under
+the same estimated costs**. An algorithm's exactness means optimality *within
+its supported plan space and cost model*; it does not imply minimum measured
+query latency when cardinalities or engine costs are wrong. Numbers reported
+by different papers are not a head-to-head Tarantool benchmark.
+
+| Method | Search and practical strength | Fit and caveat here |
+| --- | --- | --- |
+| Current beam-limited, left-deep DP | Small bounded frontier; predictable work for up to 64 FROM entries. | Already executes nested loops and honors current prerequisite masks. Global beam truncation can lose the cheapest estimated legal plan. |
+| [DPccp / DPhyp](https://15721.courses.cs.cmu.edu/spring2019/papers/23-optimizer2/p539-moerkotte.pdf) | Exact connected-subgraph/complement enumeration; DPhyp represents complex predicates and non-inner-join constraints with hyperedges. It avoids much unproductive subset testing on sparse graphs. | Good *reference enumerator*, but bushy alternatives need executable physical operators and a complete legality model. Dense graphs still have exponential search cost; merely swapping it into `where.c` does not produce hash/merge joins. |
+| [Adaptive optimization for very large joins](https://db.in.tum.de/~radke/papers/hugejoins.pdf) | Exact search where tractable, then search-space reduction/near-optimal methods for large instances. Graph structure matters as well as relation count. | A budget- and graph-aware transition is a stronger candidate than a table-count-only switch, but its quality must be measured against this code's cost model and workload. |
+| [DPomega join-and-sort optimization (2025)](https://link.springer.com/article/10.1007/s00778-025-00906-y) | Jointly optimizes join and interesting sort orders under the paper's conditions; reports efficient exact search for its evaluated problem. | Relevant to our ORDER BY path properties, but not evidence that replacing the current left-deep solver would be faster here. |
+| [DPconv (SIGMOD 2025)](https://15799.courses.cs.cmu.edu/spring2025/papers/07-joins1/stoian-sigmod2025.pdf) | Fast subset convolution gives a practical exact `Cmax` variant; the authors report up to 29x speedup over DPsub on 24-relation clique queries for that objective. | Its practical result optimizes maximum intermediate cardinality, **not** our nested-loop `rRun`/`rSetup` objective. The paper explicitly says its convolution framework does not cover the cited nested-loop cost function; sparse JOB-like graphs see less benefit. Research comparator, not a drop-in implementation. |
+| [PostgreSQL GEQO threshold](https://www.postgresql.org/docs/current/runtime-config-query.html) | A genetic heuristic limits planning time above a configurable FROM-item threshold; PostgreSQL documents the possible plan-quality loss. | We have no equivalent algorithm switch. A fixed relation-count threshold alone would ignore graph sparsity, and GEQO is not an assumed winner for this workload. |
+
+There is therefore no defensible universal ranking of these methods by
+"speed." DPconv's reported speedup is for a different objective and graph
+class; an exact enumerator can improve estimated plan cost while using more
+planning time; an approximate one can plan quickly but miss a good order.
+The local decision must compare both planning and execution distributions on
+the same queries, statistics generation, and engine.
+
+## Nearest decision-oriented work
+
+The following is a **proposed sequence**, not a claim that E1 or an engine
+cost model is complete. The E1 measurement contract is
+[`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md); acceptance
+thresholds and the reviewed workload still require a recorded decision.
+
+1. **Establish the same-stats baseline.** Extend the reviewed workload with
+   connected sparse, star, chain, cyclic/dense, LEFT/CROSS-constrained, skewed,
+   range, and ORDER BY join cases on both engines. Capture plan identity,
+   planning time, execution time, generated/dominated/truncated path counts,
+   and stage-matched estimated/actual cardinalities. Compare current 1/5/10
+   widths with the experimental 2/8/16 widths under the *same* statistics
+   generation. Do not treat EXPLAIN drift alone as a quality result.
+2. **Calibrate access costs independently of join enumeration.** Benchmark
+   memtx and Vinyl point, range, full, and secondary-to-primary accesses,
+   repeated nested-loop probes, cache states, and representative Vinyl
+   read-amplification states. Define common abstract units with explicit
+   engine parameters; preserve the old LogEst scores during A/B so no numeric
+   unit is silently mixed. Validate predicted *relative path rankings* and
+   execution-time regressions separately for each engine.
+3. **Audit selectivity and legality.** Wire or explicitly defer histogram
+   ranges and multivariate/join estimates; report q-error, including empty
+   and stale cases. Independently model join graph connectivity, CROSS/LEFT
+   dependencies, and physical-plan properties so an experimental enumerator
+   cannot admit a semantically illegal order.
+4. **Prototype an exact small-join comparator.** For a bounded, supported
+   inner-join subset, retain the existing left-deep/nested-loop physical
+   space and cost inputs while replacing global-beam truncation with an
+   exhaustive per-subset/property memo. Use it as an *oracle for the estimated
+   objective*, not as proof of runtime optimality. Add connected-subgraph
+   pruning where legal; evaluate DPhyp-style hypergraph enumeration only
+   after the legality representation and any desired bushy execution are
+   specified. Record candidate count, peak memory, and planning time.
+5. **Decide the production policy from paired evidence.** Compare beam width,
+   exact small-join search, and a budgeted fallback by graph class and engine.
+   Keep current behavior if lower estimated cost does not improve measured
+   latency or if planning overhead/regressions exceed reviewed limits. A
+   graph-/budget-aware transition is a candidate, not an already selected
+   algorithm. Do not change production widths or claim E1 acceptance before
+   the workload and thresholds are reviewed.
+
+Tracks 1 (workload/instrumentation) and 2 (engine-cost calibration) can be
+developed independently; the legality audit in 3 can also run in parallel.
+The oracle in 4 needs the legality contract but can initially reuse the
+current costs; recalibration is needed before interpreting engine-level
+quality or changing production policy. The decision in 5 requires all
+measurement tracks. None of these steps requires approving the draft
+persistence format: the experimental comparison can use statement-pinned
+volatile statistics.
+
+```mermaid
+flowchart LR
+    A[Same-stats workload and measurements] --> D[Paired decision]
+    B[memtx/Vinyl access-cost calibration] --> D
+    C[Join legality and selectivity audit] --> O[Small-join exact oracle]
+    A --> O
+    O --> D
+```
