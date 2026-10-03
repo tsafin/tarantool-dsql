@@ -5,8 +5,76 @@ This document describes the **current SQL WHERE planner** in
 [`whereInt.h`](../../src/box/sql/whereInt.h), as implemented on 2026-10-03.
 It is an implementation specification, not a proposal for DPhyp or the new
 single-table physical-plan producer. The planner enumerates access loops,
-constructs left-deep nested-loop join orders with bounded dynamic programming
-(DP), and emits the chosen loop order to the existing VDBE code generator.
+constructs left-deep nested-loop join orders with bounded **dynamic
+programming (DP)**, and emits the chosen loop order to the existing VDBE code
+generator.
+
+## What “dynamic programming” means here
+
+Dynamic programming solves a larger optimization problem by building on
+solutions to smaller subproblems. Here the larger problem is: **choose one
+access method for each FROM relation, and choose their outer-to-inner join
+order, minimizing estimated work while respecting dependencies and requested
+ordering**. A smaller subproblem is a partial join plan covering a subset of
+relations. Its stored result is not just one cost: it includes estimated
+output rows and ordering properties, because those change the cost of adding
+the next relation.
+
+The search is **bottom-up, not top-down**. It begins with an empty path, then
+builds paths containing one relation, two relations, and so on until every
+relation is present. At depth *k*, it extends each retained *k*-relation
+path with every legal access loop for a relation not yet used. It never starts
+with the full join and recursively asks for the best smaller join.
+
+For a three-relation query, the search has this shape (some arrows may be
+illegal because a loop needs another relation to run first):
+
+```mermaid
+flowchart LR
+    E["Depth 0: empty path"] --> A["Depth 1: A"]
+    E --> B["Depth 1: B"]
+    E --> C["Depth 1: C"]
+    A --> AB["Depth 2: A → B"]
+    B --> BA["Depth 2: B → A"]
+    A --> AC["Depth 2: A → C"]
+    AB --> ABC["Depth 3: A → B → C"]
+    BA --> BAC["Depth 3: B → A → C"]
+    AC --> ACB["Depth 3: A → C → B"]
+```
+
+`A → B` and `B → A` cover the same subset, but are different left-deep
+execution orders. For example, if A has 1,000 rows and B has five, placing B
+outside a keyed lookup into A may require only five lookups; placing A outside
+may require 1,000. The model prices both *when their prefixes survive* and
+can pick the cheaper complete path. Each partial path carries its accumulated
+cost and row estimate forward, avoiding a fresh cost calculation for its
+entire prefix every time another relation is appended.
+
+**Does it examine every plan? No.** It tries every available WhereLoop against
+every *retained* prefix at the next depth, but it does not retain every prefix.
+It first removes dominated states and then applies a global beam-width cap.
+If a promising prefix is discarded at depth *k*, none of its length-*k + 1*
+or longer descendants is explored. The selected plan is therefore the least
+estimated-cost plan **among retained complete paths**, not necessarily the
+least-cost plan in the entire legal search space. The one-/two-/many-relation
+beam defaults are 1/5/10, not `2^N` states or `N!` join orders.
+
+**Where is the memo?** There is no persistent hash table keyed by every
+relation subset, and no exhaustive per-subset memo. `wherePathSolver()`
+uses two bounded arrays of `WherePath` records: `aFrom` is the retained
+frontier at depth *k*; `aTo` collects depth *k + 1*. Each record stores the
+prefix's relation mask, loop sequence, costs, row estimate, and order/reverse
+properties. These records are the temporary, memo-like reuse of subproblem
+results. Within a depth, paths with the same `(relation mask, satisfied order,
+reverse-scan mask)` form a comparison partition; a path is dropped only if
+another is no worse in total cost, unsorted cost, **and** output rows. Several
+incomparable paths for one partition may survive. After the round, the arrays
+swap roles; older-depth states are reused/overwritten, not kept as a complete
+history. The global beam can also evict a partition entirely.
+
+This is best described as **beam-limited, bottom-up join-order DP**: it reuses
+partial solutions like dynamic programming, but sacrifices exhaustive search
+and optimality guarantees for bounded planning work and memory.
 
 ## Scope and terminology
 
@@ -18,10 +86,8 @@ constructs left-deep nested-loop join orders with bounded dynamic programming
   relation. Its sequence is the outer-to-inner order of a nested-loop plan.
 - A **beam** is the bounded set of partial WherePaths retained after one
   join-depth round. The beam is global, not one beam per relation subset.
-- **DP** here means that paths of length *k* are extended to paths of length
-  *k + 1*, reusing retained prefix costs and cardinalities. Because the beam
-  truncates states, this is not exhaustive subset DP and does not guarantee
-  the globally cheapest plan.
+- **DP** stands for dynamic programming; the concrete bottom-up and bounded
+  behavior is described above.
 - **LogEst** represents roughly `10 × log2(value)`. Ordinary addition of two
   LogEst values represents multiplication of their underlying linear values;
   `sqlLogEstAdd(x, y)` represents addition of those linear values. Values are
