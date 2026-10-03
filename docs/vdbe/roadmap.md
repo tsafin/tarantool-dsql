@@ -1544,6 +1544,9 @@ DML, triggers, subprograms, non-deterministic functions.
   `sql_stats_test.lua` and `planner_scalar_filter_test.lua` suites pass through
   `test-run.py` with a short VARDIR. This still excludes cross-kind cost
   comparisons and value-specific composite MCV estimates.
+  The reconfigured binary at `459e5170bc` also passes the focused 30/30
+  generated/CnP/LLVM × memtx/Vinyl producer matrix (19,122 captured queries):
+  `/tmp/m34-composite-rank-459e517/report.json`.
   A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
   change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
   semantic diffs and no unreviewed route transitions
