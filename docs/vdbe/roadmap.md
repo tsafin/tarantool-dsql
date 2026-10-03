@@ -1530,6 +1530,11 @@ DML, triggers, subprograms, non-deterministic functions.
   for both predicate orders, `new_planner` routing, exact rows, and missing/stale
   fallback. This does not rank primary, range, prefix, or full scans, nor does
   it close M3.4 or establish workload-level plan quality.
+  Reconfigured and rebuilt the TEST_BUILD binary at `cb7adc848f`; the focused
+  all-producer matrix then passed all 30 generated/CnP/LLVM × memtx/Vinyl
+  fixture cases (19,122 captured queries, accepted component ledgers):
+  `/tmp/m34-cost-rank-cb7adc-verified/report.json`. This is focused route
+  regression evidence, not a reviewed full-corpus quality gate.
   A generated-mode SQL-suite off/on/off rerun just before that cost-metadata
   change passed on memtx (1,077 queries) and Vinyl (1,085 queries), with zero
   semantic diffs and no unreviewed route transitions
