@@ -7,6 +7,7 @@
 #include "field_def.h"
 #include "index_def.h"
 #include "key_def.h"
+#include "qsort_arg.h"
 #include "coll/coll.h"
 #include "coll/coll_def.h"
 #include "msgpuck.h"
@@ -21,6 +22,13 @@ struct sql_stats_index_summary {
 	uint64_t *mcv_nonnull_rows;
 	unsigned char *mcv_key_scratch;
 	size_t max_mcv_value_bytes;
+	unsigned char *histogram_storage;
+	size_t *histogram_sizes;
+	uint32_t histogram_capacity;
+	uint32_t histogram_count;
+	uint64_t histogram_seen;
+	uint64_t histogram_random_state;
+	size_t max_histogram_value_bytes;
 	sql_stats_index_value_extract_f *extract;
 	void *extract_context;
 	struct tuple_format *format;
@@ -30,6 +38,52 @@ struct sql_stats_index_summary {
 	uint64_t bytes;
 	bool failed;
 };
+
+static uint64_t
+summary_next_random(struct sql_stats_index_summary *summary)
+{
+	uint64_t z = (summary->histogram_random_state +=
+			UINT64_C(0x9e3779b97f4a7c15));
+	z = (z ^ (z >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+	z = (z ^ (z >> 27)) * UINT64_C(0x94d049bb133111eb);
+	return z ^ (z >> 31);
+}
+
+static uint64_t
+summary_random_below(struct sql_stats_index_summary *summary, uint64_t bound)
+{
+	uint64_t threshold = (uint64_t)(-bound) % bound;
+	uint64_t value;
+	do {
+		value = summary_next_random(summary);
+	} while (value < threshold);
+	return value % bound;
+}
+
+static int
+summary_add_histogram_value(struct sql_stats_index_summary *summary,
+			    const void *value, size_t value_size)
+{
+	if (summary->histogram_capacity == 0 || value == NULL || value_size == 0 ||
+	    value_size > summary->max_histogram_value_bytes ||
+	    summary->histogram_seen == UINT64_MAX)
+		return -1;
+	uint64_t seen = ++summary->histogram_seen;
+	uint32_t slot;
+	if (summary->histogram_count < summary->histogram_capacity) {
+		slot = summary->histogram_count++;
+	} else {
+		uint64_t selected = summary_random_below(summary, seen);
+		if (selected >= summary->histogram_capacity)
+			return 0;
+		slot = (uint32_t)selected;
+	}
+	unsigned char *destination = summary->histogram_storage +
+		(size_t)slot * summary->max_histogram_value_bytes;
+	memcpy(destination, value, value_size);
+	summary->histogram_sizes[slot] = value_size;
+	return 0;
+}
 
 static bool
 summary_mcv_storage_bytes(size_t part_count, uint32_t capacity,
@@ -280,6 +334,41 @@ sql_stats_index_summary_new_for_index_with_mcv(
 	return summary;
 }
 
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_for_index_with_mcv_histogram(
+	struct tuple_format *format, const struct index_def *index_def,
+	uint8_t precision, uint64_t seed, size_t max_bytes,
+	uint32_t mcv_capacity, size_t max_mcv_value_bytes,
+	uint32_t histogram_capacity, size_t max_histogram_value_bytes)
+{
+	if (histogram_capacity == 0 || max_histogram_value_bytes == 0 ||
+	    histogram_capacity > SIZE_MAX / max_histogram_value_bytes)
+		return NULL;
+	size_t histogram_bytes = histogram_capacity *
+		(sizeof(size_t) + max_histogram_value_bytes);
+	if (histogram_bytes > max_bytes)
+		return NULL;
+	struct sql_stats_index_summary *summary =
+		sql_stats_index_summary_new_for_index_with_mcv(
+			format, index_def, precision, seed, max_bytes - histogram_bytes,
+			mcv_capacity, max_mcv_value_bytes);
+	if (summary == NULL)
+		return NULL;
+	summary->histogram_sizes = calloc(histogram_capacity,
+						  sizeof(*summary->histogram_sizes));
+	summary->histogram_storage = calloc(histogram_capacity,
+						    max_histogram_value_bytes);
+	if (summary->histogram_sizes == NULL ||
+	    summary->histogram_storage == NULL) {
+		sql_stats_index_summary_delete(summary);
+		return NULL;
+	}
+	summary->histogram_capacity = histogram_capacity;
+	summary->max_histogram_value_bytes = max_histogram_value_bytes;
+	summary->histogram_random_state = seed ^ UINT64_C(0xd1b54a32d192ed03);
+	return summary;
+}
+
 void
 sql_stats_index_summary_delete(struct sql_stats_index_summary *summary)
 {
@@ -296,6 +385,8 @@ sql_stats_index_summary_delete(struct sql_stats_index_summary *summary)
 	free(summary->mcv);
 	free(summary->mcv_nonnull_rows);
 	free(summary->mcv_key_scratch);
+	free(summary->histogram_storage);
+	free(summary->histogram_sizes);
 	if (summary->key_def != NULL)
 		key_def_delete(summary->key_def);
 	if (summary->format != NULL)
@@ -348,6 +439,12 @@ sql_stats_index_summary_consume(void *context, const char *tuple,
 						rc = -1;
 						break;
 					}
+					if (i == 0 && summary->histogram_capacity != 0 &&
+					    summary_add_histogram_value(summary, field,
+								value_size) != 0) {
+						rc = -1;
+						break;
+					}
 				}
 			}
 		}
@@ -394,6 +491,64 @@ sql_stats_index_summary_consume(void *context, const char *tuple,
 	summary->rows++;
 	summary->bytes += tuple_size;
 	return 0;
+}
+
+bool
+sql_stats_index_summary_has_histogram_sample(
+	const struct sql_stats_index_summary *summary)
+{
+	return summary != NULL && !summary->failed &&
+	       summary->histogram_capacity != 0;
+}
+
+static int
+summary_histogram_compare(const void *lhs, const void *rhs, void *context)
+{
+	const struct sql_stats_ordered_value *a = lhs;
+	const struct sql_stats_ordered_value *b = rhs;
+	const struct key_part *part = context;
+	return tuple_compare_field(a->data, b->data, (int8_t)part->type,
+				   part->coll);
+}
+
+static int
+summary_histogram_value_compare(const void *lhs, size_t lhs_size,
+				const void *rhs, size_t rhs_size, void *context)
+{
+	(void)lhs_size;
+	(void)rhs_size;
+	const struct key_part *part = context;
+	return tuple_compare_field(lhs, rhs, (int8_t)part->type, part->coll);
+}
+
+struct sql_stats_histogram *
+sql_stats_index_summary_build_histogram(
+	const struct sql_stats_index_summary *summary, size_t part,
+	uint32_t max_buckets, size_t max_bytes)
+{
+	if (!sql_stats_index_summary_has_histogram_sample(summary) || part != 0 ||
+	    summary->histogram_count == 0 || max_buckets == 0 || max_bytes == 0)
+		return NULL;
+	struct sql_stats_ordered_value *values = malloc(
+		summary->histogram_count * sizeof(*values));
+	if (values == NULL)
+		return NULL;
+	for (uint32_t i = 0; i < summary->histogram_count; i++) {
+		values[i] = (struct sql_stats_ordered_value) {
+			.data = summary->histogram_storage +
+				(size_t)i * summary->max_histogram_value_bytes,
+			.size = summary->histogram_sizes[i],
+		};
+	}
+	struct key_part *key_part = &summary->key_def->parts[0];
+	qsort_arg(values, summary->histogram_count, sizeof(*values),
+		  summary_histogram_compare, key_part);
+	struct sql_stats_histogram *histogram = sql_stats_histogram_new(values,
+		summary->histogram_count, max_buckets,
+		summary_histogram_value_compare,
+		key_part, max_bytes);
+	free(values);
+	return histogram;
 }
 
 uint8_t

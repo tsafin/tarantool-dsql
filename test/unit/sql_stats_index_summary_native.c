@@ -23,7 +23,7 @@ main(void)
 	fiber_init(fiber_c_invoke);
 	coll_init();
 	tuple_init(test_field_name_hash);
-	plan(6);
+	plan(7);
 	header();
 
 	struct key_part_def part = key_part_def_default;
@@ -40,8 +40,9 @@ main(void)
 		.key_def = key_def,
 	};
 	struct sql_stats_index_summary *summary = key_def == NULL ? NULL :
-		sql_stats_index_summary_new_for_index_with_mcv(tuple_format_runtime,
-			&index_def, 8, 42, 16384, 4, 32);
+		sql_stats_index_summary_new_for_index_with_mcv_histogram(
+			tuple_format_runtime, &index_def, 8, 42, 16384,
+			4, 32, 8, 32);
 	ok(summary != NULL,
 	   "unsigned native key hash and MCV are accepted by the index summary");
 
@@ -96,6 +97,19 @@ main(void)
 	   sql_stats_index_summary_mcv_sample_nonnull_rows(summary, 0) == 3 &&
 	   sql_stats_index_summary_sample_rows(summary) == 4,
 	   "native MCV retains typed values and excludes NULL from its denominator");
+	struct sql_stats_histogram *histogram =
+		sql_stats_index_summary_build_histogram(summary, 0, 2, 1024);
+	struct sql_stats_histogram_bucket bucket0, bucket1;
+	const char *boundary0 = NULL, *boundary1 = NULL;
+	ok(histogram != NULL && sql_stats_histogram_bucket_count(histogram) == 2 &&
+	   sql_stats_histogram_get_bucket(histogram, 0, &bucket0) == 0 &&
+	   sql_stats_histogram_get_bucket(histogram, 1, &bucket1) == 0 &&
+	   bucket0.cumulative_count == 2 && bucket1.cumulative_count == 3 &&
+	   (boundary0 = bucket0.upper_bound) != NULL &&
+	   (boundary1 = bucket1.upper_bound) != NULL &&
+	   mp_decode_uint(&boundary0) == 7 && mp_decode_uint(&boundary1) == 8,
+	   "leading-part reservoir builds duplicate-safe ordered histogram");
+	sql_stats_histogram_delete(histogram);
 
 	struct key_part_def signed_part = key_part_def_default;
 	signed_part.fieldno = 0;

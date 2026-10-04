@@ -6,6 +6,7 @@
 #include "sql_stats_sample.h"
 #include "sql_stats_hll.h"
 #include "sql_stats_spacesaving.h"
+#include "sql_stats_histogram.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,6 +81,16 @@ sql_stats_index_summary_new_for_index_with_mcv(
 	uint8_t precision, uint64_t seed, size_t max_bytes,
 	uint32_t mcv_capacity, size_t max_mcv_value_bytes);
 
+/* Native MCV summary plus a deterministic bounded reservoir for the leading
+ * non-NULL part. The reservoir is an in-memory input to volatile histograms;
+ * it defines no persistent representation. */
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_for_index_with_mcv_histogram(
+	struct tuple_format *format, const struct index_def *index_def,
+	uint8_t precision, uint64_t seed, size_t max_bytes,
+	uint32_t mcv_capacity, size_t max_mcv_value_bytes,
+	uint32_t histogram_capacity, size_t max_histogram_value_bytes);
+
 bool
 sql_stats_index_summary_native_mcv_supported(const struct index_def *index_def);
 
@@ -127,6 +138,16 @@ sql_stats_index_summary_mcv_at(
 uint64_t
 sql_stats_index_summary_mcv_sample_nonnull_rows(
 	const struct sql_stats_index_summary *summary, size_t part);
+
+bool
+sql_stats_index_summary_has_histogram_sample(
+	const struct sql_stats_index_summary *summary);
+
+/* Caller owns the returned histogram. Only part zero is currently sampled. */
+struct sql_stats_histogram *
+sql_stats_index_summary_build_histogram(
+	const struct sql_stats_index_summary *summary, size_t part,
+	uint32_t max_buckets, size_t max_bytes);
 
 /*
  * Estimate population prefix NDVs by inverting the uniform-occupancy model
