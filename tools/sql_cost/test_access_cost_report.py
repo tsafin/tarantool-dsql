@@ -32,6 +32,7 @@ def observations():
                                        if engine == "vinyl" else None),
                     "explain": [[0, 0, 0, "SEARCH TABLE"]], "sql": "SELECT 1",
                     "unforced_broad_plan": [[0, 0, 0, "SCAN TABLE"]],
+                    "unforced_tail_plan": [[0, 0, 0, "SCAN TABLE"]],
                 })
     return result
 
@@ -122,6 +123,12 @@ class ReportTest(unittest.TestCase):
             if row["access"] == "primary_filtered":
                 row["result_digest"] = "e" * 64
         with self.assertRaisesRegex(ValueError, "result mismatch"):
+            self.summarize_rows(rows)
+
+    def test_engine_results_must_match(self):
+        rows = observations()
+        rows[-1]["result_digest"] = "e" * 64
+        with self.assertRaisesRegex(ValueError, "memtx/Vinyl result mismatch"):
             self.summarize_rows(rows)
 
     def test_unforced_plan_drift_rejected(self):

@@ -13,10 +13,12 @@ ENGINES = ("memtx", "vinyl")
 ACCESSES = ("primary_point", "secondary_covering", "secondary_payload",
             "secondary_range", "primary_scan", "primary_filtered",
             "primary_range", "secondary_broad", "primary_broad",
+            "secondary_tail", "primary_tail",
             "primary_cycling", "secondary_cycling")
 EQUIVALENT_PAIRS = (("primary_filtered", "secondary_payload"),
                     ("primary_range", "secondary_range"),
-                    ("primary_broad", "secondary_broad"))
+                    ("primary_broad", "secondary_broad"),
+                    ("primary_tail", "secondary_tail"))
 
 
 def summarize(path):
@@ -26,6 +28,7 @@ def summarize(path):
     result_digests = {}
     plans = {}
     unforced_plans = {}
+    unforced_tail_plans = {}
     fixture = None
     rows = None
     version = None
@@ -59,6 +62,12 @@ def summarize(path):
                     unforced_plans[engine] != item["unforced_broad_plan"]:
                 raise ValueError("unforced broad plan changed")
             unforced_plans[engine] = item["unforced_broad_plan"]
+            if not item.get("unforced_tail_plan"):
+                raise ValueError("missing unforced tail plan")
+            if engine in unforced_tail_plans and \
+                    unforced_tail_plans[engine] != item["unforced_tail_plan"]:
+                raise ValueError("unforced tail plan changed")
+            unforced_tail_plans[engine] = item["unforced_tail_plan"]
             if not isinstance(item.get("result_digest"), str) or \
                     re.fullmatch(r"[0-9a-f]{64}", item["result_digest"]) is None:
                 raise ValueError("missing result digest")
@@ -109,6 +118,12 @@ def summarize(path):
 
     if not groups:
         raise ValueError("empty benchmark")
+    for access in ACCESSES:
+        for repeat in groups[access, "memtx"]:
+            other = result_digests.get((access, "vinyl", repeat))
+            if other is not None and \
+                    result_digests[access, "memtx", repeat] != other:
+                raise ValueError(f"memtx/Vinyl result mismatch for {access}")
     for left_access, right_access in EQUIVALENT_PAIRS:
         for engine in ENGINES:
             for repeat in groups[left_access, engine]:
@@ -121,6 +136,7 @@ def summarize(path):
               "run_id": provenance[2], "storage_state": storage_state,
               "timing_scope": "prepared_execute_and_materialize", "accesses": {},
               "unforced_broad_plan": unforced_plans,
+              "unforced_tail_plan": unforced_tail_plans,
               "equivalent_path_rankings": {}}
     for access in ACCESSES:
         left = groups[access, "memtx"]

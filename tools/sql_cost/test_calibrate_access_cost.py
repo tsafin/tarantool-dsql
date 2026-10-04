@@ -12,6 +12,8 @@ def report():
         "secondary_payload": (2, 3),
         "secondary_range": (2.5, 4),
         "secondary_broad": (15, 60),
+        "primary_tail": (12, 32),
+        "secondary_tail": (2, 3),
     }
     return {
         "rows": 128, "storage_state": "memory",
@@ -28,8 +30,8 @@ class CalibrationTest(unittest.TestCase):
         self.assertEqual(predict(model["engines"]["memtx"], "primary", 16), 10)
         self.assertEqual(predict(model["engines"]["vinyl"], "secondary", 16), 3)
         validation = evaluate(model, report())
-        self.assertEqual(validation["ranking_total"], 6)
-        self.assertEqual(validation["ranking_matches"], 6)
+        self.assertEqual(validation["ranking_total"], 8)
+        self.assertEqual(validation["ranking_matches"], 8)
         self.assertFalse(validation["engines"]["vinyl"]["broad"]
                          ["predicted_secondary_over_primary"] < 1)
 

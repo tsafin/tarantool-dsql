@@ -12,8 +12,9 @@ Engine order alternates between repetitions.
 batch. `primary_cycling` and `secondary_cycling` change the parameter every
 execution, approximating repeated probes on the inner side of a nested-loop
 JOIN. These are still *single-table* SQL calls, not a measured JOIN operator.
-The expanded probe also forces primary/secondary paths for three equivalent
-result sets: selective equality, a 16-row range, and a broad half-table range.
+The expanded probe also forces primary/secondary paths for four equivalent
+result sets: selective equality, a 16-row two-sided range, a narrow one-sided
+tail, and a broad half-table one-sided range.
 It hashes the checked output of each pair and records the unforced broad-range
 EXPLAIN plan. Their per-execution microseconds are a common *empirical SQL
 operation* unit, not yet a common planner cost formula.
@@ -107,13 +108,14 @@ no production `WhereLoop` coefficient changes follow from these results.
 ## Equivalent-path ranking pilot (2026-10-04)
 
 The expanded strict captures at source `1a3b839c72` are
-`/tmp/sql-cost-final-memory-1a3b839c72/`,
-`/tmp/sql-cost-final-dumped-1a3b839c72/`, and
-`/tmp/sql-cost-final-multirun-1a3b839c72/`. Each has seven paired
+`/tmp/sql-cost-tail-memory-24020e4952/`,
+`/tmp/sql-cost-tail-dumped-24020e4952/`, and
+`/tmp/sql-cost-tail-multirun-24020e4952/`. Each has seven paired
 repetitions, output hashes for equivalent paths, a binary hash, and observed
 Vinyl topology. In the two-run state, the median *secondary/primary* SQL-time
 ratios are approximately 0.020 (memtx) and 0.013 (Vinyl) for selective
-equality, 0.019 and 0.028 for the 16-row range, but **0.59 and 1.64** for
+equality, 0.022 and 0.028 for the 16-row two-sided range, 0.016 and 0.027
+for the one-sided tail, but **0.47 and 1.52** for
 the broad half-table range. The broad secondary path is faster on memtx in
 six of seven pairs and slower on Vinyl in all seven. Vinyl's broad secondary
 path reads a median three disk pages and makes four disk lookups per execution;
@@ -121,6 +123,11 @@ its forced primary counterpart reports zero disk pages in this warm-cache
 fixture. The unforced broad plan chooses the secondary index on *both*
 engines. This is a reproducible local ranking discrepancy, not a proof of
 production-wide regression.
+The unforced tail and broad queries use the **same SQL shape** with different
+bound values, yet EXPLAIN gives both the same secondary path and the same
+~262144-row estimate. On Vinyl the secondary path wins for the 16-row tail
+in all seven pairs but loses for the 2048-row broad range in all seven. This
+is why a value-independent secondary penalty cannot choose both correctly.
 
 A uniform secondary-range penalty was tested locally at 8, 16, 24, and 40
 legacy `LogEst` units. It did not switch the broad Vinyl plan to the primary
@@ -145,17 +152,19 @@ fitted model on *different storage states*:
 ```sh
 python3 -B tools/sql_cost/test_calibrate_access_cost.py
 python3 -B tools/sql_cost/calibrate_access_cost.py \
-  --train /tmp/sql-cost-final-memory-1a3b839c72 \
-  --validate /tmp/sql-cost-final-dumped-1a3b839c72 \
-  --validate /tmp/sql-cost-final-multirun-1a3b839c72
+  --train /tmp/sql-cost-tail-memory-24020e4952 \
+  --validate /tmp/sql-cost-tail-dumped-24020e4952 \
+  --validate /tmp/sql-cost-tail-multirun-24020e4952
 ```
 
 The memory-state fit estimates per-returned-row secondary work at roughly
-0.67 µs on memtx versus 8.92 µs on Vinyl. It predicts all six equivalent-path
+approximately 0.7 µs on memtx versus 8–9 µs on Vinyl. It predicts all eight equivalent-path
 rankings in each held-out dumped and two-run state, including that Vinyl's
 broad secondary path loses to the primary scan. This is a fixture-local
 validation, **not** an accepted optimizer cost function: broad secondary
 timing was used in fitting, so output-cardinality generalization is untested;
+the narrow Vinyl tail magnitude is underpredicted after dumps, despite the
+correct ranking;
 OS cache is uncontrolled, the work is not a JOIN inner-loop operator, and
 `WhereLoop` still lacks reliable bound-specific range cardinalities. The
 next A/B must validate new fixture sizes, JOIN order and runtime on the same

@@ -20,6 +20,7 @@ SHAPES = {
     "filtered": ("primary_filtered", "secondary_payload", 16),
     "range": ("primary_range", "secondary_range", 16),
     "broad": ("primary_broad", "secondary_broad", None),
+    "tail": ("primary_tail", "secondary_tail", 16),
 }
 COMMON_MANIFEST = ("bench_sha256", "binary_sha256", "source_commit",
                    "rows", "iterations", "repeats")

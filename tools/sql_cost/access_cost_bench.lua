@@ -53,6 +53,8 @@ local cases = {
     {name = 'primary_range', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ? AND a < ?', loops = math.max(1, math.floor(iterations / 10))},
     {name = 'secondary_broad', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ?', loops = math.max(1, math.floor(iterations / 100))},
     {name = 'primary_broad', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ?', loops = math.max(1, math.floor(iterations / 100))},
+    {name = 'secondary_tail', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ?', loops = math.max(1, math.floor(iterations / 10))},
+    {name = 'primary_tail', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ?', loops = math.max(1, math.floor(iterations / 10))},
     {name = 'primary_cycling', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE id = ?', loops = iterations},
     {name = 'secondary_cycling', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a = ?', loops = iterations},
 }
@@ -133,7 +135,7 @@ end
 local function index_number(case_name)
     if case_name == 'primary_point' or case_name == 'primary_scan' or
        case_name == 'primary_filtered' or case_name == 'primary_range' or
-       case_name == 'primary_broad' or
+       case_name == 'primary_broad' or case_name == 'primary_tail' or
        case_name == 'primary_cycling' then
         return 0
     end
@@ -147,11 +149,14 @@ for _, engine in ipairs({'memtx', 'vinyl'}) do
     prepared[engine].unforced_broad_plan = execute(
         'EXPLAIN QUERY PLAN SELECT payload FROM ' .. info.table_name ..
         ' WHERE a >= ?', {rows / 32}).rows
+    prepared[engine].unforced_tail_plan = execute(
+        'EXPLAIN QUERY PLAN SELECT payload FROM ' .. info.table_name ..
+        ' WHERE a >= ?', {rows / 16 - 1}).rows
     for _, case in ipairs(cases) do
         local index_name
         if case.name == 'primary_point' or case.name == 'primary_scan' or
            case.name == 'primary_filtered' or case.name == 'primary_range' or
-           case.name == 'primary_broad' or
+           case.name == 'primary_broad' or case.name == 'primary_tail' or
            case.name == 'primary_cycling' then
             index_name = info.primary
         else
@@ -163,6 +168,8 @@ for _, engine in ipairs({'memtx', 'vinyl'}) do
             explain_params = {0, 1}
         elseif case.name == 'secondary_broad' or case.name == 'primary_broad' then
             explain_params = {rows / 32}
+        elseif case.name == 'secondary_tail' or case.name == 'primary_tail' then
+            explain_params = {rows / 16 - 1}
         elseif case.name ~= 'primary_scan' then
             explain_params = {1}
         end
@@ -186,6 +193,8 @@ for repeat_no = 1, repeats do
                           1 + ((repeat_no * 7) % (rows / 16))}
             elseif case.name == 'secondary_broad' or case.name == 'primary_broad' then
                 params = {rows / 32}
+            elseif case.name == 'secondary_tail' or case.name == 'primary_tail' then
+                params = {rows / 16 - 1}
             elseif case.name ~= 'primary_scan' then
                 params = {(repeat_no * 7) % (rows / 16)}
             end
@@ -232,6 +241,7 @@ for repeat_no = 1, repeats do
                   repeat_no = repeat_no, rows = rows, result_rows = result_rows,
                   result_digest = result_digest,
                   unforced_broad_plan = prepared[engine].unforced_broad_plan,
+                  unforced_tail_plan = prepared[engine].unforced_tail_plan,
                   iterations = case.loops, elapsed_us = elapsed_us,
                   per_execution_us = elapsed_us / case.loops,
                   sql = stmt.sql, explain = stmt.plan,
