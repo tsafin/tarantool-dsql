@@ -190,3 +190,39 @@ additional cardinality on the same host, not arbitrary selectivities, JOIN inner
 reuse, cold I/O, or an accepted production cost function. Training and
 validation require the same binary and benchmark revision; only row count is
 allowed to differ.
+
+## Integer LogEst translation and offline A/B
+
+`evaluate_logest_ab.py` is the next conservative bridge toward the production
+cost domain. It fits the size-transfer model, quantizes each coefficient into
+an explicit 0.01 µs work unit, forms integer primary/secondary work totals,
+and runs those totals through a Python equivalent of `sqlLogEst()`. It changes
+no C code and no planner default:
+
+```sh
+python3 -B tools/sql_cost/test_evaluate_logest_ab.py
+python3 -B tools/sql_cost/evaluate_logest_ab.py \
+  --train /tmp/sql-cost-tail-memory-2048 \
+  --train /tmp/sql-cost-tail-memory-24020e4952 \
+  --validate /tmp/sql-cost-tail-memory-8192 \
+  --out /tmp/sql-cost-logest-ab.json
+```
+
+On the matching-source captures above, the integer candidate preserves all
+8/8 held-out forced-path rankings. The capture records the production
+planner's unforced choice only for the identical-shape one-sided `tail` and
+`broad` cases, so the direct A/B covers four engine/case pairs: production
+matches 3/4, while the candidate matches 4/4. The difference is the broad
+Vinyl case: production selects the secondary index, but the primary scan is
+observed faster and the integer candidate selects it (candidate LogEst 212
+versus 217).
+
+This is still **offline evidence only**. The candidate is evaluated with the
+known output cardinality (16 or half the fixture), whereas the production
+planner assigns the narrow and broad bound the same coarse ~262144-row
+estimate. The fitted startup also contains SQL execution/materialization
+overhead, and the arbitrary common work unit has not been calibrated for
+composition across JOIN depths. The next gate is a same-binary A/B using
+planner-estimated cardinalities and repeated inner-loop probes on a reviewed
+JOIN workload. Until that passes, the report must not be read as approval of
+these coefficients or an engine-specific production formula.

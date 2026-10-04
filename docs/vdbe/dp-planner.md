@@ -487,6 +487,16 @@ the production `LogEst` objective or tested across arbitrary selectivities.
 An additional fit on 2048/4096-row memory fixtures preserved all eight
 access-path rankings on an 8192-row fixture; it is still one host and a narrow
 SQL-operation model, not a JOIN-level cost validation.
+The same fit now has an offline integer translation: coefficients are
+quantized into an explicit common work unit and totals are converted with the
+production `sqlLogEst()` approximation. On the held-out 8192-row fixture it
+preserves 8/8 forced-path rankings. Among the four broad/tail cases with a
+captured unforced production choice, production matches the measured faster
+path in 3/4 and the integer candidate in 4/4; the repaired case is the broad
+Vinyl range. This is not a deployable formula because the candidate receives
+actual output cardinality while the live planner gives the narrow and broad
+bound the same coarse estimate, and because repeated JOIN-inner-loop
+composition is untested. No production cost or default changed.
 Selected-path logical-prefix diagnostics further expose a four-way plan with
 44 estimated versus 2252 counted rows at an intermediate `b,c,d` prefix,
 despite a final-output q-error of only 2.22. Those counts come from separate
@@ -504,7 +514,7 @@ thresholds and the reviewed workload still require a recorded decision.
 | Track | Pilot status | Next decision-grade step |
 | --- | --- | --- |
 | Same-stats JOIN workload | Eleven graph/legality/skew/range cases run default/wider/exact with result parity, repeated execution and WHERE-planning distributions, selected final-output q-error, and path/frontier metrics. | Extend to reviewed representative graphs, sizes, and hosts; record thresholds and unacceptable regressions before judging widths. Instrument executor-observed JOIN-prefix actuals so intermediate q-error is truly stage-matched. |
-| Engine access costs | Paired memtx/Vinyl point, full, secondary equality/range, changing-key probes and two Vinyl LSM states; experimental per-engine model predicts 8/8 held-out equivalent rankings, including a held-out size. | Validate cache/read-amplification and selectivity ranges, repeated nested-loop probes, and latency prediction on independent fixtures. Define common units and A/B a production-compatible formula without mixing microseconds into legacy LogEst scores. |
+| Engine access costs | Paired memtx/Vinyl point, full, secondary equality/range, changing-key probes and two Vinyl LSM states; experimental per-engine model predicts 8/8 held-out equivalent rankings, including a held-out size. An offline integer-LogEst candidate also preserves 8/8 and improves the captured broad/tail production-choice comparison from 3/4 to 4/4. | Feed planner-estimated rather than actual output rows into the A/B; validate cache/read-amplification, repeated nested-loop probes, and JOIN latency on independent fixtures. Calibrate the common unit for DP composition before considering a production formula. |
 | Selectivity and legality | Narrow equality MCV and prefix estimates are live; flat INNER exact oracle and CROSS/LEFT exclusions are tested. A logical three-relation prefix has q-error 51.2, versus final-output 2.22. | Improve range and correlated JOIN selectivity, including empty/stale cases; add executor-stage prefix counters. Formalize legality/properties before any broader enumerator. |
 | Exact comparator | Opt-in exhaustive left-deep nested-loop oracle exists for eligible 2–4-relation flat INNER JOINs, bounded by 65,536 paths. Peak retained frontier reached 1260 in the pilot. | Use it as an estimated-objective comparator on larger *supported* cases only after scaling limits are explicit. Connected-subgraph or DPhyp/bushy search needs a separate legality and physical-operator design. |
 | Production policy | Defaults remain `(1,5,10)`; wider `(2,8,16)` and exact search are experimental. | Compare paired runtime, planning cost, cardinality error, and regressions by graph and engine against reviewed limits. Decide whether any budget/graph-aware transition is warranted. |

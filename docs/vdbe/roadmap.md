@@ -3579,8 +3579,14 @@ two-run Vinyl; the unforced planner chooses secondary for both and assigns
 the same ~262144-row estimate. A local uniform Vinyl range penalty did not
 fix this and was removed. Experimental per-engine microsecond models recover
 8/8 equivalent-path rankings in held-out storage states and in a held-out
-8192-row fixture after fitting on 2048/4096 rows. They are **not** wired into
-production LogEst costs or validated for JOIN-level selection. Details:
+8192-row fixture after fitting on 2048/4096 rows. An offline integer-work
+translation through the production `sqlLogEst()` approximation also preserves
+8/8 rankings. In the four broad/tail cases where captures include an unforced
+production choice, production matches the observed faster path in 3/4 and the
+integer candidate in 4/4, repairing broad Vinyl. The candidate is given actual
+output cardinality, not the planner's coarse range estimate, and has not been
+validated under repeated JOIN-inner-loop composition. It is therefore **not**
+wired into production costs or accepted as a formula. Details:
 `tools/sql_cost/README.md`. Production defaults and GATE status are unchanged.
 
 **Exit criteria:**
