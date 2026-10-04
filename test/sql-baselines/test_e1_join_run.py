@@ -61,6 +61,9 @@ class JoinRunnerTest(unittest.TestCase):
         self.assertEqual(item["candidate_over_default_prepare_ratio"]["median"], 1)
         self.assertEqual(item["default_planner"]["paths_generated"], 4)
         self.assertEqual(item["default_planner"]["where_planning_us"]["n"], 7)
+        prefix_quality = report["engines"]["memtx"]["prefix_estimate_quality"]
+        self.assertEqual(prefix_quality["default"]["finite_q_error"]["max"], 2)
+        self.assertEqual(prefix_quality["default"]["unbounded_count"], 0)
 
     def test_result_drift_rejected(self):
         rows = observations()
@@ -142,6 +145,8 @@ class JoinRunnerTest(unittest.TestCase):
         report = join.validate_and_report(rows + oracle,
                                           ("memtx", "vinyl"), True)
         self.assertIn("oracle_estimate_quality", report)
+        self.assertIn(join.ORACLE_CONFIG,
+                      report["engines"]["memtx"]["prefix_estimate_quality"])
         self.assertNotIn("exact_oracle",
                          report["engines"]["memtx"]["queries"]["left-join"])
         self.assertNotIn("exact_oracle",

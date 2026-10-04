@@ -148,7 +148,9 @@ each prefix's estimated and actual rows and q-error, and verifies that the last
 counter equals the SELECT output. These are stage-matched executor-prefix
 measurements for the supported flat INNER shape. LEFT/CROSS/NATURAL/USING,
 FROM-subquery, non-top-level, and more-than-four-relation cases remain outside
-this instrumentation contract.
+this instrumentation contract. The report also aggregates one stable prefix
+vector per query/configuration into finite q-error distributions and an
+explicit unbounded-count, so empty-result errors are not hidden in percentiles.
 
 EXPLAIN QUERY PLAN exposes per-loop estimates, not a semantically matched
 estimate for each JOIN output. The TEST_BUILD adapter instead compiles the

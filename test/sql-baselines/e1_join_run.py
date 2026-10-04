@@ -81,6 +81,24 @@ def executor_prefix_quality(row):
             for prefix in prefixes]
 
 
+def prefix_quality_summary(rows):
+    """Summarize one stable executor-prefix vector per measured query."""
+    finite = []
+    unbounded = 0
+    stages = 0
+    for row in rows:
+        for prefix in executor_prefix_quality(row) or []:
+            stages += 1
+            if prefix["q_error"] is None:
+                unbounded += 1
+            else:
+                finite.append(prefix["q_error"])
+    finite_summary = summary(finite)
+    finite_summary["max"] = max(finite)
+    return {"stages": stages, "finite_q_error": finite_summary,
+            "unbounded_count": unbounded}
+
+
 def validate_and_report(records, engines, include_oracle=False):
     """Reject changed results/provenance and summarize only measured rounds."""
     groups = defaultdict(dict)
@@ -308,6 +326,15 @@ def validate_and_report(records, engines, include_oracle=False):
             },
             "plan_changes": sum(item["plan_changed"]
                                 for item in per_query.values()),
+        }
+        report["engines"][engine]["prefix_estimate_quality"] = {
+            config: prefix_quality_summary([
+                groups[engine, config, query][3]
+                for query in sorted(ORACLE_QUERIES)
+                if (engine, config, query) in groups
+            ]) for config in (("default", "candidate", ORACLE_CONFIG)
+                              if include_oracle else
+                              ("default", "candidate"))
         }
     report["estimate_quality"] = e1_measure.analyze(records, "default", "candidate")
     if include_oracle:
