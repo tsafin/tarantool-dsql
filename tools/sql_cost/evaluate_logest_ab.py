@@ -7,6 +7,8 @@ fixed work unit, and converts the resulting integer work totals with the same
 sqlLogEst() approximation used by the SQL planner.  Validation uses forced
 primary/secondary timings.  Where a capture contains an unforced plan, the
 script also compares the production choice with the translated candidate.
+Both known result cardinalities and the per-path estimates recorded by EXPLAIN
+are evaluated, and their ranking quality is reported separately.
 """
 
 import argparse
@@ -24,6 +26,10 @@ UNFORCED_SHAPES = {
     "broad": "unforced_broad_plan",
     "tail": "unforced_tail_plan",
 }
+ESTIMATE_RE = re.compile(r"\(~([0-9]+) rows\)")
+PAIRED_ACCESSES = frozenset(
+    access for pair in SHAPES.values() for access in pair[:2])
+CAPTURE_ACCESSES = PAIRED_ACCESSES | {"primary_scan"}
 
 
 def sql_log_est(value):
@@ -72,14 +78,19 @@ def quantize_model(model, work_unit_us=DEFAULT_WORK_UNIT_US):
     return result
 
 
-def candidate_cost(parameters, input_rows, output_rows):
-    extra_output = max(0, output_rows - 16)
+def candidate_cost(parameters, input_rows, primary_output_rows,
+                   secondary_output_rows=None):
+    if secondary_output_rows is None:
+        secondary_output_rows = primary_output_rows
+    primary_extra_output = max(0, primary_output_rows - 16)
+    secondary_extra_output = max(0, secondary_output_rows - 16)
     primary_ticks = (
         parameters["primary_scan_ticks_per_input_row"] * input_rows +
-        parameters["primary_output_ticks_per_row"] * extra_output)
+        parameters["primary_output_ticks_per_row"] * primary_extra_output)
     secondary_ticks = (
         parameters["secondary_startup_ticks"] +
-        parameters["secondary_output_ticks_per_row"] * extra_output)
+        parameters["secondary_output_ticks_per_row"] *
+        secondary_extra_output)
     return {
         "primary_work_ticks": primary_ticks,
         "secondary_work_ticks": secondary_ticks,
@@ -87,6 +98,48 @@ def candidate_cost(parameters, input_rows, output_rows):
         "secondary_logest": sql_log_est(secondary_ticks),
         "winner": "secondary" if secondary_ticks < primary_ticks else "primary",
     }
+
+
+def plan_estimated_rows(plan):
+    estimates = []
+    for row in plan:
+        if not row:
+            continue
+        match = ESTIMATE_RE.search(str(row[-1]))
+        if match is not None:
+            estimates.append(int(match.group(1)))
+    if len(estimates) != 1:
+        raise ValueError("expected exactly one EXPLAIN row estimate")
+    return estimates[0]
+
+
+def load_planner_estimates(directory, manifest, report):
+    """Load stable per-access EXPLAIN estimates from the raw capture."""
+    estimates = {(engine, access): set() for engine in ENGINES
+                 for access in CAPTURE_ACCESSES}
+    path = Path(directory) / "observations.jsonl"
+    with path.open() as stream:
+        for line in stream:
+            if not line.strip():
+                continue
+            item = json.loads(line)
+            access = item.get("access")
+            engine = item.get("engine")
+            if (engine, access) not in estimates:
+                continue
+            for name in ("run_id", "source_commit", "binary_sha256", "rows",
+                         "storage_state"):
+                expected = manifest[name] if name in manifest else report[name]
+                if item.get(name) != expected:
+                    raise ValueError("observation provenance mismatch: " + name)
+            estimates[engine, access].add(plan_estimated_rows(item["explain"]))
+    result = {engine: {} for engine in ENGINES}
+    for (engine, access), values in estimates.items():
+        if len(values) != 1:
+            raise ValueError("missing or unstable planner estimate for " +
+                             engine + "/" + access)
+        result[engine][access] = next(iter(values))
+    return result
 
 
 def observed_winner(report, engine, primary_access, secondary_access):
@@ -110,9 +163,12 @@ def unforced_winner(report, engine, shape):
     return "secondary" if match.group(1) == expected_secondary else "primary"
 
 
-def evaluate_candidate(model, report):
+def evaluate_candidate(model, report, planner_estimates):
     observations = {}
-    candidate_matches = 0
+    oracle_matches = 0
+    planner_matches = 0
+    oracle_direct_matches = 0
+    planner_direct_matches = 0
     baseline_matches = 0
     baseline_total = 0
     for engine in ENGINES:
@@ -120,31 +176,56 @@ def evaluate_candidate(model, report):
         parameters = model["engines"][engine]
         for shape, (primary_access, secondary_access, fixed_rows) in SHAPES.items():
             output_rows = fixed_rows if fixed_rows is not None else report["rows"] // 2
-            candidate = candidate_cost(parameters, report["rows"], output_rows)
+            oracle_candidate = candidate_cost(parameters, report["rows"],
+                                              output_rows)
+            primary_estimate = planner_estimates[engine][primary_access]
+            secondary_estimate = planner_estimates[engine][secondary_access]
+            planner_input_rows = planner_estimates[engine]["primary_scan"]
+            planner_candidate = candidate_cost(parameters, planner_input_rows,
+                                               primary_estimate,
+                                               secondary_estimate)
             observed = observed_winner(report, engine, primary_access,
                                        secondary_access)
             baseline = unforced_winner(report, engine, shape)
-            candidate_match = candidate["winner"] == observed
-            candidate_matches += candidate_match
+            oracle_match = oracle_candidate["winner"] == observed
+            planner_match = planner_candidate["winner"] == observed
+            oracle_matches += oracle_match
+            planner_matches += planner_match
             item = {
                 "input_rows": report["rows"],
-                "output_rows": output_rows,
+                "actual_output_rows": output_rows,
+                "planner_estimated_input_rows": planner_input_rows,
+                "primary_planner_estimated_rows": primary_estimate,
+                "secondary_planner_estimated_rows": secondary_estimate,
                 "observed_winner": observed,
-                "candidate_match": candidate_match,
-                **candidate,
+                "oracle_cardinality_candidate": {
+                    **oracle_candidate,
+                    "ranking_match": oracle_match,
+                },
+                "planner_cardinality_candidate": {
+                    **planner_candidate,
+                    "ranking_match": planner_match,
+                },
             }
             if baseline is not None:
                 baseline_match = baseline == observed
                 baseline_matches += baseline_match
                 baseline_total += 1
+                oracle_direct_matches += oracle_match
+                planner_direct_matches += planner_match
                 item["production_unforced_winner"] = baseline
                 item["production_match"] = baseline_match
             observations[engine][shape] = item
     return {
         "rows": report["rows"],
         "storage_state": report["storage_state"],
-        "candidate_ranking_matches": candidate_matches,
+        "oracle_cardinality_candidate_ranking_matches": oracle_matches,
+        "planner_cardinality_candidate_ranking_matches": planner_matches,
         "candidate_ranking_total": len(SHAPES) * len(ENGINES),
+        "planner_cardinality_match_delta": planner_matches - oracle_matches,
+        "oracle_cardinality_direct_matches": oracle_direct_matches,
+        "planner_cardinality_direct_matches": planner_direct_matches,
+        "direct_comparison_total": baseline_total,
         "production_choice_matches": baseline_matches,
         "production_choice_total": baseline_total,
         "engines": observations,
@@ -168,20 +249,24 @@ def evaluate_ab(training_dirs, validation_dirs,
             raise ValueError("validation capture has different provenance")
         if report["rows"] in empirical["training_rows"]:
             raise ValueError("validation fixture size was used in training")
-        validation.append(evaluate_candidate(translated, report))
+        planner_estimates = load_planner_estimates(path, manifest, report)
+        validation.append(evaluate_candidate(translated, report,
+                                             planner_estimates))
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "candidate": translated,
         "validation": validation,
         "provenance": {name: reference[name] for name in provenance_fields},
         "scope": {
             "production_defaults_changed": False,
-            "uses_actual_output_cardinality": True,
+            "cardinality_modes": ["known_actual_output",
+                                  "captured_per_path_planner_estimate"],
+            "planner_estimate_source": "observations.jsonl EXPLAIN output",
             "production_comparison":
                 "captured unforced broad/tail choices only",
             "decision": "offline_evidence_only",
             "remaining_gate":
-                "planner-estimated cardinality and repeated JOIN-inner-loop A/B",
+                "repeated JOIN-inner-loop A/B and common-unit composition",
         },
     }
 

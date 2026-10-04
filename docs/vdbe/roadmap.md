@@ -3585,12 +3585,17 @@ fix this and was removed. Experimental per-engine microsecond models recover
 8/8 equivalent-path rankings in held-out storage states and in a held-out
 8192-row fixture after fitting on 2048/4096 rows. An offline integer-work
 translation through the production `sqlLogEst()` approximation also preserves
-8/8 rankings. In the four broad/tail cases where captures include an unforced
-production choice, production matches the observed faster path in 3/4 and the
-integer candidate in 4/4, repairing broad Vinyl. The candidate is given actual
-output cardinality, not the planner's coarse range estimate, and has not been
-validated under repeated JOIN-inner-loop composition. It is therefore **not**
-wired into production costs or accepted as a formula. Details:
+8/8 rankings when given known result cardinality. In the four broad/tail cases
+where captures include an unforced production choice, production matches the
+observed faster path in 3/4 and that candidate in 4/4, repairing broad Vinyl.
+The evaluator now also consumes each forced path's EXPLAIN cardinality from
+the raw capture. Accuracy then drops to 7/8 overall and 3/4 on the direct
+broad/tail cases, with the same choices as production. Both secondary bounds
+have the same ~262144-row estimate, while the unfiltered primary scan is
+estimated at ~1048576 rows, so the apparent broad-Vinyl repair disappears.
+Engine prices alone therefore do not close the bound-selectivity gap. Repeated
+JOIN-inner-loop composition also remains unvalidated, so the candidate is
+**not** wired into production costs or accepted as a formula. Details:
 `tools/sql_cost/README.md`. Production defaults and GATE status are unchanged.
 
 **Exit criteria:**

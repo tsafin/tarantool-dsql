@@ -209,7 +209,8 @@ python3 -B tools/sql_cost/evaluate_logest_ab.py \
 ```
 
 On the matching-source captures above, the integer candidate preserves all
-8/8 held-out forced-path rankings. The capture records the production
+8/8 held-out forced-path rankings when it is given known result cardinality.
+The capture records the production
 planner's unforced choice only for the identical-shape one-sided `tail` and
 `broad` cases, so the direct A/B covers four engine/case pairs: production
 matches 3/4, while the candidate matches 4/4. The difference is the broad
@@ -217,12 +218,22 @@ Vinyl case: production selects the secondary index, but the primary scan is
 observed faster and the integer candidate selects it (candidate LogEst 212
 versus 217).
 
-This is still **offline evidence only**. The candidate is evaluated with the
-known output cardinality (16 or half the fixture), whereas the production
-planner assigns the narrow and broad bound the same coarse ~262144-row
-estimate. The fitted startup also contains SQL execution/materialization
-overhead, and the arbitrary common work unit has not been calibrated for
-composition across JOIN depths. The next gate is a same-binary A/B using
-planner-estimated cardinalities and repeated inner-loop probes on a reviewed
-JOIN workload. Until that passes, the report must not be read as approval of
-these coefficients or an engine-specific production formula.
+Schema v2 of the report also reads each forced path's estimate directly from
+the raw capture's `observations.jsonl` EXPLAIN output. It rejects missing,
+provenance-mismatched, or repeat-unstable estimates. With those inputs the
+candidate drops to 7/8, losing the broad Vinyl repair: both the 16-row tail
+and 4096-row broad secondary path are estimated at ~262144 rows. The capture's
+unfiltered primary scan estimate is ~1048576 rows, and both one-sided forced
+primary alternatives report ~983040. With all of those planner inputs, the
+candidate selects the secondary path for both bounds and again misses broad
+Vinyl. Across the four direct production cases it is therefore 3/4, the same
+choices and score as production; the apparent known-cardinality repair
+disappears. The report preserves the raw estimates and does not clamp them to
+the 8192-row fixture population.
+
+This remains **offline evidence only**. The fitted startup contains SQL
+execution/materialization overhead, and the arbitrary common work unit has
+not been calibrated for composition across JOIN depths. The next gate is
+better bound-sensitive selectivity followed by repeated inner-loop probes on
+a reviewed JOIN workload. Until that passes, the report must not be read as
+approval of these coefficients or an engine-specific production formula.
