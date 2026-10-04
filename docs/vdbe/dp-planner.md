@@ -478,6 +478,11 @@ on both. The evidence motivates engine-specific prices *and* better range
 selectivity; a uniform Vinyl range penalty tested locally did not repair the
 choice and was removed. See [`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md)
 and [`tools/sql_cost/README.md`](../../tools/sql_cost/README.md).
+Selected-path logical-prefix diagnostics further expose a four-way plan with
+44 estimated versus 2252 counted rows at an intermediate `b,c,d` prefix,
+despite a final-output q-error of only 2.22. Those counts come from separate
+equivalent subset queries, not executor instrumentation; executor-stage
+validation remains open.
 
 ## Nearest decision-oriented work
 

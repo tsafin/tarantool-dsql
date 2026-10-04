@@ -231,6 +231,14 @@ measured executions of an empty query with unbounded q-error. The interim
 production policy remains unchanged. The next evidence gate is calibrated
 range/join selectivity and path costs, JOIN-prefix actual/estimate counters,
 additional fixture sizes and hosts, and reviewed regression thresholds.
+The subsequent matching-source logical-prefix run at
+`/tmp/e1-prefix-strict-24020e4952/report.json` preserves result parity and
+shows why final-output q-error alone is insufficient: in the default
+`four-selective` memtx plan, relation mask `14` (the selected `b,c,d` prefix)
+has 44 estimated versus 2252 logically counted rows (q-error 51.2), while
+the final four-relation output has 160 estimated versus 72 actual rows
+(q-error 2.22). The prefix number comes from a separate `COUNT(*)` query,
+not from the original executor, and therefore remains diagnostic only.
 
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
