@@ -160,6 +160,21 @@ where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
 		   rhs->pLeft == NULL && rhs->pRight == NULL &&
 		   rhs->iTable == cursor && rhs->iColumn == (int)part->fieldno) {
 		literal = lhs;
+	} else if (term->prereqRight == 0 && lhs != NULL &&
+		   lhs->op == TK_COLUMN_REF && lhs->pLeft == NULL &&
+		   lhs->pRight == NULL) {
+		/*
+		 * sqlWhereFindTerm() may return a constant constraint on an
+		 * equivalent column (B.k=A.k, A.k=literal) while constructing
+		 * the B.k loop. The WHERE scanner has already checked the
+		 * equivalence chain and collation compatibility. Preserve the
+		 * literal MCV estimate instead of falling back to average NDV.
+		 */
+		literal = rhs;
+	} else if (term->prereqRight == 0 && rhs != NULL &&
+		   rhs->op == TK_COLUMN_REF && rhs->pLeft == NULL &&
+		   rhs->pRight == NULL) {
+		literal = lhs;
 	} else {
 		return false;
 	}

@@ -72,3 +72,50 @@ g.test_exact_frontier_metrics = function()
     t.assert_gt(res.metrics.peak_solver_bytes, 0)
     t.assert_ge(res.metrics.planner_elapsed_us, 0)
 end
+
+g.test_equivalent_literal_uses_mcv = function()
+    local res = g.server:exec(function()
+        local build_dir = assert(os.getenv('BUILDDIR'))
+        package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        local adapter = require('sql_stats_snapshot_test')
+        adapter.clear()
+        box.execute('SET SESSION "sql_seq_scan" = true')
+        local result = {}
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local a = 'dpe_a_' .. engine
+            local b = 'dpe_b_' .. engine
+            box.execute(('CREATE TABLE %s (id INT PRIMARY KEY, k INT) ' ..
+                         "WITH ENGINE = '%s'"):format(a, engine))
+            box.execute(('CREATE TABLE %s (id INT PRIMARY KEY, k INT) ' ..
+                         "WITH ENGINE = '%s'"):format(b, engine))
+            box.execute(('CREATE INDEX %s_k ON %s(k)'):format(a, a))
+            box.execute(('CREATE INDEX %s_k ON %s(k)'):format(b, b))
+            for id = 1, 40 do
+                box.execute(('INSERT INTO %s VALUES (?, ?)'):format(a),
+                            {id, id <= 30 and 1 or id})
+            end
+            for id = 1, 60 do
+                box.execute(('INSERT INTO %s VALUES (?, ?)'):format(b),
+                            {id, id <= 40 and 1 or id})
+            end
+            box.execute('ANALYZE ' .. a)
+            box.execute('ANALYZE ' .. b)
+            local sql = ('SELECT a.id, b.id FROM %s a JOIN %s b ' ..
+                         'ON a.k = b.k WHERE a.k = 1'):format(a, b)
+            result[engine] = adapter.join_prefix_actuals(sql)
+            box.execute('DROP TABLE ' .. b)
+            box.execute('DROP TABLE ' .. a)
+        end
+        adapter.clear()
+        return result
+    end)
+    for _, engine in ipairs({'memtx', 'vinyl'}) do
+        local prefixes = res[engine]
+        t.assert_equals(#prefixes, 2)
+        t.assert_equals(prefixes[1].relation_mask, 1)
+        t.assert_ge(prefixes[1].estimated_rows, 20)
+        t.assert_ge(prefixes[2].estimated_rows, 50)
+        t.assert_equals(prefixes[1].actual_rows, 30)
+        t.assert_equals(prefixes[2].actual_rows, 1200)
+    end
+end
