@@ -428,10 +428,17 @@ range fixture's first prefix improves from 2 estimated versus 21 actual rows
 (q-error 10.5) to 22 versus 21 (1.05); its final estimate improves from 32
 versus 182 (5.69) to 352 versus 182 (1.93). The maximum finite selected-prefix
 q-error consequently falls to 7.58 and the median to 1.83 on both engines.
-The next cardinality task is repeated JOIN-inner fanout/correlation, followed
-by broader range shapes. The interim policy is still to retain the default
-beam and keep the oracle opt-in; see the measurements and remaining acceptance
-gaps in
+The subsequent exact-revision run at `1a3cc32690` extends MCV selection to a
+dependent indexed lookup when a legal equivalence chain proves an equivalent
+dependency-free literal (for example, it costs `b.k = a.k` using `a.k = 0`).
+The hot JOIN then estimates 4608 versus 1820 actual rows (q-error 2.53), and
+the finite selected-prefix maximum/median become 7.33/2.0 on both engines.
+That is a narrow literal-driven fanout correction, not general correlation
+estimation; it overshoots the skewed fixture and leaves arbitrary outer values
+and correlated predicates on legacy heuristics. The next cardinality task is
+bounded general JOIN-inner fanout/correlation, followed by broader range
+shapes. The interim policy is still to retain the default beam and keep the
+oracle opt-in; see the measurements and remaining acceptance gaps in
 [`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md). Narrow
 engine-cost probe results likewise remain experimental, as documented in
 [`tools/sql_cost/README.md`](../../tools/sql_cost/README.md).

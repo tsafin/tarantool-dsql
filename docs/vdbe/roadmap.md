@@ -3618,6 +3618,21 @@ remaining fanout error, so the next selectivity work is repeated JOIN-inner
 fanout/correlation, then broader histogram shapes. This still does not accept
 E1 or change `(1,5,10)`.
 
+The follow-up production change at `1a3cc32690` lets a dependent indexed
+equality lookup use an MCV when the WHERE equivalence graph proves an
+equivalent dependency-free literal (for example, price `b.k = a.k` from
+`a.k = 0`). Its strict same-binary report
+`/tmp/e1-join-mcv-strict-1a3cc32690/report.json` has decision-grade provenance
+and result parity under default, wider, and exact configurations on both
+engines. The hot JOIN changes from 240 estimated versus 1820 actual rows
+(q-error 7.58) to 4608 versus 1820 (2.53); its first prefix remains 40 versus
+35 (1.14). For 29 selected stages per engine, the 26 finite q-errors are now
+median 2.0 and maximum 7.33, with three empty stages explicitly unbounded.
+Default and wider plans remain identical. This scoped correction overshoots
+the fixture and is not general correlation costing. The next selectivity task
+is bounded general dependent-inner fanout/correlation, then broader histogram
+shapes and staleness; E1 remains `PROTOTYPE` and defaults remain `(1,5,10)`.
+
 The independent memtx/Vinyl access-cost probe found a same-shaped one-sided
 range whose secondary path wins for 16 rows but loses for 2048 rows on
 two-run Vinyl; the unforced planner chooses secondary for both and assigns

@@ -301,6 +301,34 @@ literal-bound gap and makes repeated inner-loop fanout/correlation the next
 cardinality target. It does not accept E1, set thresholds, validate broader
 range shapes, or justify changing beam defaults.
 
+### Dependent lookup MCV follow-up (2026-10-04)
+
+The exact-revision report at
+`/tmp/e1-join-mcv-strict-1a3cc32690/report.json`, source `1a3cc32690`, has
+`decision_grade_provenance=true`. It covers the production extension that
+recognizes an equivalent, dependency-free literal while pricing an indexed
+join lookup: for `a.k = b.k AND a.k = 0`, the `b.k = a.k` inner lookup may
+use the pinned MCV for `a.k = 0`. This is deliberately narrower than a
+general join-correlation model: it requires a legal equality-equivalence
+chain and a supported literal MCV; bind values, arbitrary outer values, and
+unrelated correlated predicates retain their existing estimates.
+
+All result fingerprints still match for default `(1,5,10)`, wider
+`(2,8,16)`, and the exact oracle on memtx and Vinyl. Default and wider plans
+remain identical, with one plan change per engine relative to the historical
+pre-statistics baseline. The hot two-way JOIN improves from 240 estimated
+versus 1820 actual rows (q-error 7.58) to 4608 versus 1820 (2.53); its first
+prefix remains 40 versus 35 (1.14). Across the 29 selected stages per engine,
+26 finite q-errors have median 2.0 and maximum 7.33, while three empty stages
+remain explicitly unbounded. The correction is useful but overshoots this
+skewed fixture, so it is evidence for literal-driven inner fanout costing,
+not a calibration claim.
+
+The next cardinality work is a bounded, measurable treatment of general
+dependent join fanout/correlation, followed by broader histogram shapes and
+staleness coverage. This result does not accept E1, establish an engine cost
+model, set production thresholds, or justify changing beam defaults.
+
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
 same-statistics report comparing the legacy route with the enabled M3 route;
