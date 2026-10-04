@@ -169,3 +169,24 @@ OS cache is uncontrolled, the work is not a JOIN inner-loop operator, and
 `WhereLoop` still lacks reliable bound-specific range cardinalities. The
 next A/B must validate new fixture sizes, JOIN order and runtime on the same
 binary/statistics before any coefficient is translated to `LogEst`.
+
+`calibrate_access_scale.py` adds a separate size-transfer check. It fits
+engine-specific scan-input, primary-output, secondary-startup, and
+secondary-output rates from the 2048- and 4096-row memory-state captures, then
+tests the untouched 8192-row capture:
+
+```sh
+python3 -B tools/sql_cost/test_calibrate_access_scale.py
+python3 -B tools/sql_cost/calibrate_access_scale.py \
+  --train /tmp/sql-cost-tail-memory-2048 \
+  --train /tmp/sql-cost-tail-memory-24020e4952 \
+  --validate /tmp/sql-cost-tail-memory-8192
+```
+
+It preserves all eight path rankings at 8192 rows. Fitted secondary work is
+about 0.75 µs per returned row for memtx and 8.76 µs for Vinyl; the held-out
+Vinyl broad ratio is predicted at 1.49 versus 1.61 observed. This tests one
+additional cardinality on the same host, not arbitrary selectivities, JOIN inner-loop
+reuse, cold I/O, or an accepted production cost function. Training and
+validation require the same binary and benchmark revision; only row count is
+allowed to differ.

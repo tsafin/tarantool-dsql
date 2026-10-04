@@ -483,7 +483,10 @@ the bound: the Vinyl secondary index won at 16 actual rows but lost at 2048,
 while EXPLAIN assigned the same ~262144-row estimate and path to both. An
 empirical per-engine microsecond model recovered all eight paired access-path
 rankings in each held-out storage state, but it has not been translated into
-the production `LogEst` objective or tested on new cardinalities.
+the production `LogEst` objective or tested across arbitrary selectivities.
+An additional fit on 2048/4096-row memory fixtures preserved all eight
+access-path rankings on an 8192-row fixture; it is still one host and a narrow
+SQL-operation model, not a JOIN-level cost validation.
 Selected-path logical-prefix diagnostics further expose a four-way plan with
 44 estimated versus 2252 counted rows at an intermediate `b,c,d` prefix,
 despite a final-output q-error of only 2.22. Those counts come from separate
