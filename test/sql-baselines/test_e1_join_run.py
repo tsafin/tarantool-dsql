@@ -32,9 +32,9 @@ def observations():
                              "planner_elapsed_us": 2,
                              "peak_frontier": 2, "peak_solver_bytes": 512}
                             for _ in range(8)],
-                        "logical_prefixes": ([
+                        "executor_prefixes": ([
                             {"relation_mask": (1 << depth) - 1,
-                             "estimated_rows": 2, "counted_rows": 1}
+                             "estimated_rows": 2, "actual_rows": 1}
                             for depth in range(1, {"two": 2, "three": 3,
                                                    "four": 4}[
                                 query.split("-", 1)[0]] + 1)]
@@ -119,11 +119,11 @@ class JoinRunnerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unstable planner path"):
             join.validate_and_report(rows, ("memtx", "vinyl"))
 
-    def test_logical_prefix_contract(self):
+    def test_executor_prefix_contract(self):
         rows = observations()
         target = next(row for row in rows if row["query_id"] == "four-star")
-        target["logical_prefixes"][-1]["counted_rows"] = 2
-        with self.assertRaisesRegex(ValueError, "logical JOIN final stage"):
+        target["executor_prefixes"][-1]["actual_rows"] = 2
+        with self.assertRaisesRegex(ValueError, "executor JOIN final stage"):
             join.validate_and_report(rows, ("memtx", "vinyl"))
 
     def test_exact_oracle_eligibility_and_parity(self):
@@ -150,7 +150,7 @@ class JoinRunnerTest(unittest.TestCase):
         drift = copy.deepcopy(oracle)
         drift[-1]["actual_rows"] = 3
         drift[-1]["cardinalities"][0]["actual_rows"] = 3
-        drift[-1]["logical_prefixes"][-1]["counted_rows"] = 3
+        drift[-1]["executor_prefixes"][-1]["actual_rows"] = 3
         with self.assertRaisesRegex(ValueError, "oracle JOIN result changed"):
             join.validate_and_report(rows + drift, ("memtx", "vinyl"), True)
         wrong = copy.deepcopy(oracle)

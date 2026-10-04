@@ -363,6 +363,19 @@ sql_path_solver_width(int loop_count)
 }
 
 /*
+ * This switch is used only by the in-process TEST_BUILD adapter. It is false
+ * for ordinary compilation, so production statements receive neither extra
+ * registers nor counter opcodes.
+ */
+static bool sql_test_join_prefix_counters_enabled;
+
+void
+sql_test_join_prefix_counters_enable(bool enable)
+{
+	sql_test_join_prefix_counters_enabled = enable;
+}
+
+/*
  * Return the estimated number of output rows from a WHERE clause
  */
 LogEst
@@ -4427,6 +4440,28 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		}
 	}
 	pWInfo->iTop = sqlVdbeCurrentAddr(v);
+	if (sql_test_join_prefix_counters_enabled && pParse->iSelectId == 0 &&
+	    pWInfo->nLevel >= 2 && pWInfo->nLevel <= SQL_JOIN_PREFIX_MAX &&
+	    pWInfo->nLevel == pTabList->nSrc) {
+		bool flat_inner = true;
+		for (int i = 0; i < pTabList->nSrc; i++) {
+			struct SrcList_item *item = &pTabList->a[i];
+			if ((item->fg.jointype & (JT_LEFT | JT_CROSS | JT_RIGHT |
+						 JT_NATURAL)) != 0 ||
+			    item->pUsing != NULL || item->pSelect != NULL) {
+				flat_inner = false;
+				break;
+			}
+		}
+		if (flat_inner) {
+			v->planner_join_prefix_counter_count = pWInfo->nLevel;
+			for (int i = 0; i < pWInfo->nLevel; i++) {
+				int reg = ++pParse->nMem;
+				v->planner_join_prefix_counter_regs[i] = reg;
+				sqlVdbeAddOp2(v, OP_Integer, 0, reg);
+			}
+		}
+	}
 
 	/* Generate the code to do the search.  Each iteration of the for
 	 * loop below generates code for a single nested loop of the VM
@@ -4444,6 +4479,9 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 					       pLevel->iFrom, wctrlFlags);
 		pLevel->addrBody = sqlVdbeCurrentAddr(v);
 		notReady = sqlWhereCodeOneLoopStart(pWInfo, ii, notReady);
+		if (ii < v->planner_join_prefix_counter_count)
+			sqlVdbeAddOp2(v, OP_AddImm,
+				      v->planner_join_prefix_counter_regs[ii], 1);
 		pWInfo->iContinue = pLevel->addrCont;
 	}
 

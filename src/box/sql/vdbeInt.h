@@ -359,6 +359,9 @@ struct Vdbe {
 	uint8_t planner_join_prefix_count;
 	uint64_t planner_join_prefix_masks[SQL_JOIN_PREFIX_MAX];
 	LogEst planner_join_prefix_logest[SQL_JOIN_PREFIX_MAX];
+	/** Test-adapter VDBE registers counting rows at each selected prefix. */
+	uint8_t planner_join_prefix_counter_count;
+	uint16_t planner_join_prefix_counter_regs[SQL_JOIN_PREFIX_MAX];
 	/* Complete post-beam one-relation paths from the final solver pass. */
 	/* Allocated only for snapshot EXPLAINs that capture final paths. */
 	struct sql_planner_final_path_capture *planner_final_paths;

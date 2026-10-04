@@ -3,11 +3,12 @@
 This is a measurement contract for the post-integration E1/GATE decision. It
 does not accept a planner, select width defaults, define production thresholds,
 or replace M0 parity. `e1_measure.py` analyzes observations; it does not run SQL
-or manufacture planner estimates. The pilot producer can pair the selected
-top-level WHERE output estimate with actual final SELECT rows for eligible
-ungrouped, unlimited SELECTs. It cannot observe actual intermediate JOIN-prefix
-rows in the original executor, and is not an accepted integrated M3/S2
-measurement producer.
+or manufacture planner estimates. The pilot producer pairs selected WHERE
+estimates with executor-observed rows at every selected nested-loop prefix for
+eligible flat 2–4-way INNER JOINs. The counters are test-only VDBE
+instrumentation and are enabled only while the adapter compiles its private
+statement; they do not affect ordinary query compilation. This remains a
+synthetic pilot, not an accepted integrated M3/S2 measurement producer.
 
 ## Workload contract
 
@@ -140,14 +141,14 @@ generated/dominated/truncated/retained path counts, peak retained frontier,
 and peak solver-buffer bytes. These bytes exclude candidate loops, SQL AST,
 and other planner memory; the WHERE timer excludes the rest of SQL preparation.
 For eligible flat INNER JOINs, the adapter also exposes the selected path's
-relation mask and estimated rows at each prefix. The fixture runs a separate
-`COUNT(*)` query over each prefix's relation subset, applying predicates as
-soon as all referenced relations are present. It verifies that the full-set
-count equals the original SELECT output, and the report lists each prefix's
-estimated/logically counted rows and q-error. These are **logical-prefix
-diagnostics**, not counters from the original executor; they must not be used
-as the stage-matched E1 acceptance metric until executor-stage equivalence is
-proved or measured directly.
+relation mask and estimated rows at each prefix. The test adapter compiles and
+executes that same SELECT with a counter immediately after each chosen loop
+level has applied every predicate whose inputs are available. The report lists
+each prefix's estimated and actual rows and q-error, and verifies that the last
+counter equals the SELECT output. These are stage-matched executor-prefix
+measurements for the supported flat INNER shape. LEFT/CROSS/NATURAL/USING,
+FROM-subquery, non-top-level, and more-than-four-relation cases remain outside
+this instrumentation contract.
 
 EXPLAIN QUERY PLAN exposes per-loop estimates, not a semantically matched
 estimate for each JOIN output. The TEST_BUILD adapter instead compiles the
@@ -158,9 +159,10 @@ is the SELECT output cardinality. The fixture explicitly checks that grouped,
 limited, and single-table SELECTs do not expose this estimate. Every measured
 row includes one `join-output` cardinality stage; the strict `e1_measure.py`
 analyzer supplies per-query and aggregate q-error under `estimate_quality` in
-the report. The selected estimate is not an EXPLAIN per-loop count, and it is
-not an executor-observed intermediate JOIN-prefix count. Prefix-stage
-estimates and actuals remain uninstrumented.
+the report. The selected estimate is not an EXPLAIN per-loop count.
+Intermediate selected prefix estimates are paired with the new VDBE counters
+for eligible queries; unsupported shapes expose neither prefix estimates nor
+counters.
 
 The optional `exact-oracle` process enables
 `SQL_PATH_SOLVER_ORACLE_MAX_RELATIONS=4`; all baseline/candidate processes
@@ -205,8 +207,9 @@ unbounded q-error.
 enable exact search by default.** This pilot demonstrates neither a stable
 cross-engine runtime gain nor reliable JOIN cardinality; it has no reviewed
 latency/q-error thresholds or representative corpus. The next gate requires a
-reviewed representative workload, executor-stage JOIN-prefix actuals, a
-calibrated production cost-model A/B, and agreed latency/q-error limits.
+reviewed representative workload, a calibrated production cost-model A/B, and
+agreed latency/q-error limits. Executor-prefix plumbing now exists, but the
+current synthetic 2–4-way corpus is not the reviewed acceptance workload.
 The quoted pilot predates the graph expansion and repeated-preparation
 observations; it covers seven queries only. Matched provenance is necessary
 but does not make this synthetic pilot a production acceptance test.
@@ -231,16 +234,17 @@ default and wider beam have the same median finite final-output q-error
 (about 2.44); the maximum remains 82.7, and each configuration has five
 measured executions of an empty query with unbounded q-error. The interim
 production policy remains unchanged. The next evidence gate is calibrated
-range/join selectivity and path costs, JOIN-prefix actual/estimate counters,
-additional fixture sizes and hosts, and reviewed regression thresholds.
-The subsequent matching-source logical-prefix run at
+range/join selectivity and path costs, additional fixture sizes and hosts, and
+reviewed regression thresholds. The earlier matching-source logical-prefix
+run at
 `/tmp/e1-prefix-strict-24020e4952/report.json` preserves result parity and
 shows why final-output q-error alone is insufficient: in the default
 `four-selective` memtx plan, relation mask `14` (the selected `b,c,d` prefix)
 has 44 estimated versus 2252 logically counted rows (q-error 51.2), while
 the final four-relation output has 160 estimated versus 72 actual rows
-(q-error 2.22). The prefix number comes from a separate `COUNT(*)` query,
-not from the original executor, and therefore remains diagnostic only.
+(q-error 2.22). The prefix number in that archived report comes from a separate
+`COUNT(*)` query. New captures replace it with executor-observed
+`executor_prefixes`; the archived number remains diagnostic only.
 
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,

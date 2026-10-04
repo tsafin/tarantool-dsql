@@ -179,6 +179,55 @@ lbox_join_prefix_estimates(lua_State *L)
 	return 1;
 }
 
+/** Test-only selected INNER JOIN prefix estimates and executed row counts. */
+static int
+lbox_join_prefix_actuals(lua_State *L)
+{
+	const char *sql = luaL_checkstring(L, 1);
+	struct Vdbe *stmt = NULL;
+	const char *tail = NULL;
+	sql_test_join_prefix_counters_enable(true);
+	int compile_rc = sql_stmt_compile(sql, -1, NULL, &stmt, &tail, true);
+	sql_test_join_prefix_counters_enable(false);
+	if (compile_rc != 0 || stmt == NULL)
+		return luaL_error(L, "failed to compile JOIN prefix fixture");
+	if (stmt->planner_join_prefix_count == 0 ||
+	    stmt->planner_join_prefix_counter_count !=
+	    stmt->planner_join_prefix_count) {
+		sqlVdbeDelete(stmt);
+		lua_pushnil(L);
+		return 1;
+	}
+	int rc;
+	while ((rc = sql_step(stmt)) == SQL_ROW) {
+	}
+	if (rc != SQL_DONE) {
+		sqlVdbeDelete(stmt);
+		return luaL_error(L, "failed to execute JOIN prefix fixture");
+	}
+	lua_newtable(L);
+	for (int i = 0; i < stmt->planner_join_prefix_count; i++) {
+		int reg = stmt->planner_join_prefix_counter_regs[i];
+		uint64_t actual = 0;
+		if (reg <= 0 || reg >= stmt->nMem ||
+		    mem_get_uint(&stmt->aMem[reg], &actual) != 0) {
+			sqlVdbeDelete(stmt);
+			return luaL_error(L, "invalid JOIN prefix counter");
+		}
+		lua_newtable(L);
+		lua_pushnumber(L, stmt->planner_join_prefix_masks[i]);
+		lua_setfield(L, -2, "relation_mask");
+		lua_pushnumber(L,
+			       sqlLogEstToInt(stmt->planner_join_prefix_logest[i]));
+		lua_setfield(L, -2, "estimated_rows");
+		lua_pushnumber(L, actual);
+		lua_setfield(L, -2, "actual_rows");
+		lua_rawseti(L, -2, i + 1);
+	}
+	sqlVdbeDelete(stmt);
+	return 1;
+}
+
 static int
 lbox_clear_snapshot(lua_State *L)
 {
@@ -252,6 +301,7 @@ luaopen_sql_stats_snapshot_test(lua_State *L)
 		{"join_output_estimate", lbox_join_output_estimate},
 		{"join_planner_metrics", lbox_join_planner_metrics},
 		{"join_prefix_estimates", lbox_join_prefix_estimates},
+		{"join_prefix_actuals", lbox_join_prefix_actuals},
 		{NULL, NULL},
 	};
 	luaL_register(L, "sql_stats_snapshot_test", methods);

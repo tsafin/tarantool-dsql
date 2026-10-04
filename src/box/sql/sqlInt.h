@@ -3127,6 +3127,8 @@ bool sqlWhereIsTopLevelFlatInnerJoin(const WhereInfo *);
 int sqlWhereSelectedPrefixEstimates(WhereInfo *,
 				    uint64_t masks[SQL_JOIN_PREFIX_MAX],
 				    LogEst rows[SQL_JOIN_PREFIX_MAX]);
+/** Enable test-only executor counters for the next JOIN compilation. */
+void sql_test_join_prefix_counters_enable(bool enable);
 int sqlWhereIsDistinct(WhereInfo *);
 int sqlWhereIsOrdered(WhereInfo *);
 int sqlWhereOrderedInnerLoop(WhereInfo *);
