@@ -8,7 +8,7 @@
 static void
 test_deep_copy_lookup_and_lifetime(void)
 {
-	plan(38);
+	plan(40);
 	header();
 	uint64_t prefixes[] = {2, 5};
 	uint64_t sparse_prefixes[] = {2, 4};
@@ -17,9 +17,17 @@ test_deep_copy_lookup_and_lifetime(void)
 		{.type_tag = 1, .value = mcv_value, .value_size = 3,
 		 .estimate = 4, .error = 1},
 	};
+	char histogram_upper[] = "m";
+	struct sql_stats_histogram_bucket_input histogram[] = {
+		{.type_tag = 1, .upper_bound = histogram_upper,
+		 .upper_bound_size = 1, .cumulative_count = 4},
+		{.type_tag = 1, .upper_bound = "z",
+		 .upper_bound_size = 1, .cumulative_count = 8},
+	};
 	struct sql_stats_index_part_input index_parts[] = {
 		{.sample_rows = 10, .sample_nonnull_rows = 8,
-		 .mcv = mcv, .mcv_count = 1},
+		 .mcv = mcv, .mcv_count = 1,
+		 .histogram = histogram, .histogram_count = 2},
 		{.sample_rows = 10, .sample_nonnull_rows = 10},
 	};
 	struct sql_stats_index_input indexes[] = {
@@ -43,7 +51,7 @@ test_deep_copy_lookup_and_lifetime(void)
 		check_plan();
 		return;
 	}
-	ok(sql_stats_snapshot_api_version(snapshot) == 4,
+	ok(sql_stats_snapshot_api_version(snapshot) == 5,
 	   "snapshot API version is explicit");
 	ok(sql_stats_snapshot_catalog_version(snapshot) == 4 &&
 	   sql_stats_snapshot_schema_version(snapshot) == 7,
@@ -52,6 +60,7 @@ test_deep_copy_lookup_and_lifetime(void)
 	   "snapshot allocation respects byte budget");
 	prefixes[0] = 9;
 	mcv_value[0] = 'x';
+	histogram_upper[0] = 'x';
 	relations[0].row_count = 999;
 	const struct sql_stats_relation *relation = NULL;
 	ok(sql_stats_snapshot_get_relation(snapshot, 7, 42, &relation) ==
@@ -97,6 +106,16 @@ test_deep_copy_lookup_and_lifetime(void)
 	   memcmp(stored_mcv, "hot", 3) == 0 && stored_mcv_estimate == 4 &&
 	   stored_mcv_error == 1,
 	   "typed MCV payload and both sample denominators are deep-copied");
+	const void *stored_upper = NULL;
+	size_t stored_upper_size = 0;
+	uint64_t stored_cumulative = 0;
+	ok(sql_stats_index_part_histogram_count(index, 0) == 2 &&
+	   sql_stats_index_part_histogram_at(index, 0, 0, &stored_mcv_tag,
+		&stored_upper, &stored_upper_size, &stored_cumulative) ==
+		   SQL_STATS_LOOKUP_AVAILABLE && stored_mcv_tag == 1 &&
+	   stored_upper_size == 1 && memcmp(stored_upper, "m", 1) == 0 &&
+	   stored_cumulative == 4,
+	   "typed histogram boundaries are deep-copied");
 	double mcv_rows = -1, mcv_error_rows = -1;
 	ok(sql_stats_snapshot_estimate_index_part_mcv_rows(snapshot, 7, 42, 8,
 		0, 1, "hot", 3, &mcv_rows, &mcv_error_rows) ==
@@ -179,6 +198,13 @@ test_deep_copy_lookup_and_lifetime(void)
 		&stored_mcv_error) == SQL_STATS_LOOKUP_AVAILABLE &&
 	   memcmp(stored_mcv, "hot", 3) == 0,
 	   "combine preserves immutable MCV payload");
+	ok(combined_index != NULL &&
+	   sql_stats_index_part_histogram_at(combined_index, 0, 1,
+		&stored_mcv_tag, &stored_upper, &stored_upper_size,
+		&stored_cumulative) == SQL_STATS_LOOKUP_AVAILABLE &&
+	   stored_upper_size == 1 && memcmp(stored_upper, "z", 1) == 0 &&
+	   stored_cumulative == 8,
+	   "combine preserves immutable histogram payload");
 	struct sql_stats_relation_input replacement_input = {
 		.space_id = 42, .row_count = 11,
 		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
@@ -288,7 +314,7 @@ test_deep_copy_lookup_and_lifetime(void)
 static void
 test_reject_invalid_inputs(void)
 {
-	plan(12);
+	plan(14);
 	header();
 	struct sql_stats_relation_input relation = {
 		.space_id = 1, .row_count = NAN, .average_row_width = 1,
@@ -358,6 +384,23 @@ test_reject_invalid_inputs(void)
 	bad_part.sample_nonnull_rows = 0;
 	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
 	   "MCV estimate beyond non-NULL sample denominator rejected");
+	bad_part.mcv = NULL;
+	bad_part.mcv_count = 0;
+	bad_part.sample_nonnull_rows = 1;
+	struct sql_stats_histogram_bucket_input bad_histogram[] = {
+		{.type_tag = 1, .upper_bound = "x", .upper_bound_size = 1,
+		 .cumulative_count = 1},
+		{.type_tag = 1, .upper_bound = "y", .upper_bound_size = 1,
+		 .cumulative_count = 1},
+	};
+	bad_part.histogram = bad_histogram;
+	bad_part.histogram_count = 2;
+	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
+	   "histogram cumulative counts must increase");
+	bad_part.histogram_count = 1;
+	bad_histogram[0].cumulative_count = 0;
+	ok(sql_stats_snapshot_new(1, 1, &relation, 1, 4096) == NULL,
+	   "histogram must cover the non-NULL sample");
 	footer();
 	check_plan();
 }

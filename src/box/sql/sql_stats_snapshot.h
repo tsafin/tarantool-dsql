@@ -26,6 +26,20 @@ struct sql_stats_mcv_input {
 	uint64_t error;
 };
 
+/*
+ * One equi-depth histogram boundary over the non-NULL sample. Values use the
+ * same caller-canonicalized encoding as MCV entries. Boundaries must share a
+ * nonzero type tag and have strictly increasing cumulative counts; the final
+ * count must equal sample_nonnull_rows. Ordering of value bytes is validated
+ * by the producer because the snapshot intentionally owns no collation.
+ */
+struct sql_stats_histogram_bucket_input {
+	uint8_t type_tag;
+	const void *upper_bound;
+	size_t upper_bound_size;
+	uint64_t cumulative_count;
+};
+
 struct sql_stats_index_part_input {
 	/* Rows actually delivered to this part's sketch, including NULLs. */
 	uint64_t sample_rows;
@@ -33,6 +47,8 @@ struct sql_stats_index_part_input {
 	uint64_t sample_nonnull_rows;
 	const struct sql_stats_mcv_input *mcv;
 	size_t mcv_count;
+	const struct sql_stats_histogram_bucket_input *histogram;
+	size_t histogram_count;
 };
 
 struct sql_stats_index_input {
@@ -86,7 +102,7 @@ enum sql_stats_lookup_status {
  * zero is invalid. Duplicate IDs, invalid numeric values, malformed prefix
  * counts, or budget overflow reject the whole snapshot and return NULL.
  *
- * Snapshot API version is currently 4 and intentionally distinct from the
+ * Snapshot API version is currently 5 and intentionally distinct from the
  * persistence payload/catalog/schema versions. `schema_version` mismatch at
  * lookup time reports STALE instead of making ordinary prepare fail.
  */
@@ -247,6 +263,18 @@ sql_stats_index_part_mcv_at(const struct sql_stats_index *index,
 			    uint8_t *type_tag, const void **value,
 			    size_t *value_size, uint64_t *estimate,
 			    uint64_t *error);
+
+size_t
+sql_stats_index_part_histogram_count(const struct sql_stats_index *index,
+				     size_t part_index);
+
+/* Boundary bytes are borrowed from the immutable snapshot. */
+enum sql_stats_lookup_status
+sql_stats_index_part_histogram_at(const struct sql_stats_index *index,
+				  size_t part_index, size_t ordinal,
+				  uint8_t *type_tag, const void **upper_bound,
+				  size_t *upper_bound_size,
+				  uint64_t *cumulative_count);
 
 /* Look up one tracked typed MCV and scale its SpaceSaving estimate/error
  * interval from the sample domain to the index tuple population. An absent

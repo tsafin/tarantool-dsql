@@ -26,6 +26,13 @@ struct sql_stats_index {
 			uint64_t estimate;
 			uint64_t error;
 		} *mcv;
+		size_t histogram_count;
+		struct sql_stats_histogram_bucket {
+			uint8_t type_tag;
+			void *upper_bound;
+			size_t upper_bound_size;
+			uint64_t cumulative_count;
+		} *histogram;
 	} *parts;
 };
 
@@ -154,6 +161,12 @@ destroy_relations(struct sql_stats_relation *relations, size_t count)
 								free(part->mcv[n].value);
 						}
 						free(part->mcv);
+						if (part->histogram != NULL) {
+							for (size_t n = 0;
+							     n < part->histogram_count; n++)
+								free(part->histogram[n].upper_bound);
+						}
+						free(part->histogram);
 					}
 				}
 				free(relations[i].indexes[j].parts);
@@ -294,8 +307,12 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 					&index_in->parts[k];
 				struct sql_stats_index_part *part = &index->parts[k];
 				if ((part_in->mcv_count != 0 && part_in->mcv == NULL) ||
+				    (part_in->histogram_count != 0 &&
+				     part_in->histogram == NULL) ||
 				    part_in->sample_nonnull_rows > part_in->sample_rows ||
-				    part_in->mcv_count > SIZE_MAX / sizeof(*part->mcv))
+				    part_in->mcv_count > SIZE_MAX / sizeof(*part->mcv) ||
+				    part_in->histogram_count >
+						SIZE_MAX / sizeof(*part->histogram))
 					goto error;
 				part->sample_rows = part_in->sample_rows;
 				part->sample_nonnull_rows = part_in->sample_nonnull_rows;
@@ -351,6 +368,50 @@ sql_stats_snapshot_new(uint64_t catalog_version, uint64_t schema_version,
 				}
 				if (minimum_total > part->sample_nonnull_rows)
 					goto error;
+				part->histogram_count = part_in->histogram_count;
+				if (!add_bytes(&snapshot->bytes,
+					       part->histogram_count *
+						       sizeof(*part->histogram), max_bytes))
+					goto error;
+				part->histogram = part->histogram_count == 0 ? NULL :
+					stats_calloc(part->histogram_count,
+						     sizeof(*part->histogram));
+				if (part->histogram_count != 0 && part->histogram == NULL)
+					goto error;
+				uint64_t previous_count = 0;
+				uint8_t histogram_type = 0;
+				for (size_t n = 0; n < part->histogram_count; n++) {
+					const struct sql_stats_histogram_bucket_input *in =
+						&part_in->histogram[n];
+					struct sql_stats_histogram_bucket *bucket =
+						&part->histogram[n];
+					if (in->type_tag == 0 ||
+					    (n != 0 && in->type_tag != histogram_type) ||
+					    in->cumulative_count <= previous_count ||
+					    in->cumulative_count > part->sample_nonnull_rows ||
+					    (in->upper_bound_size != 0 &&
+					     in->upper_bound == NULL))
+						goto error;
+					histogram_type = in->type_tag;
+					previous_count = in->cumulative_count;
+					bucket->type_tag = in->type_tag;
+					bucket->upper_bound_size = in->upper_bound_size;
+					bucket->cumulative_count = in->cumulative_count;
+					if (!add_bytes(&snapshot->bytes,
+						       bucket->upper_bound_size, max_bytes))
+						goto error;
+					if (bucket->upper_bound_size != 0) {
+						bucket->upper_bound =
+							stats_malloc(bucket->upper_bound_size);
+						if (bucket->upper_bound == NULL)
+							goto error;
+						memcpy(bucket->upper_bound, in->upper_bound,
+						       bucket->upper_bound_size);
+					}
+				}
+				if (part->histogram_count != 0 &&
+				    previous_count != part->sample_nonnull_rows)
+					goto error;
 			}
 		}
 		if (out->index_count > 1)
@@ -395,7 +456,7 @@ sql_stats_snapshot_release(struct sql_stats_snapshot *snapshot)
 }
 
 uint32_t sql_stats_snapshot_api_version(const struct sql_stats_snapshot *s)
-{ return s == NULL ? 0 : 4; }
+{ return s == NULL ? 0 : 5; }
 uint64_t sql_stats_snapshot_catalog_version(const struct sql_stats_snapshot *s)
 { return s == NULL ? 0 : s->catalog_version; }
 uint64_t sql_stats_snapshot_schema_version(const struct sql_stats_snapshot *s)
@@ -439,6 +500,7 @@ struct snapshot_copy_storage {
 	uint64_t ***prefixes;
 	struct sql_stats_index_part_input ***parts;
 	struct sql_stats_mcv_input ****mcv;
+	struct sql_stats_histogram_bucket_input ****histogram;
 	size_t relation_count;
 };
 
@@ -475,10 +537,27 @@ snapshot_copy_storage_destroy(struct snapshot_copy_storage *storage)
 				free(storage->mcv[i][j]);
 			}
 		}
+		if (storage->histogram != NULL && storage->histogram[i] != NULL) {
+			for (size_t j = 0; storage->relations != NULL &&
+			     storage->relations[i].index_count != 0 &&
+			     j < storage->relations[i].index_count; j++) {
+				struct sql_stats_index_input *index =
+					storage->indexes[i] == NULL ? NULL :
+					&storage->indexes[i][j];
+				if (storage->histogram[i][j] != NULL) {
+					for (size_t k = 0; index != NULL &&
+					     k < index->part_count; k++)
+						free(storage->histogram[i][j][k]);
+				}
+				free(storage->histogram[i][j]);
+			}
+		}
 		if (storage->parts != NULL)
 			free(storage->parts[i]);
 		if (storage->mcv != NULL)
 			free(storage->mcv[i]);
+		if (storage->histogram != NULL)
+			free(storage->histogram[i]);
 		if (storage->indexes != NULL)
 			free(storage->indexes[i]);
 	}
@@ -487,6 +566,7 @@ snapshot_copy_storage_destroy(struct snapshot_copy_storage *storage)
 	free(storage->relations);
 	free(storage->parts);
 	free(storage->mcv);
+	free(storage->histogram);
 	*storage = (struct snapshot_copy_storage){};
 }
 
@@ -496,7 +576,9 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 		       struct sql_stats_index_input **indexes,
 		       uint64_t ***prefixes,
 	       struct sql_stats_index_part_input ***parts,
-	       struct sql_stats_mcv_input ****mcv, size_t *scratch_bytes,
+	       struct sql_stats_mcv_input ****mcv,
+	       struct sql_stats_histogram_bucket_input ****histogram,
+	       size_t *scratch_bytes,
 		       size_t max_bytes)
 {
 	size_t index_count = sql_stats_relation_index_count(source);
@@ -510,17 +592,22 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 	if (index_bytes > max_bytes - *scratch_bytes ||
 	    prefix_ptr_bytes > max_bytes - *scratch_bytes - index_bytes ||
 	    index_count > (max_bytes - *scratch_bytes - index_bytes -
-			   prefix_ptr_bytes) / (sizeof(**parts) + sizeof(**mcv)))
+			   prefix_ptr_bytes) /
+			  (sizeof(**parts) + sizeof(**mcv) + sizeof(**histogram)))
 		return false;
 	*indexes = index_count == 0 ? NULL : calloc(index_count, sizeof(**indexes));
 	*prefixes = index_count == 0 ? NULL : calloc(index_count, sizeof(**prefixes));
 	*parts = index_count == 0 ? NULL : calloc(index_count, sizeof(**parts));
 	*mcv = index_count == 0 ? NULL : calloc(index_count, sizeof(**mcv));
+	*histogram = index_count == 0 ? NULL :
+		calloc(index_count, sizeof(**histogram));
 	if (index_count != 0 && (*indexes == NULL || *prefixes == NULL ||
-				  *parts == NULL || *mcv == NULL))
+				  *parts == NULL || *mcv == NULL ||
+				  *histogram == NULL))
 		return false;
 	*scratch_bytes += index_bytes + prefix_ptr_bytes +
-		index_count * (sizeof(**parts) + sizeof(**mcv));
+		index_count * (sizeof(**parts) + sizeof(**mcv) +
+			       sizeof(**histogram));
 	for (size_t i = 0; i < index_count; i++) {
 		const struct sql_stats_index *source_index = NULL;
 		if (sql_stats_relation_index_at(source, i, &source_index) !=
@@ -541,18 +628,23 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 		size_t part_count = source_index == NULL ? 0 : prefix_count;
 		if (part_count > SIZE_MAX / sizeof(***parts) ||
 		    part_count > SIZE_MAX / sizeof(***mcv) ||
-		    part_count * (sizeof(***parts) + sizeof(***mcv)) >
+		    part_count > SIZE_MAX / sizeof(***histogram) ||
+		    part_count * (sizeof(***parts) + sizeof(***mcv) +
+				  sizeof(***histogram)) >
 						max_bytes - *scratch_bytes)
 			return false;
 		(*parts)[i] = part_count == 0 ? NULL : calloc(part_count,
 								 sizeof(***parts));
 		(*mcv)[i] = part_count == 0 ? NULL : calloc(part_count,
 							    sizeof(***mcv));
-		if (part_count != 0 && ((*parts)[i] == NULL || (*mcv)[i] == NULL))
+		(*histogram)[i] = part_count == 0 ? NULL :
+			calloc(part_count, sizeof(***histogram));
+		if (part_count != 0 && ((*parts)[i] == NULL || (*mcv)[i] == NULL ||
+					  (*histogram)[i] == NULL))
 			return false;
 		(*indexes)[i].part_count = part_count;
 		*scratch_bytes += part_count *
-			(sizeof(***parts) + sizeof(***mcv));
+			(sizeof(***parts) + sizeof(***mcv) + sizeof(***histogram));
 		for (size_t k = 0; k < part_count; k++) {
 			size_t mcv_count = sql_stats_index_part_mcv_count(source_index, k);
 			if (mcv_count > SIZE_MAX / sizeof(struct sql_stats_mcv_input) ||
@@ -583,6 +675,38 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 					.error = error,
 				};
 			}
+			size_t histogram_count =
+				sql_stats_index_part_histogram_count(source_index, k);
+			if (histogram_count > SIZE_MAX /
+					       sizeof(struct sql_stats_histogram_bucket_input) ||
+			    histogram_count *
+				    sizeof(struct sql_stats_histogram_bucket_input) >
+						max_bytes - *scratch_bytes)
+				return false;
+			struct sql_stats_histogram_bucket_input *buckets =
+				histogram_count == 0 ? NULL :
+				calloc(histogram_count, sizeof(*buckets));
+			if (histogram_count != 0 && buckets == NULL)
+				return false;
+			(*histogram)[i][k] = buckets;
+			*scratch_bytes += histogram_count * sizeof(*buckets);
+			for (size_t n = 0; n < histogram_count; n++) {
+				uint8_t type_tag;
+				const void *upper_bound;
+				size_t upper_bound_size;
+				uint64_t cumulative_count;
+				if (sql_stats_index_part_histogram_at(source_index, k, n,
+						&type_tag, &upper_bound,
+						&upper_bound_size, &cumulative_count) !=
+				    SQL_STATS_LOOKUP_AVAILABLE)
+					return false;
+				buckets[n] = (struct sql_stats_histogram_bucket_input) {
+					.type_tag = type_tag,
+					.upper_bound = upper_bound,
+					.upper_bound_size = upper_bound_size,
+					.cumulative_count = cumulative_count,
+				};
+			}
 			(*parts)[i][k] = (struct sql_stats_index_part_input) {
 				.sample_rows = sql_stats_index_part_sample_rows(
 					source_index, k),
@@ -591,6 +715,8 @@ snapshot_copy_relation(const struct sql_stats_relation *source,
 						source_index, k),
 				.mcv = mcv_values,
 				.mcv_count = mcv_count,
+				.histogram = buckets,
+				.histogram_count = histogram_count,
 			};
 		}
 		(*indexes)[i] = (struct sql_stats_index_input) {
@@ -673,10 +799,10 @@ snapshot_rebuild(const struct sql_stats_snapshot *base,
 		return NULL;
 	count += replacement_count;
 	size_t relation_bytes = count * sizeof(struct sql_stats_relation_input);
-	if (count > SIZE_MAX / (2 * sizeof(struct sql_stats_index_input *) +
+	if (count > SIZE_MAX / (3 * sizeof(struct sql_stats_index_input *) +
 				 sizeof(uint64_t **) + sizeof(struct sql_stats_index_part_input **)))
 		return NULL;
-	size_t pointer_bytes = count * (2 * sizeof(struct sql_stats_index_input *) +
+	size_t pointer_bytes = count * (3 * sizeof(struct sql_stats_index_input *) +
 					 sizeof(uint64_t **) +
 					 sizeof(struct sql_stats_index_part_input **));
 	if (relation_bytes > max_bytes ||
@@ -691,9 +817,11 @@ snapshot_rebuild(const struct sql_stats_snapshot *base,
 								        sizeof(*storage.prefixes));
 	storage.parts = count == 0 ? NULL : calloc(count, sizeof(*storage.parts));
 	storage.mcv = count == 0 ? NULL : calloc(count, sizeof(*storage.mcv));
+	storage.histogram = count == 0 ? NULL :
+		calloc(count, sizeof(*storage.histogram));
 	if (count != 0 && (storage.relations == NULL || storage.indexes == NULL ||
 			   storage.prefixes == NULL || storage.parts == NULL ||
-			   storage.mcv == NULL))
+			   storage.mcv == NULL || storage.histogram == NULL))
 		goto fail;
 	size_t scratch_bytes = relation_bytes + pointer_bytes;
 	size_t out = 0;
@@ -713,7 +841,8 @@ snapshot_rebuild(const struct sql_stats_snapshot *base,
 			if (out >= count || !snapshot_copy_relation(r,
 				&storage.relations[out], &storage.indexes[out],
 				&storage.prefixes[out], &storage.parts[out],
-				&storage.mcv[out], &scratch_bytes, max_bytes))
+				&storage.mcv[out], &storage.histogram[out],
+				&scratch_bytes, max_bytes))
 				goto fail;
 			out++;
 		}
@@ -760,11 +889,11 @@ sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
 	size_t relation_bytes = relation_count *
 		sizeof(struct sql_stats_relation_input);
 	if (relation_count > SIZE_MAX /
-	    (2 * sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **) +
+	    (3 * sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **) +
 	     sizeof(struct sql_stats_index_part_input **)))
 		return NULL;
 	size_t pointer_bytes = relation_count *
-		(2 * sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **) +
+		(3 * sizeof(struct sql_stats_index_input *) + sizeof(uint64_t **) +
 		 sizeof(struct sql_stats_index_part_input **));
 	if (relation_bytes > max_bytes || pointer_bytes > max_bytes - relation_bytes)
 		return NULL;
@@ -779,10 +908,13 @@ sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
 		calloc(relation_count, sizeof(*storage.parts));
 	storage.mcv = relation_count == 0 ? NULL :
 		calloc(relation_count, sizeof(*storage.mcv));
+	storage.histogram = relation_count == 0 ? NULL :
+		calloc(relation_count, sizeof(*storage.histogram));
 	if (relation_count != 0 && (storage.relations == NULL ||
 				    storage.indexes == NULL ||
 				    storage.prefixes == NULL ||
-				    storage.parts == NULL || storage.mcv == NULL))
+				    storage.parts == NULL || storage.mcv == NULL ||
+				    storage.histogram == NULL))
 		goto fail;
 	size_t scratch_bytes = relation_bytes + pointer_bytes;
 	size_t out = 0;
@@ -796,6 +928,7 @@ sql_stats_snapshot_combine(const struct sql_stats_snapshot *const *snapshots,
 			    !snapshot_copy_relation(relation, &storage.relations[out],
 				&storage.indexes[out], &storage.prefixes[out],
 				&storage.parts[out], &storage.mcv[out],
+				&storage.histogram[out],
 				&scratch_bytes, max_bytes))
 				goto fail;
 			out++;
@@ -949,6 +1082,35 @@ sql_stats_index_part_mcv_at(const struct sql_stats_index *index,
 	*value_size = mcv->value_size;
 	*estimate = mcv->estimate;
 	*error = mcv->error;
+	return SQL_STATS_LOOKUP_AVAILABLE;
+}
+
+size_t
+sql_stats_index_part_histogram_count(const struct sql_stats_index *index,
+				     size_t part_index)
+{
+	return index == NULL || part_index >= index->part_count ? 0 :
+		index->parts[part_index].histogram_count;
+}
+
+enum sql_stats_lookup_status
+sql_stats_index_part_histogram_at(const struct sql_stats_index *index,
+				  size_t part_index, size_t ordinal,
+				  uint8_t *type_tag, const void **upper_bound,
+				  size_t *upper_bound_size,
+				  uint64_t *cumulative_count)
+{
+	if (type_tag == NULL || upper_bound == NULL || upper_bound_size == NULL ||
+	    cumulative_count == NULL || index == NULL ||
+	    part_index >= index->part_count ||
+	    ordinal >= index->parts[part_index].histogram_count)
+		return SQL_STATS_LOOKUP_MISSING;
+	const struct sql_stats_histogram_bucket *bucket =
+		&index->parts[part_index].histogram[ordinal];
+	*type_tag = bucket->type_tag;
+	*upper_bound = bucket->upper_bound;
+	*upper_bound_size = bucket->upper_bound_size;
+	*cumulative_count = bucket->cumulative_count;
 	return SQL_STATS_LOOKUP_AVAILABLE;
 }
 
