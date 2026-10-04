@@ -2602,6 +2602,14 @@ sqlVdbeHalt(Vdbe * p)
 	if (p->magic != VDBE_MAGIC_RUN) {
 		return 0;
 	}
+	/* Preserve test-only JOIN-prefix counters before aMem is released. */
+	for (int i = 0; i < p->planner_join_prefix_counter_count; i++) {
+		int reg = p->planner_join_prefix_counter_regs[i];
+		uint64_t value;
+		if (reg > 0 && reg < p->nMem &&
+		    mem_get_uint(&p->aMem[reg], &value) == 0)
+			p->planner_join_prefix_actuals[i] = value;
+	}
 	checkActiveVdbeCnt();
 
 	/* No commit or rollback needed if the program never started or if the

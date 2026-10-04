@@ -207,20 +207,13 @@ lbox_join_prefix_actuals(lua_State *L)
 	}
 	lua_newtable(L);
 	for (int i = 0; i < stmt->planner_join_prefix_count; i++) {
-		int reg = stmt->planner_join_prefix_counter_regs[i];
-		uint64_t actual = 0;
-		if (reg <= 0 || reg >= stmt->nMem ||
-		    mem_get_uint(&stmt->aMem[reg], &actual) != 0) {
-			sqlVdbeDelete(stmt);
-			return luaL_error(L, "invalid JOIN prefix counter");
-		}
 		lua_newtable(L);
 		lua_pushnumber(L, stmt->planner_join_prefix_masks[i]);
 		lua_setfield(L, -2, "relation_mask");
 		lua_pushnumber(L,
 			       sqlLogEstToInt(stmt->planner_join_prefix_logest[i]));
 		lua_setfield(L, -2, "estimated_rows");
-		lua_pushnumber(L, actual);
+		lua_pushnumber(L, stmt->planner_join_prefix_actuals[i]);
 		lua_setfield(L, -2, "actual_rows");
 		lua_rawseti(L, -2, i + 1);
 	}

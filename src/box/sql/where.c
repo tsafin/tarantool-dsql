@@ -4440,26 +4440,14 @@ sqlWhereBegin(Parse * pParse,	/* The parser context */
 		}
 	}
 	pWInfo->iTop = sqlVdbeCurrentAddr(v);
-	if (sql_test_join_prefix_counters_enabled && pParse->iSelectId == 0 &&
-	    pWInfo->nLevel >= 2 && pWInfo->nLevel <= SQL_JOIN_PREFIX_MAX &&
-	    pWInfo->nLevel == pTabList->nSrc) {
-		bool flat_inner = true;
-		for (int i = 0; i < pTabList->nSrc; i++) {
-			struct SrcList_item *item = &pTabList->a[i];
-			if ((item->fg.jointype & (JT_LEFT | JT_CROSS | JT_RIGHT |
-						 JT_NATURAL)) != 0 ||
-			    item->pUsing != NULL || item->pSelect != NULL) {
-				flat_inner = false;
-				break;
-			}
-		}
-		if (flat_inner) {
-			v->planner_join_prefix_counter_count = pWInfo->nLevel;
-			for (int i = 0; i < pWInfo->nLevel; i++) {
-				int reg = ++pParse->nMem;
-				v->planner_join_prefix_counter_regs[i] = reg;
-				sqlVdbeAddOp2(v, OP_Integer, 0, reg);
-			}
+	if (sql_test_join_prefix_counters_enabled &&
+	    pWInfo->nLevel <= SQL_JOIN_PREFIX_MAX &&
+	    sqlWhereIsTopLevelFlatInnerJoin(pWInfo)) {
+		v->planner_join_prefix_counter_count = pWInfo->nLevel;
+		for (int i = 0; i < pWInfo->nLevel; i++) {
+			int reg = ++pParse->nMem;
+			v->planner_join_prefix_counter_regs[i] = reg;
+			sqlVdbeAddOp2(v, OP_Integer, 0, reg);
 		}
 	}
 
