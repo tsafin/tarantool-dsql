@@ -258,6 +258,29 @@ default/wider/oracle results match on memtx and Vinyl. This validates the
 instrumentation contract; the small synthetic workload and absence of reviewed
 thresholds still prevent an E1 production decision.
 
+### Equivalent-literal MCV follow-up (2026-10-04)
+
+The exact-revision report after production equality-MCV propagation is
+`/tmp/e1-equivalent-mcv-strict-f8f603a7cb/report.json`, with
+`decision_grade_provenance=true`. A literal equality discovered through an
+equivalence chain such as `a.k = b.k AND a.k = 1` can now use the pinned MCV
+summary while costing either equivalent indexed column. All result
+fingerprints match across default `(1,5,10)`, wider `(2,8,16)`, and the exact
+oracle on memtx and Vinyl. Default and wider plans are identical for all
+eleven queries; their plan-change count fell from two per engine in the
+expanded graph pilot to zero.
+
+For both engines, default and wider have 29 selected prefix stages: 26 finite
+q-errors with median 1.92 and maximum 10.5, plus three explicitly unbounded
+empty stages. The hot two-way JOIN improves from 22 estimated versus 1820
+actual rows (q-error 82.7) to 240 versus 1820 (q-error 7.58); its selected
+first prefix is 40 estimated versus 35 actual (q-error 1.14). The remaining
+fanout error is therefore after the first relation. The range/equality query
+still begins with 2 estimated versus 21 actual rows (q-error 10.5), then ends
+at 32 versus 182 (q-error 5.69). These observations identify bound-sensitive
+range estimation and repeated JOIN-inner fanout/correlation as the next
+cardinality work. They do not accept E1 or justify changing beam defaults.
+
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
 same-statistics report comparing the legacy route with the enabled M3 route;

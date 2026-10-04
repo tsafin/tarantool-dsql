@@ -404,13 +404,23 @@ the maximum retained frontier, and peak solver-buffer allocation. The last
 quantity covers the solver's temporary path arrays, not all planner memory;
 the time covers WHERE planning, not full SQL preparation.
 
-The matched-revision E1 pilot compared default `(1,5,10)`, wider `(2,8,16)`,
-and the exact oracle on both engines. The widened beam changed one four-way
-plan, improving that query on memtx but regressing it on Vinyl; the oracle
-also changed the plan without a cross-engine runtime win. The same pilot
-exposed a hot JOIN estimate of 22 rows versus 1820 actual rows. The interim
-policy is to retain the default beam and keep the oracle opt-in; see the
-measurements and remaining acceptance gaps in
+The first matched-revision E1 pilot compared default `(1,5,10)`, wider
+`(2,8,16)`, and the exact oracle on both engines. The widened beam changed
+four-way plans without a cross-engine runtime win, and exposed a hot JOIN
+estimate of 22 rows versus 1820 actual rows. A subsequent production fix lets
+a dependency-free literal equality found through an equivalence chain (for
+example, `a.k = b.k AND a.k = 1`) use the statement-pinned MCV for either
+equivalent indexed column. In the exact-revision run at `f8f603a7cb`, the hot
+query improves to 240 estimated versus 1820 actual rows, its selected first
+prefix improves to 40 versus 35, and the maximum finite selected-prefix
+q-error across the eleven-query workload falls from 82.7 to 10.5 on both
+engines. Default and wider search then choose the same plans throughout.
+The remaining hot JOIN q-error is 7.58, however, and the range fixture still
+has a 2-row estimate for a 21-row first prefix (q-error 10.5). This separates
+the next two cardinality tasks: bound-sensitive range estimates and repeated
+JOIN-inner fanout/correlation. The interim policy is still to retain the
+default beam and keep the oracle opt-in; see the measurements and remaining
+acceptance gaps in
 [`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md). Narrow
 engine-cost probe results likewise remain experimental, as documented in
 [`tools/sql_cost/README.md`](../../tools/sql_cost/README.md).
@@ -511,6 +521,13 @@ rows (q-error 1.83), and the final prefix emits 72 versus 160 estimated
 flat 2–4-way INNER JOINs. The matching-source full run at commit `4c0873497f`
 has decision-grade provenance and result parity on both engines; it validates
 the plumbing but remains a small synthetic workload without reviewed limits.
+The exact-revision rerun after equivalent-literal MCV propagation is
+`/tmp/e1-equivalent-mcv-strict-f8f603a7cb/report.json`. It has decision-grade
+provenance and result parity; default and wider plans no longer differ. For
+both engines the 29 selected stages contain 26 finite q-errors with median
+1.92, maximum 10.5, and three explicitly unbounded empty stages. This is a
+measured selectivity improvement, not E1 acceptance: the fixture remains
+synthetic and the range and JOIN-correlation errors above are unresolved.
 
 ## Nearest decision-oriented work
 
@@ -522,9 +539,9 @@ thresholds and the reviewed workload still require a recorded decision.
 
 | Track | Pilot status | Next decision-grade step |
 | --- | --- | --- |
-| Same-stats JOIN workload | A matching-source eleven-query run covers default/wider/exact with result parity, repeated execution and WHERE-planning distributions, path/frontier metrics, and executor-observed selected-prefix q-error for eligible flat INNER JOINs. | Extend to reviewed representative graphs, sizes, and hosts and record thresholds and unacceptable regressions before judging widths. |
+| Same-stats JOIN workload | A matching-source eleven-query run covers default/wider/exact with result parity, repeated execution and WHERE-planning distributions, path/frontier metrics, and executor-observed selected-prefix q-error for eligible flat INNER JOINs. After equivalent-literal MCV propagation its finite selected-prefix median/max are 1.92/10.5, with three unbounded stages on each engine. | Extend to reviewed representative graphs, sizes, and hosts and record thresholds and unacceptable regressions before judging widths. |
 | Engine access costs | Paired memtx/Vinyl point, full, secondary equality/range, changing-key probes and two Vinyl LSM states; experimental per-engine model predicts 8/8 held-out equivalent rankings, including a held-out size. An offline integer-LogEst candidate preserves 8/8 with known cardinalities but 7/8 with captured planner input/output estimates; its direct broad/tail choices and 3/4 score then equal production. | Repair bound-sensitive selectivity; validate cache/read-amplification, repeated nested-loop probes, and JOIN latency on independent fixtures. Calibrate the common unit for DP composition before considering a production formula. |
-| Selectivity and legality | Narrow equality MCV and prefix estimates are live; flat INNER exact oracle and CROSS/LEFT exclusions are tested. Test-only VDBE counters provide stage-matched prefix actuals; one selected prefix has q-error 1.83 and final output 2.22. The oracle is now explicitly restricted to top-level SELECTs. | Improve range and correlated JOIN selectivity, including empty/stale cases. Formalize legality/properties before any broader enumerator. |
+| Selectivity and legality | Literal equality MCV estimates now follow dependency-free equivalence chains; flat INNER exact oracle and CROSS/LEFT exclusions are tested. Test-only VDBE counters provide stage-matched prefix actuals. The oracle is explicitly restricted to top-level SELECTs. | Wire histogram-backed, bound-sensitive range estimates first; then improve repeated JOIN-inner fanout/correlation and empty/stale cases. Formalize legality/properties before any broader enumerator. |
 | Exact comparator | Opt-in exhaustive left-deep nested-loop oracle exists for eligible 2–4-relation flat INNER JOINs, bounded by 65,536 paths. Peak retained frontier reached 1260 in the pilot. | Use it as an estimated-objective comparator on larger *supported* cases only after scaling limits are explicit. Connected-subgraph or DPhyp/bushy search needs a separate legality and physical-operator design. |
 | Production policy | Defaults remain `(1,5,10)`; wider `(2,8,16)` and exact search are experimental. | Compare paired runtime, planning cost, cardinality error, and regressions by graph and engine against reviewed limits. Decide whether any budget/graph-aware transition is warranted. |
 

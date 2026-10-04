@@ -3577,6 +3577,22 @@ result parity across default, wider, and exact configurations on both engines.
 It validates the measurement plumbing, not workload representativeness or E1
 acceptance. Details: `test/sql-baselines/E1_WORKLOAD.md`.
 
+Production equality-MCV costing now also follows dependency-free equivalence
+chains, so `a.k = b.k AND a.k = 1` can use the pinned literal MCV while
+costing either equivalent indexed column. The exact-revision run at commit
+`f8f603a7cb` (`/tmp/e1-equivalent-mcv-strict-f8f603a7cb/report.json`) has
+decision-grade provenance and result parity. On both engines, the hot JOIN
+improves from 22 estimated versus 1820 actual rows (q-error 82.7) to 240
+versus 1820 (q-error 7.58); its first selected prefix is 40 versus 35
+(q-error 1.14). Across 29 selected stages, 26 finite q-errors have median
+1.92 and maximum 10.5, and three empty stages remain explicitly unbounded.
+Default and wider plan differences fall from two to zero per engine. The
+remaining maximum is the range fixture's first prefix (2 estimated versus 21
+actual); repeated JOIN-inner fanout also remains underestimated. Therefore
+the next cardinality steps are histogram-backed bound-sensitive ranges and
+JOIN correlation/fanout, not a wider beam or production engine-price change.
+E1 remains `PROTOTYPE` and the `(1,5,10)` defaults remain unchanged.
+
 The independent memtx/Vinyl access-cost probe found a same-shaped one-sided
 range whose secondary path wins for 16 rows but loses for 2048 rows on
 two-run Vinyl; the unforced planner chooses secondary for both and assigns
