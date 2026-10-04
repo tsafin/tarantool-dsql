@@ -20,6 +20,7 @@ def observations():
                     "run_id": "run-1", "storage_state": "memory",
                     "engine": engine, "access": access, "repeat_no": repeat,
                     "result_rows": 16,
+                    "result_digest": "d" * 64,
                     "per_execution_us": elapsed, "elapsed_us": elapsed * 10,
                     "iterations": 10, "cache_state": "uncontrolled",
                     "warmup_scope": "one_execution",
@@ -30,6 +31,7 @@ def observations():
                                         "memory_get_rows": 0}
                                        if engine == "vinyl" else None),
                     "explain": [[0, 0, 0, "SEARCH TABLE"]], "sql": "SELECT 1",
+                    "unforced_broad_plan": [[0, 0, 0, "SCAN TABLE"]],
                 })
     return result
 
@@ -49,6 +51,8 @@ class ReportTest(unittest.TestCase):
         report = self.summarize_rows(observations())
         self.assertEqual(report["accesses"]["primary_point"]["memtx_median_us"], 3)
         self.assertEqual(report["accesses"]["primary_point"]["vinyl_to_memtx_ratio"], 2)
+        self.assertEqual(report["equivalent_path_rankings"]["filtered"]["memtx"]
+                         ["secondary_over_primary_median_ratio"], 1)
 
     def test_missing_pair_rejected(self):
         with self.assertRaisesRegex(ValueError, "unpaired"):
@@ -93,6 +97,37 @@ class ReportTest(unittest.TestCase):
         for row in rows:
             row["storage_state"] = "dumped"
         with self.assertRaisesRegex(ValueError, "no Vinyl run"):
+            self.summarize_rows(rows)
+
+    def test_multi_run_requires_two_runs(self):
+        rows = observations()
+        for row in rows:
+            row["storage_state"] = "multi_run"
+            if row["engine"] == "vinyl":
+                row["vinyl_counters"]["run_count"] = 1
+        with self.assertRaisesRegex(ValueError, "fewer than two Vinyl runs"):
+            self.summarize_rows(rows)
+
+    def test_multi_run_accepts_two_runs(self):
+        rows = observations()
+        for row in rows:
+            row["storage_state"] = "multi_run"
+            if row["engine"] == "vinyl":
+                row["vinyl_counters"]["run_count"] = 2
+        self.assertEqual(self.summarize_rows(rows)["storage_state"], "multi_run")
+
+    def test_equivalent_access_results_must_match(self):
+        rows = observations()
+        for row in rows:
+            if row["access"] == "primary_filtered":
+                row["result_digest"] = "e" * 64
+        with self.assertRaisesRegex(ValueError, "result mismatch"):
+            self.summarize_rows(rows)
+
+    def test_unforced_plan_drift_rejected(self):
+        rows = observations()
+        rows[-1]["unforced_broad_plan"] = [[0, 0, 0, "SEARCH TABLE"]]
+        with self.assertRaisesRegex(ValueError, "unforced broad plan changed"):
             self.summarize_rows(rows)
 
 

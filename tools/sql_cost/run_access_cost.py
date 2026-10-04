@@ -57,7 +57,8 @@ def main(argv=None):
     parser.add_argument("--rows", type=int, default=4096)
     parser.add_argument("--repeats", type=int, default=7)
     parser.add_argument("--iterations", type=int, default=300)
-    parser.add_argument("--storage-state", choices=("memory", "dumped"),
+    parser.add_argument("--storage-state", choices=("memory", "dumped",
+                                                    "multi_run"),
                         default="memory")
     args = parser.parse_args(argv)
     if args.rows < 128 or args.rows > 1000000 or args.rows % 16 or \

@@ -12,6 +12,11 @@ Engine order alternates between repetitions.
 batch. `primary_cycling` and `secondary_cycling` change the parameter every
 execution, approximating repeated probes on the inner side of a nested-loop
 JOIN. These are still *single-table* SQL calls, not a measured JOIN operator.
+The expanded probe also forces primary/secondary paths for three equivalent
+result sets: selective equality, a 16-row range, and a broad half-table range.
+It hashes the checked output of each pair and records the unforced broad-range
+EXPLAIN plan. Their per-execution microseconds are a common *empirical SQL
+operation* unit, not yet a common planner cost formula.
 
 ## Run
 
@@ -28,6 +33,10 @@ python3 -B tools/sql_cost/run_access_cost.py \
   --binary build-jit-clang19-debug/src/tarantool \
   --out-dir /tmp/sql-cost-dumped-run \
   --storage-state dumped
+python3 -B tools/sql_cost/run_access_cost.py \
+  --binary build-jit-clang19-debug/src/tarantool \
+  --out-dir /tmp/sql-cost-multirun-run \
+  --storage-state multi_run
 ```
 
 Use fresh output directories. The runner verifies that the binary's embedded
@@ -37,7 +46,10 @@ and manifest. Keep all three artifacts and record host CPU/storage details.
 The default is seven paired repetitions; the analyzer requires at least five.
 
 `memory` measures newly inserted Vinyl data before a dump. `dumped` calls
-`box.snapshot()` and waits until both Vinyl indexes have runs. Every Vinyl
+`box.snapshot()` and waits until both Vinyl indexes have runs. `multi_run`
+makes a large dump followed by a much smaller overlapping dump,
+then requires at least two physical runs in both Vinyl indexes; this avoids
+mistaking scheduled dumps for a stable multi-run topology. Every Vinyl
 observation includes per-index run count and deltas for disk pages, disk
 lookups, cache lookups/gets, and memory gets. A single warmup execution precedes
 each timed batch. The OS page cache and Vinyl cache are **not reset**; the
@@ -91,3 +103,29 @@ except for the secondary range (one page per execution). This corroborates
 that the workload mostly measures cached SQL execution, not general Vinyl
 disk or multi-run LSM cost. Keep the candidate coefficient grid experimental;
 no production `WhereLoop` coefficient changes follow from these results.
+
+## Equivalent-path ranking pilot (2026-10-04)
+
+The expanded strict captures at source `1a3b839c72` are
+`/tmp/sql-cost-final-memory-1a3b839c72/`,
+`/tmp/sql-cost-final-dumped-1a3b839c72/`, and
+`/tmp/sql-cost-final-multirun-1a3b839c72/`. Each has seven paired
+repetitions, output hashes for equivalent paths, a binary hash, and observed
+Vinyl topology. In the two-run state, the median *secondary/primary* SQL-time
+ratios are approximately 0.020 (memtx) and 0.013 (Vinyl) for selective
+equality, 0.019 and 0.028 for the 16-row range, but **0.59 and 1.64** for
+the broad half-table range. The broad secondary path is faster on memtx in
+six of seven pairs and slower on Vinyl in all seven. Vinyl's broad secondary
+path reads a median three disk pages and makes four disk lookups per execution;
+its forced primary counterpart reports zero disk pages in this warm-cache
+fixture. The unforced broad plan chooses the secondary index on *both*
+engines. This is a reproducible local ranking discrepancy, not a proof of
+production-wide regression.
+
+A uniform secondary-range penalty was tested locally at 8, 16, 24, and 40
+legacy `LogEst` units. It did not switch the broad Vinyl plan to the primary
+path: the planner moved between secondary candidate variants while the
+parameterized broad and narrow ranges shared coarse selectivity assumptions.
+That experimental code was **not retained**. Next, derive range selectivity
+from statistics/bounds and validate engine-specific path prices against a
+reviewed JOIN workload; a single global multiplier cannot fix this evidence.

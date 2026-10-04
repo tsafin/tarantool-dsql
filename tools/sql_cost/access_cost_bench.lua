@@ -5,12 +5,14 @@
 local clock = require('clock')
 local json = require('json')
 local fiber = require('fiber')
+local digest = require('digest')
 
 local rows = tonumber(os.getenv('SQL_COST_ROWS') or '4096')
 local repeats = tonumber(os.getenv('SQL_COST_REPEATS') or '7')
 local iterations = tonumber(os.getenv('SQL_COST_ITERATIONS') or '300')
 local storage_state = os.getenv('SQL_COST_STORAGE_STATE') or 'memory'
-assert(storage_state == 'memory' or storage_state == 'dumped')
+assert(storage_state == 'memory' or storage_state == 'dumped' or
+       storage_state == 'multi_run')
 local source_commit = assert(os.getenv('SQL_COST_SOURCE_COMMIT'))
 local binary_sha256 = assert(os.getenv('SQL_COST_BINARY_SHA256'))
 local run_id = assert(os.getenv('SQL_COST_RUN_ID'))
@@ -18,7 +20,10 @@ assert(rows >= 128 and rows % 16 == 0 and rows <= 1000000)
 assert(repeats >= 1 and repeats <= 1000)
 assert(iterations >= 1 and iterations <= 1000000)
 
-box.cfg{log_level = 3}
+-- Keep the fixture dumps separate long enough to measure them. The
+-- observed run counts below, not this configuration, prove the topology.
+box.cfg{log_level = 3, vinyl_run_count_per_level = 16,
+        vinyl_run_size_ratio = 2}
 box.execute([[SET SESSION "sql_seq_scan" = true]])
 
 local function execute(sql, params)
@@ -43,6 +48,11 @@ local cases = {
     {name = 'secondary_payload', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a = ?', loops = iterations},
     {name = 'secondary_range', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ? AND a < ?', loops = math.max(1, math.floor(iterations / 4))},
     {name = 'primary_scan', sql = 'SELECT payload FROM %s INDEXED BY %s', loops = math.max(1, math.floor(iterations / 100))},
+    -- Same result as secondary_payload, but forced through the primary scan.
+    {name = 'primary_filtered', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a = ?', loops = math.max(1, math.floor(iterations / 10))},
+    {name = 'primary_range', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ? AND a < ?', loops = math.max(1, math.floor(iterations / 10))},
+    {name = 'secondary_broad', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ?', loops = math.max(1, math.floor(iterations / 100))},
+    {name = 'primary_broad', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a >= ?', loops = math.max(1, math.floor(iterations / 100))},
     {name = 'primary_cycling', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE id = ?', loops = iterations},
     {name = 'secondary_cycling', sql = 'SELECT payload FROM %s INDEXED BY %s WHERE a = ?', loops = iterations},
 }
@@ -57,24 +67,47 @@ for _, engine in ipairs({'memtx', 'vinyl'}) do
     execute(('CREATE INDEX %s ON %s (a)'):format(secondary, table_name))
     local space = box.space[table_name]
     assert(space, 'SQL table missing: ' .. table_name)
-    for i = 1, rows do
-        -- Sixteen rows per secondary key. Whether fetching payload requires
-        -- another storage access is engine-dependent; do not infer it here.
-        space:insert({i, math.floor((i - 1) / 16), ('row-%08d'):format(i)})
-    end
     engines[engine] = {table_name = table_name, space = space,
                        primary = space.index[0].name, secondary = secondary}
 end
 
-if storage_state == 'dumped' then
-    box.snapshot()
+local function wait_for_runs(minimum)
     local deadline = clock.monotonic() + 30
     local vinyl = engines.vinyl.space
-    while vinyl.index[0]:stat().run_count == 0 or
-          vinyl.index[1]:stat().run_count == 0 do
-        assert(clock.monotonic() < deadline, 'Vinyl dump did not finish')
+    while vinyl.index[0]:stat().run_count < minimum or
+          vinyl.index[1]:stat().run_count < minimum do
+        assert(clock.monotonic() < deadline,
+               ('Vinyl did not reach %d runs'):format(minimum))
         fiber.sleep(0.05)
     end
+end
+
+local rounds = storage_state == 'multi_run' and 2 or 1
+-- The first dump is much larger than the second (15:1), placing them in
+-- different LSM levels. The last level is limited to one run regardless of
+-- vinyl_run_count_per_level, so similarly sized dumps compact immediately.
+local slot_ends = storage_state == 'multi_run' and {15, 16} or {16}
+for round = 1, rounds do
+    for _, engine in ipairs({'memtx', 'vinyl'}) do
+        local space = engines[engine].space
+        for key = 0, rows / 16 - 1 do
+            local first_slot = round == 1 and 0 or slot_ends[round - 1]
+            for slot = first_slot, slot_ends[round] - 1 do
+                local i = key * 16 + slot + 1
+                -- Each secondary key occurs in every run in multi_run mode.
+                space:insert({i, key, ('row-%08d'):format(i)})
+            end
+        end
+    end
+    if storage_state == 'multi_run' then
+        box.snapshot()
+        wait_for_runs(round)
+    end
+end
+
+if storage_state == 'dumped' then
+    box.snapshot()
+    wait_for_runs(1)
 end
 
 local function vinyl_counters(index)
@@ -99,6 +132,8 @@ end
 
 local function index_number(case_name)
     if case_name == 'primary_point' or case_name == 'primary_scan' or
+       case_name == 'primary_filtered' or case_name == 'primary_range' or
+       case_name == 'primary_broad' or
        case_name == 'primary_cycling' then
         return 0
     end
@@ -109,9 +144,14 @@ local prepared = {}
 for _, engine in ipairs({'memtx', 'vinyl'}) do
     local info = engines[engine]
     prepared[engine] = {}
+    prepared[engine].unforced_broad_plan = execute(
+        'EXPLAIN QUERY PLAN SELECT payload FROM ' .. info.table_name ..
+        ' WHERE a >= ?', {rows / 32}).rows
     for _, case in ipairs(cases) do
         local index_name
         if case.name == 'primary_point' or case.name == 'primary_scan' or
+           case.name == 'primary_filtered' or case.name == 'primary_range' or
+           case.name == 'primary_broad' or
            case.name == 'primary_cycling' then
             index_name = info.primary
         else
@@ -119,8 +159,10 @@ for _, engine in ipairs({'memtx', 'vinyl'}) do
         end
         local sql = case.sql:format(info.table_name, index_name)
         local explain_params
-        if case.name == 'secondary_range' then
+        if case.name == 'secondary_range' or case.name == 'primary_range' then
             explain_params = {0, 1}
+        elseif case.name == 'secondary_broad' or case.name == 'primary_broad' then
+            explain_params = {rows / 32}
         elseif case.name ~= 'primary_scan' then
             explain_params = {1}
         end
@@ -139,9 +181,11 @@ for repeat_no = 1, repeats do
             local params = nil
             if case.name == 'primary_point' or case.name == 'primary_cycling' then
                 params = {1 + ((repeat_no * 37) % rows)}
-            elseif case.name == 'secondary_range' then
+            elseif case.name == 'secondary_range' or case.name == 'primary_range' then
                 params = {(repeat_no * 7) % (rows / 16),
                           1 + ((repeat_no * 7) % (rows / 16))}
+            elseif case.name == 'secondary_broad' or case.name == 'primary_broad' then
+                params = {rows / 32}
             elseif case.name ~= 'primary_scan' then
                 params = {(repeat_no * 7) % (rows / 16)}
             end
@@ -149,11 +193,20 @@ for repeat_no = 1, repeats do
             local warm = execute(stmt.id, params)
             local result_rows = #warm.rows
             local expected_rows = case.name == 'primary_scan' and rows or
+                ((case.name == 'primary_broad' or
+                  case.name == 'secondary_broad') and rows / 2) or
                 ((case.name == 'primary_point' or
                   case.name == 'primary_cycling') and 1 or 16)
             assert(result_rows == expected_rows,
                    ('%s/%s returned %d rows, expected %d'):format(
                        engine, case.name, result_rows, expected_rows))
+            local result_values = {}
+            for _, row in ipairs(warm.rows) do
+                result_values[#result_values + 1] = tostring(row[1])
+            end
+            table.sort(result_values)
+            local result_digest = digest.sha256_hex(
+                table.concat(result_values, '\0'))
             local counters_before
             if engine == 'vinyl' then
                 counters_before = vinyl_counters(engines.vinyl.space.index[
@@ -177,6 +230,8 @@ for repeat_no = 1, repeats do
             end
             emit({schema_version = 2, engine = engine, access = case.name,
                   repeat_no = repeat_no, rows = rows, result_rows = result_rows,
+                  result_digest = result_digest,
+                  unforced_broad_plan = prepared[engine].unforced_broad_plan,
                   iterations = case.loops, elapsed_us = elapsed_us,
                   per_execution_us = elapsed_us / case.loops,
                   sql = stmt.sql, explain = stmt.plan,
