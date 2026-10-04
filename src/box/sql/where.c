@@ -1460,9 +1460,9 @@ whereRangeScanEst(struct WhereInfo *where_info, const struct index_def *index_de
 {
 	int rc = 0;
 	/* nOut is initialized from index_field_tuple_est(), which uses the
-	 * current immutable statistics snapshot when available. Until S2
-	 * histograms are wired, keep the legacy range reduction factors but apply
-	 * them to that snapshot-backed prefix cardinality.
+	 * current immutable statistics snapshot when available. Supported leading
+	 * literal ranges use its histogram; all other shapes keep the legacy
+	 * reduction factors over the snapshot-backed prefix cardinality.
 	 */
 	int nOut = pLoop->nOut;
 	uint64_t histogram_rows;
@@ -2386,10 +2386,24 @@ whereLoopAddBtreeIndex(WhereLoopBuilder * pBuilder,	/* The WhereLoop factory */
 				pNew->nOut -= nIn;
 			} else {
 				uint64_t mcv_rows;
+				const struct WhereTerm *mcv_term = pTerm;
+				/*
+				 * A join-driven lookup such as B.k=A.k may have a
+				 * dependency-free equivalent constraint A.k=literal.
+				 * The scan deliberately keeps both access loops. Refine
+				 * the dependent loop with the same proven literal instead
+				 * of reverting to the average rows per distinct key.
+				 */
+				if (pTerm->prereqRight != 0 && pTerm->truthProb > 0) {
+					mcv_term = sqlWhereFindTerm(pBuilder->pWC,
+						pSrc->iCursor, saved_nEq, ~(Bitmask)0,
+						WO_EQ, probe);
+				}
 				bool used_mcv = nEq == 1 && nIn == 0 &&
 					(eOp & WO_EQ) != 0 && pTerm->truthProb > 0 &&
+					mcv_term != NULL && mcv_term->truthProb > 0 &&
 					where_stats_mcv_equality_rows(pWInfo, probe,
-							      pSrc->iCursor, pTerm,
+							      pSrc->iCursor, mcv_term,
 							      &mcv_rows);
 				if (used_mcv) {
 					pNew->nOut = sqlLogEst(mcv_rows);
