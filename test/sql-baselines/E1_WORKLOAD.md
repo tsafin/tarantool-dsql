@@ -246,6 +246,16 @@ the final four-relation output has 160 estimated versus 72 actual rows
 `COUNT(*)` query. New captures replace it with executor-observed
 `executor_prefixes`; the archived number remains diagnostic only.
 
+The end-to-end instrumentation smoke report is
+`/tmp/e1-executor-prefix-smoke/report.json`. For `four-selective`, both engines
+observe selected-prefix actuals of 3, 6, 24, and 72 rows versus estimates of
+3, 8, 44, and 160. Thus the three-relation prefix q-error is 1.83, not the
+archived logical-subset value 51.2, and the final q-error remains 2.22. All
+default/wider/oracle results match. This run has
+`decision_grade_provenance=false` because the rebuilt binary retained an older
+embedded revision string; it validates the instrumentation contract but is not
+an E1 decision report. A clean matching-revision capture remains required.
+
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
 same-statistics report comparing the legacy route with the enabled M3 route;

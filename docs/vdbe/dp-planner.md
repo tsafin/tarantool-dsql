@@ -497,11 +497,14 @@ Vinyl range. This is not a deployable formula because the candidate receives
 actual output cardinality while the live planner gives the narrow and broad
 bound the same coarse estimate, and because repeated JOIN-inner-loop
 composition is untested. No production cost or default changed.
-Selected-path logical-prefix diagnostics further expose a four-way plan with
-44 estimated versus 2252 counted rows at an intermediate `b,c,d` prefix,
-despite a final-output q-error of only 2.22. Those counts come from separate
-equivalent subset queries, not executor instrumentation; executor-stage
-validation remains open.
+The earlier logical-subset diagnostic reported 44 estimated versus 2252
+counted rows at an intermediate `b,c,d` prefix, but that count came from a
+separate subset query and did not represent the selected loop's work. Test-only
+VDBE counters now measure the original execution: the same prefix emits 24
+rows (q-error 1.83), and the final prefix emits 72 versus 160 estimated
+(q-error 2.22). The instrumentation is stage-matched for eligible top-level
+flat 2–4-way INNER JOINs; its current full smoke run has stale embedded-revision
+provenance and therefore does not replace a clean decision-grade capture.
 
 ## Nearest decision-oriented work
 
@@ -513,9 +516,9 @@ thresholds and the reviewed workload still require a recorded decision.
 
 | Track | Pilot status | Next decision-grade step |
 | --- | --- | --- |
-| Same-stats JOIN workload | Eleven graph/legality/skew/range cases run default/wider/exact with result parity, repeated execution and WHERE-planning distributions, selected final-output q-error, and path/frontier metrics. | Extend to reviewed representative graphs, sizes, and hosts; record thresholds and unacceptable regressions before judging widths. Instrument executor-observed JOIN-prefix actuals so intermediate q-error is truly stage-matched. |
+| Same-stats JOIN workload | Eleven graph/legality/skew/range cases run default/wider/exact with result parity, repeated execution and WHERE-planning distributions, path/frontier metrics, and executor-observed selected-prefix q-error for eligible flat INNER JOINs. | Rerun from a matching embedded revision; then extend to reviewed representative graphs, sizes, and hosts and record thresholds and unacceptable regressions before judging widths. |
 | Engine access costs | Paired memtx/Vinyl point, full, secondary equality/range, changing-key probes and two Vinyl LSM states; experimental per-engine model predicts 8/8 held-out equivalent rankings, including a held-out size. An offline integer-LogEst candidate also preserves 8/8 and improves the captured broad/tail production-choice comparison from 3/4 to 4/4. | Feed planner-estimated rather than actual output rows into the A/B; validate cache/read-amplification, repeated nested-loop probes, and JOIN latency on independent fixtures. Calibrate the common unit for DP composition before considering a production formula. |
-| Selectivity and legality | Narrow equality MCV and prefix estimates are live; flat INNER exact oracle and CROSS/LEFT exclusions are tested. A logical three-relation prefix has q-error 51.2, versus final-output 2.22. | Improve range and correlated JOIN selectivity, including empty/stale cases; add executor-stage prefix counters. Formalize legality/properties before any broader enumerator. |
+| Selectivity and legality | Narrow equality MCV and prefix estimates are live; flat INNER exact oracle and CROSS/LEFT exclusions are tested. Test-only VDBE counters provide stage-matched prefix actuals; one selected prefix has q-error 1.83 and final output 2.22. The oracle is now explicitly restricted to top-level SELECTs. | Improve range and correlated JOIN selectivity, including empty/stale cases. Formalize legality/properties before any broader enumerator. |
 | Exact comparator | Opt-in exhaustive left-deep nested-loop oracle exists for eligible 2–4-relation flat INNER JOINs, bounded by 65,536 paths. Peak retained frontier reached 1260 in the pilot. | Use it as an estimated-objective comparator on larger *supported* cases only after scaling limits are explicit. Connected-subgraph or DPhyp/bushy search needs a separate legality and physical-operator design. |
 | Production policy | Defaults remain `(1,5,10)`; wider `(2,8,16)` and exact search are experimental. | Compare paired runtime, planning cost, cardinality error, and regressions by graph and engine against reviewed limits. Decide whether any budget/graph-aware transition is warranted. |
 

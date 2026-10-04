@@ -3535,12 +3535,12 @@ S2 and an accepted evaluation workload with plan-quality and end-to-end latency
 data. A standalone `test/sql-baselines/e1_measure.py` consumer and
 `E1_WORKLOAD.md` contract now define stage-matched estimate/actual JSONL and
 end-to-end execution timing, including zero-cardinality and provenance rules.
-The analyzer's focused tests pass. An eleven-query same-binary pilot now
-supplies stage-matched final-output estimates and actual rows for eligible
-ungrouped, unlimited top-level SELECTs, plus diagnostic logical-prefix counts;
-it does not supply executor-observed intermediate JOIN cardinalities or an
-accepted integrated M3/S2 evaluation. The contract intentionally selects no
-acceptance thresholds.
+The analyzer's focused tests pass. The eleven-query producer now pairs
+selected estimates with executor-observed rows at every nested-loop prefix for
+eligible top-level flat 2–4-way INNER JOINs. Test-only VDBE counters are enabled
+only for the adapter's private compilation; ordinary statements receive no
+counter registers or opcodes. This is still not an accepted integrated M3/S2
+evaluation, and the contract intentionally selects no acceptance thresholds.
 
 **Working DP cost-model checkpoint (2026-10-03).** The production bounded DP
 in `wherePathSolver()` already prices WhereLoop candidates from relation rows,
@@ -3567,11 +3567,14 @@ Results match on memtx and Vinyl. Wider search changes two four-way plans,
 but its execution effects oppose across engines; the exact oracle's peak
 retained frontier reaches 1260 paths versus 10 under the default beam for
 `four-selective`, without a consistent runtime win. A selected three-relation
-prefix in that query has 44 estimated versus 2252 rows counted by a separate
-equivalent subset query, while final output has 160 estimated versus 72 actual
-rows. The prefix comparison is **not** executor-stage matched. The pilot's
-matching binary/source provenance makes it reproducible, not representative
-or sufficient for E1 acceptance. Details: `test/sql-baselines/E1_WORKLOAD.md`.
+prefix in that query was previously reported as 44 estimated versus 2252 rows
+from a separate subset query. New executor instrumentation shows the selected
+prefix actually emits 24 rows (q-error 1.83), followed by 72 final rows versus
+160 estimated (q-error 2.22). The earlier 2252-row number measured different
+relational work and is retained only as archived diagnostic evidence. The
+latest full smoke run is not decision-grade because its embedded revision is
+stale; a matching-source rerun remains required. Details:
+`test/sql-baselines/E1_WORKLOAD.md`.
 
 The independent memtx/Vinyl access-cost probe found a same-shaped one-sided
 range whose secondary path wins for 16 rows but loses for 2048 rows on
@@ -3754,8 +3757,8 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
 
 **State:** `NOT-STARTED`. Depends on E1. The small-join exact oracle and
 engine-cost probes are exploratory inputs, not a GATE decision; E1 lacks an
-accepted workload, executor-stage JOIN-prefix actuals, calibrated production
-costs, and reviewed latency/quality thresholds.
+accepted workload, calibrated production costs, matching-source multi-host
+evidence, and reviewed latency/quality thresholds.
 
 **Decision input:**
 
