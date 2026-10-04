@@ -281,6 +281,26 @@ at 32 versus 182 (q-error 5.69). These observations identify bound-sensitive
 range estimation and repeated JOIN-inner fanout/correlation as the next
 cardinality work. They do not accept E1 or justify changing beam defaults.
 
+### Volatile histogram follow-up (2026-10-04)
+
+The exact-revision report after production volatile histogram collection and
+leading-part literal-range costing is
+`/tmp/e1-histogram-strict-25efd95422/report.json`, at source `25efd95422` with
+`decision_grade_provenance=true`. All result fingerprints match across default
+`(1,5,10)`, wider `(2,8,16)`, and the exact oracle on memtx and Vinyl; default
+and wider again have zero plan changes on all eleven queries.
+
+For both engines, default and wider have 29 selected prefix stages: 26 finite
+q-errors with median 1.83 and maximum 7.58, plus three explicitly unbounded
+empty stages. The range/equality query's first prefix improves from 2 estimated
+versus 21 actual rows (q-error 10.5) to 22 versus 21 (1.05). Its final prefix
+improves from 32 versus 182 (5.69) to 352 versus 182 (1.93); the intervening
+two-relation prefix is 60 versus 20 (3.0). The hot JOIN remains 240 versus 1820
+(7.58), which is now the maximum finite error. This closes the pilot's leading
+literal-bound gap and makes repeated inner-loop fanout/correlation the next
+cardinality target. It does not accept E1, set thresholds, validate broader
+range shapes, or justify changing beam defaults.
+
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
 same-statistics report comparing the legacy route with the enabled M3 route;

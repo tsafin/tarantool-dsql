@@ -1041,12 +1041,13 @@ format approval is implied.
 statistics that turn selectivity estimation from "guess 25%" into
 "estimate based on data."
 
-**State:** `PROTOTYPE` (S2.2 HLL, S2.3 bounded MCV, S2.4 histogram builder,
-and a narrow S2.5 conjunction joint-MCV estimator are implemented as
-in-memory APIs with focused unit tests; none is integrated with persistence
-or the planner). Sketch algorithms and synthetic validation may start against
-a versioned S1 snapshot interface before S1 is end-to-end; persistence and
-the `where.c` selectivity adapter wait for that interface.
+**State:** `PROTOTYPE` (S2.2 HLL, S2.3 bounded MCV, S2.4 histograms, and a
+narrow S2.5 conjunction joint-MCV estimator are implemented as in-memory APIs
+with focused tests. Volatile `ANALYZE` publishes HLL/MCV and leading-part
+histograms through the versioned snapshot, and `where.c` consumes supported
+literal equality/range cases. Persistence and general selectivity integration
+remain open.) Sketch algorithms and synthetic validation may proceed against
+the versioned S1 snapshot interface while the persistent schema remains draft.
 
 **Exit criteria:**
 
@@ -1088,10 +1089,10 @@ the `where.c` selectivity adapter wait for that interface.
   key parts; HLL continues to use native hashes. Non-binary collated strings
   remain NDV-only. SQL `ANALYZE` enables a fixed-capacity volatile MCV sketch
   for compatible indexes and candidate construction copies it to snapshots.
-  This is not wired to persistence or the planner. No persistent format or ID
-  is defined.
+  Supported leading-part literal equalities consume it in the planner. It is
+  not wired to persistence; no persistent format or ID is defined.
   The immutable in-memory `SqlStatsSnapshot` now optionally owns these
-  per-part candidates (snapshot API version 4), validates their typed bytes,
+  per-part candidates (snapshot API version 5), validates their typed bytes,
   total/non-NULL sample denominators and conservative error intervals, and
   deep-copies them. Snapshot combine/replace retain the payload and remain
   byte-budgeted. This is only a
@@ -1108,7 +1109,7 @@ the `where.c` selectivity adapter wait for that interface.
   INTEGER/UNSIGNED part of a non-unique index, plus BOOLEAN and
   binary-collated STRING literals. Parameters, computed constants,
   non-leading parts, and unsupported types preserve legacy estimates. Generic
-  selectivity-API and histogram consumption remain open. The
+  selectivity-API integration remains open. The
   candidate handoff also exposed and fixed a SpaceSaving eviction-error bug:
   replacement now resets error to the evicted counter floor instead of adding
   the evicted entry's stale error; a repeated-eviction regression checks every
@@ -1122,6 +1123,15 @@ the `where.c` selectivity adapter wait for that interface.
   opaque result reports cumulative sample counts; no SQL value encoding,
   persistence format, or system-space ID is defined. Focused unit tests cover
   quantiles, duplicate handling, deep copy, invalid ordering, and byte budget.
+  The volatile native index summary now retains the complete bounded leading-
+  part non-NULL sample (up to the fixed 1,024-row ANALYZE ceiling), builds at
+  most 32 duplicate-safe buckets, and transports typed boundaries through
+  immutable snapshot API v5 under collection/candidate byte budgets. The WHERE
+  planner consumes this histogram for supported compile-time one- and two-sided
+  leading-part literal ranges on both memtx and Vinyl; missing/stale data,
+  explicit likelihood, parameters, unsupported encodings, and equality-prefix
+  suffix ranges retain legacy estimates. Focused live ANALYZE tests cover both
+  engines. Persistence and broader range/correlation integration remain open.
 - [x] **S2.5 prototype** Single-column selectivity API implemented in
   `src/box/sql/sql_stats_selectivity.{h,c}`: unique equality, NULL fraction,
   sampled MCV equality, residual-NDV independence fallback, cumulative
@@ -3589,9 +3599,24 @@ versus 1820 (q-error 7.58); its first selected prefix is 40 versus 35
 Default and wider plan differences fall from two to zero per engine. The
 remaining maximum is the range fixture's first prefix (2 estimated versus 21
 actual); repeated JOIN-inner fanout also remains underestimated. Therefore
-the next cardinality steps are histogram-backed bound-sensitive ranges and
-JOIN correlation/fanout, not a wider beam or production engine-price change.
+the next cardinality steps at that checkpoint were histogram-backed ranges
+and JOIN correlation/fanout, not a wider beam or production engine-price change.
 E1 remains `PROTOTYPE` and the `(1,5,10)` defaults remain unchanged.
+
+Production volatile histogram collection now carries a complete bounded
+leading-part non-NULL sample into at most 32 duplicate-safe snapshot buckets;
+`where.c` consumes it for supported compile-time literal ranges. The strict
+same-binary rerun at commit `25efd95422`
+(`/tmp/e1-histogram-strict-25efd95422/report.json`) has decision-grade
+provenance, result parity, and zero default/wider plan changes on both engines.
+The range fixture's first selected prefix improves from 2 estimated versus 21
+actual rows (q-error 10.5) to 22 versus 21 (1.05), and its final prefix from 32
+versus 182 (5.69) to 352 versus 182 (1.93). Across the 29 selected stages per
+engine, the 26 finite q-errors now have median 1.83 and maximum 7.58; three
+empty stages remain explicitly unbounded. The maximum is now the hot JOIN's
+remaining fanout error, so the next selectivity work is repeated JOIN-inner
+fanout/correlation, then broader histogram shapes. This still does not accept
+E1 or change `(1,5,10)`.
 
 The independent memtx/Vinyl access-cost probe found a same-shaped one-sided
 range whose secondary path wins for 16 rows but loses for 2048 rows on

@@ -2,7 +2,7 @@
 
 This document describes the **current SQL WHERE planner** in
 [`where.c`](../../src/box/sql/where.c) and its private structures in
-[`whereInt.h`](../../src/box/sql/whereInt.h), as implemented on 2026-10-03.
+[`whereInt.h`](../../src/box/sql/whereInt.h), as implemented on 2026-10-04.
 It is an implementation specification, not a proposal for DPhyp or the new
 single-table physical-plan producer. The planner enumerates access loops,
 constructs left-deep nested-loop join orders with bounded **dynamic
@@ -200,9 +200,15 @@ and then computes `rRun`. The current model uses:
    Bind parameters, computed constants, and unsupported types keep the
    existing estimate. An explicit `likelihood()` truth probability takes
    precedence over this MCV path.
-3. Range and residual predicates use existing reduction heuristics;
-   histogram-backed range selectivity and join-correlation estimation are
-   not yet integrated into this cost model.
+3. A supported compile-time literal range on the leading index part can use
+   the statement-pinned equi-depth histogram. One- and two-sided bounds are
+   converted to cumulative sample mass and scaled to the index population.
+   INTEGER/UNSIGNED, Boolean, and binary-collated string bounds are supported;
+   bind parameters, unsupported encodings, explicit `likelihood()`, a preceding
+   equality prefix, or a stale/missing histogram retain the legacy reduction.
+   Histograms are collected from the same bounded volatile `ANALYZE` sample on
+   memtx and Vinyl. Residual predicates and join correlation still use legacy
+   heuristics.
 
 The B-tree cost is heuristic. In the code's approximate linear interpretation,
 a full scan is proportional to rows visited, with a penalty for a secondary
@@ -365,7 +371,7 @@ alter WhereLoop costs **and** the bounded DP's chosen join order.
 | Equally sized tables, `a.v = 1` matches 90 rows, `b.v = 1` matches one | Start with `a`'s index; default equality estimate ~10 rows | Start with `b`'s index; MCV estimate ~1 row | ID 1 in both plans |
 
 They do not establish globally optimal plans, calibrated I/O/CPU units,
-correlated-join estimates, histogram range estimates, end-to-end speedup, or
+correlated-join estimates, general histogram coverage, end-to-end speedup, or
 E1 acceptance. In particular, persistent statistics formats remain behind
 their separate human sign-off gate; the demonstrated collection path is the
 volatile TEST_BUILD ANALYZE implementation. The current production beam
@@ -415,12 +421,17 @@ query improves to 240 estimated versus 1820 actual rows, its selected first
 prefix improves to 40 versus 35, and the maximum finite selected-prefix
 q-error across the eleven-query workload falls from 82.7 to 10.5 on both
 engines. Default and wider search then choose the same plans throughout.
-The remaining hot JOIN q-error is 7.58, however, and the range fixture still
-has a 2-row estimate for a 21-row first prefix (q-error 10.5). This separates
-the next two cardinality tasks: bound-sensitive range estimates and repeated
-JOIN-inner fanout/correlation. The interim policy is still to retain the
-default beam and keep the oracle opt-in; see the measurements and remaining
-acceptance gaps in
+The remaining hot JOIN q-error is 7.58. Production volatile `ANALYZE` now
+collects a bounded leading-part histogram and the WHERE planner consumes it
+for supported literal bounds. In the exact-revision run at `25efd95422`, the
+range fixture's first prefix improves from 2 estimated versus 21 actual rows
+(q-error 10.5) to 22 versus 21 (1.05); its final estimate improves from 32
+versus 182 (5.69) to 352 versus 182 (1.93). The maximum finite selected-prefix
+q-error consequently falls to 7.58 and the median to 1.83 on both engines.
+The next cardinality task is repeated JOIN-inner fanout/correlation, followed
+by broader range shapes. The interim policy is still to retain the default
+beam and keep the oracle opt-in; see the measurements and remaining acceptance
+gaps in
 [`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md). Narrow
 engine-cost probe results likewise remain experimental, as documented in
 [`tools/sql_cost/README.md`](../../tools/sql_cost/README.md).
@@ -431,7 +442,8 @@ engine-cost probe results likewise remain experimental, as documented in
 not yet calibrated per engine.** Volatile `ANALYZE` samples the selected
 memtx or Vinyl data and publishes statement-pinned relation/index summaries.
 The current WHERE planner consumes relation population, index-prefix
-averages, and supported leading-part literal-equality MCV estimates. These
+averages, supported leading-part literal-equality MCV estimates, and supported
+leading-part literal-range histograms. These
 inputs can change a WhereLoop's `nOut` and `rRun`, and the resulting DP join
 order, on either engine. Missing or stale statistics revert to defaults.
 This is a working statistics-aware *relative* cost model, not a measured
@@ -443,7 +455,7 @@ approval gate.
 | Legacy WHERE / join DP | One LogEst setup/run formula for both engines; relation and index statistics may differ by engine. Full scans, seeks, secondary scans, base-tuple fetches, and automatic indexes have heuristic penalties. | Independently calibrated memtx/Vinyl CPU and access units, cache/read-amplification state, and measured repeated nested-loop probe cost. |
 | Vinyl secondary access | Uses the same index-visit and base-fetch formula as memtx. `where.c` notes that its tuple-size approximation does not describe Vinyl secondary-index entries reliably. | LSM run/level and cache effects, bloom-filter behavior, and secondary-to-primary lookup amplification. |
 | M3 single-table physical producer | Carries linear startup/total/rows/width/confidence fields, but the live SELECT adapter seeds total cost from row count and derives narrow point/prefix/range costs from that value. It does not replace the join DP. | A common-unit engine cost provider and calibrated path-specific access formulas before these costs can be compared across engines or integrated into a new join DP. |
-| Selectivity | Snapshot cardinality, prefix NDV-derived averages, and narrow MCV equality are live; range and residual selectivity still use legacy heuristics. | Histogram range and multivariate/join-correlation estimates wired into the planner, with stale/confidence policy and stage-matched q-error validation. |
+| Selectivity | Snapshot cardinality, prefix NDV-derived averages, narrow MCV equality, and leading-part compile-time literal histogram ranges are live. Residual predicates and join fanout still use legacy heuristics. | Multivariate/join-correlation estimates, broader range shapes, and a reviewed stale/confidence policy with stage-matched validation. |
 
 The `sql_index_tuple_size()` input is obtained from `space_bsize()` and
 `index_size()`, so storage can affect a value used by the common formula; it
@@ -509,9 +521,10 @@ Vinyl repair disappears because the full primary scan is estimated at
 ~1048576 rows while both the 16-row tail and 4096-row broad secondary paths
 are estimated at ~262144. On the four directly comparable broad/tail cases
 the planner-cardinality candidate makes the same choices as production and
-is 3/4. This is not a deployable formula; bound-sensitive selectivity and
-repeated JOIN-inner-loop composition remain untested. No production cost or
-default changed.
+is 3/4. That capture predates live histogram costing and must be repeated;
+the leading literal-bound gap is fixed in the E1 fixture, but broader range
+shapes and repeated JOIN-inner-loop composition remain untested. This is not
+a deployable formula. No production cost or default changed.
 The earlier logical-subset diagnostic reported 44 estimated versus 2252
 counted rows at an intermediate `b,c,d` prefix, but that count came from a
 separate subset query and did not represent the selected loop's work. Test-only
@@ -526,8 +539,12 @@ The exact-revision rerun after equivalent-literal MCV propagation is
 provenance and result parity; default and wider plans no longer differ. For
 both engines the 29 selected stages contain 26 finite q-errors with median
 1.92, maximum 10.5, and three explicitly unbounded empty stages. This is a
-measured selectivity improvement, not E1 acceptance: the fixture remains
-synthetic and the range and JOIN-correlation errors above are unresolved.
+measured selectivity improvement, not E1 acceptance. The subsequent live
+histogram rerun is `/tmp/e1-histogram-strict-25efd95422/report.json`; it also
+has decision-grade provenance and result parity, with zero default/wider plan
+changes on both engines. Its selected-prefix finite median/max improve to
+1.83/7.58, and the range first prefix is 22 estimated versus 21 actual. The
+fixture remains synthetic and JOIN-correlation error is unresolved.
 
 ## Nearest decision-oriented work
 
@@ -539,9 +556,9 @@ thresholds and the reviewed workload still require a recorded decision.
 
 | Track | Pilot status | Next decision-grade step |
 | --- | --- | --- |
-| Same-stats JOIN workload | A matching-source eleven-query run covers default/wider/exact with result parity, repeated execution and WHERE-planning distributions, path/frontier metrics, and executor-observed selected-prefix q-error for eligible flat INNER JOINs. After equivalent-literal MCV propagation its finite selected-prefix median/max are 1.92/10.5, with three unbounded stages on each engine. | Extend to reviewed representative graphs, sizes, and hosts and record thresholds and unacceptable regressions before judging widths. |
-| Engine access costs | Paired memtx/Vinyl point, full, secondary equality/range, changing-key probes and two Vinyl LSM states; experimental per-engine model predicts 8/8 held-out equivalent rankings, including a held-out size. An offline integer-LogEst candidate preserves 8/8 with known cardinalities but 7/8 with captured planner input/output estimates; its direct broad/tail choices and 3/4 score then equal production. | Repair bound-sensitive selectivity; validate cache/read-amplification, repeated nested-loop probes, and JOIN latency on independent fixtures. Calibrate the common unit for DP composition before considering a production formula. |
-| Selectivity and legality | Literal equality MCV estimates now follow dependency-free equivalence chains; flat INNER exact oracle and CROSS/LEFT exclusions are tested. Test-only VDBE counters provide stage-matched prefix actuals. The oracle is explicitly restricted to top-level SELECTs. | Wire histogram-backed, bound-sensitive range estimates first; then improve repeated JOIN-inner fanout/correlation and empty/stale cases. Formalize legality/properties before any broader enumerator. |
+| Same-stats JOIN workload | A matching-source eleven-query run covers default/wider/exact with result parity, repeated execution and WHERE-planning distributions, path/frontier metrics, and executor-observed selected-prefix q-error for eligible flat INNER JOINs. After live histogram collection its finite selected-prefix median/max are 1.83/7.58, with three unbounded stages on each engine. | Extend to reviewed representative graphs, sizes, and hosts and record thresholds and unacceptable regressions before judging widths. |
+| Engine access costs | Paired memtx/Vinyl point, full, secondary equality/range, changing-key probes and two Vinyl LSM states; experimental per-engine model predicts 8/8 held-out equivalent rankings, including a held-out size. An offline integer-LogEst candidate preserves 8/8 with known cardinalities but 7/8 with the older captured estimates. | Re-capture the access-cost corpus with histogram estimates; then validate cache/read-amplification, repeated nested-loop probes, and JOIN latency on independent fixtures. Calibrate the common unit for DP composition before considering a production formula. |
+| Selectivity and legality | Literal equality MCV estimates follow dependency-free equivalence chains; leading-part literal ranges use volatile histograms; flat INNER exact oracle and CROSS/LEFT exclusions are tested. Test-only VDBE counters provide stage-matched prefix actuals. The oracle is explicitly restricted to top-level SELECTs. | Improve repeated JOIN-inner fanout/correlation, then broaden histogram use beyond leading compile-time literal bounds and define empty/stale confidence policy. Formalize legality/properties before any broader enumerator. |
 | Exact comparator | Opt-in exhaustive left-deep nested-loop oracle exists for eligible 2–4-relation flat INNER JOINs, bounded by 65,536 paths. Peak retained frontier reached 1260 in the pilot. | Use it as an estimated-objective comparator on larger *supported* cases only after scaling limits are explicit. Connected-subgraph or DPhyp/bushy search needs a separate legality and physical-operator design. |
 | Production policy | Defaults remain `(1,5,10)`; wider `(2,8,16)` and exact search are experimental. | Compare paired runtime, planning cost, cardinality error, and regressions by graph and engine against reviewed limits. Decide whether any budget/graph-aware transition is warranted. |
 
