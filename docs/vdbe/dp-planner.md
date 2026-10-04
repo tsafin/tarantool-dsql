@@ -467,6 +467,18 @@ planning time; an approximate one can plan quickly but miss a good order.
 The local decision must compare both planning and execution distributions on
 the same queries, statistics generation, and engine.
 
+The expanded E1 pilot now includes sparse-chain/star, dense-cycle,
+ORDER-sensitive, CROSS-constrained, LEFT, skew, range, and empty cases. The
+exact oracle's peak frontier reached 1260 paths for a four-way query versus
+10 under the default beam, with roughly fivefold higher median WHERE planning
+time and no consistent execution win. A paired memtx/Vinyl access probe found
+that a broad half-table secondary range was faster than a primary scan on
+memtx but slower on Vinyl, while the unforced plan chose the secondary path
+on both. The evidence motivates engine-specific prices *and* better range
+selectivity; a uniform Vinyl range penalty tested locally did not repair the
+choice and was removed. See [`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md)
+and [`tools/sql_cost/README.md`](../../tools/sql_cost/README.md).
+
 ## Nearest decision-oriented work
 
 The following is a **proposed sequence**, not a claim that E1 or an engine
@@ -474,9 +486,10 @@ cost model is complete. The E1 measurement contract is
 [`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md); acceptance
 thresholds and the reviewed workload still require a recorded decision.
 
-1. **Establish the same-stats baseline.** Extend the reviewed workload with
-   connected sparse, star, chain, cyclic/dense, LEFT/CROSS-constrained, skewed,
-   range, and ORDER BY join cases on both engines. Capture plan identity,
+1. **Establish the same-stats baseline.** The synthetic pilot now covers
+   sparse chain/star, cyclic/dense, LEFT/CROSS-constrained, skewed, range, and
+   ORDER BY cases; the reviewed acceptance corpus and thresholds remain open.
+   Extend the workload with larger connected graphs. Capture plan identity,
    planning time, execution time, generated/dominated/truncated path counts,
    and stage-matched estimated/actual cardinalities. Compare current 1/5/10
    widths with the experimental 2/8/16 widths under the *same* statistics

@@ -200,6 +200,29 @@ The quoted pilot predates the graph expansion and repeated-preparation
 observations; it covers seven queries only. Matched provenance is necessary
 but does not make this synthetic pilot a production acceptance test.
 
+### Expanded graph and planning-cost pilot (2026-10-04)
+
+The matching-source run at `/tmp/e1-graphs-strict-1a3b839c72/report.json`
+has `decision_grade_provenance=true` and covers all eleven graph variants on
+both engines; nine flat INNER queries also run under the exact oracle. All
+SQL result fingerprints match. The wider beam changes two plans,
+`four-selective` and `four-reverse-order`, on each engine. Their median
+execution times (default/wider/oracle) are 304/281/292 and 264/284/305 µs
+on memtx, versus 873/974/863 and 780/880/829 µs on Vinyl. These are small
+single-host samples with opposing effects, not a width-policy win.
+
+The seven repeated WHERE-planning samples for `four-selective` have medians
+25/27/139 µs (memtx) and 23/30/151 µs (Vinyl) for default/wider/oracle.
+The peak retained frontier is 10/13/1260 paths for that query. The exact
+mode's larger frontier and planning cost buy a minimum *estimated* cost in
+its candidate space, not better observed latency. Across this workload,
+default and wider beam have the same median finite final-output q-error
+(about 2.44); the maximum remains 82.7, and each configuration has five
+measured executions of an empty query with unbounded q-error. The interim
+production policy remains unchanged. The next evidence gate is calibrated
+range/join selectivity and path costs, JOIN-prefix actual/estimate counters,
+additional fixture sizes and hosts, and reviewed regression thresholds.
+
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,
 same-statistics report comparing the legacy route with the enabled M3 route;
