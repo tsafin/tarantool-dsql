@@ -3730,6 +3730,28 @@ candidate_ready:
 	return 0;
 }
 
+int
+sqlWhereSelectedPrefixEstimates(WhereInfo *info,
+				uint64_t masks[SQL_JOIN_PREFIX_MAX],
+				LogEst rows[SQL_JOIN_PREFIX_MAX])
+{
+	if (info == NULL || info->nLevel < 2 ||
+	    info->nLevel > SQL_JOIN_PREFIX_MAX ||
+	    info->nLevel != info->pTabList->nSrc)
+		return 0;
+	LogEst prefix_rows = info->nRowOut;
+	for (int i = info->nLevel - 1; i >= 0; i--) {
+		rows[i] = prefix_rows;
+		prefix_rows -= info->a[i].pWLoop->nOut;
+	}
+	uint64_t mask = 0;
+	for (int i = 0; i < info->nLevel; i++) {
+		mask |= UINT64_C(1) << info->a[i].iFrom;
+		masks[i] = mask;
+	}
+	return info->nLevel;
+}
+
 /**
  * Attempt at finding appropriate terms in WHERE clause.
  *

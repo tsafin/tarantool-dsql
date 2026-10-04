@@ -355,6 +355,10 @@ struct Vdbe {
 	 * SELECT's output cardinality. */
 	LogEst planner_join_output_logest;
 	bool planner_join_output_valid;
+	/** Selected left-deep JOIN prefix estimates for test-only E1 probes. */
+	uint8_t planner_join_prefix_count;
+	uint64_t planner_join_prefix_masks[SQL_JOIN_PREFIX_MAX];
+	LogEst planner_join_prefix_logest[SQL_JOIN_PREFIX_MAX];
 	/* Complete post-beam one-relation paths from the final solver pass. */
 	/* Allocated only for snapshot EXPLAINs that capture final paths. */
 	struct sql_planner_final_path_capture *planner_final_paths;

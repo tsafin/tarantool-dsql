@@ -32,14 +32,29 @@ g.test_exact_frontier_metrics = function()
             JOIN dpm_c AS c ON b.k = c.k
             WHERE a.k = 1 ORDER BY a.id]]
         local metrics = adapter.join_planner_metrics(sql)
+        local prefixes = adapter.join_prefix_estimates(sql)
         local ineligible = adapter.join_planner_metrics(
             'SELECT id FROM dpm_a')
+        local no_prefix = adapter.join_prefix_estimates(
+            'SELECT id FROM dpm_a')
+        local left_prefix = adapter.join_prefix_estimates(
+            'SELECT a.id FROM dpm_a a LEFT JOIN dpm_b b ON a.k = b.k')
+        local cross_prefix = adapter.join_prefix_estimates(
+            'SELECT a.id FROM dpm_a a CROSS JOIN dpm_b b WHERE a.k = b.k')
         for _, name in ipairs({'dpm_c', 'dpm_b', 'dpm_a'}) do
             box.execute('DROP TABLE ' .. name)
         end
-        return {metrics = metrics, ineligible = ineligible}
+        return {metrics = metrics, prefixes = prefixes,
+                ineligible = ineligible, no_prefix = no_prefix,
+                left_prefix = left_prefix, cross_prefix = cross_prefix}
     end)
     t.assert_equals(res.ineligible, nil)
+    t.assert_equals(res.no_prefix, nil)
+    t.assert_equals(res.left_prefix, nil)
+    t.assert_equals(res.cross_prefix, nil)
+    t.assert_equals(#res.prefixes, 3)
+    t.assert_equals(res.prefixes[3].relation_mask, 7)
+    t.assert_gt(res.prefixes[1].estimated_rows, 0)
     t.assert_gt(res.metrics.generated, 0)
     t.assert_equals(res.metrics.dominated, 0)
     t.assert_equals(res.metrics.truncated, 0)

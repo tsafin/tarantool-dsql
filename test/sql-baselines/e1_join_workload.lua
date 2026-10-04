@@ -1,6 +1,7 @@
 -- Deterministic execution workload for the bounded join-order solver.
 -- A fresh process is required for every width triple: widths are cached in C.
 local clock = require('clock')
+local bit = require('bit')
 local digest = require('digest')
 local json = require('json')
 
@@ -121,6 +122,53 @@ local expected_rows = {
     ['three-empty'] = 0, ['left-join'] = 3,
 }
 
+-- Logical INNER JOIN prefix diagnostics. A term is included as soon as all
+-- referenced relations are in the selected prefix. This separate COUNT(*)
+-- query computes a relational cardinality, not an observed executor counter.
+local prefix_relations = {
+    [1] = 'e1_a a', [2] = 'e1_b b', [4] = 'e1_c c', [8] = 'e1_d d',
+}
+local prefix_terms = {
+    ['two-hot'] = {{3, 'a.k = b.k'}, {1, 'a.k = 0'}},
+    ['two-rare'] = {{3, 'a.k = b.k'}, {1, 'a.k = 19'}},
+    ['three-filtered'] = {{3, 'a.k = b.k'}, {6, 'b.k = c.k'},
+        {1, 'a.bucket = 7'}, {2, 'b.flag = 2'}, {4, 'c.band = 1'}},
+    ['three-range-equality'] = {{3, 'a.k = b.k'}, {6, 'b.k = c.k'},
+        {1, 'a.id BETWEEN 60 AND 80'}, {2, 'b.flag = 2'},
+        {4, 'c.band = 1'}},
+    ['four-selective'] = {{3, 'a.k = b.k'}, {6, 'b.k = c.k'},
+        {12, 'c.k = d.k'}, {1, 'a.k = 19'}, {8, 'd.flag = 4'}},
+    ['four-star'] = {{3, 'a.k = b.k'}, {5, 'a.k = c.k'},
+        {9, 'a.k = d.k'}, {1, 'a.k = 19'}, {4, 'c.band = 3'}},
+    ['four-dense-cycle'] = {{3, 'a.k = b.k'}, {6, 'b.k = c.k'},
+        {12, 'c.k = d.k'}, {9, 'd.k = a.k'}, {1, 'a.id < 60'},
+        {1, 'a.k = 19'}, {2, 'b.flag = 2'}, {8, 'd.flag = 4'}},
+    ['four-reverse-order'] = {{3, 'a.k = b.k'}, {6, 'b.k = c.k'},
+        {12, 'c.k = d.k'}, {1, 'a.k = 19'}, {8, 'd.flag = 4'}},
+    ['three-empty'] = {{3, 'a.k = b.k'}, {6, 'b.k = c.k'},
+        {1, 'a.k = 999'}},
+}
+
+local function logical_prefix_count(query_id, mask)
+    local sources = {}
+    for _, relation_mask in ipairs({1, 2, 4, 8}) do
+        if bit.band(mask, relation_mask) ~= 0 then
+            sources[#sources + 1] = prefix_relations[relation_mask]
+        end
+    end
+    local conditions = {}
+    for _, term in ipairs(assert(prefix_terms[query_id])) do
+        if bit.band(mask, term[1]) == term[1] then
+            conditions[#conditions + 1] = term[2]
+        end
+    end
+    local sql = 'SELECT COUNT(*) FROM ' .. table.concat(sources, ', ')
+    if #conditions > 0 then
+        sql = sql .. ' WHERE ' .. table.concat(conditions, ' AND ')
+    end
+    return assert(box.execute(sql)).rows[1][1]
+end
+
 local function hex_sha(value)
     return string.hex(digest.sha256(value))
 end
@@ -138,9 +186,25 @@ for _, query in ipairs(queries) do
         local plan = assert(box.execute('EXPLAIN QUERY PLAN ' .. query.sql)).rows
         local planner_metrics = assert(stats_test.join_planner_metrics(query.sql),
                                        'missing JOIN planner metrics: ' .. query.id)
+        local logical_prefixes
+        if prefix_terms[query.id] ~= nil then
+            logical_prefixes = assert(stats_test.join_prefix_estimates(query.sql),
+                                      'missing selected prefixes: ' .. query.id)
+            for _, prefix in ipairs(logical_prefixes) do
+                prefix.counted_rows = logical_prefix_count(
+                    query.id, prefix.relation_mask)
+            end
+            assert(logical_prefixes[#logical_prefixes].counted_rows ==
+                   expected_rows[query.id],
+                   'logical full JOIN count differs: ' .. query.id)
+            assert(logical_prefixes[#logical_prefixes].estimated_rows ==
+                   estimated_rows,
+                   'selected final prefix estimate differs: ' .. query.id)
+        end
         prepared[query.id] = {stmt = stmt, prepare_us = prepare_us,
                               prepare_samples_us = {prepare_us},
                               planner_metric_samples = {planner_metrics},
+                              logical_prefixes = logical_prefixes,
                               estimated_rows = estimated_rows,
                               plan_sha256 = hex_sha(json.encode(plan)), plan = plan}
     end
@@ -174,6 +238,7 @@ for round = 0, 7 do
             prepare_us = info.prepare_us, plan_sha256 = info.plan_sha256,
             plan = info.plan, actual_rows = #result.rows,
             estimated_rows = info.estimated_rows,
+            logical_prefixes = info.logical_prefixes,
             cardinalities = {{stage_id = 'join-output',
                               estimated_rows = info.estimated_rows,
                               actual_rows = #result.rows}},

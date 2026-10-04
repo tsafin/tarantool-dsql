@@ -137,6 +137,15 @@ TEST_BUILD adapter. The report includes seven-sample WHERE-planning times,
 generated/dominated/truncated/retained path counts, peak retained frontier,
 and peak solver-buffer bytes. These bytes exclude candidate loops, SQL AST,
 and other planner memory; the WHERE timer excludes the rest of SQL preparation.
+For eligible flat INNER JOINs, the adapter also exposes the selected path's
+relation mask and estimated rows at each prefix. The fixture runs a separate
+`COUNT(*)` query over each prefix's relation subset, applying predicates as
+soon as all referenced relations are present. It verifies that the full-set
+count equals the original SELECT output, and the report lists each prefix's
+estimated/logically counted rows and q-error. These are **logical-prefix
+diagnostics**, not counters from the original executor; they must not be used
+as the stage-matched E1 acceptance metric until executor-stage equivalence is
+proved or measured directly.
 
 EXPLAIN QUERY PLAN exposes per-loop estimates, not a semantically matched
 estimate for each JOIN output. The TEST_BUILD adapter instead compiles the

@@ -3120,6 +3120,11 @@ WhereInfo *sqlWhereBegin(Parse *, SrcList *, Expr *, ExprList *, ExprList *,
 			     u16, int);
 void sqlWhereEnd(WhereInfo *);
 LogEst sqlWhereOutputRowCount(WhereInfo *);
+#define SQL_JOIN_PREFIX_MAX 4
+/** Copy the selected left-deep path's prefix relation masks and row estimates. */
+int sqlWhereSelectedPrefixEstimates(WhereInfo *,
+				    uint64_t masks[SQL_JOIN_PREFIX_MAX],
+				    LogEst rows[SQL_JOIN_PREFIX_MAX]);
 int sqlWhereIsDistinct(WhereInfo *);
 int sqlWhereIsOrdered(WhereInfo *);
 int sqlWhereOrderedInnerLoop(WhereInfo *);

@@ -35,6 +35,7 @@ QUERY_GRAPH = {
 }
 QUERIES = set(QUERY_GRAPH)
 ORACLE_QUERIES = QUERIES - {"left-join", "three-cross-constrained"}
+PREFIX_QUERIES = ORACLE_QUERIES
 PLANNER_METRICS = ("generated", "dominated", "truncated", "retained",
                    "planner_elapsed_us", "peak_frontier", "peak_solver_bytes")
 
@@ -68,6 +69,16 @@ def planner_summary(row):
         "peak_frontier": samples[0]["peak_frontier"],
         "peak_solver_bytes": samples[0]["peak_solver_bytes"],
     }
+
+
+def logical_prefix_quality(row):
+    prefixes = row.get("logical_prefixes")
+    if prefixes is None:
+        return None
+    return [{**prefix,
+             "q_error": e1_measure.q_error(prefix["estimated_rows"],
+                                           prefix["counted_rows"])}
+            for prefix in prefixes]
 
 
 def validate_and_report(records, engines, include_oracle=False):
@@ -125,6 +136,29 @@ def validate_and_report(records, engines, include_oracle=False):
                                          "estimated_rows": row["estimated_rows"],
                                          "actual_rows": row["actual_rows"]}]:
             raise ValueError("cardinality stage is not the final JOIN output")
+        prefixes = row.get("logical_prefixes")
+        if query in PREFIX_QUERIES:
+            relation_count = {"two": 2, "three": 3, "four": 4}[
+                query.split("-", 1)[0]]
+            if not isinstance(prefixes, list) or len(prefixes) != relation_count:
+                raise ValueError("invalid logical JOIN prefixes")
+            previous = 0
+            for depth, prefix in enumerate(prefixes, 1):
+                if not isinstance(prefix, dict) or set(prefix) != {
+                        "relation_mask", "estimated_rows", "counted_rows"} or \
+                        any(type(prefix[name]) is not int or prefix[name] < 0
+                            for name in prefix) or \
+                        prefix["relation_mask"] >= 1 << relation_count or \
+                        prefix["relation_mask"] & previous != previous or \
+                        bin(prefix["relation_mask"]).count("1") != depth:
+                    raise ValueError("invalid logical JOIN prefixes")
+                previous = prefix["relation_mask"]
+            if previous != (1 << relation_count) - 1 or \
+                    prefixes[-1]["estimated_rows"] != row["estimated_rows"] or \
+                    prefixes[-1]["counted_rows"] != row["actual_rows"]:
+                raise ValueError("logical JOIN final stage mismatch")
+        elif prefixes is not None:
+            raise ValueError("ineligible JOIN has logical prefixes")
         for name in ("binary_sha256", "data_sha256", "result_sha256", "plan_sha256"):
             if not isinstance(row.get(name), str) or not re.fullmatch("[0-9a-f]{64}", row[name]):
                 raise ValueError("invalid " + name)
@@ -159,6 +193,7 @@ def validate_and_report(records, engines, include_oracle=False):
                   "intermediate JOIN-prefix actual cardinalities are not instrumented",
                   "prepare_samples_us measures parse/compile, not path-solver time alone; first sample is cold, seven later samples are repeated after execution",
                   "planner_metric_samples measures WHERE planning on separate compilations; solver bytes exclude other planner allocations",
+                  "logical_prefixes are COUNT(*) results from separate relation-subset SQL, not executor-observed intermediate rows or an E1 acceptance metric",
                   "this small synthetic workload is not a production latency acceptance gate",
               ]}
     for engine in engines:
@@ -186,6 +221,9 @@ def validate_and_report(records, engines, include_oracle=False):
                 if len({json.dumps(row["planner_metric_samples"], sort_keys=True)
                         for row in config_rows.values()}) != 1:
                     raise ValueError("unstable planner metric samples")
+                if len({json.dumps(row.get("logical_prefixes"), sort_keys=True)
+                        for row in config_rows.values()}) != 1:
+                    raise ValueError("unstable logical JOIN prefixes")
             measured = range(3, 8)
             base_times = [base[i]["elapsed_us"] for i in measured]
             cand_times = [cand[i]["elapsed_us"] for i in measured]
@@ -216,6 +254,8 @@ def validate_and_report(records, engines, include_oracle=False):
                                          cand[3]["prepare_samples_us"][1:])]),
                 "default_planner": planner_summary(base[3]),
                 "candidate_planner": planner_summary(cand[3]),
+                "default_logical_prefixes": logical_prefix_quality(base[3]),
+                "candidate_logical_prefixes": logical_prefix_quality(cand[3]),
                 "default_plan_sha256": base[3]["plan_sha256"],
                 "candidate_plan_sha256": cand[3]["plan_sha256"],
                 "plan_changed": base[3]["plan_sha256"] != cand[3]["plan_sha256"],
@@ -234,6 +274,8 @@ def validate_and_report(records, engines, include_oracle=False):
                         len({tuple(row["prepare_samples_us"])
                              for row in oracle.values()}) != 1 or \
                         len({json.dumps(row["planner_metric_samples"], sort_keys=True)
+                             for row in oracle.values()}) != 1 or \
+                        len({json.dumps(row.get("logical_prefixes"), sort_keys=True)
                              for row in oracle.values()}) != 1:
                     raise ValueError("unstable oracle estimate or plan")
                 oracle_times = [oracle[i]["elapsed_us"] for i in measured]
@@ -252,6 +294,7 @@ def validate_and_report(records, engines, include_oracle=False):
                         o / b for b, o in zip(base[3]["prepare_samples_us"][1:],
                                              oracle[3]["prepare_samples_us"][1:])]),
                     "planner": planner_summary(oracle[3]),
+                    "logical_prefixes": logical_prefix_quality(oracle[3]),
                     "plan_sha256": oracle[3]["plan_sha256"],
                     "plan_changed_from_default":
                         oracle[3]["plan_sha256"] != base[3]["plan_sha256"],
