@@ -184,6 +184,9 @@ struct sql_stats_tx_index_spec {
 	 * The native adapter supports it only for canonicalizable key definitions. */
 	uint32_t mcv_capacity;
 	size_t max_mcv_value_bytes;
+	/* Optional native leading-part histogram reservoir. */
+	uint32_t histogram_capacity;
+	size_t max_histogram_value_bytes;
 };
 
 /* Worst-case candidate-copy staging for this spec's retained MCV entries. */
@@ -194,7 +197,9 @@ sql_stats_tx_index_spec_mcv_staging_bytes(
 	if (spec == NULL || spec->expected == NULL || bytes == NULL)
 		return false;
 	if (spec->mcv_capacity == 0) {
-		if (spec->max_mcv_value_bytes != 0)
+		if (spec->max_mcv_value_bytes != 0 ||
+		    spec->histogram_capacity != 0 ||
+		    spec->max_histogram_value_bytes != 0)
 			return false;
 		*bytes = 0;
 		return true;
@@ -202,6 +207,12 @@ sql_stats_tx_index_spec_mcv_staging_bytes(
 	if ((spec->use_native_index_hash && spec->extract != NULL) ||
 	    (!spec->use_native_index_hash && spec->extract == NULL) ||
 	    spec->max_mcv_value_bytes == 0)
+		return false;
+	if ((spec->histogram_capacity == 0) !=
+	    (spec->max_histogram_value_bytes == 0) ||
+	    (spec->histogram_capacity != 0 &&
+	     (!spec->use_native_index_hash ||
+	      spec->histogram_capacity < spec->request.max_rows)))
 		return false;
 	size_t part_count = spec->expected->part_count;
 	size_t per_part = sizeof(struct sql_stats_index_part_input) +

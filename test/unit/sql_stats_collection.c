@@ -123,6 +123,48 @@ sql_stats_index_summary_new_for_index_with_mcv(
 						     seed, max_bytes);
 }
 
+struct sql_stats_index_summary *
+sql_stats_index_summary_new_for_index_with_mcv_histogram(
+	struct tuple_format *format, const struct index_def *index_def,
+	uint8_t precision, uint64_t seed, size_t max_bytes,
+	uint32_t mcv_capacity, size_t max_mcv_value_bytes,
+	uint32_t histogram_capacity, size_t max_histogram_value_bytes)
+{
+	(void)histogram_capacity;
+	(void)max_histogram_value_bytes;
+	return sql_stats_index_summary_new_for_index_with_mcv(
+		format, index_def, precision, seed, max_bytes, mcv_capacity,
+		max_mcv_value_bytes);
+}
+
+bool
+sql_stats_index_summary_has_histogram_sample(
+	const struct sql_stats_index_summary *summary)
+{
+	(void)summary;
+	return false;
+}
+
+uint8_t
+sql_stats_index_summary_histogram_type_tag(
+	const struct sql_stats_index_summary *summary)
+{
+	(void)summary;
+	return 0;
+}
+
+struct sql_stats_histogram *
+sql_stats_index_summary_build_histogram(
+	const struct sql_stats_index_summary *summary, size_t part,
+	uint32_t max_buckets, size_t max_bytes)
+{
+	(void)summary;
+	(void)part;
+	(void)max_buckets;
+	(void)max_bytes;
+	return NULL;
+}
+
 uint8_t
 sql_stats_index_summary_hash_bits(
 	const struct sql_stats_index_summary *summary)

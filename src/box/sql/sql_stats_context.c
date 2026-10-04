@@ -146,7 +146,12 @@ collection_context_new_summary(struct sql_stats_collection_context *context,
 	struct sql_stats_index_summary *summary = spec->mcv_capacity == 0 ?
 		sql_stats_index_summary_new_for_index(format,
 			index_view->def, spec->hll_precision, spec->hll_seed,
-			spec->summary_max_bytes) :
+			spec->summary_max_bytes) : spec->histogram_capacity != 0 ?
+		sql_stats_index_summary_new_for_index_with_mcv_histogram(format,
+			index_view->def, spec->hll_precision, spec->hll_seed,
+			spec->summary_max_bytes, spec->mcv_capacity,
+			spec->max_mcv_value_bytes, spec->histogram_capacity,
+			spec->max_histogram_value_bytes) :
 		sql_stats_index_summary_new_for_index_with_mcv(format,
 			index_view->def, spec->hll_precision, spec->hll_seed,
 			spec->summary_max_bytes, spec->mcv_capacity,

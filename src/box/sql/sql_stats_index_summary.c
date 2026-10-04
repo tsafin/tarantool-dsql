@@ -501,6 +501,15 @@ sql_stats_index_summary_has_histogram_sample(
 	       summary->histogram_capacity != 0;
 }
 
+uint8_t
+sql_stats_index_summary_histogram_type_tag(
+	const struct sql_stats_index_summary *summary)
+{
+	return !sql_stats_index_summary_has_histogram_sample(summary) ||
+	       summary->key_def == NULL ? 0 :
+	       (uint8_t)summary->key_def->parts[0].type + 1;
+}
+
 static int
 summary_histogram_compare(const void *lhs, const void *rhs, void *context)
 {

@@ -199,6 +199,12 @@ sql_stats_analyze_execute(const char *space_name)
 				.max_mcv_value_bytes =
 					mcv_supported ?
 					SQL_STATS_ANALYZE_MAX_MCV_VALUE_BYTES : 0,
+				.histogram_capacity =
+					mcv_supported ?
+					SQL_STATS_ANALYZE_HISTOGRAM_CAPACITY : 0,
+				.max_histogram_value_bytes =
+					mcv_supported ?
+					SQL_STATS_ANALYZE_MAX_HISTOGRAM_VALUE_BYTES : 0,
 			};
 		}
 		relations[r] = (struct sql_stats_collection_relation_spec) {

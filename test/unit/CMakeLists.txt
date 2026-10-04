@@ -112,7 +112,7 @@ create_unit_test(PREFIX sql_stats_index_summary
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_spacesaving.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_histogram.c
-                 LIBRARIES unit box core m
+                 LIBRARIES unit tuple core m
 )
 create_unit_test(PREFIX sql_stats_index_summary_native
                  SOURCES sql_stats_index_summary_native.c box_test_utils.c
@@ -136,6 +136,7 @@ create_unit_test(PREFIX sql_stats_collection
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_tx_context.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_sample.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_collection_summary.c
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_histogram.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_snapshot.c
                  LIBRARIES unit m vclock
 )
@@ -149,7 +150,8 @@ create_unit_test(PREFIX sql_stats_collection_samples
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_index_summary.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_hll.c
                          ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_spacesaving.c
-                 LIBRARIES unit m box core
+                         ${PROJECT_SOURCE_DIR}/src/box/sql/sql_stats_histogram.c
+                 LIBRARIES unit m tuple core
 )
 create_unit_test(PREFIX sql_stats_sample
                  SOURCES sql_stats_sample.c

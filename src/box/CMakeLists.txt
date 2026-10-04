@@ -624,6 +624,7 @@ set(box_sources
     sql/sql_stats_tx_context.c
     sql/sql_stats_hll.c
     sql/sql_stats_index_summary.c
+    sql/sql_stats_histogram.c
     sql/sql_stats_spacesaving.c
     allocator.cc
     memtx_allocator.cc

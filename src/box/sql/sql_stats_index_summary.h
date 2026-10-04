@@ -143,6 +143,10 @@ bool
 sql_stats_index_summary_has_histogram_sample(
 	const struct sql_stats_index_summary *summary);
 
+uint8_t
+sql_stats_index_summary_histogram_type_tag(
+	const struct sql_stats_index_summary *summary);
+
 /* Caller owns the returned histogram. Only part zero is currently sampled. */
 struct sql_stats_histogram *
 sql_stats_index_summary_build_histogram(

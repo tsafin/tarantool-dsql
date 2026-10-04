@@ -104,7 +104,10 @@ sql_stats_collection_build_sample_candidate(
 		return NULL;
 	size_t scratch_bytes = prefix_bytes + index_bytes + confidence_bytes;
 	if (index_count > SIZE_MAX / sizeof(struct sql_stats_index_part_input *) ||
-	    index_count > SIZE_MAX / sizeof(struct sql_stats_mcv_input **))
+	    index_count > SIZE_MAX / sizeof(struct sql_stats_mcv_input **) ||
+	    index_count > SIZE_MAX /
+			   sizeof(struct sql_stats_histogram_bucket_input *) ||
+	    index_count > SIZE_MAX / sizeof(struct sql_stats_histogram *))
 		return NULL;
 	struct sql_stats_collected_index *collected = index_count == 0 ? NULL :
 		calloc(index_count, sizeof(*collected));
@@ -116,24 +119,32 @@ sql_stats_collection_build_sample_candidate(
 		calloc(index_count, sizeof(*part_storage));
 	struct sql_stats_mcv_input ***mcv_storage = index_count == 0 ? NULL :
 		calloc(index_count, sizeof(*mcv_storage));
+	struct sql_stats_histogram_bucket_input **histogram_storage =
+		index_count == 0 ? NULL : calloc(index_count,
+						 sizeof(*histogram_storage));
+	struct sql_stats_histogram **histograms = index_count == 0 ? NULL :
+		calloc(index_count, sizeof(*histograms));
 	if ((index_count != 0 && (collected == NULL || confidences == NULL)) ||
 	    (prefix_count != 0 && prefixes == NULL) ||
-	    (index_count != 0 && (part_storage == NULL || mcv_storage == NULL))) {
+	    (index_count != 0 && (part_storage == NULL || mcv_storage == NULL ||
+				  histogram_storage == NULL || histograms == NULL))) {
 		free(collected);
 		free(confidences);
 		free(prefixes);
 		free(part_storage);
 		free(mcv_storage);
+		free(histogram_storage);
+		free(histograms);
 		return NULL;
 	}
 	bool valid = true;
 	struct sql_stats_snapshot *candidate = NULL;
 	if (index_count != 0) {
 		if (index_count > (max_bytes - scratch_bytes) /
-		    (2 * sizeof(void *))) {
+		    (4 * sizeof(void *))) {
 			valid = false;
 		} else {
-			scratch_bytes += 2 * index_count * sizeof(void *);
+			scratch_bytes += 4 * index_count * sizeof(void *);
 		}
 	}
 	size_t offset = 0;
@@ -221,6 +232,62 @@ sql_stats_collection_build_sample_candidate(
 			}
 			if (!valid)
 				break;
+			if (sql_stats_index_summary_has_histogram_sample(
+				    indexes[i].summary) &&
+			    sql_stats_index_summary_mcv_sample_nonnull_rows(
+				    indexes[i].summary, 0) != 0) {
+				size_t remaining = max_bytes - scratch_bytes;
+				struct sql_stats_histogram *histogram =
+					sql_stats_index_summary_build_histogram(
+						indexes[i].summary, 0, 32, remaining);
+				if (histogram == NULL) {
+					valid = false;
+					break;
+				}
+				histograms[i] = histogram;
+				size_t histogram_bytes =
+					sql_stats_histogram_bytes(histogram);
+				size_t bucket_count =
+					sql_stats_histogram_bucket_count(histogram);
+				if (histogram_bytes > max_bytes - scratch_bytes ||
+				    bucket_count > SIZE_MAX /
+						   sizeof(*histogram_storage[i]) ||
+				    bucket_count * sizeof(*histogram_storage[i]) >
+						max_bytes - scratch_bytes - histogram_bytes) {
+					valid = false;
+					break;
+				}
+				histogram_storage[i] = calloc(bucket_count,
+								      sizeof(*histogram_storage[i]));
+				if (bucket_count != 0 && histogram_storage[i] == NULL) {
+					valid = false;
+					break;
+				}
+				scratch_bytes += histogram_bytes +
+					bucket_count * sizeof(*histogram_storage[i]);
+				uint8_t type_tag =
+					sql_stats_index_summary_histogram_type_tag(
+						indexes[i].summary);
+				for (size_t n = 0; n < bucket_count; n++) {
+					struct sql_stats_histogram_bucket bucket;
+					if (type_tag == 0 || sql_stats_histogram_get_bucket(
+						    histogram, n, &bucket) != 0) {
+						valid = false;
+						break;
+					}
+					histogram_storage[i][n] =
+						(struct sql_stats_histogram_bucket_input) {
+						.type_tag = type_tag,
+						.upper_bound = bucket.upper_bound,
+						.upper_bound_size = bucket.upper_bound_size,
+						.cumulative_count = bucket.cumulative_count,
+					};
+				}
+				if (!valid)
+					break;
+				part_storage[i][0].histogram = histogram_storage[i];
+				part_storage[i][0].histogram_count = bucket_count;
+			}
 			collected[i].parts = part_storage[i];
 			collected[i].part_count = parts;
 		}
@@ -272,8 +339,12 @@ sql_stats_collection_build_sample_candidate(
 			free(mcv_storage[i]);
 		if (part_storage != NULL)
 			free(part_storage[i]);
+		free(histogram_storage == NULL ? NULL : histogram_storage[i]);
+		sql_stats_histogram_delete(histograms == NULL ? NULL : histograms[i]);
 	}
 	free(mcv_storage);
 	free(part_storage);
+	free(histogram_storage);
+	free(histograms);
 	return candidate;
 }

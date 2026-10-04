@@ -143,14 +143,20 @@ g.test_leading_literal_range_uses_histogram = function()
             for upper = 10, 100, 10 do
                 table.insert(buckets, {upper, upper})
             end
-            adapter.install_integer_histogram(space.id, index.id,
-                                              100, 100, 100, buckets)
             local function estimate(predicate)
                 local rows = box.execute(('EXPLAIN QUERY PLAN SELECT id ' ..
                     'FROM %s WHERE %s'):format(name, predicate)).rows
                 return tonumber(rows[1][4]:match('~([0-9]+) row'))
             end
+            box.execute('ANALYZE ' .. name)
+            local live_upper = estimate('k <= 10')
+            local live_interval = estimate('k > 40 AND k <= 60')
+            adapter.clear()
+            adapter.install_integer_histogram(space.id, index.id,
+                                              100, 100, 100, buckets)
             result[engine] = {
+                live_upper = live_upper,
+                live_interval = live_interval,
                 upper = estimate('k <= 10'),
                 interval = estimate('k > 40 AND k <= 60'),
                 upper_rows = box.execute(('SELECT id FROM %s WHERE k <= 10'):
@@ -164,6 +170,10 @@ g.test_leading_literal_range_uses_histogram = function()
         return result
     end)
     for _, engine in ipairs({'memtx', 'vinyl'}) do
+        t.assert_ge(res[engine].live_upper, 6)
+        t.assert_le(res[engine].live_upper, 16)
+        t.assert_ge(res[engine].live_interval, 12)
+        t.assert_le(res[engine].live_interval, 28)
         t.assert_ge(res[engine].upper, 8)
         t.assert_le(res[engine].upper, 12)
         t.assert_ge(res[engine].interval, 16)
