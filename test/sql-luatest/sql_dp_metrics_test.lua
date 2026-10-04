@@ -119,3 +119,56 @@ g.test_equivalent_literal_uses_mcv = function()
         t.assert_equals(prefixes[2].actual_rows, 1200)
     end
 end
+
+g.test_leading_literal_range_uses_histogram = function()
+    local res = g.server:exec(function()
+        local build_dir = assert(os.getenv('BUILDDIR'))
+        package.cpath = build_dir .. '/test/box/?.so;' .. package.cpath
+        local adapter = require('sql_stats_snapshot_test')
+        adapter.clear()
+        box.execute('SET SESSION "sql_seq_scan" = true')
+        local result = {}
+        for _, engine in ipairs({'memtx', 'vinyl'}) do
+            local name = 'dpr_' .. engine
+            box.execute(('CREATE TABLE %s (id INT PRIMARY KEY, k INT) ' ..
+                         "WITH ENGINE = '%s'"):format(name, engine))
+            box.execute(('CREATE INDEX %s_k ON %s(k)'):format(name, name))
+            for id = 1, 100 do
+                box.execute(('INSERT INTO %s VALUES (?, ?)'):format(name),
+                            {id, id})
+            end
+            local space = box.space[name]
+            local index = space.index[name .. '_k']
+            local buckets = {}
+            for upper = 10, 100, 10 do
+                table.insert(buckets, {upper, upper})
+            end
+            adapter.install_integer_histogram(space.id, index.id,
+                                              100, 100, 100, buckets)
+            local function estimate(predicate)
+                local rows = box.execute(('EXPLAIN QUERY PLAN SELECT id ' ..
+                    'FROM %s WHERE %s'):format(name, predicate)).rows
+                return tonumber(rows[1][4]:match('~([0-9]+) row'))
+            end
+            result[engine] = {
+                upper = estimate('k <= 10'),
+                interval = estimate('k > 40 AND k <= 60'),
+                upper_rows = box.execute(('SELECT id FROM %s WHERE k <= 10'):
+                                         format(name)).rows,
+                interval_rows = box.execute(('SELECT id FROM %s ' ..
+                    'WHERE k > 40 AND k <= 60'):format(name)).rows,
+            }
+            adapter.clear()
+            box.execute('DROP TABLE ' .. name)
+        end
+        return result
+    end)
+    for _, engine in ipairs({'memtx', 'vinyl'}) do
+        t.assert_ge(res[engine].upper, 8)
+        t.assert_le(res[engine].upper, 12)
+        t.assert_ge(res[engine].interval, 16)
+        t.assert_le(res[engine].interval, 24)
+        t.assert_equals(#res[engine].upper_rows, 10)
+        t.assert_equals(#res[engine].interval_rows, 20)
+    end
+end

@@ -1,6 +1,8 @@
 #include <lua.h>
 #include <lauxlib.h>
+#include <stdlib.h>
 
+#include "msgpuck.h"
 #include "box/index.h"
 #include "box/schema.h"
 #include "box/space_cache.h"
@@ -54,6 +56,98 @@ lbox_install_snapshot(lua_State *L)
 		catalog_version, schema_version, &relation, 1, 64 * 1024);
 	if (snapshot == NULL)
 		return luaL_error(L, "failed to create SQL stats test snapshot");
+	sql_set_stats_snapshot(snapshot);
+	sql_stats_snapshot_release(snapshot);
+	return 0;
+}
+
+static int
+lbox_install_integer_histogram(lua_State *L)
+{
+	uint32_t space_id = luaL_checkinteger(L, 1);
+	uint32_t index_id = luaL_checkinteger(L, 2);
+	uint64_t relation_rows = luaL_checkinteger(L, 3);
+	uint64_t index_rows = luaL_checkinteger(L, 4);
+	uint64_t distinct_prefix = luaL_checkinteger(L, 5);
+	luaL_checktype(L, 6, LUA_TTABLE);
+	size_t count = lua_objlen(L, 6);
+	if (count == 0 || count > 64)
+		return luaL_error(L, "integer histogram needs 1..64 buckets");
+	struct sql_stats_histogram_bucket_input *buckets =
+		calloc(count, sizeof(*buckets));
+	char (*encoded)[16] = calloc(count, sizeof(*encoded));
+	if (buckets == NULL || encoded == NULL) {
+		free(buckets);
+		free(encoded);
+		return luaL_error(L, "failed to allocate histogram fixture");
+	}
+	uint64_t previous = 0;
+	for (size_t i = 0; i < count; i++) {
+		lua_rawgeti(L, 6, i + 1);
+		if (!lua_istable(L, -1)) {
+			free(buckets);
+			free(encoded);
+			return luaL_error(L, "histogram bucket must be a table");
+		}
+		lua_rawgeti(L, -1, 1);
+		int64_t value = luaL_checkinteger(L, -1);
+		lua_pop(L, 1);
+		lua_rawgeti(L, -1, 2);
+		uint64_t cumulative = luaL_checkinteger(L, -1);
+		lua_pop(L, 2);
+		if (cumulative <= previous) {
+			free(buckets);
+			free(encoded);
+			return luaL_error(L, "histogram counts must increase");
+		}
+		char *end = value >= 0 ? mp_encode_uint(encoded[i], value) :
+			mp_encode_int(encoded[i], value);
+		buckets[i] = (struct sql_stats_histogram_bucket_input) {
+			.type_tag = FIELD_TYPE_INTEGER + 1,
+			.upper_bound = encoded[i],
+			.upper_bound_size = end - encoded[i],
+			.cumulative_count = cumulative,
+		};
+		previous = cumulative;
+	}
+	struct sql_stats_index_part_input part = {
+		.sample_rows = previous,
+		.sample_nonnull_rows = previous,
+		.histogram = buckets,
+		.histogram_count = count,
+	};
+	struct sql_stats_index_input index = {
+		.index_id = index_id,
+		.tuple_count = index_rows,
+		.tuple_count_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.population_basis = "test_visible",
+		.ndv_basis = "test_visible",
+		.definition_version = 1,
+		.distinct_prefixes = &distinct_prefix,
+		.prefix_count = 1,
+		.parts = &part,
+		.part_count = 1,
+	};
+	struct sql_stats_relation_input relation = {
+		.space_id = space_id,
+		.row_count = relation_rows,
+		.population_basis = "test_visible",
+		.average_row_width = 8,
+		.width_basis = "test_payload/test_rows",
+		.width_denominator_count = relation_rows == 0 ? 1 : relation_rows,
+		.confidence = 1,
+		.confidence_source = "test_histogram_fixture",
+		.cardinality_semantics = SQL_STATS_CARDINALITY_VISIBLE_ROWS,
+		.visibility_id = 1,
+		.indexes = &index,
+		.index_count = 1,
+	};
+	struct sql_stats_snapshot *snapshot = sql_stats_snapshot_new(
+		1, box_schema_version(), &relation, 1, 64 * 1024);
+	free(buckets);
+	free(encoded);
+	if (snapshot == NULL)
+		return luaL_error(L, "failed to create histogram snapshot");
 	sql_set_stats_snapshot(snapshot);
 	sql_stats_snapshot_release(snapshot);
 	return 0;
@@ -285,6 +379,7 @@ luaopen_sql_stats_snapshot_test(lua_State *L)
 {
 	static const struct luaL_Reg methods[] = {
 		{"install", lbox_install_snapshot},
+		{"install_integer_histogram", lbox_install_integer_histogram},
 		{"clear", lbox_clear_snapshot},
 		{"state", lbox_snapshot_state},
 		{"estimates", lbox_estimates},

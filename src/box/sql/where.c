@@ -131,6 +131,42 @@ where_stats_integer_literal(const struct Expr *expr, int64_t *value)
 }
 
 static bool
+where_stats_encode_literal(const struct key_part *part, const struct Expr *literal,
+			   char encoded[260], size_t *encoded_size)
+{
+	char *end;
+	if (part->type == FIELD_TYPE_INTEGER ||
+	    part->type == FIELD_TYPE_UNSIGNED) {
+		int64_t integer;
+		if (!where_stats_integer_literal(literal, &integer) ||
+		    (part->type == FIELD_TYPE_UNSIGNED && integer < 0))
+			return false;
+		end = part->type == FIELD_TYPE_UNSIGNED ?
+			mp_encode_uint(encoded, (uint64_t)integer) :
+			(integer >= 0 ? mp_encode_uint(encoded, (uint64_t)integer) :
+			 mp_encode_int(encoded, integer));
+	} else if (part->type == FIELD_TYPE_BOOLEAN) {
+		if (literal == NULL ||
+		    (literal->op != TK_TRUE && literal->op != TK_FALSE))
+			return false;
+		end = mp_encode_bool(encoded, literal->op == TK_TRUE);
+	} else if (part->type == FIELD_TYPE_STRING &&
+		   (part->coll == NULL || part->coll->type == COLL_TYPE_BINARY)) {
+		if (literal == NULL || literal->op != TK_STRING ||
+		    literal->u.zToken == NULL)
+			return false;
+		size_t value_size = strlen(literal->u.zToken);
+		if (value_size > 256 - 5)
+			return false;
+		end = mp_encode_str(encoded, literal->u.zToken, value_size);
+	} else {
+		return false;
+	}
+	*encoded_size = end - encoded;
+	return true;
+}
+
+static bool
 where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
 			      const struct index_def *index_def,
 			      int cursor, const struct WhereTerm *term,
@@ -179,32 +215,9 @@ where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
 		return false;
 	}
 	char encoded[260];
-	char *end;
-	if (integer_part) {
-		int64_t integer;
-		if (!where_stats_integer_literal(literal, &integer) ||
-		    (part->type == FIELD_TYPE_UNSIGNED && integer < 0))
-			return false;
-		end = part->type == FIELD_TYPE_UNSIGNED ?
-			mp_encode_uint(encoded, (uint64_t)integer) :
-			(integer >= 0 ? mp_encode_uint(encoded, (uint64_t)integer) :
-			 mp_encode_int(encoded, integer));
-	} else if (boolean_part) {
-		if (literal == NULL ||
-		    (literal->op != TK_TRUE && literal->op != TK_FALSE))
-			return false;
-		end = mp_encode_bool(encoded, literal->op == TK_TRUE);
-	} else {
-		if (literal == NULL || literal->op != TK_STRING ||
-		    literal->u.zToken == NULL)
-			return false;
-		size_t value_size = strlen(literal->u.zToken);
-		/* ANALYZE retains at most 256 encoded value bytes. Leave room for
-		 * MessagePack's string header in the fixed planner scratch buffer. */
-		if (value_size > 256 - 5)
-			return false;
-		end = mp_encode_str(encoded, literal->u.zToken, value_size);
-	}
+	size_t encoded_size;
+	if (!where_stats_encode_literal(part, literal, encoded, &encoded_size))
+		return false;
 	const struct sql_stats_snapshot *snapshot =
 		where_stats_snapshot(where_info);
 	if (snapshot == NULL)
@@ -212,7 +225,7 @@ where_stats_mcv_equality_rows(const struct WhereInfo *where_info,
 	double estimate, error;
 	if (sql_stats_snapshot_estimate_index_part_mcv_rows(snapshot,
 		box_schema_version(), index_def->space_id, index_def->iid, 0,
-		(uint8_t)part->type + 1, encoded, end - encoded, &estimate,
+		(uint8_t)part->type + 1, encoded, encoded_size, &estimate,
 		&error) != SQL_STATS_LOOKUP_AVAILABLE)
 		return false;
 	/* SpaceSaving's actual count is in [estimate-error, estimate]. Use the
@@ -1336,9 +1349,114 @@ whereRangeAdjust(WhereTerm * pTerm, LogEst nNew)
  * and a pair of constraints (x>? AND x<?) reduces the expected number of
  * rows visited by a factor of 64.
  */
+static bool
+where_stats_histogram_cdf(const struct WhereInfo *where_info,
+			  const struct index_def *index_def, int cursor,
+			  const struct WhereTerm *term, bool inclusive,
+			  double *cdf_rows, double *nonnull_rows)
+{
+	if (index_def == NULL || index_def->key_def == NULL ||
+	    index_def->key_def->part_count == 0 || term == NULL ||
+	    term->pExpr == NULL || cdf_rows == NULL || nonnull_rows == NULL ||
+	    term->truthProb <= 0)
+		return false;
+	const struct key_part *part = &index_def->key_def->parts[0];
+	const struct Expr *lhs = term->pExpr->pLeft;
+	const struct Expr *literal = term->pExpr->pRight;
+	if (lhs == NULL || lhs->op != TK_COLUMN_REF || lhs->pLeft != NULL ||
+	    lhs->pRight != NULL || lhs->iTable != cursor ||
+	    lhs->iColumn != (int)part->fieldno)
+		return false;
+	char encoded[260];
+	size_t encoded_size;
+	if (!where_stats_encode_literal(part, literal, encoded, &encoded_size))
+		return false;
+	const struct sql_stats_snapshot *snapshot =
+		where_stats_snapshot(where_info);
+	const struct sql_stats_relation *relation = NULL;
+	if (sql_stats_snapshot_get_relation(snapshot, box_schema_version(),
+		index_def->space_id, &relation) != SQL_STATS_LOOKUP_AVAILABLE)
+		return false;
+	const struct sql_stats_index *index = NULL;
+	if (sql_stats_relation_get_index(relation, index_def->iid, &index) !=
+	    SQL_STATS_LOOKUP_AVAILABLE)
+		return false;
+	size_t count = sql_stats_index_part_histogram_count(index, 0);
+	uint64_t sample_rows = sql_stats_index_part_sample_rows(index, 0);
+	uint64_t sample_nonnull =
+		sql_stats_index_part_sample_nonnull_rows(index, 0);
+	if (count == 0 || sample_rows == 0 || sample_nonnull == 0)
+		return false;
+	uint64_t previous = 0;
+	double sample_cdf = 0;
+	bool resolved = false;
+	for (size_t i = 0; i < count; i++) {
+		uint8_t type_tag;
+		const void *upper;
+		size_t upper_size;
+		uint64_t cumulative;
+		if (sql_stats_index_part_histogram_at(index, 0, i, &type_tag,
+			&upper, &upper_size, &cumulative) !=
+		    SQL_STATS_LOOKUP_AVAILABLE ||
+		    type_tag != (uint8_t)part->type + 1)
+			return false;
+		int cmp = tuple_compare_field(encoded, upper, (int8_t)part->type,
+					      part->coll);
+		if (cmp <= 0) {
+			if (cmp == 0)
+				sample_cdf = inclusive ? cumulative : previous;
+			else
+				sample_cdf = (previous + cumulative) / 2.0;
+			resolved = true;
+			break;
+		}
+		previous = cumulative;
+	}
+	if (!resolved)
+		sample_cdf = sample_nonnull;
+	double scale = (double)sql_stats_index_tuple_count(index) / sample_rows;
+	*cdf_rows = sample_cdf * scale;
+	*nonnull_rows = sample_nonnull * scale;
+	return isfinite(*cdf_rows) && isfinite(*nonnull_rows);
+}
+
+static bool
+where_stats_histogram_range_rows(const struct WhereInfo *where_info,
+				 const struct index_def *index_def, int cursor,
+				 const struct WhereTerm *lower,
+				 const struct WhereTerm *upper, uint64_t *rows)
+{
+	double lower_cdf = 0, upper_cdf = 0, nonnull = 0, bound_nonnull;
+	if (lower != NULL &&
+	    !where_stats_histogram_cdf(where_info, index_def, cursor, lower,
+		(lower->eOperator & WO_GT) != 0, &lower_cdf, &nonnull))
+		return false;
+	if (upper != NULL &&
+	    !where_stats_histogram_cdf(where_info, index_def, cursor, upper,
+		(upper->eOperator & WO_LE) != 0, &upper_cdf, &bound_nonnull))
+		return false;
+	if (lower == NULL)
+		nonnull = bound_nonnull;
+	else if (upper != NULL && fabs(nonnull - bound_nonnull) > 0.5)
+		return false;
+	double estimate = lower != NULL && upper != NULL ?
+		upper_cdf - lower_cdf :
+		(lower != NULL ? nonnull - lower_cdf : upper_cdf);
+	if (!isfinite(estimate))
+		return false;
+	if (estimate < 1)
+		estimate = 1;
+	if (estimate > nonnull)
+		estimate = nonnull;
+	*rows = estimate >= (double)UINT64_MAX ? UINT64_MAX :
+		(uint64_t)(estimate + 0.5);
+	return true;
+}
+
 static int
-whereRangeScanEst(struct WhereTerm *pLower, struct WhereTerm *pUpper,
-		  struct WhereLoop *pLoop)
+whereRangeScanEst(struct WhereInfo *where_info, const struct index_def *index_def,
+		  int cursor, int equality_prefix, struct WhereTerm *pLower,
+		  struct WhereTerm *pUpper, struct WhereLoop *pLoop)
 {
 	int rc = 0;
 	/* nOut is initialized from index_field_tuple_est(), which uses the
@@ -1347,6 +1465,13 @@ whereRangeScanEst(struct WhereTerm *pLower, struct WhereTerm *pUpper,
 	 * them to that snapshot-backed prefix cardinality.
 	 */
 	int nOut = pLoop->nOut;
+	uint64_t histogram_rows;
+	if (equality_prefix == 0 &&
+	    where_stats_histogram_range_rows(where_info, index_def, cursor,
+		pLower, pUpper, &histogram_rows)) {
+		pLoop->nOut = sqlLogEst(histogram_rows);
+		return 0;
+	}
 	LogEst nNew;
 	assert(pUpper == 0 || (pUpper->wtFlags & TERM_VNULL) == 0);
 	nNew = whereRangeAdjust(pLower, nOut);
@@ -2248,7 +2373,8 @@ whereLoopAddBtreeIndex(WhereLoopBuilder * pBuilder,	/* The WhereLoop factory */
 			/* Adjust nOut using stat4 data. Or, if there is no stat4
 			 * data, using some other estimate.
 			 */
-			whereRangeScanEst(pBtm, pTop, pNew);
+			whereRangeScanEst(pWInfo, probe, pSrc->iCursor, saved_nEq,
+					  pBtm, pTop, pNew);
 		} else {
 			int nEq = ++pNew->nEq;
 			assert(eOp & (WO_ISNULL | WO_EQ | WO_IN));
