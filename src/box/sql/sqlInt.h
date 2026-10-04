@@ -3121,6 +3121,8 @@ WhereInfo *sqlWhereBegin(Parse *, SrcList *, Expr *, ExprList *, ExprList *,
 void sqlWhereEnd(WhereInfo *);
 LogEst sqlWhereOutputRowCount(WhereInfo *);
 #define SQL_JOIN_PREFIX_MAX 4
+/** True for a top-level, flat INNER JOIN handled by one WHERE instance. */
+bool sqlWhereIsTopLevelFlatInnerJoin(const WhereInfo *);
 /** Copy the selected left-deep path's prefix relation masks and row estimates. */
 int sqlWhereSelectedPrefixEstimates(WhereInfo *,
 				    uint64_t masks[SQL_JOIN_PREFIX_MAX],

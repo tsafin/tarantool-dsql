@@ -3250,14 +3250,9 @@ where_path_oracle_capacity(WhereInfo *pWInfo, int n_loop)
 	int relation_limit = sql_path_solver_oracle_max_relations();
 	if (n_loop < 2 || n_loop > relation_limit)
 		return 0;
+	if (!sqlWhereIsTopLevelFlatInnerJoin(pWInfo))
+		return 0;
 	int loop_count[4] = {0};
-	for (int i = 0; i < n_loop; i++) {
-		struct SrcList_item *item = &pWInfo->pTabList->a[i];
-		if ((item->fg.jointype &
-		     (JT_LEFT | JT_CROSS | JT_RIGHT | JT_NATURAL)) != 0 ||
-		    item->pUsing != NULL || item->pSelect != NULL)
-			return 0;
-	}
 	for (WhereLoop *loop = pWInfo->pLoops; loop != NULL;
 	     loop = loop->pNextLoop) {
 		if (loop->iTab < n_loop)
@@ -3728,6 +3723,23 @@ candidate_ready:
 	/* Free temporary memory and return success */
 	sql_xfree(pSpace);
 	return 0;
+}
+
+bool
+sqlWhereIsTopLevelFlatInnerJoin(const WhereInfo *info)
+{
+	if (info == NULL || info->pParse == NULL || info->pTabList == NULL ||
+	    info->pParse->iSelectId != 0 || info->nLevel < 2 ||
+	    info->nLevel != info->pTabList->nSrc)
+		return false;
+	for (int i = 0; i < info->nLevel; i++) {
+		const struct SrcList_item *item = &info->pTabList->a[i];
+		if ((item->fg.jointype &
+		     (JT_LEFT | JT_CROSS | JT_RIGHT | JT_NATURAL)) != 0 ||
+		    item->pUsing != NULL || item->pSelect != NULL)
+			return false;
+	}
+	return true;
 }
 
 int

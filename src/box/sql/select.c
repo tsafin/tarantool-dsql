@@ -7398,15 +7398,8 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			v->planner_join_output_logest =
 				sqlWhereOutputRowCount(pWInfo);
 			v->planner_join_output_valid = true;
-			bool flat_inner = pTabList->nSrc <= SQL_JOIN_PREFIX_MAX;
-			for (int i = 0; flat_inner && i < pTabList->nSrc; i++) {
-				struct SrcList_item *item = &pTabList->a[i];
-				if ((item->fg.jointype & (JT_LEFT | JT_CROSS |
-						      JT_RIGHT | JT_NATURAL)) != 0 ||
-				    item->pUsing != NULL || item->pSelect != NULL)
-					flat_inner = false;
-			}
-			if (flat_inner)
+			if (pTabList->nSrc <= SQL_JOIN_PREFIX_MAX &&
+			    sqlWhereIsTopLevelFlatInnerJoin(pWInfo))
 				v->planner_join_prefix_count =
 					sqlWhereSelectedPrefixEstimates(
 						pWInfo, v->planner_join_prefix_masks,

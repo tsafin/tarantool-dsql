@@ -88,3 +88,32 @@ g.test_relation_limit_falls_back_to_beam = function()
     t.assert_equals(result.rows, {{1}})
     t.assert_gt(result.truncated, 0)
 end
+
+g.test_nested_select_keeps_bounded_solver = function()
+    local result = g.server:exec(function()
+        box.execute('SET SESSION "sql_seq_scan" = true')
+        for _, name in ipairs({'dpn_a', 'dpn_b', 'dpn_c'}) do
+            box.execute(('CREATE TABLE %s (id INTEGER PRIMARY KEY, k INTEGER)'):
+                        format(name))
+            box.execute(('INSERT INTO %s VALUES (1, 1), (2, 2)'):
+                        format(name))
+            box.execute(('CREATE INDEX %s_k ON %s(k)'):format(name, name))
+        end
+        local sql = [[SELECT (SELECT COUNT(*) FROM dpn_a AS a
+            JOIN dpn_b AS b ON a.k = b.k
+            JOIN dpn_c AS c ON b.k = c.k)]]
+        local before = box.stat.sql()
+        local rows = box.execute(sql).rows
+        local after = box.stat.sql()
+        for _, name in ipairs({'dpn_c', 'dpn_b', 'dpn_a'}) do
+            box.execute('DROP TABLE ' .. name)
+        end
+        return {
+            rows = rows,
+            truncated = after.sql_planner_paths_truncated_total -
+                before.sql_planner_paths_truncated_total,
+        }
+    end)
+    t.assert_equals(result.rows, {{2}})
+    t.assert_gt(result.truncated, 0)
+end
