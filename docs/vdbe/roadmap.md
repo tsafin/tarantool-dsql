@@ -3572,9 +3572,10 @@ from a separate subset query. New executor instrumentation shows the selected
 prefix actually emits 24 rows (q-error 1.83), followed by 72 final rows versus
 160 estimated (q-error 2.22). The earlier 2252-row number measured different
 relational work and is retained only as archived diagnostic evidence. The
-latest full smoke run is not decision-grade because its embedded revision is
-stale; a matching-source rerun remains required. Details:
-`test/sql-baselines/E1_WORKLOAD.md`.
+matching-source rerun at commit `4c0873497f` has decision-grade provenance and
+result parity across default, wider, and exact configurations on both engines.
+It validates the measurement plumbing, not workload representativeness or E1
+acceptance. Details: `test/sql-baselines/E1_WORKLOAD.md`.
 
 The independent memtx/Vinyl access-cost probe found a same-shaped one-sided
 range whose secondary path wins for 16 rows but loses for 2048 rows on
