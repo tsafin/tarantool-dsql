@@ -124,6 +124,10 @@ enum {
 	BOX_FUNC_INDEX_ID = 372,
 	/** Space id of _session_settings. */
 	BOX_SESSION_SETTINGS_ID = 380,
+	/** Space id of _sql_stats_relation. */
+	BOX_SQL_STATS_RELATION_ID = 382,
+	/** Space id of _sql_stats_index. */
+	BOX_SQL_STATS_INDEX_ID = 383,
 	/** End of the reserved range of system spaces. */
 	BOX_SYSTEM_ID_MAX = 511,
 	BOX_ID_NIL = 2147483647
