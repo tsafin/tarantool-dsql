@@ -25,10 +25,18 @@ WIDTH_KEYS = ("SQL_PATH_SOLVER_WIDTH_ONE", "SQL_PATH_SOLVER_WIDTH_TWO",
               "SQL_PATH_SOLVER_WIDTH_MANY")
 CONFIGS = {"default": (1, 5, 10), "candidate": (2, 8, 16)}
 ORACLE_CONFIG = "exact-oracle"
-ORACLE_QUERIES = {"two-hot", "two-rare", "three-filtered",
-                  "three-range-equality", "four-selective", "three-empty"}
-QUERIES = {"two-hot", "two-rare", "three-filtered", "three-range-equality",
-           "four-selective", "three-empty", "left-join"}
+QUERY_GRAPH = {
+    "two-hot": "edge-skew", "two-rare": "edge-tail",
+    "three-filtered": "chain", "three-range-equality": "chain-range",
+    "four-selective": "sparse-chain", "four-star": "sparse-star",
+    "four-dense-cycle": "dense-cycle", "four-reverse-order": "order-sensitive-chain",
+    "three-cross-constrained": "cross-constrained",
+    "three-empty": "empty-chain", "left-join": "outer-join",
+}
+QUERIES = set(QUERY_GRAPH)
+ORACLE_QUERIES = QUERIES - {"left-join", "three-cross-constrained"}
+PLANNER_METRICS = ("generated", "dominated", "truncated", "retained",
+                   "planner_elapsed_us", "peak_frontier", "peak_solver_bytes")
 
 
 def sha256(path):
@@ -48,12 +56,26 @@ def summary(values):
             "p95": percentile(values, 0.95), "p99": percentile(values, 0.99)}
 
 
+def planner_summary(row):
+    samples = row["planner_metric_samples"][1:]
+    return {
+        "where_planning_us": summary([sample["planner_elapsed_us"]
+                                      for sample in samples]),
+        "paths_generated": samples[0]["generated"],
+        "paths_dominated": samples[0]["dominated"],
+        "paths_truncated": samples[0]["truncated"],
+        "paths_retained": samples[0]["retained"],
+        "peak_frontier": samples[0]["peak_frontier"],
+        "peak_solver_bytes": samples[0]["peak_solver_bytes"],
+    }
+
+
 def validate_and_report(records, engines, include_oracle=False):
     """Reject changed results/provenance and summarize only measured rounds."""
     groups = defaultdict(dict)
     immutable = None
     for row in records:
-        if row.get("schema_version") != 1 or row.get("workload_id") != "bounded-dp-joins-v1":
+        if row.get("schema_version") != 1 or row.get("workload_id") != "bounded-dp-joins-v2":
             raise ValueError("invalid JOIN workload schema")
         engine, config, query = (row.get("engine"), row.get("configuration"),
                                  row.get("query_id"))
@@ -75,6 +97,28 @@ def validate_and_report(records, engines, include_oracle=False):
         for name in ("elapsed_us", "prepare_us", "actual_rows"):
             if type(row.get(name)) is not int or row[name] < (0 if name == "actual_rows" else 1):
                 raise ValueError("invalid " + name)
+        prepare_samples = row.get("prepare_samples_us")
+        if not isinstance(prepare_samples, list) or len(prepare_samples) != 8 or \
+                any(type(value) is not int or value < 1 for value in prepare_samples) or \
+                prepare_samples[0] != row["prepare_us"]:
+            raise ValueError("invalid repeated preparation samples")
+        planner_samples = row.get("planner_metric_samples")
+        if not isinstance(planner_samples, list) or len(planner_samples) != 8 or \
+                any(not isinstance(sample, dict) or set(sample) != set(PLANNER_METRICS) or
+                    any(type(sample[name]) is not int or sample[name] < 0
+                        for name in PLANNER_METRICS) or
+                    sample["generated"] == 0 or sample["peak_frontier"] == 0 or
+                    sample["peak_solver_bytes"] == 0
+                    for sample in planner_samples):
+            raise ValueError("invalid planner metric samples")
+        stable_metrics = set(PLANNER_METRICS) - {"planner_elapsed_us"}
+        if any(any(sample[name] != planner_samples[0][name]
+                   for name in stable_metrics) for sample in planner_samples[1:]):
+            raise ValueError("unstable planner path metrics")
+        if config == ORACLE_CONFIG and any(sample["dominated"] != 0 or
+                                           sample["truncated"] != 0
+                                           for sample in planner_samples):
+            raise ValueError("exact oracle pruned a path")
         if type(row.get("estimated_rows")) is not int or row["estimated_rows"] < 0:
             raise ValueError("invalid selected JOIN estimate")
         if row.get("cardinalities") != [{"stage_id": "join-output",
@@ -102,7 +146,7 @@ def validate_and_report(records, engines, include_oracle=False):
                      for engine in engines for query in ORACLE_QUERIES}
     if set(groups) != expected:
         raise ValueError("missing JOIN workload group")
-    report = {"schema_version": 1, "workload_id": "bounded-dp-joins-v1",
+    report = {"schema_version": 1, "workload_id": "bounded-dp-joins-v2",
               "provenance": dict(zip(("source_commit", "binary_sha256", "data_sha256",
                                       "statistics_id", "dispatcher"), immutable)),
               "configurations": {**{key: list(value) for key, value in CONFIGS.items()},
@@ -113,7 +157,8 @@ def validate_and_report(records, engines, include_oracle=False):
               "engines": {}, "limitations": [
                   "JOIN q-error compares selected WHERE-path output estimate with rows from plain, ungrouped, unlimited SELECTs only",
                   "intermediate JOIN-prefix actual cardinalities are not instrumented",
-                  "prepare_us includes parse/compile but is captured once per query, not a planning-time distribution",
+                  "prepare_samples_us measures parse/compile, not path-solver time alone; first sample is cold, seven later samples are repeated after execution",
+                  "planner_metric_samples measures WHERE planning on separate compilations; solver bytes exclude other planner allocations",
                   "this small synthetic workload is not a production latency acceptance gate",
               ]}
     for engine in engines:
@@ -135,6 +180,12 @@ def validate_and_report(records, engines, include_oracle=False):
                     raise ValueError("unstable EXPLAIN plan across repetitions")
                 if len({row["estimated_rows"] for row in config_rows.values()}) != 1:
                     raise ValueError("unstable selected JOIN output estimate")
+                if len({tuple(row["prepare_samples_us"])
+                        for row in config_rows.values()}) != 1:
+                    raise ValueError("unstable repeated preparation samples")
+                if len({json.dumps(row["planner_metric_samples"], sort_keys=True)
+                        for row in config_rows.values()}) != 1:
+                    raise ValueError("unstable planner metric samples")
             measured = range(3, 8)
             base_times = [base[i]["elapsed_us"] for i in measured]
             cand_times = [cand[i]["elapsed_us"] for i in measured]
@@ -144,6 +195,7 @@ def validate_and_report(records, engines, include_oracle=False):
             aggregate_candidate.extend(cand_times)
             aggregate_ratios.extend(ratios)
             per_query[query] = {
+                "graph_class": QUERY_GRAPH[query],
                 "actual_rows": base[3]["actual_rows"],
                 "default_estimated_rows": base[3]["estimated_rows"],
                 "candidate_estimated_rows": cand[3]["estimated_rows"],
@@ -157,6 +209,13 @@ def validate_and_report(records, engines, include_oracle=False):
                 "candidate_over_default_ratio": summary(ratios),
                 "default_prepare_us": base[3]["prepare_us"],
                 "candidate_prepare_us": cand[3]["prepare_us"],
+                "default_repeated_prepare_us": summary(base[3]["prepare_samples_us"][1:]),
+                "candidate_repeated_prepare_us": summary(cand[3]["prepare_samples_us"][1:]),
+                "candidate_over_default_prepare_ratio": summary([
+                    c / b for b, c in zip(base[3]["prepare_samples_us"][1:],
+                                         cand[3]["prepare_samples_us"][1:])]),
+                "default_planner": planner_summary(base[3]),
+                "candidate_planner": planner_summary(cand[3]),
                 "default_plan_sha256": base[3]["plan_sha256"],
                 "candidate_plan_sha256": cand[3]["plan_sha256"],
                 "plan_changed": base[3]["plan_sha256"] != cand[3]["plan_sha256"],
@@ -171,7 +230,11 @@ def validate_and_report(records, engines, include_oracle=False):
                              base[3]["result_sha256"])}) != 1:
                     raise ValueError("oracle JOIN result changed")
                 if len({row["estimated_rows"] for row in oracle.values()}) != 1 or \
-                        len({row["plan_sha256"] for row in oracle.values()}) != 1:
+                        len({row["plan_sha256"] for row in oracle.values()}) != 1 or \
+                        len({tuple(row["prepare_samples_us"])
+                             for row in oracle.values()}) != 1 or \
+                        len({json.dumps(row["planner_metric_samples"], sort_keys=True)
+                             for row in oracle.values()}) != 1:
                     raise ValueError("unstable oracle estimate or plan")
                 oracle_times = [oracle[i]["elapsed_us"] for i in measured]
                 per_query[query]["exact_oracle"] = {
@@ -183,6 +246,12 @@ def validate_and_report(records, engines, include_oracle=False):
                         [oracle[i]["elapsed_us"] / base[i]["elapsed_us"]
                          for i in measured]),
                     "prepare_us": oracle[3]["prepare_us"],
+                    "repeated_prepare_us": summary(
+                        oracle[3]["prepare_samples_us"][1:]),
+                    "over_default_prepare_ratio": summary([
+                        o / b for b, o in zip(base[3]["prepare_samples_us"][1:],
+                                             oracle[3]["prepare_samples_us"][1:])]),
+                    "planner": planner_summary(oracle[3]),
                     "plan_sha256": oracle[3]["plan_sha256"],
                     "plan_changed_from_default":
                         oracle[3]["plan_sha256"] != base[3]["plan_sha256"],

@@ -14,7 +14,7 @@ def observations():
             for query in join.QUERIES:
                 for repeat in range(8):
                     rows.append({
-                        "schema_version": 1, "workload_id": "bounded-dp-joins-v1",
+                        "schema_version": 1, "workload_id": "bounded-dp-joins-v2",
                         "engine": engine, "configuration": config,
                         "query_id": query, "sql": "SELECT 1", "repeat": repeat,
                         "warmup": repeat < 3, "widths": list(widths),
@@ -25,6 +25,13 @@ def observations():
                         "result_sha256": "d" * 64, "plan_sha256": "e" * 64,
                         "elapsed_us": 10 if config == "default" else 20,
                         "prepare_us": 5, "estimated_rows": 2,
+                        "prepare_samples_us": [5] + [6] * 7,
+                        "planner_metric_samples": [
+                            {"generated": 4, "dominated": 0,
+                             "truncated": 0, "retained": 4,
+                             "planner_elapsed_us": 2,
+                             "peak_frontier": 2, "peak_solver_bytes": 512}
+                            for _ in range(8)],
                         "cardinalities": [{"stage_id": "join-output",
                                            "estimated_rows": 2,
                                            "actual_rows": 1}],
@@ -42,6 +49,11 @@ class JoinRunnerTest(unittest.TestCase):
                          ["default_elapsed_us"]["n"], len(join.QUERIES) * 5)
         self.assertFalse(item["plan_changed"])
         self.assertEqual(item["default_q_error"], 2)
+        self.assertEqual(item["graph_class"], "edge-skew")
+        self.assertEqual(item["default_repeated_prepare_us"]["n"], 7)
+        self.assertEqual(item["candidate_over_default_prepare_ratio"]["median"], 1)
+        self.assertEqual(item["default_planner"]["paths_generated"], 4)
+        self.assertEqual(item["default_planner"]["where_planning_us"]["n"], 7)
 
     def test_result_drift_rejected(self):
         rows = observations()
@@ -76,7 +88,34 @@ class JoinRunnerTest(unittest.TestCase):
         report = join.validate_and_report(rows, ("memtx", "vinyl"))
         self.assertEqual(report["engines"]["memtx"]["plan_changes"], 1)
 
+    def test_repeated_prepare_contract(self):
+        rows = observations()
+        rows[-1]["prepare_samples_us"] = [5]
+        with self.assertRaisesRegex(ValueError, "repeated preparation"):
+            join.validate_and_report(rows, ("memtx", "vinyl"))
+        rows = observations()
+        rows[-1]["prepare_samples_us"][0] = 9
+        with self.assertRaisesRegex(ValueError, "repeated preparation"):
+            join.validate_and_report(rows, ("memtx", "vinyl"))
+        rows = observations()
+        rows[-1]["prepare_samples_us"] = [5] + [9] * 7
+        with self.assertRaisesRegex(ValueError, "unstable repeated preparation"):
+            join.validate_and_report(rows, ("memtx", "vinyl"))
+
+    def test_planner_metric_contract(self):
+        rows = observations()
+        rows[-1]["planner_metric_samples"] = []
+        with self.assertRaisesRegex(ValueError, "invalid planner metric"):
+            join.validate_and_report(rows, ("memtx", "vinyl"))
+        rows = observations()
+        rows[-1]["planner_metric_samples"][1]["generated"] = 5
+        with self.assertRaisesRegex(ValueError, "unstable planner path"):
+            join.validate_and_report(rows, ("memtx", "vinyl"))
+
     def test_exact_oracle_eligibility_and_parity(self):
+        self.assertIn("four-dense-cycle", join.ORACLE_QUERIES)
+        self.assertNotIn("three-cross-constrained", join.ORACLE_QUERIES)
+        self.assertNotIn("left-join", join.ORACLE_QUERIES)
         rows = observations()
         oracle = []
         for row in rows:
@@ -91,6 +130,9 @@ class JoinRunnerTest(unittest.TestCase):
         self.assertIn("oracle_estimate_quality", report)
         self.assertNotIn("exact_oracle",
                          report["engines"]["memtx"]["queries"]["left-join"])
+        self.assertNotIn("exact_oracle",
+                         report["engines"]["memtx"]["queries"]
+                         ["three-cross-constrained"])
         drift = copy.deepcopy(oracle)
         drift[-1]["actual_rows"] = 3
         drift[-1]["cardinalities"][0]["actual_rows"] = 3

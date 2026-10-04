@@ -91,12 +91,15 @@ planner-time increase require review before collecting decision-grade results.
 `e1_join_run.py` drives `e1_join_workload.lua` in a fresh Tarantool process for
 each engine and solver-width triple. It compares the current `(1,5,10)` widths
 with `(2,8,16)` on the same deterministic, volatile-ANALYZE fixture. The
-workload executes seven SELECTs: hot and rare two-way equijoins, filtered and
-range/equality three-way joins, a selective four-way join, an empty three-way
-join, and a LEFT JOIN. The fixture asserts expected output row counts. Each
-query is prepared once, warmed up three times, then executed five measured
-times; query order alternates within each process. Memtx and Vinyl reverse
-configuration process order. All timing runs are serial, not concurrent.
+workload executes eleven SELECTs: hot and rare two-way equijoins, filtered and
+range/equality three-way joins, four-way sparse chain and star joins, a dense
+cyclic join, a reversed `ORDER BY` on the four-way chain, a CROSS-constrained
+three-way join, an empty three-way join, and a LEFT JOIN. The fixture asserts
+expected output row counts. Each query is prepared once, warmed up three
+times, then executed five measured times; query order alternates within each
+process. Seven fresh preparations after the execution rounds give a repeated
+parse/compile sample without contaminating execution timings. Memtx and Vinyl
+reverse configuration process order. All timing runs are serial, not concurrent.
 
 ```sh
 python3 -B test/sql-baselines/test_e1_join_run.py
@@ -117,13 +120,23 @@ and sets `decision_grade_provenance=false`. The output contains one JSONL per
 engine/configuration and `report.json` with per-query latency distributions,
 paired ratios, prepare-time observations, plan fingerprints, selected WHERE-path
 output estimates, actual row counts, stage-matched q-error, and result
-fingerprints. It rejects changed results, repetition gaps, mixed
+fingerprints, plus seven repeated preparation and WHERE-planning observations.
+It rejects changed results, repetition gaps, mixed
 statistics/fixture/binary provenance, and plan instability within a run. The
 fixture code SHA-256 is the data generator/DDL revision identifier; the
 statistics ID identifies volatile ANALYZE of that same fixture. Timing includes
 result materialization, excludes preparation and warmup. The one-off
-`prepare_us` values include parsing and compilation and are **not** a planner-
-time distribution.
+`prepare_us` is the initial cold preparation. `prepare_samples_us` contains it
+followed by seven repeated parse/compile observations; these are **not** isolated
+path-solver timings. Per-query `default_repeated_prepare_us`,
+`candidate_repeated_prepare_us`, and `exact_oracle.repeated_prepare_us` summarize
+only the seven fresh samples. Position-matched preparation ratios are reported
+as exploratory observations, not a randomized causal estimate.
+`planner_metric_samples` come from eight separate compilations via the
+TEST_BUILD adapter. The report includes seven-sample WHERE-planning times,
+generated/dominated/truncated/retained path counts, peak retained frontier,
+and peak solver-buffer bytes. These bytes exclude candidate loops, SQL AST,
+and other planner memory; the WHERE timer excludes the rest of SQL preparation.
 
 EXPLAIN QUERY PLAN exposes per-loop estimates, not a semantically matched
 estimate for each JOIN output. The TEST_BUILD adapter instead compiles the
@@ -141,8 +154,9 @@ estimates and actuals remain uninstrumented.
 The optional `exact-oracle` process enables
 `SQL_PATH_SOLVER_ORACLE_MAX_RELATIONS=4`; all baseline/candidate processes
 explicitly clear that override. Oracle observations include only eligible
-INNER JOINs; LEFT JOIN is excluded because `where.c` uses its bounded solver
-for that shape. The reporter verifies oracle output and statistics provenance
+INNER JOINs; LEFT and CROSS JOINs are excluded because the oracle deliberately
+does not override their constrained join-order legality. The reporter verifies
+oracle output and statistics provenance
 against the same query under the default beam, and records plan fingerprints,
 final-output q-error, prepare observations, and execution latency under
 `exact_oracle` / `oracle_estimate_quality`. This comparison is exact only in
@@ -182,8 +196,9 @@ cross-engine runtime gain nor reliable JOIN cardinality; it has no reviewed
 latency/q-error thresholds or representative corpus. The next gate requires a
 broader graph/ORDER BY/skew workload, repeated preparation measurements,
 JOIN-prefix actual/estimate instrumentation, and a calibrated cost-model A/B.
-Matched provenance is necessary but does not make this synthetic pilot a
-production acceptance test.
+The quoted pilot predates the graph expansion and repeated-preparation
+observations; it covers seven queries only. Matched provenance is necessary
+but does not make this synthetic pilot a production acceptance test.
 
 `e1_sql_producer.py` is a reproducible TEST_BUILD pilot of volatile
 `ANALYZE table`, not the reviewed M0 analytical corpus. It writes a second,

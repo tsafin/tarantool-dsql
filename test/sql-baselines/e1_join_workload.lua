@@ -84,6 +84,27 @@ local queries = {
         JOIN e1_c c ON b.k = c.k JOIN e1_d d ON c.k = d.k
         WHERE a.k = 19 AND d.flag = 4
         ORDER BY a.id, b.id, c.id, d.id]]},
+    {id = 'four-star', sql = [[SELECT a.id, b.id, c.id, d.id
+        FROM e1_a a JOIN e1_b b ON a.k = b.k
+        JOIN e1_c c ON a.k = c.k JOIN e1_d d ON a.k = d.k
+        WHERE a.k = 19 AND c.band = 3
+        ORDER BY a.id, b.id, c.id, d.id]]},
+    {id = 'four-dense-cycle', sql = [[SELECT a.id, b.id, c.id, d.id
+        FROM e1_a a JOIN e1_b b ON a.k = b.k
+        JOIN e1_c c ON b.k = c.k JOIN e1_d d ON c.k = d.k
+        WHERE d.k = a.k AND a.id < 60 AND a.k = 19
+          AND b.flag = 2 AND d.flag = 4
+        ORDER BY a.id, b.id, c.id, d.id]]},
+    {id = 'four-reverse-order', sql = [[SELECT a.id, b.id, c.id, d.id
+        FROM e1_a a JOIN e1_b b ON a.k = b.k
+        JOIN e1_c c ON b.k = c.k JOIN e1_d d ON c.k = d.k
+        WHERE a.k = 19 AND d.flag = 4
+        ORDER BY d.id, c.id, b.id, a.id]]},
+    {id = 'three-cross-constrained', sql = [[SELECT a.id, b.id, c.id
+        FROM e1_a a CROSS JOIN e1_b b
+        JOIN e1_c c ON b.k = c.k
+        WHERE a.k = b.k AND a.k = 19 AND c.band = 3
+        ORDER BY a.id, b.id, c.id]]},
     {id = 'three-empty', sql = [[SELECT a.id, b.id, c.id FROM e1_a a
         JOIN e1_b b ON a.k = b.k JOIN e1_c c ON b.k = c.k
         WHERE a.k = 999 ORDER BY a.id, b.id, c.id]]},
@@ -95,6 +116,8 @@ local expected_rows = {
     ['two-hot'] = 1820, ['two-rare'] = 12,
     ['three-filtered'] = 340, ['three-range-equality'] = 182,
     ['four-selective'] = 72,
+    ['four-star'] = 72, ['four-dense-cycle'] = 24,
+    ['four-reverse-order'] = 72, ['three-cross-constrained'] = 36,
     ['three-empty'] = 0, ['left-join'] = 3,
 }
 
@@ -102,17 +125,22 @@ local function hex_sha(value)
     return string.hex(digest.sha256(value))
 end
 
-local file = assert(io.open(output, 'w'))
 local prepared = {}
+local observations = {}
 for _, query in ipairs(queries) do
-    if config ~= 'exact-oracle' or query.id ~= 'left-join' then
+    if config ~= 'exact-oracle' or
+            (query.id ~= 'left-join' and query.id ~= 'three-cross-constrained') then
         local started = clock.monotonic()
         local stmt = assert(box.prepare(query.sql))
         local prepare_us = math.max(1, math.floor((clock.monotonic() - started) * 1e6))
         local estimated_rows = assert(stats_test.join_output_estimate(query.sql),
                                       'missing selected JOIN output estimate: ' .. query.id)
         local plan = assert(box.execute('EXPLAIN QUERY PLAN ' .. query.sql)).rows
+        local planner_metrics = assert(stats_test.join_planner_metrics(query.sql),
+                                       'missing JOIN planner metrics: ' .. query.id)
         prepared[query.id] = {stmt = stmt, prepare_us = prepare_us,
+                              prepare_samples_us = {prepare_us},
+                              planner_metric_samples = {planner_metrics},
                               estimated_rows = estimated_rows,
                               plan_sha256 = hex_sha(json.encode(plan)), plan = plan}
     end
@@ -133,7 +161,7 @@ for round = 0, 7 do
                'JOIN output cardinality changed: ' .. query.id)
         local elapsed_us = math.max(1, math.floor((clock.monotonic() - started) * 1e6))
         local row = {
-            schema_version = 1, workload_id = 'bounded-dp-joins-v1',
+            schema_version = 1, workload_id = 'bounded-dp-joins-v2',
             query_id = query.id, sql = query.sql,
             engine = engine, dispatcher = provenance.dispatcher,
             configuration = config, source_commit = provenance.source_commit,
@@ -151,12 +179,38 @@ for round = 0, 7 do
                               actual_rows = #result.rows}},
             result_sha256 = hex_sha(json.encode(result.rows)),
         }
-        file:write(json.encode(row), '\n')
+        table.insert(observations, row)
         end
     end
 end
-file:close()
 for _, info in pairs(prepared) do
     box.unprepare(info.stmt.stmt_id)
 end
+-- Preparation is measured separately after execution. It must not perturb the
+-- execution timing rounds. The first sample above includes cold preparation;
+-- seven fresh prepares here expose the compile-time distribution and possible
+-- cache effects without claiming to isolate the path solver itself.
+for _, query in ipairs(queries) do
+    local info = prepared[query.id]
+    if info ~= nil then
+        for _ = 1, 7 do
+            local started = clock.monotonic()
+            local stmt = assert(box.prepare(query.sql))
+            table.insert(info.prepare_samples_us,
+                         math.max(1, math.floor((clock.monotonic() - started) * 1e6)))
+            box.unprepare(stmt.stmt_id)
+        end
+        for _ = 1, 7 do
+            table.insert(info.planner_metric_samples,
+                         assert(stats_test.join_planner_metrics(query.sql)))
+        end
+    end
+end
+local file = assert(io.open(output, 'w'))
+for _, row in ipairs(observations) do
+    row.prepare_samples_us = prepared[row.query_id].prepare_samples_us
+    row.planner_metric_samples = prepared[row.query_id].planner_metric_samples
+    file:write(json.encode(row), '\n')
+end
+file:close()
 os.exit(0)
