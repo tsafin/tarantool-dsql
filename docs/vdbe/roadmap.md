@@ -542,10 +542,10 @@ and legacy index cardinality estimates consume it when present, falling back
 on missing/stale data; `whereRangeScanEst()` still uses its heuristic
 reduction over the adapted base estimate. Persistent collection,
 prepared-statement snapshot ownership, ANALYZE, and complete adapter
-validation remain open. The system-space schema remains DRAFT pending human
-review of IDs and formats. On 2026-09-27 the user reconfirmed that the schema
-stays DRAFT and that work should continue on independent tracks; no ID or
-format approval is implied.
+validation remain open. On 2026-10-05 the persistence schema was approved:
+v1 reserves IDs 382/383 for relation/index statistics and fixes positional
+tuples, UUID generations, and transactional same-generation publication.
+Bootstrap, upgrade, writer/reader, and recovery implementation remain open.
 
 **Exit criteria:**
 
@@ -557,12 +557,11 @@ format approval is implied.
 
 **Subtasks:**
 
-- [ ] **S1.1** Define new system spaces (`_sql_stats_relation`,
-  `_sql_stats_index`) with versioned MsgPack payload format. Write a
-  short `docs/vdbe/sql_stats_schema.md`. The spec remains **DRAFT** by explicit
-  direction; no system-space IDs or payload-format choices are approved.
-  *parallel: no* (system-space allocation is a one-way door — needs human
-  sign-off).
+- [ ] **S1.1** Implement the approved v1 system spaces
+  (`_sql_stats_relation` ID 382 and `_sql_stats_index` ID 383), their
+  positional tuple layouts, versioned MsgPack payloads, and bootstrap/upgrade
+  registration described in `sql_stats_schema.md`. *parallel: no* (system
+  space allocation and bootstrap ordering share one compatibility surface).
 - [x] **S1.2** Re-enable `ANALYZE` grammar and execute the volatile collection
   path without persistence. Remove the `unsupported ANALYZE` rejection only
   after S1.3a defines complete candidate-snapshot publication semantics.

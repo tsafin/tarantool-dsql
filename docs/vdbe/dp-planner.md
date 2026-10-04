@@ -454,8 +454,9 @@ leading-part literal-range histograms. These
 inputs can change a WhereLoop's `nOut` and `rRun`, and the resulting DP join
 order, on either engine. Missing or stale statistics revert to defaults.
 This is a working statistics-aware *relative* cost model, not a measured
-execution-time predictor. Persistence remains behind the separate S1 schema
-approval gate.
+execution-time predictor. Persistence is governed by the approved separate S1
+v1 schema; its bootstrap, recovery, and loader/writer implementation remains
+open.
 
 | Surface | Implemented now | Missing for engine-aware costing |
 | --- | --- | --- |
@@ -572,8 +573,8 @@ thresholds and the reviewed workload still require a recorded decision.
 The workload/instrumentation, cost-calibration, and selectivity/legality tracks
 can proceed in separate worktrees. Their interfaces meet at a reviewed paired
 evaluation; the oracle already reuses current costs but cannot validate a new
-cost formula by itself. No track requires approving the draft persistence
-format: experiments can use statement-pinned volatile statistics.
+cost formula by itself. Experiments can continue to use statement-pinned
+volatile statistics while the approved persistence format is implemented.
 
 ```mermaid
 flowchart LR
