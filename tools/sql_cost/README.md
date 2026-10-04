@@ -129,3 +129,34 @@ parameterized broad and narrow ranges shared coarse selectivity assumptions.
 That experimental code was **not retained**. Next, derive range selectivity
 from statistics/bounds and validate engine-specific path prices against a
 reviewed JOIN workload; a single global multiplier cannot fix this evidence.
+
+## Empirical common-unit fit (experimental)
+
+`calibrate_access_cost.py` fits a tiny engine-specific model in measured
+microseconds per prepared, materialized SQL operation. For this fixed 4096-row
+fixture, it uses
+`primary_scan_base + primary_output_rate × (output_rows - 16)` and
+`secondary_startup + secondary_output_rate × (output_rows - 16)`.
+`primary_filtered`/`primary_scan` and
+`secondary_payload`/`secondary_broad` determine the two coefficients per
+engine. It checks manifest/binary/benchmark hashes before evaluating the
+fitted model on *different storage states*:
+
+```sh
+python3 -B tools/sql_cost/test_calibrate_access_cost.py
+python3 -B tools/sql_cost/calibrate_access_cost.py \
+  --train /tmp/sql-cost-final-memory-1a3b839c72 \
+  --validate /tmp/sql-cost-final-dumped-1a3b839c72 \
+  --validate /tmp/sql-cost-final-multirun-1a3b839c72
+```
+
+The memory-state fit estimates per-returned-row secondary work at roughly
+0.67 µs on memtx versus 8.92 µs on Vinyl. It predicts all six equivalent-path
+rankings in each held-out dumped and two-run state, including that Vinyl's
+broad secondary path loses to the primary scan. This is a fixture-local
+validation, **not** an accepted optimizer cost function: broad secondary
+timing was used in fitting, so output-cardinality generalization is untested;
+OS cache is uncontrolled, the work is not a JOIN inner-loop operator, and
+`WhereLoop` still lacks reliable bound-specific range cardinalities. The
+next A/B must validate new fixture sizes, JOIN order and runtime on the same
+binary/statistics before any coefficient is translated to `LogEst`.
