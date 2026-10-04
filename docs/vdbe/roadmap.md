@@ -3535,8 +3535,12 @@ S2 and an accepted evaluation workload with plan-quality and end-to-end latency
 data. A standalone `test/sql-baselines/e1_measure.py` consumer and
 `E1_WORKLOAD.md` contract now define stage-matched estimate/actual JSONL and
 end-to-end execution timing, including zero-cardinality and provenance rules.
-Its six unit tests pass; no integrated M3/S2 producer currently supplies these
-observations, and the contract intentionally selects no acceptance thresholds.
+The analyzer's focused tests pass. An eleven-query same-binary pilot now
+supplies stage-matched final-output estimates and actual rows for eligible
+ungrouped, unlimited top-level SELECTs, plus diagnostic logical-prefix counts;
+it does not supply executor-observed intermediate JOIN cardinalities or an
+accepted integrated M3/S2 evaluation. The contract intentionally selects no
+acceptance thresholds.
 
 **Working DP cost-model checkpoint (2026-10-03).** The production bounded DP
 in `wherePathSolver()` already prices WhereLoop candidates from relation rows,
@@ -3554,6 +3558,30 @@ passes in the Debug TEST_BUILD. This proves a working statistics-aware cost
 model inside the current bounded DP, not calibrated join-correlation or range
 selectivity, an integrated M3 physical-plan DP, corpus plan-quality gain, or
 E1 acceptance. The 1/5/10 defaults remain unchanged (`b0fcce7daa`).
+
+**E1 evaluation checkpoint (2026-10-04).** The matching-source eleven-query
+graph pilot compares default `(1,5,10)`, experimental `(2,8,16)`, and an
+opt-in exact oracle for eligible flat 2–4-way INNER joins, with five measured
+executions and seven repeated WHERE-planning samples per query/configuration.
+Results match on memtx and Vinyl. Wider search changes two four-way plans,
+but its execution effects oppose across engines; the exact oracle's peak
+retained frontier reaches 1260 paths versus 10 under the default beam for
+`four-selective`, without a consistent runtime win. A selected three-relation
+prefix in that query has 44 estimated versus 2252 rows counted by a separate
+equivalent subset query, while final output has 160 estimated versus 72 actual
+rows. The prefix comparison is **not** executor-stage matched. The pilot's
+matching binary/source provenance makes it reproducible, not representative
+or sufficient for E1 acceptance. Details: `test/sql-baselines/E1_WORKLOAD.md`.
+
+The independent memtx/Vinyl access-cost probe found a same-shaped one-sided
+range whose secondary path wins for 16 rows but loses for 2048 rows on
+two-run Vinyl; the unforced planner chooses secondary for both and assigns
+the same ~262144-row estimate. A local uniform Vinyl range penalty did not
+fix this and was removed. Experimental per-engine microsecond models recover
+8/8 equivalent-path rankings in held-out storage states and in a held-out
+8192-row fixture after fitting on 2048/4096 rows. They are **not** wired into
+production LogEst costs or validated for JOIN-level selection. Details:
+`tools/sql_cost/README.md`. Production defaults and GATE status are unchanged.
 
 **Exit criteria:**
 
@@ -3597,9 +3625,12 @@ following in a reviewed decision report:
 - evaluate the integrated M3/S2 path on an agreed analytical workload, with
   executed-result correctness and a reviewed plan-quality measure (for
   example, cardinality q-error against actual rows), not EXPLAIN shape alone;
+  the current eleven-query synthetic pilot is a diagnostic precursor, not the
+  agreed workload;
 - measure end-to-end query latency as well as planner cost on that workload,
   with repeated runs and a documented acceptance threshold that justifies any
-  wider-budget cost.
+  wider-budget cost; the pilot supplies both timing distributions, but no
+  reviewed threshold or representative decision sample.
 
 Until those gates pass and are reviewed, do not change the 1/5/10 defaults or
 claim a production plan-quality improvement. The detailed capture, counts,
@@ -3715,7 +3746,10 @@ the raw run remains local at `/tmp/tarantool-e15-full-corpus-monotonic`.
 
 ## GATE — Enumerator Bake-off Decision
 
-**State:** `NOT-STARTED`. Depends on E1.
+**State:** `NOT-STARTED`. Depends on E1. The small-join exact oracle and
+engine-cost probes are exploratory inputs, not a GATE decision; E1 lacks an
+accepted workload, executor-stage JOIN-prefix actuals, calibrated production
+costs, and reviewed latency/quality thresholds.
 
 **Decision input:**
 

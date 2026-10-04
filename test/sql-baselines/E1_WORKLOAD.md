@@ -3,9 +3,11 @@
 This is a measurement contract for the post-integration E1/GATE decision. It
 does not accept a planner, select width defaults, define production thresholds,
 or replace M0 parity. `e1_measure.py` analyzes observations; it does not run SQL
-or manufacture planner estimates. The current planner does not yet expose
-stage-matched actual cardinalities for the integrated M3/S2 path, so a producer
-must wait for those instrumentation interfaces.
+or manufacture planner estimates. The pilot producer can pair the selected
+top-level WHERE output estimate with actual final SELECT rows for eligible
+ungrouped, unlimited SELECTs. It cannot observe actual intermediate JOIN-prefix
+rows in the original executor, and is not an accepted integrated M3/S2
+measurement producer.
 
 ## Workload contract
 
@@ -203,8 +205,8 @@ unbounded q-error.
 enable exact search by default.** This pilot demonstrates neither a stable
 cross-engine runtime gain nor reliable JOIN cardinality; it has no reviewed
 latency/q-error thresholds or representative corpus. The next gate requires a
-broader graph/ORDER BY/skew workload, repeated preparation measurements,
-JOIN-prefix actual/estimate instrumentation, and a calibrated cost-model A/B.
+reviewed representative workload, executor-stage JOIN-prefix actuals, a
+calibrated production cost-model A/B, and agreed latency/q-error limits.
 The quoted pilot predates the graph expansion and repeated-preparation
 observations; it covers seven queries only. Matched provenance is necessary
 but does not make this synthetic pilot a production acceptance test.

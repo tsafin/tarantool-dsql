@@ -495,61 +495,31 @@ validation remains open.
 
 ## Nearest decision-oriented work
 
-The following is a **proposed sequence**, not a claim that E1 or an engine
-cost model is complete. The E1 measurement contract is
+The following separates completed **pilot plumbing** from decision gates; it
+does not claim E1 or an engine cost model is accepted. The E1 measurement
+contract is
 [`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md); acceptance
 thresholds and the reviewed workload still require a recorded decision.
 
-1. **Establish the same-stats baseline.** The synthetic pilot now covers
-   sparse chain/star, cyclic/dense, LEFT/CROSS-constrained, skewed, range, and
-   ORDER BY cases; the reviewed acceptance corpus and thresholds remain open.
-   Extend the workload with larger connected graphs. Capture plan identity,
-   planning time, execution time, generated/dominated/truncated path counts,
-   and stage-matched estimated/actual cardinalities. Compare current 1/5/10
-   widths with the experimental 2/8/16 widths under the *same* statistics
-   generation. Do not treat EXPLAIN drift alone as a quality result.
-2. **Calibrate access costs independently of join enumeration.** Benchmark
-   memtx and Vinyl point, range, full, and secondary-to-primary accesses,
-   repeated nested-loop probes, cache states, and representative Vinyl
-   read-amplification states. Define common abstract units with explicit
-   engine parameters; preserve the old LogEst scores during A/B so no numeric
-   unit is silently mixed. Validate predicted *relative path rankings* and
-   execution-time regressions separately for each engine.
-3. **Audit selectivity and legality.** Wire or explicitly defer histogram
-   ranges and multivariate/join estimates; report q-error, including empty
-   and stale cases. Independently model join graph connectivity, CROSS/LEFT
-   dependencies, and physical-plan properties so an experimental enumerator
-   cannot admit a semantically illegal order.
-4. **Prototype an exact small-join comparator.** For a bounded, supported
-   inner-join subset, retain the existing left-deep/nested-loop physical
-   space and cost inputs while replacing global-beam truncation with an
-   exhaustive per-subset/property memo. Use it as an *oracle for the estimated
-   objective*, not as proof of runtime optimality. Add connected-subgraph
-   pruning where legal; evaluate DPhyp-style hypergraph enumeration only
-   after the legality representation and any desired bushy execution are
-   specified. Record candidate count, peak memory, and planning time.
-5. **Decide the production policy from paired evidence.** Compare beam width,
-   exact small-join search, and a budgeted fallback by graph class and engine.
-   Keep current behavior if lower estimated cost does not improve measured
-   latency or if planning overhead/regressions exceed reviewed limits. A
-   graph-/budget-aware transition is a candidate, not an already selected
-   algorithm. Do not change production widths or claim E1 acceptance before
-   the workload and thresholds are reviewed.
+| Track | Pilot status | Next decision-grade step |
+| --- | --- | --- |
+| Same-stats JOIN workload | Eleven graph/legality/skew/range cases run default/wider/exact with result parity, repeated execution and WHERE-planning distributions, selected final-output q-error, and path/frontier metrics. | Extend to reviewed representative graphs, sizes, and hosts; record thresholds and unacceptable regressions before judging widths. Instrument executor-observed JOIN-prefix actuals so intermediate q-error is truly stage-matched. |
+| Engine access costs | Paired memtx/Vinyl point, full, secondary equality/range, changing-key probes and two Vinyl LSM states; experimental per-engine model predicts 8/8 held-out equivalent rankings, including a held-out size. | Validate cache/read-amplification and selectivity ranges, repeated nested-loop probes, and latency prediction on independent fixtures. Define common units and A/B a production-compatible formula without mixing microseconds into legacy LogEst scores. |
+| Selectivity and legality | Narrow equality MCV and prefix estimates are live; flat INNER exact oracle and CROSS/LEFT exclusions are tested. A logical three-relation prefix has q-error 51.2, versus final-output 2.22. | Improve range and correlated JOIN selectivity, including empty/stale cases; add executor-stage prefix counters. Formalize legality/properties before any broader enumerator. |
+| Exact comparator | Opt-in exhaustive left-deep nested-loop oracle exists for eligible 2–4-relation flat INNER JOINs, bounded by 65,536 paths. Peak retained frontier reached 1260 in the pilot. | Use it as an estimated-objective comparator on larger *supported* cases only after scaling limits are explicit. Connected-subgraph or DPhyp/bushy search needs a separate legality and physical-operator design. |
+| Production policy | Defaults remain `(1,5,10)`; wider `(2,8,16)` and exact search are experimental. | Compare paired runtime, planning cost, cardinality error, and regressions by graph and engine against reviewed limits. Decide whether any budget/graph-aware transition is warranted. |
 
-Tracks 1 (workload/instrumentation) and 2 (engine-cost calibration) can be
-developed independently; the legality audit in 3 can also run in parallel.
-The oracle in 4 needs the legality contract but can initially reuse the
-current costs; recalibration is needed before interpreting engine-level
-quality or changing production policy. The decision in 5 requires all
-measurement tracks. None of these steps requires approving the draft
-persistence format: the experimental comparison can use statement-pinned
-volatile statistics.
+The workload/instrumentation, cost-calibration, and selectivity/legality tracks
+can proceed in separate worktrees. Their interfaces meet at a reviewed paired
+evaluation; the oracle already reuses current costs but cannot validate a new
+cost formula by itself. No track requires approving the draft persistence
+format: experiments can use statement-pinned volatile statistics.
 
 ```mermaid
 flowchart LR
-    A[Same-stats workload and measurements] --> D[Paired decision]
-    B[memtx/Vinyl access-cost calibration] --> D
-    C[Join legality and selectivity audit] --> O[Small-join exact oracle]
-    A --> O
-    O --> D
+    A[Reviewed same-stats workload and executor-stage counts] --> D[Paired policy decision]
+    B[Engine cost validation and production A/B] --> D
+    C[Selectivity and legality contract] --> D
+    O[Existing small-join exact oracle] --> D
+    C --> X[Optional broader enumerator design]
 ```
