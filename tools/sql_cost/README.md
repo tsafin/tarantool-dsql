@@ -237,3 +237,29 @@ not been calibrated for composition across JOIN depths. The next gate is
 better bound-sensitive selectivity followed by repeated inner-loop probes on
 a reviewed JOIN workload. Until that passes, the report must not be read as
 approval of these coefficients or an engine-specific production formula.
+
+## Strict repeat after live histogram and dependent-MCV integration (2026-10-04)
+
+The strict captures at source `1a3cc32690` are
+`/tmp/sql-cost-histogram-1a3cc32690-memory/`,
+`/tmp/sql-cost-histogram-1a3cc32690-dumped/`, and
+`/tmp/sql-cost-histogram-1a3cc32690-multirun/`. They use the matching binary
+hash `c3e87f25f8b29a41b04016a5148f8c384a66803b3b998307d6fdf83f30ceb14b` and
+each validates seven paired repetitions. This re-runs the access probe after
+the planner gained leading-literal histograms and dependency-proven literal
+MCV lookup costing; the probe itself does not run `ANALYZE` and does not
+measure a JOIN operator.
+
+The same qualitative boundary survives: in the two-run Vinyl state, forced
+secondary/primary median ratios are 0.013 for a selective equality, 0.026 for
+a 16-row range, 0.028 for a narrow tail, and **1.65 for the 2048-row broad
+range**. Broad secondary is slower in all seven Vinyl pairs and has median two
+physical runs, three disk pages, and four disk lookups per execution; the
+unforced broad plan nevertheless selects the secondary index with the same
+`~262144` estimate as the narrow tail. The memory-trained fixture model still
+preserves all 8/8 forced-path rankings in both dumped and multi-run held-out
+states, but this does not make it a production formula: its inputs are SQL
+operation timings, not composable `WhereLoop` work, and the production
+estimate cannot distinguish those two bound values. The next implementation
+gate remains bound-sensitive cardinality plus repeated JOIN-inner probes on a
+reviewed workload, before any engine-specific `LogEst` A/B.

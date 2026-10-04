@@ -3653,6 +3653,14 @@ Engine prices alone therefore do not close the bound-selectivity gap. Repeated
 JOIN-inner-loop composition also remains unvalidated, so the candidate is
 **not** wired into production costs or accepted as a formula. Details:
 `tools/sql_cost/README.md`. Production defaults and GATE status are unchanged.
+The strict post-histogram/MCV repeat at `1a3cc32690` covers matching memory,
+dumped, and two-run Vinyl states with seven paired repetitions each. It again
+finds broad secondary slower in all seven two-run Vinyl pairs (median
+secondary/primary 1.65) while the unforced plan still chooses the same
+`~262144`-estimate secondary route as the narrow tail. The fixture-local
+memory fit preserves 8/8 forced-path rankings in dumped and multi-run
+validation, but this reinforces rather than closes the cardinality and
+JOIN-composition gates.
 
 **Exit criteria:**
 
