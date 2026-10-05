@@ -560,7 +560,17 @@ The following separates completed **pilot plumbing** from decision gates; it
 does not claim E1 or an engine cost model is accepted. The E1 measurement
 contract is
 [`E1_WORKLOAD.md`](../../test/sql-baselines/E1_WORKLOAD.md); acceptance
-thresholds and the reviewed workload still require a recorded decision.
+thresholds and the reviewed workload still require a recorded decision. The
+separate four-step diagnostic decision is recorded: retain production widths
+`1/5/10`; wider `2/8/16` and exact search remain experimental/opt-in.
+
+A strict matching-source repeat at `b632e2c3f1` has decision-grade provenance
+for default, wider, and exact-oracle execution. Its 26 finite selected-prefix
+q-errors have median 2.0 and maximum 7.33; three stages are explicitly
+unbounded on each engine. That is a current-source confirmation of the limited
+policy, not E1 acceptance: the fixture is synthetic and the reviewed workload,
+thresholds, engine/graph latency evidence, and integrated M3/S2 path remain
+open.
 
 | Track | Pilot status | Next decision-grade step |
 | --- | --- | --- |
@@ -568,7 +578,7 @@ thresholds and the reviewed workload still require a recorded decision.
 | Engine access costs | Paired memtx/Vinyl point, full, secondary equality/range, changing-key probes and two Vinyl LSM states; experimental per-engine model predicts 8/8 held-out equivalent rankings, including a held-out size. An offline integer-LogEst candidate preserves 8/8 with known cardinalities but 7/8 with the older captured estimates. | Re-capture the access-cost corpus with histogram estimates; then validate cache/read-amplification, repeated nested-loop probes, and JOIN latency on independent fixtures. Calibrate the common unit for DP composition before considering a production formula. |
 | Selectivity and legality | Literal equality MCV estimates follow dependency-free equivalence chains; leading-part literal ranges use volatile histograms; flat INNER exact oracle and CROSS/LEFT exclusions are tested. Test-only VDBE counters provide stage-matched prefix actuals. The oracle is explicitly restricted to top-level SELECTs. | Improve repeated JOIN-inner fanout/correlation, then broaden histogram use beyond leading compile-time literal bounds and define empty/stale confidence policy. Formalize legality/properties before any broader enumerator. |
 | Exact comparator | Opt-in exhaustive left-deep nested-loop oracle exists for eligible 2–4-relation flat INNER JOINs, bounded by 65,536 paths. Peak retained frontier reached 1260 in the pilot. | Use it as an estimated-objective comparator on larger *supported* cases only after scaling limits are explicit. Connected-subgraph or DPhyp/bushy search needs a separate legality and physical-operator design. |
-| Production policy | Defaults remain `(1,5,10)`; wider `(2,8,16)` and exact search are experimental. | Compare paired runtime, planning cost, cardinality error, and regressions by graph and engine against reviewed limits. Decide whether any budget/graph-aware transition is warranted. |
+| Production policy | Defaults remain `(1,5,10)`; wider `(2,8,16)` and exact search are experimental. The diagnostic decision is to make no production transition under current evidence. | Compare paired runtime, planning cost, cardinality error, and regressions by graph and engine against reviewed limits before reopening a budget/graph-aware transition. |
 
 The workload/instrumentation, cost-calibration, and selectivity/legality tracks
 can proceed in separate worktrees. Their interfaces meet at a reviewed paired

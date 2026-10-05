@@ -93,7 +93,8 @@ flowchart TD
     G2 --> H["M3.5: production fallback gate"]
     C --> H
     H --> H2["M3.7: feature flag"]
-    P["Human gate: approve persistent IDs / formats"] --> Q["S1.1 + S2.1: persistent spaces"]
+    P["Approved relation/index IDs and formats"] --> Q["S1.1 persistent spaces"]
+    P2["Human gate: approve column IDs / formats"] --> Q2["S2.1 persistent column space"]
     E --> R["S1.5: memtx sampling"]
     R --> R2["S1.6: Vinyl bounded-work strategy"]
     E --> S0["S1.3a: volatile collector + candidate snapshot"]
@@ -104,7 +105,7 @@ flowchart TD
     Q --> S2
     S1 --> T["S1.7-1.9: adapter + validation"]
     S2 --> T
-    Q --> U["S2 persistence / where.c integration"]
+    Q2 --> U["S2 persistence / where.c integration"]
     F --> U
     U --> V["S2 integrated"]
     T --> W["S1 integrated"]
@@ -125,7 +126,8 @@ The in-memory S1 snapshot, S2 algorithms, and M3 IR/lowering prototypes are
 independent tracks after their stated contracts; they can use isolated
 worktrees. Engine samplers and S1.3a's volatile collector are independent of
 persistent IDs, but must honor the shared sampler/snapshot contracts.
-S1.3b persistence and any persistent ANALYZE behavior stay behind the human
+S1.3b persistence is now behind implementation of the approved relation/index
+format; any future S2 column persistence remains behind its own human
 IDs/formats gate. M3 can use fixed/current estimates while statistics are
 built; E1 acceptance waits for integrated M3 and S2.
 
@@ -598,8 +600,10 @@ Bootstrap, upgrade, writer/reader, and recovery implementation remain open.
   collection, named relation replacement, system-space no-op, missing/view
   errors, unsupported-index atomic failure, and row counts. The focused test
   and `sql_replay_input.test` pass locally. No persistence has been added.
-  This does not authorize persistence choices;
-  S1.1's schema remains DRAFT. The compatibility baseline from the historical
+  The relation/index persistence contract was subsequently approved on
+  2026-10-05; its IDs (382/383) have been reserved, but S1.1 has not yet
+  implemented bootstrap, upgrade, writing, reading, or recovery. The
+  compatibility baseline from the historical
   `sqlAnalyze` implementation is now source-audited: bare form visits
   non-system, non-view spaces and all indexes; named missing-space and view
   targets error. The volatile contract now explicitly preserves named
@@ -856,13 +860,13 @@ Bootstrap, upgrade, writer/reader, and recovery implementation remain open.
   reproduce here. The shared-view candidate builder now runs against memtx and
   Vinyl and stale-after-commit publication fails closed; production ANALYZE
   wiring and target discovery remain open. Fixed budget policy is decided;
-  runtime wiring must still enforce it atomically.
-  The persistence schema remains
-  DRAFT; no IDs or formats changed. See `sql_stats_sampling.md` for runtime
-  details.
-- [ ] **S1.3b** Persist collection generation transactionally after S1.1 review.
-  This is the persistence half of S1.3 and must not start before human approval
-  of system-space IDs and tuple/payload formats. *parallel: no*.
+  runtime wiring must still enforce it atomically. The approved persistence
+  schema has not changed these volatile semantics. See `sql_stats_sampling.md`
+  for runtime details.
+- [ ] **S1.3b** Persist a collection generation transactionally after S1.1.
+  This is the persistence half of S1.3 and must use the approved relation/index
+  IDs, positional tuples, UUID generation, and same-generation publication
+  contract. *parallel: no*.
   The sampler boundaries are implemented, but engine population semantics
   are not interchangeable: memtx `index_size()` subtracts active-transaction
   invisible tuples, whereas
@@ -870,7 +874,7 @@ Bootstrap, upgrade, writer/reader, and recovery implementation remain open.
   obsolete versions/tombstones. Vinyl visible population requires successful
   exhaustive EOF, so budget exhaustion must fail collection closed. See
   `sql_stats_sampling.md` for the volatile candidate-builder contract; see
-  `sql_stats_schema.md` for the explicitly unapproved persistence proposal.
+  `sql_stats_schema.md` for the approved persistence contract.
 - [x] **S1.4 prototype** `SqlStatsSnapshot` API — immutable deep copy,
   reference-counted ownership, catalog/schema versions, relation/index
   cardinalities, confidence and freshness metadata, stale/missing lookup
@@ -3691,6 +3695,16 @@ successful planner snapshots, only 6,314 and 6,237 respectively used
 `current_where_c`; the rest were fallback or null path classes. This therefore
 does not establish the value of wider bounds for an integrated M3/S2 planner.
 
+**Four-step decision-loop completion (2026-10-05):** a strict, matching-source
+audit at `b632e2c3f1` repeated the E1 fixture with default, wider, and exact
+oracle modes. The report has decision-grade provenance; the selected-prefix
+sample has 26 finite q-errors (median 2.0, maximum 7.33) and three explicit
+unbounded stages on each engine. This confirms the limited policy above:
+retain 1/5/10 in production and keep wider/exact modes experimental or
+opt-in. It closes the four-step diagnostic decision loop, not E1 acceptance:
+the representative workload, thresholds, and integrated M3/S2 evaluation
+remain open.
+
 Before E1 can be accepted or the defaults reconsidered, record all of the
 following in a reviewed decision report:
 
@@ -3873,11 +3887,12 @@ coexist via the M3.5 fallback path.
 
 ### System-space allocation
 
-`_sql_stats_relation`, `_sql_stats_index`, `_sql_stats_column` are
-permanent on-disk schema changes. Each requires human review and explicit
-allocation of system-space IDs before the corresponding subtask
-(`S1.1`, `S2.1`) starts implementation. These are the only one-way doors
-in the roadmap.
+`_sql_stats_relation`, `_sql_stats_index`, `_sql_stats_column` are permanent
+on-disk schema changes. Relation/index IDs and their v1 format are approved
+and reserved (382/383), so S1.1 may begin implementation; it still requires
+bootstrap, upgrade, recovery, and compatibility tests before use. The column
+space remains unallocated and requires human review before S2.1 starts. These
+are the only one-way doors in the roadmap.
 
 ---
 

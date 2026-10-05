@@ -11,8 +11,9 @@
 This contract covers the first persisted relation and index summaries needed
 by S1. It does not define column sketches or histograms (S2), collection
 algorithms, SQL grammar, or the `SqlStatsSnapshot` in-memory ABI. The active
-tree currently has no `_sql_stats_relation` or `_sql_stats_index`, no
-`ANALYZE` grammar, and no stats snapshot loader. Existing estimates come from
+tree currently has no `_sql_stats_relation` or `_sql_stats_index`, and no
+persisted-stats snapshot loader. `ANALYZE` grammar and volatile collection
+exist, but do not write this format. Existing estimates come from
 `default_tuple_est[]` and live primary-index size; historical `_sql_stat1` /
 `_sql_stat4` support is vestigial (see `s0_audit_report.md`).
 
